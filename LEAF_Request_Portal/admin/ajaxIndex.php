@@ -288,8 +288,7 @@ switch ($action) {
                 $t_form->assign('titleOverride', ' ');
                 break;
             case 'design':
-                $logger  = new \Leaf\DataActionLogger($db, $login);
-                $type = new Portal\Design($db, $login, $logger);
+                $type = new Portal\Design($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }

@@ -62,10 +62,7 @@ $controllerMap->register('site', function () use ($p_db, $login, $action) {
 });
 
 $controllerMap->register('design', function () use ($p_db, $login, $action) {
-    //$setting = new LEAF\Setting($p_db); $setting = new Portal\Setting
-    $dataActionLogger = new \Leaf\DataActionLogger($p_db, $login);
-    $design = new Portal\Design($p_db, $login, $dataActionLogger);
-    
+    $design = new Portal\Design($p_db, $login);
     $designController = new Portal\DesignController($design);
     echo $designController->handler($action);
 });

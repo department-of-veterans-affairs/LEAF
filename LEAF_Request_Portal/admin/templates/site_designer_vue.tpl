@@ -10,17 +10,19 @@
                         <i class="fas fa-caret-right leaf-crumb-caret"></i>Site Designer
                     </h2>
                 </div>
-                <label v-show="isEditingMode && currentDesignID > 0" for="edit_design_name_input"
-                    style="margin: 0; font-size: 1.25rem;">title&nbsp;
-                    <input type="text" id="edit_design_name_input" maxlength="50" v-model.lazy="currentDesignName" />
-                    &nbsp;(<span :style="{color: enabled ? '#AA0000' : '#000000'}">{{ enabled ? 'active' : 'draft'}}</span>)
-                </label>
+                <div>
+                    <label v-show="isEditingMode && currentDesignID > 0" for="edit_design_name_input"
+                        style="margin: 0 0 0 auto; font-size: 1.25rem;">title&nbsp;
+                        <input type="text" id="edit_design_name_input" maxlength="50" v-model.lazy="currentDesignName" />
+                        &nbsp;(<span :style="{color: enabled ? '#AA0000' : '#000000'}">{{ enabled ? 'active' : 'draft'}}</span>)
+                    </label>
+                </div>
                 <div v-show="currentDesignID > 0" style="gap: 1rem;">
                     <button type="button" class="btn-general" style="margin-left:auto;" @click="setEditMode(!isEditingMode)">
                         {{isEditingMode ? 'Preview ' : 'Edit '}} Page
                     </button>
                     <button type="button" @click="publishTemplate(enabled ? 0 : currentDesignID, currentView)"
-                        class="btn-confirm" :class="{delete: enabled}" :disabled="appIsUpdating">
+                        class="btn-confirm" :class="{delete: enabled}" :disabled="appIsUpdating || selectedDesign?.designContent==='{}'">
                         {{ enabled ? 'Disable Page' : 'Publish Page'}}
                     </button>
                 </div>
@@ -45,7 +47,7 @@
                 <button type="button" class="btn-general" @click="openNewDesignDialog"
                     :title="'create a new setting for the '+ currentView">+ New
                 </button>
-                <button v-if="currentDesignID!==currentViewEnabledDesignID" type="button"
+                <button v-if="currentDesignID > 0 && currentDesignID!==currentViewEnabledDesignID" type="button"
                     class="btn-confirm delete" title="Delete this design"
                     @click="openDeleteDesignDialog">Delete
                 </button>

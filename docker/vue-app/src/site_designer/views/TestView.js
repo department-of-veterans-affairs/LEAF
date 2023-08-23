@@ -1,14 +1,16 @@
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import ConfirmPublishDialog from "../components/dialog_content/ConfirmPublishDialog.js";
+import ConfirmDeleteDialog from "../components/dialog_content/ConfirmDeleteDialog.js";
 import NewDesignDialog from "../components/dialog_content/NewDesignDialog.js";
+import HistoryDialog from "../components/dialog_content/HistoryDialog.js";
 
 export default {
     name: 'testpage',
     inject: [
         'appIsGettingData',
         'showFormDialog',
-        'selectedDesign',
-        'setBasicDesignInfo',
+        'currentDesignID',
+        'currentView',
         'dialogFormContent'
     ],
     created() {
@@ -17,7 +19,9 @@ export default {
     components: {
         LeafFormDialog,
         ConfirmPublishDialog,
-        NewDesignDialog
+        ConfirmDeleteDialog,
+        NewDesignDialog,
+        HistoryDialog
     },
     watch: {
         selectedDesign(newVal, oldVal) {
@@ -26,7 +30,6 @@ export default {
             } else {
                 console.log('null')
             }
-            this.setBasicDesignInfo();
         }
     },
     template: `<div v-if="appIsGettingData" style="border: 2px solid black; text-align: center; 
@@ -38,7 +41,7 @@ export default {
         <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
-                <component :is="dialogFormContent"></component>
+                <component :is="dialogFormContent" historyType="design" :historyID="currentView"></component>
             </template>
         </leaf-form-dialog>
     </div>`

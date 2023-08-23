@@ -18,11 +18,12 @@ class Design
     private $template_options = array('homepage','testpage');
 
 
-    public function __construct($db, $login, $dataActionLogger)
+    public function __construct($db, $login)
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = $dataActionLogger;
+
+        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
         
         $protocol = 'https';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
@@ -34,9 +35,10 @@ class Design
         $strSQL = 'SELECT designID, templateName, designName, designContent FROM template_designs';
         return $this->db->prepared_query($strSQL, null) ?? [];
     }
+
     public function getHistory(?string $filterById): array
     {
-        return $this->dataActionLogger->getHistory($filterById, "designID", \Leaf\LoggableTypes::TEMPLATE_DESIGN);
+        return $this->dataActionLogger->getHistory($filterById, "templateName", \Leaf\LoggableTypes::TEMPLATE_DESIGN);
     }
 
 
@@ -106,7 +108,7 @@ class Design
             $return_value = $this->db->pdo_insert_query($strSQL, $vars);
             $newDesignID = $this->db->getLastInsertID();
             $return_value['data'] = (int)$newDesignID;
-
+            //using CREATE for newDesign.
             $this->dataActionLogger->logAction(\Leaf\DataActions::CREATE, \Leaf\LoggableTypes::TEMPLATE_DESIGN, [
                 new \Leaf\LogItem("template_designs", "designID", $newDesignID),
                 new \Leaf\LogItem("template_designs", "templateName", $templateName)
@@ -139,7 +141,6 @@ class Design
             );
 
             $return_value = $this->db->pdo_update_query($strSQL, $vars);
-
             $return_value['data'] = $designContent;
 
             $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::TEMPLATE_DESIGN, [
@@ -156,6 +157,28 @@ class Design
         return $return_value;
     }
 
+    public function deleteDesign(int $designID, string $templateName) {
+        if (!$this->login->checkGroup(1)) {
+            $return_value['status']['code'] = 4;
+            $return_value['status']['message'] = "Admin access required";
+
+        } else {
+            $strSQL = 'DELETE FROM template_designs WHERE designID=:designID';
+            $vars = array(
+                ':designID' => $designID,
+            );
+
+            $return_value = $this->db->pdo_delete_query($strSQL, $vars);
+            $return_value['data'] = $designID;
+
+            $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::TEMPLATE_DESIGN, [
+                new \Leaf\LogItem("template_designs", "designID", $designID),
+                new \Leaf\LogItem("template_designs", "templateName", $templateName)
+            ]);
+        }
+        return $return_value;
+    }
+
     public function publishTemplate(int $designID = 0, string $templateName = ''): array {
         if (!$this->login->checkGroup(1)) {
             $return_value['status']['code'] = 4;
@@ -163,7 +186,6 @@ class Design
 
         } elseif (in_array($templateName, $this->template_options)) {
             $settings_key = $templateName.'_enabled';
-            //NOTE: potentially pass to Setting class instead
 
             $strSQL = 'INSERT INTO settings (setting, `data`)
                 VALUES (:settings_key, :designID)
@@ -178,6 +200,7 @@ class Design
                 'setting' => $settings_key,
                 'published' => $designID
             );
+            //TODO: feedback. add loggable types PUBLISH / UNPUBLISH ?
             
         } else {
             $return_value['status']['code'] = 4;

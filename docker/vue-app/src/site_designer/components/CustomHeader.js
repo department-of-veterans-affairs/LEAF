@@ -34,7 +34,7 @@ export default {
         'appIsUpdating',
         'header',
         'truncateText',
-
+        'openHistoryDialog',
         'isEditingMode',
         'APIroot',
         'rootPath'
@@ -100,7 +100,12 @@ export default {
     template: `<section id="custom_header">
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
-            <h3>Header Controls</h3>
+            <div class="design_editing_header">
+                <h3>Header Controls</h3>
+                <button type="button" id="custom_header_last_update" @click.prevent="openHistoryDialog"
+                    style="display: none;">
+                </button>
+            </div>
             <label for="header_title">Header Text
                 <textarea id="header_title" v-model="title" rows="4"></textarea>
             </label>

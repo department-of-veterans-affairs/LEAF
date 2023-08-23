@@ -95,7 +95,7 @@ footer#footer {
         margin-bottom: 1rem;
         flex-wrap: wrap;
         justify-content: space-between;
-        > * {
+        > div {
             display: flex;
             align-items: center;
             flex: 1;
@@ -126,7 +126,16 @@ footer#footer {
             width: 80px;
         }
     }
-
+    .design_editing_header {
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        button {
+            background-color: transparent;
+            color: $LtNavy;
+        }
+    }
     #menu_and_search {
         margin: auto;
         width: -moz-fit-content;

@@ -70,8 +70,10 @@ class DesignController extends RESTfulResponse
 
         $this->index['DELETE'] = new ControllerMap();
 
-        $this->index['DELETE']->register('design/delete/[digit]', function ($args) use ($design) {
-            return $design->deleteDesign($args[0]);
+        $this->index['DELETE']->register('design/delete/[digit]/[text]', function ($args) use ($design) {
+            $designID = \Leaf\XSSHelpers::xscrub($args[0]);
+            $templateName = \Leaf\XSSHelpers::xscrub($args[1]);
+            return $design->deleteDesign((int)$designID, $templateName);
         });
 
         return $this->index['DELETE']->runControl($act['key'], $act['args']);

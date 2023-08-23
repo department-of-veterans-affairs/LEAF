@@ -1,5 +1,5 @@
 export default {
-    name: 'history-dialog', //TODO: replace form editor version
+    name: 'history-dialog', //NOTE: this might potentially mv to common after FE modal refactor
     data() {
         return {
             divSaveCancelID: 'leaf-vue-dialog-cancel-save',
@@ -13,7 +13,7 @@ export default {
             required: true            
         },
         historyID: {
-            type: [String,Number],
+            type: [String, Number],
             required: true
         }
     },
@@ -49,7 +49,8 @@ export default {
             }
         }
     },
-    template:`<div id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
+    template:`<div>
+        <div id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
         <div id="history-page-buttons" style="display: flex; justify-content: space-between;">
             <button v-if="showPrev" id="prev" type="button"
                 class="btn-general"
@@ -63,5 +64,6 @@ export default {
                 @click="getNext" title="get next page">
                 Next page
             </button>
-        </div>`
+        </div>
+    </div>`
 }

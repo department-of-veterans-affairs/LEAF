@@ -140,7 +140,8 @@ export default {
         'appIsUpdating',
         'searchHeaders',
         'updateHomeDesign',
-        'currentDesignID'
+        'currentDesignID',
+        'openHistoryDialog'
     ],
     computed: {
         searchJoins() {
@@ -402,7 +403,12 @@ export default {
     },
     template: `<section style="display: flex; flex-direction: column;" :style="{margin: isEditingMode ? '0' : 'auto'}" :key="'searchsection_' + currentDesignID">
         <div v-show="isEditingMode" id="edit_search">
-            <h3>Search Controls</h3>
+            <div class="design_editing_header">
+                <h3>Search Controls</h3>
+                <button type="button" id="custom_search_last_update" @click.prevent="openHistoryDialog"
+                    style="display: none;">
+                </button>
+            </div>
             <p>Select table headers in the order that you would like them to appear 
             (Choose no headers for no search section).</p>
             <label :id="choicesSelectID + '_label'" style="display:block;">Selected headers

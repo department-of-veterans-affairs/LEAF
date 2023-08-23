@@ -13,7 +13,7 @@ export default {
             userID: userID,
             allDesignData: null,
             designSettings: null,
-            customizableViews: ['homepage'], //each is a router view  'testpage'
+            customizableViews: ['homepage', 'testpage'], //each is a router view  'testpage'
             currentDesignID: null,
             currentDesignName: null,
 
@@ -52,13 +52,13 @@ export default {
             truncateText: this.truncateText,
             publishTemplate: this.publishTemplate,
             newDesign: this.newDesign,
+            deleteDesign: this.deleteDesign,
             postDesignContent: this.postDesignContent,
             generateID: this.generateID,
-            setBasicDesignInfo: this.setBasicDesignInfo,
             openDesignCardDialog: this.openDesignCardDialog,
+            openHistoryDialog: this.openHistoryDialog,
 
             /** dialog  */
-            openDialog: this.openDialog,
             closeFormDialog: this.closeFormDialog,
             setDialogTitleHTML: this.setDialogTitleHTML,
             setDialogButtonText: this.setDialogButtonText,
@@ -100,6 +100,18 @@ export default {
         setView(event) {
             this.$router.push({ name: event.target.value });
         },
+        showLastUpdate(elementID = '') {
+            const lastUpdated = new Date().toLocaleString();
+            const el = document.getElementById(elementID);
+            if(el !== null) {
+                el.innerText = `last modified: ${lastUpdated}`;
+                el.style.display = 'flex';
+                el.style.border = '2px solid #20a0f0';
+                setTimeout(() => {
+                    el.style.border = '2px solid transparent';
+                }, 750);
+            }
+        },
         generateID(arrList = [], keyName = 'id') {
             let result = '';
             do {
@@ -125,11 +137,11 @@ export default {
                 console.error(`error getting icons: ${error.message}`);
             }
         },
-        async postDesignContent(inputJSON = '{}') {
+        async postDesignContent(inputJSON = '{}', section = '') {
             this.appIsUpdating = true;
             try {
                 let formData = new FormData();
-                formData.append('CSRFToken', CSRFToken);
+                formData.append('CSRFToken', this.CSRFToken);
                 formData.append('inputJSON', inputJSON);
                 formData.append('templateName', this.currentView);
 
@@ -141,6 +153,19 @@ export default {
                 const data = await response.json();
                 if(+data?.status?.code === 2) {
                     this.updateAppDesignData(designID, inputJSON);
+
+                    switch(section) {
+                        case 'menuCardList':
+                        case 'menuDirection':
+                            this.showLastUpdate('custom_menu_last_update');
+                            break;
+                        case 'searchHeaders':
+                            this.showLastUpdate('custom_search_last_update');
+                        default:
+                            this.showLastUpdate(`custom_${section}_last_update`);
+                        break;
+                    }
+
                 } else {
                     console.log('unexpected response returned:', data);
                 }
@@ -160,7 +185,7 @@ export default {
                     this.appIsUpdating = true;
                     try {
                         let formData = new FormData();
-                        formData.append('CSRFToken', CSRFToken);
+                        formData.append('CSRFToken', this.CSRFToken);
                         formData.append('designID', designID);
                         formData.append('templateName', templateName);
 
@@ -186,7 +211,7 @@ export default {
                 console.log('this page cannot be published');
             }
         },
-        async getDesignData(newDesign = false) {
+        async getDesignData() {
             this.appIsGettingData = true;
             try {
                 const settingResponse = await fetch(`${this.APIroot}system/settings`);
@@ -199,11 +224,6 @@ export default {
                 const designResponse = await fetch(`${this.APIroot}design/designList`);
                 this.allDesignData = await designResponse.json();
 
-                if(newDesign === true) { //TODO: have returned new ID now, can just add the info to allDesigns instead of repulling
-                    const ids = this.allDesignData.map(d => +d.designID);
-                    this.currentDesignID = Math.max(...ids);
-                }
-
             } catch (error) {
                 console.error(`error getting settings: ${error.message}`);
             } finally {
@@ -214,7 +234,7 @@ export default {
             this.appIsUpdating = true;
             try {
                 let formData = new FormData();
-                formData.append('CSRFToken', CSRFToken);
+                formData.append('CSRFToken', this.CSRFToken);
                 formData.append('templateName', this.currentView);
                 formData.append('designName', designName);
 
@@ -223,9 +243,14 @@ export default {
                     body: formData
                 });
                 const data = await response.json();
-                if(+data?.status?.code === 2) {
-                    console.log(data);
-                    this.getDesignData(true);
+                if(+data?.status?.code === 2 && Number.isInteger(data?.data)) {
+                    this.allDesignData.push({
+                        designID: data.data,
+                        templateName: this.currentView,
+                        designName: designName,
+                        designContent: '{}'
+                    });
+                    this.currentDesignID = data.data;
                 } else {
                     console.log('unexpected response returned:', data);
                 }
@@ -236,8 +261,25 @@ export default {
                 this.appIsUpdating = false;
             }
         },
-        setBasicDesignInfo() {
-            this.currentDesignName = this.selectedDesign?.designName || '';
+        async deleteDesign(id = 0, templateName = '') {
+            this.appIsUpdating = true;
+            try {
+                const response = await fetch(`${this.APIroot}design/delete/${id}/_${templateName}?CSRFToken=${this.CSRFToken}`, {
+                    method: 'DELETE',
+                });
+                const data = await response.json();
+                if(+data?.status?.code === 2) {
+                    this.currentDesignID = 0;
+                    this.allDesignData = this.allDesignData.filter(d => +d.designID !== +id)
+                } else {
+                    console.log('unexpected response returned:', data);
+                }
+
+            } catch (error) {
+                console.log(error);
+            } finally {
+                this.appIsUpdating = false;
+            }
         },
         /**
          * @param {number} designID of record to update
@@ -253,35 +295,33 @@ export default {
         openNewDesignDialog() {
             this.setDialogTitleHTML(`<h2>Creating a new item for the ${this.currentView}</h2>`);
             this.setDialogContent('new-design-dialog');
-            this.openDialog();
+            this.showFormDialog = true;
         },
         openDeleteDesignDialog() {
-            this.setDialogTitleHTML(`<h2>Confirm to delete this setting</h2>`);
-            console.log('TODO:')
-            this.openDialog();
+            this.setDialogTitleHTML(`<h2>Please Confirm</h2>`);
+            this.dialogButtonText = { confirm: 'Delete', cancel: 'Cancel'};
+            this.setDialogContent('confirm-delete-dialog');
+            this.showFormDialog = true;
         },
         openConfirmPublishDialog() {
             this.setDialogTitleHTML('<h2>Please Confirm</h2>');
             this.dialogButtonText = { confirm: 'Confirm', cancel: 'Cancel'};
             this.setDialogContent('confirm-publish-dialog');
-            this.openDialog();
+            this.showFormDialog = true;
         },
         openDesignCardDialog() {
             this.setDialogTitleHTML('<h2>Menu Editor</h2>');
             this.setDialogContent('design-card-dialog');
-            this.openDialog();
+            this.showFormDialog = true;
         },
         openHistoryDialog() {
-            this.setDialogTitleHTML(`<h2>Showing History</h2>`);
+            this.setDialogTitleHTML(`<h2>Showing ${this.currentView} History</h2>`);
             this.setDialogContent('history-dialog');
             this.showFormDialog = true;
         },
 
         /** basic modal methods.  Use a component name to set the dialog's content.
         /** Components must be registered to the component containing the dialog */
-        openDialog() {
-            this.showFormDialog = true;
-        },
         closeFormDialog() {
             this.showFormDialog = false;
             this.dialogTitle = '';
@@ -309,7 +349,6 @@ export default {
         currentView(newVal, oldVal) {
             if(this.customizableViews.includes(newVal)) {
                 this.currentDesignID = this.currentViewEnabledDesignID || 0;
-                this.setBasicDesignInfo();
             }
         },
         designSettings(newVal, oldVal) {
@@ -317,8 +356,11 @@ export default {
                 this.currentDesignID = this.currentViewEnabledDesignID || 0;
             }
         },
+        selectedDesign(newVal, oldVal) {
+            this.currentDesignName = this.selectedDesign === null ? null : this.selectedDesign.designName;
+        },
         currentDesignName(newVal, oldVal) {
-            if(oldVal !== null) {
+            if(newVal !== null && newVal !== this.selectedDesign?.designName) {
                 console.log('TODO update name to', newVal);
             }
         }

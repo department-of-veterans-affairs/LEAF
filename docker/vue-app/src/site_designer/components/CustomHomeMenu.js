@@ -71,7 +71,8 @@ export default {
         'appIsUpdating',
         'updateMenuItemList',
         'updateHomeDesign',
-        'setMenuItem'
+        'setMenuItem',
+        'openHistoryDialog'
     ],
     computed: {
         sectionStyles() {
@@ -174,7 +175,12 @@ export default {
     template: `<section id="custom_menu" :style="sectionStyles">
         <div id="menu_wrapper" :class="{editMode: isEditingMode}">
             <div v-show="isEditingMode">
-                <h3>Card Controls</h3>
+                <div class="design_editing_header">
+                    <h3>Card Controls</h3>
+                    <button type="button" id="custom_menu_last_update" @click.prevent="openHistoryDialog"
+                        style="display: none;">
+                    </button>
+                </div>
                 <p style="padding-top: 0.5em;">
                     Drag-Drop cards or use the up and down buttons to change their order.&nbsp;&nbsp;Use the card menu to edit text and other values.
                 </p>
