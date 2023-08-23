@@ -111,11 +111,7 @@ class System
                         $backups = $this->addBackups($service['groupID'], false);
 
                         if ($backups['status']['code'] == 2) {
-                            // check if this service is also an ELT
-                            // if so, update groups table
-                            $tagged = $tag->groupIsTagged($serviceID, Config::$orgchartImportTags[0]);
-
-                            if ($serviceID == $quadID && $tagged['status']['code'] == 2 && !empty($tagged['data'])) {
+                            if ($serviceID == $quadID) {
                                 $this->updateGroup($serviceID, $oc_db);
                             } else {
                                 // make sure this is not in the groups table?

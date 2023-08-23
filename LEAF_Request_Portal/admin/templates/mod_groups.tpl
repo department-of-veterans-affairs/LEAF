@@ -412,15 +412,19 @@ function addAdmin(userID) {
 }
 
 function removeAdmin(userID) {
-    $.ajax({
-    	type: 'DELETE',
-        url: "../api/group/1/members/" + userID,
-        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-        	getMembers(1);
-        },
-        cache: false
-    });
+    if (userID === '') {
+        return;
+    } else {
+        $.ajax({
+            type: 'DELETE',
+            url: "../api/group/" + 1 + "/members/_" + userID + "?" +
+                            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+            success: function(response) {
+                getMembers(1);
+            },
+            cache: false
+        });
+    }
 }
 
 function unsetPrimaryAdmin() {
