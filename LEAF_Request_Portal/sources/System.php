@@ -831,7 +831,8 @@ class System
 
         $sql = 'DELETE
                 FROM `service_chiefs`
-                WHERE `serviceID` = :serviceID';
+                WHERE `serviceID` = :serviceID
+                AND `locallyManaged` = 0';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
