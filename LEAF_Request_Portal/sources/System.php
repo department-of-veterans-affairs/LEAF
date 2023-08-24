@@ -933,7 +933,7 @@ class System
         $sql = 'INSERT INTO `services` (`serviceID`, `service`,
                     `abbreviatedService`, `groupID`)
                 VALUES (:serviceID, :service, :abbrService, :groupID)
-                ON DUPLICATE KEY UPDATE `serviceID` = :serviceID, `groupID` = :groupID,
+                ON DUPLICATE KEY UPDATE `service` = :service, `groupID` = :groupID,
                     `abbreviatedService` = :abbrService';
 
         $return_value = $this->db->pdo_insert_query($sql, $vars);
