@@ -847,7 +847,8 @@ class System
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
         $sql = 'DELETE
-                FROM `service_chiefs`';
+                FROM `service_chiefs`
+                WHERE `locallyManaged` = 0';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
@@ -881,7 +882,8 @@ class System
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
         $sql = 'DELETE
-                FROM `users`';
+                FROM `users`
+                WHERE `locallyManaged` = 0';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
