@@ -60,86 +60,94 @@ class System
             $position = new \Orgchart\Position($oc_db, $this->login);
             $tag = new \Orgchart\Tag($oc_db, $this->login);
 
-            $leader_id = $group->getGroupLeader($serviceID);
-            $tag_parent = $tag->getParent('service');
+            $removeServices = $this->removeService($serviceID);
 
-            $leader = $position->findRootPositionByGroupTag($leader_id, $tag_parent);
+            if ($removeServices['status']['code'] == 2) {
+                $leader_id = $group->getGroupLeader($serviceID);
+                $tag_parent = $tag->getParent('service');
 
-            if (isset($leader[0])) {
-                $quadID = $leader[0]['groupID'];
+                $leader = $position->findRootPositionByGroupTag($leader_id, $tag_parent);
 
-                $service = $group->getGroup($serviceID)[0];
+                if (isset($leader[0])) {
+                    $quadID = $leader[0]['groupID'];
 
-                $abbrService = isset($service['groupAbbreviation']) ? $service['groupAbbreviation'] : '';
+                    $service = $group->getGroup($serviceID)[0];
 
-                $insert_service = $this->insertService($service['groupID'], $service['groupTitle'], $abbrService, $quadID);
+                    $abbrService = isset($service['groupAbbreviation']) ? $service['groupAbbreviation'] : '';
 
-                if ($insert_service['status']['code'] == 2) {
-                    $delete_chief_backups = $this->deleteChiefs($service['groupID']);
+                    $insert_service = $this->insertService($service['groupID'], $service['groupTitle'], $abbrService, $quadID);
 
-                    if ($delete_chief_backups['status']['code'] == 2) {
-                        $leaderGroupID = $group->getGroupLeader($service['groupID']);
+                    if ($insert_service['status']['code'] == 2) {
+                        $delete_chief_backups = $this->deleteChiefs($service['groupID']);
 
-                        $resEmp = $position->getEmployees($leaderGroupID);
+                        if ($delete_chief_backups['status']['code'] == 2) {
+                            $leaderGroupID = $group->getGroupLeader($service['groupID']);
 
-                        $return_value = array(
-                            'status' => array(
-                                'code' => 2,
-                                'message' => ''
-                            )
-                        );
+                            $resEmp = $position->getEmployees($leaderGroupID);
 
-                        foreach ($resEmp as $emp) {
-                            if ($emp['userName'] != '') {
-                                $insert_chief = $this->insertChief($emp['userName'], $service['groupID']);
+                            $return_value = array(
+                                'status' => array(
+                                    'code' => 2,
+                                    'message' => ''
+                                )
+                            );
 
-                                if ($insert_chief['status']['code'] == 2) {
-                                    // nothing to do here, just keep going
-                                } else {
-                                    $return_value = array(
-                                        'status' => array(
-                                            'code' => 4,
-                                            'message' => 'Chief unable to be added'
-                                        )
-                                    );
+                            foreach ($resEmp as $emp) {
+                                if ($emp['userName'] != '') {
+                                    $insert_chief = $this->insertChief($emp['userName'], $service['groupID']);
 
-                                    break;
+                                    if ($insert_chief['status']['code'] == 2) {
+                                        // nothing to do here, just keep going
+                                    } else {
+                                        $return_value = array(
+                                            'status' => array(
+                                                'code' => 4,
+                                                'message' => 'Chief unable to be added'
+                                            )
+                                        );
+
+                                        break;
+                                    }
                                 }
                             }
-                        }
 
-                        if ($return_value['status']['code'] == 2) {
-                            $backups = $this->addBackups($service['groupID'], false);
+                            if ($return_value['status']['code'] == 2) {
+                                $backups = $this->addBackups($service['groupID'], false);
 
-                            if ($backups['status']['code'] == 2) {
-                                // check if this service is also an ELT
-                                // if so, update groups table
-                                $tagged = $tag->groupIsTagged($serviceID, Config::$orgchartImportTags[0]);
+                                if ($backups['status']['code'] == 2) {
+                                    // check if this service is also an ELT
+                                    // if so, update groups table
+                                    $tagged = $tag->groupIsTagged($serviceID, Config::$orgchartImportTags[0]);
 
-                                if ($serviceID == $quadID && $tagged['status']['code'] == 2 && !empty($tagged['data'])) {
-                                    $this->updateGroup($serviceID, $oc_db);
+                                    if ($serviceID == $quadID && $tagged['status']['code'] == 2 && !empty($tagged['data'])) {
+                                        $this->updateGroup($serviceID, $oc_db);
+                                    } else {
+                                        // make sure this is not in the groups table?
+                                        $this->removeGroup($serviceID);
+                                    }
                                 } else {
-                                    // make sure this is not in the groups table?
-                                    $this->removeGroup($serviceID);
+                                    $return_value = $backups;
                                 }
-                            } else {
-                                $return_value = $backups;
                             }
+                        } else {
+                            $return_value = $delete_chief_backups;
                         }
                     } else {
-                        $return_value = $delete_chief_backups;
+                        $return_value = $insert_service;
                     }
                 } else {
-                    $return_value = $insert_service;
+                    $return_value = array(
+                        'status' => array(
+                            'code' => 4,
+                            'message' => 'Chief unable to be added'
+                        )
+                    );
                 }
             } else {
-                $return_value = array(
-                    'status' => array(
-                        'code' => 4,
-                        'message' => 'Chief unable to be added'
-                    )
-                );
+                $return_value = $removeServices;
             }
+
+
 
         }
 
@@ -771,12 +779,14 @@ class System
     public function syncSystem(\Orgchart\Group $nexus_group): string
     {
         // update services and service chiefs
+        $this->removeServices();
         $services = $nexus_group->listGroupsByTag('service');
 
         foreach ($services as $service) {
             $this->updateService($service['groupID']);
         }
 
+        $this->removeGroups();
         $groups = $this->getOrgchartImportTags($nexus_group);
         $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
 
@@ -810,6 +820,40 @@ class System
         return $groups;
     }
 
+    private function removeService(int $serviceID): array
+    {
+        $vars = array(':serviceID' => $serviceID);
+        $sql = 'DELETE
+                FROM `services`
+                WHERE `serviceID` = :serviceID';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        $sql = 'DELETE
+                FROM `service_chiefs`
+                WHERE `serviceID` = :serviceID';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    private function removeServices(): array
+    {
+        $vars = array();
+        $sql = 'DELETE
+                FROM `services`';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        $sql = 'DELETE
+                FROM `service_chiefs`';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        return $return_value;
+    }
+
     private function removeGroup(int $groupID): array
     {
         $vars = array(':groupID' => $groupID);
@@ -822,6 +866,22 @@ class System
         $sql = 'DELETE
                 FROM `users`
                 WHERE `groupID` = :groupID';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    private function removeGroups(): array
+    {
+        $vars = array();
+        $sql = 'DELETE
+                FROM `groups`';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        $sql = 'DELETE
+                FROM `users`';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
