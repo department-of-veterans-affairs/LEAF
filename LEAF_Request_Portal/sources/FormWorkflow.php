@@ -1071,7 +1071,7 @@ class FormWorkflow
 
                     $dir = new VAMC_Directory;
 
-                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $author = $dir->lookupLogin($approvers[0]['userID']);
                     $email->setSender($author[0]['Email']);
 
                     // Get backups to requester so they can be notified as well
@@ -1123,7 +1123,7 @@ class FormWorkflow
 
                     $dir = new VAMC_Directory;
 
-                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $author = $dir->lookupLogin($approvers[0]['userID']);
                     $email->setSender($author[0]['Email']);
 
                     $eventData = json_decode($event['eventData']);
@@ -1223,8 +1223,8 @@ class FormWorkflow
 
             switch(true) {
                 case (str_starts_with($format, "grid") != false):
-                    if ($this->isJsonString($data) && is_array(json_decode($data))) {
-                        $data = $this->buildGrid(json_decode($data));
+                    if(!empty($data) && is_array(unserialize($data))){
+                        $data = $this->buildGrid(unserialize($data));
                     }
                     break;
                 case (str_starts_with($format, "checkboxes") != false):

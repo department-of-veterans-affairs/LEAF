@@ -353,6 +353,18 @@ function pruneMember(groupID, userID) {
     });
 }
 
+function reactivateMember(groupID, userID) {
+    $.ajax({
+        type: 'POST',
+        url: "../api/group/" + groupID + "/members/_" + userID + "/reactivate",
+        data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+        fail: function(err) {
+            console.log(err);
+        },
+        cache: false
+    });
+}
+
 function addNexusMember(groupID, empUID) {
     $.ajax({
         type: 'POST',
@@ -383,31 +395,36 @@ function toTitleCase(str) {
 }
 
 function addAdmin(userID) {
-    $.ajax({
-        type: 'POST',
-        url: "ajaxIndex.php?a=add_user",
-        data: {'userID': userID,
-               'groupID': 1,
-               'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-        	getMembers(1);
-        },
-        cache: false
-    });
+    if (userID === '') {
+        return;
+    } else {
+        $.ajax({
+            type: 'POST',
+            url: "../api/group/" + 1 + "/members",
+            data: {'userID': userID,
+                'CSRFToken': '<!--{$CSRFToken}-->'},
+            success: function(response) {
+                getMembers(1);
+            },
+            cache: false
+        });
+    }
 }
 
 function removeAdmin(userID) {
-    $.ajax({
-    	type: 'POST',
-        url: "ajaxIndex.php?a=remove_user",
-        data: {'userID': userID,
-        	   'groupID': 1,
-        	   'CSRFToken': '<!--{$CSRFToken}-->'},
-        success: function(response) {
-        	getMembers(1);
-        },
-        cache: false
-    });
+    if (userID === '') {
+        return;
+    } else {
+        $.ajax({
+            type: 'DELETE',
+            url: "../api/group/" + 1 + "/members/_" + userID + "?" +
+                            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+            success: function(response) {
+                getMembers(1);
+            },
+            cache: false
+        });
+    }
 }
 
 function unsetPrimaryAdmin() {
@@ -515,7 +532,12 @@ function getGroupList() {
                                                 actions += '</td>';
                                                 employee_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
                                             } else {
-                                                let pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="pruneMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Prune this user from this group">Prune</button>`;
+                                                let pruneMemberButton = '';
+                                                if (res[i].regionallyManaged === false) {
+                                                    pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="pruneMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Prune this user from this group">Prune</button>`;
+                                                } else {
+                                                    pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="reActivateMember_${counter}" class="usa-button usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Reactivate this user for this group">Reactivate</button>`;
+                                                }
                                                 let actions = `${pruneMemberButton}`;
                                                 actions += '</td>';
                                                 inactive_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
@@ -565,6 +587,16 @@ function getGroupList() {
                                                     dialog_confirm.setContent('Are you sure you want to prune this member?');
                                                     dialog_confirm.setSaveHandler(function () {
                                                         pruneMember(groupID, res[i].userName);
+                                                        dialog_confirm.hide();
+                                                        dialog.hide();
+                                                    });
+                                                    dialog_confirm.show();
+                                                });
+
+                                                $('#reActivateMember_' + counter).on('click', function () {
+                                                    dialog_confirm.setContent('Are you sure you want to Reactivate this member?');
+                                                    dialog_confirm.setSaveHandler(function () {
+                                                        reactivateMember(groupID, res[i].userName);
                                                         dialog_confirm.hide();
                                                         dialog.hide();
                                                     });

@@ -90,6 +90,10 @@ class GroupController extends RESTfulResponse
                 return $group->importGroup(\Leaf\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
             });
 
+            $this->index['POST']->register('group/[digit]/members/[text]/reactivate', function ($args) use ($group) {
+                return $group->reActivateMember($args[1], $args[0]);
+            });
+
             $this->index['POST']->register('group/[digit]/members/[text]/prune', function ($args) use ($group) {
                 return $group->removeMember($args[1], $args[0]);
             });
