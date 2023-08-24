@@ -265,7 +265,8 @@ class Service
             $vars = array(':userID' => $member,
                           ':serviceID' => $groupID, );
             $sql = 'UPDATE `service_chiefs`
-                    SET `active` = 0
+                    SET `active` = 0,
+                    `locallyManaged` = 1
                     WHERE `serviceID` = :serviceID
                     AND (`userID` = :userID
                         OR `backupID` = :userID)';
@@ -273,7 +274,8 @@ class Service
             $this->db->prepared_query($sql, $vars);
 
             $sql = 'UPDATE `users`
-                    SET `active` = 0
+                    SET `active` = 0,
+                    `locallyManaged` = 1
                     WHERE `groupID` = :serviceID
                     AND (`userID` = :userID
                         OR `backupID` = :userID)';

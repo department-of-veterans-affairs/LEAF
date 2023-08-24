@@ -877,13 +877,15 @@ class System
     {
         $vars = array();
         $sql = 'DELETE
-                FROM `groups`';
+                FROM `groups`
+                WHERE `groupID` > 1';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
         $sql = 'DELETE
                 FROM `users`
-                WHERE `locallyManaged` = 0';
+                WHERE `locallyManaged` = 0
+                AND `groupID` <> 1';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
