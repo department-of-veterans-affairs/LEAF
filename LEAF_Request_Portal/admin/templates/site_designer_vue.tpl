@@ -22,41 +22,41 @@
             {{ enabled ? 'Disable Page' : 'Publish Page'}}<span role="img" aria="">{{ enabled ? '⚠' : '▶'}}</span>
         </button>
     </nav>
-    <main>
-        <section :class="{editMode: isEditingMode}">
-            <div id="page_info_area">
-                <!-- admin home link, page and name info -->
-                <h2 v-show="isEditingMode" style="min-width: 250px;">
-                    <a href="../admin" class="leaf-crumb-link">Admin</a>
-                    <i class="fas fa-caret-right leaf-crumb-caret"></i>Site Designer
-                </h2>
-                <label v-show="isEditingMode && currentDesignID > 0" for="edit_design_name_input">design&nbsp;
-                    <input type="text" id="edit_design_name_input" maxlength="50" v-model.lazy="currentDesignName" />
-                    &nbsp;<span :style="{color: enabled ? '#AA0000' : '#000000'}">{{ enabled ? '(active)' : '(draft)'}}</span>
-                </label>
-            </div>
-            <!-- view selection (if/when there's more than one view), saved designs for the current view -->
-            <div v-show="isEditingMode" id="current_view_design_menu">
-                <label v-if="customizableViews.length > 1" for="current_view_select">Page Selection
-                    <select id="current_view_select" style="width:100px;" @change="setView">
-                        <option v-if="currentView===''" value="">Select a Page</option>
-                        <option v-for="view in customizableViews" :key="'view_option_' + view"
-                        :value="view" :selected="currentView===view">{{ view }}</option>
-                    </select>
-                </label>
-                <label v-if="currentViewDesigns?.length > 0" for="saved_settings_select">Saved Settings
-                    <select id="saved_settings_select" style="width:160px;" v-model.number="currentDesignID">
-                        <option value="0">Select an Option</option>
-                        <option v-for="d in currentViewDesigns" :value="d.designID" :key="'design_' + d.designID" style="max-width:200px;" >
-                            #{{ d.designID }} {{ truncateText(d.designName, 30) }} {{ d.designID === currentViewEnabledDesignID ? '(active)' : '(draft)'}}
-                        </option>
-                    </select>
-                </label>
-            </div>
+    <main :class="{editMode: isEditingMode}">
+        <div id="page_info_area">
+            <!-- admin home link, page and name info -->
+            <h2 v-show="isEditingMode" style="min-width: 250px;">
+                <a href="../admin" class="leaf-crumb-link">Admin</a>
+                <i class="fas fa-caret-right leaf-crumb-caret"></i>Site Designer
+            </h2>
+            <label v-show="isEditingMode && currentDesignID > 0" for="edit_design_name_input">design&nbsp;
+                <input type="text" id="edit_design_name_input" maxlength="50" v-model.lazy="currentDesignName" />
+                &nbsp;<span :style="{color: enabled ? '#AA0000' : '#000000'}">{{ enabled ? '(active)' : '(draft)'}}</span>
+            </label>
+        </div>
+        <!-- view selection (if/when there's more than one view), saved designs for the current view -->
+        <div v-show="isEditingMode" id="view_and_design_selectors">
+            <label v-if="customizableViews.length > 1" for="current_view_select">Page Selection
+                <select id="current_view_select" style="width:100px;" @change="setView">
+                    <option v-if="currentView===''" value="">Select a Page</option>
+                    <option v-for="view in customizableViews" :key="'view_option_' + view"
+                    :value="view" :selected="currentView===view">{{ view }}</option>
+                </select>
+            </label>
+            <label v-if="currentViewDesigns?.length > 0" for="saved_settings_select">Saved Settings
+                <select id="saved_settings_select" style="width:160px;" v-model.number="currentDesignID">
+                    <option value="0">Select an Option</option>
+                    <option v-for="d in currentViewDesigns" :value="d.designID" :key="'design_' + d.designID" style="max-width:200px;" >
+                        #{{ d.designID }} {{ truncateText(d.designName, 30) }} {{ d.designID === currentViewEnabledDesignID ? '(active)' : '(draft)'}}
+                    </option>
+                </select>
+            </label>
+        </div>
 
-            <!-- NOTE: routes -->
+        <!-- NOTE: routes -->
+        <div id="current_view" :class="{editMode: isEditingMode}">
             <router-view></router-view>
-        </section>
+        </div>
     </main>
 </div>
 

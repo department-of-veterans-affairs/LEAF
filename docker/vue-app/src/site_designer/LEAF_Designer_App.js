@@ -1,5 +1,4 @@
 import { computed } from 'vue';
-import { marked } from 'marked';
 
 import './LEAF_Designer.scss';
 
@@ -139,7 +138,6 @@ export default {
             }
         },
         /**
-         * 
          * @param {string} inputJSON
          * @param {string} section of page being updated
          */
@@ -158,7 +156,7 @@ export default {
                 });
                 const data = await response.json();
                 if(+data?.status?.code === 2) {
-                    this.updateAppDesignData(designID, inputJSON);
+                    this.allDesignData.find(rec => +rec.designID === +designID).designContent = inputJSON;
 
                     switch(section) {
                         case 'menuCardList':
@@ -183,7 +181,6 @@ export default {
             }
         },
         /**
-         * 
          * @param {boolean} confirmed
          */
         async publishTemplate(confirmed = false) {
@@ -246,6 +243,35 @@ export default {
                 this.appIsGettingData = false;
             }
         },
+        async updateDesignName() {
+            this.appIsUpdating = true;
+            const designID = this.currentDesignID;
+            const name = this.currentDesignName;
+
+            try {
+                let formData = new FormData();
+                formData.append('CSRFToken', this.CSRFToken);
+                formData.append('designName', name);
+
+                const response = await fetch(`${this.APIroot}design/${designID}/name`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if(+data?.status?.code === 2 && Number.isInteger(data?.data)) {
+                    this.allDesignData.find(rec => +rec.designID === +designID).designName = this.currentDesignName;
+
+                } else {
+                    console.log('unexpected response returned:', data);
+                }
+
+            } catch (error) {
+                console.log(error);
+            } finally {
+                this.appIsUpdating = false;
+            }
+        },
         async newDesign(designName = '') {
             this.appIsUpdating = true;
             try {
@@ -296,17 +322,6 @@ export default {
             } finally {
                 this.appIsUpdating = false;
             }
-        },
-        /**
-         * @param {number} designID of record to update
-         * @param {string} json the new json value
-         */
-        updateAppDesignData(designID = 0, json = '{}') {
-            let record = this.allDesignData.find(rec => +rec.designID === +designID);
-            record.designContent = json;
-
-            let remainingDesigns = this.allDesignData.filter(rec => +rec.designID !== +designID);
-            this.allDesignData = [...remainingDesigns, record];
         },
         openNewDesignDialog() {
             this.setDialogTitleHTML(`<h2>Creating a new item for the ${this.currentView}</h2>`);
@@ -377,7 +392,7 @@ export default {
         },
         currentDesignName(newVal, oldVal) {
             if(newVal !== null && newVal !== this.selectedDesign?.designName) {
-                console.log('TODO update name to', newVal);
+                this.updateDesignName();
             }
         }
     }

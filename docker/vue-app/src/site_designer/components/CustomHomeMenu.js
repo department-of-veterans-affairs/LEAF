@@ -84,19 +84,23 @@ export default {
             }
             return styles;
         },
+        /**
+         * @returns object to style ul element.  Differs based on mode and menu direction.
+         */
         ulStyles() {
-            return this.menuDirectionSelection === 'v' || this.isEditingMode ?
-                {
-                    flexDirection: 'column',
-                } :
-                { 
-                    flexWrap: 'wrap'
-                }
+            return this.isEditingMode || this.menuDirectionSelection === 'v' ?
+                { flexDirection: 'column'} : { flexWrap: 'wrap' }
         },
+        /**
+         * @returns array of cards.  All cards if editing, only cards that are active and have non-empty links if previewing
+         */
         menuItemListDisplay() {
             return this.isEditingMode ?
                 this.menuCardList : this.menuCardList.filter(item => +item.enabled === 1 && item.link !== '');
         },
+        /**
+         * @returns false if one of the built in cards is not present.  Used to present option to re-add it.
+         */
         allBuiltinsPresent() {
             let result = true;
             this.builtInIDs.forEach(id => {
@@ -174,16 +178,27 @@ export default {
     },
     template: `<section id="custom_menu" :style="sectionStyles">
         <div id="menu_wrapper" :class="{editMode: isEditingMode}">
-            <div v-show="isEditingMode">
-                <div class="design_editing_header">
-                    <h3>Card Controls</h3>
+            <div v-show="isEditingMode" id="edit_menu">
+                <div class="design_control_heading">
+                    <h3>Menu Controls</h3>
                     <button type="button" id="custom_menu_last_update" @click.prevent="openHistoryDialog"
                         style="display: none;">
                     </button>
                 </div>
-                <p style="padding-top: 0.5em;">
+                <p>
                     Drag-Drop cards or use the up and down buttons to change their order.&nbsp;&nbsp;Use the card menu to edit text and other values.
                 </p>
+                <div style="display:flex; gap: 1rem; padding-top: 0.5em; border-top: 2px solid #cadff0">
+                    <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">+ Starter Cards</button>
+                    <button type="button" class="btn-general" @click="setMenuItem(null)">+ New Card</button>
+                    <label for="menu_direction_select" style="margin: 0 0 0 auto; display: flex;">Display In&nbsp;
+                        <select id="menu_direction_select" style="margin: 0; width: 80px; height: 25px;" v-model="menuDirectionSelection"
+                            @change="updateDirection" :disabled="appIsUpdating">
+                            <option value="v">Columns</option>
+                            <option value="h">Rows</option>
+                        </select>
+                    </label>
+                </div>
             </div>
             <ul v-if="menuItemListDisplay.length > 0" id="menu"
                 :class="{editMode: isEditingMode}" :style="ulStyles"
@@ -209,17 +224,6 @@ export default {
                     </div>
                 </li>
             </ul>
-            <div v-show="isEditingMode" style="display:flex; gap: 1rem; padding-top: 1em; border-top: 2px solid #cadff0">
-                <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">+ Starter Cards</button>
-                <button type="button" class="btn-general" @click="setMenuItem(null)">+ New Card</button>
-                <label for="menu_direction_select" style="margin: 0 0 0 auto; display: flex;">Menu Direction&nbsp;
-                    <select id="menu_direction_select" style="width: 80px; height: 25px;" v-model="menuDirectionSelection"
-                        @change="updateDirection" :disabled="appIsUpdating">
-                        <option value="v">Columns</option>
-                        <option value="h">Rows</option>
-                    </select>
-                </label>
-            </div>
         </div>
     </section>`
 }

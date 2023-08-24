@@ -85,7 +85,9 @@ export default {
         setSectionData(content = {}) {
             this.header = content?.header || {};
             if(this.header.title !== undefined) {
-                this.header.title = XSSHelpers.decodeHTMLEntities(this.header.title);
+                this.header.title = XSSHelpers.stripAllTags(
+                    XSSHelpers.decodeHTMLEntities(this.header.title)
+                ).trim();
             }
 
             this.menuDirection = content?.menu?.direction || 'v';

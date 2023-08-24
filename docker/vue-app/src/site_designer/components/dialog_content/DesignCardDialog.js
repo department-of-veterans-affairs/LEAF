@@ -151,7 +151,7 @@ export default {
                 <span class="leaf_check"></span>Use an Icon
             </label>
         </div>
-        <fieldset v-if="useAnIcon" style="padding-right: 0;">
+        <fieldset v-if="useAnIcon" style="margin: 0; padding-right: 0;">
             <legend>Icon Selections</legend>
             <div class="designer_inputs wrap" style="height:150px; max-width: 540px; overflow:auto;" @click="setIcon($event)">
                 <img v-for="icon in iconList" :key="icon.name"

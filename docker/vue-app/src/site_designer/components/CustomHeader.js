@@ -4,7 +4,7 @@ export default {
     name: 'custom-header',
     data() {
         return {
-            title: XSSHelpers.stripAllTags(this.header?.title || '').trim(),
+            title: this.header?.title || '',
             titleColor: this.header?.titleColor || '#000000',
             imageFile: this.header?.imageFile || '',
             imageW: this.header?.imageW || 300,
@@ -49,6 +49,16 @@ export default {
                 headerType: +this.headerType,
                 enabled: +this.enabled,
             }
+        },
+        contentChanged() {
+            let contentChanged = false;
+            for (let k in this.headerOBJ) {
+                if (this.header[k] !== this.headerOBJ[k]) {
+                    contentChanged = true;
+                    break;
+                }
+            }
+            return contentChanged;
         },
         headerWrapperFlex() {
             let dir = 'row';
@@ -100,49 +110,60 @@ export default {
     template: `<section id="custom_header">
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
-            <div class="design_editing_header">
+            <div class="design_control_heading">
                 <h3>Header Controls</h3>
                 <button type="button" id="custom_header_last_update" @click.prevent="openHistoryDialog"
                     style="display: none;">
                 </button>
             </div>
-            <label for="header_title">Header Text
-                <textarea id="header_title" v-model="title" rows="4"></textarea>
-            </label>
-            <div style="display: flex; gap: 1rem; justify-content: space-between;">
-                <label for="title_color">Font Color
-                    <input type="color" id="title_color" v-model="titleColor" />
-                </label>
-                <label for="image_select">Image File
-                    <select id="image_select" style="width: 160px;" v-model="imageFile">
-                        <option value="">none</option>
-                        <option v-for="i in imageFiles" :value="i" :key="i">{{ truncateText(i) }}</option>
-                    </select>
-                </label>
-                <label for="header_type_select">Text Position
-                    <select id="header_type_select" style="width: 130px;" v-model.number="headerType">
-                        <option v-for="t in headerTypes" :value="t.value" :key="'type_' + t.value">{{ t.text }}</option>
-                    </select>
-                </label>
-                <label for="image_width">Image Width
-                    <input id="image_width" type="number" min="0" :max="maxImageWidth" step=10 v-model.number="imageW"/>
-                </label>
-            </div>
-            <div style="width: 100%; display: flex; gap: 1rem; margin-top:0.5rem;">
-                <label class="checkable leaf_check" for="header_enable"
-                    style="margin: 0 0 0 auto;" :style="{color: +enabled === 1 ? '#008060' : '#b00000'}"
-                    :title="+enabled === 1 ? 'uncheck to disable' : 'check to enable'">
-                    <input type="checkbox" id="header_enable" v-model="enabled" class="icheck leaf_check"/>
-                    <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden'}}
-                </label>
-                <button type="button" class="btn-confirm" @click="updateHomeDesign('header', headerOBJ)" :disabled="appIsUpdating">
-                    Save Settings
-                </button>
-            </div>
+
+            <div id="custom_header_inputs">
+                <!-- MARKDOWN AREA -->
+                <div id="custom_header_left">
+                    <label for="header_title">Header Text
+                        <textarea id="header_title" v-model="title" rows="6"></textarea>
+                    </label>
+                </div>
+
+                <!-- OTHER CONTROLS -->
+                <div id="custom_header_right">
+                    <label for="title_color">Font Color
+                        <input type="color" id="title_color" v-model="titleColor" />
+                    </label>
+                    <label for="header_type_select">Text Position
+                        <select id="header_type_select" style="width: 130px;" v-model.number="headerType">
+                            <option v-for="t in headerTypes" :value="t.value" :key="'type_' + t.value">{{ t.text }}</option>
+                        </select>
+                    </label>
+                    <label for="image_select">Image File
+                        <select id="image_select" style="width: 160px;" v-model="imageFile">
+                            <option value="">none</option>
+                            <option v-for="i in imageFiles" :value="i" :key="i">{{ truncateText(i) }}</option>
+                        </select>
+                    </label>
+                    <label for="image_width">Image Width
+                        <input id="image_width" type="number" min="0" :max="maxImageWidth" step=10 v-model.number="imageW"/>
+                    </label>
+
+                    <!-- HIDE/ENABLE SAVE -->
+                    <div style="display: flex; gap: 1rem; margin: auto 0 0 auto;">
+                        <label class="checkable leaf_check" for="header_enable"
+                            style="margin: 0" :style="{color: +enabled === 1 ? '#008060' : '#b00000'}"
+                            :title="+enabled === 1 ? 'uncheck to disable' : 'check to enable'">
+                            <input type="checkbox" id="header_enable" v-model="enabled" class="icheck leaf_check"/>
+                            <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden'}}
+                        </label>
+                        <button type="button" class="btn-confirm" @click="updateHomeDesign('header', headerOBJ)"
+                            :disabled="!contentChanged || appIsUpdating">
+                            Save Changes
+                        </button>
+                    </div>
+                </div> <!-- right side -->
+            </div> <!-- controls -->
         </div>
         
         <!-- NOTE: HEADER DISPLAY -->
-        <div id="custom_header_wrapper" :style="wrapperStyles">
+        <div id="header_display_wrapper" :style="wrapperStyles">
             <div v-show="headerType !== 5 && title !== ''" v-html="markedTitle" id="custom_header_outer_text" style="padding: 0;" :style="{color: titleColor}"></div>
             <div v-show="imageFile!==''" id="custom_header_image_container">
                 <img :src="rootPath + 'files/' + imageFile" :style="{width: imageW + 'px'}" alt="custom header image" />

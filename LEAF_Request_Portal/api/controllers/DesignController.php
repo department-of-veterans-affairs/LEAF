@@ -61,6 +61,12 @@ class DesignController extends RESTfulResponse
             return $design->updateDesignContent($input, (int)$designID, $templateName);
         });
 
+        $this->index['POST']->register('design/[digit]/name', function ($args) use ($design) {
+            $designID = \Leaf\XSSHelpers::xscrub($args[0]);
+            $designName = \Leaf\XSSHelpers::xscrub($_POST['designName']);
+            return $design->updateDesignName((int)$designID, $designName);
+        });
+
 		return $this->index['POST']->runControl($act['key'], $act['args']);
 	}
 

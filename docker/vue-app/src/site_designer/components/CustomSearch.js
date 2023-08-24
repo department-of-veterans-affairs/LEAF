@@ -114,7 +114,6 @@ export default {
             sort: {column:'recordID', direction: 'desc'},
             headerOptions: ['date', 'title', 'service', 'status', 'initiatorName'],
             searchHeadersSelect: [...this.searchHeaders],
-            mostRecentHeaders: JSON.stringify(this.searchHeaders),
             choicesSelectID: 'choices_header_select',
 
             /*TODO: obj, keys same, other info eg bgcolor [date:{bgcolor:#,}]?
@@ -144,6 +143,9 @@ export default {
         'openHistoryDialog'
     ],
     computed: {
+        contentChanged() {
+            return JSON.stringify(this.searchHeaders) !== JSON.stringify(this.searchHeadersSelect);
+        },
         searchJoins() {
             const potentialJoins = ["service","categoryName", "status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"];
             let joins = [];
@@ -214,12 +216,6 @@ export default {
 
             }
             return label;
-        },
-        postSearchSettings() {
-            if (JSON.stringify(this.searchHeadersSelect) !== this.mostRecentHeaders) {
-                this.updateHomeDesign('searchHeaders', this.searchHeadersSelect);
-                this.mostRecentHeaders = JSON.stringify(this.searchHeadersSelect);
-            } else console.log('headers have not changed');
         },
         renderResult(leafSearch, res) {
             const searchHeaders = this.searchHeadersSelect.map(h => ({ ...this.adminHeaders[h]}));
@@ -403,7 +399,7 @@ export default {
     },
     template: `<section style="display: flex; flex-direction: column;" :style="{margin: isEditingMode ? '0' : 'auto'}" :key="'searchsection_' + currentDesignID">
         <div v-show="isEditingMode" id="edit_search">
-            <div class="design_editing_header">
+            <div class="design_control_heading">
                 <h3>Search Controls</h3>
                 <button type="button" id="custom_search_last_update" @click.prevent="openHistoryDialog"
                     style="display: none;">
@@ -415,7 +411,8 @@ export default {
                 <select :id="choicesSelectID" v-model="searchHeadersSelect" multiple></select>
             </label>
             <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                @click="postSearchSettings" :disabled="appIsUpdating">Save Settings
+                :disabled="appIsUpdating || !contentChanged"
+                @click="updateHomeDesign('searchHeaders', searchHeadersSelect)">Save Changes
             </button>
         </div>
         <div v-if="isSearching" class="loading">

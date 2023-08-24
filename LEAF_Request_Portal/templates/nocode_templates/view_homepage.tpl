@@ -7,7 +7,7 @@
     main * {
         box-sizing: border-box;
     }
-    #custom_header_wrapper.active {
+    #header_display_wrapper.active {
         margin: 1.5rem auto;
         width: fit-content;
         justify-content: center;
@@ -32,16 +32,16 @@
     #custom_header_outer_text *, #custom_header_inner_text * {
         margin: 0;
     }
-    #custom_header_wrapper h1 {
+    #header_display_wrapper h1 {
         font-size: 32px;
     }
-    #custom_header_wrapper h2 {
+    #header_display_wrapper h2 {
         font-size: 24px;
     }
-    #custom_header_wrapper h3 {
+    #header_display_wrapper h3 {
         font-size: 20.8px;
     }
-    #custom_header_wrapper p, #custom_header_wrapper div {
+    #header_display_wrapper p, #header_display_wrapper div {
         font-size: 16px;
     }
 
@@ -113,7 +113,7 @@
 </style>
 <script src="https://unpkg.com/marked@0.3.6"></script>
 <main>
-    <div id="custom_header_wrapper"></div>
+    <div id="header_display_wrapper"></div>
     <div id="menu_and_search">
         <div id="custom_menu_wrapper"></div>
         <section id="searchSection" style="margin: -2px auto auto auto;">
@@ -170,7 +170,7 @@
             content += headerType === 5 && title !== '' ? `<div id="custom_header_inner_text" style="color: ${color}; background-color: ${overlay}"}">${title}</div>` : '';
             content += `</div>`;
 
-            let wrapper = document.getElementById('custom_header_wrapper');
+            let wrapper = document.getElementById('header_display_wrapper');
             if(wrapper !== null) {
                 wrapper.style.flexDirection = flexDir;
                 wrapper.classList.add('active');

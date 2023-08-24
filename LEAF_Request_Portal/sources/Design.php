@@ -132,8 +132,7 @@ class Design
 
             $designContent = $this->cleanInput($inputJSON, $templateName);
 
-            $strSQL = 'UPDATE template_designs SET designContent=:designContent
-                WHERE designID=:designID';
+            $strSQL = 'UPDATE template_designs SET designContent=:designContent WHERE designID=:designID';
 
             $vars = array(
                 ':designID' => $designID,
@@ -157,7 +156,26 @@ class Design
         return $return_value;
     }
 
-    public function deleteDesign(int $designID, string $templateName) {
+    public function updateDesignName(int $designID, string $designName): array
+    {
+        if (!$this->login->checkGroup(1)) {
+            $return_value['status']['code'] = 4;
+            $return_value['status']['message'] = "Admin access required";
+
+        } else {
+            $strSQL = 'UPDATE template_designs SET designName=:designName WHERE designID=:designID';
+            $vars = array(
+                ':designID' => $designID,
+                ':designName' => $designName
+            );
+            $return_value = $this->db->pdo_update_query($strSQL, $vars);
+            $return_value['data'] = $designID;
+            return $return_value;
+        }
+    }
+
+    public function deleteDesign(int $designID, string $templateName): array
+    {
         if (!$this->login->checkGroup(1)) {
             $return_value['status']['code'] = 4;
             $return_value['status']['message'] = "Admin access required";
@@ -179,7 +197,8 @@ class Design
         return $return_value;
     }
 
-    public function publishTemplate(int $designID = 0, int $currentID = 0, string $templateName = ''): array {
+    public function publishTemplate(int $designID = 0, int $currentID = 0, string $templateName = ''): array
+    {
         if (!$this->login->checkGroup(1)) {
             $return_value['status']['code'] = 4;
             $return_value['status']['message'] = "Admin access required";
