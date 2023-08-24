@@ -710,7 +710,15 @@ class Form
         return json_encode($json);
     }
 
-    public function deleteRecord($recordID, $comment = '')
+    /**
+     * @param int $recordID
+     * @param string $comment
+     *
+     * @return int|string
+     *
+     * Created at: 8/24/2023, 2:15:39 PM (America/New_York)
+     */
+    public function deleteRecord(int $recordID, string $comment = ''): int|string
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             $return_value = 0;
