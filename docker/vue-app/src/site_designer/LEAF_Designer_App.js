@@ -86,6 +86,13 @@ export default {
         selectedDesign() {
             return (this.currentViewDesigns|| []).find(d => +d.designID === +this.currentDesignID) || null;
         },
+        selectedMenuValid() {
+            const contentJSON = this.selectedDesign?.designContent || '{}';
+            const data = JSON.parse(contentJSON);
+            const cards = data?.menu?.menuCards || [];
+            const enabledCards = cards.filter(c => +c.enabled === 1 && c.link !== '')
+            return enabledCards.length > 0;
+        },
         enabled() {
             return this.currentDesignID !== 0 && parseInt(this.designSettings?.[`${this.currentView}_enabled`] || 0) === this.currentDesignID;
         },
@@ -293,6 +300,7 @@ export default {
                         designContent: '{}'
                     });
                     this.currentDesignID = data.data;
+                    this.isEditingMode = true;
                 } else {
                     console.log('unexpected response returned:', data);
                 }
@@ -312,7 +320,8 @@ export default {
                 const data = await response.json();
                 if(+data?.status?.code === 2) {
                     this.currentDesignID = 0;
-                    this.allDesignData = this.allDesignData.filter(d => +d.designID !== +id)
+                    this.allDesignData = this.allDesignData.filter(d => +d.designID !== +id);
+                    this.isEditingMode = true;
                 } else {
                     console.log('unexpected response returned:', data);
                 }

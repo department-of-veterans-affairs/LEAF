@@ -73,7 +73,7 @@ class Design
                 $header['imageW'] = (int) ($headerIn['imageW'] ?? 0);
                 $header['enabled'] = (int) ($headerIn['enabled'] ?? 0);
         
-                $home_design_data['menu']['menuCards'] = $menuCards;
+                $home_design_data['menu']['menuCards'] = $menuCards ?? [];
                 $home_design_data['menu']['direction'] = $inputData['menu']['direction'] === 'v' ? 'v' : 'h';
                 $home_design_data['header'] = $header;
                 $home_design_data['searchHeaders'] =  \Leaf\XSSHelpers::scrubObjectOrArray($inputData['searchHeaders']);

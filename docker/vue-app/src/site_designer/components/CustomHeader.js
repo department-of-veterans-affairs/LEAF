@@ -1,4 +1,5 @@
 import { marked } from 'marked';
+import MarkdownTable from './MarkdownTable';
 
 export default {
     name: 'custom-header',
@@ -8,7 +9,7 @@ export default {
             titleColor: this.header?.titleColor || '#000000',
             imageFile: this.header?.imageFile || '',
             imageW: this.header?.imageW || 300,
-            headerType: this.header?.headerType || 1,
+            headerType: this.header?.headerType || 4,
             enabled: +this.header?.enabled === 1,
 
             imageFiles: [],
@@ -20,7 +21,8 @@ export default {
                 { value: 5, text: 'within image area' },
             ],
             maxImageWidth: 1400,
-            minImageWidth: 0
+            minImageWidth: 0,
+            showMarkdownTips: false
         }
     },
     created() {
@@ -28,6 +30,9 @@ export default {
     },
     mounted() {
         console.log('custom header mounted')
+    },
+    components: {
+        MarkdownTable
     },
     inject: [
         'updateHomeDesign',
@@ -86,6 +91,9 @@ export default {
                 backgroundColor: `${overlay}`
             }
         },
+        markdownButtonTitle() {
+            return this.showMarkdownTips ? 'Hide markdown tips' : 'Show markdown tips';
+        },
         markedTitle() {
             return marked(this.title);
         },
@@ -111,16 +119,19 @@ export default {
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
             <div class="design_control_heading">
-                <h3>Header Controls</h3>
+                <h3>Header Controls
+                    <button id="btn_markdown_tips" type="button" @click="showMarkdownTips=!showMarkdownTips"
+                        :title="markdownButtonTitle">ℹ
+                    </button>
+                </h3>
                 <button type="button" id="custom_header_last_update" @click.prevent="openHistoryDialog"
                     style="display: none;">
                 </button>
             </div>
-
             <div id="custom_header_inputs">
                 <!-- MARKDOWN AREA -->
                 <div id="custom_header_left">
-                    <label for="header_title">Header Text
+                    <label for="header_title" style="position: relative;">Header Text
                         <textarea id="header_title" v-model="title" rows="6"></textarea>
                     </label>
                 </div>
@@ -130,18 +141,18 @@ export default {
                     <label for="title_color">Font Color
                         <input type="color" id="title_color" v-model="titleColor" />
                     </label>
-                    <label for="header_type_select">Text Position
-                        <select id="header_type_select" style="width: 130px;" v-model.number="headerType">
-                            <option v-for="t in headerTypes" :value="t.value" :key="'type_' + t.value">{{ t.text }}</option>
-                        </select>
-                    </label>
-                    <label for="image_select">Image File
+                    <label for="image_select">File Manager Image
                         <select id="image_select" style="width: 160px;" v-model="imageFile">
                             <option value="">none</option>
                             <option v-for="i in imageFiles" :value="i" :key="i">{{ truncateText(i) }}</option>
                         </select>
                     </label>
-                    <label for="image_width">Image Width
+                    <label for="header_type_select" v-show="imageFile !==''">Text Position
+                        <select id="header_type_select" style="width: 130px;" v-model.number="headerType">
+                            <option v-for="t in headerTypes" :value="t.value" :key="'type_' + t.value">{{ t.text }}</option>
+                        </select>
+                    </label>
+                    <label for="image_width" v-show="imageFile !==''">Image Width
                         <input id="image_width" type="number" min="0" :max="maxImageWidth" step=10 v-model.number="imageW"/>
                     </label>
 
@@ -161,6 +172,7 @@ export default {
                 </div> <!-- right side -->
             </div> <!-- controls -->
         </div>
+        <MarkdownTable v-show="showMarkdownTips && isEditingMode" />
         
         <!-- NOTE: HEADER DISPLAY -->
         <div id="header_display_wrapper" :style="wrapperStyles">

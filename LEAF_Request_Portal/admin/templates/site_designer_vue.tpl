@@ -17,8 +17,9 @@
             {{isEditingMode ? 'Preview ' : 'Edit '}} Page <span role="img" aria="">{{isEditingMode ? '👁️‍🗨️' : '📝'}}</span>
         </button>
         <button v-show="currentDesignID > 0" type="button"
-            style="color: white; margin-left: auto;" :style="{backgroundColor: enabled ? '#A02020' : '#005EA2'}" @click="publishTemplate"
-            :disabled="appIsUpdating || selectedDesign?.designContent==='{}'">
+            style="color: white; margin-left: auto;"
+            :style="{backgroundColor: !selectedMenuValid ? 'gray' : enabled ? '#A02020' : '#005EA2'}" @click="publishTemplate"
+            :disabled="appIsUpdating || !selectedMenuValid">
             {{ enabled ? 'Disable Page' : 'Publish Page'}}<span role="img" aria="">{{ enabled ? '⚠' : '▶'}}</span>
         </button>
     </nav>
@@ -31,7 +32,7 @@
             </h2>
             <label v-show="isEditingMode && currentDesignID > 0" for="edit_design_name_input">design&nbsp;
                 <input type="text" id="edit_design_name_input" maxlength="50" v-model.lazy="currentDesignName" />
-                &nbsp;<span :style="{color: enabled ? '#AA0000' : '#000000'}">{{ enabled ? '(active)' : '(draft)'}}</span>
+                &nbsp;<span :style="{color: enabled ? '#AA0000' : '#3D4551'}">{{ enabled ? '(active)' : '(draft)'}}</span>
             </label>
         </div>
         <!-- view selection (if/when there's more than one view), saved designs for the current view -->

@@ -126,11 +126,11 @@ export default {
                 this.postDesignContent(
                     JSON.stringify({
                         menu: {
-                            menuCards: this.menuCardList,
-                            direction: this.menuDirection,
+                            menuCards: this.menuCardList || [],
+                            direction: this.menuDirection || 'v',
                         },
-                        header: this.header,
-                        searchHeaders: this.searchHeaders
+                        header: this.header || '{}',
+                        searchHeaders: this.searchHeaders || []
                     }),
                     designKey
                 );
