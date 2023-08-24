@@ -65,72 +65,82 @@ class System
 
             $leader = $position->findRootPositionByGroupTag($leader_id, $tag_parent);
 
-            $quadID = $leader[0]['groupID'];
+            if (isset($leader[0])) {
+                $quadID = $leader[0]['groupID'];
 
-            $service = $group->getGroup($serviceID)[0];
+                $service = $group->getGroup($serviceID)[0];
 
-            $abbrService = isset($service['groupAbbreviation']) ? $service['groupAbbreviation'] : '';
+                $abbrService = isset($service['groupAbbreviation']) ? $service['groupAbbreviation'] : '';
 
-            $insert_service = $this->insertService($service['groupID'], $service['groupTitle'], $abbrService, $quadID);
+                $insert_service = $this->insertService($service['groupID'], $service['groupTitle'], $abbrService, $quadID);
 
-            if ($insert_service['status']['code'] == 2) {
-                $delete_chief_backups = $this->deleteChiefs($service['groupID']);
+                if ($insert_service['status']['code'] == 2) {
+                    $delete_chief_backups = $this->deleteChiefs($service['groupID']);
 
-                if ($delete_chief_backups['status']['code'] == 2) {
-                    $leaderGroupID = $group->getGroupLeader($service['groupID']);
+                    if ($delete_chief_backups['status']['code'] == 2) {
+                        $leaderGroupID = $group->getGroupLeader($service['groupID']);
 
-                    $resEmp = $position->getEmployees($leaderGroupID);
+                        $resEmp = $position->getEmployees($leaderGroupID);
 
-                    $return_value = array(
-                        'status' => array(
-                            'code' => 2,
-                            'message' => ''
-                        )
-                    );
+                        $return_value = array(
+                            'status' => array(
+                                'code' => 2,
+                                'message' => ''
+                            )
+                        );
 
-                    foreach ($resEmp as $emp) {
-                        if ($emp['userName'] != '') {
-                            $insert_chief = $this->insertChief($emp['userName'], $service['groupID']);
+                        foreach ($resEmp as $emp) {
+                            if ($emp['userName'] != '') {
+                                $insert_chief = $this->insertChief($emp['userName'], $service['groupID']);
 
-                            if ($insert_chief['status']['code'] == 2) {
-                                // nothing to do here, just keep going
-                            } else {
-                                $return_value = array(
-                                    'status' => array(
-                                        'code' => 4,
-                                        'message' => 'Chief unable to be added'
-                                    )
-                                );
+                                if ($insert_chief['status']['code'] == 2) {
+                                    // nothing to do here, just keep going
+                                } else {
+                                    $return_value = array(
+                                        'status' => array(
+                                            'code' => 4,
+                                            'message' => 'Chief unable to be added'
+                                        )
+                                    );
 
-                                break;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if ($return_value['status']['code'] == 2) {
-                        $backups = $this->addBackups($service['groupID'], false);
+                        if ($return_value['status']['code'] == 2) {
+                            $backups = $this->addBackups($service['groupID'], false);
 
-                        if ($backups['status']['code'] == 2) {
-                            // check if this service is also an ELT
-                            // if so, update groups table
-                            $tagged = $tag->groupIsTagged($serviceID, Config::$orgchartImportTags[0]);
+                            if ($backups['status']['code'] == 2) {
+                                // check if this service is also an ELT
+                                // if so, update groups table
+                                $tagged = $tag->groupIsTagged($serviceID, Config::$orgchartImportTags[0]);
 
-                            if ($serviceID == $quadID && $tagged['status']['code'] == 2 && !empty($tagged['data'])) {
-                                $this->updateGroup($serviceID, $oc_db);
+                                if ($serviceID == $quadID && $tagged['status']['code'] == 2 && !empty($tagged['data'])) {
+                                    $this->updateGroup($serviceID, $oc_db);
+                                } else {
+                                    // make sure this is not in the groups table?
+                                    $this->removeGroup($serviceID);
+                                }
                             } else {
-                                // make sure this is not in the groups table?
-                                $this->removeGroup($serviceID);
+                                $return_value = $backups;
                             }
-                        } else {
-                            $return_value = $backups;
                         }
+                    } else {
+                        $return_value = $delete_chief_backups;
                     }
                 } else {
-                    $return_value = $delete_chief_backups;
+                    $return_value = $insert_service;
                 }
             } else {
-                $return_value = $insert_service;
+                $return_value = array(
+                    'status' => array(
+                        'code' => 4,
+                        'message' => 'Chief unable to be added'
+                    )
+                );
             }
+
         }
 
         return $return_value;
@@ -923,7 +933,7 @@ class System
         $sql = 'INSERT INTO `services` (`serviceID`, `service`,
                     `abbreviatedService`, `groupID`)
                 VALUES (:serviceID, :service, :abbrService, :groupID)
-                ON DUPLICATE KEY UPDATE `service` = :service, `groupID` = :groupID,
+                ON DUPLICATE KEY UPDATE `serviceID` = :serviceID, `groupID` = :groupID,
                     `abbreviatedService` = :abbrService';
 
         $return_value = $this->db->pdo_insert_query($sql, $vars);
