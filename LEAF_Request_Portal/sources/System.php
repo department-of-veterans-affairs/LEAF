@@ -877,7 +877,8 @@ class System
     {
         $vars = array();
         $sql = 'DELETE
-                FROM `groups`';
+                FROM `groups`
+                WHERE `groupID` < 2';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
