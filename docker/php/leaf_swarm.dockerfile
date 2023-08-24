@@ -1,5 +1,7 @@
-# FROM pelentan/leaf-app-base:2.0 as base
-FROM pelentan/leaf-php-nginx-base:1.3 as base
+# FROM pelentan/leaf-php-nginx-base:1.3 as base
+FROM pelentan/leaf-php-nginx-base:staging as base
+
+
 # COPY docker/php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Stuff that might need to get into the base image

@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   leaf-php-8:
-    image: pelentan/leaf-swarm:1.0
+    image: pelentan/leaf-swarm:production
     env_file: 
       # - ./env_files/globals_swarm.env
       - ./env_files/globals_swarm_prod.env
@@ -16,8 +16,6 @@ services:
     command: 'source /startup.sh'
     networks:
       - leaf
-    # environment:
-    #   - DATABASE_PASSWORD=/run/secrets/db_password
     deploy:
       mode: replicated
       replicas: 2 
@@ -25,12 +23,6 @@ services:
         condition: on-failure
     sysctls:
       net.ipv4.ip_local_port_range: "15000 64000"
-    # configs:
-    #   - source: entrypoint
-    #     target: ./etc/init.d/ss.sh
-    #     mode: 0777
-    # entrypoint: ["/etc/init.d/ss.sh","/startup.sh"]
-
     labels:
       - "traefik.enable=true"
 
