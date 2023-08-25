@@ -199,6 +199,7 @@ function removeUser(groupID = -1, userID = '') {
         return;
     } else {
         $.ajax({
+            async: false,
             type: 'POST',
             url: "../api/service/" + groupID + "/members/_" + userID,
             data: {'CSRFToken': '<!--{$CSRFToken}-->'},
@@ -420,6 +421,7 @@ function pruneMember(groupID, userID) {
         return;
     } else {
         $.ajax({
+            async: false,
             type: 'POST',
             url: "../api/service/" + groupID + "/members/_" + userID + "/prune",
             data: {'CSRFToken': '<!--{$CSRFToken}-->'},
@@ -437,6 +439,7 @@ function reactivateMember(groupID, userID) {
         return;
     } else {
         $.ajax({
+            async: false,
             type: 'POST',
             url: "../api/service/" + groupID + "/members/_" + userID + "/reactivate",
             data: {'CSRFToken': '<!--{$CSRFToken}-->'},
