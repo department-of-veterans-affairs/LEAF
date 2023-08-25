@@ -111,7 +111,7 @@
         height: 50px;
     }
 </style>
-<script src="https://unpkg.com/marked@0.3.6"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <main>
     <div id="header_display_wrapper"></div>
     <div id="menu_and_search">
@@ -155,7 +155,7 @@
     function renderHeader() {
         const headerInfo = designData?.header || null;
         if (headerInfo !== null && +headerInfo.enabled === 1) {
-            const title = marked(
+            const title = marked.parse(
                 XSSHelpers.stripAllTags(XSSHelpers.decodeHTMLEntities(headerInfo?.title || ''))
             );
             const color = headerInfo?.titleColor || '#000000';

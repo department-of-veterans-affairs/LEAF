@@ -99,7 +99,8 @@ export default {
         },
         wrapperStyles() {
             return {
-                flexDirection: this.headerWrapperFlex
+                flexDirection: this.headerWrapperFlex,
+                marginBottom: this.isEditingMode ? '1rem' : '2rem'
             }
         }
     },
@@ -116,14 +117,18 @@ export default {
         }
     },
     template: `<section id="custom_header">
+        <!-- NOTE: HEADER DISPLAY -->
+        <div id="header_display_wrapper" :style="wrapperStyles">
+            <div v-show="headerType !== 5 && title !== ''" v-html="markedTitle" id="custom_header_outer_text" style="padding: 0;" :style="{color: titleColor}"></div>
+            <div v-show="imageFile!==''" id="custom_header_image_container">
+                <img :src="rootPath + 'files/' + imageFile" :style="{width: imageW + 'px'}" alt="custom header image" />
+                <div v-show="headerType===5 && title!==''" v-html="markedTitle" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
+            </div>
+        </div>
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
             <div class="design_control_heading">
-                <h3>Header Controls
-                    <button id="btn_markdown_tips" type="button" @click="showMarkdownTips=!showMarkdownTips"
-                        :title="markdownButtonTitle">ℹ
-                    </button>
-                </h3>
+                <h3>Header Controls</h3>
                 <button type="button" id="custom_header_last_update" @click.prevent="openHistoryDialog"
                     style="display: none;">
                 </button>
@@ -132,6 +137,10 @@ export default {
                 <!-- MARKDOWN AREA -->
                 <div id="custom_header_left">
                     <label for="header_title" style="position: relative;">Header Text
+                        <span id="btn_markdown_tips" role="button" tabindex="0"
+                            @click="showMarkdownTips=!showMarkdownTips" @keyup.enter="showMarkdownTips=!showMarkdownTips"
+                            :title="markdownButtonTitle">ℹ <span style="color: #000000;">md</span>
+                        </span>
                         <textarea id="header_title" v-model="title" rows="6"></textarea>
                     </label>
                 </div>
@@ -173,14 +182,5 @@ export default {
             </div> <!-- controls -->
         </div>
         <MarkdownTable v-show="showMarkdownTips && isEditingMode" />
-        
-        <!-- NOTE: HEADER DISPLAY -->
-        <div id="header_display_wrapper" :style="wrapperStyles">
-            <div v-show="headerType !== 5 && title !== ''" v-html="markedTitle" id="custom_header_outer_text" style="padding: 0;" :style="{color: titleColor}"></div>
-            <div v-show="imageFile!==''" id="custom_header_image_container">
-                <img :src="rootPath + 'files/' + imageFile" :style="{width: imageW + 'px'}" alt="custom header image" />
-                <div v-show="headerType===5 && title!==''" v-html="markedTitle" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
-            </div>
-        </div>
     </section>`
 }
