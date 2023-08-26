@@ -186,7 +186,7 @@ export default {
                     </button>
                 </div>
                 <p>
-                    Drag-Drop cards or use the up and down buttons to change their order.&nbsp;&nbsp;Use the card menu to edit text and other values.
+                    Drag-Drop cards or use the up and down buttons to change their order.<br/>Use the card menu to edit text and other values.
                 </p>
                 <div style="display:flex; gap: 1rem; padding-top: 0.5em; border-top: 2px solid #cadff0">
                     <button v-if="!allBuiltinsPresent" type="button" class="btn-general" @click="addStarterCards()">+ Starter Cards</button>

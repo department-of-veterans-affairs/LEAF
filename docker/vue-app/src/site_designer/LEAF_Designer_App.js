@@ -1,4 +1,5 @@
 import { computed } from 'vue';
+import { marked } from 'marked';
 
 import './LEAF_Designer.scss';
 
@@ -50,6 +51,7 @@ export default {
             orgchartPath: this.orgchartPath,
             userID: this.userID,
             truncateText: this.truncateText,
+            markdownToHTML: this.markdownToHTML,
             publishTemplate: this.publishTemplate,
             newDesign: this.newDesign,
             deleteDesign: this.deleteDesign,
@@ -103,6 +105,9 @@ export default {
     methods: {
         truncateText(str = '', maxlength = 40, overflow = '...') {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
+        },
+        markdownToHTML(input = '') {
+            return marked.parse(input);
         },
         setView(event) {
             this.$router.push({ name: event.target.value });

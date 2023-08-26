@@ -1,5 +1,9 @@
-import { marked } from 'marked';
 import MarkdownTable from './MarkdownTable';
+import {EditorView} from "prosemirror-view"
+import {EditorState} from "prosemirror-state"
+import {schema, defaultMarkdownParser,
+        defaultMarkdownSerializer} from "prosemirror-markdown"
+import {exampleSetup} from "prosemirror-example-setup"
 
 export default {
     name: 'custom-header',
@@ -22,14 +26,20 @@ export default {
             ],
             maxImageWidth: 1400,
             minImageWidth: 0,
-            showMarkdownTips: false
+            showMarkdownTips: false,
+
+            editorType: 'markdown',
+            editorTarget: null,
+            editorTextarea: null,
+            prosemirrorView: null
         }
     },
     created() {
         this.getImageFiles();
     },
     mounted() {
-        console.log('custom header mounted')
+        this.editorTarget = document.getElementById('editor_target');
+        this.setupMarkdownView(this.title);
     },
     components: {
         MarkdownTable
@@ -39,6 +49,7 @@ export default {
         'appIsUpdating',
         'header',
         'truncateText',
+        'markdownToHTML',
         'openHistoryDialog',
         'isEditingMode',
         'APIroot',
@@ -47,7 +58,7 @@ export default {
     computed: {
         headerOBJ() {
             return {
-                title: XSSHelpers.stripAllTags(this.title).trim(),
+                title: XSSHelpers.stripAllTags(this.editorType === 'markdown' ? this.title : this.getTitleMD('prose')).trim(),
                 titleColor: this.titleColor,
                 imageFile: this.imageFile,
                 imageW: +this.imageW,
@@ -55,15 +66,15 @@ export default {
                 enabled: +this.enabled,
             }
         },
-        contentChanged() {
-            let contentChanged = false;
+        headerContentChanged() {
+            let headerContentChanged = false;
             for (let k in this.headerOBJ) {
                 if (this.header[k] !== this.headerOBJ[k]) {
-                    contentChanged = true;
+                    headerContentChanged = true;
                     break;
                 }
             }
-            return contentChanged;
+            return headerContentChanged;
         },
         headerWrapperFlex() {
             let dir = 'row';
@@ -94,15 +105,15 @@ export default {
         markdownButtonTitle() {
             return this.showMarkdownTips ? 'Hide markdown tips' : 'Show markdown tips';
         },
-        markedTitle() {
-            return marked(this.title);
+        proseContent() {
+            return this.editorType === 'markdown' ? '' : defaultMarkdownSerializer.serialize(this.prosemirrorView.state.doc);
         },
         wrapperStyles() {
             return {
                 flexDirection: this.headerWrapperFlex,
                 marginBottom: this.isEditingMode ? '1rem' : '2rem'
             }
-        }
+        },
     },
     methods: {
         async getImageFiles() {
@@ -114,15 +125,73 @@ export default {
             } catch (error) {
                 console.error(`error getting files: ${error.message}`);
             }
+        },
+        getTitleMD(editorType = this.editorType) {
+            let returnValue = this.title;
+            if (this.editorTextarea !== null) {
+                returnValue = editorType === 'markdown' ?
+                    this.editorTextarea.value :
+                    defaultMarkdownSerializer.serialize(this.prosemirrorView.state.doc);
+            }
+            return returnValue;
+        },
+        setupMarkdownView(content = '') {
+            this.editorTextarea = this.editorTarget.appendChild(document.createElement('textarea'));
+            this.editorTextarea.value = content;
+            this.editorTextarea.addEventListener('change', (e) => this.title = e.target.value);
+        },
+        setupProseView(content = '') {
+            let t = this;
+            let view = new EditorView(this.editorTarget, {
+                state: EditorState.create({
+                    doc: defaultMarkdownParser.parse(content),
+                    plugins: exampleSetup({schema})
+                }),
+                dispatchTransaction(transaction) {
+                    let newState = view.state.apply(transaction);
+                    view.updateState(newState);
+                    t.title = t.getTitleMD('prose');
+                }
+            });
+            this.prosemirrorView = view;
+        },
+        createNewEditor(content = '') {
+            if(this.editorType === 'markdown') {
+                this.setupMarkdownView(content);
+            } else {
+                this.setupProseView(content);
+            }
+        },
+        destroyPreviousEditor() {
+            if(this.editorType === 'markdown') {
+                this.prosemirrorView.destroy();
+            } else {
+                this.editorTextarea.remove();
+            }
+        },
+        focusEditor() {
+            if(this.editorType === 'markdown') {
+                this.editorTextarea.focus();
+            } else {
+                this.prosemirrorView.focus();
+            }
+        }
+    },
+    watch: {
+        editorType(newVal, oldVal) {
+            const oldContent = this.getTitleMD(oldVal);
+            this.destroyPreviousEditor();
+            this.createNewEditor(oldContent);
+            this.focusEditor();
         }
     },
     template: `<section id="custom_header">
         <!-- NOTE: HEADER DISPLAY -->
         <div id="header_display_wrapper" :style="wrapperStyles">
-            <div v-show="headerType !== 5 && title !== ''" v-html="markedTitle" id="custom_header_outer_text" style="padding: 0;" :style="{color: titleColor}"></div>
+            <div v-show="headerType !== 5 && title !== ''" v-html="markdownToHTML(title)" id="custom_header_outer_text" style="padding: 0;" :style="{color: titleColor}"></div>
             <div v-show="imageFile!==''" id="custom_header_image_container">
                 <img :src="rootPath + 'files/' + imageFile" :style="{width: imageW + 'px'}" alt="custom header image" />
-                <div v-show="headerType===5 && title!==''" v-html="markedTitle" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
+                <div v-show="headerType===5 && title!==''" v-html="markdownToHTML(title)" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
             </div>
         </div>
         <!-- NOTE: HEADER EDITING -->
@@ -137,12 +206,24 @@ export default {
                 <!-- MARKDOWN AREA -->
                 <div id="custom_header_left">
                     <label for="header_title" style="position: relative;">Header Text
-                        <span id="btn_markdown_tips" role="button" tabindex="0"
+                        <span v-show="editorType==='markdown'" id="btn_markdown_tips" role="button" tabindex="0"
                             @click="showMarkdownTips=!showMarkdownTips" @keyup.enter="showMarkdownTips=!showMarkdownTips"
                             :title="markdownButtonTitle">ℹ <span style="color: #000000;">md</span>
                         </span>
-                        <textarea id="header_title" v-model="title" rows="6"></textarea>
+                        <!-- NOTE: markdown view -->
+                        <textarea v-show="editorType==='markdown'" id="header_title" v-model="title" rows="6"></textarea>
+                        <!-- NOTE: prose view -->
+                        <div v-show="editorType==='prose'" id="editor_target"></div>
                     </label>
+                    <div style="display:flex; justify-content: center;">
+                        <label style="display: flex; padding-right: 8px; border-right: 2px solid #cadff0; width: auto;">markdown
+                            <input type="radio" name="mark_prose" style="width:auto;" value="markdown" v-model="editorType" />
+                        </label>
+                        <label style="display: flex; padding-left: 5px; width: auto;">
+                            <input type="radio" name="mark_prose" style="width:auto" value="prose" v-model="editorType" />
+                            WYSIWYG
+                        </label>
+                    </div>
                 </div>
 
                 <!-- OTHER CONTROLS -->
@@ -174,7 +255,7 @@ export default {
                             <span class="leaf_check"></span>{{ +enabled === 1 ? 'enabled' : 'hidden'}}
                         </label>
                         <button type="button" class="btn-confirm" @click="updateHomeDesign('header', headerOBJ)"
-                            :disabled="!contentChanged || appIsUpdating">
+                            :disabled="!headerContentChanged || appIsUpdating">
                             Save Changes
                         </button>
                     </div>

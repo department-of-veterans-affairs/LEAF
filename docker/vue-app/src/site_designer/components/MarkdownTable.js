@@ -1,5 +1,3 @@
-import { marked } from 'marked';
-
 export default {
     name: 'markdown-table',
     data() {
@@ -17,12 +15,6 @@ export default {
                     effect: "Headings. <br/>1-5 # (1 is largest)",
                     example: '### LEAF'
                 },
-                // not sure if this should be included.  this space should be limited
-                // { 
-                //     effect: "Indented blockquote text. <br/>> for each indent",
-                //     example: '> LEAF\n>> LEAF',
-                //     html: `> LEAF<br />>> LEAF`
-                // },
                 { 
                     effect: "ordered and unordered lists",
                     example: `1. item A\n2. item B\n* item A\n* item B`,
@@ -40,15 +32,10 @@ export default {
             ]
         }
     },
-    computed: {
-        tableHeight() {
-            return 10;
-        }
-    },
+    inject: [
+        'markdownToHTML'
+    ],
     methods: {
-        markDown(input = '') {
-            return marked(input);
-        },
         rowColor(i) {
             return i%2 === 0 ? '#ffffff' : '#fbfbfd'
         }
@@ -67,7 +54,7 @@ export default {
                 <td v-if="ele.html !== undefined" v-html="ele.html"></td>
                 <td v-else>{{ ele.example }}</td>
 
-                <td v-html="markDown(ele.example)"></td>
+                <td v-html="markdownToHTML(ele.example)"></td>
             </tr>
         </table>
     </div>`
