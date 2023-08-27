@@ -30,7 +30,6 @@ export default {
 
             editorType: 'markdown',
             editorTarget: null,
-            editorTextarea: null,
             prosemirrorView: null
         }
     },
@@ -39,7 +38,6 @@ export default {
     },
     mounted() {
         this.editorTarget = document.getElementById('editor_target');
-        this.setupMarkdownView(this.title);
     },
     components: {
         MarkdownTable
@@ -58,7 +56,7 @@ export default {
     computed: {
         headerOBJ() {
             return {
-                title: XSSHelpers.stripAllTags(this.editorType === 'markdown' ? this.title : this.getTitleMD('prose')).trim(),
+                title: XSSHelpers.stripAllTags(this.title).trim(),
                 titleColor: this.titleColor,
                 imageFile: this.imageFile,
                 imageW: +this.imageW,
@@ -105,9 +103,6 @@ export default {
         markdownButtonTitle() {
             return this.showMarkdownTips ? 'Hide markdown tips' : 'Show markdown tips';
         },
-        proseContent() {
-            return this.editorType === 'markdown' ? '' : defaultMarkdownSerializer.serialize(this.prosemirrorView.state.doc);
-        },
         wrapperStyles() {
             return {
                 flexDirection: this.headerWrapperFlex,
@@ -126,52 +121,24 @@ export default {
                 console.error(`error getting files: ${error.message}`);
             }
         },
-        getTitleMD(editorType = this.editorType) {
-            let returnValue = this.title;
-            if (this.editorTextarea !== null) {
-                returnValue = editorType === 'markdown' ?
-                    this.editorTextarea.value :
-                    defaultMarkdownSerializer.serialize(this.prosemirrorView.state.doc);
-            }
-            return returnValue;
-        },
-        setupMarkdownView(content = '') {
-            this.editorTextarea = this.editorTarget.appendChild(document.createElement('textarea'));
-            this.editorTextarea.value = content;
-            this.editorTextarea.addEventListener('change', (e) => this.title = e.target.value);
-        },
-        setupProseView(content = '') {
+        setupProseView() {
             let t = this;
             let view = new EditorView(this.editorTarget, {
                 state: EditorState.create({
-                    doc: defaultMarkdownParser.parse(content),
+                    doc: defaultMarkdownParser.parse(t.title),
                     plugins: exampleSetup({schema})
                 }),
                 dispatchTransaction(transaction) {
                     let newState = view.state.apply(transaction);
                     view.updateState(newState);
-                    t.title = t.getTitleMD('prose');
+                    t.title = defaultMarkdownSerializer.serialize(view.state.doc);
                 }
             });
             this.prosemirrorView = view;
         },
-        createNewEditor(content = '') {
-            if(this.editorType === 'markdown') {
-                this.setupMarkdownView(content);
-            } else {
-                this.setupProseView(content);
-            }
-        },
-        destroyPreviousEditor() {
-            if(this.editorType === 'markdown') {
-                this.prosemirrorView.destroy();
-            } else {
-                this.editorTextarea.remove();
-            }
-        },
         focusEditor() {
             if(this.editorType === 'markdown') {
-                this.editorTextarea.focus();
+                document.getElementById('header_title').focus();
             } else {
                 this.prosemirrorView.focus();
             }
@@ -179,21 +146,17 @@ export default {
     },
     watch: {
         editorType(newVal, oldVal) {
-            const oldContent = this.getTitleMD(oldVal);
-            this.destroyPreviousEditor();
-            this.createNewEditor(oldContent);
-            this.focusEditor();
+            if(oldVal.toLowerCase() === 'prose') {
+                this.prosemirrorView.destroy()
+            } else {
+                this.setupProseView();
+            }
+            setTimeout(()=> {
+                this.focusEditor();
+            });
         }
     },
     template: `<section id="custom_header">
-        <!-- NOTE: HEADER DISPLAY -->
-        <div id="header_display_wrapper" :style="wrapperStyles">
-            <div v-show="headerType !== 5 && title !== ''" v-html="markdownToHTML(title)" id="custom_header_outer_text" style="padding: 0;" :style="{color: titleColor}"></div>
-            <div v-show="imageFile!==''" id="custom_header_image_container">
-                <img :src="rootPath + 'files/' + imageFile" :style="{width: imageW + 'px'}" alt="custom header image" />
-                <div v-show="headerType===5 && title!==''" v-html="markdownToHTML(title)" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
-            </div>
-        </div>
         <!-- NOTE: HEADER EDITING -->
         <div v-show="isEditingMode" id="edit_header">
             <div class="design_control_heading">
@@ -262,6 +225,14 @@ export default {
                 </div> <!-- right side -->
             </div> <!-- controls -->
         </div>
-        <MarkdownTable v-show="showMarkdownTips && isEditingMode" />
+        <MarkdownTable v-show="showMarkdownTips && isEditingMode && editorType === 'markdown'" />
+        <!-- NOTE: HEADER DISPLAY -->
+        <div id="header_display_wrapper" :style="wrapperStyles">
+            <div v-show="headerType !== 5 && title !== ''" v-html="markdownToHTML(title)" id="custom_header_outer_text" style="padding: 0;" :style="{color: titleColor}"></div>
+            <div v-show="imageFile!==''" id="custom_header_image_container">
+                <img :src="rootPath + 'files/' + imageFile" :style="{width: imageW + 'px'}" alt="custom header image" />
+                <div v-show="headerType===5 && title!==''" v-html="markdownToHTML(title)" id="custom_header_inner_text" :style="headerInnerTextStyles"></div>
+            </div>
+        </div>
     </section>`
 }

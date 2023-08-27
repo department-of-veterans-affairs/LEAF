@@ -12,7 +12,7 @@ export default {
                     example: '**LEAF**, __LEAF__'
                 },
                 { 
-                    effect: "Headings. <br/>1-5 # (1 is largest)",
+                    effect: "Headings. <br/>1-5 # and a space before text (1 is largest)",
                     example: '### LEAF'
                 },
                 { 
