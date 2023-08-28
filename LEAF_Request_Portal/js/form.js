@@ -821,7 +821,7 @@ var LeafForm = function (containerID) {
         errorCount++;
         let errorMsg = 'Please try again, there was a problem saving the data. This issue has been automatically reported.';
         if(errorCount > 2) {
-            errorMsg += "\n\nIf this message persists, please contact your administrator.";
+            errorMsg += "\n\nIf this message persists, please contact your administrator for additional guidance.";
         }
         alert(errorMsg);
         dialog.setSaveHandler(function () {
