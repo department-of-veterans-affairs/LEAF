@@ -685,6 +685,7 @@ function doSubmit(recordID) {
             });
         });
         dialog_confirm.show();
+        $('#cancel_comment').focus();
     }
 
     function changeTitle() {
