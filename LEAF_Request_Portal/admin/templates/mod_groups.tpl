@@ -933,7 +933,7 @@ function importGroup() {
     $(".ui-dialog>div").css('width', 'auto');
     $(".leaf-dialog-content").css('width', 'auto');
     dialog_import.setTitle('Import Group');
-    dialog_import.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site or Outlook:</p><div class="leaf-marginTop-1rem"><label>Group Title or Outlook Group</label><div id="groupSel_container"></div></div>');
+    dialog_import.setContent('<p role="heading" tabindex="-1">Import a group from another LEAF site:</p><div class="leaf-marginTop-1rem"><label>Group Title</label><div id="groupSel_container"></div></div>');
     dialog_import.showButtons();
     let groupSel = new groupSelector('groupSel_container');
     groupSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
