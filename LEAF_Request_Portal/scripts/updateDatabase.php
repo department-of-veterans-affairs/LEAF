@@ -62,7 +62,8 @@ function updateDB($thisVer, $updateList, $folder, $db)
         $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
         if ($res[0]['data'] == $thisVer)
         {
-            echo 'Update failed.' . BR;
+            echo PORTAL_PATH . BR;
+            echo 'Portal DB Update failed.' . BR;
         }
         else
         {

@@ -46,15 +46,18 @@ Password: tester
 
 ## Vue Development
 
-Dev mode: Log in to container and run the command:
+This container is used for the Form Editor and Site Designer Vue apps, and for the updated admin-side SASS files.
 
-npm run dev-vue
+Dev mode: Log in to container, bash, and run the command:
+
+npm run dev
 
 webpack will watch for changes to /docker/vue-app/src
 **Remember to build for production if src files have been edited**
 
-Production mode: Log in to container and run the command:
+Production mode: Log in to container, bash, and run the command:
 
-npm run build-vue
+npm run build
 
-webpack will build to /libs/js/vue-dest
+form editor and site designer apps builds to respective folders under /libs/js/vue-dest
+sass (leaf.css and related fonts and assets) builds to /libs/css

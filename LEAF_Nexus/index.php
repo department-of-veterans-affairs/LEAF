@@ -148,6 +148,8 @@ switch ($action) {
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('is_admin', $oc_login->getMembership()['groupID'][1]);
+            $main->assign('CSRFToken', $_SESSION['CSRFToken']);
+
 
             $t_form->assign('ERM_site_resource_management', $oc_settings['ERM_Sites']['resource_management']);
 

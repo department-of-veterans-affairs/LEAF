@@ -70,6 +70,19 @@ class ServiceController extends RESTfulResponse
                     return $service->addMember($args[0], $_POST['userID']);
                 });
 
+                $this->index['POST']->register('service/[digit]/members/[text]', function ($args) use ($service) {
+                    return $service->deactivateChief($args[0], $args[1]);
+                });
+
+                $this->index['POST']->register('service/[digit]/members/[text]/reactivate', function ($args) use ($service) {
+
+                    return $service->reactivateChief($args[1], $args[0]);
+                });
+
+                $this->index['POST']->register('service/[digit]/members/[text]/prune', function ($args) use ($service) {
+                    return $service->pruneChief($args[0], $args[1]);
+                });
+
                 return $this->index['POST']->runControl($act['key'], $act['args']);
             }
         }

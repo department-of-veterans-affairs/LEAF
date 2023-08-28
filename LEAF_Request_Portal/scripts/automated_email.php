@@ -46,7 +46,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $daysago = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
 
     // pass ?current=asdasd to get the present time for testing purposes
-    $intialDaysAgoTimestamp = time() - ($daysago * $timeAdjustment);
+    $intialDaysAgoTimestamp = time() - ((int) $daysago * $timeAdjustment);
 
     echo "Working on step: {$workflowStep['stepID']}, Initial Notification: ".date('Y-m-d H:i:s',$intialDaysAgoTimestamp)."\r\n";
 
@@ -75,7 +75,9 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     }
 
     $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
+    $addDaysAgoTimestamp = time() - ($addldaysago * $timeAdjustment);
 
+    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$addDaysAgoTimestamp)];
     // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
     $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`
         FROM records_workflow_state

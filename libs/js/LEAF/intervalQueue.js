@@ -46,19 +46,27 @@ var intervalQueue = function() {
                     
                     loading++;
                     let item = queue.shift();
-                    workerFunction(item).then(
-                        function(result) { // fulfilled
-                            loaded++;
-                            loading--;
-                        },
-                        function(reason) {
-                            loaded++;
-                            loading--;
-                            if(typeof workerErrorFunction == 'function') {
-                                workerErrorFunction(item, reason);
+                    try {
+                        workerFunction(item).then(
+                            function(result) { // fulfilled
+                                loaded++;
+                                loading--;
+                            },
+                            function(reason) { // rejected
+                                loaded++;
+                                loading--;
+                                if(typeof workerErrorFunction == 'function') {
+                                    workerErrorFunction(item, reason);
+                                }
                             }
-                        } // rejected
-                    );
+                        );
+                    } catch(e) {
+                        if(typeof workerErrorFunction == 'function') {
+                            workerErrorFunction(item, e);
+                        } else {
+                            console.log(e);
+                        }
+                    }
                 }
     
                 // When finished

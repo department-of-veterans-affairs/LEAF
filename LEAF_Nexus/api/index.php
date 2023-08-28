@@ -11,6 +11,12 @@ require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 $oc_db = $oc_db;
 $oc_login->setBaseDir('../');
 
+if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
+    $national_db = true;
+} else {
+    $national_db = false;
+}
+
 $oc_login->loginUser();
 if (!$oc_login->isLogin() || !$oc_login->isInDB())
 {
@@ -48,8 +54,8 @@ switch ($key) {
 
         break;
     case 'employee':
-        $controllerMap->register('employee', function () use ($oc_db, $oc_login, $action) {
-            $employeeController = new Orgchart\EmployeeController($oc_db, $oc_login);
+        $controllerMap->register('employee', function () use ($oc_db, $oc_login, $national_db, $action) {
+            $employeeController = new Orgchart\EmployeeController($oc_db, $oc_login, $national_db);
             $employeeController->handler($action);
         });
 

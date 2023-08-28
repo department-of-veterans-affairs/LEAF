@@ -4,8 +4,6 @@ ini_set('display_errors', 0); // Set to 1 to display errors
 require_once '../globals.php';
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
-$db_config = new Portal\DbConfig;
-
 $debug = false;
 
 $res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
@@ -27,7 +25,7 @@ if(!file_exists($tempFolder . 'actions.sql')) {
     exit();
 }
 
-echo "Running Importer on {$db_config->dbName}...<br />\n";
+echo "Running Importer on {$site_paths['portal_database']}...<br />\n";
 
 if ($debug)
 {

@@ -1,12 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-module.exports = {
-    entry: './src/LEAF_FormEditor_main.js',
-    output: {
-        filename: 'LEAF_FormEditor_main_build.js',
-        path: path.resolve(__dirname, '/app/vue-dest')
-    },
+const commonConfig = {
     watchOptions: {
         poll: true
     },
@@ -19,21 +15,25 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.js$/,
+                test: /\.js$/i,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader'
                 }
             },
             {
-                test: /\.scss$/,
+                test: /\.(s[ac]|c)ss$/i,
                 exclude: /node_modules/,
                 use: [
-                    'style-loader',
+                    MiniCssExtractPlugin.loader,
                     'css-loader',
                     'sass-loader'
                 ]
-            }
+            },
+            {
+                test: /\.(png|svg|gif|woff|woff2|ttf)$/i,
+                type: "asset",
+            },
         ]
     },
     plugins: [
@@ -43,6 +43,61 @@ module.exports = {
             options: {
                 runtimeCompiler: true,
             }
-        })
+        }),
+        new MiniCssExtractPlugin()
     ],
 }
+
+const formEditorConfig = {
+    ...commonConfig,
+    entry: {
+        'LEAF_FormEditor': path.resolve(__dirname, './src/form_editor/LEAF_FormEditor_main.js'),
+    },
+    output: {
+        filename: '[name].js',
+        chunkFilename: '[name].chunk.js',
+        path: path.resolve(__dirname, '/app/vue-dest/form_editor'),
+        clean: true
+    }
+}
+
+const siteDesignerConfig = {
+    ...commonConfig,
+    entry: {
+        'LEAF_Designer': path.resolve(__dirname, './src/site_designer/LEAF_Designer_main.js'),
+    },
+    output: {
+        filename: '[name].js',
+        path: path.resolve(__dirname, '/app/vue-dest/site_designer'),
+        clean: true
+    }
+}
+const adminSassConfig = {
+    ...commonConfig,
+    entry: {
+        'leaf': path.resolve(__dirname, './src/sass/main.js'),
+    },
+    output: {
+        filename: '[name].js',
+        path: path.resolve(__dirname, '/app/css'),
+        assetModuleFilename: (pathData) => {
+            const fileName = pathData.filename;
+            const srcPath = 'src/common/assets/';
+            const srcLen = srcPath.length;
+            const fontPath = fileName.slice(srcLen);
+            let outPath = `assets/[name].[hash][ext][query]`;
+            //keep previous font paths, everything else that isn't inline can just go in assets
+            if(fileName.indexOf(srcPath) === 0 && /\.(woff|woff2|ttf)$/.test(fileName)) {
+                outPath = 'fonts/' + fontPath;
+            }
+            return outPath;
+          },
+        clean: true
+    }
+}
+
+module.exports = [
+    formEditorConfig,
+    siteDesignerConfig,
+    adminSassConfig
+];

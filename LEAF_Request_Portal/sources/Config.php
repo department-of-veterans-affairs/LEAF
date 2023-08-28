@@ -22,11 +22,11 @@ class Config
 
     public $descriptionID;     // indicator ID for description field
 
-    public static $emailPrefix;  // Email prefix
-
     public static $emailCC;    // CCed for every email
 
     public static $emailBCC;      // BCCed for every email
+
+    public static $portalDb;
 
     public $phonedbName;
 
@@ -40,10 +40,25 @@ class Config
         self::$uploadDir = $site_paths['site_uploads'];
         self::$orgchartPath = $site_paths['orgchart_path'];
         self::$orgchartImportTags = $settings['orgchartImportTags'];
-        $this->descriptionID = $settings['descriptionID'];
-        self::$emailPrefix = $settings['requestLabel'];
-        self::$emailCC = $settings['emailCC'];
-        self::$emailBCC = $settings['emailBCC'];
+        self::$portalDb = $site_paths['portal_database'];
         $this->phonedbName = $site_paths['orgchart_database'];
+
+        if (isset($settings['emailCC'])) {
+            self::$emailBCC = $settings['emailCC'];
+        } else {
+            self::$emailBCC = array();
+        }
+
+        if (isset($settings['emailBCC'])) {
+            self::$emailBCC = $settings['emailBCC'];
+        } else {
+            self::$emailBCC = array();
+        }
+
+        if (isset($settings['descriptionID'])) {
+            $this->descriptionID = $settings['descriptionID'];
+        } else {
+            $this->descriptionID = '';
+        }
     }
 }

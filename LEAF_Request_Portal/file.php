@@ -16,12 +16,18 @@ $data = $form->getIndicator(
     Leaf\XSSHelpers::xscrub($_GET['form'])
 );
 
-$value = $data[$_GET['id']]['value'];
+if (isset($data[$_GET['id']]['value'])){
+    $value = $data[$_GET['id']]['value'];
+} else {
+    $value = 0;
+}
 
-if (!is_numeric($_GET['file'])
+if (
+    !is_numeric($_GET['file'])
     || $_GET['file'] < 0
-    || !is_countable($value) || $_GET['file'] > count($value) - 1)
-{
+    || !is_countable($value)
+    || $_GET['file'] > count($value) - 1
+) {
     echo 'Invalid file';
     exit();
 }

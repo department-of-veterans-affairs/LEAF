@@ -9,12 +9,9 @@
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script>
+const orgchartPath = '<!--{$orgchartPath}-->';
 let vueData = {
-    formID: 0,
-    formTitle: '',
     indicatorID: 0,
-    required: 0,
-    icons: [],
     updateIndicatorList: false
 }
 
@@ -152,13 +149,13 @@ function editProperties(isSubForm) {
 
     dialog.setSaveHandler(function() {
         let calls = [];
-        let nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
-        let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
-        let workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
-        let needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
-        let sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
-        let visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
-        let typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
+        let nameChanged = (categories[currCategoryID].categoryName || "") !== $('#name').val();
+        let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") !== $('#description').val();
+        let workflowChanged  = +categories[currCategoryID].workflowID !== +$('#workflowID').val();
+        let needToKnowChanged = +categories[currCategoryID].needToKnow !== +$('#needToKnow').val();
+        let sortChanged = +categories[currCategoryID].sort !== +$('#sort').val();
+        let visibleChanged = +categories[currCategoryID].visible !== +$('#visible').val();
+        let typeChanged = (categories[currCategoryID].type || "") !== $('#formType').val();
 
         if(nameChanged){
             calls.push($.ajax({
@@ -247,6 +244,7 @@ function editProperties(isSubForm) {
         }
 
         if(visibleChanged){
+            calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/formEditor/formVisible',
@@ -259,7 +257,7 @@ function editProperties(isSubForm) {
                 error: function(err) {
                     console.error(err?.responseText);
                 }
-            });
+            }));
         }
 
         if(typeChanged){
@@ -333,13 +331,7 @@ function openContent(url) {
         dataType: 'text',  // IE9 issue
         success: function(res) {
             $('#formEditor_form').empty().html(res);
-            const icons = Array.from(document.querySelectorAll('img[id^="edit_conditions"]'));
-
-            vueData.formID = currCategoryID;
-            vueData.formTitle = formTitle;
             vueData.indicatorID = 0;
-            vueData.required = 0;
-            vueData.icons = icons.map(ele => ele.id.replaceAll('edit_conditions_', ''));
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
         error: function(res) {
@@ -1505,10 +1497,11 @@ function getForm(indicatorID, series) {
         let formatChanged = (indicatorEditing.format || "") + options !== $('#format').val();
         let descriptionChanged = (indicatorEditing.description || "") !== $('#description').val();
         let defaultChanged = (indicatorEditing.default || "") !== $('#default').val();
-        let requiredChanged = (indicatorEditing.required || "") !== requiredIndicator.toString();
-        let sensitiveChanged = (indicatorEditing.is_sensitive || "") !== sensitiveIndicator.toString();
-        let parentIDChanged = (indicatorEditing.parentID || "") !== $("#parentID").val();
-        let sortChanged = (indicatorEditing.sort || "") !== $("#sort").val();
+        let requiredChanged = +indicatorEditing.required !== +requiredIndicator;
+        let sensitiveChanged = +indicatorEditing.is_sensitive !== +sensitiveIndicator;
+        //+null (possible parentID value) and +'' (empty parentID input value) both eval to 0
+        let parentIDChanged = +indicatorEditing.parentID !== +$("#parentID").val();
+        let sortChanged = +indicatorEditing.sort !== +$("#sort").val();
         let htmlChanged = (indicatorEditing.html || "") !== codeEditorHtml.getValue();
         let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") !== codeEditorHtmlPrint.getValue();
 
@@ -2296,6 +2289,9 @@ function createForm(parentID) {
                 categories[res].categoryDescription = categoryDescription;
                 categories[res].workflowID = 0;
                 categories[res].parentID = '';
+                categories[res].needToKnow = 0;
+                categories[res].visible = 1;
+                categories[res].sort = 0;
                 if(parentID != '') {
                     categories[res].parentID = parentID;
                     buildMenu(parentID);

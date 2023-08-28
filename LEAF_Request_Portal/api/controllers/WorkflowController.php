@@ -111,6 +111,9 @@ class WorkflowController extends RESTfulResponse
         $this->index['GET']->register('workflow/steps', function ($args) use ($workflow) {
             return $workflow->getAllSteps();
         });
+        $this->index['GET']->register('workflow/workflowSteps', function ($args) use ($workflow) {
+            return $workflow->getAllWorkflowSteps();
+        });
 
         $this->index['GET']->register('workflow/action/[text]', function ($args) use ( $workflow) {
             return $workflow->getAction($args[0]);
@@ -119,6 +122,16 @@ class WorkflowController extends RESTfulResponse
         $this->index['GET']->register('workflow/[digit]/step/[digit]/[text]/events/emailReminder', function ($args) use ( $workflow) {
             $workflow->setWorkflowID($args[0]);
             return $workflow->getEmailReminderData((int)$args[1], \Leaf\XSSHelpers::xscrub($args[2]));
+        });
+
+        $this->index['GET']->register('workflow/[digit]/step/routeEvents', function ($args) use ( $workflow) {
+            $workflow->setWorkflowID($args[0]);
+
+            return $workflow->getWorkflowEvents((int) $args[0]);
+        });
+
+        $this->index['GET']->register('workflow/[digit]/stepDependencies', function ($args) use ( $workflow) {
+            return $workflow->getStepDependencies((int) $args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
