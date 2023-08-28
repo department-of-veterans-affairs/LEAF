@@ -45,6 +45,7 @@ class ControllerMap
             return $this->controllers[$key]($args);
         }
 
+        http_response_code(400);
         return 'Controller is undefined.';
     }
 
