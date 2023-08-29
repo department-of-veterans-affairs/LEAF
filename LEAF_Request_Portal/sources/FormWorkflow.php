@@ -1053,17 +1053,17 @@ class FormWorkflow
                         FROM records AS rec
                         LEFT JOIN services AS ser USING (serviceID)
                         WHERE recordID = :recordID';
-                    $approvers = $this->db->prepared_query($strSQL, $vars);
+                    $requestRecords = $this->db->prepared_query($strSQL, $vars);
 
 
-                    $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+                    $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
 
                     $email->addSmartyVariables(array(
                         "truncatedTitle" => $title,
-                        "fullTitle" => $approvers[0]['title'],
+                        "fullTitle" => $requestRecords[0]['title'],
                         "recordID" => $this->recordID,
-                        "service" => $approvers[0]['service'],
-                        "lastStatus" => $approvers[0]['lastStatus'],
+                        "service" => $requestRecords[0]['service'],
+                        "lastStatus" => $requestRecords[0]['lastStatus'],
                         "comment" => $comment,
                         "siteRoot" => $this->siteRoot
                     ));
@@ -1071,8 +1071,18 @@ class FormWorkflow
 
                     $dir = new VAMC_Directory;
 
-                    $author = $dir->lookupLogin($approvers[0]['userID']);
-                    $email->setSender($author[0]['Email']);
+                    $author = $dir->lookupLogin($requestRecords[0]['userID']);// this is the requestors info
+
+                    // get the person that has commited  the action since we would want to send from that email
+                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
+                        FROM records 
+                        JOIN action_history USING(recordID) 
+                        WHERE recordID = :recordID 
+                        ORDER BY actionID DESC LIMIT 1;';
+
+                    $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
+                    $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
+                    $email->setSender($lastActionAuthor[0]['Email']); 
 
                     // Get backups to requester so they can be notified as well
                     $nexusDB = $this->login->getNexusDB();
@@ -1088,7 +1098,7 @@ class FormWorkflow
                       $email->addRecipient($theirBackup[0]['Email']);
                     }
 
-                    $tmp = $dir->lookupLogin($approvers[0]['userID']);
+                    $tmp = $dir->lookupLogin($requestRecords[0]['userID']);
                     $email->addRecipient($tmp[0]['Email']);
 
                     $email->sendMail($this->recordID);
@@ -1102,17 +1112,17 @@ class FormWorkflow
                         FROM records AS rec
                         LEFT JOIN services AS ser USING (serviceID)
                         WHERE recordID = :recordID';
-                    $approvers = $this->db->prepared_query($strSQL, $vars);
+                    $requestRecords = $this->db->prepared_query($strSQL, $vars);
 
-                    $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+                    $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
                     $fields = $this->getFields();
 
                     $email->addSmartyVariables(array(
                         "truncatedTitle" => $title,
-                        "fullTitle" => $approvers[0]['title'],
+                        "fullTitle" => $requestRecords[0]['title'],
                         "recordID" => $this->recordID,
-                        "service" => $approvers[0]['service'],
-                        "lastStatus" => $approvers[0]['lastStatus'],
+                        "service" => $requestRecords[0]['service'],
+                        "lastStatus" => $requestRecords[0]['lastStatus'],
                         "comment" => $comment,
                         "siteRoot" => $this->siteRoot,
                         "field" => $fields
@@ -1123,8 +1133,18 @@ class FormWorkflow
 
                     $dir = new VAMC_Directory;
 
-                    $author = $dir->lookupLogin($approvers[0]['userID']);
-                    $email->setSender($author[0]['Email']);
+                    $author = $dir->lookupLogin($requestRecords[0]['userID']);
+                    
+                    // get the person that has commited  the action since we would want to send from that email
+                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
+                        FROM records 
+                        JOIN action_history USING(recordID) 
+                        WHERE recordID = :recordID 
+                        ORDER BY actionID DESC LIMIT 1;';
+
+                    $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
+                    $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
+                    $email->setSender($lastActionAuthor[0]['Email']); 
 
                     $eventData = json_decode($event['eventData']);
 
@@ -1143,7 +1163,7 @@ class FormWorkflow
                             $email->addRecipient($theirBackup[0]['Email']);
                         }
 
-                        $tmp = $dir->lookupLogin($approvers[0]['userID']);
+                        $tmp = $dir->lookupLogin($requestRecords[0]['userID']);
                         $email->addRecipient($tmp[0]['Email']);
                     }
 
