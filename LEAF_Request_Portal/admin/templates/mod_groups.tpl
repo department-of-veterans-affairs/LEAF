@@ -614,7 +614,7 @@ function getGroupList() {
                                                     // loop through data to display the workflow and steps within
                                                     let data = response.data;
                                                     let currentWF = '';
-                                                    let display = 'This group is associated with the following Workflows and their<br /> cooresponding steps.<br /> It is recommended that you remove this group from the related steps<br /> before deleting this group.<ul>';
+                                                    let display = 'This group is associated with the following Workflows and their<br /> cooresponding steps.<br /><br /> The following steps depend on the group you are about to remove.<br /> Please update them to avoid routing issues.<ul>';
 
                                                     if (data.length > 0) {
                                                         for (let i in data) {
@@ -640,12 +640,18 @@ function getGroupList() {
 
                                                     // display is complete, close out the ul's
                                                     if (currentWF !== '') {
-                                                        display += '</ul></ul> Are you sure you want to continue with deleting this group?';
+                                                        display += '</ul></ul> Are you sure you want to remove this group from this portal?';
                                                     } else {
                                                         display = 'Are you sure you want to delete this group?';
                                                     }
 
+                                                    dialog_confirm.setTitle('Confirm Group Removal');
                                                     dialog_confirm.setContent(display);
+                                                    $('#confirm_button_save').html('Remove').css('backgroundColor', '#d83933');
+
+                                                    $('#confirm_button_cancelchange').text('Cancel');
+
+
                                                     dialog_confirm.setSaveHandler(function() {
                                                         $.ajax({
                                                             type: 'DELETE',
