@@ -144,19 +144,29 @@ class Service
         return true;
     }
 
+    /**
+     * @param int $groupID
+     * @param string $member
+     *
+     * @return bool
+     *
+     * Created at: 8/16/2023, 8:45:10 AM (America/New_York)
+     */
     public function addMember($groupID, $member)
     {
         $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '') {
-            $sql_vars = array(':userID' => $member,
-                    ':serviceID' => $groupID,);
+            $vars = array(':userID' => $member,
+                        ':serviceID' => $groupID);
+            $sql = 'INSERT INTO `service_chiefs` (
+                        `serviceID`, `userID`, `backupID`, `locallyManaged`, `active`)
+                    VALUES (:serviceID, :userID, "", 1, 1)
+                    ON DUPLICATE KEY UPDATE `locallyManaged` = 1, `active` = 1';
 
             // Update on duplicate keys
-            $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID, locallyManaged, active)
-                                                    VALUES (:serviceID, :userID, null, 1, 1)
-                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=null, locallyManaged=1, active=1', $sql_vars);
+            $this->db->prepared_query($sql, $vars);
 
             $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::SERVICE_CHIEF, [
                 new \Leaf\LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
@@ -165,38 +175,44 @@ class Service
             ]);
 
             // check if this service is also an ELT
-            $sql_vars = array(':groupID' => $groupID);
-            $res = $this->db->prepared_query('SELECT * FROM services
-   												WHERE serviceID=:groupID', $sql_vars);
-            // if so, update groups table
-            if ($res[0]['groupID'] == $groupID)
-            {
-                $sql_vars = array(':userID' => $member,
-                              ':groupID' => $groupID, );
-                $this->db->prepared_query('INSERT INTO users (userID, groupID, backupID)
-                                                VALUES (:userID, :groupID, "")', $sql_vars);
+            $vars = array(':groupID' => $groupID);
+            $sql = 'SELECT `groupID`
+                    FROM `services`
+   					WHERE `serviceID` = :groupID';
+            $res = $this->db->prepared_query($sql, $vars);
+
+
+            if ($res[0]['groupID'] == $groupID) {
+                $vars = array(':userID' => $member,
+                            ':serviceID' => $groupID);
+                $sql = 'INSERT INTO `users` (
+                            `groupID`, `userID`, `backupID`, `locallyManaged`, `active`)
+                        VALUES (:serviceID, :userID, "", 1, 1)
+                        ON DUPLICATE KEY UPDATE `locallyManaged` = 1, `active` = 1';
+
+                $this->db->prepared_query($sql, $vars);
             }
 
             // include the backups of employees
             $emp = $employee->lookupLogin($member);
             $backups = $employee->getBackups($emp[0]['empUID']);
             foreach ($backups as $backup) {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':serviceID' => $groupID,
-                    ':backupID' => $emp[0]['userName'],);
+                $vars = array(':userID' => $backup['userName'],
+                        ':serviceID' => $groupID,
+                        ':backupID' => $emp[0]['userName']);
+                $sql = 'INSERT INTO `service_chiefs` (`userID`, `serviceID`, `backupID`)
+                        VALUES (:userID, :serviceID, :backupID)
+                        ON DUPLICATE KEY UPDATE `userID` = :userID, `serviceID` = :serviceID,
+                            `backupID` = :backupID';
 
-                $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE userID=:userID AND serviceID=:serviceID', $sql_vars);
+                $this->db->prepared_query($sql, $vars);
 
-                // Check for locallyManaged users
-                if ($res[0]['locallyManaged'] == 1) {
-                    $sql_vars[':backupID'] = null;
-                } else {
-                    $sql_vars[':backupID'] = $emp[0]['userName'];
-                }
-                // Add backupID check for updates
-                $this->db->prepared_query('INSERT INTO service_chiefs (userID, serviceID, backupID)
-                                                    VALUES (:userID, :serviceID, :backupID)
-                                                    ON DUPLICATE KEY UPDATE userID=:userID, serviceID=:serviceID, backupID=:backupID', $sql_vars);
+                $sql = 'INSERT INTO `users` (`userID`, `groupID`, `backupID`)
+                        VALUES (:userID, :serviceID, :backupID)
+                        ON DUPLICATE KEY UPDATE `userID` = :userID, `groupID` = :serviceID,
+                            `backupID` = :backupID';
+
+                $this->db->prepared_query($sql, $vars);
             }
         }
 
@@ -227,7 +243,137 @@ class Service
 
         return $this->db->prepared_query('INSERT INTO service_chiefs (serviceID, userID, backupID, locallyManaged, active)
                                                     VALUES (:serviceID, :userID, :backupID, 0, 1)
-                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=:backupID, locallyManaged=0, active=1', $sql_vars);
+                                                    ON DUPLICATE KEY UPDATE serviceID=:serviceID, userID=:userID, backupID=:backupID', $sql_vars);
+    }
+
+    /**
+     * @param int $groupID
+     * @param string $member
+     *
+     * @return array
+     *
+     * Created at: 8/16/2023, 8:46:21 AM (America/New_York)
+     */
+    public function deactivateChief(int $groupID, string $member): array
+    {
+        if (is_numeric($groupID) && $member != '') {
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::SERVICE_CHIEF, [
+                new \Leaf\LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)),
+                new \Leaf\LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID))
+            ]);
+
+            $vars = array(':userID' => $member,
+                          ':serviceID' => $groupID, );
+            $sql = 'UPDATE `service_chiefs`
+                    SET `active` = 0,
+                    `locallyManaged` = 1
+                    WHERE `serviceID` = :serviceID
+                    AND (`userID` = :userID
+                        OR `backupID` = :userID)';
+
+            $this->db->prepared_query($sql, $vars);
+
+            $sql = 'UPDATE `users`
+                    SET `active` = 0,
+                    `locallyManaged` = 1
+                    WHERE `groupID` = :serviceID
+                    AND (`userID` = :userID
+                        OR `backupID` = :userID)';
+
+            $this->db->prepared_query($sql, $vars);
+
+            $return_value = array(
+                'status' => array(
+                    'code' => 2,
+                    'message' => 'All processed properly'
+                )
+            );
+        } else {
+            $return_value = array(
+                'status' => array(
+                    'code' => 4,
+                    'message' => 'data formatted incorrectly'
+                )
+            );
+        }
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $serviceID
+     * @param string $userName
+     *
+     * @return array
+     *
+     * Created at: 8/16/2023, 8:46:50 AM (America/New_York)
+     */
+    public function pruneChief(int $serviceID, string $userName): array
+    {
+        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::SERVICE_CHIEF, [
+            new \Leaf\LogItem("service_chiefs", "userID", $userName, $this->getEmployeeDisplay($userName)),
+            new \Leaf\LogItem("service_chiefs", "serviceID", $serviceID, $this->getServiceName($serviceID))
+        ]);
+
+        $vars = array(':serviceID' => $serviceID,
+                ':userID' => $userName);
+        $sql = 'DELETE
+                FROM `service_chiefs`
+                WHERE `serviceID` = :serviceID
+                AND ((`userID` = :userID
+                    AND `backupID` = "")
+                    OR `backupID` = :userID)';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        $sql = 'DELETE
+                FROM `users`
+                WHERE `groupID` = :serviceID
+                AND ((`userID` = :userID
+                    AND `backupID` = "")
+                    OR `backupID` = :userID)';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    /**
+     * @param string $member
+     * @param int $serviceID
+     *
+     * @return array
+     *
+     * Created at: 8/16/2023, 8:47:05 AM (America/New_York)
+     */
+    public function reactivateChief(string $member, int $serviceID): array
+    {
+        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
+            new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+            new \Leaf\LogItem("users", "groupID", $serviceID, $this->getServiceName($serviceID))
+        ]);
+
+        $vars = array(':serviceID' => $serviceID,
+                ':userID' => $member);
+        $sql = 'UPDATE `service_chiefs`
+                SET `active` = 1
+                WHERE `serviceID` = :serviceID
+                AND (`userID` = :userID
+                    OR `backupID` = :userID)';
+
+        $return_value = $this->db->pdo_update_query($sql, $vars);
+
+        $vars = array(':serviceID' => $serviceID,
+                ':userID' => $member);
+        $sql = 'UPDATE `users`
+                SET `active` = 1
+                WHERE `groupID` = :serviceID
+                AND (`userID` = :userID
+                    OR `backupID` = :userID)';
+
+        $return_value = $this->db->pdo_update_query($sql, $vars);
+
+        return $return_value;
     }
 
     public function removeMember($groupID, $member)
@@ -307,8 +453,6 @@ class Service
     }
 
     /**
-     * [Description for removeChief]
-     *
      * @param int $serviceID
      * @param string $userID
      * @param string $backupID
@@ -317,62 +461,59 @@ class Service
      *
      * Created at: 9/14/2022, 11:33:53 AM (America/New_York)
      */
-    public function removeChief(int $serviceID, string $userID, string|null $backupID): array
+    public function removeChief(int $serviceID, string $userID, string $backupID = ""): array
     {
         $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE,\Leaf\LoggableTypes::SERVICE_CHIEF,[
             new \Leaf\LogItem("service_chiefs","serviceID", $serviceID, $this->getServiceName($serviceID)),
             new \Leaf\LogItem("service_chiefs", "userID", $userID, $this->getEmployeeDisplay($userID))
         ]);
 
-        if ($backupID == NULL){
-            $sql_vars = array(':userID' => $userID,
-                          ':serviceID' => $serviceID,);
+        $vars = array(':userID' => $userID,
+                    ':serviceID' => $serviceID,
+                    ':backupID' => $backupID);
+        $sql = 'DELETE
+                FROM `service_chiefs`
+                WHERE `userID` = :userID
+                AND `serviceID` = :serviceID
+                AND `backupID` = :backupID';
 
-            $result = $this->db->prepared_query('DELETE FROM service_chiefs
-                                            WHERE userID=:userID
-                                            AND serviceID=:serviceID
-                                            AND backupID IS NULL',
-                                            $sql_vars);
-        } else {
-            $sql_vars = array(':userID' => $userID,
-                          ':serviceID' => $serviceID,
-                          ':backupID' => $backupID, );
-
-            $result = $this->db->prepared_query('DELETE FROM service_chiefs
-                                            WHERE userID=:userID
-                                            AND serviceID=:serviceID
-                                            AND backupID=:backupID',
-                                            $sql_vars);
-        }
+        $result = $this->db->prepared_query($sql, $vars);
 
         return $result;
     }
 
     public function getMembers($groupID)
     {
-        if (!is_numeric($groupID))
-        {
+        if (!is_numeric($groupID)) {
             return;
         }
+
         $sql_vars = array(':groupID' => $groupID);
-        $res = $this->db->prepared_query('SELECT * FROM service_chiefs WHERE serviceID=:groupID ORDER BY userID', $sql_vars);
+        $sql = 'SELECT `userID`, `backupID`, `locallyManaged`, `active`
+                FROM `service_chiefs`
+                WHERE `serviceID` = :groupID
+                ORDER BY `userID`';
+
+        $res = $this->db->prepared_query($sql, $sql_vars);
 
         $members = array();
-        if (count($res) > 0)
-        {
-            $dir = new VAMC_Directory();
-            foreach ($res as $member)
-            {
-                $dirRes = $dir->lookupLogin($member['userID']);
+        $dir = new VAMC_Directory();
 
-                if (isset($dirRes[0]))
-                {
+        if (count($res) > 0) {
+            foreach ($res as $member) {
+                $dirRes = $dir->lookupLogin($member['userID'], false, true);
+
+                if (isset($dirRes[0])) {
                     $temp = $dirRes[0];
-                    if($member['locallyManaged'] == 1) {
-                        $temp['backupID'] = null;
-                    } else {
-                        $temp['backupID'] = $member['backupID'];
+                    $temp['regionallyManaged'] = 'no';
+
+                    foreach ($dirRes[0]['groups'] as $group) {
+                        if ($groupID == $group['groupID']) {
+                            $temp['regionallyManaged'] = 'yes';
+                        }
                     }
+
+                    $temp['backupID'] = $member['backupID'];
                     $temp['locallyManaged'] = $member['locallyManaged'];
                     $temp['active'] = $member['active'];
                     $members[] = $temp;
