@@ -602,28 +602,80 @@ function getGroupList() {
                                     }
 
                                     $('#deleteGroup_' + groupID).on('click', function() {
-                                        dialog_confirm.setContent('Are you sure you want to delete this group?');
-                                        dialog_confirm.setSaveHandler(function() {
-                                            $.ajax({
-                                                type: 'DELETE',
-                                                url: "../api/group/" + groupID + '?' +
-                                                    $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
-                                                success: function(response) {
-                                                    location.reload();
-                                                },
-                                                cache: false
-                                            });
-                                            $.ajax({
-                                                type: 'DELETE',
-                                                url: '<!--{$orgchartPath}-->/api/group/' + groupID + '/local/tag?' +
-                                                    $.param({tag: '<!--{$orgchartImportTag}-->',
-                                                            CSRFToken: '<!--{$CSRFToken}-->'}),
-                                                success: function() {
-                                                },
-                                                cache: false
-                                            });
+                                        // first check that this group is not used in any workflows at the moment
+                                        // if it is used then list the workflow and steps that it is used.
+                                        $.ajax({
+                                            type: 'GET',
+                                            url: "../api/group/" + groupID + '/associated_workflows',
+                                            success: function(response) {
+                                                console.log(response);
+                                                //location.reload();
+                                                if (response.status.code == 2) {
+                                                    // loop through data to display the workflow and steps within
+                                                    let data = response.data;
+                                                    let currentWF = '';
+                                                    let display = 'This group is associated with the following Workflows and their<br /> cooresponding steps.<br /> It is recommended that you remove this group from the related steps<br /> before deleting this group.<ul>';
+
+                                                    if (data.length > 0) {
+                                                        for (let i in data) {
+                                                            if (data[i].workflowID !== null) {
+                                                                if (currentWF == '') {
+                                                                    // first time through set it up
+                                                                    display += '<li>#' + data[i].workflowID + ' - ' + data[i].description + '</li>';
+                                                                    display += '<ul><li>#' + data[i].stepID + ' - ' + data[i].stepTitle + '</li>';
+                                                                    currentWF = data[i].workflowID;
+                                                                } else if (data[i].workflowID == currentWF) {
+                                                                    // same workflow add step title
+                                                                    display += '<li>#' + data[i].stepID + ' - ' + data[i].stepTitle + '</li>';
+                                                                } else {
+                                                                    // not the first time through, and not the same WF, close out last workflow
+                                                                    display += '</ul>';
+                                                                    display += '<li>#' + data[i].workflowID + ' - ' + data[i].description + '</li>';
+                                                                    display += '<ul><li>#' + data[i].stepID + ' - ' + data[i].stepTitle + '</li>';
+                                                                    currentWF = data[i].workflowID;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    // display is complete, close out the ul's
+                                                    if (currentWF !== '') {
+                                                        display += '</ul></ul> Are you sure you want to continue with deleting this group?';
+                                                    } else {
+                                                        display = 'Are you sure you want to delete this group?';
+                                                    }
+
+                                                    dialog_confirm.setContent(display);
+                                                    dialog_confirm.setSaveHandler(function() {
+                                                        $.ajax({
+                                                            type: 'DELETE',
+                                                            url: "../api/group/" + groupID + '?' +
+                                                                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+                                                            success: function(response) {
+                                                                location.reload();
+                                                            },
+                                                            cache: false
+                                                        });
+                                                        $.ajax({
+                                                            type: 'DELETE',
+                                                            url: '<!--{$orgchartPath}-->/api/group/' + groupID + '/local/tag?' +
+                                                                $.param({tag: '<!--{$orgchartImportTag}-->',
+                                                                        CSRFToken: '<!--{$CSRFToken}-->'}),
+                                                            success: function() {
+                                                            },
+                                                            cache: false
+                                                        });
+                                                    });
+                                                    dialog_confirm.show();
+                                                } else {
+                                                    console.log(response.status.message);
+                                                }
+                                            },
+                                            error: function (err) {
+                                                console.log(err);
+                                            },
+                                            cache: false
                                         });
-                                        dialog_confirm.show();
                                     });
 
                                     empSel = new nationalEmployeeSelector('employeeSelector');

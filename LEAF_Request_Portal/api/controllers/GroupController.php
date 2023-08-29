@@ -67,6 +67,10 @@ class GroupController extends RESTfulResponse
             return $group->getMembers($args[0]);
         });
 
+        $this->index['GET']->register('group/[digit]/associated_workflows', function ($args) use ($group) {
+            return $group->getWorkflows($args[0]);
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 

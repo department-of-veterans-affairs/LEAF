@@ -483,6 +483,22 @@ class Group
         return $return_value;
     }
 
+    public function getWorkflows(int $groupID): array
+    {
+        $vars = array(':groupID' => $groupID);
+        $sql = 'SELECT `workflowID`, `stepID`, `groupID`, `stepTitle`, `description`
+                FROM `dependency_privs`
+                LEFT JOIN `step_dependencies` using (dependencyID)
+                LEFT JOIN `workflow_steps` using (stepID)
+                LEFT JOIN `workflows` using (workflowID)
+                WHERE `groupID` = :groupID
+                ORDER BY `workflowID`, `stepID`';
+
+        $return_value = $this->db->pdo_select_query($sql, $vars);
+
+        return $return_value;
+    }
+
     /**
      * exclude: 0 (no group), 24, (everyone), 16 (service chief)
      *
