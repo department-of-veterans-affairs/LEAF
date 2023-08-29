@@ -112,7 +112,7 @@ footer#footer {
         box-shadow: 0 2px 4px 1px rgba(0,0,30,0.1);
         button {
             position: relative;
-            width: 180px;
+            width: 160px;
             height: 32px;
             color: $charcoal;
             border: 2px solid transparent;
@@ -427,6 +427,18 @@ footer#footer {
                             background-color: transparent;
                         }
                     }
+                    label[for="radio_markdown"], label[for="radio_prose"] {
+                        display: flex;
+                        padding: 0 5px;
+                        width: auto;
+                        input {
+                            width:auto;
+                        }
+                    }
+                    label[for="radio_prose"] {
+                        border-right: 2px solid #cadff0;
+                        padding-right: 8px;
+                    }
                 }
                 &#custom_header_right {
                     gap: 1rem;
@@ -553,6 +565,9 @@ footer#footer {
                 align-items: flex-start;
                 width: 280px;
             }
+        }
+        #view_and_design_selectors {
+            flex-direction: column;
         }
         #current_view.editMode {
             min-width: 400px;

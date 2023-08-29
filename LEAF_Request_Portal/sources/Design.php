@@ -90,7 +90,7 @@ class Design
         return $return_value;
     }
 
-    public function newDesign(string $templateName = '', string $designName = ''): array
+    public function newDesign(string $templateName = '', string $designName = '', string $inputJSON = '{}'): array
     {
         if (!$this->login->checkGroup(1)) {
             $return_value['status']['code'] = 4;
@@ -98,11 +98,14 @@ class Design
 
         } elseif (in_array($templateName, $this->template_options)) {
 
+            $designContent = $inputJSON === '{}' ? $inputJSON : $this->cleanInput($inputJSON, $templateName);
+
             $strSQL = "INSERT INTO template_designs (templateName, designName, designContent)
-                VALUES (:templateName, :designName, '{}')";
+                VALUES (:templateName, :designName, :designContent)";
             $vars = array(
                 ':templateName' => $templateName,
                 ':designName' => $designName,
+                ':designContent' => $designContent,
             );
 
             $return_value = $this->db->pdo_insert_query($strSQL, $vars);

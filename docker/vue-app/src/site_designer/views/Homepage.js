@@ -45,7 +45,8 @@ export default {
 
         'openDesignCardDialog',
         'showFormDialog',
-        'dialogFormContent'
+        'dialogFormContent',
+        'dialogProps'
     ],
     provide() {
         return {
@@ -193,7 +194,7 @@ export default {
         <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
-                <component :is="dialogFormContent" historyType="design" :historyID="currentView"></component>
+                <component :is="dialogFormContent" :dialogProps="dialogProps"></component>
             </template>
         </leaf-form-dialog>
     </div>`

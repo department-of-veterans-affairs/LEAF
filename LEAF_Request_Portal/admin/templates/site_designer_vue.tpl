@@ -6,6 +6,10 @@
             :title="'create a new design for the '+ currentView"
             @click="openNewDesignDialog">New Design<span role="img" aria="">➕</span>
         </button>
+        <button v-if="currentDesignID > 0" type="button" 
+            :title="'create a draft version of '+ currentDesignName"
+            @click="openNewDesignDialog(true)">Copy Draft<span role="img" aria=""></span>
+        </button>
         <button v-if="currentDesignID > 0" type="button"
             class="delete" :title="currentDesignID===currentViewEnabledDesignID ?
                 'This page must be unpublished before it can be deleted' : 'Delete this design'"
@@ -18,9 +22,9 @@
         </button>
         <button v-show="currentDesignID > 0" type="button"
             style="color: white; margin-left: auto;"
-            :style="{backgroundColor: !selectedMenuValid ? 'gray' : enabled ? '#A02020' : '#005EA2'}" @click="publishTemplate"
+            :style="{backgroundColor: !selectedMenuValid ? 'gray' : isPublished ? '#A02020' : '#005EA2'}" @click="publishTemplate"
             :disabled="appIsUpdating || !selectedMenuValid">
-            {{ enabled ? 'Disable Page' : 'Publish Page'}}<span role="img" aria="">{{ enabled ? '⚠' : '▶'}}</span>
+            {{ isPublished ? 'Disable Page' : 'Publish Page'}}<span role="img" aria="">{{ isPublished ? '⚠' : '▶'}}</span>
         </button>
     </nav>
     <main :class="{editMode: isEditingMode}">
@@ -32,7 +36,7 @@
             </h2>
             <label v-show="isEditingMode && currentDesignID > 0" for="edit_design_name_input">title
                 <input type="text" id="edit_design_name_input" maxlength="50" v-model.lazy="currentDesignName" />
-                <span :style="{color: enabled ? '#AA0000' : '#3D4551'}">{{ enabled ? '(active)' : '(draft)'}}</span>
+                <span :style="{color: isPublished ? '#AA0000' : '#3D4551'}">{{ isPublished ? '(active)' : '(draft)'}}</span>
             </label>
         </div>
         <!-- view selection (if/when there's more than one view), saved designs for the current view -->
@@ -48,11 +52,17 @@
                 <select id="saved_settings_select" v-model.number="currentDesignID">
                     <option value="0">Select an Option</option>
                     <option v-for="d in currentViewDesigns" :value="d.designID" :key="'design_' + d.designID">
-                        #{{ d.designID }} {{ truncateText(d.designName, 26) }} {{ d.designID === currentViewEnabledDesignID ? '(active)' : '(draft)'}}
+                        #{{ d.designID }} {{ truncateText(d.designName, 30) }} {{ d.designID === currentViewEnabledDesignID ? '(active)' : '(draft)'}}
                     </option>
                 </select>
             </label>
         </div>
+
+        <!-- TODO: TESTING SELECT FOR CARD IMPORTS -->
+        <!-- <select v-if="cardVault.length > 0" style="width: 280px;">
+            <option value=''>Select a Card</option>
+            <option v-for="c in cardVault" value="c.designName" :key="'card_select_' + c.designName">{{ getCardTitle(c.designContent)}}</option>
+        </select> -->
 
         <!-- NOTE: routes -->
         <div id="current_view" :class="{editMode: isEditingMode}">

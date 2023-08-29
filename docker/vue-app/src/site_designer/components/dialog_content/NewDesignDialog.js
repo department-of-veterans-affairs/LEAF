@@ -2,7 +2,8 @@ export default {
     name: 'new-design-dialog',
     data() {
         return {
-            designName: '',
+            designName: this.$props.dialogProps.isCopy === true ?
+                this.$props.dialogProps.designName : '',
         }
     },
     mounted() {
@@ -15,9 +16,15 @@ export default {
         'currentView',
         'newDesign'
     ],
+    props: {
+        dialogProps: {
+            type: Object,
+            required: true
+        },
+    },
     methods:{
         onSave() {
-            this.newDesign(this.designName);
+            this.newDesign(this.designName, this.$props.dialogProps.isCopy);
             this.closeFormDialog();
         }
     },

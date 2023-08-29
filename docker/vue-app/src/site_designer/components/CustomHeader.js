@@ -28,7 +28,7 @@ export default {
             minImageWidth: 0,
             showMarkdownTips: false,
 
-            editorType: 'markdown',
+            editorType: 'prose',
             editorTarget: null,
             prosemirrorView: null
         }
@@ -38,6 +38,7 @@ export default {
     },
     mounted() {
         this.editorTarget = document.getElementById('editor_target');
+        this.setupProseView();
     },
     components: {
         MarkdownTable
@@ -179,12 +180,12 @@ export default {
                         <div v-show="editorType==='prose'" id="editor_target"></div>
                     </label>
                     <div style="display:flex; justify-content: center;">
-                        <label style="display: flex; padding-right: 8px; border-right: 2px solid #cadff0; width: auto;">markdown
-                            <input type="radio" name="mark_prose" style="width:auto;" value="markdown" v-model="editorType" />
+                        <label for="radio_prose">WYSIWYG
+                            <input type="radio" id="radio_prose" value="prose" v-model="editorType" />
                         </label>
-                        <label style="display: flex; padding-left: 5px; width: auto;">
-                            <input type="radio" name="mark_prose" style="width:auto" value="prose" v-model="editorType" />
-                            WYSIWYG
+                        <label for="radio_markdown">
+                            <input type="radio" id="radio_markdown" value="markdown" v-model="editorType" />
+                            markdown
                         </label>
                     </div>
                 </div>

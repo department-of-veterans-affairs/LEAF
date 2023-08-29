@@ -8,10 +8,12 @@ export default {
     name: 'testpage',
     inject: [
         'appIsGettingData',
-        'showFormDialog',
         'currentDesignID',
         'currentView',
-        'dialogFormContent'
+
+        'showFormDialog',
+        'dialogFormContent',
+        'dialogProps'
     ],
     created() {
         console.log('testpage view created');
@@ -41,7 +43,7 @@ export default {
         <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
-                <component :is="dialogFormContent" historyType="design" :historyID="currentView"></component>
+                <component :is="dialogFormContent" :dialogProps="dialogProps"></component>
             </template>
         </leaf-form-dialog>
     </div>`

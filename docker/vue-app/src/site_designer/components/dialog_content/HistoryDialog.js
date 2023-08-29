@@ -1,21 +1,19 @@
 export default {
-    name: 'history-dialog', //NOTE: this might potentially mv to common after FE modal refactor
+    name: 'history-dialog', //NOTE: this should mv to common after FE modal refactor
     data() {
         return {
             divSaveCancelID: 'leaf-vue-dialog-cancel-save',
             page: 1,
+            historyType: this.$props.dialogProps.historyType,
+            historyID: this.$props.dialogProps.historyID,
             ajaxRes: ''
         }
     },
     props: {
-        historyType: {
-            type: String,
+        dialogProps: {
+            type: Object,
             required: true            
         },
-        historyID: {
-            type: [String, Number],
-            required: true
-        }
     },
     mounted() {
         document.getElementById(this.divSaveCancelID).style.display = 'none';

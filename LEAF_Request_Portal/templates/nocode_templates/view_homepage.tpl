@@ -111,7 +111,7 @@
         height: 50px;
     }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="../libs/js/marked/marked.min.js"></script>
 <main>
     <div id="header_display_wrapper"></div>
     <div id="menu_and_search">

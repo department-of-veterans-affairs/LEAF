@@ -44,7 +44,8 @@ class DesignController extends RESTfulResponse
         $this->index['POST']->register('design/new', function () use ($design) {
             $templateName = \Leaf\XSSHelpers::xscrub($_POST['templateName']);
             $designName = \Leaf\XSSHelpers::xscrub($_POST['designName']);
-            return $design->newDesign($templateName, $designName);
+            $input = $_POST['inputJSON'];
+            return $design->newDesign($templateName, $designName, $input);
         });
 
         $this->index['POST']->register('design/publish', function () use ($design) {

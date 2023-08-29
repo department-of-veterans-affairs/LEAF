@@ -28,7 +28,8 @@ export default {
             dialogFormContent: "",
             dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
             formSaveFunction: '',
-            showFormDialog: false
+            showFormDialog: false,
+            dialogProps: null
         }
     },
     provide() {
@@ -70,6 +71,7 @@ export default {
             dialogTitle: computed(() => this.dialogTitle),
             dialogFormContent: computed(() => this.dialogFormContent),
             dialogButtonText: computed(() => this.dialogButtonText),
+            dialogProps: computed(() => this.dialogProps),
             formSaveFunction: computed(() => this.formSaveFunction)
         }
     },
@@ -85,8 +87,14 @@ export default {
             let viewDesigns = (this.allDesignData || []).filter(d => d.templateName === this.currentView);
             return viewDesigns.sort((a,b) => a.designID - b.designID);
         },
+        cardVault() {
+            return (this.allDesignData || []).filter(d => d.templateName === 'card');
+        },
         selectedDesign() {
             return (this.currentViewDesigns|| []).find(d => +d.designID === +this.currentDesignID) || null;
+        },
+        selectedDesignJSON() {
+            return this.selectedDesign?.designContent || '{}';
         },
         selectedMenuValid() {
             const contentJSON = this.selectedDesign?.designContent || '{}';
@@ -95,8 +103,8 @@ export default {
             const enabledCards = cards.filter(c => +c.enabled === 1 && c.link !== '')
             return enabledCards.length > 0;
         },
-        enabled() {
-            return this.currentDesignID !== 0 && parseInt(this.designSettings?.[`${this.currentView}_enabled`] || 0) === this.currentDesignID;
+        isPublished() {
+            return this.currentDesignID > 0 && +(this.designSettings?.[`${this.currentView}_enabled`] || 0) === this.currentDesignID;
         },
         currentViewEnabledDesignID() {
             return this.designSettings === null ? null : +this.designSettings[`${this.currentView}_enabled`];
@@ -139,6 +147,10 @@ export default {
         },
         setEditMode(isEditMode = true) {
             this.isEditingMode = isEditMode;
+        },
+        getCardTitle(cardJSON = '{}') {
+            const cardInfo = JSON.parse(cardJSON);
+            return XSSHelpers.stripAllTags(decodeHTMLEntities(cardInfo.title));
         },
         async getIconList() {
             try {
@@ -284,13 +296,16 @@ export default {
                 this.appIsUpdating = false;
             }
         },
-        async newDesign(designName = '') {
+        async newDesign(designName = '', copy = false) {
             this.appIsUpdating = true;
             try {
+                const designContent = copy === true ? this.selectedDesignJSON : '{}';
+                const templateName = this.currentView;
                 let formData = new FormData();
                 formData.append('CSRFToken', this.CSRFToken);
-                formData.append('templateName', this.currentView);
+                formData.append('templateName', templateName);
                 formData.append('designName', designName);
+                formData.append('inputJSON', designContent);
 
                 const response = await fetch(`${this.APIroot}design/new`, {
                     method: 'POST',
@@ -300,9 +315,9 @@ export default {
                 if(+data?.status?.code === 2 && Number.isInteger(data?.data)) {
                     this.allDesignData.push({
                         designID: data.data,
-                        templateName: this.currentView,
-                        designName: designName,
-                        designContent: '{}'
+                        templateName,
+                        designName,
+                        designContent
                     });
                     this.currentDesignID = data.data;
                     this.isEditingMode = true;
@@ -337,8 +352,15 @@ export default {
                 this.appIsUpdating = false;
             }
         },
-        openNewDesignDialog() {
-            this.setDialogTitleHTML(`<h2>Creating a new item for the ${this.currentView}</h2>`);
+        openNewDesignDialog(isCopy = false) {
+            const title = isCopy === true ?
+                `<h2>Creating a Draft from design #${this.currentDesignID}</h2>` : 
+                `<h2>Creating a new item for the ${this.currentView}</h2>`;
+            this.dialogProps = {
+                isCopy,
+                designName: isCopy === true ? this.currentDesignName : ''
+            };
+            this.setDialogTitleHTML(title);
             this.setDialogContent('new-design-dialog');
             this.showFormDialog = true;
         },
@@ -360,6 +382,10 @@ export default {
             this.showFormDialog = true;
         },
         openHistoryDialog() {
+            this.dialogProps = {
+                historyType: 'design',
+                historyID: this.currentView,
+            };
             this.setDialogTitleHTML(`<h2>Showing ${this.currentView} History</h2>`);
             this.setDialogContent('history-dialog');
             this.showFormDialog = true;
@@ -373,6 +399,7 @@ export default {
             this.dialogFormContent = '';
             this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
             this.formSaveFunction = '';
+            this.dialogProps = null;
         },
         setDialogTitleHTML(titleHTML = '') {
             this.dialogTitle = titleHTML;
@@ -393,12 +420,12 @@ export default {
         //if the view is changed, or on initial data retrieval, set the designID to the one published for the view or 0 if there isn't one
         currentView(newVal, oldVal) {
             if(this.customizableViews.includes(newVal)) {
-                this.currentDesignID = this.currentViewEnabledDesignID || 0;
+                this.currentDesignID = +(this.currentViewEnabledDesignID || 0);
             }
         },
         designSettings(newVal, oldVal) {
             if(oldVal === null) {
-                this.currentDesignID = this.currentViewEnabledDesignID || 0;
+                this.currentDesignID = +(this.currentViewEnabledDesignID || 0);
             }
         },
         selectedDesign(newVal, oldVal) {
