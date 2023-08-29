@@ -55,7 +55,7 @@ class System
                 )
             );
         } else {
-            $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+            $oc_db = OC_DB;
             $group = new \Orgchart\Group($oc_db, $this->login);
             $position = new \Orgchart\Position($oc_db, $this->login);
             $tag = new \Orgchart\Tag($oc_db, $this->login);
@@ -173,7 +173,7 @@ class System
             );
         } else {
             if ($oc_db === null) {
-                $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+                $oc_db = OC_DB;
             }
 
             $group = new \Orgchart\Group($oc_db, $this->login);
@@ -293,7 +293,7 @@ class System
             //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
             $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-            $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+            $oc_db = OC_DB;
             $group = new \Orgchart\Group($oc_db, $this->login);
             $position = new \Orgchart\Position($oc_db, $this->login);
             $employee = new \Orgchart\Employee($oc_db, $this->login);
@@ -782,7 +782,7 @@ class System
 
         $this->removeGroups();
         $groups = $this->getOrgchartImportTags($nexus_group);
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
 
         foreach ($groups as $group) {
             $this->updateGroup($group['groupID'], $oc_db);
@@ -1031,7 +1031,7 @@ class System
      */
     private function addBackups(int $groupID, bool $group = true): array
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         // get all users for this group

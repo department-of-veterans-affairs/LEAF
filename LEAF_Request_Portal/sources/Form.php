@@ -39,7 +39,7 @@ class Form
         $this->db = $db;
         $this->login = $login;
 
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
         $oc_login = new \Orgchart\Login($oc_db, $oc_db);
         $oc_login->loginUser();
         $this->oc_dbName = \ORGCHART_DB;
