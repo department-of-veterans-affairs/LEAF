@@ -124,7 +124,7 @@ function getMembers(groupID = -1) {
     $.ajax({
         type: 'GET',
         url: '../api/system/updateService/' + groupID,
-        success: function() {
+        success: function(res) {
             $.ajax({
                 url: "../api/service/" + groupID + "/members",
                 dataType: "json",
@@ -155,13 +155,13 @@ function populateMembers(groupID = -1, members = []) {
     $('#members' + groupID).html('');
     let memberCt = -1;
     for (let i in members) {
-        if (members[i].active == 1 && members[i].backupID == null) {
+        if (members[i].active == 1 && members[i].backupID == '') {
             memberCt++;
         }
     }
     let countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for (let i in members) {
-        if (members[i].active == 1 && members[i].backupID == null) {
+        if (members[i].active == 1 && members[i].backupID == '') {
             if ($('#members' + groupID).html('')) {
                 $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>');
             }
@@ -175,8 +175,8 @@ function populateMembers(groupID = -1, members = []) {
  * @param {int} groupID - ID of group
  * @param {int} userID - ID of user being added
  */
-function addUser(groupID = -1, userID = -1) {
-    if (groupID < 0 || userID < 0) {
+function addUser(groupID = -1, userID = '') {
+    if (groupID < 0 || userID == '') {
         return;
     } else {
         $.ajax({
@@ -194,14 +194,18 @@ function addUser(groupID = -1, userID = -1) {
  * @param {int} groupID - ID of group
  * @param {int} userID - ID of user being removed
  */
-function removeUser(groupID = -1, userID = -1) {
-    if (groupID < 0 || userID < 0) {
+function removeUser(groupID = -1, userID = '') {
+    if (groupID < 0 || userID == '') {
         return;
     } else {
         $.ajax({
-            type: 'DELETE',
-            url: "../api/service/" + groupID + "/members/_" + userID + '?' +
-                $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+            async: false,
+            type: 'POST',
+            url: "../api/service/" + groupID + "/members/_" + userID,
+            data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+            fail: function(err) {
+                console.log(err);
+            },
             cache: false
         });
     }
@@ -213,29 +217,26 @@ function removeUser(groupID = -1, userID = -1) {
  * @param {string} selectedUserName - Username being imported
  */
 function importUser(serviceID = 0, selectedUserName = '') {
-    if (serviceID === 0) {
-        console.log('Invalid serviceID');
+    if (serviceID === 0 || selectedUserName === '') {
+        return;
+    } else {
+        $.ajax({
+            type: 'POST',
+            url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+            data: {CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(res) {
+                if (!isNaN(res)) {
+                    addUser(serviceID, selectedUserName); // add identified user into portal.
+                } else {
+                    alert(res);
+                }
+            },
+            fail: function(err) {
+                console.log(err);
+            },
+            cache: false
+        });
     }
-    if (selectedUserName === '') {
-        console.log('Invalid username');
-    }
-    $.ajax({
-        type: 'POST',
-        url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-        data: {CSRFToken: '<!--{$CSRFToken}-->'},
-        success: function(res) {
-            if(!isNaN(res)) {
-                addUser(serviceID, selectedUserName); // add identified user into portal.
-            }
-            else {
-                alert(res);
-            }
-        },
-        fail: function(err) {
-            console.log(err);
-        },
-        cache: false
-    });
 }
 
 /**
@@ -282,28 +283,101 @@ function initiateModal(serviceID = 0, serviceName = '') {
                 dialog.setContent(
                     '<div class="leaf-float-right"><button class="usa-button leaf-btn-small" onclick="viewHistory('+serviceID+')">View History</button></div>' +
                     '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
-                $('#employees').html('<div id="employee_table" class="leaf-marginTopBot-1rem"></div>');
+
+                $('#employees').html('<div id="employee_table" style="display: table-header-group"></div><br /><div id="showInactive" class="fas fa-angle-right" style="cursor: pointer;"></div><div id="inactive_table" style="display: none"></div>');
+                let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Actions</th></tr></thead><tbody>';
+                let inactive_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Actions</th></tr></thead><tbody>';
+
                 let counter = 0;
                 for(let i in res) {
-                    // Check for active members to list
-                    if (res[i].active == 1) {
-                        if (res[i].backupID == null) {
-                            let removeButton = '- <a href="#" class="text-secondary-darker leaf-font0-7rem leaf-remove-button" id="removeMember_' + counter + '">REMOVE</a>';
-                            $('#employee_table').append('<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=' + res[i].empUID + '" class="leaf-user-link" title="' + res[i].empUID + ' - ' + res[i].userName + '" target="_blank"><div class="leaf-marginTop-halfRem leaf-bold leaf-font0-9rem">' + toTitleCase(res[i].Lname) + ', ' + toTitleCase(res[i].Fname) + '</a> <span class="leaf-font-normal">' + removeButton + '</span></div>');
-                            // Check for Backups
-                            for (let j in res) {
-                                if (res[i].userName == res[j].backupID) {
-                                    $('#employee_table').append('<div class="leaf-font0-8rem leaf-marginLeft-qtrRem">&bull; ' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + ' - <span class="text-secondary-darker leaf-font0-7rem">Backup for ' + toTitleCase(res[i].Fname) + ' ' + toTitleCase(res[i].Lname) + '</span></div>');
-                                }
+                    if (res[i].backupID == '') {
+                        let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
+                        let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
+                        let backups = `<td style="font-size: 0.8em">`;
+                        let isLocal = `<td style="font-size: 0.8em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                        let isRegional = `<td style="font-size: 0.8em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                        let removeButton = `<td style="font-size: 0.8em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Remove this user from this group">Remove</button>`;
+
+                        // Check for Backups
+                        for (let j in res) {
+                            if (res[i].userName == res[j].backupID) {
+                                backups += ('<div class="leaf-font0-8rem">' + toTitleCase(res[j].Fname) + ' ' + toTitleCase(res[j].Lname) + '\n');
                             }
-                            $('#removeMember_' + counter).on('click', function (userID) {
-                                return function () {
-                                    removeUser(serviceID, userID);
-                                    dialog.hide();
-                                };
-                            }(res[i].userName));
-                            counter++;
                         }
+                        // close of actions and backups column
+                        backups += '</td>';
+
+                        if (res[i].active === 1) {
+                            let actions = `${removeButton}`;
+
+                            actions += '</td>';
+                            employee_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${actions}</tr>`;
+                        } else {
+                            let pruneMemberButton = '';
+
+                            if (res[i].locallyManaged == 1) {
+                                pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="pruneMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Prune this user from this group">Prune</button>`;
+                            } else {
+                                pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="reactivateMember_${counter}" class="usa-button usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Reactivate this user for this group">Reactivate</button>`;
+                            }
+
+                            let actions = `${pruneMemberButton}`;
+                            actions += '</td>';
+                            inactive_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${actions}</tr>`;
+                        }
+                        counter++;
+                    }
+                }
+                employee_table += '</tbody></table>';
+                inactive_table += '</tbody></table>';
+                // generate formatted table
+                $('#employee_table').html(employee_table);
+                $('#inactive_table').html(inactive_table);
+
+                if ($('#inactive_table > .table-bordered > tbody > tr').length === null || $('#inactive_table > .table-bordered > tbody > tr').length === 0){
+                    $('#showInactive').hide();
+                } else {
+                    $('#showInactive').on('click', function () {
+                        $('#showInactive').toggleClass("fa-angle-right fa-angle-down");
+                        $('#inactive_table').slideToggle();
+                    });
+                }
+
+                // add functionality to action buttons after table generation
+                counter = 0;
+                for (let i in res) {
+                    if (res[i].backupID == "") {
+                        if (res[i].active === 1) {
+                            $('#removeMember_' + counter).on('click', function () {
+                                dialog_confirm.setContent('Are you sure you want to remove this member?');
+                                dialog_confirm.setSaveHandler(function () {
+                                    removeUser(serviceID, res[i].userName);
+                                    dialog_confirm.hide();
+                                    dialog.hide();
+                                });
+                                dialog_confirm.show();
+                            });
+                        } else {
+                            $('#pruneMember_' + counter).on('click', function () {
+                                dialog_confirm.setContent('Are you sure you want to prune this member?');
+                                dialog_confirm.setSaveHandler(function () {
+                                    pruneMember(serviceID, res[i].userName);
+                                    dialog_confirm.hide();
+                                    dialog.hide();
+                                });
+                                dialog_confirm.show();
+                            });
+                            $('#reactivateMember_' + counter).on('click', function () {
+                                dialog_confirm.setContent('Are you sure you want to reactivate this member?');
+                                dialog_confirm.setSaveHandler(function () {
+                                    reactivateMember(serviceID, res[i].userName);
+                                    dialog_confirm.hide();
+                                    dialog.hide();
+                                });
+                                dialog_confirm.show();
+                            });
+                        }
+                        counter++;
                     }
                 }
 
@@ -336,6 +410,41 @@ function initiateModal(serviceID = 0, serviceName = '') {
             },
             fail: function(error) {
                 console.log(error);
+            },
+            cache: false
+        });
+    }
+}
+
+function pruneMember(groupID, userID) {
+    if (groupID === 0 || userID === '') {
+        return;
+    } else {
+        $.ajax({
+            async: false,
+            type: 'POST',
+            url: "../api/service/" + groupID + "/members/_" + userID + "/prune",
+            data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+            fail: function(err) {
+                console.log(err);
+            },
+            cache: false
+        });
+    }
+
+}
+
+function reactivateMember(groupID, userID) {
+    if (groupID === 0 || userID === '') {
+        return;
+    } else {
+        $.ajax({
+            async: false,
+            type: 'POST',
+            url: "../api/service/" + groupID + "/members/_" + userID + "/reactivate",
+            data: {'CSRFToken': '<!--{$CSRFToken}-->'},
+            fail: function(err) {
+                console.log(err);
             },
             cache: false
         });
@@ -383,7 +492,7 @@ function getGroupList() {
 	    	$('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
 	    }
 	    for(let i in services) {
-	    	$('#group_' + services[i].groupID).append('<div tabindex="0" id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
+            $('#group_' + services[i].groupID).append('<div tabindex="0" id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
                     + '<h2 id="groupTitle'+ services[i].serviceID +'">'+ services[i].service +'</h2>'
                     + '<div id="members'+ services[i].serviceID +'"></div>'
                     + '</div>');

@@ -46,7 +46,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $daysago = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
 
     // pass ?current=asdasd to get the present time for testing purposes
-    $intialDaysAgoTimestamp = time() - ($daysago * $timeAdjustment);
+    $intialDaysAgoTimestamp = time() - ((int) $daysago * $timeAdjustment);
 
     echo "Working on step: {$workflowStep['stepID']}, Initial Notification: ".date('Y-m-d H:i:s',$intialDaysAgoTimestamp)."\r\n";
 

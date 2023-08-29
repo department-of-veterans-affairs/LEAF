@@ -120,10 +120,7 @@ class DataActionLogger
 
     public function fetchLogData($filterById, $filterByColumnName, $logType)
     {
-
         $filterResults = isset($filterById) && isset($filterByColumnName);
-
-
 
         $sqlCreateTemp =
             "

@@ -111,4 +111,26 @@ class Tag extends Data
 
         return $res;
     }
+
+    /**
+     * @param int $id
+     * @param string $tag
+     *
+     * @return array
+     *
+     * Created at: 8/16/2023, 8:57:05 AM (America/New_York)
+     */
+    public function groupIsTagged(int $id, string $tag): array
+    {
+        $vars = array(':groupID' => $id,
+                    ':tag' => $tag);
+        $sql = 'SELECT `groupID`, `tag`
+                FROM `group_tags`
+                WHERE `groupID` = :groupID
+                AND `tag` = :tag';
+
+        $return_value = $this->db->pdo_select_query($sql, $vars);
+
+        return $return_value;
+    }
 }

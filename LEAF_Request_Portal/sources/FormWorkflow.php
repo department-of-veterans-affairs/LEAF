@@ -1071,7 +1071,7 @@ class FormWorkflow
 
                     $dir = new VAMC_Directory;
 
-                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $author = $dir->lookupLogin($approvers[0]['userID']);
                     $email->setSender($author[0]['Email']);
 
                     // Get backups to requester so they can be notified as well
@@ -1123,7 +1123,7 @@ class FormWorkflow
 
                     $dir = new VAMC_Directory;
 
-                    $author = $dir->lookupLogin($this->login->getUserID());
+                    $author = $dir->lookupLogin($approvers[0]['userID']);
                     $email->setSender($author[0]['Email']);
 
                     $eventData = json_decode($event['eventData']);
@@ -1223,12 +1223,15 @@ class FormWorkflow
 
             switch(true) {
                 case (str_starts_with($format, "grid") != false):
-                    $data = $this->buildGrid(unserialize($data));
+                    if(!empty($data) && is_array(unserialize($data))){
+                        $data = $this->buildGrid(unserialize($data));
+                    }
                     break;
                 case (str_starts_with($format, "checkboxes") != false):
-                case (str_starts_with($format, "multiselect") != false && is_array($data)):
-                    error_log(print_r($data, true));
-                    $data = $this->buildMultiselect(unserialize($data));
+                case (str_starts_with($format, "multiselect") != false):
+                    if ($this->isJsonString($data) && is_array(json_decode($data))) {
+                        $data = $this->buildMultiselect(json_decode($data));
+                    }
                     break;
                 case (str_starts_with($format, "radio") != false):
                 case (str_starts_with($format, "checkbox") != false):
@@ -1255,6 +1258,13 @@ class FormWorkflow
         }
 
         return $formattedFields;
+    }
+
+    private function isJsonString(mixed $data): bool
+    {
+        json_decode($data);
+
+        return json_last_error() === 0;
     }
 
     // method for building grid

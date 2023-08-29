@@ -53,6 +53,7 @@ switch ($action) {
 
         break;
     case 'remove_user_old':
+        // this should be deprecated as of 8/18/2023
         checkToken();
 
         $deleteList = Leaf\XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
@@ -72,6 +73,7 @@ switch ($action) {
 
            break;
     case 'remove_user':
+        // this should be deprecated as of 8/18/2023
            checkToken();
 
            $group = new Portal\Group($db, $login);

@@ -41,7 +41,15 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['GET']->register('system/updateService/[digit]', function ($args) use ($system) {
-            return $system->updateService($args[0]);
+            $updated_service = $system->updateService($args[0]);
+
+            if ($updated_service['status']['code'] == 4) {
+                $return_value = $updated_service['status']['message'];
+            } else {
+                $return_value = "groupID: " . $args[0] . " updated";
+            }
+
+            return $return_value;
         });
 
         $this->index['GET']->register('system/updateGroup/[digit]', function ($args) use ($system) {

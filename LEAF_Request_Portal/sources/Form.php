@@ -501,7 +501,11 @@ class Form
                 && !empty($data[0]['data']))
             {
                 $empRes = $this->employee->lookupEmpUID($data[0]['data']);
-                $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                if (!empty($empRes)) {
+                    $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                } else {
+                    $form[$idx]['displayedValue'] = '';
+                }
             }
             if ($data[0]['format'] == 'orgchart_position'
                 && isset($data[0]['data']))
@@ -706,56 +710,82 @@ class Form
         return json_encode($json);
     }
 
-    public function deleteRecord($recordID)
+    /**
+     * @param int $recordID
+     * @param string $comment
+     *
+     * @return int|string
+     *
+     * Created at: 8/24/2023, 2:15:39 PM (America/New_York)
+     */
+    public function deleteRecord(int $recordID, string $comment = ''): int|string
     {
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
-        {
-            return 0;
+        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
+            $return_value = 0;
+        } elseif (!$this->hasWriteAccess($recordID)) {
+            $return_value = 'Please contact your administrator to cancel this request to help avoid confusion in the process.';
+        } else {
+            // only allow admins to delete resolved requests
+            $vars = array(':recordID' => $recordID);
+            $sql = 'SELECT `recordID`, `submitted`, `stepID`
+                    FROM `records`
+                    LEFT JOIN `records_workflow_state` USING (`recordID`)
+                    WHERE `recordID` = :recordID
+                    AND `submitted` > 0';
+
+            $res = $this->db->prepared_query($sql, $vars);
+
+            if (
+                isset($res[0])
+                && $res[0]['stepID'] == null
+                && !$this->login->checkGroup(1)
+            ) {
+                $return_value = 'Cannot cancel resolved request.';
+            } else {
+                $vars = array(':recordID' => $recordID,
+                            ':time' => time());
+                $sql = 'UPDATE `records`
+                        SET `deleted` = :time
+                        WHERE `recordID` = :recordID';
+
+                $res = $this->db->prepared_query($sql, $vars);
+
+                // actionID 4 = delete
+                $vars = array(':recordID' => $recordID,
+                            ':userID' => $this->login->getUserID(),
+                            ':dependencyID' => 0,
+                            ':actionType' => 'deleted',
+                            ':actionTypeID' => 4,
+                            ':time' => time(),
+                            ':comment' => \Leaf\XSSHelpers::xscrub($comment));
+                $sql = 'INSERT INTO `action_history`
+                            (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
+                        VALUES
+                            (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+
+                $res = $this->db->prepared_query($sql, $vars);
+
+                // delete state
+                $vars = array(':recordID' => $recordID);
+                $sql = 'DELETE
+                        FROM `records_workflow_state`
+                        WHERE `recordID` = :recordID';
+
+                $this->db->prepared_query($sql, $vars);
+
+                // delete tags
+                $vars = array(':recordID' => $recordID);
+                $sql = 'DELETE
+                        FROM `tags`
+                        WHERE `recordID` = :recordID';
+
+                $res = $this->db->prepared_query($sql, $vars);
+            }
+
+            $return_value = 1;
         }
-        if (!$this->hasWriteAccess($recordID))
-        {
-            return 'Please contact your administrator to cancel this request to help avoid confusion in the process.';
-        }
 
-        // only allow admins to delete resolved requests
-        $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('SELECT recordID, submitted, stepID FROM records
-        									LEFT JOIN records_workflow_state USING (recordID)
-                                            WHERE recordID=:recordID
-        										AND submitted > 0', $vars);
-        if (isset($res[0])
-            && $res[0]['stepID'] == null
-            && !$this->login->checkGroup(1))
-        {
-            return 'Cannot cancel resolved request.';
-        }
-
-        $vars = array(':recordID' => $recordID,
-                      ':time' => time(), );
-        $res = $this->db->prepared_query('UPDATE records SET
-                                            deleted=:time
-                                            WHERE recordID=:recordID', $vars);
-
-        // actionID 4 = delete
-        $vars = array(':recordID' => $recordID,
-                      ':userID' => $this->login->getUserID(),
-                      ':dependencyID' => 0,
-                      ':actionType' => 'deleted',
-                      ':actionTypeID' => 4,
-                      ':time' => time(), );
-        $res = $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)', $vars);
-
-        // delete state
-        $vars = array(':recordID' => $recordID);
-        $this->db->prepared_query('DELETE FROM records_workflow_state
-                                        WHERE recordID=:recordID', $vars);
-
-        // delete tags
-        $vars = array(':recordID' => $recordID);
-        $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID', $vars);
-
-        return 1;
+        return $return_value;
     }
 
     public function restoreRecord($recordID)
@@ -806,7 +836,7 @@ class Form
 
             $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
 
-            if (isset($value[$index])) {
+            if (is_array($value) && isset($value[$index])) {
                 $_POST['overwrite'] = true;
                 $_POST['series'] = 1;
                 $_POST[$indicatorID] = '';
@@ -2083,7 +2113,7 @@ class Form
                     }
                 }
 
-                if($countPurged > 0) {
+                if($countPurged > 0 && !headers_sent()) {
                     header('LEAF-Query: continue');
                 }
 
