@@ -591,11 +591,32 @@ class FormEditor
         return $result;
     }
 
-    public function setFormDestructionAge(string $categoryID, int $input): int|null {
-        if ($input === 0) {
-            $input = null;
+    /**
+     * Create age (days) for destruction records
+     *
+     * @param string $categoryID - category having its destructionAge set
+     * @param int|null $input - number of days to mark a record for destruction
+     *
+     * @return int|null
+     */
+    public function setFormDestructionAge(string $categoryID, int $input = null): int|null {
+        if (!$this->login->checkGroup(1))
+        {
+            return 'Admin Only';
         }
-        if ($input === null || ($input >= 1 && $input <=30)) {
+
+        if ($input === 0 || $input === null) {
+            $input = null;
+            $vars = array(':categoryID' => $categoryID, ':input' => $input);
+            $strSQL = 'UPDATE categories SET destructionAge=:input WHERE categoryID=:categoryID';
+            $result =  $this->db->prepared_query($strSQL, $vars);
+
+            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                new \Leaf\LogItem("categories", "destructionAge", 'never')
+            ]);
+        } else {
+            $input = $input * 365;
             $vars = array(':categoryID' => $categoryID, ':input' => $input);
             $strSQL = 'UPDATE categories SET destructionAge=:input WHERE categoryID=:categoryID';
             $result =  $this->db->prepared_query($strSQL, $vars);
@@ -608,6 +629,28 @@ class FormEditor
             }
         }
         return $input;
+    }
+
+    /**
+     * Get flag (days) for destruction records
+     *
+     * @param string $categoryID - category we are getting destructionAge for
+     *
+     * @return int|null
+     */
+    public function getDestructionAge(string $categoryID): int|null
+    {
+        if ($categoryID) {
+            $vars = array(':categoryID' => $categoryID);
+            $strSQL = 'SELECT destructionAge FROM categories WHERE categoryID=:categoryID';
+            $res = $this->db->prepared_query($strSQL, $vars);
+
+            if (count($res) > 0) {
+                return $res['destructionAge'];
+            }
+        }
+
+        return null;
     }
 
     public function getCategoryPrivileges($categoryID)
