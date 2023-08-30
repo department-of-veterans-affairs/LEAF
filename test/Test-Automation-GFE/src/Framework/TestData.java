@@ -12,6 +12,6 @@ public class TestData {
 	//Home page
 //	public final static String S_BASIC_N = "searchtxt";			//Basic - Search Inputbox
 
-			
+	String msg;
 	
 }
