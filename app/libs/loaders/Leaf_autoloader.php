@@ -1,21 +1,17 @@
 <?php
 
-require_once __DIR__ . '/../php-commons/Psr4AutoloaderClass.php';
-require_once __DIR__ . '/../smarty/bootstrap.php';
+$curr_dir = '/var/www/html';
+
+require_once $curr_dir . '/libs/php-commons/Psr4AutoloaderClass.php';
+require_once $curr_dir . '/libs/smarty/bootstrap.php';
 
 $loader = new \Leaf\Psr4AutoloaderClass;
 $loader->register();
 
-if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons')) {
-    if (is_dir(__DIR__ . '/../php-commons')) {
-        $loader->addNamespace('Leaf', __DIR__ . '/../php-commons');
-        $loader->addNamespace('Leaf', __DIR__ . '/../logger');
-        $loader->addNamespace('Leaf', __DIR__ . '/../logger/formatters');
-    } else {
-        $loader->addNamespace('Leaf', __DIR__ . '/../../php-commons');
-        $loader->addNamespace('Leaf', __DIR__ . '/../../logger');
-        $loader->addNamespace('Leaf', __DIR__ . '/../../logger/formatters');
-    }
+if (is_dir($curr_dir . '/libs/php-commons')) {
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');
 
     $file_paths_db = new \Leaf\Db(getenv('DATABASE_HOST'), getenv('DATABASE_USERNAME'), getenv('DATABASE_PASSWORD'), 'national_leaf_launchpad');
 
@@ -27,7 +23,7 @@ if (is_dir(__DIR__ . '/../php-commons') || is_dir(__DIR__ . '/../../php-commons'
 
     $site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 
-    $working_dir = str_replace('/libs/loaders/Leaf_autoloader.php', '', __FILE__);
+    $working_dir = $curr_dir;
 
     if (is_dir($working_dir . $site_paths['site_path'])) {
         $loader->addNamespace('Portal', $working_dir . $site_paths['site_path']);

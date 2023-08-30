@@ -23,7 +23,7 @@ ini_set('display_errors', 0);
 */
 
 require_once '../globals.php';
-//require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+//require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 include_once LIB_PATH .  '/php-commons/Dynicon.php';
 include_once LIB_PATH .  '/php-commons/XSSHelpers.php';
 

@@ -4,7 +4,7 @@
  */
 
 require_once __DIR__ . '/../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 define('PREFIX', 'Update_RMC_DB_');
 if (php_sapi_name() == 'cli') {
