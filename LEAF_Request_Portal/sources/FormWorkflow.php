@@ -1046,109 +1046,50 @@ class FormWorkflow
 
                     break;
                 case 'std_email_notify_completed': // notify requestor of completed request
-                    $email = new Email();
-
-                    $vars = array(':recordID' => $this->recordID);
-                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
-                        FROM records AS rec
-                        LEFT JOIN services AS ser USING (serviceID)
-                        WHERE recordID = :recordID';
-                    $requestRecords = $this->db->prepared_query($strSQL, $vars);
-
-
-                    $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
-
-                    $email->addSmartyVariables(array(
-                        "truncatedTitle" => $title,
-                        "fullTitle" => $requestRecords[0]['title'],
-                        "recordID" => $this->recordID,
-                        "service" => $requestRecords[0]['service'],
-                        "lastStatus" => $requestRecords[0]['lastStatus'],
-                        "comment" => $comment,
-                        "siteRoot" => $this->siteRoot
-                    ));
-                    $email->setTemplateByID(Email::NOTIFY_COMPLETE);
-
-                    $dir = new VAMC_Directory;
-
-                    $author = $dir->lookupLogin($requestRecords[0]['userID']);// this is the requestors info
-
-                    // get the person that has commited  the action since we would want to send from that email
-                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
-                        FROM records 
-                        JOIN action_history USING(recordID) 
-                        WHERE recordID = :recordID 
-                        ORDER BY actionID DESC LIMIT 1;';
-
-                    $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
-                    $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
-                    $email->setSender($lastActionAuthor[0]['Email']); 
-
-                    // Get backups to requester so they can be notified as well
-                    $nexusDB = $this->login->getNexusDB();
-                    $vars = array(':empUID' => $author[0]['empUID']);
-                    $strSQL = 'SELECT backupEmpUID FROM relation_employee_backup
-                        WHERE empUID = :empUID';
-                    $backupIds = $nexusDB->prepared_query($strSQL, $vars);
-
-
-                    // Add backups to email recepients
-                    foreach($backupIds as $backup) {
-                      $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
-                      $email->addRecipient($theirBackup[0]['Email']);
-                    }
-
-                    $tmp = $dir->lookupLogin($requestRecords[0]['userID']);
-                    $email->addRecipient($tmp[0]['Email']);
-
-                    $email->sendMail($this->recordID);
-
-                    break;
-                case $customEvent: // For all custom events
-                    $email = new Email();
-
-                    $vars = array(':recordID' => $this->recordID);
-                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
-                        FROM records AS rec
-                        LEFT JOIN services AS ser USING (serviceID)
-                        WHERE recordID = :recordID';
-                    $requestRecords = $this->db->prepared_query($strSQL, $vars);
-
-                    $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
-                    $fields = $this->getFields();
-
-                    $email->addSmartyVariables(array(
-                        "truncatedTitle" => $title,
-                        "fullTitle" => $requestRecords[0]['title'],
-                        "recordID" => $this->recordID,
-                        "service" => $requestRecords[0]['service'],
-                        "lastStatus" => $requestRecords[0]['lastStatus'],
-                        "comment" => $comment,
-                        "siteRoot" => $this->siteRoot,
-                        "field" => $fields
-                    ));
-
-                    $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
-                    $email->setTemplateByID($emailTemplateID);
-
-                    $dir = new VAMC_Directory;
-
-                    $author = $dir->lookupLogin($requestRecords[0]['userID']);
                     
+                    $vars = array(':recordID' => $this->recordID);
+
+                    // get the record and requestor
+                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
+                        FROM records AS rec
+                        LEFT JOIN services AS ser USING (serviceID)
+                        WHERE recordID = :recordID';
+                    $requestRecords = $this->db->prepared_query($strSQL, $vars);
+
                     // get the person that has commited  the action since we would want to send from that email
                     $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
                         FROM records 
                         JOIN action_history USING(recordID) 
                         WHERE recordID = :recordID 
-                        ORDER BY actionID DESC LIMIT 1;';
+                        ORDER BY actionID DESC LIMIT 1';
 
                     $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
-                    $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
-                    $email->setSender($lastActionAuthor[0]['Email']); 
 
-                    $eventData = json_decode($event['eventData']);
+                    if(!empty($requestRecords[0]) && is_array($requestRecords[0]) && !empty($lastActions[0]) && is_array($lastActions[0]) ){
 
-                    if ($eventData->NotifyRequestor === 'true') {
+                        $email = new Email();
+
+                        $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
+
+                        $email->addSmartyVariables(array(
+                            "truncatedTitle" => $title,
+                            "fullTitle" => $requestRecords[0]['title'],
+                            "recordID" => $this->recordID,
+                            "service" => $requestRecords[0]['service'],
+                            "lastStatus" => $requestRecords[0]['lastStatus'],
+                            "comment" => $comment,
+                            "siteRoot" => $this->siteRoot
+                        ));
+                        $email->setTemplateByID(Email::NOTIFY_COMPLETE);
+
+                        $dir = new VAMC_Directory;
+
+                        $author = $dir->lookupLogin($requestRecords[0]['userID']);// this is the requestors info
+
+                        // set the sender which should be the last person to take action
+                        $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
+                        $email->setSender($lastActionAuthor[0]['Email']); 
+
                         // Get backups to requester so they can be notified as well
                         $nexusDB = $this->login->getNexusDB();
                         $vars = array(':empUID' => $author[0]['empUID']);
@@ -1156,31 +1097,99 @@ class FormWorkflow
                             WHERE empUID = :empUID';
                         $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
-
                         // Add backups to email recepients
                         foreach($backupIds as $backup) {
-                            $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
+                        $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
                             $email->addRecipient($theirBackup[0]['Email']);
                         }
 
                         $tmp = $dir->lookupLogin($requestRecords[0]['userID']);
                         $email->addRecipient($tmp[0]['Email']);
-                    }
 
-
-                    if ($eventData->NotifyGroup !== 'None') {
-                        $email->addGroupRecipient($eventData->NotifyGroup);
-                    }
-
-
-                    if ($eventData->NotifyNext === 'true') {
-                        $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
-
-                    } else {
                         $email->sendMail($this->recordID);
-
                     }
+                    break;
+                case $customEvent: // For all custom events
 
+                    $vars = array(':recordID' => $this->recordID);
+
+                    // get the record and requestor
+                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
+                        FROM records AS rec
+                        LEFT JOIN services AS ser USING (serviceID)
+                        WHERE recordID = :recordID';
+                    $requestRecords = $this->db->prepared_query($strSQL, $vars);
+
+                    // get the person that has commited  the action since we would want to send from that email
+                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
+                        FROM records 
+                        JOIN action_history USING(recordID) 
+                        WHERE recordID = :recordID 
+                        ORDER BY actionID DESC LIMIT 1';
+
+                    $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
+
+                    if(!empty($requestRecords[0]) && is_array($requestRecords[0]) && !empty($lastActions[0]) && is_array($lastActions[0]) ){
+
+                        $email = new Email();
+
+                        $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
+                        $fields = $this->getFields();
+
+                        $email->addSmartyVariables(array(
+                            "truncatedTitle" => $title,
+                            "fullTitle" => $requestRecords[0]['title'],
+                            "recordID" => $this->recordID,
+                            "service" => $requestRecords[0]['service'],
+                            "lastStatus" => $requestRecords[0]['lastStatus'],
+                            "comment" => $comment,
+                            "siteRoot" => $this->siteRoot,
+                            "field" => $fields
+                        ));
+
+                        $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
+                        $email->setTemplateByID($emailTemplateID);
+
+                        $dir = new VAMC_Directory;
+
+                        $author = $dir->lookupLogin($requestRecords[0]['userID']);
+                        
+                        // set the sender which should be the last person to take action
+                        $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
+                        $email->setSender($lastActionAuthor[0]['Email']); 
+
+                        $eventData = json_decode($event['eventData']);
+
+                        if ($eventData->NotifyRequestor === 'true') {
+                            // Get backups to requester so they can be notified as well
+                            $nexusDB = $this->login->getNexusDB();
+                            $vars = array(':empUID' => $author[0]['empUID']);
+                            $strSQL = 'SELECT backupEmpUID FROM relation_employee_backup
+                                WHERE empUID = :empUID';
+                            $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+
+                            // Add backups to email recepients
+                            foreach($backupIds as $backup) {
+                                $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
+                                $email->addRecipient($theirBackup[0]['Email']);
+                            }
+
+                            $tmp = $dir->lookupLogin($requestRecords[0]['userID']);
+                            $email->addRecipient($tmp[0]['Email']);
+                        }
+
+                        if ($eventData->NotifyGroup !== 'None') {
+                            $email->addGroupRecipient($eventData->NotifyGroup);
+                        }
+
+
+                        if ($eventData->NotifyNext === 'true') {
+                            $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
+
+                        } else {
+                            $email->sendMail($this->recordID);
+                        }
+                    }
 
                     break;
                 default:
