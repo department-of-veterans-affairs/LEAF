@@ -40,3 +40,4 @@ test-output/
 .project
 .gitconfig
 .settings/
+*.dat
