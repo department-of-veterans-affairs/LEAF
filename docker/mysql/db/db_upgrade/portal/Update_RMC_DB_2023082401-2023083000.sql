@@ -38,7 +38,7 @@ ALTER TABLE signatures ADD CONSTRAINT fk_records_signatures_deletion
 ALTER TABLE tags ADD CONSTRAINT fk_records_tags_deletion
     FOREIGN KEY (recordID) REFERENCES records (recordID) ON DELETE CASCADE;
 
-UPDATE `settings` SET `data` = '2023080100' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2023083000' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
 
@@ -63,7 +63,7 @@ ALTER TABLE action_history DROP FOREIGN KEY fk_records_action_history_deletion;
 ALTER TABLE signatures DROP FOREIGN KEY fk_records_signatures_deletion;
 ALTER TABLE tags DROP FOREIGN KEY fk_records_tags_deletion;
 
-UPDATE `settings` SET `data` = '2023072000' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2023082401' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
 */
