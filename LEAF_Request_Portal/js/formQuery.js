@@ -119,13 +119,21 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
-   * @param {string|number} indicatorID
+   * getData includes data associated with $indicatorID in the result set
+   * @param {string|number|array} indicatorID
    * @memberOf LeafFormQuery
    */
   function getData(indicatorID = "") {
-    if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
-      query.getData.push(indicatorID);
-    }
+	if(Array.isArray(indicatorID)) {
+		indicatorID.forEach(id => {
+			getData(id);
+		});
+	}
+	else {
+		if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
+			query.getData.push(indicatorID);
+		}
+	}
   }
 
   /**
