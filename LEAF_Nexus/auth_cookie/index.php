@@ -1,4 +1,5 @@
 <?php
+use App\Leaf\Db;
 /*
 * As a work of the United States government, this project is in the public domain within the United States.
 */
@@ -9,7 +10,6 @@
 
 */
 
-require_once '../globals.php';
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
@@ -46,7 +46,7 @@ if (isset($_COOKIE['REMOTE_USER']))
     else
     {
         // try searching through national database
-        $globalDB = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':userName' => $user);
         $res = $globalDB->prepared_query('SELECT * FROM employee
                                           LEFT JOIN employee_data USING (empUID)

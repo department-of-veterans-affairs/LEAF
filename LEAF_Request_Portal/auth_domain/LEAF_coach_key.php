@@ -1,6 +1,5 @@
 <?php
 // give coaches admin access
-require_once '../globals.php';
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 ini_set('display_errors', 1);

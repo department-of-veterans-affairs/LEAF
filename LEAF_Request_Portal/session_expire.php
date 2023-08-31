@@ -1,6 +1,5 @@
 <?php
 
-require_once 'globals.php';
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 function customTemplate(string $tpl = "view_about.tpl"): string

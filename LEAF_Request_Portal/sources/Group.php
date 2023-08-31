@@ -12,10 +12,12 @@
 
 namespace Portal;
 
+use App\Leaf\Db;
+
 class Group
 {
     /**
-     * @var \Leaf\Db
+     * @var Db
      */
     private $db;
 
@@ -30,11 +32,11 @@ class Group
     private $dataActionLogger;
 
     /**
-     * @param \Leaf\Db $db
+     * @param Db $db
      * @param Login $login
      * @param \Leaf\DataActionLogger $dataActionLogger
      */
-    public function __construct(\Leaf\Db $db, Login $login)
+    public function __construct(Db $db, Login $login)
     {
         $this->db = $db;
         $this->login = $login;
@@ -267,7 +269,7 @@ class Group
      */
     public function addMember(string $member, int $groupID): array
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = new Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         $vars = array(':userID' => $member,

@@ -26,7 +26,7 @@ class IconPickerController extends RESTfulResponse
     /**
      * Construct
      *
-     * @param \Leaf\Db $db, Login $login
+     * @param \App\Leaf\Db $db, Login $login
      */
     public function __construct($db, $login, $icon_path, $dynicon_index, $domain)
     {

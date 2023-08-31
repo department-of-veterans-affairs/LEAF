@@ -12,7 +12,6 @@ else
 {
     define('BR', '<br />');
 }
-require_once __DIR__ . '/../globals.php';
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());

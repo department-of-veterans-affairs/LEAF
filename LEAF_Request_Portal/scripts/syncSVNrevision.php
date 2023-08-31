@@ -5,7 +5,6 @@
 
 $version = 'PUBLIC';
 
-require_once '../globals.php';
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 $vars = array(':version' => $version);

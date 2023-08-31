@@ -11,11 +11,13 @@
 
 namespace Portal;
 
+use App\Leaf\Db;
+
 class Note
 {
     /**
      *
-     * @var \Leaf\Db
+     * @var Db
      */
     private $db;
 
@@ -33,13 +35,13 @@ class Note
 
     /**
      *
-     * @param \Leaf\Db $db
+     * @param Db $db
      * @param Login $login
      * @param \Leaf\DataActionLogger $dataActionLogger
      *
      * Created at: 10/3/2022, 10:21:10 AM (America/New_York)
      */
-    public function __construct(\Leaf\Db $db, Login $login, \Leaf\DataActionLogger $dataActionLogger)
+    public function __construct(Db $db, Login $login, \Leaf\DataActionLogger $dataActionLogger)
     {
         $this->db = $db;
         $this->login = $login;

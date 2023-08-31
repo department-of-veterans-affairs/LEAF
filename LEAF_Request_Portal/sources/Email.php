@@ -10,6 +10,7 @@
 */
 
 namespace Portal;
+use App\Leaf\Db;
 
 class Email
 {
@@ -388,7 +389,7 @@ class Email
     function initPortalDB(): void
     {
         // set up org chart assets
-        $this->portal_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, Config::$portalDb);
+        $this->portal_db = new Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, Config::$portalDb);
     }
 
     /**
@@ -398,7 +399,7 @@ class Email
     function initNexusDB(): void
     {
         // set up org chart assets
-        $this->nexus_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $this->nexus_db = new Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
     }
 
     /**

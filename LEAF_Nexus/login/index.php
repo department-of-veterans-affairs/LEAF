@@ -6,7 +6,6 @@ header('X-UA-Compatible: IE=edge');
 $https = true;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
-require_once '../globals.php';
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');

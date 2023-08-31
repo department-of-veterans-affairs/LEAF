@@ -1,27 +1,33 @@
 <?php
+use App\Leaf\Db;
 
 $curr_dir = '/var/www/html';
+$app_dir = '/var/www/html/app';
 
+require_once $app_dir . '/libs/globals.php';
 require_once $curr_dir . '/libs/php-commons/Psr4AutoloaderClass.php';
 require_once $curr_dir . '/libs/smarty/bootstrap.php';
 
 $loader = new \Leaf\Psr4AutoloaderClass;
 $loader->register();
 
+$loader->addNamespace('App\Leaf', $app_dir . '/Leaf');
+
+$file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+
+$vars = array(':site_path' => PORTAL_PATH);
+$sql = 'SELECT `site_path`, `site_uploads`, `portal_database`, `orgchart_path`,
+            `orgchart_database`
+        FROM `sites`
+        WHERE `site_path` = BINARY :site_path';
+
+$site_paths = $file_paths_db->pdo_select_query($sql, $vars);
+$site_paths = $site_paths['data'][0];
+
 if (is_dir($curr_dir . '/libs/php-commons')) {
     $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
     $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
     $loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');
-
-    $file_paths_db = new \Leaf\Db(getenv('DATABASE_HOST'), getenv('DATABASE_USERNAME'), getenv('DATABASE_PASSWORD'), 'national_leaf_launchpad');
-
-    $vars = array(':site_path' => '/' . PORTAL_PATH);
-    $sql = 'SELECT site_path, site_uploads, portal_database, orgchart_path,
-                orgchart_database
-            FROM sites
-            WHERE site_path= BINARY :site_path';
-
-    $site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 
     $working_dir = $curr_dir;
 
@@ -43,12 +49,12 @@ if (is_dir($curr_dir . '/libs/php-commons')) {
 }
 
 if (!empty($site_paths['portal_database'])){
-    $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
+    $db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
 } else {
-    $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
+    $db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
 }
 
-$oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
+$oc_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
 
 // get the settings for this portal
 $setting_up = new Leaf\Setting($db);
@@ -85,7 +91,7 @@ if (count($_GET) > 0) {
 }
 
 if (session_id() == '') {
-    $session_db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
+    $session_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
 
     if (class_exists('Portal\Session')) {
         $sessionHandler = new \Portal\Session($session_db);

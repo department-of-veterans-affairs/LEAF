@@ -5,7 +5,6 @@ $tempFolder = str_replace('\\', '/', dirname(__FILE__)) . '/../files/temp/';
 
 define("LF", "\n");
 
-require_once '../globals.php';
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 $debug = false;

@@ -1,4 +1,5 @@
 <?php
+use App\Leaf\Db;
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
@@ -11,7 +12,6 @@
 
 error_reporting(E_ERROR);
 
-require_once '../globals.php';
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
@@ -47,7 +47,7 @@ function customTemplate($tpl)
 function hasDevConsoleAccess($login, $oc_db)
 {
     // automatically allow coaches
-    $db_national = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+    $db_national = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
     $vars = array(':userID' => $login->getUserID());
     $res = $db_national->prepared_query('SELECT * FROM employee WHERE userName=:userID', $vars);
     if(count($res) == 0) {

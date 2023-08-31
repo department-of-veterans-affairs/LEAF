@@ -5,6 +5,8 @@
 
 namespace Leaf;
 
+use App\Leaf\Db;
+
 class setting
 {
     protected $settings;
