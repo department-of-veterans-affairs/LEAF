@@ -205,7 +205,7 @@ function buildQuery(getCancelled, getSubmitted, getReminder) {
             match: "*" + extraTerms.trim() + "*",
         });
     }
-
+console.log(requestQuery);
     return requestQuery;
 }
 
@@ -222,7 +222,86 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
     $("table#requests tr.requestRow").remove();
     $("#iconBusy").show();
     
-    $.ajax({
+    let query = new LeafFormQuery();
+    console.log('here');
+    query.setRootURL('./');
+    query.importQuery(queryObj);
+    query.onSuccess(function(data){
+        if (thisSearchID === searchID) {
+            if (Object.keys(data).length) {
+                let totalCount = 0;
+
+                $.each(data, function (index, value) {
+                    let displayRecord = true;
+                    // If this is email reminder list, then compare against give time period
+                    if (getReminder) {
+                        // Get if we can show record for time period selected
+                        if (value.action_history !== undefined) {
+                            let numberActions = value.action_history.length;
+                            let lastActionDate =
+                                Number(
+                                    value.action_history[numberActions - 1]
+                                        .time
+                                ) * 1000;
+
+                            // Current date minus selected reminder time period
+                            let comparisonDate =
+                                Date.now() - getReminder * 86400 * 1000;
+                            if (lastActionDate >= comparisonDate) {
+                                displayRecord = false;
+                            }
+                        } else {
+                            console.log("No record to display");
+                            displayRecord = false;
+                        }
+                    }
+                    if (displayRecord) {
+                        totalCount++;
+                        requestsRow = '<tr class="requestRow">';
+                        requestsRow +=
+                            '<td><a href="index.php?a=printview&amp;recordID=' +
+                            value.recordID +
+                            '" target="_blank">' +
+                            value.recordID +
+                            "</a></td>";
+                        requestsRow +=
+                            "<td>" +
+                            (value.categoryNames === undefined ||
+                                value.categoryNames.length === 0
+                                ? "non"
+                                : value.categoryNames[0]) +
+                            "</td>";
+                        requestsRow +=
+                            "<td>" +
+                            (value.service == null ? "" : value.service) +
+                            "</td>";
+                        requestsRow += "<td>" + value.title + "</td>";
+                        requestsRow +=
+                            '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="' +
+                            value.recordID +
+                            '"></td>';
+                        requestsRow += "</tr>";
+                        $("table#requests").append(requestsRow);
+                    }
+                });
+
+                if (totalCount == 0) {
+                    requestsRow = '<tr class="requestRow">';
+                    requestsRow +=
+                        "<td colspan='5'>No records to display</td>";
+                    requestsRow += "</tr>";
+                    $("table#requests").append(requestsRow);
+                }
+
+                $("#searchResults").show();
+            } else {
+                $("#errorMessage").html("No Results").show();
+            }
+        }
+        $("#iconBusy").hide();
+    });
+                query.execute();
+    /*$.ajax({
         type: "GET",
         url: "./api/form/query",
         data: { q: JSON.stringify(queryObj), CSRFToken: massActionToken },
@@ -317,7 +396,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
         })
         .always(function () {
             $("#iconBusy").hide();
-        });
+        });*/
 }
 
 /**
