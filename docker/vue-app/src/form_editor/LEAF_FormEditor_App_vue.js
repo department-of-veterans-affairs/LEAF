@@ -1,17 +1,5 @@
 import { computed } from 'vue';
 
-import LeafFormDialog from "../common/components/LeafFormDialog.js";
-
-import IndicatorEditingDialog from "./components/dialog_content/IndicatorEditingDialog.js";
-import AdvancedOptionsDialog from "./components/dialog_content/AdvancedOptionsDialog.js";
-import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
-import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
-import FormHistoryDialog from "./components/dialog_content/FormHistoryDialog.js";
-import StapleFormDialog from "./components/dialog_content/StapleFormDialog.js";
-import EditCollaboratorsDialog from "./components/dialog_content/EditCollaboratorsDialog.js";
-import ConfirmDeleteDialog from "./components/dialog_content/ConfirmDeleteDialog.js";
-import ConditionsEditorDialog from "./components/dialog_content/ConditionsEditorDialog.js";
-
 import ModFormMenu from "./components/ModFormMenu.js";
 import ResponseMessage from "./components/ResponseMessage";
 
@@ -24,6 +12,7 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             CSRFToken: CSRFToken,
+            hasDevConsoleAccess: +hasDevConsoleAccess,
             ajaxResponseMessage: '',
 
             siteSettings: {},
@@ -31,18 +20,7 @@ export default {
             secureBtnText: 'View Details',
             secureBtnLink: '',
             fileManagerTextFiles: [],
-
             showCertificationStatus: false,
-            dialogTitle: '',
-            dialogFormContent: '',
-            dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
-            showFormDialog: false,
-            //this sets the method associated with the save btn of the current dialog modal to the onSave method of its current component
-            formSaveFunction: ()=> {
-                if(this.$refs[this.dialogFormContent]) {
-                    this.$refs[this.dialogFormContent].onSave();
-                } else { console.log('possible error setting modal save method')}
-            },
             isEditingModal: false,
             orgchartFormats: ['orgchart_group','orgchart_position','orgchart_employee'],
 
@@ -57,6 +35,15 @@ export default {
             allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
             workflowRecords: [],            //array of all 'workflows' table records
             indicatorRecord: {},          //'indicators' table record for a specific indicatorID
+
+
+            /* modal properties */
+            dialogTitle: '',
+            dialogFormContent: '',
+            dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
+            formSaveFunction: null,
+            showFormDialog: false,
+            dialogData: null
         }
     },
     provide() {
@@ -86,15 +73,11 @@ export default {
             secureBtnLink: computed(() => this.secureBtnLink),
             fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
 
-            showFormDialog: computed(() => this.showFormDialog),
-            dialogTitle: computed(() => this.dialogTitle),
-            dialogFormContent: computed(() => this.dialogFormContent),
-            dialogButtonText: computed(() => this.dialogButtonText),
-            formSaveFunction: computed(() => this.formSaveFunction),
             internalFormRecords: computed(() => this.internalFormRecords),
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
+            hasDevConsoleAccess: this.hasDevConsoleAccess,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
@@ -107,7 +90,7 @@ export default {
             updateStapledFormsInfo: this.updateStapledFormsInfo,
             addNewCategory: this.addNewCategory,
             removeCategory: this.removeCategory,
-            closeFormDialog: this.closeFormDialog,
+
             openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
             openNewFormDialog: this.openNewFormDialog,
             openImportFormDialog: this.openImportFormDialog,
@@ -121,19 +104,21 @@ export default {
             truncateText: this.truncateText,
             decodeAndStripHTML: this.decodeAndStripHTML,
             showLastUpdate: this.showLastUpdate,
+
+            /** dialog */
+            closeFormDialog: this.closeFormDialog,
+            setDialogSaveFunction: this.setDialogSaveFunction,
+            //not sure if title, button text and content setters are needed here
+
+            showFormDialog: computed(() => this.showFormDialog),
+            dialogTitle: computed(() => this.dialogTitle),
+            dialogFormContent: computed(() => this.dialogFormContent),
+            dialogButtonText: computed(() => this.dialogButtonText),
+            dialogData: computed(() => this.dialogData),
+            formSaveFunction: computed(() => this.formSaveFunction),
         }
     },
     components: {
-        LeafFormDialog,
-        IndicatorEditingDialog,
-        AdvancedOptionsDialog,
-        NewFormDialog,
-        ImportFormDialog,
-        FormHistoryDialog,
-        StapleFormDialog,
-        EditCollaboratorsDialog,
-        ConfirmDeleteDialog,
-        ConditionsEditorDialog,
         ModFormMenu,
         ResponseMessage
     },
@@ -152,7 +137,7 @@ export default {
             if(res.siteType === 'national_subordinate') {
                 document.getElementById('subordinate_site_warning').style.display = 'block';
             }
-            if (res.leafSecure >= 1) {
+            if (+res.leafSecure >= 1) {
                 this.getSecureFormsInfo();
             }
         }).catch(err => console.log('error getting site settings', err));
@@ -646,24 +631,31 @@ export default {
         },
 
         /** DIALOG MODAL RELATED */
+        /**
+         * close dialog and reset values
+         */
+        closeFormDialog() {
+            this.showFormDialog = false;
+            this.dialogTitle = '';
+            this.dialogFormContent = '';
+            this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
+            this.formSaveFunction = null;
+            this.dialogData = null;
+        },
         setCustomDialogTitle(htmlContent = '') {
             this.dialogTitle = htmlContent;
         },
         /**
-         * set the component for the dialog modal's main content. Components must be registered to this app
+         * sets the component for the dialog modal's main content. Components must be registered to the view using them
          * @param {string} component name as string, eg 'confirm-delete-dialog'
          */
         setFormDialogComponent(component = '') {
             this.dialogFormContent = component;
         },
-        /**
-         * close dialog and reset title, content and button text values
-         */
-        closeFormDialog() {
-            this.showFormDialog = false;
-            this.setCustomDialogTitle('');
-            this.setFormDialogComponent('');
-            this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
+        setDialogSaveFunction(func = '') {
+            if (typeof func === 'function') {
+                this.formSaveFunction = func;
+            }
         },
         openConfirmDeleteFormDialog() {
             this.setCustomDialogTitle('<h2>Delete this form</h2>');
@@ -733,8 +725,12 @@ export default {
             this.showFormDialog = true;  
         },
         openFormHistoryDialog() {
+            this.dialogData = {
+                historyType: 'form',
+                historyID: this.focusedFormRecord.categoryID,
+            };
             this.setCustomDialogTitle(`<h2>Form History</h2>`);
-            this.setFormDialogComponent('form-history-dialog');
+            this.setFormDialogComponent('history-dialog');
             this.showFormDialog = true;
         },
         /**

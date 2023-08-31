@@ -1,5 +1,16 @@
 import { computed } from 'vue';
 
+import LeafFormDialog from "@/common/components/LeafFormDialog.js";
+import HistoryDialog from "@/common/components/HistoryDialog.js";
+import IndicatorEditingDialog from "../components/dialog_content/IndicatorEditingDialog.js";
+import AdvancedOptionsDialog from "../components/dialog_content/AdvancedOptionsDialog.js";
+import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
+import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
+import StapleFormDialog from "../components/dialog_content/StapleFormDialog.js";
+import EditCollaboratorsDialog from "../components/dialog_content/EditCollaboratorsDialog.js";
+import ConfirmDeleteDialog from "../components/dialog_content/ConfirmDeleteDialog.js";
+import ConditionsEditorDialog from "../components/dialog_content/ConditionsEditorDialog.js";
+
 import FormBrowser from '../components/form_editor_view/FormBrowser.js';
 import FormEditingDisplay from '../components/form_editor_view/FormEditingDisplay.js';
 import FormIndexListing from '../components/form_editor_view/FormIndexListing.js';
@@ -33,6 +44,17 @@ export default {
         }
     },
     components: {
+        LeafFormDialog,
+        IndicatorEditingDialog,
+        AdvancedOptionsDialog,
+        NewFormDialog,
+        ImportFormDialog,
+        HistoryDialog,
+        StapleFormDialog,
+        EditCollaboratorsDialog,
+        ConfirmDeleteDialog,
+        ConditionsEditorDialog,
+
         FormEditingDisplay,
         FormIndexListing,
         EditPropertiesPanel,
@@ -60,6 +82,9 @@ export default {
         'currentFormCollection',
         'decodeAndStripHTML',
         'truncateText',
+
+        'showFormDialog',
+        'dialogFormContent'
     ],
     mounted() {
         //console.log('MOUNTED FORM EDITOR VIEW');
@@ -546,5 +571,12 @@ export default {
             </div>
         </template>
     </template>
+
+    <!-- DIALOGS -->
+    <leaf-form-dialog v-if="showFormDialog">
+        <template #dialog-content-slot>
+            <component :is="dialogFormContent"></component>
+        </template>
+    </leaf-form-dialog>
 </div>`
 }

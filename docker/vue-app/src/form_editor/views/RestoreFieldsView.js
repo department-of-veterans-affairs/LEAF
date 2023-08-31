@@ -1,3 +1,8 @@
+import LeafFormDialog from "@/common/components/LeafFormDialog.js";
+import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
+import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
+
+
 export default {
     name: 'restore-fields-view',
     data() {
@@ -5,16 +10,24 @@ export default {
             disabledFields: null
         }
     },
+    components: {
+        LeafFormDialog,
+        NewFormDialog,
+        ImportFormDialog,
+    },
     inject: [
         'APIroot',
         'CSRFToken',
         'selectNewCategory',
-        'setDefaultAjaxResponseMessage'
+        'setDefaultAjaxResponseMessage',
+
+        'showFormDialog',
+        'dialogFormContent'
     ],
     /**
      * get all disabled or archived indicators for indID > 0 and update app disabledFields (array)
      */
-    beforeMount() { 
+    created() {
         $.ajax({
             type: 'GET',
             url: `${this.APIroot}form/indicator/list/disabled`,
@@ -83,5 +96,12 @@ export default {
                 </table>
                 <p v-else>Loading ...</p>
             </div>
+
+            <!-- DIALOGS -->
+            <leaf-form-dialog v-if="showFormDialog">
+                <template #dialog-content-slot>
+                    <component :is="dialogFormContent"></component>
+                </template>
+            </leaf-form-dialog>
         </div>`
 }

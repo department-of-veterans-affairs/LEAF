@@ -8,6 +8,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
         'truncateText',
         'decodeAndStripHTML',
         'categories',
@@ -15,6 +16,9 @@ export default {
         'closeFormDialog',
         'updateStapledFormsInfo'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     mounted() {
         if (this.isSubform) {
             this.closeFormDialog();

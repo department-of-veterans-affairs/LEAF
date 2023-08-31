@@ -3,11 +3,15 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
         'focusedFormRecord',
         'selectNewCategory',
         'removeCategory',
         'closeFormDialog'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     computed: {
         /**
          * uses LEAF XSSHelpers.js

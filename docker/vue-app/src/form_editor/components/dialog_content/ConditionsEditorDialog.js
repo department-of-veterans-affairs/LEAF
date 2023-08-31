@@ -27,6 +27,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
         'currIndicatorID',
         'focusedFormRecord',
         'selectedNodeIndicatorID',
@@ -38,6 +39,7 @@ export default {
         'initializeOrgSelector'
     ],
     created() {
+        this.setDialogSaveFunction(this.onSave);
         this.getFormIndicators();
     },
     mounted() {

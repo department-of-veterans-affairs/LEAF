@@ -11,23 +11,12 @@ export default {
             elBackground: null
         }
     },
-    props: {
-        hasDevConsoleAccess: {
-            type: Number,
-            default: 0
-        }
-    },
     inject: [
         'dialogTitle', 
         'closeFormDialog',
         'formSaveFunction',
         'dialogButtonText'
     ],
-    provide() {
-        return {
-            hasDevConsoleAccess: this.hasDevConsoleAccess
-        }
-    },
     mounted() {
         this.elBody = document.querySelector('body');
         this.elModal = document.getElementById(this.modalElementID);

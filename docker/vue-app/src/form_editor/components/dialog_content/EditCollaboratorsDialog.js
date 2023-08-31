@@ -11,10 +11,14 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
         'categories',
         'focusedFormRecord',
         'closeFormDialog'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     mounted() {
         const loadCalls = [
             $.ajax({

@@ -9,11 +9,15 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
         'focusedFormRecord',
         'addNewCategory',
         'selectNewCategory',
         'closeFormDialog'
 	],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     mounted() {
         document.getElementById('name').focus();
     },
@@ -82,8 +86,8 @@ export default {
                 <div><b>Form Description</b><span style="font-size:80%"> (up to 255 characters)</span></div>
                 <div>{{descrCharsRemaining}}</div>
             </div>
-            <textarea id="description" maxlength="255" v-model="categoryDescription" 
-                style="width: 100%; height: 90px;">
+            <textarea id="description" maxlength="255" rows="5" v-model="categoryDescription" 
+                style="width: 100%; resize:none;">
             </textarea>
         </div>`
 };

@@ -16,6 +16,7 @@ export default {
         'APIroot',
         'libsPath',
         'CSRFToken',
+        'setDialogSaveFunction',
         'closeFormDialog',
         'focusedFormRecord',
         'currIndicatorID',
@@ -24,9 +25,12 @@ export default {
         'hasDevConsoleAccess',
         'selectedNodeIndicatorID'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     mounted(){
         document.querySelector(this.initialFocusElID)?.focus();
-        if(parseInt(this.hasDevConsoleAccess) === 1) {
+        if(+this.hasDevConsoleAccess === 1) {
             this.setupAdvancedOptions();
         }
     },

@@ -11,12 +11,6 @@
         </section>
     </main>
     <response-message v-else :message="ajaxResponseMessage"></response-message>
-    <!-- DIALOGS -->
-    <leaf-form-dialog v-if="showFormDialog" :has-dev-console-access='<!--{$hasDevConsoleAccess}-->'>
-        <template #dialog-content-slot>
-            <component :is="dialogFormContent" :ref="dialogFormContent"></component>
-        </template>
-    </leaf-form-dialog>
 </div>
 
 <script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/form_editor/LEAF_FormEditor.js" defer></script>
@@ -26,6 +20,7 @@
     const APIroot = '<!--{$APIroot}-->';
     const libsPath = '<!--{$libsPath}-->';
     const orgchartPath = '<!--{$orgchartPath}-->';
+    const hasDevConsoleAccess = '<!--{$hasDevConsoleAccess}-->';
     
     let postRenderFormBrowser;
 

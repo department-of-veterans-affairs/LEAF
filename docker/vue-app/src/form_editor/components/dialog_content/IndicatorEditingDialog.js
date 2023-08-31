@@ -84,6 +84,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
         'initializeOrgSelector',
         'isEditingModal',
         'closeFormDialog',
@@ -98,6 +99,9 @@ export default {
         'decodeAndStripHTML',
         'orgchartFormats'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     provide() {
         return {
             gridJSON: computed(() => this.gridJSON),

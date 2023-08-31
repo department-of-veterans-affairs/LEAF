@@ -1,16 +1,16 @@
 export default {
-    name: 'form-history-dialog',
+    name: 'history-dialog',
     data() {
         return {
             divSaveCancelID: 'leaf-vue-dialog-cancel-save',
             page: 1,
-            formID: this.focusedFormRecord.categoryID,
+            historyType: this.dialogData.historyType,
+            historyID: this.dialogData.historyID,
             ajaxRes: ''
-            
         }
     },
     inject: [
-        'focusedFormRecord',
+        'dialogData'
     ],
     mounted() {
         document.getElementById(this.divSaveCancelID).style.display = 'none';
@@ -28,26 +28,24 @@ export default {
         getNext() {
             this.page++;
             this.getPage();
-
         },
         getPrev() {
             this.page--;
             this.getPage();
         },
-        getPage(){
-            $.ajax({
-                type: 'GET',
-                url: `ajaxIndex.php?a=gethistory&type=form&gethistoryslice=1&page=${this.page}&id=${this.formID}`,
-                dataType: 'text',
-                success: (res) => {
-                    this.ajaxRes = res;
-                },
-                error: err => console.log(err),
-                cache: false
-            })
+        async getPage() {
+            try {
+                const url = `ajaxIndex.php?a=gethistory&type=${this.historyType}&gethistoryslice=1&page=${this.page}&id=${this.historyID}`;
+                const response = await fetch(url);
+                this.ajaxRes = await response.text();
+            }
+            catch (error) {
+                console.log('error getting history', error);
+            }
         }
     },
-    template:`<div id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
+    template:`<div>
+        <div id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
         <div id="history-page-buttons" style="display: flex; justify-content: space-between;">
             <button v-if="showPrev" id="prev" type="button"
                 class="btn-general"
@@ -61,5 +59,6 @@ export default {
                 @click="getNext" title="get next page">
                 Next page
             </button>
-        </div>`
+        </div>
+    </div>`
 }
