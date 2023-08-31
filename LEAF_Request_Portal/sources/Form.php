@@ -718,7 +718,7 @@ class Form
      *
      * Created at: 8/24/2023, 2:15:39 PM (America/New_York)
      */
-    public function deleteRecord(int $recordID, string $comment = ''): int|string
+    public function deleteRecord(int $recordID, ?string $comment = ''): int|string
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             $return_value = 0;
