@@ -11,8 +11,6 @@ services:
     volumes:
       - /mnt/leaf/:/var/www/
     command: 'source /startup.sh'
-    networks:
-      - leaf
     deploy:
       mode: replicated
       replicas: 1
