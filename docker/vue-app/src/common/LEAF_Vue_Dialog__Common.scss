@@ -34,6 +34,14 @@ body { /* fixes header not extending entire width */
 [v-cloak] {
     display: none;
 }
+.page_loading {
+    border: 2px solid black;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 1rem;
+    background-color: white;
+}
 input[type="color"] {
     cursor: pointer;
 }
@@ -77,7 +85,9 @@ button.btn-general, button.btn-confirm {
         border: 2px solid black !important;
     }
     &.disabled {
-        cursor: auto !important;
+        cursor: not-allowed !important;
+        background-color: #c9c9c9;
+        color: #454545;
         &:active {
             border: 2px solid $base_navy !important;
         }

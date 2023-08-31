@@ -35,6 +35,7 @@ export default {
             allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
             workflowRecords: [],            //array of all 'workflows' table records
             indicatorRecord: {},          //'indicators' table record for a specific indicatorID
+            advancedMode: false,
 
 
             /* modal properties */
@@ -72,8 +73,9 @@ export default {
             secureBtnText: computed(() => this.secureBtnText),
             secureBtnLink: computed(() => this.secureBtnLink),
             fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
-
             internalFormRecords: computed(() => this.internalFormRecords),
+            advancedMode: computed(() => this.advancedMode),
+
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
@@ -123,6 +125,7 @@ export default {
         ResponseMessage
     },
     created() {
+        console.log('APP created')
         this.getCategoryListAll().then(() => {
             if(this.$route.name === 'category' && this.$route.query.formID) {
                 this.getFormFromQueryParam();
@@ -130,22 +133,17 @@ export default {
         }).catch(err => console.log('error getting category list', err));
         this.getWorkflowRecords();
         this.getFileManagerTextFiles();
-    },
-    mounted() {
-        this.getSiteSettings().then(res => {
-            this.siteSettings = res;
-            if(res.siteType === 'national_subordinate') {
-                document.getElementById('subordinate_site_warning').style.display = 'block';
-            }
-            if (+res.leafSecure >= 1) {
-                this.getSecureFormsInfo();
-            }
-        }).catch(err => console.log('error getting site settings', err));
+        this.getSiteSettings();
     },
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {
             if(this.$route.name === 'category' && !this.appIsLoadingCategoryList) {
                 this.getFormFromQueryParam();
+            }
+        },
+        siteSettings(newVal, oldVal) {
+            if (+newVal?.leafSecure >= 1) {
+                this.getSecureFormsInfo();
             }
         }
     },
@@ -396,19 +394,14 @@ export default {
             });
         },
         /**
-         * 
          * @returns {Object} of all records from the portal's settings table
          */
-        getSiteSettings() {
-            return new Promise((resolve, reject)=> {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}system/settings`,
-                    success: (res) => resolve(res),
-                    error: (err) => reject(err),
-                    cache: false
-                })
-            });
+        async getSiteSettings() {
+            try {
+                this.siteSettings = await fetch(`${this.APIroot}system/settings`).then(res => res.json());
+            } catch(error) {
+                console.log('error getting site settings', error);
+            }
         },
         /**
          * 

@@ -1,0 +1,59 @@
+import { computed } from 'vue';
+
+import LeafFormDialog from "@/common/components/LeafFormDialog.js";
+import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
+import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
+
+import FormBrowser from '../components/form_editor_view/FormBrowser.js'; //TODO: location
+
+export default {
+    name: 'form-browser-view',
+    data() {
+        return {
+            test: null
+        }
+    },
+    components: {
+        LeafFormDialog,
+        NewFormDialog,
+        ImportFormDialog,
+        FormBrowser
+    },
+    inject: [
+        'setDefaultAjaxResponseMessage',
+        'selectNewCategory',
+
+        'showFormDialog',
+        'dialogFormContent',
+
+        'appIsLoadingForm',
+        'appIsLoadingCategoryList'
+    ],
+    created() {
+        console.log('browser view created');
+    },
+    beforeRouteEnter(to, from, next) {
+        console.log('entering browser route')
+        next(vm => {
+            vm.setDefaultAjaxResponseMessage();
+            vm.selectNewCategory();
+        });
+    },
+    methods: {
+
+    },
+    template: `<div>
+        <div v-if="appIsLoadingForm || appIsLoadingCategoryList" class="page_loading">
+            Loading... 
+            <img src="../images/largespinner.gif" alt="loading..." />
+        </div>
+        <FormBrowser v-else></FormBrowser>
+
+        <!-- DIALOGS -->
+        <leaf-form-dialog v-if="showFormDialog">
+            <template #dialog-content-slot>
+                <component :is="dialogFormContent"></component>
+            </template>
+        </leaf-form-dialog>
+    </div>`
+}

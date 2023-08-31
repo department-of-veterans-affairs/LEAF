@@ -44,13 +44,11 @@ export default {
         indicatorName() {
             const contentRequired = this.required ? `<span class="input-required-sensitive">*&nbsp;Required</span>` : '';
             const contentSensitive = this.sensitive ? `<span class="input-required-sensitive">*&nbsp;Sensitive</span>` : '';
+            const shortLabel = (this.formNode?.description || '') !== '' ? ` (${this.formNode.description})` : '';
 
             let name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
-            name = `${name}${contentRequired}${contentSensitive}  &nbsp;${this.sensitiveImg}`;
+            name = `${name}${shortLabel}${contentRequired}${contentSensitive}  &nbsp;${this.sensitiveImg}`;
             return name;
-        },
-        indicatorFormat() {
-            return `<span style="font-weight: normal; font-size: 90%; color:#404046;">${this.formNode?.format}</span> ${this.sensitiveImg}`;
         },
         printResponseID() {
             return `xhrIndicator_${this.formNode.indicatorID}_${this.formNode.series}`;
@@ -74,10 +72,6 @@ export default {
                 <div style="width: 100%;">
                     <!-- NAME -->
                     <div style="display:flex;">
-                        <button v-show="showToolbars" type="button" @click="editQuestion(parseInt(formNode.indicatorID))"
-                            class="icon" :title="'edit indicator ' + formNode.indicatorID" style="margin-top: 2px;">
-                            <img :src="libsPath + 'dynicons/svg/accessories-text-editor.svg'" style="width: 20px" alt="" />
-                        </button>
                         <div v-html="indicatorName" @click="toggleToolbars($event, parseInt(formNode.indicatorID))"
                         class="indicator-name-preview" :id="formNode.indicatorID + '_format_label'"></div>
                     </div>
@@ -92,24 +86,27 @@ export default {
                     :id="'form_editing_toolbar_' + formNode.indicatorID"
                     :class="{'conditional': conditionalQuestion}">
 
-                    <div v-html="indicatorFormat" style="white-space:nowrap;"></div>
-
                     <div style="width:100%;">
-                        <div style="display:flex; align-items:center; margin-right: auto;">
-                            <img v-if="formNode.has_code" tabindex="0" title="advanced options are present"
-                            style="cursor:pointer; width: 20px;" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="advanced options are present" />
-                        </div>
-                        <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + formNode.indicatorID" 
-                            @click="openIfThenDialog(parseInt(formNode.indicatorID), formNode.name.trim())" 
-                            :title="'Edit conditions for ' + formNode.indicatorID" class="icon">
-                            <img :src="libsPath + 'dynicons/svg/preferences-system.svg'" style="width: 20px" alt="" />
+                        <button v-show="showToolbars" type="button"
+                            class="btn-general"
+                            @click="editQuestion(parseInt(formNode.indicatorID))"
+                            :title="'edit indicator ' + formNode.indicatorID">
+                            Edit
                         </button>
-                        <button type="button" @click="openAdvancedOptionsDialog(parseInt(formNode.indicatorID))"
-                            title="Open Advanced Options" class="icon">
-                            <img :src="libsPath + 'dynicons/svg/emblem-system.svg'" style="width: 20px" alt="" />
+                        <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + formNode.indicatorID"
+                            class="btn-general"
+                            @click="openIfThenDialog(parseInt(formNode.indicatorID), formNode.name.trim())" 
+                            :title="'Edit conditions for ' + formNode.indicatorID">
+                            Modify Logic
+                        </button>
+                        <button type="button"
+                            @click="openAdvancedOptionsDialog(parseInt(formNode.indicatorID))"
+                            :title="'Open Advanced Options.' + formNode.has_code ? 'Advanced options are present' : ''"
+                            :class="{'btn-confirm': formNode.has_code, 'btn-general': !formNode.has_code}">
+                            Programmer
                         </button>
                     </div>
-                    <button type="button" class="btn-general add-subquestion" 
+                    <button type="button" class="btn-general"
                         :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
                         @click="newQuestion(formNode.indicatorID)">
                         + {{isHeaderLocation ? 'Add question to section' : 'Add sub-question'}}

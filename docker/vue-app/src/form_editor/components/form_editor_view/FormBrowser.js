@@ -1,11 +1,6 @@
 import CategoryItem from "./CategoryItem";
 
 export default {
-    data() {
-        return {
-            test: 'test'
-        }
-    },
     inject: [
         'appIsLoadingCategoryList',
         'showCertificationStatus',

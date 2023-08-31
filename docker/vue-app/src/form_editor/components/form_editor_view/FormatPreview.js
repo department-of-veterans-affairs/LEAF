@@ -121,6 +121,10 @@ export default {
             min="0.00" step="0.01" class="text_input_preview"/>
         </template>
 
+        <template v-if="baseFormat === 'raw_data'">
+            Custom Widget
+        </template>
+
         <template v-if="baseFormat === 'textarea'">
             <textarea :id="inputElID" rows="6" class="textarea_input_preview" :value="strippedDefault"></textarea>
             <div :id="'textarea_format_button_' + indicator.indicatorID"

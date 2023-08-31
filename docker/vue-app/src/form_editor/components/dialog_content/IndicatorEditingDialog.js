@@ -84,6 +84,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'advancedMode',
         'setDialogSaveFunction',
         'initializeOrgSelector',
         'isEditingModal',
@@ -144,6 +145,13 @@ export default {
         }
     },
     computed:{
+        nameLabelText() {
+            return this.parentID === null ? 'Section Heading' : 'Field Name';
+        },
+        showFormatSelect() {
+            //not a header, or in advanced mode, or the format of the header is already a format other than none
+            return this.parentID !== null || this.advancedMode === true || this.format !== ''
+        },
         shortLabelTriggered() {
             return this.name.trim().split(' ').length > 3;
         },
@@ -562,7 +570,7 @@ export default {
     },
     template: `<div id="indicator-editing-dialog-content">
         <div>
-            <label for="name">Field Name</label>
+            <label for="name">{{ nameLabelText }}</label>
             <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
             <div style="display:flex; justify-content: space-between;">
                 <button type="button" class="btn-general" id="rawNameEditor"
@@ -585,7 +593,7 @@ export default {
             <input type="text" id="description" v-model="description" maxlength="50" />
         </div>
         <div>
-            <div>
+            <div v-if="showFormatSelect">
                 <label for="indicatorType">Input Format</label>
                 <div style="display:flex;">
                     <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">

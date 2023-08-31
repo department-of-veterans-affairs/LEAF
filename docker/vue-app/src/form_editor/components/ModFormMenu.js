@@ -23,10 +23,7 @@ export default {
         subformID() {
             return this.focusedFormRecord?.parentID ?
                 this.focusedFormRecord.categoryID : '';
-        },
-        currentStapleIDs() {
-            return this.categories[this.mainFormID]?.stapledFormIDs || [];
-        },
+        }
     },
     methods: {
         /**
@@ -104,11 +101,11 @@ export default {
             return this.truncateText(name, len).trim();
         },
     },
-    template: `<nav id="form-editor-nav">
+    template: `<nav id="top-menu-nav">
             <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
-            <ul v-if="mainFormID === ''" id="form-editor-menu">
+            <ul v-if="$route.name === 'browser' || $route.name === 'restore'" id="page-menu">
                 <li v-if="$route.name === 'restore'">
-                    <router-link :to="{ name: 'category' }" class="router-link" @click="selectNewCategory()">
+                    <router-link :to="{ name: 'browser' }" class="router-link" @click="selectNewCategory()">
                         Form Browser
                     </router-link>                
                 </li>
@@ -125,14 +122,14 @@ export default {
                         Import Form<span role="img" aria="">📦</span>
                     </button>
                 </li>
-                <li v-if="$route.name !== 'restore'">
+                <li v-if="$route.name === 'browser'">
                     <router-link :to="{ name: 'restore' }" class="router-link" >
                         Restore Fields<span role="img" aria="">♻️</span>
                     </router-link>
                 </li>
             </ul>
-            <!-- FORM EDITING MENU -->
-            <ul v-else id="form-editor-menu">
+            <!-- FORM EDITOR VIEW MENU -->
+            <ul v-if="$route.name === 'category'" id="page-menu">
                 <li v-if="!allStapledFormCatIDs.includes(mainFormID) && !subformID && focusedFormTree.length > 0">
                     <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
                         Manage Stapled Forms <span role="img" aria="">📌</span>
@@ -157,29 +154,6 @@ export default {
                     <router-link :to="{ name: 'restore' }" class="router-link" >
                         Restore Fields<span role="img" aria="">♻️</span>
                     </router-link>
-                </li>
-            </ul>
-
-            <!-- FORM EDITING BREADCRUMBS -->
-            <ul v-if="mainFormID !== ''" id="form-breadcrumb-menu">
-                <li>
-                    <router-link :to="{ name: 'category', query: { formID: ''}}" title="to Form Browser">
-                        <h2>Form Editor</h2>
-                    </router-link>
-                    <span v-if="mainFormID !== ''" class="header-arrow" role="img" aria="">❯</span>
-                </li>
-                <li>
-                    <button type="button" v-if="mainFormID !== ''" 
-                        @click="selectNewCategory(mainFormID)" :title="'to parent form ' + mainFormID" :disabled="subformID === ''">
-                        <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
-                    </button>
-                    <span v-if="subformID !== ''" class="header-arrow" role="img" aria="">❯</span>
-                </li>
-                <li v-if="subformID !== ''">
-                    <button type="button" :id="'header_' + subformID" 
-                        :title="'viewing internal form ' + subformID" disabled>
-                        <h2>{{shortFormNameStripped(subformID, 50)}}</h2>
-                    </button>
                 </li>
             </ul>
         </nav>`

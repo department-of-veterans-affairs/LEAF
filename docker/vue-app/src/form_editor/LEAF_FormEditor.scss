@@ -1,16 +1,9 @@
 @import '../common/LEAF_Vue_Dialog__Common.scss';
 
-nav#form-editor-nav {
+nav#top-menu-nav, ul#form-breadcrumb-menu {
     width: 100%;
 
-    h2 {
-        @include flexcenter;
-        margin: 0;
-        font-size: 26px;
-        color: black;
-    }
-
-    ul li {
+    li {
         @include flexcenter;
         width: 200px;
         min-width: fit-content;
@@ -34,72 +27,78 @@ nav#form-editor-nav {
         span[role="img"] {
             margin-left: 0.5rem;
         }
-        span.header-arrow {
-            margin-left: 1rem;
+    }
+}
+
+ul#page-menu {
+    @include flexcenter;
+    justify-content: flex-start;
+    color: $charcoal;
+    background-color: $lt_cyan;
+    border-bottom: 1px solid $charcoal;
+    position: relative;
+    z-index: 10;
+    margin-bottom: 1rem;
+
+    > li {
+        position: relative;
+        height: 32px;
+
+        &:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            display: block;
+            height: 50%;
+            border-radius: 2px;
+            width: 1px;
+            background-color: black;
+        };
+    }
+    button, a {
+        &:hover, &:focus, &:active {
+            border: 2px solid $LEAF_CSS_outline;
+            outline: none !important;
+            background-color: $base_navy;
+            color: white;
         }
     }
-    
-    ul#form-editor-menu {
-        @include flexcenter;
-        justify-content: flex-start;
-        color: $charcoal;
-        background-color: $lt_cyan;
-        border-bottom: 1px solid $charcoal;
+}
+
+ul#form-breadcrumb-menu {
+    margin: 1rem 0 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: transparent;
+    color: black;
+
+    li {
+        width: fit-content;
         position: relative;
-        z-index: 10;
-        margin-bottom: 1rem;
-
-        > li {
-            position: relative;
-            height: 32px;
-
-            &:not(:last-child)::after {
-                content: '';
-                position: absolute;
-                right: 0;
-                display: block;
-                height: 50%;
-                border-radius: 2px;
-                width: 1px;
-                background-color: black;
-            }; 
+        margin-right: 0.75rem;
+        h2 {
+            @include flexcenter;
+            margin: 0;
+            font-size: 26px;
+            color: black;
         }
         button, a {
+            padding: 0.25rem;
+            border-radius: 3px;
+            text-decoration: underline;
+            outline: none !important;
             &:hover, &:focus, &:active {
-                border: 2px solid $LEAF_CSS_outline;
-                outline: none !important;
-                background-color: $base_navy;
-                color: white;
+                border: 2px solid $LEAF_CSS_outline !important;
+            }
+            &:disabled {
+                border: 2px solid transparent !important;
+                text-decoration: none;
+                cursor: default;
             }
         }
-    }
-
-    ul#form-breadcrumb-menu {
-        margin: 1rem 1rem 0 1rem;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        background-color: transparent;
-        color: black;
-
-        li {
-            width: fit-content;
-            position: relative;
-            margin-right: 1rem;
-            button, a {
-                padding: 0.25rem;
-                border-radius: 3px;
-                text-decoration: underline;
-                outline: none !important;
-                &:hover, &:focus, &:active {
-                    border: 2px solid $LEAF_CSS_outline !important;
-                }
-                &:disabled {
-                    border: 2px solid transparent !important;
-                    text-decoration: none;
-                    cursor: default;
-                }
-            }
+        span.header-arrow {
+            margin-left: 1rem;
         }
     }
 }
@@ -566,14 +565,14 @@ div#form_content_view {
         padding: 2px 2px 0.5rem 2px;
         background-color: white;
 
-        button {
-            padding: 2px 0.4rem;
-            border: 1px solid transparent;
+        button:not(.icon) {
+            border: 1px solid $LtNavy;
             &:hover, &:focus, &:active {
                 border: 1px solid $LEAF_CSS_outline !important;
             }
         }
         button.icon {
+            border: 0;
             padding: 0;
             background-color: transparent;
             border-radius: 2px;
@@ -581,19 +580,6 @@ div#form_content_view {
 
             img {
                 display: block;
-            }
-        }
-        button.add-subquestion {
-            width: -moz-fit-content; /*firefox prior to nov 2021*/
-            width: fit-content;
-            background-color: $lt_cyan;
-            color: #1b1b1b;
-            font-weight: normal;
-            border: 1px solid #88a;
-            border-radius: 2px;
-            &:hover, &:focus, &:active {
-                color: white;
-                background-color: $base_navy;
             }
         }
 
@@ -618,27 +604,26 @@ div#form_content_view {
 
         div[id^="form_editing_toolbar_"] {
             margin-left: 0.25rem;
-            padding: 0.25rem;
+            padding: 3px;
             border-radius: 2px;
             display: flex;
             flex-direction:column;
-            align-items: flex-end;
+            align-items: stretch;
             align-self: flex-start;
             font-size: 90%;
             color: black;
-            gap: 4px;
+            gap: 3px;
 
             > div {
                 display: flex; 
                 align-items: center;
-                /*align-self: stretch;*/
+                justify-content: space-between;
+                gap: 3px;
+                min-width: 221px;
             }
-            span.sensitive-icon {
-                display:flex; 
-                align-items: center; 
-                margin-left: 0.4rem;
+            button {
+                font-weight: normal;
             }
-
         }
         &.form-header {
             background-color: $manila;
@@ -674,7 +659,7 @@ div#form_content_view {
                 }
                 div.tableinput { /* fixes for grid tables */
                     overflow-x: auto;
-                    max-width: 900px;
+                    max-width: 800px;
                     
                     table {
                         margin: 0;
@@ -828,10 +813,10 @@ div#form_content_view {
         main section {
             margin: 0;
         }
-        nav#form-editor-nav {
+        nav#top-menu-nav {
             width: 100%;
 
-            ul#form-editor-menu {
+            ul#page-menu {
                 flex-direction: column;
                 height: fit-content;
 
@@ -854,13 +839,12 @@ div#form_content_view {
                     }
                 }
             }
-            
-            ul#form-breadcrumb-menu {
-                margin: 1rem 0 0;
-                flex-direction: column;
-                align-items: flex-start;
-                height: auto;
-            }
+        }
+        ul#form-breadcrumb-menu {
+            margin: 1rem 0 0;
+            flex-direction: column;
+            align-items: flex-start;
+            height: auto;
         }
 
         #secure_forms_info {
