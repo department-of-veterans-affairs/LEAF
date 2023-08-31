@@ -13,19 +13,9 @@ services:
     command: 'source /startup.sh'
     networks:
       - leaf
-    # environment:
-    #   - DATABASE_PASSWORD=/run/secrets/db_password
     deploy:
       mode: replicated
       replicas: 1
-    sysctls:
-      net.ipv4.ip_local_port_range: "15000 64000"
-    # configs:
-    #   - source: entrypoint
-    #     target: ./etc/init.d/ss.sh
-    #     mode: 0777
-    # entrypoint: ["/etc/init.d/ss.sh","/startup.sh"]
-
 
     secrets:
       - source: leaf_key
@@ -43,7 +33,6 @@ services:
       - source: cdw_host
       - source: cdw_pass
       - source: cipher_key
-        # - source: db_host_ip
 
 volumes:
   leaf-vol:
@@ -78,5 +67,3 @@ secrets:
     external: true
   cipher_key:
     external: true
-      #db_host_ip:
-      # external: true
