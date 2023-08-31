@@ -132,10 +132,6 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
 	else if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
 	    query.getData.push(indicatorID);
 	}
-		if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
-			query.getData.push(indicatorID);
-		}
-	}
   }
 
   /**
