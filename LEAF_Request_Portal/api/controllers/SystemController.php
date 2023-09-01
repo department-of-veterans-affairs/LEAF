@@ -172,6 +172,10 @@ class SystemController extends RESTfulResponse
                 return $system->removeFile($_GET['file']);
             });
 
+            $this->index['DELETE']->register('system/settings/leaf-secure', function () use ($system) {
+                return $system->removeLeafSecure();
+            });
+
             return $this->index['DELETE']->runControl($act['key'], $act['args']);
         }
 

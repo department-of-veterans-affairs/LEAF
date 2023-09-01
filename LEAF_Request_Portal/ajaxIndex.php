@@ -215,6 +215,7 @@ switch ($action) {
 
         break;
     case 'cancel':
+        /* This endpoint has been deprecated as of 8/31/2023 */
         if (is_numeric($_POST['cancel']))
         {
             $form = new Portal\Form($db, $login);

@@ -896,29 +896,30 @@
                     url: '../api/template/custom',
                     dataType: 'json',
                     success: function(result) {
+                        let template_excluded = 'import_from_webHR.tpl';
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
-                        let filesMobile =
-                            '<h3>Template Files:</h3><select class="templateFiles">';
+                        let filesMobile = '<h3>Template Files:</h3><select class="templateFiles">';
 
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
+                                if (res[i] === template_excluded) {
+                                    // Will skip the excluded template, until further notice.
+                                    continue;
+                                }
+
                                 if (result.includes(res[i])) {
-                                    custom =
-                                        '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
                                 } else {
                                     custom = '';
                                 }
 
                                 file = res[i].replace('.tpl', '');
 
-                                buffer += '<li onclick="loadContent(\'' + res[i] +
-                                    '\');"><div class="template_files"><a href="#">' +
+                                buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><div class="template_files"><a href="#">' +
                                     file + '</a> ' + custom + '</div></li>';
 
-                                filesMobile += '<option onclick="loadContent(\'' + res[
-                                        i] +
-                                    '\');"><div class="template_files"><a href="#">' +
+                                filesMobile += '<option onclick="loadContent(\'' + res[i] + '\');"><div class="template_files"><a href="#">' +
                                     file + '</a> ' + custom + '</div></option>';
                             }
                         } else if (res_array.status['code'] === 4) {
@@ -928,7 +929,7 @@
                                 .status['message'] + '</option></select>';
                         } else {
                             buffer +=
-                                '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
+                                '<li>Internal error occurred, if this persists contact your Primary Admin.</li>';
                         }
 
                         buffer += '</ul>';

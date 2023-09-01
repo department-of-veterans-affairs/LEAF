@@ -102,22 +102,39 @@ class Group
      *
      * @return bool|string
      */
-    public function removeGroup($groupID): bool|string
+    public function removeGroup(int $groupID): bool|string
     {
-        if ($groupID != 1)
-        {
-            $sql_vars = array(':groupID' => $groupID);
-            $res = $this->db->prepared_query('SELECT * FROM `groups` WHERE groupID=:groupID', $sql_vars);
+        if ($groupID != 1) {
+            $vars = array(':groupID' => $groupID);
+            $sql = 'SELECT `parentGroupID`
+                    FROM `groups`
+                    WHERE `groupID` = :groupID';
 
-            if (isset($res[0]) && $res[0]['parentGroupID'] == null)
-            {
+            $res = $this->db->prepared_query($sql, $vars);
+
+            if (isset($res[0]) && $res[0]['parentGroupID'] == null) {
                 // Log group deletes
                 $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PORTAL_GROUP, [
                     new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
                 ]);
 
-                $this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID', $sql_vars);
-                $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $sql_vars);
+                $sql = 'DELETE
+                        FROM `users`
+                        WHERE `groupID` = :groupID';
+
+                $this->db->prepared_query($sql, $vars);
+
+                $sql = 'DELETE
+                        FROM `groups`
+                        WHERE `groupID` = :groupID';
+
+                $this->db->prepared_query($sql, $vars);
+
+                $sql = 'DELETE
+                        FROM `dependency_privs`
+                        WHERE `groupID` = :groupID';
+
+                $this->db->prepared_query($sql, $vars);
 
                 $return_value = true;
             } else {
@@ -453,6 +470,22 @@ class Group
                 )
             );
         }
+
+        return $return_value;
+    }
+
+    public function getWorkflows(int $groupID): array
+    {
+        $vars = array(':groupID' => $groupID);
+        $sql = 'SELECT `workflowID`, `stepID`, `groupID`, `stepTitle`, `description`
+                FROM `dependency_privs`
+                LEFT JOIN `step_dependencies` using (dependencyID)
+                LEFT JOIN `workflow_steps` using (stepID)
+                LEFT JOIN `workflows` using (workflowID)
+                WHERE `groupID` = :groupID
+                ORDER BY `workflowID`, `stepID`';
+
+        $return_value = $this->db->pdo_select_query($sql, $vars);
 
         return $return_value;
     }
