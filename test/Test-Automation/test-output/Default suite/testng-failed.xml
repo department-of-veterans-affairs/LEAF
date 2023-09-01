@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [Default suite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="Default test(failed)">
+    <classes>
+      <class name="Execution.userAccessGroups">
+        <methods>
+          <include name="testForCertPage"/>
+          <include name="saveUserGroup"/>
+          <include name="setUp"/>
+          <include name="initializeFramework"/>
+          <include name="openAccessGroup2"/>
+          <include name="inputGroupName"/>
+          <include name="cancelCreateUserGroup"/>
+          <include name="inputGroupName2"/>
+          <include name="inputEmployee"/>
+          <include name="getElementID"/>
+          <include name="saveEmployee"/>
+          <include name="createUserAccessGroup"/>
+          <include name="createUserAccessGroup2"/>
+          <include name="openAccessGroup"/>
+          <include name="closeDown"/>
+          <include name="createNexusDriver"/>
+        </methods>
+      </class> <!-- Execution.userAccessGroups -->
+    </classes>
+  </test> <!-- Default test(failed) -->
+</suite> <!-- Failed suite [Default suite] -->

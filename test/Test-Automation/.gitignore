@@ -1,0 +1,5 @@
+bin/
+test-ouput/
+.settings/
+.classpath
+.settings
