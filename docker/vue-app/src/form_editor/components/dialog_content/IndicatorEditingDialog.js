@@ -73,7 +73,6 @@ export default {
                 (this.indicatorRecord[this.currIndicatorID].options || []).join('\n') : '',
 
             //used for grid formats
-            gridBodyElement: 'div#container_indicatorGrid > div',
             gridJSON: this.indicatorRecord[this.currIndicatorID]?.format === 'grid' ? 
                JSON.parse(this.indicatorRecord[this.currIndicatorID]?.options[0]) : [],
 
@@ -477,14 +476,13 @@ export default {
             this.gridJSON.push({});
         },
         /**
-         * 
-         * @param {string} dropDownOptions from grid dropdown question textarea
-         * @returns {array} of unique options with possible 'no' values updated to 'No'
+         * @param {string} dropDownOptions from the value of grid cell dropdown type textarea
+         * @returns {array} of unique options with commas rm and possible 'no' values updated to 'No'
          */
-        gridDropdown(dropDownOptions = '') {
+        formatGridDropdown(dropDownOptions = '') {
             let returnValue = []
             if (dropDownOptions !== null && dropDownOptions.length !== 0) {
-                let uniqueOptions = dropDownOptions.split("\n");
+                let uniqueOptions = dropDownOptions.replaceAll(/,/g, "").split("\n");
                 uniqueOptions = uniqueOptions.map(option => option.trim());
                 uniqueOptions = uniqueOptions.map(option => option === 'no' ? 'No' : option);
                 returnValue = Array.from(new Set(uniqueOptions));
@@ -493,23 +491,22 @@ export default {
         },
         updateGridJSON() {
             let gridJSON = [];
-            let t = this;
-            //gather column names and column types. if type is dropdown, adds property.options
-            $(this.gridBodyElement).find('div.cell').each(function() {
+            const gridParent = document.getElementById('gridcell_col_parent');
+            const gridCells = Array.from(gridParent.querySelectorAll('div.cell'));
+            gridCells.forEach(cell => {
+                const id = cell.id;
+                const type = (document.getElementById('gridcell_type_' + id)?.value || '').toLowerCase();
                 let properties = new Object();
-                if($(this).children('input:eq(0)').val() === 'undefined'){
-                    properties.name = 'No title';
-                } else {
-                    properties.name = $(this).children('input:eq(0)').val();
+                properties.id = id;
+                properties.name = document.getElementById('gridcell_title_' + id)?.value || 'No Title';
+                properties.type = type;
+                if(type === 'dropdown') {
+                    const elTextarea = document.getElementById('gridcell_options_' + id);
+                    properties.options = this.formatGridDropdown(elTextarea.value || '');
                 }
-                properties.id = $(this).attr('id');
-                properties.type = $(this).find('select').val();
-                if(properties.type !== undefined && properties.type !== null){
-                    if(properties.type.toLowerCase() === 'dropdown') {
-                        properties.options = t.gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
-                    }
-                } else {
-                    properties.type = 'textarea';
+                if(type === 'dropdown_file') {
+                    properties.file = document.getElementById('dropdown_file_select_' + id)?.value;
+                    properties.hasHeader = Boolean(document.getElementById('dropdown_file_header_select_' + id)?.value);
                 }
                 gridJSON.push(properties);
             });
