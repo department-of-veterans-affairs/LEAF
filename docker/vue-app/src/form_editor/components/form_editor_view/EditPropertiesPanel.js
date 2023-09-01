@@ -1,4 +1,5 @@
 export default {
+    name: 'edit-properties-panel',
     data() {
         return {
             categoryName: this.decodeAndStripHTML(this.focusedFormRecord?.categoryName || 'Untitled'),
@@ -9,8 +10,7 @@ export default {
             type: this.focusedFormRecord?.type || '',
             formID: this.focusedFormRecord?.categoryID || '',
             formParentID: this.focusedFormRecord?.parentID || '',
-            destructionAge: this.focusedFormRecord?.destructionAge || null,
-            lastUpdated: ''
+            destructionAge: this.focusedFormRecord?.destructionAge || null
         }
     },
     inject: [
@@ -64,8 +64,7 @@ export default {
                 },
                 success: () => {  //except for WF and desctuctionAge, these give back an empty array
                     this.updateCategoriesProperty(this.formID, 'categoryName', this.categoryName);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err =>  console.log('name post err', err)
             })
@@ -81,8 +80,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'categoryDescription', this.categoryDescription);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('form description post err', err)
             })
@@ -102,8 +100,7 @@ export default {
                     } else {
                         this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
                         this.updateCategoriesProperty(this.formID, 'workflowDescription', this.workflowDescription);
-                        this.lastUpdated = new Date().toLocaleString();
-                        this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                        this.showLastUpdate('form_properties_last_update');
                     }
                 },
                 error: err => console.log('workflow post err', err)
@@ -120,8 +117,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'visible', this.visible);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('visibility post err', err)
             })
@@ -137,8 +133,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('ntk post err', err)
             })
@@ -154,8 +149,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'type', this.type);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('type post err', err)
             })
@@ -173,8 +167,7 @@ export default {
                     success: (res) => {
                         if (res === this.destructionAge) {
                             this.updateCategoriesProperty(this.formID, 'destructionAge', this.destructionAge);
-                            this.lastUpdated = new Date().toLocaleString();
-                            this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                            this.showLastUpdate('form_properties_last_update');
                         }
                     },
                     error: err => console.log('destruction age post err', err)
@@ -205,7 +198,7 @@ export default {
                     Edit Special Write Access
                 </button>
                 <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog"
-                    :style="{display: lastUpdated==='' ? 'none' : 'flex'}">
+                    style="display: none;">
                 </button>
             </div>
             <template v-if="!isSubForm">

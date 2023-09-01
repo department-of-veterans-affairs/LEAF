@@ -318,12 +318,11 @@ table[class$="SelectorTable"] th {
         }
     }
 }
-#form_properties_last_update, #form_index_last_update {
-    opacity: 0;
+#form_properties_last_update {
     color: $base_navy;
     font-size: 90%;
     background-color: transparent;
-    border: 0;
+    border: 2px solid transparent;
 }
 
 /* Form History modal */
@@ -362,6 +361,7 @@ div#form_content_view {
 
     /* Drag-Drop area for focused form */
     ul#base_drop_area {
+        position: relative;
         background-color: white;
         margin-top: 0.5rem;
         padding: 0 0 6px 0;
@@ -369,6 +369,9 @@ div#form_content_view {
         border-radius: 3px;
         &.entered-drop-zone, ul.entered-drop-zone {
             background-color: #e8ebf0;
+        }
+        ul[id^="drop_area_parent_"] {
+            position: relative;
         }
 
         li.section_heading {
@@ -469,7 +472,6 @@ div#form_content_view {
             background-color: $base_navy;
         }
     }
-
 
     /* Layout and Internal Forms areas */
     div[id^="internalFormRecords_"], div[id^="layoutFormRecords_"] {

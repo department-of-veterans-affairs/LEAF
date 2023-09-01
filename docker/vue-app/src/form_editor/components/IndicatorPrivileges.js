@@ -1,4 +1,5 @@
 export default {
+    name: 'indicator-privileges',
     data() {
         return {
             allGroups: [],

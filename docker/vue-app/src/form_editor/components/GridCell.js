@@ -1,4 +1,5 @@
 export default {
+    name: 'grid-cell',
     data() {
         return {
             name: this.cell?.name || 'No title',

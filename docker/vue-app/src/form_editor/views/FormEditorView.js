@@ -11,7 +11,6 @@ import EditCollaboratorsDialog from "../components/dialog_content/EditCollaborat
 import ConfirmDeleteDialog from "../components/dialog_content/ConfirmDeleteDialog.js";
 import ConditionsEditorDialog from "../components/dialog_content/ConditionsEditorDialog.js";
 
-import FormBrowser from '../components/form_editor_view/FormBrowser.js';
 import FormEditingDisplay from '../components/form_editor_view/FormEditingDisplay.js';
 import FormIndexListing from '../components/form_editor_view/FormIndexListing.js';
 import EditPropertiesPanel from '../components/form_editor_view/EditPropertiesPanel.js';
@@ -39,7 +38,6 @@ export default {
             ],
             showToolbars: true,
             sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
-            sortLastUpdated: '',
             updateKey: 0,
         }
     },
@@ -57,8 +55,7 @@ export default {
 
         FormEditingDisplay,
         FormIndexListing,
-        EditPropertiesPanel,
-        FormBrowser
+        EditPropertiesPanel
     },
     inject: [
         'APIroot',
@@ -87,7 +84,7 @@ export default {
         'dialogFormContent'
     ],
     mounted() {
-        //console.log('MOUNTED FORM EDITOR VIEW');
+        console.log('mounted form editor view');
     },
     beforeRouteEnter(to, from, next) {
         window.scrollTo(0,0);
@@ -106,7 +103,7 @@ export default {
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
-            moveListing: this.moveListing,
+            moveListItem: this.moveListItem,
             toggleToolbars: this.toggleToolbars,
             makePreviewKey: this.makePreviewKey
         }
@@ -172,37 +169,24 @@ export default {
          * @param {number} indID of the list item to move
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
-        moveListing(event = {}, indID = 0, moveup = false) {
+        moveListItem(event = {}, indID = 0, moveup = false) {
             if (event?.keyCode === 32) event.preventDefault();
             const parentEl = event?.currentTarget?.closest('ul');
             const elToMove = document.getElementById(`index_listing_${indID}`);
             const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
             const newElsLI = oldElsLI.filter(li => li !== elToMove);
             const listitem = this.listTracker[indID];
-
-            if(moveup) {
-                if(listitem.listIndex > 0) {
-                    newElsLI.splice(listitem.listIndex - 1, 0, elToMove);
-                    oldElsLI.forEach(li => parentEl.removeChild(li));
-                    newElsLI.forEach((li, i) => {
-                        const liIndID = parseInt(li.id.replace('index_listing_', ''));
-                        parentEl.appendChild(li);
-                        this.listTracker[liIndID].listIndex = i;
-                    });
-                    event?.currentTarget?.focus();
-                }
-            } 
-            else {
-                if(listitem.listIndex < oldElsLI.length - 1) {
-                    newElsLI.splice(listitem.listIndex + 1, 0, elToMove);
-                    oldElsLI.forEach(li => parentEl.removeChild(li));
-                    newElsLI.forEach((li, i) => {
-                        const liIndID = parseInt(li.id.replace('index_listing_', ''));
-                        parentEl.appendChild(li);
-                        this.listTracker[liIndID].listIndex = i;
-                    });
-                    event?.currentTarget?.focus();
-                }
+            const condition = moveup === true ? listitem.listIndex > 0 : listitem.listIndex < oldElsLI.length - 1;
+            const spliceLoc = moveup === true ? -1 : 1;
+            if(condition) {
+                newElsLI.splice(listitem.listIndex + spliceLoc, 0, elToMove);
+                oldElsLI.forEach(li => parentEl.removeChild(li));
+                newElsLI.forEach((li, i) => {
+                    const liIndID = parseInt(li.id.replace('index_listing_', ''));
+                    parentEl.appendChild(li);
+                    this.listTracker[liIndID].listIndex = i;
+                });
+                event?.currentTarget?.focus();
             }
         },
         /**
@@ -250,8 +234,7 @@ export default {
             Promise.all(all).then((res)=> {
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.focusedFormID, this.selectedNodeIndicatorID).then(()=> {
-                        this.sortLastUpdated = new Date().toLocaleString();
-                        this.showLastUpdate('form_index_last_update', `last modified: ${this.sortLastUpdated}`);
+                        this.showLastUpdate('form_properties_last_update');
                         this.forceUpdate();
 
                     }).catch(err => console.log(err));
@@ -308,41 +291,32 @@ export default {
                 const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
 
                 const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
-                if (elsLI.length === 0) { //if the drop ul has no lis, just append it
+                const elLiToMove = document.getElementById(draggedElID);
+                //if the drop target ul has no items yet, just append
+                if (elsLI.length === 0) {
                     try {
-                        parentEl.append(document.getElementById(draggedElID));
+                        parentEl.append(elLiToMove);
                         this.updateListTracker(indID, formParIndID, 0);
-                        //TODO: not certain if needed - old parent list updates? (it would just batch on the next load otherwise)
                     } catch (error) {
                         console.log(error);
                     }
-                    
-                } else { //otherwise, find the closest li to the droppoint to insert before
-                    let dist = 9999;
-                    let closestLI_id = null;
-                    elsLI.forEach(el => {
-                        const newDist = el.getBoundingClientRect().top - event.clientY;
-                        if(el.id !== draggedElID && newDist > 0 && newDist < dist) {
-                            dist = newDist;
-                            closestLI_id = el.id;
+                //otherwise, find the closest li to the drop-point and mv it if it has changed pos
+                } else {
+                    const parTop = parentEl.getBoundingClientRect().top;
+                    const closest = elsLI.find(item => event.clientY - parTop <= item.offsetTop + item.offsetHeight/2) || null;
+                    if (closest !== elLiToMove) {
+                        try {
+                            parentEl.insertBefore(elLiToMove, closest);
+                            //update the new indexes
+                            const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
+                            newElsLI.forEach((li, i) => {
+                                const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
+                                this.updateListTracker(indID, formParIndID, i);
+                            });
+
+                        } catch(error) {
+                            console.log(error);
                         }
-                    });
-                
-                    try {
-                        if(closestLI_id !== null) {
-                            parentEl.insertBefore(document.getElementById(draggedElID), document.getElementById(closestLI_id));
-                        } else {
-                            //it's at the end of the list
-                            parentEl.append(document.getElementById(draggedElID));
-                        }
-                        //check the new indexes
-                        const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
-                        newElsLI.forEach((li,i) => {
-                            const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
-                            this.updateListTracker(indID, formParIndID, i);
-                        });
-                    } catch(error) {
-                        console.log(error);
                     }
                 }
                 if(parentEl.classList.contains('entered-drop-zone')){
@@ -358,7 +332,6 @@ export default {
             if(event?.target?.classList.contains('form-index-listing-ul')){
                 event.target.classList.remove('entered-drop-zone');
             }
-            
         },
         /**
          * 
@@ -455,9 +428,10 @@ export default {
                         :src="libsPath + 'dynicons/svg/emblem-notice.svg'"
                         style="width: 16px; margin-left: 0.25rem; margin-right:auto;"
                         title="Details for the selected form are shown below" alt="" />
-                    <button type="button" id="form_index_last_update" @click.prevent="openFormHistoryDialog"
-                        :style="{display: sortLastUpdated==='' ? 'none' : 'flex'}">
-                    </button>
+                        <button type="button" id="indicator_toolbar_toggle" class="btn-general" style="width: 133px;"
+                            @click.stop="toggleToolbars($event)">
+                            {{showToolbars ? 'Preview this form' : 'Edit this form'}}
+                        </button>
                 </div>
                 <!-- FORM LAYOUT OVERVIEW -->
                 <div v-if="currentFormCollection.length > 1" :id="'layoutFormRecords_' + $route.query.formID">
@@ -560,10 +534,6 @@ export default {
                 <div v-if="selectedFormNode === null" id="form_entry_and_preview">
                     <div class="form-section-header" style="display: flex;">
                         <h3 style="margin: 0; color: black;">Form Editing and Preview</h3>
-                        <button type="button" id="indicator_toolbar_toggle" class="btn-general"
-                            @click.stop="toggleToolbars($event)">
-                            {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}
-                        </button>
                     </div>
                     <template v-for="(formSection, i) in focusedFormTree" :key="'editing_display_' + formSection.indicatorID">
                         <div class="printformblock">
@@ -580,10 +550,6 @@ export default {
                 <div v-else id="form_entry_and_preview">
                     <div class="form-section-header" style="display: flex;">
                         <h3 style="margin: 0; color: black;">Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
-                        <button type="button" id="indicator_toolbar_toggle" class="btn-general"
-                            @click.stop="toggleToolbars($event)">
-                            {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}
-                        </button>
                     </div>
                     <div class="printformblock">
                         <form-editing-display

@@ -1,10 +1,8 @@
-import { computed } from 'vue';
-
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
 
-import FormBrowser from '../components/form_editor_view/FormBrowser.js'; //TODO: location
+import FormBrowser from '../components/FormBrowser.js';
 
 export default {
     name: 'form-browser-view',

@@ -276,11 +276,12 @@ export default {
             elDiv.innerHTML = content;
             return XSSHelpers.stripAllTags(elDiv.innerText);
         },
-        showLastUpdate(elementID = '', text = '') {
+        showLastUpdate(elementID = '') {
+            const lastUpdated = new Date().toLocaleString();
             const el = document.getElementById(elementID);
             if(el !== null) {
-                el.innerText = text;
-                el.style.opacity = 1;
+                el.style.display = 'flex';
+                el.innerText = `last modified: ${lastUpdated}`;
                 el.style.border = '2px solid #20a0f0';
                 setTimeout(() => {
                     el.style.border = '2px solid transparent';
@@ -396,9 +397,11 @@ export default {
         /**
          * @returns {Object} of all records from the portal's settings table
          */
-        async getSiteSettings() {
+        getSiteSettings() {
             try {
-                this.siteSettings = await fetch(`${this.APIroot}system/settings`).then(res => res.json());
+                fetch(`${this.APIroot}system/settings`).then(res => {
+                    res.json().then(data => this.siteSettings = data);
+                });
             } catch(error) {
                 console.log('error getting site settings', error);
             }

@@ -1,6 +1,7 @@
 import CategoryItem from "./CategoryItem";
 
 export default {
+    name: 'form-browser',
     inject: [
         'appIsLoadingCategoryList',
         'showCertificationStatus',

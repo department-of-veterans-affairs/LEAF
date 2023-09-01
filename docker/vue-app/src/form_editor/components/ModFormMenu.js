@@ -1,4 +1,5 @@
 export default {
+    name: 'mod-form-menu',
     inject: [
         'APIroot',
         'truncateText',

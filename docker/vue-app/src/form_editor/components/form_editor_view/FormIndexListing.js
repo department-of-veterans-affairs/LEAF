@@ -1,5 +1,5 @@
 export default {
-    name: 'FormIndexListing',
+    name: 'form-index-listing',
     data() {
         return {
             subMenuOpen: false
@@ -21,10 +21,10 @@ export default {
         'onDragEnter',
         'onDragLeave',
         'onDrop',
-        'moveListing'
+        'moveListItem'
     ],
     mounted() {
-        //each list item is added to the array on parent component, to track indicatorID, parentID, sort and current index values
+        //each list item is added to the array on parent component (FormEditorView), to track indicatorID, parentID, sort and current index values
         this.addToListTracker(this.formNode, this.parentID, this.index);
         if(this.selectedNodeIndicatorID !== null && this.selectedNodeIndicatorID === this.formNode.indicatorID) {
             let el = document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`);
@@ -59,7 +59,6 @@ export default {
         hasConditions() {
             return (this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '' && this.formNode.conditions !== 'null');
         },
-        //NOTE: Uses globally available XSSHelpers.js (LEAF class)
         indexDisplay() {
             //if the indicator has a short label (description), display that, otherwise display the name. Show 'blank' if it has neither
             let display = this.formNode.description ?  XSSHelpers.stripAllTags(this.formNode.description) : XSSHelpers.stripAllTags(this.formNode.name);
@@ -87,13 +86,13 @@ export default {
                 <div class="icon_move_container">
                     <div v-show="formNode.indicatorID === selectedNodeIndicatorID" 
                         tabindex="0" class="icon_move up" role="button" title="move item up"
-                        @click.stop="moveListing($event, selectedNodeIndicatorID, true)"
-                        @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, true)">
+                        @click.stop="moveListItem($event, selectedNodeIndicatorID, true)"
+                        @keydown.stop.enter.space="moveListItem($event, selectedNodeIndicatorID, true)">
                     </div>
                     <div v-show="formNode.indicatorID === selectedNodeIndicatorID"
                         tabindex="0" class="icon_move down" role="button" title="move item down"
-                        @click.stop="moveListing($event, selectedNodeIndicatorID, false)"
-                        @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, false)">
+                        @click.stop="moveListItem($event, selectedNodeIndicatorID, false)"
+                        @keydown.stop.enter.space="moveListItem($event, selectedNodeIndicatorID, false)">
                     </div>
                 </div>
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !subMenuOpen}"

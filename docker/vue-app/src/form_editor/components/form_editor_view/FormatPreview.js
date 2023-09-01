@@ -1,4 +1,5 @@
 export default {
+    name: 'format-preview',
     props: {
         indicator: Object
     },

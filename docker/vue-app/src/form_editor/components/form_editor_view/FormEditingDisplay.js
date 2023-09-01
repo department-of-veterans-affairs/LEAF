@@ -1,7 +1,7 @@
 import FormatPreview from "./FormatPreview";
 
 export default {
-    name: 'FormEditingDisplay',
+    name: 'form-editing-display',
     props: {
         depth: Number,
         formNode: Object,

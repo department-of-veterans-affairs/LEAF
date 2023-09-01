@@ -6,7 +6,7 @@ export default {
             page: 1,
             historyType: this.dialogData.historyType,
             historyID: this.dialogData.historyID,
-            ajaxRes: ''
+            ajaxRes: null
         }
     },
     inject: [
@@ -18,7 +18,7 @@ export default {
     },
     computed: {
         showNext() {
-            return this.ajaxRes.indexOf('No history to show') === -1;
+            return this.ajaxRes === null ? false : this.ajaxRes.indexOf('No history to show') === -1;
         },
         showPrev() {
             return this.page > 1;
@@ -33,11 +33,12 @@ export default {
             this.page--;
             this.getPage();
         },
-        async getPage() {
+        getPage() {
             try {
                 const url = `ajaxIndex.php?a=gethistory&type=${this.historyType}&gethistoryslice=1&page=${this.page}&id=${this.historyID}`;
-                const response = await fetch(url);
-                this.ajaxRes = await response.text();
+                fetch(url).then(res => {
+                    res.text().then(txt => this.ajaxRes = txt);
+                });
             }
             catch (error) {
                 console.log('error getting history', error);
@@ -45,7 +46,11 @@ export default {
         }
     },
     template:`<div>
-        <div id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
+        <div v-if="ajaxRes === null" class="page_loading">
+            Loading...
+            <img src="../images/largespinner.gif" alt="loading..." />
+        </div>
+        <div v-else id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
         <div id="history-page-buttons" style="display: flex; justify-content: space-between;">
             <button v-if="showPrev" id="prev" type="button"
                 class="btn-general"
