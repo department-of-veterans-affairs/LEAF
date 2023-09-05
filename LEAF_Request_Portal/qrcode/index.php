@@ -3,7 +3,7 @@
 use App\Leaf\XSSHelpers;
 
 require_once '/var/www/html/app/libs/globals.php';
-include_once LIB_PATH .  '/php-commons/XSSHelpers.php';
+include_once '/var/www/html/app/Leaf/XSSHelpers.php';
 require_once LIB_PATH . '/qrcode/qrlib.php';
 $cacheDir = 'cache/';
 

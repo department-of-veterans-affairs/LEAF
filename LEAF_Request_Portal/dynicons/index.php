@@ -18,7 +18,7 @@ use App\Leaf\XSSHelpers;
 
 require_once '/var/www/html/app/libs/globals.php';
 include_once LIB_PATH .  '/php-commons/Dynicon.php';
-include_once LIB_PATH .  '/php-commons/XSSHelpers.php';
+include_once '/var/www/html/app/Leaf/XSSHelpers.php';
 
 if (!isset($_GET['w']) && !isset($_GET['img'])) {
     // want to see what is being sent to here if anything.
