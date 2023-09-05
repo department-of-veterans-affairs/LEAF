@@ -32,7 +32,7 @@ class FormWorkflow
         $this->db = $db;
         $this->login = $login;
         $this->recordID = is_numeric($recordID) ? $recordID : 0;
-        $this->oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $this->oc_db = OC_DB;
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';

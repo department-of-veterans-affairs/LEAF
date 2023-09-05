@@ -154,7 +154,7 @@ class Service
      */
     public function addMember($groupID, $member)
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '') {
@@ -378,7 +378,7 @@ class Service
 
     public function removeMember($groupID, $member)
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         if (is_numeric($groupID) && $member != '') {
