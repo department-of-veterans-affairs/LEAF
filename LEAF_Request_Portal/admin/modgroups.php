@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+use App\Leaf\XSSHelpers;
+
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 $dir = new Portal\VAMC_Directory();
@@ -12,7 +14,7 @@ echo 'Access Groups:';
 echo '<ul>';
 foreach ($groups as $group)
 {
-    echo '<li>' . Leaf\XSSHelpers::xscrub($group['name']) . ' (groupID#: ' . Leaf\XSSHelpers::xscrub($group['groupID']) . ')';
+    echo '<li>' . XSSHelpers::xscrub($group['name']) . ' (groupID#: ' . XSSHelpers::xscrub($group['groupID']) . ')';
 
     $vars = array('groupID' => $group['groupID']);
     $users = $db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $vars);
@@ -27,7 +29,7 @@ foreach ($groups as $group)
         }
         else
         {
-            echo '<li>' . Leaf\XSSHelpers::xscrub($dirdata[0]['Lname']) . ', ' . Leaf\XSSHelpers::xscrub($dirdata[0]['Fname']) . '</li>';
+            echo '<li>' . XSSHelpers::xscrub($dirdata[0]['Lname']) . ', ' . XSSHelpers::xscrub($dirdata[0]['Fname']) . '</li>';
         }
     }
     echo '</ul>';

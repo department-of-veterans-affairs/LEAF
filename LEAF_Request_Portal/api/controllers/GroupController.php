@@ -7,6 +7,8 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+
 class GroupController extends RESTfulResponse
 {
     public $index = array();
@@ -86,12 +88,12 @@ class GroupController extends RESTfulResponse
             $this->index['POST'] = new ControllerMap();
 
             $this->index['POST']->register('group', function ($args) use ($group) {
-                return $group->addGroup(\Leaf\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
+                return $group->addGroup(XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
             });
 
             // Controller for Import Group
             $this->index['POST']->register('group/import', function ($args) use ($group) {
-                return $group->importGroup(\Leaf\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
+                return $group->importGroup(XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
             });
 
             $this->index['POST']->register('group/[digit]/members/[text]/reactivate', function ($args) use ($group) {

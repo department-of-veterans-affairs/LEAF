@@ -6,6 +6,8 @@
  * @subpackage PluginsModifier
  */
 
+use App\Leaf\XSSHelpers;
+
 /**
  * Smarty HTML sanitation modifier plugin
  * Type:     modifier<br>
@@ -26,5 +28,5 @@
 
 function smarty_modifier_sanitizeRichtext($in)
 {
-    return Leaf\XSSHelpers::sanitizeHTMLRich($in);
+    return XSSHelpers::sanitizeHTMLRich($in);
 }

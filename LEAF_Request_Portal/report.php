@@ -9,6 +9,8 @@
 
 */
 
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
@@ -32,7 +34,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 // HQ logo
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
@@ -57,7 +59,7 @@ $main->assign('useUI', false);
 
 foreach (array_keys($settings) as $key)
 {
-    $settings[$key] = Leaf\XSSHelpers::sanitizeHTMLRich($settings[$key]);
+    $settings[$key] = XSSHelpers::sanitizeHTMLRich($settings[$key]);
 }
 
 switch ($action) {
@@ -114,7 +116,7 @@ switch ($action) {
             $t_form->assign('userID', $login->getUserID());
             $t_form->assign('empUID', $login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
-            $t_form->assign('currUserActualName', Leaf\XSSHelpers::xscrub($login->getName()));
+            $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
@@ -131,7 +133,7 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);

@@ -5,6 +5,8 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+
 class FormController extends RESTfulResponse
 {
     public $index = array();
@@ -39,16 +41,16 @@ class FormController extends RESTfulResponse
 
             for ($i = 0; $i < count($result); $i++)
             {
-                $result[$i]['categoryID'] = \Leaf\XSSHelpers::xscrub($result[$i]['categoryID']);
-                $result[$i]['categoryName'] = \Leaf\XSSHelpers::xscrub($result[$i]['categoryName']);
-                $result[$i]['categoryDescription'] = \Leaf\XSSHelpers::xscrub($result[$i]['categoryDescription']);
+                $result[$i]['categoryID'] = XSSHelpers::xscrub($result[$i]['categoryID']);
+                $result[$i]['categoryName'] = XSSHelpers::xscrub($result[$i]['categoryName']);
+                $result[$i]['categoryDescription'] = XSSHelpers::xscrub($result[$i]['categoryDescription']);
             }
 
             return $result;
         });
 
         $this->index['GET']->register('form/category', function ($args) use ($form) {
-            return $form->getFormByCategory(\Leaf\XSSHelpers::xscrub($_GET['id']));
+            return $form->getFormByCategory(XSSHelpers::xscrub($_GET['id']));
         });
 
         // form/customData/ recordID list (csv) / indicatorID list (csv)
@@ -72,7 +74,7 @@ class FormController extends RESTfulResponse
         $this->index['GET']->register('form/query', function ($args) use ($form) {
             if (isset($_GET['debug']))
             {
-                return $query = \Leaf\XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+                return $query = XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
             }
 
             return $form->query($_GET['q']);
@@ -140,7 +142,7 @@ class FormController extends RESTfulResponse
             $categoryID = $_GET['categoryID'];
             for ($i = 0; $i < count($names); $i++)
             {
-                $names[$i] = \Leaf\XSSHelpers::xscrub($names[$i]);
+                $names[$i] = XSSHelpers::xscrub($names[$i]);
             }
 
             return $form->getIndicatorsByRecordAndName($categoryID, $names);
@@ -151,7 +153,7 @@ class FormController extends RESTfulResponse
             $formats = $_GET['formats'];
             for ($i = 0; $i < count($formats); $i++)
             {
-                $formats[$i] = \Leaf\XSSHelpers::xscrub($formats[$i]);
+                $formats[$i] = XSSHelpers::xscrub($formats[$i]);
             }
 
             return $form->getIndicatorsByRecordAndFormat((int)$args[0], $formats);
@@ -191,7 +193,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['GET']->register('form/[text]/workflow', function ($args) use ($form) {
-            return $form->getWorkflow(\Leaf\XSSHelpers::xscrub($args[0]));
+            return $form->getWorkflow(XSSHelpers::xscrub($args[0]));
         });
 
         $this->index['GET']->register('form/[digit]/recordinfo', function ($args) use ($form) {
@@ -228,7 +230,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/[digit]/title', function ($args) use ($form) {
-            return $form->setTitle($args[0], \Leaf\XSSHelpers::sanitizeHTML($_POST['title']));
+            return $form->setTitle($args[0], XSSHelpers::sanitizeHTML($_POST['title']));
         });
 
         $this->index['POST']->register('form/[digit]/service', function ($args) use ($form) {
@@ -236,7 +238,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/[digit]/initiator', function ($args) use ($form) {
-            return $form->setInitiator($args[0], \Leaf\XSSHelpers::sanitizeHTML($_POST['initiator']));
+            return $form->setInitiator($args[0], XSSHelpers::sanitizeHTML($_POST['initiator']));
         });
 
         $this->index['POST']->register('form/[digit]/types', function ($args) use ($form) {
@@ -244,7 +246,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/[digit]/types/append', function ($args) use ($form) {
-            return $form->addFormType($args[0], \Leaf\XSSHelpers::sanitizeHTML($_POST['category']));
+            return $form->addFormType($args[0], XSSHelpers::sanitizeHTML($_POST['category']));
         });
 
         $this->index['POST']->register('form/[digit]/cancel', function ($args) use ($form) {

@@ -10,6 +10,8 @@
 */
 
 namespace Portal;
+
+use App\Leaf\XSSHelpers;
 use App\Leaf\Db;
 
 class Email
@@ -465,10 +467,10 @@ class Email
                 WHERE `emailTemplateID` = :emailTemplateID";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
-        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body'] == null ? '' : $res[0]['body']));
+        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
+        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body'] == null ? '' : $res[0]['body']));
     }
 
     /**
@@ -483,10 +485,10 @@ class Email
             "WHERE label = :emailTemplateLabel;";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
@@ -507,9 +509,9 @@ class Email
             // For each line in template, add that email address, if valid
             foreach($emailList as $emailAddress) {
                 if ($isCc) {
-                    $this->addCcBcc(\Leaf\XSSHelpers::xscrub($emailAddress), true);
+                    $this->addCcBcc(XSSHelpers::xscrub($emailAddress), true);
                 } else {
-                    $this->addRecipient(\Leaf\XSSHelpers::xscrub($emailAddress), true);
+                    $this->addRecipient(XSSHelpers::xscrub($emailAddress), true);
                 }
             }
         }

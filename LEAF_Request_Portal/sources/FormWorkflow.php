@@ -10,6 +10,7 @@
 
 namespace Portal;
 use App\Leaf\Db;
+use App\Leaf\XSSHelpers;
 
 class FormWorkflow
 {
@@ -399,7 +400,7 @@ class FormWorkflow
         // sanitize the comment on the action
         if (isset($res[0]) && isset($res[0]['comment']))
         {
-            $res[0]['comment'] = \Leaf\XSSHelpers::sanitizeHTML($res[0]['comment']);
+            $res[0]['comment'] = XSSHelpers::sanitizeHTML($res[0]['comment']);
         }
 
         return $res[0];
@@ -495,7 +496,7 @@ class FormWorkflow
             return array('status' => 0, 'errors' => array('Invalid Token'));
         }
 
-        $comment = \Leaf\XSSHelpers::sanitizeHTML($comment);
+        $comment = XSSHelpers::sanitizeHTML($comment);
         $time = time();
 
         // first check if the user has access
@@ -1047,7 +1048,7 @@ class FormWorkflow
 
                     break;
                 case 'std_email_notify_completed': // notify requestor of completed request
-                    
+
                     $vars = array(':recordID' => $this->recordID);
 
                     // get the record and requestor
@@ -1058,10 +1059,10 @@ class FormWorkflow
                     $requestRecords = $this->db->prepared_query($strSQL, $vars);
 
                     // get the person that has commited  the action since we would want to send from that email
-                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
-                        FROM records 
-                        JOIN action_history USING(recordID) 
-                        WHERE recordID = :recordID 
+                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID
+                        FROM records
+                        JOIN action_history USING(recordID)
+                        WHERE recordID = :recordID
                         ORDER BY actionID DESC LIMIT 1';
 
                     $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
@@ -1089,7 +1090,7 @@ class FormWorkflow
 
                         // set the sender which should be the last person to take action
                         $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
-                        $email->setSender($lastActionAuthor[0]['Email']); 
+                        $email->setSender($lastActionAuthor[0]['Email']);
 
                         // Get backups to requester so they can be notified as well
                         $nexusDB = $this->login->getNexusDB();
@@ -1122,10 +1123,10 @@ class FormWorkflow
                     $requestRecords = $this->db->prepared_query($strSQL, $vars);
 
                     // get the person that has commited  the action since we would want to send from that email
-                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
-                        FROM records 
-                        JOIN action_history USING(recordID) 
-                        WHERE recordID = :recordID 
+                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID
+                        FROM records
+                        JOIN action_history USING(recordID)
+                        WHERE recordID = :recordID
                         ORDER BY actionID DESC LIMIT 1';
 
                     $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
@@ -1154,10 +1155,10 @@ class FormWorkflow
                         $dir = new VAMC_Directory;
 
                         $author = $dir->lookupLogin($requestRecords[0]['userID']);
-                        
+
                         // set the sender which should be the last person to take action
                         $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
-                        $email->setSender($lastActionAuthor[0]['Email']); 
+                        $email->setSender($lastActionAuthor[0]['Email']);
 
                         $eventData = json_decode($event['eventData']);
 
@@ -1390,7 +1391,7 @@ class FormWorkflow
         {
             return false;
         }
-        $comment = \Leaf\XSSHelpers::sanitizeHTML($comment);
+        $comment = XSSHelpers::sanitizeHTML($comment);
 
         if ($this->recordID == 0
             || (!$this->login->checkGroup(1) && $bypassAdmin == false))

@@ -12,6 +12,7 @@
 namespace Orgchart;
 
 use App\Leaf\CommonConfig;
+use App\Leaf\XSSHelpers;
 
 abstract class Data
 {
@@ -390,7 +391,7 @@ abstract class Data
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        // $sanitizedFileName = \Leaf\XSSHelpers::scrubFilename($sanitizedFileName);
+                        // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
                         if (!is_dir(Config::$uploadDir))
                         {
                             mkdir(Config::$uploadDir, 0755, true);
@@ -420,10 +421,10 @@ abstract class Data
                 // handle JSON indicator type
                 if (isset($res[0]['format']) && $res[0]['format'] == 'json')
                 {
-                    $res_temp = \Leaf\XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode($res[0]['data']), true));
+                    $res_temp = XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode($res[0]['data']), true));
                     if (is_array($res_temp))
                     {
-                        $_POST[$key] = \Leaf\XSSHelpers::scrubObjectOrArray(json_decode($_POST[$key], true));
+                        $_POST[$key] = XSSHelpers::scrubObjectOrArray(json_decode($_POST[$key], true));
 
                         $jsonKeys = array_keys($res_temp);
                         foreach ($jsonKeys as $jsonKey)

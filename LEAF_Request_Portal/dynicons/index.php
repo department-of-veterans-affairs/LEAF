@@ -14,6 +14,8 @@
 
 */
 
+use App\Leaf\XSSHelpers;
+
 require_once '/var/www/html/app/libs/globals.php';
 include_once LIB_PATH .  '/php-commons/Dynicon.php';
 include_once LIB_PATH .  '/php-commons/XSSHelpers.php';
@@ -35,5 +37,5 @@ if (!isset($_GET['w']) && !isset($_GET['img'])) {
         $width = $_GET['w'];
     }
 
-    $image = new \Leaf\Dynicon(\Leaf\XSSHelpers::scrubFilename($img), $width);
+    $image = new \Leaf\Dynicon(XSSHelpers::scrubFilename($img), $width);
 }

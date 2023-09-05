@@ -5,6 +5,8 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+
 class FormStackController extends RESTfulResponse
 {
     public $index = array();
@@ -84,7 +86,7 @@ class FormStackController extends RESTfulResponse
             });
 
             $this->index['DELETE']->register('formStack/[text]', function ($args) use ($formStack) {
-                return $formStack->deleteForm(\Leaf\XSSHelpers::xscrub($args[0]));
+                return $formStack->deleteForm(XSSHelpers::xscrub($args[0]));
             });
 
             return $this->index['DELETE']->runControl($act['key'], $act['args']);

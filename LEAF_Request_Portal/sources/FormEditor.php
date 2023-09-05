@@ -11,6 +11,8 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+
 class FormEditor
 {
     private $db;
@@ -365,8 +367,8 @@ class FormEditor
     {
         $inputArr = json_decode($input);
         foreach($inputArr as $i=>$inp) {
-            $inputArr[$i]->selectedParentValue =  \Leaf\XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
-            $inputArr[$i]->selectedChildValue =  \Leaf\XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
+            $inputArr[$i]->selectedParentValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedParentValue);
+            $inputArr[$i]->selectedChildValue =  XSSHelpers::sanitizeHTML($inputArr[$i]->selectedChildValue);
         }
         if ($inputArr !== null) $inputArr = json_encode($inputArr);
 

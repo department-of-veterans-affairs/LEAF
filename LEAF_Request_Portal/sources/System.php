@@ -13,6 +13,7 @@ namespace Portal;
 
 use App\Leaf\CommonConfig;
 use App\Leaf\Db;
+use App\Leaf\XSSHelpers;
 
 class System
 {
@@ -559,7 +560,7 @@ class System
             return 'Admin access required';
         }
 
-        $vars = array(':input' => \Leaf\XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
+        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedSubordinateList"', $vars);
 
         return 1;
@@ -572,7 +573,7 @@ class System
             return 'Admin access required';
         }
 
-        $vars = array(':input' => \Leaf\XSSHelpers::xscrub($_POST['national_linkedPrimary']));
+        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedPrimary']));
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedPrimary"', $vars);
 
         return 1;
@@ -608,8 +609,8 @@ class System
             return 'Invalid Token.';
         }
         $in = $_FILES['file']['name'];
-        $fileName = \Leaf\XSSHelpers::scrubFilename($in);
-        $fileName = \Leaf\XSSHelpers::xscrub($fileName);
+        $fileName = XSSHelpers::scrubFilename($in);
+        $fileName = XSSHelpers::xscrub($fileName);
         if ($fileName != $in
                 || $fileName == 'index.html'
                 || $fileName == '')
@@ -710,7 +711,7 @@ class System
      */
     public function setPrimaryAdmin()
     {
-        $vars = array(':userID' => \Leaf\XSSHelpers::xscrub($_POST['userID']));
+        $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
         //check if user is system admin
         $res = $this->db->prepared_query('SELECT *
                                             FROM `users`

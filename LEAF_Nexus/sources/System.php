@@ -11,6 +11,8 @@
 
 namespace Orgchart;
 
+use App\Leaf\XSSHelpers;
+
 class System
 {
     public $siteRoot = '';
@@ -57,7 +59,7 @@ class System
         {
             return 'Admin access required';
         }
-        $in = preg_replace('/[^\040-\176]/', '', \Leaf\XSSHelpers::sanitizeHTML($heading));
+        $in = preg_replace('/[^\040-\176]/', '', XSSHelpers::sanitizeHTML($heading));
         $vars = array(':input' => $in);
 
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="heading"', $vars);
@@ -72,7 +74,7 @@ class System
         {
             return 'Admin access required';
         }
-        $in = preg_replace('/[^\040-\176]/', '', \Leaf\XSSHelpers::sanitizeHTML($subHeading));
+        $in = preg_replace('/[^\040-\176]/', '', XSSHelpers::sanitizeHTML($subHeading));
         $vars = array(':input' => $in);
 
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="subheading"', $vars);
@@ -270,7 +272,7 @@ class System
      */
     public function setPrimaryAdmin(): array
     {
-        $userID = \Leaf\XSSHelpers::xscrub($_POST['userID']);
+        $userID = XSSHelpers::xscrub($_POST['userID']);
 
         //check if user is system admin
         $employee = new Employee($this->db, $this->login);

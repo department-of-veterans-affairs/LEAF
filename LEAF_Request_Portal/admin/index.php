@@ -2,6 +2,8 @@
 
 use App\Leaf\CommonConfig;
 use App\Leaf\Db;
+use App\Leaf\XSSHelpers;
+
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
@@ -39,7 +41,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
@@ -257,11 +259,11 @@ switch ($action) {
 
         if (isset($_GET['form']))
         {
-            $vars = array(':categoryID' => Leaf\XSSHelpers::xscrub($_GET['form']));
+            $vars = array(':categoryID' => XSSHelpers::xscrub($_GET['form']));
             $res = $db->prepared_query('SELECT * FROM categories WHERE categoryID=:categoryID', $vars);
             if (count($res) > 0)
             {
-                $t_form->assign('form', Leaf\XSSHelpers::xscrub($res[0]['categoryID']));
+                $t_form->assign('form', XSSHelpers::xscrub($res[0]['categoryID']));
             }
         }
 
@@ -550,7 +552,7 @@ switch ($action) {
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('libsPath', $libsPath);
         $t_form->assign('orgchartPath', '../..'.$site_paths['orgchart_path']);
-        $t_form->assign('userID', Leaf\XSSHelpers::sanitizeHTML($login->getUserID()));
+        $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
 
         $main->assign('javascripts', array(
             '../js/form.js', '../js/formGrid.js', '../js/formQuery.js', '../js/formSearch.js',
@@ -583,7 +585,7 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
+            $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
 
             $main->assign('javascripts', array('../../libs/js/jquery/jquery.min.js',
                                            '../../libs/js/jquery/jquery-ui.custom.min.js',
@@ -606,20 +608,20 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
-$t_menu->assign('name', Leaf\XSSHelpers::sanitizeHTML($login->getName()));
-$t_menu->assign('siteType', Leaf\XSSHelpers::xscrub($settings['siteType']));
+$t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
+$t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
-$main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
+$main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

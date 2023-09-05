@@ -13,6 +13,9 @@
 1. prevent double submits
 2. clean up
 */
+
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
@@ -55,12 +58,12 @@ switch ($action) {
         // this should be deprecated as of 8/18/2023
         checkToken();
 
-        $deleteList = Leaf\XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
+        $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
         $group = new Portal\Group($db, $login);
         foreach ($deleteList as $del)
         {
-            $group->removeMember(Leaf\XSSHelpers::xscrub($del['userID']), $del['groupID']);
+            $group->removeMember(XSSHelpers::xscrub($del['userID']), $del['groupID']);
         }
 
         break;
@@ -134,9 +137,9 @@ switch ($action) {
 
            break;
     case 'gethistoryall':
-        $page = isset($_GET['page']) ? Leaf\XSSHelpers::xscrub((int)$_GET['page']) : 1;
-        $typeName = isset($_GET['type']) ? Leaf\XSSHelpers::xscrub((string)$_GET['type']) : '';
-        $gethistoryslice = isset($_GET['gethistoryslice']) ? Leaf\XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
+        $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
         if($tz == null){
@@ -217,11 +220,11 @@ switch ($action) {
 
         break;
     case 'gethistory':
-        $typeName = isset($_GET['type']) ? Leaf\XSSHelpers::xscrub((string)$_GET['type']) : '';
-        $page = isset($_GET['page']) ? Leaf\XSSHelpers::xscrub((int)$_GET['page']) : 1;
-        $itemID = isset($_GET['id']) ? Leaf\XSSHelpers::xscrub((string)$_GET['id']) : '';
+        $typeName = isset($_GET['type']) ? XSSHelpers::xscrub((string)$_GET['type']) : '';
+        $page = isset($_GET['page']) ? XSSHelpers::xscrub((int)$_GET['page']) : 1;
+        $itemID = isset($_GET['id']) ? XSSHelpers::xscrub((string)$_GET['id']) : '';
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
-        $gethistoryslice = isset($_GET['gethistoryslice']) ? Leaf\XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
+        $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
 
         if($tz == null){
             //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');

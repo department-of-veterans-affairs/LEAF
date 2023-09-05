@@ -5,6 +5,8 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+
 class ServiceController extends RESTfulResponse
 {
     public $index = array();
@@ -63,7 +65,7 @@ class ServiceController extends RESTfulResponse
             } else {
                 $this->index['POST'] = new ControllerMap();
                 $this->index['POST']->register('service', function ($args) use ($service) {
-                    return $service->addService(\Leaf\XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
+                    return $service->addService(XSSHelpers::sanitizeHTML($_POST['service']), $_POST['groupID']);
                 });
 
                 $this->index['POST']->register('service/[digit]/members', function ($args) use ($service) {

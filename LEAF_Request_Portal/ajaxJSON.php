@@ -9,6 +9,8 @@
 
 */
 
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
@@ -69,7 +71,7 @@ switch ($action) {
         $record = $res[0];
         foreach (array_keys($record) as $key)
         {
-            $record[$key] = Leaf\XSSHelpers::xscrub($record[$key]);
+            $record[$key] = XSSHelpers::xscrub($record[$key]);
         }
 
         echo json_encode($record);

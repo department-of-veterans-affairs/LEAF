@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+use App\Leaf\XSSHelpers;
+
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 $login->loginUser();
@@ -10,8 +12,8 @@ $login->loginUser();
 $form = new Portal\Form($db, $login);
 
 $data = $form->getIndicator(
-    Leaf\XSSHelpers::sanitizeHTML($_GET['id']),
-    Leaf\XSSHelpers::sanitizeHTML($_GET['series']),
+    XSSHelpers::sanitizeHTML($_GET['id']),
+    XSSHelpers::sanitizeHTML($_GET['series']),
     $_GET['form']
 );
 

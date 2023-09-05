@@ -5,6 +5,8 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+
 class SignatureController extends RESTfulResponse
 {
     public $index = array();
@@ -47,12 +49,12 @@ class SignatureController extends RESTfulResponse
 
         $this->index['POST']->register('signature/create', function () use ($signature) {
             return $signature->create(
-                \Leaf\XSSHelpers::sanitizeHTML($_POST['signature']),
+                XSSHelpers::sanitizeHTML($_POST['signature']),
                 (int)$_POST['recordID'],
                 (int)$_POST['stepID'],
                 (int)$_POST['dependencyID'],
-                \Leaf\XSSHelpers::sanitizeHTML($_POST['message']),
-                \Leaf\XSSHelpers::sanitizeHTML($_POST['signerPublicKey'])
+                XSSHelpers::sanitizeHTML($_POST['message']),
+                XSSHelpers::sanitizeHTML($_POST['signerPublicKey'])
             );
         });
 

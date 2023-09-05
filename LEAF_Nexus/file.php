@@ -3,6 +3,8 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+use App\Leaf\XSSHelpers;
+
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 $oc_login->loginUser();
@@ -48,7 +50,7 @@ if (is_array($value)
 
 if (file_exists($filename))
 {
-    $inputFilename = Leaf\XSSHelpers::scrubNewLinesFromURL($inputFilename);
+    $inputFilename = XSSHelpers::scrubNewLinesFromURL($inputFilename);
     header('Content-Disposition: attachment; filename="' . addslashes(html_entity_decode($inputFilename)) . '"');
     header('Content-Length: ' . filesize($filename));
     header('Cache-Control: maxage=1'); //In seconds

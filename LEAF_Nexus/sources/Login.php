@@ -11,6 +11,7 @@
 
 namespace Orgchart;
 use App\Leaf\Db;
+use App\Leaf\XSSHelpers;
 
 class Login
 {
@@ -396,7 +397,7 @@ class Login
         foreach ($res as $item)
         {
             $resIndicatorID = (int)$item['indicatorID'];
-            $resCategoryID = \Leaf\XSSHelpers::xscrub($item['categoryID']);
+            $resCategoryID = XSSHelpers::xscrub($item['categoryID']);
             $resUID = (int)$item['UID'];
             $resRead = (int)$item['read'];
             $resWrite = (int)$item['write'];

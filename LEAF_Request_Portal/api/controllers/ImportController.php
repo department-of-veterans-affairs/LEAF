@@ -5,6 +5,8 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+
 class ImportController extends RESTfulResponse
 {
     public $index = array();
@@ -35,7 +37,7 @@ class ImportController extends RESTfulResponse
             }
 
             $hasColumnHeaders = (isset($_GET['hasHeaders']) && $_GET['hasHeaders'] == '1') ? true : false;
-            $fileName = \Leaf\XSSHelpers::xscrub(strip_tags($_GET['importFile']));
+            $fileName = XSSHelpers::xscrub(strip_tags($_GET['importFile']));
             $results = \SpreadSheetUtil::loadFileIntoArray(__DIR__ . '/../../files/' . $fileName, $hasColumnHeaders);
 
             return $results;
