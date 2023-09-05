@@ -390,7 +390,7 @@ function loadSearchPrereqs() {
     searchPrereqsLoaded = true;
     $.ajax({
         type: 'GET',
-        url: './api/form/indicator/list',
+        url: './api/form/indicator/list?x-filterData=name,indicatorID,categoryID,categoryName,parentCategoryID,parentStaples',
         dataType: 'text json',
         success: function(res) {
             var buffer = '';
@@ -616,8 +616,7 @@ function loadSearchPrereqs() {
                     });
                 }
             });
-        },
-        cache: false
+        }
     });
 }
 

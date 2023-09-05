@@ -14,9 +14,9 @@ $(function() {
         }
     })
     .then(function(res) {
-    	var recordID = parseFloat(res);
+    	let recordID = parseFloat(res);
         if(!isNaN(recordID) && isFinite(recordID) && recordID != 0) {
-            window.location = "index.php?a=view&recordID=" + recordID;
+            window.location = `index.php?a=view&recordID=${recordID}&masquerade=nonAdmin`;
         }
     });
 });
