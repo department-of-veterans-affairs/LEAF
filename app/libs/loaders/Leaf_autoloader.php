@@ -1,6 +1,7 @@
 <?php
 use App\Leaf\Db;
 use App\Leaf\Psr4AutoloaderClass;
+use App\Leaf\Setting;
 
 $curr_dir = '/var/www/html';
 $app_dir = '/var/www/html/app';
@@ -58,7 +59,7 @@ if (!empty($site_paths['portal_database'])){
 $oc_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
 
 // get the settings for this portal
-$setting_up = new Leaf\Setting($db);
+$setting_up = new Setting($db);
 $settings = $setting_up->getSettings();
 
 if (class_exists('Portal\Config')) {
@@ -73,7 +74,7 @@ $sql = 'SELECT site_uploads
 
 $oc_site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 
-$oc_setting_up = new Leaf\Setting($oc_db);
+$oc_setting_up = new Setting($oc_db);
 $oc_settings = $oc_setting_up->getSettings();
 
 $oc_config = new Orgchart\Config($site_paths, $oc_settings);
