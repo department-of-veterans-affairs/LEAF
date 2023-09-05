@@ -11,6 +11,8 @@
 
 namespace Orgchart;
 
+use App\Leaf\CommonConfig;
+
 abstract class Data
 {
     protected $db;
@@ -366,7 +368,7 @@ abstract class Data
         // Check for file uploads
         if (is_array($_FILES))
         {
-            $commonConfig = new \Leaf\CommonConfig();
+            $commonConfig = new CommonConfig();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)

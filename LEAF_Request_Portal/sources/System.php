@@ -10,6 +10,8 @@
 */
 
 namespace Portal;
+
+use App\Leaf\CommonConfig;
 use App\Leaf\Db;
 
 class System
@@ -33,7 +35,7 @@ class System
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
-        $commonConfig = new \Leaf\CommonConfig();
+        $commonConfig = new CommonConfig();
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
 
         $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);

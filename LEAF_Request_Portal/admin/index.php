@@ -1,4 +1,6 @@
 <?php
+
+use App\Leaf\CommonConfig;
 use App\Leaf\Db;
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
@@ -401,7 +403,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $commonConfig = new Leaf\CommonConfig();
+        $commonConfig = new CommonConfig();
 
         $t_form->assign('fileExtensions', $commonConfig->fileManagerWhitelist);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
