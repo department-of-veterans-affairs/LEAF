@@ -1,0 +1,3 @@
+ excluded_languages:
+   - name: java
+     reason: "Java code is inactive and only used for archival purposes."
