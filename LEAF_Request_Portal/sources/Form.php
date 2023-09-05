@@ -10,6 +10,8 @@
 */
 
 namespace Portal;
+
+use App\Leaf\CommonConfig;
 use App\Leaf\Db;
 
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
@@ -1137,7 +1139,7 @@ class Form
         // Check for file uploads
         if (is_array($_FILES))
         {
-            $commonConfig = new \Leaf\CommonConfig();
+            $commonConfig = new CommonConfig();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
