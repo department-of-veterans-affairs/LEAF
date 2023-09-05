@@ -2789,7 +2789,7 @@ class Form
             if ($query['limit'] > 10000) {
                 $externalProcessQuery = true;
                 // limit is <= 10,000 records AND more than 10 indicators are requested
-            } else if ($query['limit'] <= 10000 && (!empty($query['getData']) && count($query['getData']) >= 10)) {
+            } else if ($query['limit'] > 1000 && $query['limit'] <= 10000 && (!empty($query['getData']) && count($query['getData']) >= 10)) {
                 $externalProcessQuery = true;
             }
         } else {

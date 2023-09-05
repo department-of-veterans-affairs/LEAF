@@ -221,184 +221,121 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
     $("#errorMessage").hide();
     $("table#requests tr.requestRow").remove();
     $("#iconBusy").show();
+    $('#saveLinkContainer').fadeIn(700);
     
     let query = new LeafFormQuery();
+
+    let batchSize = 1000;
+    let offset = 0;
+    let queryResult = {};
+    let abortLoad = false;
+
     console.log('here');
+    query.setLimit(offset, batchSize);
     query.setRootURL('./');
     query.importQuery(queryObj);
-    query.onSuccess(function(data){
-        if (thisSearchID === searchID) {
-            if (Object.keys(data).length) {
-                let totalCount = 0;
+    query.onSuccess(function(res, resStatus, resJqXHR){
+        queryResult = Object.assign(queryResult, res);
 
-                $.each(data, function (index, value) {
-                    let displayRecord = true;
-                    // If this is email reminder list, then compare against give time period
-                    if (getReminder) {
-                        // Get if we can show record for time period selected
-                        if (value.action_history !== undefined) {
-                            let numberActions = value.action_history.length;
-                            let lastActionDate =
-                                Number(
-                                    value.action_history[numberActions - 1]
-                                        .time
-                                ) * 1000;
+            if((Object.keys(res).length == batchSize
+                    || resJqXHR.getResponseHeader('leaf-query') == 'continue')
+                && !abortLoad) {
+                $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);
+                $('#btn_abort').on('click', function() {
+                    abortLoad = true;
+                });
+                offset += batchSize;
+                query.setLimit(offset, batchSize);
+                query.execute();
+            }
+            else {
+                let partialLoad = '';
+                if(abortLoad) {
+                    partialLoad = ' (partially loaded)';
+                }
+                $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
+                renderGrid(queryResult,thisSearchID, getReminder);
+            }
+    });
+    
+    query.execute();
 
-                            // Current date minus selected reminder time period
-                            let comparisonDate =
-                                Date.now() - getReminder * 86400 * 1000;
-                            if (lastActionDate >= comparisonDate) {
-                                displayRecord = false;
-                            }
-                        } else {
-                            console.log("No record to display");
+}
+
+function renderGrid(data,thisSearchID, getReminder){
+    if (thisSearchID === searchID) {
+        if (Object.keys(data).length) {
+            let totalCount = 0;
+
+            $.each(data, function (index, value) {
+                let displayRecord = true;
+                // If this is email reminder list, then compare against give time period
+                if (getReminder) {
+                    // Get if we can show record for time period selected
+                    if (value.action_history !== undefined) {
+                        let numberActions = value.action_history.length;
+                        let lastActionDate =
+                            Number(
+                                value.action_history[numberActions - 1]
+                                    .time
+                            ) * 1000;
+
+                        // Current date minus selected reminder time period
+                        let comparisonDate =
+                            Date.now() - getReminder * 86400 * 1000;
+                        if (lastActionDate >= comparisonDate) {
                             displayRecord = false;
                         }
+                    } else {
+                        console.log("No record to display");
+                        displayRecord = false;
                     }
-                    if (displayRecord) {
-                        totalCount++;
-                        requestsRow = '<tr class="requestRow">';
-                        requestsRow +=
-                            '<td><a href="index.php?a=printview&amp;recordID=' +
-                            value.recordID +
-                            '" target="_blank">' +
-                            value.recordID +
-                            "</a></td>";
-                        requestsRow +=
-                            "<td>" +
-                            (value.categoryNames === undefined ||
-                                value.categoryNames.length === 0
-                                ? "non"
-                                : value.categoryNames[0]) +
-                            "</td>";
-                        requestsRow +=
-                            "<td>" +
-                            (value.service == null ? "" : value.service) +
-                            "</td>";
-                        requestsRow += "<td>" + value.title + "</td>";
-                        requestsRow +=
-                            '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="' +
-                            value.recordID +
-                            '"></td>';
-                        requestsRow += "</tr>";
-                        $("table#requests").append(requestsRow);
-                    }
-                });
-
-                if (totalCount == 0) {
+                }
+                if (displayRecord) {
+                    totalCount++;
                     requestsRow = '<tr class="requestRow">';
                     requestsRow +=
-                        "<td colspan='5'>No records to display</td>";
+                        '<td><a href="index.php?a=printview&amp;recordID=' +
+                        value.recordID +
+                        '" target="_blank">' +
+                        value.recordID +
+                        "</a></td>";
+                    requestsRow +=
+                        "<td>" +
+                        (value.categoryNames === undefined ||
+                            value.categoryNames.length === 0
+                            ? "non"
+                            : value.categoryNames[0]) +
+                        "</td>";
+                    requestsRow +=
+                        "<td>" +
+                        (value.service == null ? "" : value.service) +
+                        "</td>";
+                    requestsRow += "<td>" + value.title + "</td>";
+                    requestsRow +=
+                        '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="' +
+                        value.recordID +
+                        '"></td>';
                     requestsRow += "</tr>";
                     $("table#requests").append(requestsRow);
                 }
+            });
 
-                $("#searchResults").show();
-            } else {
-                $("#errorMessage").html("No Results").show();
+            if (totalCount == 0) {
+                requestsRow = '<tr class="requestRow">';
+                requestsRow +=
+                    "<td colspan='5'>No records to display</td>";
+                requestsRow += "</tr>";
+                $("table#requests").append(requestsRow);
             }
+
+            $("#searchResults").show();
+        } else {
+            $("#errorMessage").html("No Results").show();
         }
-        $("#iconBusy").hide();
-    });
-                query.execute();
-    /*$.ajax({
-        type: "GET",
-        url: "./api/form/query",
-        data: { q: JSON.stringify(queryObj), CSRFToken: massActionToken },
-        cache: false,
-    })
-        .done(function (data) {
-            
-            if (typeof data.status == 'number' && data?.status == 2) {
-                let buffer = "<tr><td style=\"padding: 10px;\" colspan='5'>" + data.errors[0] + "</td></tr>";
-
-                $("table#requests").html(buffer);
-                $("#searchResults").show();
-            }
-            else {
-                if (thisSearchID === searchID) {
-                    if (Object.keys(data).length) {
-                        let totalCount = 0;
-
-                        $.each(data, function (index, value) {
-                            let displayRecord = true;
-                            // If this is email reminder list, then compare against give time period
-                            if (getReminder) {
-                                // Get if we can show record for time period selected
-                                if (value.action_history !== undefined) {
-                                    let numberActions = value.action_history.length;
-                                    let lastActionDate =
-                                        Number(
-                                            value.action_history[numberActions - 1]
-                                                .time
-                                        ) * 1000;
-
-                                    // Current date minus selected reminder time period
-                                    let comparisonDate =
-                                        Date.now() - getReminder * 86400 * 1000;
-                                    if (lastActionDate >= comparisonDate) {
-                                        displayRecord = false;
-                                    }
-                                } else {
-                                    console.log("No record to display");
-                                    displayRecord = false;
-                                }
-                            }
-                            if (displayRecord) {
-                                totalCount++;
-                                requestsRow = '<tr class="requestRow">';
-                                requestsRow +=
-                                    '<td><a href="index.php?a=printview&amp;recordID=' +
-                                    value.recordID +
-                                    '" target="_blank">' +
-                                    value.recordID +
-                                    "</a></td>";
-                                requestsRow +=
-                                    "<td>" +
-                                    (value.categoryNames === undefined ||
-                                        value.categoryNames.length === 0
-                                        ? "non"
-                                        : value.categoryNames[0]) +
-                                    "</td>";
-                                requestsRow +=
-                                    "<td>" +
-                                    (value.service == null ? "" : value.service) +
-                                    "</td>";
-                                requestsRow += "<td>" + value.title + "</td>";
-                                requestsRow +=
-                                    '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="' +
-                                    value.recordID +
-                                    '"></td>';
-                                requestsRow += "</tr>";
-                                $("table#requests").append(requestsRow);
-                            }
-                        });
-
-                        if (totalCount == 0) {
-                            requestsRow = '<tr class="requestRow">';
-                            requestsRow +=
-                                "<td colspan='5'>No records to display</td>";
-                            requestsRow += "</tr>";
-                            $("table#requests").append(requestsRow);
-                        }
-
-                        $("#searchResults").show();
-                    } else {
-                        $("#errorMessage").html("No Results").show();
-                    }
-                }
-            }
-        })
-        .fail(function (jqXHR, error, errorThrown) {
-            console.log(jqXHR);
-            console.log(error);
-            console.log(errorThrown);
-        })
-        .always(function () {
-            $("#iconBusy").hide();
-        });*/
+    }
+    $("#iconBusy").hide();
 }
-
 /**
  * Executes the selected action on each request selected in the table
  */

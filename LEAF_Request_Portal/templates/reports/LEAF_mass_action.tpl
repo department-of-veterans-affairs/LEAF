@@ -39,6 +39,11 @@
         data-orgChartPath="<!--{$orgchartPath}-->"
         type="text/javascript"></script>
 
+<div id="saveLinkContainer" style="display: none">
+    
+    <p id="reportStats" style="position: absolute; padding-left: 8px; z-index: 1"></p>
+</div>
+
 <div id="massActionContainer">
     <h1>Mass Action</h1>
     <div id="actionContainer">
