@@ -15,12 +15,15 @@ services:
       - /mnt/leaf/:/var/www/
     command: 'source /startup.sh'
     networks:
-      - leaf
+      - leaf-swarm
     deploy:
       mode: replicated
       replicas: 2 
       restart_policy:
         condition: on-failure
+      resouces:
+        limits:
+          memory: 30gb
     sysctls:
       net.ipv4.ip_local_port_range: "15000 64000"
     labels:
@@ -72,6 +75,8 @@ volumes:
 networks:
   leaf:
     external: false
+  leaf-swarm:
+    external: true
 
 secrets:
   leaf_key:
