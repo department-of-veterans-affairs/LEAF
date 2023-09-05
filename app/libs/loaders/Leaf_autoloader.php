@@ -1,14 +1,15 @@
 <?php
 use App\Leaf\Db;
+use App\Leaf\Psr4AutoloaderClass;
 
 $curr_dir = '/var/www/html';
 $app_dir = '/var/www/html/app';
 
 require_once $app_dir . '/libs/globals.php';
-require_once $curr_dir . '/libs/php-commons/Psr4AutoloaderClass.php';
+require_once $app_dir . 'Leaf/Psr4AutoloaderClass.php';
 require_once $curr_dir . '/libs/smarty/bootstrap.php';
 
-$loader = new \Leaf\Psr4AutoloaderClass;
+$loader = new Psr4AutoloaderClass;
 $loader->register();
 
 $loader->addNamespace('App\Leaf', $app_dir . '/Leaf');
