@@ -71,7 +71,7 @@ switch ($action) {
         $categoryArray = $stack->getCategories();
         foreach ($categoryArray as $key => $cat)
         {
-            $categoryArray[$key] = array_map('XSSHelpers::xscrub', $cat);
+            $categoryArray[$key] = array_map('App\Leaf\XSSHelpers::xscrub', $cat);
         }
 
         $servicesArray = $form->getServices2();
