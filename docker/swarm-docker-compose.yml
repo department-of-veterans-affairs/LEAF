@@ -18,12 +18,12 @@ services:
       - leaf-swarm
     deploy:
       mode: replicated
-      replicas: 2 
+      replicas: 1 
       restart_policy:
         condition: on-failure
       resources:
         limits:
-          memory: 30gb
+          memory: 60gb
     sysctls:
       net.ipv4.ip_local_port_range: "15000 64000"
     labels:
