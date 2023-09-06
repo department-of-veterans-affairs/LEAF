@@ -22,8 +22,9 @@ $sql = 'SELECT `site_path`, `site_uploads`, `portal_database`, `orgchart_path`,
             `orgchart_database`
         FROM `sites`
         WHERE `site_path` = BINARY :site_path';
-
+//error_log(print_r($vars, true));
 $site_paths = $file_paths_db->pdo_select_query($sql, $vars);
+//error_log(print_r($site_paths, true));
 $site_paths = $site_paths['data'][0];
 
 if (is_dir($curr_dir . '/libs/php-commons')) {
