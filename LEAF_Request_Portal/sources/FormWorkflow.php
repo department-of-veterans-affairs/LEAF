@@ -33,7 +33,7 @@ class FormWorkflow
         $this->db = $db;
         $this->login = $login;
         $this->recordID = is_numeric($recordID) ? $recordID : 0;
-        $this->oc_db = new Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $this->oc_db = OC_DB;
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -1047,7 +1047,7 @@ class FormWorkflow
 
                     break;
                 case 'std_email_notify_completed': // notify requestor of completed request
-                    
+
                     $vars = array(':recordID' => $this->recordID);
 
                     // get the record and requestor
@@ -1058,10 +1058,10 @@ class FormWorkflow
                     $requestRecords = $this->db->prepared_query($strSQL, $vars);
 
                     // get the person that has commited  the action since we would want to send from that email
-                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
-                        FROM records 
-                        JOIN action_history USING(recordID) 
-                        WHERE recordID = :recordID 
+                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID
+                        FROM records
+                        JOIN action_history USING(recordID)
+                        WHERE recordID = :recordID
                         ORDER BY actionID DESC LIMIT 1';
 
                     $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
@@ -1089,7 +1089,7 @@ class FormWorkflow
 
                         // set the sender which should be the last person to take action
                         $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
-                        $email->setSender($lastActionAuthor[0]['Email']); 
+                        $email->setSender($lastActionAuthor[0]['Email']);
 
                         // Get backups to requester so they can be notified as well
                         $nexusDB = $this->login->getNexusDB();
@@ -1122,10 +1122,10 @@ class FormWorkflow
                     $requestRecords = $this->db->prepared_query($strSQL, $vars);
 
                     // get the person that has commited  the action since we would want to send from that email
-                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
-                        FROM records 
-                        JOIN action_history USING(recordID) 
-                        WHERE recordID = :recordID 
+                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID
+                        FROM records
+                        JOIN action_history USING(recordID)
+                        WHERE recordID = :recordID
                         ORDER BY actionID DESC LIMIT 1';
 
                     $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
@@ -1154,10 +1154,10 @@ class FormWorkflow
                         $dir = new VAMC_Directory;
 
                         $author = $dir->lookupLogin($requestRecords[0]['userID']);
-                        
+
                         // set the sender which should be the last person to take action
                         $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
-                        $email->setSender($lastActionAuthor[0]['Email']); 
+                        $email->setSender($lastActionAuthor[0]['Email']);
 
                         $eventData = json_decode($event['eventData']);
 

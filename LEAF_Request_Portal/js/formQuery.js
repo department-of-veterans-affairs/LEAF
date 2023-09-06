@@ -258,7 +258,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     if (query.getData != undefined && query.getData.length == 0) {
       delete query.getData;
     }
-    if (query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 9999) {
+    if (query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 1000) {
       return getBulkData();
     }
 

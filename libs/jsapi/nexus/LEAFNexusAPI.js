@@ -76,7 +76,7 @@ var NexusEmployeeAPI = function (baseAPIURL) {
         setCSRFToken = function (token) { csrfToken = token; },
 
         getByEmail = function (emailAddress, onSuccess, onFail) {
-            let fetchURL = apiURL + '/search?q=' + emailAddress + '&noLimit=0';
+            let fetchURL = apiURL + '/search&q=' + emailAddress + '&noLimit=0';
 
             $.ajax({
                 method: 'GET',
@@ -108,7 +108,7 @@ var NexusEmployeeAPI = function (baseAPIURL) {
         
 
         getByEmailNational = function (parameters, emailAddress) {
-            let fetchURL = apiBaseURL + 'national/employee/search?q=' + emailAddress + '&noLimit=0';
+            let fetchURL = apiBaseURL + 'national/employee/search&q=' + emailAddress + '&noLimit=0';
 
             $.ajax({
                 method: 'GET',
@@ -209,7 +209,7 @@ var NexusGroupsAPI = function (baseAPIURL) {
          * @param parameters.async       boolean     determines synchronicity
          */
         searchGroups = function (parameters, group) {
-            let fetchURL = apiBaseURL + 'group/search?q=' + group + '&noLimit=0';
+            let fetchURL = apiBaseURL + 'group/search&q=' + group + '&noLimit=0';
 
             $.ajax({
                 method: 'GET',
@@ -320,7 +320,7 @@ var NexusPositionsAPI = function (baseAPIURL) {
          * @param parameters.async       boolean                determines synchronicity
          */
         searchPositions = function (parameters, position) {
-            let fetchURL = apiBaseURL + 'position/search?q=' + position + '&noLimit=0';
+            let fetchURL = apiBaseURL + 'position/search&q=' + position + '&noLimit=0';
 
             $.ajax({
                 method: 'GET',
