@@ -266,7 +266,7 @@ function renderGrid(data,thisSearchID, getReminder){
     if (thisSearchID === searchID) {
         if (Object.keys(data).length) {
             let totalCount = 0;
-
+            let requestsRow = "";
             $.each(data, function (index, value) {
                 let displayRecord = true;
                 // If this is email reminder list, then compare against give time period

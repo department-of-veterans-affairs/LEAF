@@ -617,6 +617,8 @@ let LeafFormGrid = function (containerID, options) {
    */
   function renderBody(startIdx, limit) {
 
+    let buffer = "";
+    
     if (typeof dataBlob.status == 'number' && dataBlob?.status == 2) {
       buffer = "<tbody><tr><td style=\"padding: 10px;\">" + dataBlob.errors[0] + "</td></tr></tbody>";
 
@@ -641,7 +643,7 @@ let LeafFormGrid = function (containerID, options) {
         fullRender = true;
       }
 
-      let buffer = "";
+      
       let callbackBuffer = [];
 
       let colspan = showIndex ? headers.length + 1 : headers.length;
@@ -1020,7 +1022,7 @@ let LeafFormGrid = function (containerID, options) {
 
       let line = [];
       let i = 0;
-      let thisSite = document.createElement("a");
+      
       let numColumns = headers.length - 1;
       document
         .querySelectorAll("#" + prefixID + "tbody>tr>td")
