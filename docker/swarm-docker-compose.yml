@@ -15,7 +15,7 @@ services:
       - /mnt/leaf/:/var/www/
     command: 'source /startup.sh'
     networks:
-      - leaf-swarm
+      - leaf
     deploy:
       mode: replicated
       replicas: 1 
@@ -69,6 +69,8 @@ services:
 volumes:
   leaf-vol:
     external: true
+  leaf:
+    external: false
   leaf-vol-html:
     external: true
 
