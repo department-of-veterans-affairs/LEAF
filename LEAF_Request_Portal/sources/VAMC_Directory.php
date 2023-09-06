@@ -48,7 +48,7 @@ class VAMC_Directory
     // Connect to the database
     public function __construct()
     {
-        $oc_db = new Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
         $login = new \Orgchart\Login($oc_db, $oc_db);
         $this->Employee = new \Orgchart\Employee($oc_db, $login);
         $this->Group = new \Orgchart\Group($oc_db, $login);

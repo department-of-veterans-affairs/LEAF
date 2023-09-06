@@ -401,7 +401,7 @@ class Email
     function initNexusDB(): void
     {
         // set up org chart assets
-        $this->nexus_db = new Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $this->nexus_db = OC_DB;
     }
 
     /**
