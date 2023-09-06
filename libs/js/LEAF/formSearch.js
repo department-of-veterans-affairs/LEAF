@@ -202,7 +202,8 @@ var LeafFormSearch = function (containerID) {
 
   /**
    * @memberOf LeafFormSearch
-   * prevQuery - optional JSON object
+   * renderPreviousAdvancedSearch parses LeafFormQuery.getQuery().terms and renders the resulting UI
+   * prevQuery - optional array from LeafFormQuery.getQuery().terms
    */
   function renderPreviousAdvancedSearch(prevQuery) {
     var isJSON = true;
@@ -763,6 +764,7 @@ var LeafFormSearch = function (containerID) {
           url: "./api/workflow/steps",
           dataType: "json",
           success: function (res) {
+            let allStepsData = res;
             var categories =
               '<select id="' +
               prefixID +
@@ -772,14 +774,14 @@ var LeafFormSearch = function (containerID) {
             categories += '<option value="submitted">Submitted</option>';
             categories += '<option value="deleted">Cancelled</option>';
             categories += '<option value="resolved">Resolved</option>';
-            for (var i in res) {
+            for (var i in allStepsData) {
               categories +=
                 '<option value="' +
-                res[i].stepID +
+                allStepsData[i].stepID +
                 '">' +
-                res[i].description +
+                allStepsData[i].description +
                 ": " +
-                res[i].stepTitle +
+                allStepsData[i].stepTitle +
                 "</option>";
             }
             categories += "</select>";

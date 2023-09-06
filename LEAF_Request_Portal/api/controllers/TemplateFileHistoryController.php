@@ -69,7 +69,6 @@ class TemplateFileHistoryController extends RESTfulResponse
             });
 
             $this->index['POST']->register('templateEmailHistoryMergeFile/[text]', function ($args) use ($templateFileHistory) {
-                error_log(print_r('Controller ', true));
                 return $templateFileHistory->setEmailMergeTemplate($args[0]);
             });
 

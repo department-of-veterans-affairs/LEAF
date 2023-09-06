@@ -413,19 +413,26 @@ class Group extends Data
 
     /**
      * List groups by tag
+     *
      * @param string $tag
-     * @param int $offset
-     * @param int $quantity
+     * @param int|null $offset
+     * @param int|null $quantity
+     *
      * @return array
+     *
+     * Created at: 8/29/2023, 7:58:53 AM (America/New_York)
      */
-    public function listGroupsByTag($tag, $offset = null, $quantity = null)
+    public function listGroupsByTag(string $tag, ?int $offset = null, ?int $quantity = null): array
     {
         $this->db->limit($offset, $quantity);
         $vars = array(':tag' => $tag);
-        $res = $this->db->prepared_query('SELECT * FROM group_tags
-                                            LEFT JOIN `groups` USING (groupID)
-                                            WHERE tag=:tag
-                                            ORDER BY groupTitle ASC', $vars);
+        $sql = 'SELECT *
+                FROM `group_tags`
+                RIGHT JOIN `groups` USING (`groupID`)
+                WHERE `tag` = :tag
+                ORDER BY `groupTitle` ASC';
+
+        $res = $this->db->prepared_query($sql, $vars);
 
         return $res;
     }
@@ -704,7 +711,13 @@ class Group extends Data
             $vars = array(':grpAbbr' => $input);
             $vars = array_merge($vars, $vars_tag);
             $tempResult = $this->db->prepared_query($sql, $vars);
-            $result = array_merge($result, $tempResult);
+            $currGroups = array_column($result, 'groupID');
+            foreach ($tempResult as $tmp) {
+                $tmpGroupID = $tmp["groupID"];
+                if(!in_array($tmpGroupID, $currGroups)) {
+                    $result[] = $tmp;
+                }
+            }
         }
 
         // search by ID number

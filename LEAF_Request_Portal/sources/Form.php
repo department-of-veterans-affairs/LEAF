@@ -125,6 +125,7 @@ class Form
             } else {
                 $this->flattenFullFormData($item['child'], $output, $item['indicatorID']);
                 unset($item['child']);
+                $item['parentID'] = $parentID;
                 $output[$item['indicatorID']][$item['series']] = $item;
             }
         }
@@ -297,7 +298,9 @@ class Form
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 'Error: Invalid token.';
         }
-        $title = \Leaf\XSSHelpers::sanitizer($_POST['title']);
+
+        $title = \Leaf\XSSHelpers::sanitizeHTML($_POST['title']);
+
         $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
         $_POST['priority'] = !isset($_POST['priority']) || $_POST['priority'] == '' ? 0 : (int)$_POST['priority'];
@@ -452,140 +455,151 @@ class Form
             $data = $this->db->prepared_query($indicatorNotDisabledSQL, $indicatorNotDisabledVars);
         }
 
-        // my ide says this is not used
-        $required = isset($data[0]['required']) && $data[0]['required'] == 1 ? ' required="true" ' : '';
+        if (!empty($data)) {
+            $required = isset($data[0]['required']) && $data[0]['required'] == 1 ? ' required="true" ' : '';
 
 
-        $idx = $data[0]['indicatorID'];
-        $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
-        $form[$idx]['series'] = $series;
-        $form[$idx]['name'] = $data[0]['name'];
-        $form[$idx]['description'] = $data[0]['description'];
-        $form[$idx]['default'] = $data[0]['default'];
-        $form[$idx]['parentID'] = $data[0]['parentID'];
-        $form[$idx]['html'] = $data[0]['html'];
-        $form[$idx]['htmlPrint'] = $data[0]['htmlPrint'];
-        $form[$idx]['conditions'] = $data[0]['conditions'];
-        $form[$idx]['required'] = $data[0]['required'];
-        $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
-        $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
-        $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
-        $form[$idx]['displayedValue'] = ''; // used for Org Charts
-        $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ? $data[0]['timestamp'] : 0;
-        $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
-        $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
-        $form[$idx]['sort'] = $data[0]['sort'];
+            $idx = $data[0]['indicatorID'];
+            $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
+            $form[$idx]['series'] = $series;
+            $form[$idx]['name'] = $data[0]['name'];
+            $form[$idx]['description'] = $data[0]['description'];
+            $form[$idx]['default'] = $data[0]['default'];
+            $form[$idx]['parentID'] = $data[0]['parentID'];
+            $form[$idx]['html'] = $data[0]['html'];
+            $form[$idx]['htmlPrint'] = $data[0]['htmlPrint'];
+            $form[$idx]['conditions'] = $data[0]['conditions'];
+            $form[$idx]['required'] = $data[0]['required'];
+            $form[$idx]['is_sensitive'] = $data[0]['is_sensitive'];
+            $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
+            $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
+            $form[$idx]['displayedValue'] = ''; // used for Org Charts
+            $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ? $data[0]['timestamp'] : 0;
+            $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
+            $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
+            $form[$idx]['sort'] = $data[0]['sort'];
 
-        if (!empty($data[0]['html'])) {
-            $form[$idx]['has_code'] = trim($data[0]['html']);
-        } elseif (!empty($data[0]['htmlPrint'])) {
-            $form[$idx]['has_code'] = trim($data[0]['htmlPrint']);
-        } else {
-            $form[$idx]['has_code'] = '';
-        }
-
-        // handle file upload
-        if (
-            isset($data[0]['data'])
-            && ($data[0]['format'] == 'fileupload'
-                || $data[0]['format'] == 'image')
-        ) {
-            $form[$idx]['value'] = $this->fileToArray($data[0]['data']);
-            $form[$idx]['raw'] = $data[0]['data'];
-        }
-
-        // special handling for org chart data types
-        if (
-            $data[0]['format'] == 'orgchart_employee'
-            && !empty($data[0]['data'])
-        ) {
-            $empRes = $this->employee->lookupEmpUID($data[0]['data']);
-            $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
-        }
-        if (
-            $data[0]['format'] == 'orgchart_position'
-            && isset($data[0]['data'])
-        ) {
-            $positionTitle = $this->position->getTitle($data[0]['data']);
-            $form[$idx]['displayedValue'] = $positionTitle;
-        }
-        if (
-            $data[0]['format'] == 'orgchart_group'
-            && isset($data[0]['data'])
-        ) {
-            $groupTitle = $this->group->getGroup($data[0]['data']);
-            $form[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
-        }
-        if (
-            substr($data[0]['format'], 0, 4) == 'grid'
-            && isset($data[0]['data'])
-        ) {
-            $values = @unserialize($data[0]['data']);
-            $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
-            $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
-            try {
-                if (!is_array($values)) {
-                    $values = [];
-                }
-                $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
-            } catch (\TypeError $te) {
-                error_log($te);
+            if (!empty($data[0]['html'])) {
+                $form[$idx]['has_code'] = trim($data[0]['html']);
+            } elseif (!empty($data[0]['htmlPrint'])) {
+                $form[$idx]['has_code'] = trim($data[0]['htmlPrint']);
+            } else {
+                $form[$idx]['has_code'] = '';
             }
-        }
 
-        // handle multiselect and checkboxes format
-        // includes backwards compatibility for data stored as CSV
-        if (
-            isset($data[0]['data']) && $data[0]['data'] != ''
-            && (substr($data[0]['format'], 0, 11) == 'multiselect'
-                || substr($data[0]['format'], 0, 10) == 'checkboxes')
-        ) {
-            $form[$idx]['value'] = @unserialize($data[0]['data']) !== false ? @unserialize($data[0]['data']) : preg_split('/,(?!\s)/', $data[0]['data']);
-        }
-
-        // prevent masked data from being output
-        if ($form[$idx]['isMasked']) {
-            if (
-                isset($data[0]['data'])
+            // handle file upload
+            if (isset($data[0]['data'])
                 && ($data[0]['format'] == 'fileupload'
-                    || $data[0]['format'] == 'image')
-            ) {
-                $form[$idx]['value'] = $this->fileToArray('[protected data]');
-                $form[$idx]['displayedValue'] = $this->fileToArray('[protected data]');
-            } else {
-                $form[$idx]['value'] = '[protected data]';
-                $form[$idx]['displayedValue'] = '[protected data]';
+                    || $data[0]['format'] == 'image'))
+            {
+                $form[$idx]['value'] = $this->fileToArray($data[0]['data']);
+                $form[$idx]['raw'] = $data[0]['data'];
             }
-        }
 
-        // handle radio/checkbox options
-        $inputType = explode("\n", $data[0]['format']);
-        $numOptions = count($inputType) > 1 ? count($inputType) : 0;
-        for ($i = 1; $i < $numOptions; $i++) {
-            $inputType[$i] = isset($inputType[$i]) ? trim($inputType[$i]) : '';
-            if (strpos($inputType[$i], 'default:') !== false) {
-                $form[$idx]['options'][] = array(substr($inputType[$i], 8), 'default');
-            } else {
-                $form[$idx]['options'][] = $inputType[$i];
+            // special handling for org chart data types
+            if ($data[0]['format'] == 'orgchart_employee'
+                && !empty($data[0]['data']))
+            {
+                $empRes = $this->employee->lookupEmpUID($data[0]['data']);
+                if (!empty($empRes)) {
+                    $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                } else {
+                    $form[$idx]['displayedValue'] = '';
+                }
             }
+            if ($data[0]['format'] == 'orgchart_position'
+                && isset($data[0]['data']))
+            {
+                $positionTitle = $this->position->getTitle($data[0]['data']);
+                $form[$idx]['displayedValue'] = $positionTitle;
+            }
+            if ($data[0]['format'] == 'orgchart_group'
+                && isset($data[0]['data']))
+            {
+                $groupTitle = $this->group->getGroup($data[0]['data']);
+                $form[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
+            }
+            if (substr($data[0]['format'], 0, 4) == 'grid'
+                && isset($data[0]['data']))
+            {
+                $values = @unserialize($data[0]['data']);
+                $format = json_decode(substr($data[0]['format'], 5, -1) . ']');
+                $form[$idx]['value'] = @unserialize($form[$idx]['value']) === false ? $form[$idx]['value'] : unserialize($form[$idx]['value']);
+                try {
+                    if(!is_array($values)) {
+                        $values = [];
+                    }
+                    $form[$idx]['displayedValue'] = array_merge($values, array("format" => $format));
+                } catch (\TypeError $te) {
+                    error_log($te);
+                }
+            }
+
+
+            // handle multiselect and checkboxes format
+            // includes backwards compatibility for data stored as CSV
+            if (isset($data[0]['data']) && $data[0]['data'] != ''
+                && (substr($data[0]['format'], 0, 11) == 'multiselect'
+                    || substr($data[0]['format'], 0, 10) == 'checkboxes'))
+            {
+                $form[$idx]['value'] = @unserialize($data[0]['data']) !== false ? @unserialize($data[0]['data']) : preg_split('/,(?!\s)/', $data[0]['data']);
+            }
+
+
+            // prevent masked data from being output
+            if ($form[$idx]['isMasked'])
+            {
+                if (isset($data[0]['data'])
+                    && ($data[0]['format'] == 'fileupload'
+                        || $data[0]['format'] == 'image')) {
+                    $form[$idx]['value'] = $this->fileToArray('[protected data]');
+                    $form[$idx]['displayedValue'] = $this->fileToArray('[protected data]');
+                } else {
+                    $form[$idx]['value'] = '[protected data]';
+                    $form[$idx]['displayedValue'] = '[protected data]';
+                }
+            }
+
+            // handle radio/checkbox options
+            $inputType = explode("\n", $data[0]['format']);
+            $numOptions = count($inputType) > 1 ? count($inputType) : 0;
+            for ($i = 1; $i < $numOptions; $i++)
+            {
+                $inputType[$i] = isset($inputType[$i]) ? trim($inputType[$i]) : '';
+                if (strpos($inputType[$i], 'default:') !== false)
+                {
+                    $form[$idx]['options'][] = array(substr($inputType[$i], 8), 'default');
+                }
+                else
+                {
+                    $form[$idx]['options'][] = $inputType[$i];
+                }
+
+            }
+
+
+            if($parseTemplate) {
+                /* putting this here to see what this value is
+                    the error is Array to string conversion and it gives the
+                    location, so I checked the database that it is pulling this
+                    from and I don't see any arrays in their data
+                */
+                if (is_array($data[0]['html'])) {
+                    error_log(print_r($data[0]['html'], true));
+                }
+
+                $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                [$idx, $recordID, $form[$idx]['value']],
+                                                $data[0]['html']);
+                $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                [$idx, $recordID, $form[$idx]['value']],
+                                                $data[0]['htmlPrint']);
+            }
+
+            $form[$idx]['format'] = trim($inputType[0]);
+
+            $form[$idx]['child'] = $this->buildFormTree($data[0]['indicatorID'], $series, $recordID, $parseTemplate);
         }
-
-        if ($parseTemplate) {
-            $form[$idx]['html'] = str_replace(
-                ['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                [$idx, $recordID, $form[$idx]['value']],
-                $data[0]['html']
-            );
-            $form[$idx]['htmlPrint'] = str_replace(
-                ['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                [$idx, $recordID, $form[$idx]['value']],
-                $data[0]['htmlPrint']
-            );
-        }
-
-        $form[$idx]['format'] = trim($inputType[0]);
-
-        $form[$idx]['child'] = $this->buildFormTree($data[0]['indicatorID'], $series, $recordID, $parseTemplate);
 
         return $form;
     }
@@ -711,65 +725,81 @@ class Form
 
     /**
      * @param int $recordID
-     * @return mixed
+
+     * @param string $comment
+     *
+     * @return int|string
+     *
+     * Created at: 8/24/2023, 2:15:39 PM (America/New_York)
      */
-    public function deleteRecord(int $recordID)
+    public function deleteRecord(int $recordID, ?string $comment = ''): int|string
     {
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
-            return 0;
+            $return_value = 0;
+        } elseif (!$this->hasWriteAccess($recordID)) {
+            $return_value = 'Please contact your administrator to cancel this request to help avoid confusion in the process.';
+        } else {
+            // only allow admins to delete resolved requests
+            $vars = array(':recordID' => $recordID);
+            $sql = 'SELECT `recordID`, `submitted`, `stepID`
+                    FROM `records`
+                    LEFT JOIN `records_workflow_state` USING (`recordID`)
+                    WHERE `recordID` = :recordID
+                    AND `submitted` > 0';
+
+            $res = $this->db->prepared_query($sql, $vars);
+
+            if (
+                isset($res[0])
+                && $res[0]['stepID'] == null
+                && !$this->login->checkGroup(1)
+            ) {
+                $return_value = 'Cannot cancel resolved request.';
+            } else {
+                $vars = array(':recordID' => $recordID,
+                            ':time' => time());
+                $sql = 'UPDATE `records`
+                        SET `deleted` = :time
+                        WHERE `recordID` = :recordID';
+
+                $res = $this->db->prepared_query($sql, $vars);
+
+                // actionID 4 = delete
+                $vars = array(':recordID' => $recordID,
+                            ':userID' => $this->login->getUserID(),
+                            ':dependencyID' => 0,
+                            ':actionType' => 'deleted',
+                            ':actionTypeID' => 4,
+                            ':time' => time(),
+                            ':comment' => \Leaf\XSSHelpers::xscrub($comment));
+                $sql = 'INSERT INTO `action_history`
+                            (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
+                        VALUES
+                            (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+
+                $res = $this->db->prepared_query($sql, $vars);
+
+                // delete state
+                $vars = array(':recordID' => $recordID);
+                $sql = 'DELETE
+                        FROM `records_workflow_state`
+                        WHERE `recordID` = :recordID';
+
+                $this->db->prepared_query($sql, $vars);
+
+                // delete tags
+                $vars = array(':recordID' => $recordID);
+                $sql = 'DELETE
+                        FROM `tags`
+                        WHERE `recordID` = :recordID';
+
+                $res = $this->db->prepared_query($sql, $vars);
+            }
+
+            $return_value = 1;
         }
-        if (!$this->hasWriteAccess($recordID)) {
-            return 'Please contact your administrator to cancel this request to help avoid confusion in the process.';
-        }
 
-        // only allow admins to delete resolved requests
-        $submittedRecordsVars = array(':recordID' => $recordID);
-        $submittedRecordsSQL = 'SELECT recordID, submitted, stepID FROM records
-        LEFT JOIN records_workflow_state USING (recordID)
-        WHERE recordID=:recordID
-            AND submitted > 0';
-        $submittedRecordsRes = $this->db->prepared_query($submittedRecordsSQL, $submittedRecordsVars);
-        if (
-            isset($submittedRecordsRes[0])
-            && $submittedRecordsRes[0]['stepID'] == null
-            && !$this->login->checkGroup(1)
-        ) {
-            return 'Cannot cancel resolved request.';
-        }
-
-        $deleteVars = array(
-            ':recordID' => $recordID,
-            ':time' => time(),
-        );
-        $deleteSQL = 'UPDATE records SET
-        deleted=:time
-        WHERE recordID=:recordID';
-        $this->db->prepared_query($deleteSQL, $deleteVars);
-
-        // actionID 4 = delete
-        $actionHistoryInsertVars = array(
-            ':recordID' => $recordID,
-            ':userID' => $this->login->getUserID(),
-            ':dependencyID' => 0,
-            ':actionType' => 'deleted',
-            ':actionTypeID' => 4,
-            ':time' => time(),
-        );
-        $actionHistoryInsertSQL = 'INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time)
-        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time)';
-        $res = $this->db->prepared_query($actionHistoryInsertSQL, $actionHistoryInsertVars);
-
-        // delete state
-        $deleteWorkflowStateVars = array(':recordID' => $recordID);
-        $deleteWorkflowStateSQL = 'DELETE FROM records_workflow_state WHERE recordID=:recordID';
-        $this->db->prepared_query($deleteWorkflowStateSQL, $deleteWorkflowStateVars);
-
-        // delete tags
-        $deleteTagsVars = array(':recordID' => $recordID);
-        $deleteTagsSQL = 'DELETE FROM tags WHERE recordID=:recordID';
-        $this->db->prepared_query($deleteTagsSQL, $deleteTagsVars);
-
-        return 1;
+        return $return_value;
     }
 
     /**
@@ -825,7 +855,7 @@ class Form
 
             $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
 
-            if (isset($value[$index])) {
+            if (is_array($value) && isset($value[$index])) {
                 $_POST['overwrite'] = true;
                 $_POST['series'] = 1;
                 $_POST[$indicatorID] = '';
@@ -1226,11 +1256,10 @@ class Form
             $_POST['title'] = ($_POST['title'] != '') ? $_POST['title'] : '- blank -';
 
             $priority = isset($_POST['priority']) ? $_POST['priority'] : 0;
-            $updateRecordVars = array(
-                ':recordID' => (int)$recordID,
-                ':title' => \Leaf\XSSHelpers::sanitizer($_POST['title']),
-                ':priority' => (int)$priority,
-            );
+
+            $updateRecordVars = array(':recordID' => (int)$recordID,
+                          ':title' => \Leaf\XSSHelpers::sanitizeHTML($_POST['title']),
+                          ':priority' => (int)$priority, );
 
             $updateRecordSQl = 'UPDATE records SET
             title=:title,
@@ -1270,7 +1299,7 @@ class Form
      *
      * Created at: 10/3/2022, 7:40:04 AM (America/New_York)
      */
-    public function doSubmit(int $recordID): int|array
+    public function doSubmit(int $recordID): array
     {
         $recordID = (int)$recordID;
 
@@ -1279,14 +1308,14 @@ class Form
         $recordRes = $this->db->prepared_query($recordSQL, $recordVars);
 
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
-            $return_value = 0;
+            $return_value = array('status' => 0, 'errors' => array('Invalid Token'));
         } else if (!is_numeric($recordID)) {
-            $return_value = 0;
+            $return_value = array('status' => 0, 'errors' => array('Invalid Record'));
         } else if (!$this->hasWriteAccess($recordID)) {
-            $return_value = 0;
-        } else if ($recordRes[0]['submitted'] > 0) {
+            $return_value = array('status' => 0, 'errors' => array('No Write Access'));
+        } else if ($res[0]['submitted'] > 0) {
             // make sure request isn't already submitted
-            $return_value = $recordID;
+            $return_value = array('status' => 0, 'errors' => array('Already Submitted'));
         } else {
             $this->db->beginTransaction();
 
@@ -1679,10 +1708,11 @@ class Form
         }
 
         // give the requestor access if the record explictly gives them write access
-        if (
-            $resRecords[0]['isWritableUser'] == 1
-            && $this->login->getUserID() == $resRecords[0]['userID']
-        ) {
+
+        if ($resRecords[0]['isWritableUser'] == 1 &&
+            ($this->login->getUserID() == $resRecords[0]['userID'] || $this->checkIfBackup($this->getEmpUID($resRecords[0]['userID'])))
+        )
+        {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
             $this->log["write"]["{$recordID}_{$categoryID}_writable"] = "You are a writable user or initiator of record {$recordID}, {$categoryID}.";
 
@@ -2103,7 +2133,7 @@ class Form
                         }
 
                         // collaborator access
-                        if (isset($hasCategoryAccess[$dep['categoryID']])) {
+                        if (isset($dep['categoryID']) && isset($hasCategoryAccess[$dep['categoryID']])) {
                             $temp[$dep['recordID']] = 1;
                         }
                     }
@@ -2119,7 +2149,8 @@ class Form
                     }
                 }
 
-                if ($countPurged > 0 && headers_sent() == false) {
+
+                if($countPurged > 0 && !headers_sent()) {
                     header('LEAF-Query: continue');
                 }
 
@@ -4178,17 +4209,22 @@ class Form
                     $child[$idx]['value'] = @unserialize($data[$idx]['data']) !== false ? @unserialize($data[$idx]['data']) : preg_split('/,(?!\s)/', $data[$idx]['data']);
                 }
 
-                if ($parseTemplate) {
-                    $child[$idx]['html'] = str_replace(
-                        ['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                        [$idx, $recordID, $child[$idx]['value']],
-                        $field['html']
-                    );
-                    $child[$idx]['htmlPrint'] = str_replace(
-                        ['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                        [$idx, $recordID, $child[$idx]['value']],
-                        $field['htmlPrint']
-                    );
+
+                if($parseTemplate) {
+                     /* putting this here to see what this value is
+                        the error is Array to string conversion and it gives the
+                        location, so I checked the database that it is pulling this
+                        from and I don't see any arrays in their data
+                    */
+                    if (is_array($field['html'])) {
+                        error_log(print_r($field['html'], true));
+                    }
+                    $child[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['html']);
+                    $child[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                                      [$idx, $recordID, $child[$idx]['value']],
+                                                      $field['htmlPrint']);
                 }
 
                 if ($child[$idx]['isMasked']) {

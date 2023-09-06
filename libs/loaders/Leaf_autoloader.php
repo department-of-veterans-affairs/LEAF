@@ -58,8 +58,7 @@ $oc_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths
 $setting_up = new Leaf\Setting($db);
 $settings = $setting_up->getSettings();
 
-if (class_exists('Portal\DbConfig')) {
-    $db_config = new Portal\DbConfig();
+if (class_exists('Portal\Config')) {
     $config = new Portal\Config($site_paths, $settings);
     if (!defined('PORTAL_CONFIG')) define('PORTAL_CONFIG', $config);
 }

@@ -16,6 +16,8 @@ class FormWorkflow
 
     private $db;
 
+    private $oc_db;
+
     private $login;
 
     private $recordID;
@@ -30,6 +32,7 @@ class FormWorkflow
         $this->db = $db;
         $this->login = $login;
         $this->recordID = is_numeric($recordID) ? $recordID : 0;
+        $this->oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -1043,88 +1046,50 @@ class FormWorkflow
 
                     break;
                 case 'std_email_notify_completed': // notify requestor of completed request
-                    $email = new Email();
-
+                    
                     $vars = array(':recordID' => $this->recordID);
+
+                    // get the record and requestor
                     $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
                         FROM records AS rec
                         LEFT JOIN services AS ser USING (serviceID)
                         WHERE recordID = :recordID';
-                    $approvers = $this->db->prepared_query($strSQL, $vars);
+                    $requestRecords = $this->db->prepared_query($strSQL, $vars);
 
+                    // get the person that has commited  the action since we would want to send from that email
+                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
+                        FROM records 
+                        JOIN action_history USING(recordID) 
+                        WHERE recordID = :recordID 
+                        ORDER BY actionID DESC LIMIT 1';
 
-                    $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+                    $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
 
-                    $email->addSmartyVariables(array(
-                        "truncatedTitle" => $title,
-                        "fullTitle" => $approvers[0]['title'],
-                        "recordID" => $this->recordID,
-                        "service" => $approvers[0]['service'],
-                        "lastStatus" => $approvers[0]['lastStatus'],
-                        "comment" => $comment,
-                        "siteRoot" => $this->siteRoot
-                    ));
-                    $email->setTemplateByID(Email::NOTIFY_COMPLETE);
+                    if(!empty($requestRecords[0]) && is_array($requestRecords[0]) && !empty($lastActions[0]) && is_array($lastActions[0]) ){
 
-                    $dir = new VAMC_Directory;
+                        $email = new Email();
 
-                    $author = $dir->lookupLogin($this->login->getUserID());
-                    $email->setSender($author[0]['Email']);
+                        $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
 
-                    // Get backups to requester so they can be notified as well
-                    $nexusDB = $this->login->getNexusDB();
-                    $vars = array(':empUID' => $author[0]['empUID']);
-                    $strSQL = 'SELECT backupEmpUID FROM relation_employee_backup
-                        WHERE empUID = :empUID';
-                    $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+                        $email->addSmartyVariables(array(
+                            "truncatedTitle" => $title,
+                            "fullTitle" => $requestRecords[0]['title'],
+                            "recordID" => $this->recordID,
+                            "service" => $requestRecords[0]['service'],
+                            "lastStatus" => $requestRecords[0]['lastStatus'],
+                            "comment" => $comment,
+                            "siteRoot" => $this->siteRoot
+                        ));
+                        $email->setTemplateByID(Email::NOTIFY_COMPLETE);
 
+                        $dir = new VAMC_Directory;
 
-                    // Add backups to email recepients
-                    foreach($backupIds as $backup) {
-                      $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
-                      $email->addRecipient($theirBackup[0]['Email']);
-                    }
+                        $author = $dir->lookupLogin($requestRecords[0]['userID']);// this is the requestors info
 
-                    $tmp = $dir->lookupLogin($approvers[0]['userID']);
-                    $email->addRecipient($tmp[0]['Email']);
+                        // set the sender which should be the last person to take action
+                        $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
+                        $email->setSender($lastActionAuthor[0]['Email']); 
 
-                    $email->sendMail($this->recordID);
-
-                    break;
-                case $customEvent: // For all custom events
-                    $email = new Email();
-
-                    $vars = array(':recordID' => $this->recordID);
-                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
-                        FROM records AS rec
-                        LEFT JOIN services AS ser USING (serviceID)
-                        WHERE recordID = :recordID';
-                    $approvers = $this->db->prepared_query($strSQL, $vars);
-
-
-                    $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
-
-                    $email->addSmartyVariables(array(
-                        "truncatedTitle" => $title,
-                        "fullTitle" => $approvers[0]['title'],
-                        "recordID" => $this->recordID,
-                        "service" => $approvers[0]['service'],
-                        "lastStatus" => $approvers[0]['lastStatus'],
-                        "comment" => $comment,
-                        "siteRoot" => $this->siteRoot
-                    ));
-
-                    $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
-                    $email->setTemplateByID($emailTemplateID);
-
-                    $dir = new VAMC_Directory;
-
-                    $author = $dir->lookupLogin($this->login->getUserID());
-                    $email->setSender($author[0]['Email']);
-
-                    $eventData = json_decode($event['eventData']);
-
-                    if ($eventData->NotifyRequestor === 'true') {
                         // Get backups to requester so they can be notified as well
                         $nexusDB = $this->login->getNexusDB();
                         $vars = array(':empUID' => $author[0]['empUID']);
@@ -1132,31 +1097,99 @@ class FormWorkflow
                             WHERE empUID = :empUID';
                         $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
-
                         // Add backups to email recepients
                         foreach($backupIds as $backup) {
-                            $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
+                        $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
                             $email->addRecipient($theirBackup[0]['Email']);
                         }
 
-                        $tmp = $dir->lookupLogin($approvers[0]['userID']);
+                        $tmp = $dir->lookupLogin($requestRecords[0]['userID']);
                         $email->addRecipient($tmp[0]['Email']);
-                    }
 
-
-                    if ($eventData->NotifyGroup !== 'None') {
-                        $email->addGroupRecipient($eventData->NotifyGroup);
-                    }
-
-
-                    if ($eventData->NotifyNext === 'true') {
-                        $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
-
-                    } else {
                         $email->sendMail($this->recordID);
-
                     }
+                    break;
+                case $customEvent: // For all custom events
 
+                    $vars = array(':recordID' => $this->recordID);
+
+                    // get the record and requestor
+                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
+                        FROM records AS rec
+                        LEFT JOIN services AS ser USING (serviceID)
+                        WHERE recordID = :recordID';
+                    $requestRecords = $this->db->prepared_query($strSQL, $vars);
+
+                    // get the person that has commited  the action since we would want to send from that email
+                    $lastAdctionSql = 'SELECT action_history.actionID, action_history.userID 
+                        FROM records 
+                        JOIN action_history USING(recordID) 
+                        WHERE recordID = :recordID 
+                        ORDER BY actionID DESC LIMIT 1';
+
+                    $lastActions = $this->db->prepared_query($lastAdctionSql, $vars);
+
+                    if(!empty($requestRecords[0]) && is_array($requestRecords[0]) && !empty($lastActions[0]) && is_array($lastActions[0]) ){
+
+                        $email = new Email();
+
+                        $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
+                        $fields = $this->getFields();
+
+                        $email->addSmartyVariables(array(
+                            "truncatedTitle" => $title,
+                            "fullTitle" => $requestRecords[0]['title'],
+                            "recordID" => $this->recordID,
+                            "service" => $requestRecords[0]['service'],
+                            "lastStatus" => $requestRecords[0]['lastStatus'],
+                            "comment" => $comment,
+                            "siteRoot" => $this->siteRoot,
+                            "field" => $fields
+                        ));
+
+                        $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
+                        $email->setTemplateByID($emailTemplateID);
+
+                        $dir = new VAMC_Directory;
+
+                        $author = $dir->lookupLogin($requestRecords[0]['userID']);
+                        
+                        // set the sender which should be the last person to take action
+                        $lastActionAuthor = $dir->lookupLogin($lastActions[0]['userID']);
+                        $email->setSender($lastActionAuthor[0]['Email']); 
+
+                        $eventData = json_decode($event['eventData']);
+
+                        if ($eventData->NotifyRequestor === 'true') {
+                            // Get backups to requester so they can be notified as well
+                            $nexusDB = $this->login->getNexusDB();
+                            $vars = array(':empUID' => $author[0]['empUID']);
+                            $strSQL = 'SELECT backupEmpUID FROM relation_employee_backup
+                                WHERE empUID = :empUID';
+                            $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+
+                            // Add backups to email recepients
+                            foreach($backupIds as $backup) {
+                                $theirBackup = $dir->lookupEmpUID($backup['backupEmpUID']);
+                                $email->addRecipient($theirBackup[0]['Email']);
+                            }
+
+                            $tmp = $dir->lookupLogin($requestRecords[0]['userID']);
+                            $email->addRecipient($tmp[0]['Email']);
+                        }
+
+                        if ($eventData->NotifyGroup !== 'None') {
+                            $email->addGroupRecipient($eventData->NotifyGroup);
+                        }
+
+
+                        if ($eventData->NotifyNext === 'true') {
+                            $email->attachApproversAndEmail($this->recordID, $emailTemplateID, $this->login);
+
+                        } else {
+                            $email->sendMail($this->recordID);
+                        }
+                    }
 
                     break;
                 default:
@@ -1191,6 +1224,158 @@ class FormWorkflow
         }
 
         return array('status' => 1, 'errors' => $errors);
+    }
+
+    /**
+     * Get the field values of the current record
+     */
+    private function getFields(): array
+    {
+        $vars = array(':recordID' => $this->recordID);
+        $strSQL = 'SELECT `data`.`indicatorID`, `data`.`series`, `data`.`data`, `indicators`.`format`, `indicators`.`default`, `indicators`.`is_sensitive` FROM `data`
+            JOIN `indicators` USING (`indicatorID`)
+            WHERE `recordID` = :recordID';
+
+        $fields = $this->db->prepared_query($strSQL, $vars);
+
+        $formattedFields = array();
+
+        foreach($fields as $field)
+        {
+            if ($field["is_sensitive"] == 1) {
+                $formattedFields[$field['indicatorID']] = "**********";
+                continue;
+            }
+
+            $format = strtolower($field["format"]);
+            $data = $field["data"];
+
+            switch(true) {
+                case (str_starts_with($format, "grid") != false):
+                    if(!empty($data) && is_array(unserialize($data))){
+                        $data = $this->buildGrid(unserialize($data));
+                    }
+                    break;
+                case (str_starts_with($format, "checkboxes") != false):
+                case (str_starts_with($format, "multiselect") != false):
+                    if ($this->isJsonString($data) && is_array(json_decode($data))) {
+                        $data = $this->buildMultiselect(json_decode($data));
+                    }
+                    break;
+                case (str_starts_with($format, "radio") != false):
+                case (str_starts_with($format, "checkbox") != false):
+                    if ($data == "no") {
+                        $data = "";
+                    }
+                    break;
+                case ($format == "fileupload"):
+                case ($format == "image"):
+                    $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
+                    break;
+                case ($format == "orgchart_group"):
+                    $data = $this->getOrgchartGroup((int) $data);
+                    break;
+                case ($format == "orgchart_position"):
+                    $data = $this->getOrgchartPosition((int) $data);
+                    break;
+                case ($format == "orgchart_employee"):
+                    $data = $this->getOrgchartEmployee((int) $data);
+                    break;
+            }
+
+            $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+        }
+
+        return $formattedFields;
+    }
+
+    private function isJsonString(mixed $data): bool
+    {
+        json_decode($data);
+
+        return json_last_error() === 0;
+    }
+
+    // method for building grid
+    private function buildGrid(array $data): string
+    {
+        // get the grid in the form of array
+        $cells = $data['cells'];
+        $headers = $data['names'];
+
+        // build the grid
+        $grid = "<table><tr>";
+
+        foreach($headers as $header) {
+            if ($header !== " ") {
+                $grid .= "<th>{$header}</th>";
+            }
+        }
+        $grid .= "</tr>";
+
+        foreach($cells as $row) {
+            $grid .= "<tr>";
+            foreach($row as $column) {
+                $grid .= "<td>{$column}</td>";
+            }
+            $grid .= "</tr>";
+        }
+        $grid .= "</table>";
+
+        return $grid;
+    }
+
+    private function buildMultiselect(array $data): string
+    {
+        // filter out non-selected selections
+        $data = array_filter($data, function($x) { return $x !== "no"; });
+        // comma separate to be readable in email
+        $formattedData = implode(",", $data);
+
+        return $formattedData;
+    }
+
+    private function buildFileLink(string $data, string $id, string $series): string
+    {
+        // split the file names out into an array
+        $data = explode("\n", $data);
+        $buffer = [];
+
+        // parse together the links to each file
+        foreach($data as $index => $file) {
+            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$this->recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
+        }
+
+        // separate the links by comma
+        $formattedData = implode(", ", $buffer);
+        return $formattedData;
+    }
+
+    // method for building orgchart group, position, employee
+    private function getOrgchartGroup(int $data): string
+    {
+        // reference the group by id
+        $group = new Group($this->db, $this->login);
+        $groupName = $group->getGroupName($data);
+
+        return $groupName;
+    }
+
+    private function getOrgchartPosition(int $data): string
+    {
+        $position = new \Orgchart\Position($this->oc_db, $this->login);
+        $positionName = $position->getTitle($data);
+
+        return $positionName;
+    }
+
+    private function getOrgchartEmployee(int $data): string
+    {
+        $employee = new \Orgchart\Employee($this->oc_db, $this->login);
+        $employeeData = $employee->lookupEmpUID($data)[0];
+        $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
+
+        return $employeeName;
     }
 
     /**

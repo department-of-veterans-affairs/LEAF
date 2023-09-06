@@ -579,6 +579,7 @@ var LeafFormSearch = function (containerID) {
    * @memberOf LeafFormSearch
    */
   function renderWidget(widgetID, callback) {
+    let url;
     switch ($("#" + prefixID + "widgetTerm_" + widgetID).val()) {
       case "title":
         $("#" + prefixID + "widgetCondition_" + widgetID).html(
@@ -612,9 +613,10 @@ var LeafFormSearch = function (containerID) {
                         <option value="!=">IS NOT</option>\
                     </select>'
         );
+        url = rootURL === '' ? './api/system/services' : rootURL + 'api/system/services';
         $.ajax({
           type: "GET",
-          url: "./api/system/services",
+          url,
           dataType: "json",
           success: function (res) {
             var services =
@@ -662,7 +664,7 @@ var LeafFormSearch = function (containerID) {
             '" style="width: 200px" />'
         );
         if (!jQuery.ui) {
-          $.getScript("js/jquery/jquery-ui.custom.min.js", function () {
+          $.getScript("../libs/js/jquery/jquery-ui.custom.min.js", function () {
             $("#" + prefixID + "widgetMat_" + widgetID).datepicker();
           });
         } else {
@@ -680,9 +682,10 @@ var LeafFormSearch = function (containerID) {
 	            		<option value="!=">IS NOT</option>\
 	            	</select>'
         );
+        url = rootURL === '' ? './api/workflow/categoriesUnabridged' : rootURL + 'api/workflow/categoriesUnabridged';
         $.ajax({
           type: "GET",
-          url: "./api/workflow/categoriesUnabridged",
+          url,
           dataType: "json",
           success: function (res) {
             var categories =
@@ -738,9 +741,10 @@ var LeafFormSearch = function (containerID) {
             widgetID +
             '" value="=" /> ='
         );
+        url = rootURL === '' ? './api/workflow/dependencies' : rootURL + 'api/workflow/dependencies';
         $.ajax({
           type: "GET",
-          url: "./api/workflow/dependencies",
+          url,
           dataType: "json",
           success: function (res) {
             var dependencies =
@@ -796,11 +800,13 @@ var LeafFormSearch = function (containerID) {
 	            		<option value="!=">IS NOT</option>\
 	            	</select>'
         );
+        url = rootURL === '' ? './api/workflow/steps' : rootURL + 'api/workflow/steps';
         $.ajax({
           type: "GET",
-          url: "./api/workflow/steps",
+          url,
           dataType: "json",
           success: function (res) {
+            let allStepsData = res;
             var categories =
               '<select id="' +
               prefixID +
@@ -812,14 +818,14 @@ var LeafFormSearch = function (containerID) {
             categories += '<option value="resolved">Resolved</option>';
             categories +=
               '<option value="actionable">Actionable by me</option>';
-            for (var i in res) {
+            for (var i in allStepsData) {
               categories +=
                 '<option value="' +
-                res[i].stepID +
+                allStepsData[i].stepID +
                 '">' +
-                res[i].description +
+                allStepsData[i].description +
                 ": " +
-                res[i].stepTitle +
+                allStepsData[i].stepTitle +
                 "</option>";
             }
             categories += "</select>";
@@ -833,9 +839,11 @@ var LeafFormSearch = function (containerID) {
         });
         break;
       case "data":
+        let resultFilter = '?x-filterData=indicatorID,categoryName,name,format';
+        url = rootURL === '' ? `./api/form/indicator/list${resultFilter}` : rootURL + `api/form/indicator/list${resultFilter}`;
         $.ajax({
           type: "GET",
-          url: "./api/form/indicator/list",
+          url,
           dataType: "json",
           success: function (res) {
             var indicators =
@@ -1139,8 +1147,7 @@ var LeafFormSearch = function (containerID) {
             if (callback != undefined) {
               callback();
             }
-          },
-          cache: false,
+          }
         });
         break;
       default:

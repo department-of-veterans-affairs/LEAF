@@ -41,6 +41,8 @@ class Email
 
     private object $nexus_db;
 
+    private object $login;
+
     private bool $orgchartInitialized = false;
 
     private int $recordID;
@@ -153,8 +155,7 @@ class Email
      */
     public function setSubject(string $strSubject): void
     {
-        $prefix = isset(Config::$emailPrefix) ? Config::$emailPrefix : 'Resources: ';
-        $this->emailSubject = $prefix . strip_tags($strSubject);
+        $this->emailSubject = strip_tags($strSubject);
     }
 
     /**
@@ -371,12 +372,12 @@ class Email
     private function initOrgchart(): void
     {
         // set up org chart assets
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
-        $oc_login = new \Orgchart\Login($oc_db, $oc_db);
+        $oc_login = new \Orgchart\Login($this->nexus_db, $this->nexus_db);
         $oc_login->loginUser();
-        $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
-        $this->position = new \Orgchart\Position($oc_db, $oc_login);
-        $this->group = new \Orgchart\Group($oc_db, $oc_login);
+        $this->login = $oc_login;
+        $this->employee = new \Orgchart\Employee($this->nexus_db, $oc_login);
+        $this->position = new \Orgchart\Position($this->nexus_db, $oc_login);
+        $this->group = new \Orgchart\Group($this->nexus_db, $oc_login);
         $this->orgchartInitialized = true;
     }
 
@@ -387,8 +388,7 @@ class Email
     function initPortalDB(): void
     {
         // set up org chart assets
-        $db_config = new DbConfig;
-        $this->portal_db = new \Leaf\Db($db_config->dbHost, $db_config->dbUser, $db_config->dbPass, $db_config->dbName);
+        $this->portal_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, Config::$portalDb);
     }
 
     /**
@@ -445,7 +445,7 @@ class Email
     {
         $vars = array(':emailTemplateLabel' => $emailTemplateLabel);
         $strSQL = "SELECT `emailTemplateID` FROM `email_templates` ".
-            "WHERE label = :emailTemplateLabel;";
+            "WHERE `label` = :emailTemplateLabel";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
         return (int)$res[0]['emailTemplateID'];
@@ -459,14 +459,15 @@ class Email
     function setTemplateByID(int $emailTemplateID): void
     {
         $vars = array(':emailTemplateID' => $emailTemplateID);
-        $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body` FROM `email_templates` ".
-            "WHERE emailTemplateID = :emailTemplateID;";
+        $strSQL = "SELECT `emailTo`, `emailCc`,`subject`, `body`
+                FROM `email_templates`
+                WHERE `emailTemplateID` = :emailTemplateID";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
+        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body'] == null ? '' : $res[0]['body']));
     }
 
     /**
@@ -571,14 +572,157 @@ class Email
     }
 
     /**
+     * Get the field values of the current record
+     */
+    private function getFields(int $recordID): array
+    {
+        $vars = array(':recordID' => $recordID);
+        $strSQL = 'SELECT `data`.`indicatorID`, `data`.`series`, `data`.`data`, `indicators`.`format`, `indicators`.`default`, `indicators`.`is_sensitive` FROM `data`
+            JOIN `indicators` USING (`indicatorID`)
+            WHERE `recordID` = :recordID';
+
+        $fields = $this->portal_db->prepared_query($strSQL, $vars);
+
+        $formattedFields = array();
+
+        foreach($fields as $field)
+        {
+            if ($field["is_sensitive"] == 1) {
+                $formattedFields[$field['indicatorID']] = "**********";
+                continue;
+            }
+
+            $format = strtolower($field["format"]);
+            $data = $field["data"];
+
+            switch(true) {
+                case (str_starts_with($format, "grid") != false):
+                    $data = $this->buildGrid(unserialize($data));
+                    break;
+                case (str_starts_with($format, "checkboxes") != false):
+                case (str_starts_with($format, "multiselect") != false):
+                    $data = $this->buildMultiselect(unserialize($data));
+                    break;
+                case (str_starts_with($format, "radio") != false):
+                case (str_starts_with($format, "checkbox") != false):
+                    if ($data == "no") {
+                        $data = "";
+                    }
+                    break;
+                case ($format == "fileupload"):
+                case ($format == "image"):
+                    $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
+                    break;
+                case ($format == "orgchart_group"):
+                    $data = $this->getOrgchartGroup((int) $data);
+                    break;
+                case ($format == "orgchart_position"):
+                    $data = $this->getOrgchartPosition((int) $data);
+                    break;
+                case ($format == "orgchart_employee"):
+                    $data = $this->getOrgchartEmployee((int) $data);
+                    break;
+            }
+
+            $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+        }
+
+        return $formattedFields;
+    }
+
+    // method for building grid
+    private function buildGrid(array $data): string
+    {
+        // get the grid in the form of array
+        $cells = $data['cells'];
+        $headers = $data['names'];
+
+        // build the grid
+        $grid = "<table><tr>";
+
+        foreach($headers as $header) {
+            if ($header !== " ") {
+                $grid .= "<th>{$header}</th>";
+            }
+        }
+        $grid .= "</tr>";
+
+        foreach($cells as $row) {
+            $grid .= "<tr>";
+            foreach($row as $column) {
+                $grid .= "<td>{$column}</td>";
+            }
+            $grid .= "</tr>";
+        }
+        $grid .= "</table>";
+
+        return $grid;
+    }
+
+    private function buildMultiselect(array $data): string
+    {
+        // filter out non-selected selections
+        $data = array_filter($data, function($x) { return $x !== "no"; });
+        // comma separate to be readable in email
+        $formattedData = implode(",", $data);
+
+        return $formattedData;
+    }
+
+    private function buildFileLink(string $data, string $id, string $series): string
+    {
+        // split the file names out into an array
+        $data = explode("\n", $data);
+        $buffer = [];
+
+        // parse together the links to each file
+        foreach($data as $index => $file) {
+            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$this->recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
+        }
+
+        // separate the links by comma
+        $formattedData = implode(", ", $buffer);
+        return $formattedData;
+    }
+
+    private function getOrgchartEmployee(int $data): string
+    {
+        $employeeData = $this->employee->lookupEmpUID($data)[0];
+        $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
+
+        return $employeeName;
+    }
+
+    // method for building orgchart group, position, employee
+    private function getOrgchartGroup(int $data): string
+    {
+        // reference the group by id
+        $group = new Group($this->portal_db, $this->login);
+        $groupName = $group->getGroupName($data);
+
+        return $groupName;
+    }
+
+    private function getOrgchartPosition(int $data): string
+    {
+        $position = new \Orgchart\Position($this->nexus_db, $this->login);
+        $positionName = $position->getTitle($data);
+
+        return $positionName;
+    }
+
+    /**
      * Purpose: Add approvers to email from given record ID*
      * @param int $recordID
      * @param int $emailTemplateID
      * @param mixed $loggedInUser
+     * @return bool Return true on success
      * @throws Exception
      */
     function attachApproversAndEmail(int $recordID, int $emailTemplateID, mixed $loggedInUser): bool
     {
+        $return_value = false;
+
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
         $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
@@ -587,6 +731,7 @@ class Email
             "LEFT JOIN dependency_privs USING (dependencyID) ".
             "LEFT JOIN users USING (groupID) ".
             "LEFT JOIN services AS ser USING (serviceID) ".
+            "LEFT JOIN data USING (recordID)".
             "WHERE recordID=:recordID AND (active=1 OR active IS NULL)";
         $approvers = $this->portal_db->prepared_query($strSQL, $vars);
 
@@ -732,7 +877,8 @@ class Email
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $recordInfo[0]['lastStatus'],
-                "siteRoot" => $this->siteRoot
+                "siteRoot" => $this->siteRoot,
+                "field" => $fields
             ));
 
             $this->setTemplateByID($emailTemplateID);

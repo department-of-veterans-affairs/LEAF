@@ -1,0 +1,911 @@
+@import '../common/LEAF_Vue_Dialog__Common.scss';
+
+nav#form-editor-nav {
+    width: 100%;
+
+    h2 {
+        @include flexcenter;
+        margin: 0;
+        font-size: 26px;
+        color: black;
+    }
+
+    ul li {
+        @include flexcenter;
+        width: 200px;
+        min-width: fit-content;
+        font-size: 14px;
+        font-weight: bolder;
+        text-decoration: none;
+
+        button, a {
+            margin: 0;
+            padding: 0;
+            @include flexcenter;
+            position: relative;
+            background-color: inherit;
+            text-decoration: inherit;
+            color: inherit;
+            width: 100%;
+            height: 100%;
+            border: 2px solid transparent;
+        }
+
+        span[role="img"] {
+            margin-left: 0.5rem;
+        }
+        span.header-arrow {
+            margin-left: 1rem;
+        }
+    }
+    
+    ul#form-editor-menu {
+        @include flexcenter;
+        justify-content: flex-start;
+        color: $charcoal;
+        background-color: $lt_cyan;
+        border-bottom: 1px solid $charcoal;
+        position: relative;
+        z-index: 10;
+        margin-bottom: 1rem;
+
+        > li {
+            position: relative;
+            height: 32px;
+
+            &:not(:last-child)::after {
+                content: '';
+                position: absolute;
+                right: 0;
+                display: block;
+                height: 50%;
+                border-radius: 2px;
+                width: 1px;
+                background-color: black;
+            }; 
+        }
+        button, a {
+            &:hover, &:focus, &:active {
+                border: 2px solid $LEAF_CSS_outline;
+                outline: none !important;
+                background-color: $base_navy;
+                color: white;
+            }
+        }
+    }
+
+    ul#form-breadcrumb-menu {
+        margin: 1rem 1rem 0 1rem;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        background-color: transparent;
+        color: black;
+
+        li {
+            width: fit-content;
+            position: relative;
+            margin-right: 1rem;
+            button, a {
+                padding: 0.25rem;
+                border-radius: 3px;
+                text-decoration: underline;
+                outline: none !important;
+                &:hover, &:focus, &:active {
+                    border: 2px solid $LEAF_CSS_outline !important;
+                }
+                &:disabled {
+                    border: 2px solid transparent !important;
+                    text-decoration: none;
+                    cursor: default;
+                }
+            }
+        }
+    }
+}
+
+
+#form_browser_tables {
+    h3 {
+        color: black;
+    }
+    table {
+        width: 100%;
+        background-color: white;
+        border-collapse: collapse;
+        border: 1px solid $charcoal;
+        border-radius: 2px;
+        margin-bottom: 2rem;
+
+        td,th {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid $charcoal;
+            
+            a {
+                padding: 0.25rem 0.5rem;
+                display: flex;
+                height: 100%;
+                align-items: center;
+                color: inherit;
+                border: 2px solid transparent;
+                &:hover, &:focus, &:active {
+                    background-color: $lt_cyan;
+                    border: 2px solid $LEAF_CSS_outline !important;
+                }
+            }
+        }
+        td.form-name {
+            padding: 0;
+        }
+        th {
+            background-color: $charcoal;
+            color: white;
+            border: 1px solid black;
+        }
+        tr:not(.header-row) {
+            color: black;
+            border-bottom: 1px solid $charcoal;
+        }
+        tr.sub-row { 
+            color: #333;
+            background-color: #f6f6ff;
+            font-size: 85%;
+            .form-name {
+                padding-left: 0.75rem;
+            }
+        }
+        .need-to-know-enabled {
+            @include flexcenter;
+            color: #c00;
+            font-size: 12px;
+        }
+    }
+}
+
+/* orgchart selector fixes */
+div[class$="SelectorBorder"] {
+    display: flex;
+    div {
+        @include flexcenter;
+    }
+    input {
+        width: 100%;
+        border: 1px solid #bbb;
+    }
+}
+table[class$="SelectorTable"] th {
+    color: $charcoal;
+}
+
+#indicator-editing-dialog-content {
+    > div {
+        margin-bottom: 2rem;
+    }
+    button {
+        font-size:  80%;
+    }
+    input, select {
+        min-height: 24px;
+    }
+    #name {
+        width: 100%;
+        margin-bottom: 0.4rem;
+        padding: 0.2rem 0.4rem;
+        display:block;
+    }
+    #description, #indicatorType, #defaultValue, #indicatorMultiAnswer {
+        width: 100%;
+        max-width: 100%;
+    }
+    #formatDetails {
+        margin: 0.5rem 0;
+    }
+    #indicator-editing-attributes {
+        position: relative;
+        margin-top: 1.5rem;
+        padding: 0;
+        min-width: -moz-fit-content;
+        min-width: fit-content;
+
+        .attribute-row {
+            display: flex;
+            align-items: stretch;
+            justify-content: flex-start;
+            margin: 1rem 0;
+        }
+        #archived-warning, #deletion-warning {
+            position: absolute;
+            right: 0;
+            top: 0;
+            color: $attention;
+            font-size: 90%;
+        }
+        #indicatorPrivileges {
+            line-height: 1.4;
+        }
+    }
+    
+    div.cell {
+        width: 200px;
+        min-width: 200px;
+        text-align: center;
+        border: 1px grey solid;
+        padding: 10px;
+        vertical-align: top;
+        display: table-cell;
+
+        span.columnNumber {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-weight: bolder;
+        }
+        input, select {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+    }
+}
+
+
+#edit-properties-panel {
+    padding: 0;
+    position: relative;
+    display: flex;
+    margin-bottom: 1.25rem;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    overflow: hidden;
+
+    > div {
+        min-width: 400px;
+        padding: 0.75rem;
+        display: flex; 
+        flex-direction:column;
+        width: 50%;
+    }
+
+    input, select {
+        border: 1px inset #dde;
+        border-radius: 2px;
+        line-height: normal;
+        min-height: 24px;
+    }
+    input {
+        padding-left: 0.4em;
+    }
+
+    #edit-properties-description {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        align-self: center;
+        border-right: 1px solid $charcoal;
+        min-width: 400px;
+
+        #categoryName {
+            width: 100%;
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            padding: 0.2rem 0.5rem;
+            border: 1px inset #dde;
+            border-radius: 2px;
+            resize: none;
+        }
+
+    }
+    .form-id {
+        position: absolute; 
+        right: 0.75rem;
+        bottom: 1px;
+        font-size: 0.75rem;
+    }
+    .panel-properties {
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        display: flex;
+        margin-top: 1rem;
+        height: 100%;
+
+        input, select {
+            margin-left: 3px;
+        }
+        input[type="number"] {
+            width: 50px;
+        }
+    }
+}
+#form_properties_last_update, #form_index_last_update {
+    opacity: 0;
+    color: $base_navy;
+    font-size: 90%;
+    background-color: transparent;
+    border: 0;
+}
+
+/* Form History modal */
+#history-slice td {
+    font-size: 14px !important;
+}
+#history-page-buttons button#next, #history-slice button#prev {
+    width: 135px;
+}
+
+div#form_content_view {
+    margin: 0 auto; 
+    display:flex; 
+    flex-direction: column; 
+    width: 100%;
+}
+
+
+#form_index_and_editing {
+    display: flex; 
+}
+
+
+/* form index */
+#form_index_display {
+    position: relative;
+    margin: 0;
+    padding: 0.75rem;
+    width: 420px;
+    flex: 0 0 420px;
+    align-self:flex-start;
+    margin-right: 1.25rem;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+
+    /* Drag-Drop area for focused form */
+    ul#base_drop_area {
+        background-color: white;
+        margin-top: 0.5rem;
+        padding: 0 0 6px 0;
+        border: 3px solid $BG_Pearl;
+        border-radius: 3px;
+        &.entered-drop-zone, ul.entered-drop-zone {
+            background-color: #e8ebf0;
+        }
+
+        li.section_heading {
+            font-weight: bolder;
+            color: $base_navy;
+        }
+        li.subindicator_heading {
+            font-weight: normal;
+            color: black;
+        }
+        li.section_heading > div, li.subindicator_heading > div {
+            padding-left: 0.25rem;
+        } 
+        ul.form-index-listing-ul {
+            margin: 0;
+            padding: 0 0 4px 0; /* btm padding needed for drop zones */
+            padding-left: 1em;
+            display: flex;
+            flex-direction: column; 
+            min-height: 6px;  /*NOTE: min height needed for drop zones*/
+        }
+        li {
+            position: relative;
+            cursor: grab;
+            margin: 0.2em 0; /* there needs to be a margin to hilite the current drop zone */
+            border-radius: 2px;
+            outline: none !important;
+        }
+        li > div {
+            display: flex;
+            align-items: center;
+            width: 100%; 
+            height: 40px;
+            border-bottom: 1px solid #d0d0d4;
+            padding-bottom: 0.9em;
+    
+            .icon_move_container {
+                @include flexcenter;
+                flex-direction: column;
+                margin-left: auto;
+                margin-right: 0.2em;
+    
+                .icon_move {
+                    @include flexcenter;
+                    cursor: pointer;
+                    width: 0;
+                    height: 0;
+                    background-color: transparent;
+                    border-radius: 2px;
+                    border: 7px solid transparent;
+                    margin-left: auto;
+    
+                    &.up {
+                        margin-bottom: 5px;
+                        border-bottom: 12px solid $BG-DarkNavy;
+                        &:hover, &:focus, &:active {
+                            outline: none !important;
+                            border-bottom: 12px solid $USWDS_Cyan;
+                        }
+                    }
+                    &.down {
+                        border-top: 12px solid $BG-DarkNavy;
+                        &:hover, &:focus, &:active {
+                            outline: none !important;
+                            border-top: 12px solid $USWDS_Cyan;
+                        }
+                    }
+                }
+            }
+    
+            .sub-menu-chevron {
+                padding: 2px;
+                font-size: 1.2em;
+                align-self: center; 
+                font-weight: bold;
+                border-radius: 2px;
+                cursor: pointer;
+                &:hover, &:focus, &:active {
+                    color: $USWDS_Cyan;
+                }
+            }
+        }
+    
+        li:first-child {
+            margin-top: 0.75rem;
+        }
+        li:last-child {
+            margin-bottom: 0;
+        }
+        li.index-selected::before, li:focus::before {
+            position: absolute;
+            top: -0.2em;
+            left: -0.5em;
+            content: '';
+            width: 3px;
+            height: calc(100% - 0.6em);
+            border-radius: 60% / 3px;
+            background-color: $base_navy;
+        }
+    }
+
+
+    /* Layout and Internal Forms areas */
+    div[id^="internalFormRecords_"], div[id^="layoutFormRecords_"] {
+        button {
+            padding: 0.25rem;
+            display: flex;
+            justify-content: flex-start;
+            width: 100%;
+            height: 100%;
+            background-color: inherit;
+            border: 2px solid transparent;
+            overflow: hidden;
+            max-height: 50px;
+    
+            &:not(:disabled):not(#addInternalUse) {
+                color: $charcoal;
+            }
+    
+            &:not(:disabled):hover, &:not(:disabled):focus, &:not(:disabled):active {
+                background-color: $lt_cyan;
+                border: 2px solid $LEAF_CSS_outline !important;
+                outline: none;
+            }
+            &:disabled:hover, &:disabled:focus, &:disabled:active {
+                cursor: default;
+                background-color: inherit;
+                outline: none;
+            }
+            &.layout-listitem {
+                min-height: 50px;
+                border-radius: 0;
+                padding: 0.5rem;
+            }
+            &.layout-listitem:disabled {
+                color: $base_navy;
+                border: 2px solid $LEAF_CSS_outline !important;
+            }
+        }
+    }
+    div[id^="layoutFormRecords_"] > ul > li {
+        margin-bottom: 0.5rem;
+        background-color: $lt_cyan;
+        min-height: 50px;
+    }
+    div[id^="internalFormRecords_"] button span.internal {
+        text-decoration: underline;
+        font-weight: normal;
+        color: $base_navy;
+    }
+}
+
+
+/* form editing and entry preview */
+#form_entry_and_preview {
+    display:flex;
+    flex-direction: column;
+    align-self: flex-start;
+    width: 100%;
+    min-width: 420px;
+    background-color: white;
+    padding: 0.75rem;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    overflow: visible;
+
+    .form-section-header {
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+
+        #indicator_toolbar_toggle {
+            width: 160px;
+        }
+    }
+
+    div.printformblock {
+        page-break-inside: avoid;
+    }
+
+    div.printResponse {
+        padding: 0;
+        min-height: 50px;
+        float: none; /* style.css style collision */
+        border-radius: 4px;
+        border-left: 6px solid $BG_Pearl;
+
+        &:not(.form-header) {
+            margin-left: 0.5rem;
+        }
+    }
+
+    .form_editing_area {
+        padding: 2px 2px 0.5rem 2px;
+        background-color: white;
+
+        button {
+            padding: 2px 0.4rem;
+            border: 1px solid transparent;
+            &:hover, &:focus, &:active {
+                border: 1px solid $LEAF_CSS_outline !important;
+            }
+        }
+        button.icon {
+            padding: 0;
+            background-color: transparent;
+            border-radius: 2px;
+            align-self: flex-start;
+
+            img {
+                display: block;
+            }
+        }
+        button.add-subquestion {
+            width: -moz-fit-content; /*firefox prior to nov 2021*/
+            width: fit-content;
+            background-color: $lt_cyan;
+            color: #1b1b1b;
+            font-weight: normal;
+            border: 1px solid #88a;
+            border-radius: 2px;
+            &:hover, &:focus, &:active {
+                color: white;
+                background-color: $base_navy;
+            }
+        }
+
+        div[class*="SelectorBorder"] {
+            background-color: transparent;
+        }
+        tr[class*="Selector"]:hover {
+            background-color: #e1f3f8;
+        }
+        .indicator-name-preview {
+            padding: 2px;
+            width: 100%;
+            .input-required-sensitive {
+                color: $attention;
+                margin-left: 0.4em;
+            }
+        }
+
+        &.conditional {
+            background-color: saturate(darken($BG_Pearl, 2%), 15%);
+        }
+
+        div[id^="form_editing_toolbar_"] {
+            margin-left: 0.25rem;
+            padding: 0.25rem;
+            border-radius: 2px;
+            display: flex;
+            flex-direction:column;
+            align-items: flex-end;
+            align-self: flex-start;
+            font-size: 90%;
+            color: black;
+            gap: 4px;
+
+            > div {
+                display: flex; 
+                align-items: center;
+                /*align-self: stretch;*/
+            }
+            span.sensitive-icon {
+                display:flex; 
+                align-items: center; 
+                margin-left: 0.4rem;
+            }
+
+        }
+        &.form-header {
+            background-color: $manila;
+            font-weight:  bolder;
+        }
+
+        &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] button {
+            font-size: 110%;
+        }
+
+        .form_data_entry_preview {
+            padding: 0.5rem 0.25rem 0 0.75rem;
+
+            .format-preview {
+                position: relative;
+                margin-top: 0.2em;
+
+                /* format specific styling */
+                .text_input_preview {
+                    display: inline-block;
+                    width: 50%;
+                    font-size: 1.3em; 
+                    font-family: monospace;
+                    background-color: white;
+                    border: 1px solid gray;
+                    padding: 0.25em;
+                }
+                .textarea_input_preview {
+                    width: 100%; 
+                    padding: 0.5em; 
+                    font-size: 1.3em; 
+                    font-family: monospace;
+                }
+                div.tableinput { /* fixes for grid tables */
+                    overflow-x: auto;
+                    max-width: 900px;
+                    
+                    table {
+                        margin: 0;
+                        input {
+                            width: 100%;
+                        }
+                        img {
+                            max-width: none;
+                        }
+                    }
+                }
+
+                .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
+                    margin-bottom: 0.5em;
+                }
+            }
+        }
+    }
+}
+
+/* ifthen sections */
+#condition_editor_center_panel {
+    min-width: 600px;
+    max-width: 900px;
+    margin: auto;
+    background-color: white;
+    #loader_spinner {
+        border: 2px solid black;
+        text-align: center; 
+        font-size: 24px;
+        font-weight: bold;
+        padding: 16px;
+    }
+    #condition_editor_inputs > div {
+        padding: 1rem 0;
+        .choices__inner {
+            width: 100%;
+            max-width: 700px;
+        }
+    }
+    div#if-then-setup {
+        display: flex;
+        gap: 0 1rem;
+        align-items: center;
+        padding-bottom: 0;
+        > select, #parent_choices_wrapper {
+            width: 30%;
+            margin: 0;
+        }
+        > div.crosswalks {
+            display:flex;
+            flex-wrap: wrap;
+            gap: 1rem 2rem;
+            max-width:600px;
+        }
+        .choices__inner {
+            max-width: 300px;
+        }
+    }
+    select, input:not(.choices__input) {
+        font-size: 1rem;
+        padding: 2px;
+        text-overflow: ellipsis;
+        width: 100%;
+        border: 1px inset gray;
+
+        &:not(:last-child) {
+            margin-bottom: 1em;
+        }
+    }
+    div#savedConditionsLists {
+        padding-bottom: 0.5em;
+    }
+    li.savedConditionsCard {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    button.btnSavedConditions {
+        display: block;
+        width: 100%;
+        text-align: left;
+        font-weight: normal;
+        background-color: white;
+        padding: 6px;
+        border: 1px outset $base-navy;
+        box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.5);
+        border-radius: 3px;
+        margin-right: 1rem;
+        white-space: normal;
+        max-width: 700px;
+        overflow: hidden;
+        transition: box-shadow 0.1s ease;
+        &.isOrphan {
+            background-color: #d8d8d8;
+            color: black;
+            border: 1px solid black;
+        }
+        &:hover:not(.isOrphan), &:focus:not(.isOrphan), &:active:not(.isOrphan) {
+            color: white;
+            border: 1px outset $base-navy !important;
+            background-color: $base-navy;
+            box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+        }
+    }
+    button.btn-confirm.new {
+        padding: 4px 6px;
+    }
+    .changesDetected {
+        color: #c80000;
+    }
+    .selectedConditionEdit .changesDetected,
+    button.btnSavedConditions:hover .changesDetected, 
+    button.btnSavedConditions:focus .changesDetected, 
+    button.btnSavedConditions:active .changesDetected {
+        color: white;
+    }
+    button.selectedConditionEdit {
+        color: white;
+        border: 1px outset $base-navy !important;
+        background-color: $base-navy;
+        box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
+    }
+    .btn_remove_condition {
+        background-color: #922;
+        border: 1px solid #922;
+        color: white;
+    }
+    .btn_remove_condition:hover, .btn_remove_condition:active, .btn_remove_condition:focus {
+        border: 1px solid black !important;
+        background-color: #600;
+    }
+    .input-info {
+        padding: 0.4em 0;
+        font-weight: bolder;
+        color: $base_navy;
+    }
+}
+
+@media only screen and (max-width: 576px) {
+    #leaf_dialog_content {
+        min-width: 400px;
+    }
+    #vue-formeditor-app {
+        min-width: 400px;
+    
+        > div {
+            flex-direction: column;
+        }
+
+        main section {
+            margin: 0;
+        }
+        nav#form-editor-nav {
+            width: 100%;
+
+            ul#form-editor-menu {
+                flex-direction: column;
+                height: fit-content;
+
+                li {
+                    width: 100%;
+                    height:fit-content;
+                    flex-direction: column;
+                    &::after {
+                        content: '';
+                        background-color: transparent;
+                    }
+                    button, a {
+                        height: 36px;
+                        padding: 0;
+                        border-radius: 0;
+                        justify-content: center !important;
+                        span {
+                            margin-left: 10px;
+                        }
+                    }
+                }
+            }
+            
+            ul#form-breadcrumb-menu {
+                margin: 1rem 0 0;
+                flex-direction: column;
+                align-items: flex-start;
+                height: auto;
+            }
+        }
+
+        #secure_forms_info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        div#form_content_view {
+            margin: 0;
+        }
+        #edit-properties-panel {
+            flex-direction: column;
+            > div {
+                width: 100%;
+            }
+            #edit-properties-description {
+                border-right: 0;
+                border-bottom: 1px solid $charcoal;
+            }
+        }
+
+        #form_index_and_editing {
+            flex-direction: column;
+        
+            #form_index_display {
+                width: 100%;
+                margin: 0;
+                margin-bottom: 1rem;
+                flex: 0 0 100%;
+            }
+
+            .form_editing_area {
+                &.form-header .indicator-name-preview, 
+                &.form-header div[id^="form_editing_toolbar_"] {
+                    font-size: 100%;
+                }
+                .format-preview .tableinput {
+                    max-width: 400px;
+                }
+            }
+        }
+    }
+    #condition_editor_center_panel {
+        width: 100%;
+        min-width: 400px;
+        border: 0;
+    }
+}

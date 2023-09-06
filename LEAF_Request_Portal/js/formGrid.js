@@ -441,6 +441,7 @@ let LeafFormGrid = function (containerID, options) {
 
       currentData[i].recordID = parseInt(currentData[i].recordID);
       if ( currentData[i][key] == undefined) {
+
         currentData[i][key] = $(
           "#" + prefixID + currentData[i].recordID + "_" + key
         ).html();

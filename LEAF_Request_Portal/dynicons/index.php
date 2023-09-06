@@ -19,4 +19,22 @@ require_once '../globals.php';
 include_once LIB_PATH .  '/php-commons/Dynicon.php';
 include_once LIB_PATH .  '/php-commons/XSSHelpers.php';
 
-$image = new \Leaf\Dynicon(\Leaf\XSSHelpers::scrubFilename($_GET['img']), $_GET['w']);
+if (!isset($_GET['w']) && !isset($_GET['img'])) {
+    // want to see what is being sent to here if anything.
+    error_log(print_r($_GET, true));
+} else {
+    if (!isset($_GET['w']) && isset($_GET['img'])) {
+        // some apps are sending an array with img only and that value is
+        // system-users.svg;w=16
+        // create two variables here extracted from this value
+        $index = strpos($_GET['img'], ';w=');
+        $img = substr($_GET['img'], 0, $index);
+
+        $width = substr($_GET['img'], $index + 3);
+    } else {
+        $img = $_GET['img'];
+        $width = $_GET['w'];
+    }
+
+    $image = new \Leaf\Dynicon(\Leaf\XSSHelpers::scrubFilename($img), $width);
+}

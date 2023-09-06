@@ -46,8 +46,29 @@ class GroupController extends RESTfulResponse
             return $group->getGroupsAndMembers(true);
         });
 
+        $this->index['GET']->register('group/[digit]/membersWBackups', function ($args) use ($group) {
+            $members = $group->getMembers($args[0], false, true);
+            return $members;
+        });
+
         $this->index['GET']->register('group/[digit]/members', function ($args) use ($group) {
+            $members = $group->getMembers($args[0]);
+            $users = array();
+
+            foreach ($members['data'] as $key => $value) {
+                if ($members['data'][$key]['backupID'] == '') {
+                    $members['data'][$key]['backupID'] = null;
+                }
+            }
+            return $members['data'];
+        });
+
+        $this->index['GET']->register('group/[digit]/list_members', function ($args) use ($group) {
             return $group->getMembers($args[0]);
+        });
+
+        $this->index['GET']->register('group/[digit]/associated_workflows', function ($args) use ($group) {
+            return $group->getWorkflows($args[0]);
         });
 
         return $this->index['GET']->runControl($act['key'], $act['args']);
@@ -71,6 +92,10 @@ class GroupController extends RESTfulResponse
             // Controller for Import Group
             $this->index['POST']->register('group/import', function ($args) use ($group) {
                 return $group->importGroup(\Leaf\XSSHelpers::sanitizeHTML($_POST['title'])); // POST for title of group
+            });
+
+            $this->index['POST']->register('group/[digit]/members/[text]/reactivate', function ($args) use ($group) {
+                return $group->reActivateMember($args[1], $args[0]);
             });
 
             $this->index['POST']->register('group/[digit]/members/[text]/prune', function ($args) use ($group) {

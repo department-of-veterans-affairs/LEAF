@@ -53,6 +53,7 @@ switch ($action) {
 
         break;
     case 'remove_user_old':
+        // this should be deprecated as of 8/18/2023
         checkToken();
 
         $deleteList = Leaf\XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
@@ -72,6 +73,7 @@ switch ($action) {
 
            break;
     case 'remove_user':
+        // this should be deprecated as of 8/18/2023
            checkToken();
 
            $group = new Portal\Group($db, $login);
@@ -270,11 +272,21 @@ switch ($action) {
                 $t_form->assign('titleOverride', ' ');
                 break;
             case 'templateEditor':
-                $type = new Portal\TemplateEditor($db, $login);
+                // this is depricated and should be removed once it has not been used in over 30 days
+                $type = new Portal\Template($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
-            case 'templateReports':
-                $type = new Portal\TemplateReports($db, $login);
+            case 'TemplateReports':
+                // this is depricated and should be removed once it has not been used in over 30 days
+                $type = new Portal\Applet($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'template':
+                $type = new Portal\Template($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
+            case 'applet':
+                $type = new Portal\Applet($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }

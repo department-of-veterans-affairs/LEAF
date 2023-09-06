@@ -128,11 +128,21 @@ class Workflow
 
     public function getAllSteps()
     {
-        $vars = array();
-        $res = $this->db->prepared_query('SELECT * FROM workflow_steps
-    										LEFT JOIN workflows USING (workflowID)
-    										ORDER BY description, stepTitle', $vars);
+        $vars = [];
+        $query = 'SELECT * FROM `workflow_steps`
+                  LEFT JOIN `workflows` USING (`workflowID`)
+                  ORDER BY `description`, `stepTitle`';
+        $res = $this->db->prepared_query($query, $vars); // The response from Db.php is properly formatted using pdo_select_query.
+        return $res;
+    }
 
+    public function getAllWorkflowSteps()
+    {
+        $vars = [];
+        $query = 'SELECT * FROM `workflow_steps`
+                  LEFT JOIN `workflows` USING (`workflowID`)
+                  ORDER BY `description`, `stepTitle`';
+        $res = $this->db->pdo_select_query($query, $vars); // The response from Db.php is properly formatted using pdo_select_query.
         return $res;
     }
 
@@ -351,24 +361,56 @@ class Workflow
             return 'Restricted command.';
         }
 
-        $vars = array(':workflowID' => $this->workflowID,
-            ':stepID' => $stepID,
-            ':nextStepID' => $nextStepID,
-            ':action' => $action,
-            ':displayConditional' => '',
-        );
-        $res = $this->db->prepared_query('INSERT INTO workflow_routes (workflowID, stepID, nextStepID, actionType, displayConditional)
-    										VALUES (:workflowID, :stepID, :nextStepID, :action, :displayConditional)', $vars);
+        if ($action == 'sendback') {
+            $required = json_encode(array ('required' => false));
+        } else {
+            $required = '';
+        }
+
+
+        $this->postRoute($this->workflowID, $stepID, $nextStepID, $action, $required);
 
         $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::WORKFLOW_ROUTE, [
             new \Leaf\LogItem("workflow_routes", "workflowID", $this->workflowID),
             new \Leaf\LogItem("workflow_routes", "stepID", $stepID),
             new \Leaf\LogItem("workflow_routes", "nextStepID", $nextStepID),
             new \Leaf\LogItem("workflow_routes", "actionType", $action),
-            new \Leaf\LogItem("workflow_routes", "displayConditional", "")
+            new \Leaf\LogItem("workflow_routes", "displayConditional", $required)
         ]);
 
         return true;
+    }
+
+    /**
+     * @param int $workflowID
+     * @param int $stepID
+     * @param int $nextStepID
+     * @param string $action
+     * @param string $conditional
+     *
+     * The db method being used is returning a properly formatted json response
+     * @return array
+     *
+     * Created at: 7/26/2023, 7:59:46 AM (America/New_York)
+     */
+    public function postRoute(int $workflowID, int $stepID, int $nextStepID, string $action, string $conditional): array
+    {
+        $vars = array(':workflowID' => $workflowID,
+            ':stepID' => $stepID,
+            ':nextStepID' => $nextStepID,
+            ':action' => $action,
+            ':displayConditional' => $conditional,
+        );
+        $sql = 'INSERT INTO `workflow_routes` (`workflowID`, `stepID`, `nextStepID`,
+                    `actionType`, `displayConditional`)
+                VALUES (:workflowID, :stepID, :nextStepID, :action,
+                    :displayConditional)
+                ON DUPLICATE KEY UPDATE `nextStepID` = :nextStepID,
+                    `displayConditional` = :displayConditional';
+
+        $res = $this->db->pdo_insert_query($sql, $vars);
+
+        return $res;
     }
 
     public function getAllEvents()
@@ -378,6 +420,25 @@ class Workflow
                                             WHERE eventID NOT LIKE "LeafSecure_%"', $vars);
 
         return $res;
+    }
+
+    /**
+     * @param int $workflowID
+     *
+     * @return array
+     *
+     * Created at: 7/26/2023, 8:00:08 AM (America/New_York)
+     */
+    public function getWorkflowEvents(int $workflowID): array
+    {
+        $vars = array(':workflowID' => $workflowID);
+        $sql = 'SELECT `workflowID`, `stepID`, `actionType`, `eventID`
+                FROM `route_events`
+                WHERE `workflowID` = :workflowID';
+
+        $return_value = $this->db->pdo_select_query($sql, $vars);
+
+        return $return_value;
     }
 
     /**
@@ -1083,7 +1144,7 @@ class Workflow
         return true;
     }
 
-    public function renameWorkflow(string $description): string 
+    public function renameWorkflow(string $description): string
     {
         if (!$this->login->checkGroup(1))
         {
@@ -1094,14 +1155,14 @@ class Workflow
         if ($this->workflowID < 0) {
             return 'Restricted command.';
         }
-        
+
         $vars = array(':workflowID' => $this->workflowID,
                       ':description' => $description
                 );
         $strSQL = "UPDATE workflows SET description = :description WHERE workflowID = :workflowID";
 
         $this->db->prepared_query($strSQL, $vars);
-        
+
         $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::WORKFLOW_NAME, [
             new \Leaf\LogItem("workflow_name", "description",  $description),
             new \Leaf\LogItem("workflow_name", "workflowID",  $this->workflowID)
@@ -1203,6 +1264,25 @@ class Workflow
         ]);
 
         return true;
+    }
+
+    /**
+     * @param int $stepID
+     *
+     * @return array
+     *
+     * Created at: 7/25/2023, 3:01:12 PM (America/New_York)
+     */
+    public function getStepDependencies(int $stepID): array
+    {
+        $vars = array(':stepID' => $stepID);
+        $sql = 'SELECT `stepID`, `dependencyID`
+                FROM `step_dependencies`
+                WHERE `stepID` = :stepID';
+
+        $return_value = $this->db->pdo_select_query($sql, $vars);
+
+        return $return_value;
     }
 
     /**

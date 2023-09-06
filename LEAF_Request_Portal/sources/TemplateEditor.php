@@ -33,10 +33,9 @@ class TemplateEditor
         }
         $list = scandir('../templates/');
         $out = array();
-        foreach ($list as $item)
-        {
-            if (preg_match('/.tpl$/', $item))
-            {
+
+        foreach ($list as $item) {
+            if (preg_match('/.tpl$/', $item)) {
                 $out[] = $item;
             }
         }

@@ -29,6 +29,7 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_OkDialog.tpl"}-->
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
 
@@ -277,6 +278,7 @@ function addHeader(column) {
             filterData['action_history.stepID'] = 1;
             filterData['action_history.actionType'] = 1;
             filterData['stepFulfillmentOnly'] = 1;
+            filterData['submitted'] = 1;
             leafSearch.getLeafFormQuery().join('action_history');
             leafSearch.getLeafFormQuery().join('stepFulfillmentOnly');
 
@@ -289,11 +291,11 @@ function addHeader(column) {
                 callback: function(data, blob) {
                     let daysSinceAction;
                     let recordBlob = blob[data.recordID];
-                    if(recordBlob.action_history != undefined) {
+                    if(recordBlob.action_history != undefined && recordBlob.action_history.length > 0) {
                         // Get Last Action no matter what (could change for non-comment)
                         let lastActionRecord = recordBlob.action_history.length - 1;
                         let lastAction = recordBlob.action_history[lastActionRecord];
-                        let date = new Date(lastAction.time * 1000);
+                        let date = new Date(lastAction?.time * 1000);
 
                         // We want to get date of last non-comment action so let's roll
                         if (column === 'days_since_last_step_movement') {
@@ -312,6 +314,7 @@ function addHeader(column) {
                         }
                         daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
                         if(recordBlob.submitted == 0) {
+                            // if there's no submit timestamp, then it's not submitted
                             daysSinceAction = "Not Submitted";
                         }
                     }
@@ -387,7 +390,7 @@ function loadSearchPrereqs() {
     searchPrereqsLoaded = true;
     $.ajax({
         type: 'GET',
-        url: './api/form/indicator/list',
+        url: './api/form/indicator/list?x-filterData=name,indicatorID,categoryID,categoryName,parentCategoryID,parentStaples',
         dataType: 'text json',
         success: function(res) {
             var buffer = '';
@@ -550,12 +553,13 @@ function loadSearchPrereqs() {
                 url: './api/workflow/steps',
                 dataType: 'json',
                 success: function(res) {
+                    let allStepsData = res;
                     buffer = '';
                     buffer += '<div class="form col span_1_of_3" style="min-height: 30px; margin: 4px"><div class="formLabel" style="border-bottom: 1px solid #e0e0e0; font-weight: bold">Checkpoint Dates<br />(Data only available from May 3, 2017)</div>';
-                    for(let i in res) {
-                        buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_stepID_'+ res[i].stepID +'" title="'+ res[i].stepTitle +'">';
-                        buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_stepID_'+ res[i].stepID +'" name="indicators[stepID'+ res[i].stepID +']" value="stepID_'+ res[i].stepID +'" />'
-                        buffer += '<span class="leaf_check"></span> '+ res[i].description + ' - ' + res[i].stepTitle +'</label></div>';
+                    for(let i in allStepsData) {
+                        buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_stepID_'+ allStepsData[i].stepID +'" title="'+ allStepsData[i].stepTitle +'">';
+                        buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_stepID_'+ allStepsData[i].stepID +'" name="indicators[stepID'+ allStepsData[i].stepID +']" value="stepID_'+ allStepsData[i].stepID +'" />'
+                        buffer += '<span class="leaf_check"></span> '+ allStepsData[i].description + ' - ' + allStepsData[i].stepTitle +'</label></div>';
                     }
                     buffer += '<div id="legacyDependencies"></div>'; // backwards compat
                     buffer += '</div>';
@@ -612,8 +616,7 @@ function loadSearchPrereqs() {
                     });
                 }
             });
-        },
-        cache: false
+        }
     });
 }
 
@@ -974,7 +977,7 @@ function createRequest(catID) {
                     recordID = recordID || 0;
                     //Type number. Sent back on success (UID column of report builder)
                     if (recordID > 0) {
-                        newRecordID = recordID;  //global
+                        newRecordID = parseInt(recordID);  //global
                         $('#generateReport').click();
                         dialog.hide();
                         //styling to hilite row for short / simple queries
@@ -1088,6 +1091,7 @@ $(function() {
 	dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+    dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
     leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
