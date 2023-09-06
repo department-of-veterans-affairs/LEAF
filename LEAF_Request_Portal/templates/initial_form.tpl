@@ -38,10 +38,10 @@ function checkForm() {
 
 $(function() {
     <!--{if count($services) != 0}-->
-    $('#service').chosen();
+    $('#service').chosen({width: "90%"});
     $('#service_chosen input.chosen-search-input').attr('aria-labelledby', 'service_label');
     <!--{/if}-->
-    $('#priority').chosen({disable_search_threshold: 5});
+    $('#priority').chosen({disable_search_threshold: 5, width: "90%"});
     $('#priority_chosen input.chosen-search-input').attr('aria-labelledby', 'priority_label');
 
     $('#record').on('submit', function() {
@@ -80,7 +80,7 @@ $(function() {
                 <tr>
                     <td><span id="service_label">Service</span></td>
                     <td>
-                        <select id="service" name="service" style=" width: 150px;">
+                        <select id="service" name="service">
                         <option value=""></option>
                         <!--{foreach from=$services item=service}-->
                         <option value="<!--{$service.serviceID|strip_tags}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service|sanitize}--></option>
@@ -94,7 +94,7 @@ $(function() {
                 <tr>
                     <td><span id="priority_label">Priority</span></td>
                     <td>
-                        <select id="priority" name="priority" style="width: 150px;">
+                        <select id="priority" name="priority">
                         <option value="-10">EMERGENCY</option>
                         <option value="0" selected="selected">Normal</option>
                         </select>
@@ -104,7 +104,7 @@ $(function() {
                     <td><label for="title">Title of Request</label></td>
                     <td>
                     <span style="font-size: 80%">Please enter keywords to describe this request.</span><br />
-                        <input class="input" id="title" type="text" name="title" maxlength="100" style="width: 80%" />
+                        <input class="input" id="title" type="text" name="title" maxlength="100" style="width: 90%" />
                     </td>
                 </tr>
             </table>

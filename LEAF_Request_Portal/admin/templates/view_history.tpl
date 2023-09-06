@@ -48,13 +48,13 @@
                             <td class="leaf-width70pct">
                                 <span>
                                     <a style="color: #005ea2"
-                                        href="../<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$log.userID}-->"
+                                        href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$log.userID}-->"
                                         target="_blank">
                                         <!--{$log.userName|sanitize}-->
                                     </a>
                                     &nbsp;
                                     <!--{if isset($log.targetEmpUID) && $log.targetEmpUID > 0}-->
-                                        <!--{$log.history|sanitize|replace:$log.displayName:('<a style="color: #005ea2;" href="../'|cat:$orgchartPath|cat:'/?a=view_employee&empUID='|cat:$log.targetEmpUID|cat:'" target="_blank">'|cat:$log.displayName|cat:'</a>')}-->
+                                        <!--{$log.history|sanitize|replace:$log.displayName:('<a style="color: #005ea2;" href="'|cat:$orgchartPath|cat:'/?a=view_employee&empUID='|cat:$log.targetEmpUID|cat:'" target="_blank">'|cat:$log.displayName|cat:'</a>')}-->
                                     <!--{else}-->
                                         <!--{$log.history|sanitize}-->
                                     <!--{/if}-->

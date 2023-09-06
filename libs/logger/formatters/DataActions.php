@@ -8,4 +8,7 @@ class DataActions
     const DELETE = 'delete';
     const ADD = 'add';
     const IMPORT = 'import';
+    const RESTORE = 'restore';
+    const CREATE = 'create';
+    const MERGE = 'merge';
 }

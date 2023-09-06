@@ -11,6 +11,8 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
+namespace Orgchart;
+
 class VAMC_Directory_maintenance_AD
 {
     private $sortBy = 'Lname';          // Sort by... ?
@@ -27,17 +29,18 @@ class VAMC_Directory_maintenance_AD
 
     private $users = array();
 
+    private $oc_db;
+
     // Connect to the database
     public function __construct()
     {
-        $config = new Orgchart\Config();
-
-        try
+        $this->oc_db = \OC_DB;
+        /* try
         {
             $this->db = new PDO(
-                "mysql:host={$config->dbHost};dbname={$config->dbName}",
-                            $config->dbUser,
-                $config->dbPass,
+                "mysql:host=".\DIRECTORY_HOST.";dbname={$config->dbName}",
+                            \DIRECTORY_USER,
+                \DIRECTORY_PASS,
                 array(PDO::ATTR_PERSISTENT => true)
             );
             unset($config);
@@ -46,7 +49,7 @@ class VAMC_Directory_maintenance_AD
         {
             echo 'Database Error: ' . $e->getMessage();
             exit();
-        }
+        } */
     }
 
     public function __destruct()
@@ -69,7 +72,7 @@ class VAMC_Directory_maintenance_AD
     {
         if ($this->debug)
         {
-            $res = $this->db->prepared_query($sql, array());
+            $res = $this->db->query($sql);
             if (is_object($res))
             {
                 return $res->fetchAll(PDO::FETCH_ASSOC);
@@ -432,7 +435,7 @@ class VAMC_Directory_maintenance_AD
     {
         $sql = "SELECT SQL_NO_CACHE * FROM {$this->tableName}";
 
-        $res = $this->db->prepared_query($sql, array());
+        $res = $this->db->query($sql);
         // ->fetchAll(PDO::FETCH_ASSOC);
         echo 'Generating phonetic cache...';
 
@@ -442,12 +445,12 @@ class VAMC_Directory_maintenance_AD
             $pLast = metaphone($emp['Lname']);
             $vars = array('pFirst' => $pFirst, 'empID' => $emp['EmpID']);
             $sql = "UPDATE {$this->tableName} SET PhoneticFname = ':pFirst' WHERE EmpID = :empID";
-            $query = $this->db->prepared_query($sql, $vars);
+            $query = $this->oc_db->prepared_query($sql, $vars);
             // $query->execute();
 
             $vars2 = array('pLast' => $pLast, 'empID' => $emp['EmpID']);
             $sql = "UPDATE {$this->tableName} SET PhoneticLname = ':pLast' WHERE EmpID = :empID";
-            $query2 = $this->db->prepared_query($sql, $vars2);
+            $query2 = $this->oc_db->prepared_query($sql, $vars2);
             // $query2->execute();
         }
     }

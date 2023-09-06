@@ -59,7 +59,7 @@ $main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
 $main->assign('emergency', '');
 $main->assign('useUI', false);
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
     date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
@@ -103,7 +103,7 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', (int)$_GET['recordID']);
         $t_form->assign('name', Leaf\XSSHelpers::sanitizeHTML($recordInfo['name']));

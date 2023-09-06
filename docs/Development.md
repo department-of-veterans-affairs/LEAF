@@ -6,14 +6,14 @@ See the [README](standards/README.md) in the `standards` directory for informati
 
 Major branches:
 
-###Master is the source of all truth 
+### Master is the source of all truth 
   * All branches are off **Master**
   * All work branches spawned directly off (current setup)
   * When a branch is ready to be tested, a **Draft-PR** is made to **Master** 
   * When ready for branches to be moved into Production, a **Release Candidate (RC)** is spawned off **Master**. 
   * **RC is only merged to Master after release to Production**
   
-###Moving from “Sprints” to “Cycles (of growth)”
+### Moving from “Sprints” to “Cycles (of growth)”
 * Tickets are still broken down into **“1 week work” chunks** 
   * “Sprint” infers that tickets need to be completed in a set span of time
   * Induces a rush to get tickets done
@@ -25,7 +25,7 @@ Major branches:
   * Picking up the speed of deployments 
   * Nothing can get “held back” just because one of the tickets needed more work after feedback.
   
-###New Git-Flow
+### New Git-Flow
 * Developers get/choose the tickets to work and spawn their working branch 
 * Once ready, **Draft-PR to Master**
 * All branch-specific and regression testing is done then.
@@ -48,6 +48,6 @@ Major branches:
 * **Wednesday**
   * Hold my beer 
 
-###HotFixes are put through a sped-up version of this flow.
+### HotFixes are put through a sped-up version of this flow.
 
 * This is a work-in-evolution

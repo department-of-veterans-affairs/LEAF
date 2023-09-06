@@ -47,7 +47,7 @@ $main->assign('hideFooter', false);
 $main->assign('useUI', false);
 $main->assign('userID', $login->getUserID());
 
-$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
 if (isset($settings['timeZone'])) {
     date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
@@ -188,7 +188,7 @@ switch ($action) {
         $t_form->assign('canWrite', $form->hasWriteAccess($recordIDToPrint));
         $t_form->assign('canRead', $form->hasReadAccess($recordIDToPrint));
         $t_form->assign('accessLogs', $form->log);
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('is_admin', $login->checkGroup(1));
         $t_form->assign('recordID', $recordIDToPrint);
         $t_form->assign('userID', Leaf\XSSHelpers::sanitizeHTML($login->getUserID()));
@@ -421,7 +421,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
@@ -436,7 +436,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('sitemap', json_decode($settings['sitemap_json']));
+        $t_form->assign('sitemap', $settings['sitemap_json']['buttons']);
         $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
         $main->assign('body', $t_form->fetch('sitemap.tpl'));
 
@@ -468,7 +468,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('query', Leaf\XSSHelpers::xscrub($_GET['query']));
         $t_form->assign('indicators', Leaf\XSSHelpers::xscrub($_GET['indicators']));
@@ -503,7 +503,7 @@ switch ($action) {
         exit();
     default:
 
-        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js'));
+        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js','../libs/js/LEAF/XSSHelpers.js',));
         $main->assign('useLiteUI', true);
 
         $o_login = $t_login->fetch('login.tpl');
@@ -518,17 +518,22 @@ switch ($action) {
         $t_form->assign('is_service_chief', (int)$login->isServiceChief());
         $t_form->assign('is_quadrad', (int)$login->isQuadrad() || (int)$login->checkGroup(1));
         $t_form->assign('is_admin', (int)$login->checkGroup(1));
-        $t_form->assign('orgchartPath', Portal\Config::$orgchartPath);
+        $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-
-        $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
 
         $inbox = new Portal\Inbox($db, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
 
         $t_form->assign('inbox_status', 1);
-
-        $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
+        if (isset($settings['homepage_enabled']) && $settings['homepage_enabled'] == 1) {
+            $t_form->assign('homeDesignJSON', json_encode($settings['homepage_design_json']));
+            $t_form->assign('searchDesignJSON', json_encode($settings['search_design_json']));
+            $t_form->assign('tpl_search', 'nocode_templates/view_search.tpl');
+            $main->assign('body', $t_form->fetch('./templates/nocode_templates/view_homepage.tpl'));
+        } else {
+            $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
+            $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
+        }
 
         if ($action != 'menu' && $action != '' && $action != 'dosubmit') {
             $main->assign('status', 'The page you are looking for does not exist or may have been moved. Please update your bookmarks.');
@@ -543,7 +548,7 @@ $main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure'
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', Leaf\XSSHelpers::xscrub($action));
-$t_menu->assign('orgchartPath', Portal\Config::$orgchartPath);
+$t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
 $t_menu->assign('empMembership', $login->getMembership());
 $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);

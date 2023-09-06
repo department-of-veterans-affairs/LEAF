@@ -8,8 +8,7 @@ $version = 'PUBLIC';
 require_once '../globals.php';
 require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
 
-$config = new Orgchart\Config();
-$db = new Leaf\Db($config->dbHost, $config->dbUser, $config->dbPass, $config->dbName);
+$db = $oc_db;
 
 $vars = array(':version' => $version);
 $res = $db->prepared_query("UPDATE settings SET data=:version WHERE setting='version'", $vars);

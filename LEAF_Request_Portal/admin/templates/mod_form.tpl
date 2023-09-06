@@ -9,12 +9,9 @@
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 
 <script>
+const orgchartPath = '<!--{$orgchartPath}-->';
 let vueData = {
-    formID: 0,
-    formTitle: '',
     indicatorID: 0,
-    required: 0,
-    icons: [],
     updateIndicatorList: false
 }
 
@@ -152,13 +149,13 @@ function editProperties(isSubForm) {
 
     dialog.setSaveHandler(function() {
         let calls = [];
-        let nameChanged = (categories[currCategoryID].categoryName || "") != $('#name').val();
-        let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") != $('#description').val();
-        let workflowChanged  = (categories[currCategoryID].workflowID || "") != $('#workflowID').val();
-        let needToKnowChanged = (categories[currCategoryID].needToKnow || "") != $('#needToKnow').val();
-        let sortChanged = (categories[currCategoryID].sort || "") != $('#sort').val();
-        let visibleChanged = (categories[currCategoryID].visible || "") != $('#visible').val();
-        let typeChanged = (categories[currCategoryID].type || "") != $('#formType').val();
+        let nameChanged = (categories[currCategoryID].categoryName || "") !== $('#name').val();
+        let descriptionChanged  = (categories[currCategoryID].categoryDescription || "") !== $('#description').val();
+        let workflowChanged  = +categories[currCategoryID].workflowID !== +$('#workflowID').val();
+        let needToKnowChanged = +categories[currCategoryID].needToKnow !== +$('#needToKnow').val();
+        let sortChanged = +categories[currCategoryID].sort !== +$('#sort').val();
+        let visibleChanged = +categories[currCategoryID].visible !== +$('#visible').val();
+        let typeChanged = (categories[currCategoryID].type || "") !== $('#formType').val();
 
         if(nameChanged){
             calls.push($.ajax({
@@ -247,6 +244,7 @@ function editProperties(isSubForm) {
         }
 
         if(visibleChanged){
+            calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/formEditor/formVisible',
@@ -259,7 +257,7 @@ function editProperties(isSubForm) {
                 error: function(err) {
                     console.error(err?.responseText);
                 }
-            });
+            }));
         }
 
         if(typeChanged){
@@ -333,13 +331,7 @@ function openContent(url) {
         dataType: 'text',  // IE9 issue
         success: function(res) {
             $('#formEditor_form').empty().html(res);
-            const icons = Array.from(document.querySelectorAll('img[id^="edit_conditions"]'));
-
-            vueData.formID = currCategoryID;
-            vueData.formTitle = formTitle;
             vueData.indicatorID = 0;
-            vueData.required = 0;
-            vueData.icons = icons.map(ele => ele.id.replaceAll('edit_conditions_', ''));
             document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
         },
         error: function(res) {
@@ -904,10 +896,14 @@ function setFormatElementValue() {
                     properties.name = $(this).children('input:eq(0)').val();
                 }
                 properties.id = $(this).attr('id');
-                properties.type = $(this).find('select').val();
+                properties.type = $(this).find('select[id^="grid_cell_type"]').val();
                 if(properties.type !== undefined){
                     if(properties.type === 'dropdown'){
                         properties.options = gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
+                    }
+                    if(properties.type === 'dropdown_file'){
+                        properties.file = $(this).find('select[id^="dropdown_file_select"]').val();
+                        properties.hasHeader = Boolean(+$(this).find('select[id^="dropdown_file_header_select"]').val());
                     }
                 } else {
                     properties.type = 'textarea';
@@ -1005,7 +1001,28 @@ function updateNames(){
         gridJSON[i].id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
     });
 }
-
+/**
+ * Purpose: Add basic HTML input areas to the grid cell
+ */
+function gridCellBasicInputs(name = '', columnNumber = '', id = makeColumnID(), isNewRow = false) {
+    return `<div tabindex="0" id="${id}" class="cell">
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer;" />
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: ${isNewRow ? 'none;' : 'inline;'}" />
+      </br>
+      <span class="columnNumber">Column #${columnNumber}: </span>
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
+      </br>&nbsp;
+      <input type="text" value="${name}" onchange="updateNames();" />
+      </br>&nbsp;</br>
+      <label for="grid_cell_type_${columnNumber}" style="display: block; text-align: left;">Type: </label>
+      <select id="grid_cell_type_${columnNumber}" style="width: 185px;" onchange="toggleDropDown(this.value, this, ${columnNumber});">
+        <option value="text">Single line input</option>
+        <option value="date">Date</option>
+        <option value="dropdown">Drop Down</option>
+        <option value="dropdown_file">Dropdown From File</option>
+        <option value="textarea">Multi-line text</option>
+      </select>`;
+}
 /**
  * Purpose: Make Grid for Input Option
  * @param columns
@@ -1022,13 +1039,7 @@ function makeGrid(columns) {
         }
         let name = gridJSON[i].name === undefined ? 'No title' : gridJSON[i].name;
         let id = gridJSON[i].id === undefined ? makeColumnID() : gridJSON[i].id;
-        $(gridBodyElement).append(
-            '<div tabindex="0" id="' + id + '" class="cell"><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer" />' +
-            '<img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer" /></br>' +
-            '<span class="columnNumber">Column #' + (i + 1) + ': </span><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
-            '</br>&nbsp;<input type="text" value="' + name + '" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
-            '<option value="text">Single line input</option><option value="date">Date</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
-        );
+        $(gridBodyElement).append(gridCellBasicInputs(name, i + 1, id, false));
         if(columns === 1){
             rightArrows($(gridBodyElement + ' > div:last'), false);
             leftArrows($(gridBodyElement + ' > div:last'), false);
@@ -1057,23 +1068,94 @@ function makeGrid(columns) {
                     $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
                 }
             }
+            if(gridJSON[i].type.toString() === 'dropdown_file') {
+                if($(gridBodyElement + ' > div:eq(' + i + ') > div.dropdown_file').length === 0) {
+                    const gridFile = gridJSON[i]?.file;
+                    const hasHeader = gridJSON[i]?.hasHeader;
+                    let options = '<option value="">Select a File</option>';
+                    for (let f = 0; f < fileManagerTextFiles.length; f++) {
+                        const filename = XSSHelpers.stripAllTags(fileManagerTextFiles[f]);
+                        const attrSelected = gridFile === filename ? 'selected' : '';
+                        options += `<option value=${filename} ${attrSelected}>${filename}</option>`
+                    }
+                    $(gridBodyElement + ' > div:eq(' + i + ')').append(`
+                        <div class="dropdown_file" style="margin-top: 0.5rem;">
+                            <label for="dropdown_file_select_${i}" style="display: block; text-align: left;">File (csv or txt format):</label>
+                            <select id="dropdown_file_select_${i}" style="width: 185px; margin-bottom:0.25rem;">${options}</select>
+                            <label for="dropdown_file_header_select_${i}" style="display: block; text-align: left;">Does file contain headers</label>
+                            <select id="dropdown_file_header_select_${i}" style="width: 185px;">
+                                <option value="0" ${hasHeader === false ? 'selected': ''}>No</option>
+                                <option value="1" ${hasHeader === true ? 'selected': ''}>Yes</option>
+                            </select>
+                        </div>`
+                    );
+                }
+            }
         }
     }
 }
 
 /**
- * Purpose: Dropdown for Grid Options
+ * Purpose: handle Dropdowns for normal and file Grid options, update aria status
  * @param type
  * @param cell
+ * @param columnNumber
  */
-function toggleDropDown(type, cell){
-    if(type === 'dropdown'){
-        $(cell).parent().append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea></span>');
-        $('#tableStatus').attr('aria-label', 'Make drop options in the space below, one option per line.');
-    } else {
-        $(cell).parent().find('span.dropdown').remove();
-        $('#tableStatus').attr('aria-label', 'Dropdown options box removed');
-    }
+function toggleDropDown(type, cell, columnNumber) {
+    elJQDropDown = $(cell).parent().find('span.dropdown');
+    elJQDropDownFile = $(cell).parent().find('div.dropdown_file');
+    let ariaStatus = '';
+
+    switch(type) {
+        case 'dropdown':
+            if(elJQDropDownFile.length === 1) {
+                elJQDropDownFile.remove();
+                ariaStatus += `Source file select removed.  `;
+            }
+            ariaStatus += `Dropdown options box added.  Make drop options in the space below, one option per line.`;
+            $(cell).parent().append(
+                `<span class="dropdown">
+                    <div>One option per line</div>
+                    <textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea>
+                </span>`
+            );
+            $('#tableStatus').attr('aria-label', ariaStatus);
+            break;
+        case 'dropdown_file':
+            if(elJQDropDown.length === 1) {
+                elJQDropDown.remove();
+                ariaStatus += 'Dropdown options box removed. ';
+            }
+            let options = '<option value="">Select File</option>';
+            for (let i = 0; i < fileManagerTextFiles.length; i++) {
+                options += `<option value=${XSSHelpers.stripAllTags(fileManagerTextFiles[i])}>${fileManagerTextFiles[i]}</option>`
+            }
+            $(cell).parent().append(`
+                <div class="dropdown_file" style="margin-top: 0.5rem;">
+                    <label for="dropdown_file_select_${columnNumber}" style="display: block; text-align: left;">File (csv or txt format):</label>
+                    <select id="dropdown_file_select_${columnNumber}" style="width: 185px; margin-bottom:0.25rem;">${options}</select>
+                    <label for="dropdown_file_header_select_${columnNumber}" style="display: block; text-align: left;">Does file contain headers</label>
+                    <select id="dropdown_file_header_select_${columnNumber}" style="width: 185px;">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>`
+            );
+            ariaStatus += 'Source file select added.';
+            $('#tableStatus').attr('aria-label', ariaStatus);
+            break;
+        default:
+            if(elJQDropDown.length === 1) {
+                elJQDropDown.remove();
+                ariaStatus += 'Dropdown options box removed.';
+            }
+            if(elJQDropDownFile.length === 1) {
+                elJQDropDownFile.remove();
+                ariaStatus += 'Source file select removed.';
+            }
+            $('#tableStatus').attr('aria-label', ariaStatus);
+            break;
+	}
 }
 
 /**
@@ -1108,13 +1190,7 @@ function rightArrows(cell, toggle){
 function addCells(){
     columns = columns + 1;
     rightArrows($(gridBodyElement + ' > div:last'), true);
-    $(gridBodyElement).append(
-        '<div tabindex="0" id="' + makeColumnID() + '" class="cell"><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer; display: inline" />' +
-        '<img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: none" /></br>' +
-        '<span class="columnNumber"></span><img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />' +
-        '</br>&nbsp;<input type="text" value="No title" onchange="updateNames();"></input></br>&nbsp;</br>Type:<select onchange="toggleDropDown(this.value, this);">' +
-        '<option value="text">Single line input</option><option value="date">Date</option><option value="dropdown">Drop Down</option><option value="textarea">Multi-line text</option></select>'
-    );
+    $(gridBodyElement).append(gridCellBasicInputs('No Title', columns, makeColumnID(), true));
     $('#tableStatus').attr('aria-label', 'Column added, ' + $(gridBodyElement).children().length + ' total.');
     $(gridBodyElement + ' > div:last').focus();
     updateColumnNumbers();
@@ -1421,10 +1497,11 @@ function getForm(indicatorID, series) {
         let formatChanged = (indicatorEditing.format || "") + options !== $('#format').val();
         let descriptionChanged = (indicatorEditing.description || "") !== $('#description').val();
         let defaultChanged = (indicatorEditing.default || "") !== $('#default').val();
-        let requiredChanged = (indicatorEditing.required || "") !== requiredIndicator.toString();
-        let sensitiveChanged = (indicatorEditing.is_sensitive || "") !== sensitiveIndicator.toString();
-        let parentIDChanged = (indicatorEditing.parentID || "") !== $("#parentID").val();
-        let sortChanged = (indicatorEditing.sort || "") !== $("#sort").val();
+        let requiredChanged = +indicatorEditing.required !== +requiredIndicator;
+        let sensitiveChanged = +indicatorEditing.is_sensitive !== +sensitiveIndicator;
+        //+null (possible parentID value) and +'' (empty parentID input value) both eval to 0
+        let parentIDChanged = +indicatorEditing.parentID !== +$("#parentID").val();
+        let sortChanged = +indicatorEditing.sort !== +$("#sort").val();
         let htmlChanged = (indicatorEditing.html || "") !== codeEditorHtml.getValue();
         let htmlPrintChanged =  (indicatorEditing.htmlPrint || "") !== codeEditorHtmlPrint.getValue();
 
@@ -2146,6 +2223,24 @@ function fetchFormSecureInfo() {
         renderSecureFormsInfo(res)
     });
 }
+/**
+ * Purpose: Get text files from file mngr for use with grid questions
+*/
+let fileManagerTextFiles = [];
+function fetchDropdownFiles() {
+    $.ajax({
+        type: 'GET',
+        url: '../api/system/files',
+        success: (res) => {
+            const files = res || [];
+            fileManagerTextFiles = files.filter(filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1);
+        },
+        error: (err) => {
+            console.log(err);
+        },
+        cache: false
+    });
+}
 
 /**
  * Purpose: Create New form
@@ -2194,6 +2289,9 @@ function createForm(parentID) {
                 categories[res].categoryDescription = categoryDescription;
                 categories[res].workflowID = 0;
                 categories[res].parentID = '';
+                categories[res].needToKnow = 0;
+                categories[res].visible = 1;
+                categories[res].sort = 0;
                 if(parentID != '') {
                     categories[res].parentID = parentID;
                     buildMenu(parentID);
@@ -2235,6 +2333,7 @@ $(function() {
 
     showFormBrowser();
     fetchFormSecureInfo();
+    fetchDropdownFiles();
 
     <!--{if $form != ''}-->
     postRenderFormBrowser = function() { selectForm('<!--{$form}-->') };

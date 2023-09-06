@@ -39,27 +39,36 @@
             newWorkflow();
         }
     });
+    function isJSON(input = '') {
+        try {
+            JSON.parse(input);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
 
     function newWorkflow() {
         $('.workflowStepInfo').css('display', 'none');
 
         dialog.setTitle('Create new workflow');
-        dialog.setContent(
-            '<br /><label for="description">Workflow Title:</label> <input type="text" id="description"></input>');
+        dialog.setContent('<br /><label for="description">Workflow Title:</label> <input type="text" id="description"/>');
         dialog.setSaveHandler(function() {
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/new',
-                        data: {description: $('#description').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        loadWorkflowList(res);
-                        dialog.hide();
-                    }
-                });
+            $.ajax({
+                type: 'POST',
+                url: '../api/workflow/new',
+                data: {
+                    description: $('#description').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: (res) => {
+                    loadWorkflowList(res);
+                    dialog.hide();
+                },
+                error: (err) => console.log(err),
+            });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function deleteWorkflow() {
@@ -73,19 +82,16 @@
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/workflow/' + currentWorkflow + '?' +
-                    $.param({'CSRFToken': CSRFToken}),
-                    success: function(res) {
-                        if (res != true) {
-                            alert("Prerequisite action needed:\n\n" + res);
-                            dialog_confirm.hide();
-                        } else {
-                            window.location.reload();
-                        }
-                    },
-                fail: function(err) {
-                    console.log(err);
-                }
+                url: `../api/workflow/${currentWorkflow}?` + $.param({ 'CSRFToken': CSRFToken }),
+                success: (res) => {
+                    if (res != true) {
+                        alert("Prerequisite action needed:\n\n" + res);
+                        dialog_confirm.hide();
+                    } else {
+                        window.location.reload();
+                    }
+                },
+                error: (err) => console.log(err),
             });
         });
         dialog_confirm.show();
@@ -97,23 +103,19 @@
         dialog_confirm.setContent('Are you sure you want to remove this event?');
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
-                    type: 'DELETE',
-                    url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + actionType +
-                        '/events?' +
-                        $.param({'eventID': eventID,
-                        'CSRFToken': CSRFToken
-                }),
+                type: 'DELETE',
+                url: `../api/workflow/${workflowID}/step/${stepID}/_${actionType}/events?`
+                    + $.param({ 'eventID': eventID, 'CSRFToken': CSRFToken }),
                 success: function() {
                     $('.workflowStepInfo').css('display', 'none');
                     loadWorkflow(workflowID);
                     dialog_confirm.hide();
                 },
-                fail: function(err) {
-                    console.log(err);
-                }
+
+                error: (err) => console.log(err),
+            });
         });
-    });
-    dialog_confirm.show();
+        dialog_confirm.show();
     }
 
     /**
@@ -122,36 +124,42 @@
      * @return HTML Content for listEvents
      */
     function listEventsContent(events) {
-        let content = '';
-        content +=
-            '<table id="events" class="table" border="1"><caption><h2>List of Events</h2></caption><thead><th scope="col">Event</th><th scope="col">Description</th><th scope="col">Type</th><th scope="col">Action</th></thead>';
+        let content = `<table id="events" class="table" border="1">
+            <caption><h2>List of Events</h2></caption>
+            <thead><th scope="col">Event</th><th scope="col">Description</th><th scope="col">Type</th><th scope="col">Action</th></thead>`;
 
         if (events.length === 0) {
-            content += '<tr>';
-            content += '<td width="200px">No Custom Events Created</td>';
-            content += '<td width="200px"></td>';
-            content += '<td width="150px"></td>';
-            content += '<td width="100px"></td>';
-            content += '</tr>';
+            content += `<tr>
+                <td width="200px">No Custom Events Created</td>
+                <td width="200px"></td>
+                <td width="150px"></td>
+                <td width="100px"></td>
+            </tr>`;
         }
 
         for (let i in events) {
-            content += '<tr>';
-            content += '<td width="200px" id="' + events[i].eventID + '">' + events[i].eventID.replace('CustomEvent_',
-                '').replaceAll('_', ' ') + '</td>';
-            content += '<td width="200px" id="' + events[i].eventDescription + '">' + events[i].eventDescription +
-                '</td>';
-            content += '<td width="150px" id="' + events[i].eventType + '">' + events[i].eventType + '</td>';
-            content += '<td width="100px" id="' + events[i].eventID +
-                '"><button class="buttonNorm" onclick="editEvent(\'' + events[i].eventID +
-                '\')" style="background: blue;color: #fff;">Edit</button><button class="buttonNorm" onclick="deleteEvent(\'' +
-                events[i].eventID + '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
-            content += '</tr>';
+            content += `<tr>
+                <td width="200px" id="${events[i].eventID}">
+                    ${events[i].eventID.replace('CustomEvent_','').replaceAll('_', ' ')}
+                </td>
+                <td width="200px" id="${events[i].eventDescription}">${events[i].eventDescription}</td>
+                <td width="150px" id="${events[i].eventType}">${events[i].eventType}</td>
+                <td width="100px" id="editor_${events[i].eventID}">
+                    <button class="buttonNorm" onclick="editEvent('${events[i].eventID}')"
+                        style="background: #22b;color: #fff; padding: 2px 4px;">
+                        Edit
+                    </button>
+                    <button class="buttonNorm" onclick="deleteEvent('${events[i].eventID}')"
+                        style="background: #c00;color: #fff;margin-left: 10px; padding: 2px 4px;">
+                        Delete
+                    </button>
+                </td>
+            </tr>`;
         }
 
-        content += '</table><br /><br />';
-        content +=
-            '<span class="buttonNorm" id="create-event" tabindex="0">Create a new Event</span><br /><br />You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a>';
+        content += `</table><br /><br />
+            <span class="buttonNorm" id="create-event" tabindex="0">Create a new Event</span><br /><br />
+            You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a>`;
 
         return content;
     }
@@ -192,7 +200,7 @@
      * @groups Group list pass-through
      */
     function groupListContent(groups) {
-        if (typeof groups === 'string') {
+        if (!Array.isArray(groups)) {
             return 'Invalid parameter(s): groups must be an array.';
         }
         let content = 'Notify Group: <select id="groupID">' +
@@ -370,9 +378,9 @@
         let editSelectdatesString = "";
         if (emailChecked.checked) {
             editSelectdatesString +=
-                '<br>Send a reminder after <input aria-label="number of days" type="number" min="1" id="reminder_days"> days of inactivity. <br>';
+                '<br>Send a reminder after <input aria-label="number of days" type="number" min="1" id="reminder_days" style="width: 53px"> days of inactivity. <br>';
             editSelectdatesString +=
-                '<br>After the initial notification send another reminder every <input aria-label="number of days additional" type="number" min="1" id="reminder_days_additional"> days of inactivity. <br>';
+                '<br>After the initial notification send another reminder every <input aria-label="number of days additional" type="number" min="1" id="reminder_days_additional" style="width: 53px"> days of inactivity. <br>';
             createElement("div", "edit_date_select", "edit_email_container");
             document.getElementById("edit_date_select").innerHTML = editSelectdatesString;
         } else {
@@ -423,47 +431,49 @@
         $('#eventName').attr('maxlength', 25);
         $('#eventDesc').attr('maxlength', 40);
         dialog.setSaveHandler(function() {
-                let eventName = 'CustomEvent_' + $('#eventName').val();
-                let eventDesc = $('#eventDesc').val();
-                let eventType = $('#eventType').val();
-                let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
+            let eventName = 'CustomEvent_' + $('#eventName').val();
+            let eventDesc = $('#eventDesc').val();
+            let eventType = $('#eventType').val();
+            let eventData = {
+                'Notify Requestor':$('#notifyRequestor').prop("checked"),
                 'Notify Next': $('#notifyNext').prop("checked"),
-                    'Notify Group': $('#groupID option:selected').val()
+                'Notify Group': $('#groupID option:selected').val()
             };
-            let ajaxData = {name: eventName,
-            description: eventDesc,
-            type: eventType,
-            data: eventData,
-            CSRFToken: CSRFToken
-        };
-        let eventExists = false;
-        for (let i in events) {
-            if (events[i].eventID === eventName) {
-                eventExists = true;
+            let ajaxData = {
+                name: eventName,
+                description: eventDesc,
+                type: eventType,
+                data: eventData,
+                CSRFToken: CSRFToken
+            };
+            let eventExists = false;
+            for (let i in events) {
+                if (events[i].eventID === eventName) {
+                    eventExists = true;
+                }
             }
-        }
-        if (eventExists === false && $('#eventName').val() !== '' && $('#eventDesc').val() !== '') {
-            $.ajax({
-                type: 'POST',
-                url: '../api/workflow/events',
-                data: ajaxData,
-                cache: false
-            }).done(function() {
-                alert('Event was successfully created.');
-                listEvents();
-            }).fail(function(error) {
-                alert(error);
-            });
-        } else {
-            if ($('#eventDesc').val() === '') {
-                alert('Event description cannot be blank.');
-                listEvents();
+            if (eventExists === false && $('#eventName').val() !== '' && $('#eventDesc').val() !== '') {
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/workflow/events',
+                    data: ajaxData,
+                    cache: false
+                }).done(function() {
+                    alert('Event was successfully created.');
+                    listEvents();
+                }).fail(function(error) {
+                    alert(error);
+                });
             } else {
-                alert('Event name already exists.');
-                listEvents();
+                if ($('#eventDesc').val() === '') {
+                    alert('Event description cannot be blank.');
+                    listEvents();
+                } else {
+                    alert('Event name already exists.');
+                    listEvents();
+                }
             }
-        }
-    });
+        });
     }
 
     /**
@@ -547,9 +557,9 @@
                         alert(error);
                     }); dialog.hide();
                 });
-        }).fail(function(error) {
-        alert(error);
-    });
+            }).fail(function(error) {
+            alert(error);
+        });
     }
 
     /**
@@ -657,60 +667,60 @@
             $('#eventDesc').attr('maxlength', 40);
             dialog.indicateIdle();
             dialog.setSaveHandler(function() {
-                    let eventName = 'CustomEvent_' + $('#eventName').val();
-                    let eventDesc = $('#eventDesc').val();
-                    let eventType = $('#eventType').val();
-                    let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
-                    'Notify Next': $('#notifyNext').prop("checked"),
-                        'Notify Group': $('#groupID option:selected').val()
+                let eventName = 'CustomEvent_' + $('#eventName').val();
+                let eventDesc = $('#eventDesc').val();
+                let eventType = $('#eventType').val();
+                let eventData = {'Notify Requestor':$('#notifyRequestor').prop("checked"),
+                'Notify Next': $('#notifyNext').prop("checked"),
+                    'Notify Group': $('#groupID option:selected').val()
                 };
                 let ajaxData = {newName: eventName,
-                description: eventDesc,
-                type: eventType,
-                data: eventData,
-                CSRFToken: CSRFToken
-            };
-            let eventNameChange = false;
-            $.ajax({
-                type: 'GET',
-                url: '../api/workflow/customEvents',
-                cache: false
-            }).done(function(res) {
-                for (let i in res) {
-                    if (event !== eventName) { // Check if name change
-                        if (res[i].eventID === eventName) {
-                            eventNameChange = true;
+                    description: eventDesc,
+                    type: eventType,
+                    data: eventData,
+                    CSRFToken: CSRFToken
+                };
+                let eventNameChange = false;
+                $.ajax({
+                    type: 'GET',
+                    url: '../api/workflow/customEvents',
+                    cache: false
+                }).done(function(res) {
+                    for (let i in res) {
+                        if (event !== eventName) { // Check if name change
+                            if (res[i].eventID === eventName) {
+                                eventNameChange = true;
+                            }
                         }
                     }
-                }
-                if (eventNameChange === false && $('#eventName').val() !== '' && $('#eventDesc')
-                    .val() !== '') {
-                    $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/editEvent/_' + event,
-                        data: ajaxData,
-                        cache: false
-                    }).done(function() {
-                        listEvents();
-                    }).fail(function(error) {
-                        alert(error);
-                    });
-                } else {
-                    if ($('#eventDesc').val() === '') {
-                        alert('Event description cannot be blank.');
-                        listEvents();
+                    if (eventNameChange === false && $('#eventName').val() !== '' && $('#eventDesc')
+                        .val() !== '') {
+                        $.ajax({
+                            type: 'POST',
+                            url: '../api/workflow/editEvent/_' + event,
+                            data: ajaxData,
+                            cache: false
+                        }).done(function() {
+                            listEvents();
+                        }).fail(function(error) {
+                            alert(error);
+                        });
                     } else {
-                        alert('Event name already exists.');
-                        listEvents();
+                        if ($('#eventDesc').val() === '') {
+                            alert('Event description cannot be blank.');
+                            listEvents();
+                        } else {
+                            alert('Event name already exists.');
+                            listEvents();
+                        }
                     }
-                }
-            }).fail(function(error) {
-                alert(error);
+                }).fail(function(error) {
+                    alert(error);
+                });
             });
+        }).fail(function(error) {
+            alert(error);
         });
-    }).fail(function(error) {
-        alert(error);
-    });
     }
 
     /**
@@ -724,8 +734,7 @@
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/workflow/event/_' + event + '?' +
-                    $.param({'CSRFToken': CSRFToken}),
+                url: `../api/workflow/event/_${event}?` + $.param({ 'CSRFToken': CSRFToken }),
             }).done(function() {
                 listEvents();
             }).fail(function(error) {
@@ -743,19 +752,16 @@
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/workflow/step/' + stepID + '?' +
-                    $.param({'CSRFToken': CSRFToken}),
-                    success: function(res) {
-                        if (res == 1) {
-                            loadWorkflow(currentWorkflow);
-                            dialog_confirm.hide();
-                        } else {
-                            alert(res);
-                        }
-                    },
-                fail: function(err) {
-                    console.log(err);
-                }
+                url: `../api/workflow/step/${stepID}?` + $.param({ 'CSRFToken': CSRFToken }),
+                success: function(res) {
+                    if (res == 1) {
+                        loadWorkflow(currentWorkflow);
+                        dialog_confirm.hide();
+                    } else {
+                        alert(res);
+                    }
+                },
+                error: (err) => console.log(err),
             });
         });
         dialog_confirm.show();
@@ -783,8 +789,9 @@
         dialog.setContent(`<label for="title">Title:</label> <input type="text" id="title" value="${workflowStep?.stepTitle}" />`);
         dialog.setSaveHandler(function() {
                 $.ajax({
-                        type: 'POST',
-                        data: {CSRFToken: CSRFToken,
+                    type: 'POST',
+                    data: {
+                        CSRFToken: CSRFToken,
                         title: $('#title').val()
                     },
                     url: '../api/workflow/step/' + stepID,
@@ -796,12 +803,10 @@
                             alert(res);
                         }
                     },
-                    fail: function(err) {
-                        console.log(err);
-                    }
+                    error: (err) => console.log(err),
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function editRequirement(dependencyID) {
@@ -820,12 +825,10 @@
                         loadWorkflow(currentWorkflow);
                         dialog.hide();
                     },
-                    fail: function(err) {
-                        console.log(err);
-                    }
+                    error: (err) => console.log(err),
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function unlinkDependency(stepID, dependencyID) {
@@ -835,22 +838,18 @@
         dialog_confirm.setSaveHandler(function() {
             dialog_confirm.indicateBusy();
             $.ajax({
-                    type: 'DELETE',
-                    url: '../api/workflow/step/' + stepID + '/dependencies?' +
-                        $.param({'dependencyID': dependencyID,
-                        'CSRFToken': CSRFToken
-                }),
+                type: 'DELETE',
+                url: `../api/workflow/step/${stepID}/dependencies?`
+                    + $.param({ 'dependencyID': dependencyID, 'CSRFToken': CSRFToken }),
                 success: function() {
                     $('.workflowStepInfo').css('display', 'none');
                     showStepInfo(stepID);
                     dialog_confirm.hide();
                 },
-                fail: function(err) {
-                    console.log(err);
-                }
+                error: (err) => console.log(err),
+            });
         });
-    });
-    dialog_confirm.show();
+        dialog_confirm.show();
     }
 
     function linkDependency(stepID, dependencyID) {
@@ -865,9 +864,7 @@
                 dialog.hide();
                 showStepInfo(stepID);
             },
-            fail: function(err) {
-                console.log(err);
-            }
+            error: (err) => console.log(err),
         });
     }
 
@@ -877,22 +874,18 @@
         dialog_confirm.setContent('Are you sure you want to revoke these privileges?');
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
-                    type: 'DELETE',
-                    url: '../api/workflow/dependency/' + dependencyID + '/privileges?' +
-                        $.param({'groupID': groupID,
-                        'CSRFToken': CSRFToken
-                }),
+                type: 'DELETE',
+                url: '../api/workflow/dependency/' + dependencyID + '/privileges?'
+                    + $.param({ 'groupID': groupID, 'CSRFToken': CSRFToken }),
                 success: function() {
                     $('.workflowStepInfo').css('display', 'none');
                     loadWorkflow(currentWorkflow);
                     dialog_confirm.hide();
                 },
-                fail: function(err) {
-                    console.log(err);
-                }
+                error: (err) => console.log(err),
+            });
         });
-    });
-    dialog_confirm.show();
+        dialog_confirm.show();
     }
 
     // stepID optional
@@ -928,9 +921,7 @@
                 dialog.setContent(buffer);
                 dialog.indicateIdle();
             },
-            fail: function(err) {
-                console.log(err);
-            },
+            error: (err) => console.log(err),
             cache: false
         });
 
@@ -948,12 +939,10 @@
                             linkDependency(stepID, dependencyID);
                         }
                     },
-                    fail: function(err) {
-                        console.log(err);
-                    }
+                    error: (err) => console.log(err),
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function newDependency(stepID) {
@@ -973,12 +962,10 @@
                         dialog.hide();
                         dependencyGrantAccess(res, stepID);
                     },
-                    fail: function(err) {
-                        console.log(err);
-                    }
+                    error: (err) => console.log(err),
                 });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function linkDependencyDialog(stepID) {
@@ -1029,9 +1016,7 @@
                     linkDependency(stepID, $('#dependencyID').val());
                 });
             },
-            fail: function(err) {
-                console.log(err);
-            },
+            error: (err) => console.log(err),
             cache: false
         });
     }
@@ -1047,65 +1032,64 @@
             '<br /><label for="stepTitle">Step Title:</label> <input type="text" id="stepTitle"></input><br /><br />Example: "Service Chief"'
         );
         dialog.setSaveHandler(function() {
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/' + currentWorkflow + '/step',
-                        data: {stepTitle: $('#stepTitle').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        loadWorkflow(currentWorkflow);
-                        dialog.hide();
-                    },
-                    fail: function(err) {
-                        console.log(err);
-                    }
-                });
+            $.ajax({
+                type: 'POST',
+                url: '../api/workflow/' + currentWorkflow + '/step',
+                data: {
+                    stepTitle: $('#stepTitle').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    loadWorkflow(currentWorkflow);
+                    dialog.hide();
+                },
+                error: (err) => console.log(err),
+            });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function setInitialStep(stepID) {
         $.ajax({
-                type: 'POST',
-                url: '../api/workflow/' + currentWorkflow + '/initialStep',
-                data: {stepID: stepID,
+            type: 'POST',
+            url: '../api/workflow/' + currentWorkflow + '/initialStep',
+            data: {
+                stepID: stepID,
                 CSRFToken: CSRFToken
             },
             success: function() {
                 // ending step
                 if (stepID == 0) {
                     $.ajax({
-                            type: 'POST',
-                            url: '../api/workflow/' + currentWorkflow + '/action',
-                            data: {stepID: -1,
+                        type: 'POST',
+                        url: '../api/workflow/' + currentWorkflow + '/action',
+                        data: {
+                            stepID: -1,
                             nextStepID: 0,
                             action: 'submit',
                             CSRFToken: CSRFToken
                         },
                         success: function() {},
-                        fail: function(err) {
-                            console.log(err);
-                        }
+                        error: (err) => console.log(err),
                     });
-            }
+                }
 
-            workflows = {}; $.ajax({
-                type: 'GET',
-                url: '../api/workflow',
-                success: function(res) {
-                    for (let i in res) {
-                        workflows[res[i].workflowID] = res[i];
-                    }
-                    loadWorkflow(currentWorkflow);
-                },
-                fail: function(err) {
-                    console.log(err);
-                },
-                cache: false
-            });
-        }
-    });
+                workflows = {};
+                $.ajax({
+                    type: 'GET',
+                    url: '../api/workflow',
+                    success: function(res) {
+                        for (let i in res) {
+                            workflows[res[i].workflowID] = res[i];
+                        }
+                        loadWorkflow(currentWorkflow);
+                    },
+                    error: (err) => console.log(err),
+                    cache: false
+                });
+            },
+            error: (err) => console.log(err),
+        });
     }
 
     //list all action type to edit/delete
@@ -1119,27 +1103,35 @@
             type: 'GET',
             url: '../api/workflow/userActions',
             success: function(res) {
-                let buffer = '';
-                buffer +=
-                    '<table id="actions" class="table" border="1"><caption><h2>List of Actions</h2></caption><thead><th scope="col">Action</th><th scope="col">Action (Past Tense)</th><th scope="col"></th></thead>';
+                let buffer = `<table id="actions" class="table" border="1">
+                    <caption><h2>List of Actions</h2></caption>
+                    <thead>
+                        <th scope="col">Action</th>
+                        <th scope="col">Action (Past Tense)</th>
+                        <th scope="col">Button Order</th>
+                        <th scope="col"></th>
+                    </thead>`;
 
                 for (let i in res) {
-                    buffer += '<tr>';
-                    buffer += '<td width="300px" id="' + res[i].actionType + '">' + res[i].actionText +
-                        '</td>';
-                    buffer += '<td width="300px" id="' + res[i].actionTextPasttense + '">' + res[i]
-                        .actionTextPasttense + '</td>';
-                    buffer += '<td width="150px" id="' + res[i].actionType +
-                        '"><button class="buttonNorm" onclick="editActionType(\'' + res[i].actionType +
-                        '\')" style="background: blue;color: #fff;">Edit</button> <button class="buttonNorm" onclick="deleteActionType(\'' +
-                        res[i].actionType +
-                        '\')" style="background: red;color: #fff;margin-left: 10px;">Delete</button></td>';
-                    buffer += '</tr>';
+                    buffer += `<tr>
+                        <td width="300px" id="${res[i].actionType}">${res[i].actionText}</td>
+                        <td width="300px" id="${res[i].actionTextPasttense}">${res[i].actionTextPasttense}</td>
+                        <td width="100px">${res[i]?.sort || 0}</td>
+                        <td width="150px" id="editor_${res[i].actionType}">
+                            <button type="button" class="buttonNorm" onclick="editActionType('${res[i].actionType}')"
+                                style="background: #22b;color: #fff; padding: 2px 4px;">
+                                Edit
+                            </button>
+                            <button type="button" class="buttonNorm" onclick="deleteActionType('${res[i].actionType}')"
+                                style="background: #c00;color: #fff;margin-left: 10px; padding: 2px 4px;">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>`;
                 }
 
-                buffer += '</table><br /> <br />';
-                buffer +=
-                    '<span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>';
+                buffer += `</table><br /><br />
+                    <span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>`;
 
                 dialog.indicateIdle();
                 dialog.setContent(buffer);
@@ -1149,9 +1141,7 @@
                     newAction();
                 });
             },
-            fail: function(err) {
-                console.log(err);
-            },
+            error: (err) => console.log(err),
             cache: false
         });
         //shows the save button for other dialogs
@@ -1159,6 +1149,58 @@
             $("#button_save").show();
             $('div#xhrDialog').off();
         });
+    }
+
+    /**
+    * @param {Object} action
+    * @returns string template for action editing modal
+    */
+    function renderActionInputModal(action = {}) {
+        return `
+            <table style="margin-bottom:2rem;">
+                <tr>
+                    <td><span id="action_label">Action <span style="color: red">*Required</span></span></td>
+                    <td>
+                        <input id="actionText" type="text" maxlength="50" style="border: 1px solid red"
+                        value="${action?.actionText || ''}" aria-labelledby="action_label"/>
+                    </td>
+                    <td>eg: Approve</td>
+                </tr>
+                <tr>
+                    <td><span id="action_past_tense_label">Action Past Tense <span style="color: red">*Required</span></span></td>
+                    <td>
+                        <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red"
+                        value="${action?.actionTextPasttense || ''}" aria-labelledby="action_past_tense_label"/>
+                    </td>
+                    <td>eg: Approved</td>
+                </tr>
+                <tr>
+                    <td><span id="choose_icon_label">Icon</span></td>
+                    <td>
+                        <input id="actionIcon" type="text" maxlength="50"
+                        value="${action?.actionIcon || ''}" aria-labelledby="choose_icon_label"/>
+                    </td>
+                    <td>eg: go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></td>
+                </tr>
+                <tr>
+                    <td><span id="action_sort_label">Button Order</span></td>
+                    <td>
+                        <input id="actionSortNumber" type="number" min="-128" max="127"
+                        value="${action?.sort || 0}" aria-labelledby="action_sort_label"/>
+                    </td>
+                    <td>lower numbers appear first</td>
+                </tr>
+            </table>
+            <label for="fillDependency" style="font-family:'Source Sans Pro Web', sans-serif; font-size: 1rem;">
+                Does this action represent moving forwards or backwards in the process?
+            </label>
+            <select id="fillDependency">
+                <option value="1">Forwards</option>
+                <option value="-1">Backwards</option>
+            </select>
+            <div id="backwards_action_note" style="margin-top:0.5rem; max-width:600px; display: none;">
+                Note: Backwards actions do not save form field data.
+            </div>`
     }
 
     //edit action type
@@ -1169,60 +1211,40 @@
         dialog.show();
 
         $.ajax({
-                type: 'GET',
-                url: '../api/workflow/action/_' + actionType,
-                success: function(res) {
-                    let buffer = '';
-
-                    buffer += '<table>\
-    		              <tr>\
-    		                  <td>Action <span style="color: red">*Required</span></td>\
-    		                  <td><input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="' +
-                        res[0].actionText +
-                        '"></input></td>\
-    		                  <td>eg: Approve</td>\
-    		              </tr>\
-    		              <tr>\
-                              <td>Action Past Tense <span style="color: red">*Required</span></td>\
-                              <td><input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red" value="' +
-                        res[
-                            0].actionTextPasttense + '"></input></td>\
-                              <td>eg: Approved</td>\
-                          </tr>\
-                          <tr>\
-                              <td>Icon</td>\
-                              <td><input id="actionIcon" type="text" maxlength="50" value="' + res[0].actionIcon +
-                        '" ></input></td>\
-                              <td>eg: go-next.svg <a href="/libs/dynicons/gallery.php" target="_blank">List of available icons</a></td>\
-                          </tr>\
-    		          </table>\
-    		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';
-
-                    dialog.indicateIdle();
-                    dialog.setContent(buffer);
-                    $('#fillDependency').val(res[0].fillDependency);
-                    dialog.setSaveHandler(function() {
-                            $.ajax({
-                                    type: 'POST',
-                                    url: '../api/workflow/editAction/_' + actionType,
-                                    data: {actionText: $('#actionText').val(),
-                                    actionTextPasttense: $('#actionTextPasttense').val(),
-                                    actionIcon: $('#actionIcon').val(),
-                                    fillDependency: $('#fillDependency').val(),
-                                    CSRFToken: CSRFToken
-                                },
-                                success: function() {
-                                    listActionType();
-                                },
-                                fail: function(err) {
-                                    console.log(err);
-                                }
-                            }); dialog.hide();
+            type: 'GET',
+            url: '../api/workflow/action/_' + actionType,
+            success: function(res) {
+                dialog.indicateIdle();
+                dialog.setContent(renderActionInputModal(res[0]));
+                $('#fillDependency').val(res[0].fillDependency);
+                document.getElementById('backwards_action_note').style.display = parseInt(res[0].fillDependency) < 0 ? 'block': 'none';
+                document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
+                dialog.setSaveHandler(function() {
+                    let sort = parseInt($('#actionSortNumber').val());
+                    sort = Number.isInteger(sort) ? sort : 0;
+                    sort = sort < -128 ? -128
+                         : sort > 127 ? 127
+                         : sort;
+                    $.ajax({
+                        type: 'POST',
+                        url: '../api/workflow/editAction/_' + actionType,
+                        data: {
+                            actionText: $('#actionText').val(),
+                            actionTextPasttense: $('#actionTextPasttense').val(),
+                            actionIcon: $('#actionIcon').val(),
+                            sort: sort,
+                            fillDependency: $('#fillDependency').val(),
+                            CSRFToken: CSRFToken
+                        },
+                        success: function() {
+                            listActionType();
+                        },
+                        error: (err) => console.log(err),
                     });
+                    dialog.hide();
+                });
             },
-            fail: function(err) {
-                console.log(err);
-            },
+            error: (err) => console.log(err),
             cache: false
         });
     }
@@ -1234,20 +1256,22 @@
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/workflow/action/_' + actionType + '?' +
-                    $.param({'CSRFToken': CSRFToken}),
-                    success: function() {
-                        listActionType();
-                    },
-                fail: function(err) {
-                    console.log(err);
-                }
+                url: '../api/workflow/action/_' + actionType + '?'
+                    + $.param({'CSRFToken': CSRFToken}),
+                success: function() {
+                    listActionType();
+                },
+                error: (err) => console.log(err),
             });
             dialog_confirm.hide();
         });
         dialog_confirm.show();
     }
 
+    function actionDirectionNote() {
+        const val = document.getElementById('fillDependency').value || 0
+        document.getElementById('backwards_action_note').style.display = parseInt(val) < 0 ? 'block': 'none';
+    }
 
     // create a brand new action
     function newAction() {
@@ -1255,53 +1279,39 @@
         dialog.setTitle('Create New Action Type');
         dialog.show();
 
-        let buffer =
-            '<table>\
-		              <tr>\
-		                  <td>Action <span style="color: red">*Required</span></td>\
-		                  <td><input id="actionText" type="text" maxlength="50" style="border: 1px solid red"></input></td>\
-		                  <td>eg: Approve</td>\
-		              </tr>\
-		              <tr>\
-                          <td>Action Past Tense <span style="color: red">*Required</span></td>\
-                          <td><input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red"></input></td>\
-                          <td>eg: Approved</td>\
-                      </tr>\
-                      <tr>\
-                          <td>Icon</td>\
-                          <td><input id="actionIcon" type="text" maxlength="50" value="go-next.svg"></input></td>\
-                          <td>eg: go-next.svg <a href="/libs/dynicons/gallery.php" target="_blank">List of available icons</a></td>\
-                      </tr>\
-		          </table>\
-		          <br /><br />Does this action represent moving forwards or backwards in the process? <select id="fillDependency"><option value="1">Forwards</option><option value="-1">Backwards</option></select><br />';
-
         dialog.setSaveHandler(function() {
-                if ($('#actionText').val() == '' ||
-                    $('#actionTextPasttense').val() == '') {
-                    alert('Please fill out required fields.');
-                } else {
-                    $.ajax({
-                            type: 'POST',
-                            url: '../api/system/actions',
-                            data: {actionText: $('#actionText').val(),
-                            actionTextPasttense: $('#actionTextPasttense').val(),
-                            actionIcon: $('#actionIcon').val(),
-                            fillDependency: $('#fillDependency').val(),
-                            CSRFToken: CSRFToken
-                        },
-                        success: function() {
-                            alert('Your action type has been created, and is now available as an option.');
-                            loadWorkflow(currentWorkflow);
-                        },
-                        fail: function(err) {
-                            console.log(err);
-                        }
-                    });
+            if ($('#actionText').val() == '' ||
+                $('#actionTextPasttense').val() == '') {
+                alert('Please fill out required fields.');
+            } else {
+                let sort = parseInt($('#actionSortNumber').val());
+                sort = Number.isInteger(sort) ? sort : 0;
+                sort = sort < -128 ? -128
+                        : sort > 127 ? 127
+                        : sort;
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/system/actions',
+                    data: {
+                        actionText: $('#actionText').val(),
+                        actionTextPasttense: $('#actionTextPasttense').val(),
+                        actionIcon: $('#actionIcon').val(),
+                        sort: sort,
+                        fillDependency: $('#fillDependency').val(),
+                        CSRFToken: CSRFToken
+                    },
+                    success: function() {
+                        alert('Your action type has been created, and is now available as an option.');
+                        loadWorkflow(currentWorkflow);
+                    },
+                    error: (err) => console.log(err),
+                });
                 dialog.hide();
             }
         });
 
-    dialog.setContent(buffer);
+        dialog.setContent(renderActionInputModal());
+        document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
     }
 
     // connect 2 steps with an action
@@ -1334,9 +1344,10 @@
             // automatically select "return to requestor" if the user links a step to the requestor's step
             if (source > 0) {
                 $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/' + currentWorkflow + '/action',
-                        data: {stepID: source,
+                    type: 'POST',
+                    url: '../api/workflow/' + currentWorkflow + '/action',
+                    data: {
+                        stepID: source,
                         nextStepID: target,
                         action: 'sendback',
                         CSRFToken: CSRFToken
@@ -1344,70 +1355,69 @@
                     success: function() {
                         loadWorkflow(currentWorkflow);
                     },
-                    fail: function(err) {
-                        console.log(err);
-                    }
+                    error: (err) => console.log(err),
                 });
-            return;
-        }
-    }
-    if (source > 0) {
-        sourceTitle = steps[source].stepTitle;
-    }
-    if (target > 0) {
-        targetTitle = steps[target].stepTitle;
-    }
-
-    dialog.setTitle('Create New Workflow Action');
-    dialog.indicateBusy();
-    dialog.show();
-
-    $.ajax({
-        type: 'GET',
-        url: '../api/workflow/actions',
-        success: function(res) {
-            let buffer = '';
-            buffer = 'Select action for ';
-            buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
-            buffer +=
-                '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
-
-            for (let i in res) {
-                buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
+                return;
             }
+        }
+        if (source > 0) {
+            sourceTitle = steps[source].stepTitle;
+        }
+        if (target > 0) {
+            targetTitle = steps[target].stepTitle;
+        }
 
-            buffer += '</select>';
-            buffer +=
-                '<br />- OR -<br /><br /><span class="buttonNorm" onclick="newAction();">Create a new Action Type</span>';
+        dialog.setTitle('Create New Workflow Action');
+        dialog.indicateBusy();
+        dialog.show();
 
-            dialog.indicateIdle();
-            dialog.setContent(buffer);
-            $('#actionType').chosen({disable_search_threshold: 5});
-            // TODO: Figure out why this triggers even when the user clicks save
-            /*
-            dialog.setCancelHandler(function() {
-                loadWorkflow(currentWorkflow);
-            });*/
-            dialog.setSaveHandler(function() {
+        $.ajax({
+            type: 'GET',
+            url: '../api/workflow/actions',
+            success: function(res) {
+                let buffer = '';
+                buffer = 'Select action for ';
+                buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
+                buffer +=
+                    '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
+
+                for (let i in res) {
+                    buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
+                }
+
+                buffer += '</select>';
+                buffer +=
+                    '<br />- OR -<br /><br /><span class="buttonNorm" onclick="newAction();">Create a new Action Type</span>';
+
+                dialog.indicateIdle();
+                dialog.setContent(buffer);
+                $('#actionType').chosen({disable_search_threshold: 5});
+                // TODO: Figure out why this triggers even when the user clicks save
+                /*
+                dialog.setCancelHandler(function() {
+                    loadWorkflow(currentWorkflow);
+                });*/
+                dialog.setSaveHandler(function() {
                     $.ajax({
-                            type: 'POST',
-                            url: '../api/workflow/' + currentWorkflow + '/action',
-                            data: {stepID: source,
+                        type: 'POST',
+                        url: '../api/workflow/' + currentWorkflow + '/action',
+                        data: {
+                            stepID: source,
                             nextStepID: target,
                             action: $('#actionType').val(),
                             CSRFToken: CSRFToken
                         },
                         success: function() {
                             loadWorkflow(currentWorkflow);
-                        }
-                    }); dialog.hide();
-            });
-    },
-    fail: function(err) {
-        console.log(err);
-    },
-    cache: false
-    });
+                        },
+                        error: (err) => console.log(err),
+                    });
+                    dialog.hide();
+                });
+            },
+            error: (err) => console.log(err),
+            cache: false
+        });
     }
 
     function removeAction(workflowID, stepID, nextStepID, action) {
@@ -1417,15 +1427,12 @@
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
-                url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + action + '/' +
-                    nextStepID + '?' +
-                    $.param({'CSRFToken': CSRFToken}),
-                    success: function() {
-                        loadWorkflow(workflowID);
-                    },
-                fail: function(err) {
-                    console.log(err);
-                }
+                url: `../api/workflow/${workflowID}/step/${stepID}/_${action}/${nextStepID}?`
+                    + $.param({ 'CSRFToken': CSRFToken }),
+                success: function() {
+                    loadWorkflow(workflowID);
+                },
+                error: (err) => console.log(err),
             });
             dialog_confirm.hide();
         });
@@ -1442,9 +1449,28 @@
             type: 'GET',
             url: '../api/workflow/' + currentWorkflow + '/step/' + stepID + '/_' + params.action + '/events',
             success: function(res) {
+                let find_required = '';
+console.log(params);
+                if (typeof params.required === 'undefined' || params.required === '') {
+                    find_required = $.parseJSON('{"required":"false"}');
+                } else {
+                    find_required = $.parseJSON(params.required);
+                }
+
                 let output = '';
+                let required = '';
+
+                if (find_required.required == 'true') {
+                    required = 'checked=checked';
+                }
+
                 stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
                 output = '<h2>Action: ' + stepTitle + ' clicks ' + params.action + '</h2>';
+
+                if (params.action == 'sendback') {
+                    output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + ' /> Require a comment to sendback.<br />';
+                }
+
                 output += '<br /><div>Triggers these events:<ul>';
                 // the sendback action always notifies the requestor
                 if (params.action == 'sendback') {
@@ -1469,9 +1495,7 @@
                     addEventDialog(currentWorkflow, stepID, params.action);
                 });
             },
-            fail: function(err) {
-                console.log(err);
-            },
+            error: (err) => console.log(err),
             cache: false
         });
 
@@ -1480,6 +1504,27 @@
             top: evt.pageY + 'px'
         });
         $('#stepInfo_' + stepID).show('slide', null, 200);
+    }
+
+    function switchRequired(element) {
+        let stepID = element.id.split('_');
+        let e = document.getElementById("workflows");
+        let workflowID = e.value;
+
+        $.ajax({
+            type: 'POST',
+            url: '../api/workflowRoute/require',
+            data: {required: element.checked,
+            step_id: stepID[2],
+            workflow_id: workflowID,
+            CSRFToken: CSRFToken},
+            success: function (res) {
+                console.log(res);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
     }
 
     function setDynamicApprover(stepID) {
@@ -1505,28 +1550,25 @@
                     indicatorList + '</select><br /><br />\
     			    * Your form must have a field with the "Orgchart Employee" or "Raw Data" input format');
             },
-            fail: function(err) {
-                console.log(err);
-            },
+            error: (err) => console.log(err),
             cache: false
         });
 
 
         dialog.setSaveHandler(function() {
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_empUID',
-                        data: {indicatorID: $('#indicatorID').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        loadWorkflow(currentWorkflow);
-                        dialog.hide();
-                    },
-                    fail: function(err) {
-                        console.log(err);
-                    }
-                });
+            $.ajax({
+                type: 'POST',
+                url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_empUID',
+                data: {
+                    indicatorID: $('#indicatorID').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    loadWorkflow(currentWorkflow);
+                    dialog.hide();
+                },
+                error: (err) => console.log(err),
+            });
         });
     dialog.show();
     }
@@ -1554,28 +1596,25 @@
                     indicatorList + '</select><br /><br />\
                     * Your form must have a field with the "Orgchart Group" input format');
             },
-            fail: function(err) {
-                console.log(err);
-            },
+            error: (err) => console.log(err),
             cache: false
         });
 
 
         dialog.setSaveHandler(function() {
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_groupID',
-                        data: {indicatorID: $('#indicatorID').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        loadWorkflow(currentWorkflow);
-                        dialog.hide();
-                    },
-                    fail: function(err) {
-                        console.log(err);
-                    }
-                });
+            $.ajax({
+                type: 'POST',
+                url: '../api/workflow/step/' + stepID + '/indicatorID_for_assigned_groupID',
+                data: {
+                    indicatorID: $('#indicatorID').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    loadWorkflow(currentWorkflow);
+                    dialog.hide();
+                },
+                error: (err) => console.log(err),
+            });
         });
     dialog.show();
     }
@@ -1842,6 +1881,7 @@
                             }
                         }
                     },
+                    error: (err) => console.log(err),
                     cache: false
                 });
                 break;
@@ -1861,66 +1901,64 @@
 
     function drawRoutes(workflowID) {
         $.ajax({
-                type: 'GET',
-                url: '../api/workflow/' + workflowID + '/route',
-                success: function(res) {
-                    if (endPoints[-1] == undefined) {
-                        endPoints[-1] = jsPlumb.addEndpoint('step_-1', {anchor: 'Continuous'}, endpointOptions);
-                        jsPlumb.draggable('step_-1');
-                    }
-                    if (endPoints[0] == undefined) {
-                        endPoints[0] = jsPlumb.addEndpoint('step_0', {anchor: 'Continuous'}, endpointOptions);
-                        jsPlumb.draggable('step_0');
-                    }
+            type: 'GET',
+            url: '../api/workflow/' + workflowID + '/route',
+            success: function(res) {
+                if (endPoints[-1] == undefined) {
+                    endPoints[-1] = jsPlumb.addEndpoint('step_-1', {anchor: 'Continuous'}, endpointOptions);
+                    jsPlumb.draggable('step_-1');
+                }
+                if (endPoints[0] == undefined) {
+                    endPoints[0] = jsPlumb.addEndpoint('step_0', {anchor: 'Continuous'}, endpointOptions);
+                    jsPlumb.draggable('step_0');
+                }
 
-                    // draw connector
-                    for (let i in res) {
-                        var loc = 0.5;
-                        switch (res[i].actionType) {
-                            case 'sendback':
-                                loc = 0.30;
-                                break;
-                            case 'approve':
-                                loc = 0.5;
-                                break;
-                            case 'concur':
-                                loc = 0.5;
-                                break;
-                            case 'defer':
-                                loc = 0.25;
-                                break;
-                            case 'disapprove':
-                                loc = 0.75;
-                                break;
-                            default:
-                                break;
-                        }
-                        if (res[i].nextStepID == 0 &&
-                            res[i].actionType == 'sendback') {
-                            jsPlumb.connect({
-                                    source: 'step_' + res[i].stepID,
-                                    target: 'step_-1',
-                                    paintStyle: {stroke: 'red'},
-                                    overlays: [
-                                        ["Label", {
-                                                id: 'stepLabel_' + res[i].stepID + '_0_' + res[i]
-                                                    .actionType,
-                                                cssClass: "workflowAction",
-                                                label: res[i].actionText,
-                                                location: loc,
-                                                parameters: {'stepID': res[i].stepID,
-                                                'nextStepID': 0,
-                                                'action': res[i].actionType
-                                            },
-                                            events: {
-                                                click: function(overlay, evt) {
-                                                    params = overlay.getParameters();
-                                                    showActionInfo(params, evt);
-                                                }
-                                            }
+                // draw connector
+                for (let i in res) {
+                    var loc = 0.5;
+                    switch (res[i].actionType.toLowerCase()) {
+                        case 'sendback':
+                            loc = 0.30;
+                            break;
+                        case 'approve':
+                        case 'concur':
+                            loc = 0.5;
+                            break;
+                        case 'defer':
+                            loc = 0.25;
+                            break;
+                        case 'disapprove':
+                            loc = 0.75;
+                            break;
+                        default:
+                            break;
+                    }
+                    if (res[i].nextStepID == 0 && res[i].actionType == 'sendback') {
+                        jsPlumb.connect({
+                            source: 'step_' + res[i].stepID,
+                            target: 'step_-1',
+                            paintStyle: {stroke: 'red'},
+                            overlays: [
+                                ["Label", {
+                                        id: 'stepLabel_' + res[i].stepID + '_0_' + res[i]
+                                            .actionType,
+                                        cssClass: "workflowAction",
+                                        label: res[i].actionText,
+                                        location: loc,
+                                        parameters: {'stepID': res[i].stepID,
+                                        'nextStepID': 0,
+                                        'action': res[i].actionType,
+                                        'required': res[i].displayConditional
+                                    },
+                                    events: {
+                                        click: function(overlay, evt) {
+                                            params = overlay.getParameters();
+                                            showActionInfo(params, evt);
                                         }
-                                    ]]
-                            });
+                                    }
+                                }
+                            ]]
+                        });
                     } else {
                         lineOptions = {
                             source: 'step_' + res[i].stepID,
@@ -1936,7 +1974,8 @@
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
                                         'nextStepID': res[i].nextStepID,
-                                        'action': res[i].actionType
+                                        'action': res[i].actionType,
+                                        'required': res[i].displayConditional
                                     },
                                     events: {
                                         click: function(overlay, evt) {
@@ -1946,17 +1985,17 @@
                                     }
                                 }
                             ]]
-                    };
-                    if (res[i].actionType == 'sendback') {
-                        lineOptions.paintStyle = {stroke: 'red'};
+                        };
+                        if (res[i].actionType == 'sendback') {
+                            lineOptions.paintStyle = {stroke: 'red'};
+                        }
+                        jsPlumb.connect(lineOptions);
                     }
-                    jsPlumb.connect(lineOptions);
                 }
-            }
 
-            // connect the initial step if it exists
-            if (workflows[workflowID].initialStepID != 0) {
-                jsPlumb.connect({
+                // connect the initial step if it exists
+                if (workflows[workflowID].initialStepID != 0) {
+                    jsPlumb.connect({
                         source: endPoints[-1],
                         target: endPoints[workflows[workflowID].initialStepID],
                         connector: ["StateMachine", {curviness: 10}],
@@ -1969,7 +2008,8 @@
                                     location: loc,
                                     parameters: {'stepID': -1,
                                     'nextStepID': workflows[workflowID].initialStepID,
-                                    'action': 'submit'
+                                    'action': 'submit',
+                                    'required': '{"required":"false"}'
                                 },
                                 events: {
                                     click: function(overlay, evt) {
@@ -1979,17 +2019,18 @@
                                 }
                             }
                         ]]
-                });
-        }
+                    });
+                }
 
-        // bind connection events
-        jsPlumb.bind("connection", function(info) {
-            createAction(info);
+                // bind connection events
+                jsPlumb.bind("connection", function(info) {
+                    createAction(info);
+                });
+                jsPlumb.setSuspendDrawing(false, true);
+            },
+            error: (err) => console.log(err),
+            cache: false
         });
-        jsPlumb.setSuspendDrawing(false, true);
-    },
-    cache: false
-    });
     }
 
     var currentWorkflow = 0;
@@ -2043,63 +2084,64 @@
         });
 
         $.ajax({
-                type: 'GET',
-                url: '../api/workflow/' + workflowID,
-                success: function(res) {
-                    var minY = 80;
-                    var maxY = 80;
-                    for (let i in res) {
-                        steps[res[i].stepID] = res[i];
-                        posY = parseFloat(res[i].posY);
-                        if (posY < minY) {
-                            posY = minY;
+            type: 'GET',
+            url: '../api/workflow/' + workflowID,
+            success: function(res) {
+                var minY = 80;
+                var maxY = 80;
+                for (let i in res) {
+                    steps[res[i].stepID] = res[i];
+                    posY = parseFloat(res[i].posY);
+                    if (posY < minY) {
+                        posY = minY;
+                    }
+
+                    let emailNotificationIcon = '';
+                    if (typeof res[i].stepData == 'string' && isJSON(res[i].stepData)) {
+                        let stepParse = JSON.parse(res[i].stepData);
+                        if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
+                            let dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
+                            let dayText = ((dayCount > 1) ? 'Days' : 'Day')
+                            emailNotificationIcon = `<img src="../dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" />`
                         }
+                    }
 
-                        let emailNotificationIcon = '';
-                        if (typeof res[i].stepData == 'string') {
-                            let stepParse = JSON.parse(res[i].stepData);
-                            if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() ===
-                                'true') {
-                                let dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
-                                let dayText = ((dayCount > 1) ? 'Days' : 'Day')
-                                emailNotificationIcon = `<img src="../dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" />`
-                            }
-                        }
+                    $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_' + res[i]
+                        .stepID + '">' + res[i].stepTitle + ' ' + emailNotificationIcon +
+                        '</div><div class="workflowStepInfo" id="stepInfo_' + res[i].stepID + '"></div>'
+                    );
 
-                        $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_' + res[i]
-                            .stepID + '">' + res[i].stepTitle + ' ' + emailNotificationIcon +
-                            '</div><div class="workflowStepInfo" id="stepInfo_' + res[i].stepID + '"></div>'
-                        );
+                    $('#step_' + res[i].stepID).css({
+                        'left': parseFloat(res[i].posX) + 'px',
+                        'top': posY + 'px',
+                        'background-color': res[i].stepBgColor
+                    });
 
-                        $('#step_' + res[i].stepID).css({
-                            'left': parseFloat(res[i].posX) + 'px',
-                            'top': posY + 'px',
-                            'background-color': res[i].stepBgColor
+                    if (endPoints[res[i].stepID] == undefined) {
+                        endPoints[res[i].stepID] = jsPlumb.addEndpoint('step_' + res[i].stepID, {anchor: 'Continuous'}, endpointOptions);
+                        jsPlumb.draggable('step_' + res[i].stepID, {
+                            // save position of the box when moved
+                            stop: function(stepID) {
+                                return function() {
+                                    var position = $('#step_' + stepID).offset();
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '../api/workflow/' + workflowID +
+                                            '/editorPosition',
+                                        data: {
+                                            stepID: stepID,
+                                            x: position.left,
+                                            y: position.top,
+                                            CSRFToken: CSRFToken
+                                        },
+                                        success: function() {
+
+                                        },
+                                        error: (err) => console.log(err),
+                                    });
+                                }
+                            }(res[i].stepID)
                         });
-
-                        if (endPoints[res[i].stepID] == undefined) {
-                            endPoints[res[i].stepID] = jsPlumb.addEndpoint('step_' + res[i].stepID, {anchor: 'Continuous'}, endpointOptions);
-                            jsPlumb.draggable('step_' + res[i].stepID, {
-                                    // save position of the box when moved
-                                    stop: function(stepID) {
-                                        return function() {
-                                            var position = $('#step_' + stepID).offset();
-                                            $.ajax({
-                                                    type: 'POST',
-                                                    url: '../api/workflow/' + workflowID +
-                                                        '/editorPosition',
-                                                    data: {stepID: stepID,
-                                                    x: position.left,
-                                                    y: position.top,
-                                                    CSRFToken: CSRFToken
-                                                },
-                                                success: function() {
-
-                                                }
-                                            });
-                                    }
-                                }(res[i].stepID)
-                            });
                     }
 
                     // attach click event
@@ -2130,6 +2172,7 @@
                 $('#workflow').css('height', 300 + maxY + 'px');
                 drawRoutes(workflowID);
             },
+            error: (err) => console.log(err),
             cache: false
         });
     }
@@ -2173,6 +2216,7 @@
                 }
                 loadWorkflow(workflowID);
             },
+            error: (err) => console.log(err),
             cache: false
         });
     }
@@ -2192,6 +2236,7 @@
                 dialog_simple.indicateIdle();
                 dialog_simple.show();
             },
+            error: (err) => console.log(err),
             cache: false
         });
     }
@@ -2204,25 +2249,27 @@
             '</input>');
         dialog.setTitle('Rename Workflow');
         dialog.setSaveHandler(function() {
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/' + currentWorkflow,
-                        data: {description: $('#workflow_rename').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        if (res != currentWorkflow) {
-                            alert("Prerequisite action needed:\n\n" + res);
-                            dialog.hide();
-                        } else {
-                            loadWorkflowList(res);
-                            workflowDescription = $('#workflow_rename').val();
-                            dialog.hide();
-                        }
+            $.ajax({
+                type: 'POST',
+                url: '../api/workflow/' + currentWorkflow,
+                data: {
+                    description: $('#workflow_rename').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    if (res != currentWorkflow) {
+                        alert("Prerequisite action needed:\n\n" + res);
+                        dialog.hide();
+                    } else {
+                        loadWorkflowList(res);
+                        workflowDescription = $('#workflow_rename').val();
+                        dialog.hide();
                     }
-                });
+                },
+                error: (err) => console.log(err),
+            });
         });
-    dialog.show();
+        dialog.show();
     }
 
     /*
