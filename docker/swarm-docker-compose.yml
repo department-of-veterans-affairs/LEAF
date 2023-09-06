@@ -21,7 +21,7 @@ services:
       replicas: 2 
       restart_policy:
         condition: on-failure
-      resouces:
+      resources:
         limits:
           memory: 30gb
     sysctls:
