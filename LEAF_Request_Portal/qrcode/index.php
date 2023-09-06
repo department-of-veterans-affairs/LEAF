@@ -4,7 +4,7 @@ use App\Leaf\XSSHelpers;
 
 require_once '/var/www/html/app/libs/globals.php';
 include_once '/var/www/html/app/Leaf/XSSHelpers.php';
-require_once LIB_PATH . '/qrcode/qrlib.php';
+require_once '/var/www/html/app/libs/qrcode/qrlib.php';
 $cacheDir = 'cache/';
 
 $encode = 'Invalid Input.';

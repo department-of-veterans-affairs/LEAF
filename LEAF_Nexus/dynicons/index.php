@@ -11,6 +11,7 @@
 
 */
 
+use App\Leaf\Dynicon;
 use App\Leaf\XSSHelpers;
 
 error_reporting(E_ERROR);
@@ -25,7 +26,7 @@ ini_set('display_errors', 0);
 */
 
 require_once '/var/www/html/app/libs/globals.php';
-include_once LIB_PATH .  '/php-commons/Dynicon.php';
+include_once '/var/www/html/app/Leaf/Dynicon.php';
 include_once '/var/www/html/app/Leaf/XSSHelpers.php';
 
-$image = new \Leaf\Dynicon(XSSHelpers::scrubFilename($_GET['img']), $_GET['w']);
+$image = new Dynicon(XSSHelpers::scrubFilename($_GET['img']), $_GET['w']);
