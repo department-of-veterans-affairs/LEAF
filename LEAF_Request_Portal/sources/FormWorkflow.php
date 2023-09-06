@@ -146,6 +146,103 @@ class FormWorkflow
             LEFT JOIN step_dependencies USING (stepID)
             LEFT JOIN dependencies USING (dependencyID)
             LEFT JOIN records_dependencies USING (recordID, dependencyID)
+            WHERE recordID IN ({$recordIDs})
+                AND filled=0";
+        $res = $this->db->prepared_query($strSQL, []);
+
+        foreach ($res as $depRecord) {
+            $depRecordID = $depRecord['recordID'];
+            if(!isset($records[$depRecordID]['isActionable'])) {
+                $records[$depRecordID]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable based on admin status
+            }
+
+            $res2 = $this->getDependencyPrivileges($depRecord['dependencyID']);
+
+            if ($records[$depRecordID]['isActionable']) {
+                continue;
+            }
+
+            // check permissions
+            switch($depRecord['dependencyID']) {
+                case 1: // dependencyID 1 is for a special service chief group
+                    $records[$depRecordID]['isActionable'] = $this->login->checkService($depRecord['serviceID']);
+                    break;
+
+                case 8: // dependencyID 8 is for a special quadrad group
+                    $records[$depRecordID]['isActionable'] = $this->checkServiceQuadradAccess($depRecord['serviceID']);
+                    break;
+
+                case -1: // dependencyID -1 is for a person designated by the requestor
+                    $resEmpUID = $form->getIndicator($depRecord['indicatorID_for_assigned_empUID'], 1, $depRecord['recordID']);
+
+                    // make sure the right person has access
+                    $empUID = $resEmpUID[$depRecord['indicatorID_for_assigned_empUID']]['value'];
+
+                    $records[$depRecordID]['isActionable'] = $this->checkEmployeeAccess($empUID);
+                    break;
+
+                case -2: // dependencyID -2 is for requestor followup
+                    $isActionable = $depRecord['userID'] == $this->login->getUserID();
+
+                    if(!$isActionable){
+                        $empUID = $this->getEmpUIDByUserName($depRecord['userID']);
+                        $isActionable = $this->checkEmployeeAccess($empUID);
+                    }
+
+                    $records[$depRecordID]['isActionable'] = $isActionable;
+                    break;
+
+                case -3: // dependencyID -3 is for a group designated by the requestor
+                    $resGroupID = $form->getIndicator($depRecord['indicatorID_for_assigned_groupID'], 1, $depRecord['recordID']);
+                    $groupID = $resGroupID[$depRecord['indicatorID_for_assigned_groupID']]['value'];
+
+                    // make sure the right person has access
+                    $records[$depRecordID]['isActionable'] = $this->login->checkGroup($groupID);
+                    break;
+
+                default:
+                    // check groups associated with dependency privileges
+                    foreach ($res2 as $group)
+                    {
+                        if ($this->login->checkGroup($group['groupID']))
+                        {
+                            $records[$depRecordID]['isActionable'] = true;
+
+                            break;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return $records;
+    }
+
+    /**
+     * Supports getCurrentSteps()
+     * @param object $form instance of Form
+     * @param array $records result set from a query on db:records. Requires 'recordID'.
+     * @return array $records list of dependencies * records
+     */
+    private function retrieveRecordDependencies(object $form, array $records): array {
+        $numRecords = count($records);
+        if ($numRecords == 0) {
+            return $records;
+        }
+
+        $recordIDs = '';
+
+        foreach ($records as $item) {
+            $recordIDs .= (int)$item['recordID'] . ',';
+        }
+        $recordIDs = trim($recordIDs, ',');
+
+        $strSQL = "SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, filled, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
+            LEFT JOIN records USING (recordID)
+            LEFT JOIN workflow_steps USING (stepID)
+            LEFT JOIN step_dependencies USING (stepID)
+            LEFT JOIN dependencies USING (dependencyID)
+            LEFT JOIN records_dependencies USING (recordID, dependencyID)
             WHERE recordID IN ({$recordIDs})";
         $res = $this->db->prepared_query($strSQL, []);
 
@@ -268,7 +365,7 @@ class FormWorkflow
         }
 
         $steps = array();
-        $res = $this->getActionable($form, [['recordID' => $this->recordID]]);
+        $res = $this->retrieveRecordDependencies($form, [['recordID' => $this->recordID]]);
 
         $numRes = count($res);
         if ($numRes > 0)
@@ -875,7 +972,7 @@ class FormWorkflow
       * @param string $userName Username
       * @return string
       */
-    public function getEmpUIDByUserName(string $userName): string
+    public function getEmpUIDByUserName(string $userName): string|null
     {
         if(isset($this->cache['getEmpUIDByUserName'.$userName])) {
             return $this->cache['getEmpUIDByUserName'.$userName];
