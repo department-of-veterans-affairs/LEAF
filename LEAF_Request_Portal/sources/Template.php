@@ -9,6 +9,10 @@
 
 namespace Portal;
 
+use App\Logger\Formatter\Leaf\DataActions;
+use App\Logger\Formatter\Leaf\LoggableTypes;
+use App\Logger\Leaf\LogItem;
+
 class Template
 {
     public $siteRoot = '';
@@ -120,9 +124,9 @@ class Template
             file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::MODIFY,
-                \Leaf\LoggableTypes::TEMPLATE_BODY,
-                [new \Leaf\LogItem("template_editor", "body", $template, $template)]
+                DataActions::MODIFY,
+                LoggableTypes::TEMPLATE_BODY,
+                [new LogItem("template_editor", "body", $template, $template)]
             );
         }
     }
@@ -140,9 +144,9 @@ class Template
             if (file_exists("../templates/custom_override/{$template}"))
             {
                 $this->dataActionLogger->logAction(
-                    \Leaf\DataActions::RESTORE,
-                    \Leaf\LoggableTypes::TEMPLATE_BODY,
-                    [new \Leaf\LogItem("template_editor", "body", $template, $template)]
+                    DataActions::RESTORE,
+                    LoggableTypes::TEMPLATE_BODY,
+                    [new LogItem("template_editor", "body", $template, $template)]
                 );
                 return unlink("../templates/custom_override/{$template}");
             }
@@ -155,7 +159,7 @@ class Template
         $history = [];
 
         $fields = [
-            'message' => \Leaf\LoggableTypes::TEMPLATE_BODY
+            'message' => LoggableTypes::TEMPLATE_BODY
         ];
         foreach ($fields as $field => $type) {
             $fieldHistory = $this->dataActionLogger->getHistory(NULL, $field, $type);

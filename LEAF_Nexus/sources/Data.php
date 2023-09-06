@@ -13,6 +13,9 @@ namespace Orgchart;
 
 use App\Leaf\CommonConfig;
 use App\Leaf\XSSHelpers;
+use App\Logger\Formatter\Leaf\DataActions;
+use App\Logger\Formatter\Leaf\LoggableTypes;
+use App\Logger\Leaf\LogItem;
 
 abstract class Data
 {
@@ -555,9 +558,9 @@ abstract class Data
 
         $this->updateLastModified();
 
-        $this->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::TAG, [
-            new \Leaf\LogItem($this->dataTagTable, $this->dataTableUID, $uid),
-            new \Leaf\LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        $this->logAction(DataActions::ADD, LoggableTypes::TAG, [
+            new LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
         ]);
 
         return true;
@@ -580,9 +583,9 @@ abstract class Data
 
         $this->updateLastModified();
 
-        $this->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::TAG, [
-            new \Leaf\LogItem($this->dataTagTable, $this->dataTableUID, $uid),
-            new \Leaf\LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        $this->logAction(DataActions::DELETE, LoggableTypes::TAG, [
+            new LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
         ]);
 
         return true;
@@ -600,9 +603,9 @@ abstract class Data
 
         $this->updateLastModified();
 
-        $this->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::TAG, [
-            new \Leaf\LogItem($this->dataTagTable, $this->dataTableUID, $uid),
-            new \Leaf\LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        $this->logAction(DataActions::DELETE, LoggableTypes::TAG, [
+            new LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
         ]);
 
         return true;

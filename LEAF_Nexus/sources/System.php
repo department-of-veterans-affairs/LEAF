@@ -12,6 +12,9 @@
 namespace Orgchart;
 
 use App\Leaf\XSSHelpers;
+use App\Logger\Formatter\Leaf\DataActions;
+use App\Logger\Formatter\Leaf\LoggableTypes;
+use App\Logger\Leaf\LogItem;
 
 class System
 {
@@ -296,9 +299,9 @@ class System
 
             $primary = $this->getPrimaryAdmin();
 
-            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
-                new \Leaf\LogItem("settings", "setting", 'primaryAdmin'),
-                new \Leaf\LogItem("settings", "data", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"]),
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::PRIMARY_ADMIN, [
+                new LogItem("settings", "setting", 'primaryAdmin'),
+                new LogItem("settings", "data", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"]),
             ]);
         }
 
@@ -317,9 +320,9 @@ class System
         $strSQL = "DELETE FROM `settings` WHERE `setting` = 'primaryAdmin'";
         $result = $this->db->query($strSQL);
 
-        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
-            new \Leaf\LogItem("users", "primary_admin", 1),
-            new \Leaf\LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+        $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::PRIMARY_ADMIN, [
+            new LogItem("users", "primary_admin", 1),
+            new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
         ]);
 
         return $result;

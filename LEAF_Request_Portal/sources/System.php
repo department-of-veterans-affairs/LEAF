@@ -14,6 +14,9 @@ namespace Portal;
 use App\Leaf\CommonConfig;
 use App\Leaf\Db;
 use App\Leaf\XSSHelpers;
+use App\Logger\Formatter\Leaf\DataActions;
+use App\Logger\Formatter\Leaf\LoggableTypes;
+use App\Logger\Leaf\LogItem;
 
 class System
 {
@@ -729,9 +732,9 @@ class System
 
             $primary = $this->getPrimaryAdmin();
 
-            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
-                new \Leaf\LogItem("users", "primary_admin", 1),
-                new \Leaf\LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::PRIMARY_ADMIN, [
+                new LogItem("users", "primary_admin", 1),
+                new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
             ]);
         }
         else
@@ -754,9 +757,9 @@ class System
 
         $result = $this->db->prepared_query('UPDATE `users` SET `primary_admin` = 0', array());
 
-        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
-            new \Leaf\LogItem("users", "primary_admin", 1),
-            new \Leaf\LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+        $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::PRIMARY_ADMIN, [
+            new LogItem("users", "primary_admin", 1),
+            new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
         ]);
 
         return $result;
@@ -764,7 +767,7 @@ class System
 
     public function getHistory($filterById)
     {
-        return $this->dataActionLogger->getHistory($filterById, null, \Leaf\LoggableTypes::PRIMARY_ADMIN);
+        return $this->dataActionLogger->getHistory($filterById, null, LoggableTypes::PRIMARY_ADMIN);
     }
 
     /**
