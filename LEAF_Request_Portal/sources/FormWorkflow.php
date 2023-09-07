@@ -973,7 +973,6 @@ class FormWorkflow
       * @return string
       */
     public function getEmpUIDByUserName(string $userName): ?string
-
     {
         if(isset($this->cache['getEmpUIDByUserName'.$userName])) {
             return $this->cache['getEmpUIDByUserName'.$userName];
