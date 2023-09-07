@@ -14,6 +14,8 @@ $loader = new Psr4AutoloaderClass;
 $loader->register();
 
 $loader->addNamespace('App\Leaf', $app_dir . '/Leaf');
+$loader->addNamespace('App\Leaf\Logger', $app_dir . '/Leaf/Logger');
+$loader->addNamespace('App\Leaf\Logger\Formatters', $app_dir . '/Leaf/Logger/Formatters');
 
 $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
