@@ -284,7 +284,7 @@ class Group
      */
     public function addMember(string $member, int $groupID): array
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         $vars = array(':userID' => $member,

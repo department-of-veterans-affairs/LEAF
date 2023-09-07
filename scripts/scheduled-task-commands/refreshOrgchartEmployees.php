@@ -1,61 +1,22 @@
 <?php
-$dir = '/var/www/html';
-
-// this should probably be in a file
-$blacklist = [
-    'pre-apr10',
-    'piwik',
-];
-
-$folder_to_check = 'orgchart';
-//$folder_to_check = 'LEAF_Nexus';
+// this file will need to be added, Pete's destruction ticket has it already.
+require_once 'globals.php';
+require_once LIB_PATH . '/php-commons/Db.php';
 
 $startTime = microtime(true);
 
-$items = scandir($dir);
+$db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-function isBlacklisted($folder)
-{
-    global $blacklist;
-    foreach ($blacklist as $item) {
-        if (strpos($folder, $item) !== FALSE) {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-function checkForOrgchart($folder, $depth = 0)
-{
-
-    global $folder_to_check;
-
-    if (is_dir($folder . '/' . $folder_to_check)) {
-        if ($depth > 4 && strpos($folder, 'libs') > 0) {
-            echo "Orgchart: " . $folder . " - depth: {$depth} - IGNORED\r\n";
-        } else if (isBlacklisted($folder)) {
-            echo "Orgchart: " . $folder . " - depth: {$depth} - BLACKLISTED\r\n";
-        } // orgchart found!
-        else {
-            echo "Orgchart: " . $folder . " - depth: {$depth}\r\n";
-            //echo $folder.'/'.$folder_to_check.'/scripts/refreshOrgchartEmployees.php'."\r\n";
-            //echo exec('php ' . $folder.'/'.$folder_to_check.'/scripts/refreshOrgchartEmployees.php' . " > /dev/null 2>/dev/null &")."\r\n";
-            echo exec('php ' . $folder.'/'.$folder_to_check.'/scripts/refreshOrgchartEmployees.php')."\r\n";
-        }
+$orgcharts = $db->query("SELECT `site_path` FROM `sites` WHERE `site_type` = 'orgchart'");
+$dir = '/var/www/html';
+foreach ($orgcharts as $orgchart) {
+    echo "Orgchart: " . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
+    if (is_file($dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php')) {
+        echo exec('php ' . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php') . "\r\n";
     } else {
-        echo "examine: " . $folder . "\r\n";
-        $items = scandir($folder);
-        $depth++;
-        foreach ($items as $item) {
-            if (is_dir($folder . '/' . $item)
-                && ($item != '.' && $item != '..')) {
-                checkForOrgchart($folder . '/' . $item, $depth);
-            }
-        }
+        echo "File was not found\r\n";
     }
 }
-
-checkForOrgchart($dir);
 
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
