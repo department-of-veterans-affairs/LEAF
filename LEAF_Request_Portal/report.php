@@ -121,6 +121,7 @@ switch ($action) {
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+            $t_form->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
 
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
             $tabText = '';

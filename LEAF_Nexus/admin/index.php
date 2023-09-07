@@ -161,6 +161,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
+        $t_form->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
         $main->assign('javascripts', array('../libs/js/LEAF/workbookhelper.js'));
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));

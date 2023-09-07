@@ -20,7 +20,7 @@
         @import "../../libs/js/jquery/chosen/chosen.min.css";
         @import "../../libs/js/jquery/trumbowyg/ui/trumbowyg.min.css";
         @import "css/style.css";
-        @import "../../libs/css/leaf.css";
+        @import "{$css_path}/leaf.css";
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";

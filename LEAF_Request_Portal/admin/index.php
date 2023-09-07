@@ -94,6 +94,7 @@ $t_login->assign('name', $login->getName());
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
 $main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
+$main->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
 
 $main->assign('emergency', '');
 $main->assign('hideFooter', false);
@@ -429,6 +430,7 @@ switch ($action) {
 
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
         $main->assign('javascripts', array($libsPath.'js/choicesjs/choices.min.js'));
         $main->assign('stylesheets', array($libsPath.'js/choicesjs/choices.min.css'));
 

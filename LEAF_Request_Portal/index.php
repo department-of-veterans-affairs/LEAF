@@ -439,6 +439,7 @@ switch ($action) {
 
         $t_form->assign('sitemap', $settings['sitemap_json']['buttons']);
         $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+        $t_form->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
         $main->assign('body', $t_form->fetch('sitemap.tpl'));
 
         break;
