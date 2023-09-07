@@ -144,7 +144,6 @@ class FormWorkflow
             LEFT JOIN records USING (recordID)
             LEFT JOIN workflow_steps USING (stepID)
             LEFT JOIN step_dependencies USING (stepID)
-            LEFT JOIN dependencies USING (dependencyID)
             LEFT JOIN records_dependencies USING (recordID, dependencyID)
             WHERE recordID IN ({$recordIDs})
                 AND filled=0";
