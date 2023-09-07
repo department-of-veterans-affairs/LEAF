@@ -30,9 +30,11 @@ $site_paths = $file_paths_db->pdo_select_query($sql, $vars);
 $site_paths = $site_paths['data'][0];
 
 if (is_dir($curr_dir . '/libs/php-commons')) {
+    /* Commenting this out for testing purposes, this will be uncommented before going to prod.
+
     $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
     $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
-    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters'); */
 
     $working_dir = $curr_dir;
 
