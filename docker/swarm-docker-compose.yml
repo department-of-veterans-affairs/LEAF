@@ -23,9 +23,15 @@ services:
         condition: on-failure
       resources:
         limits:
-          memory: 60gb
+          memory: 70gb
     sysctls:
       net.ipv4.ip_local_port_range: "15000 64000"
+    healthcheck:
+      test: curl --fail http://localhost/ || exit 1
+      interval: 20s
+      timeout: 20s
+      start_period: 600s
+      retries: 2
     labels:
       - "traefik.enable=true"
 
