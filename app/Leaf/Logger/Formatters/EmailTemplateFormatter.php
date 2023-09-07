@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Leaf\Logger\Formatter;
+namespace App\Leaf\Logger\Formatters;
 
 class EmailTemplateFormatter
 {

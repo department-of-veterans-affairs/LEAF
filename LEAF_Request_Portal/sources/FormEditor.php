@@ -13,8 +13,8 @@ namespace Portal;
 
 use App\Leaf\Logger\DataActionLogger;
 use App\Leaf\XSSHelpers;
-use App\Leaf\Logger\Formatter\DataActions;
-use App\Leaf\Logger\Formatter\LoggableTypes;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
 use App\Leaf\Logger\LogItem;
 
 class FormEditor

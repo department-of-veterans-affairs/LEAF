@@ -11,8 +11,8 @@
 
 namespace Orgchart;
 
-use App\Leaf\Logger\Formatter\DataActions;
-use App\Leaf\Logger\Formatter\LoggableTypes;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
 use App\Leaf\Logger\LogItem;
 
 class Group extends Data

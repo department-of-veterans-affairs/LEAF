@@ -2,17 +2,17 @@
 
 namespace App\Leaf\Logger;
 
-use App\Leaf\Logger\Formatter\AppletFormatter;
-use App\Leaf\Logger\Formatter\EmailTemplateFormatter;
-use App\Leaf\Logger\Formatter\FormatOptions;
-use App\Leaf\Logger\Formatter\FormFormatter;
-use App\Leaf\Logger\Formatter\GroupFormatter;
-use App\Leaf\Logger\Formatter\LoggableTypes;
-use App\Leaf\Logger\Formatter\PortalGroupFormatter;
-use App\Leaf\Logger\Formatter\PrimaryAdminFormatter;
-use App\Leaf\Logger\Formatter\ServiceChiefFormatter;
-use App\Leaf\Logger\Formatter\TemplateFormatter;
-use App\Leaf\Logger\Formatter\WorkflowFormatter;
+use App\Leaf\Logger\Formatters\AppletFormatter;
+use App\Leaf\Logger\Formatters\EmailTemplateFormatter;
+use App\Leaf\Logger\Formatters\FormatOptions;
+use App\Leaf\Logger\Formatters\FormFormatter;
+use App\Leaf\Logger\Formatters\GroupFormatter;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\Formatters\PortalGroupFormatter;
+use App\Leaf\Logger\Formatters\PrimaryAdminFormatter;
+use App\Leaf\Logger\Formatters\ServiceChiefFormatter;
+use App\Leaf\Logger\Formatters\TemplateFormatter;
+use App\Leaf\Logger\Formatters\WorkflowFormatter;
 
 class LogFormatter
 {
