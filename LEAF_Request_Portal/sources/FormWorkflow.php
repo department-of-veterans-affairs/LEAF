@@ -140,7 +140,7 @@ class FormWorkflow
         }
         $recordIDs = trim($recordIDs, ',');
 
-        $strSQL = "SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, filled, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
+        $strSQL = "SELECT dependencyID, recordID, serviceID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, userID FROM records_workflow_state
             LEFT JOIN records USING (recordID)
             LEFT JOIN workflow_steps USING (stepID)
             LEFT JOIN step_dependencies USING (stepID)
