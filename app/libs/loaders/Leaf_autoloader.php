@@ -2,6 +2,7 @@
 use App\Leaf\Db;
 use App\Leaf\Psr4AutoloaderClass;
 use App\Leaf\Setting;
+use App\Leaf\Logger\DataActionLogger;
 
 $curr_dir = '/var/www/html';
 $app_dir = '/var/www/html/app';
@@ -126,7 +127,7 @@ if (class_exists('Portal\Login')) {
     error_log(print_r($loader, true));
     exit;
 }
-$data_action_logger = new Leaf\DataActionLogger($db, $login);
+$data_action_logger = new DataActionLogger($db, $login);
 
 if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . getenv('APP_HTTP_HOST') . '/libs');
 if (!defined('ABSOLUTE_ORG_PATH')) define('ABSOLUTE_ORG_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['orgchart_path']);

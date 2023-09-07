@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Logger\Leaf;
+namespace App\Leaf\Logger;
 
-use App\Logger\Formatter\Leaf\AppletFormatter;
-use App\Logger\Formatter\Leaf\EmailTemplateFormatter;
-use App\Logger\Formatter\Leaf\FormatOptions;
-use App\Logger\Formatter\Leaf\FormFormatter;
-use App\Logger\Formatter\Leaf\GroupFormatter;
-use App\Logger\Formatter\Leaf\LoggableTypes;
-use App\Logger\Formatter\Leaf\PortalGroupFormatter;
-use App\Logger\Formatter\Leaf\PrimaryAdminFormatter;
-use App\Logger\Formatter\Leaf\ServiceChiefFormatter;
-use App\Logger\Formatter\Leaf\TemplateFormatter;
-use App\Logger\Formatter\Leaf\WorkflowFormatter;
+use App\Leaf\Logger\Formatter\AppletFormatter;
+use App\Leaf\Logger\Formatter\EmailTemplateFormatter;
+use App\Leaf\Logger\Formatter\FormatOptions;
+use App\Leaf\Logger\Formatter\FormFormatter;
+use App\Leaf\Logger\Formatter\GroupFormatter;
+use App\Leaf\Logger\Formatter\LoggableTypes;
+use App\Leaf\Logger\Formatter\PortalGroupFormatter;
+use App\Leaf\Logger\Formatter\PrimaryAdminFormatter;
+use App\Leaf\Logger\Formatter\ServiceChiefFormatter;
+use App\Leaf\Logger\Formatter\TemplateFormatter;
+use App\Leaf\Logger\Formatter\WorkflowFormatter;
 
 class LogFormatter
 {

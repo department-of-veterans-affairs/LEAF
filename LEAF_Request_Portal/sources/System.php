@@ -13,10 +13,11 @@ namespace Portal;
 
 use App\Leaf\CommonConfig;
 use App\Leaf\Db;
+use App\Leaf\Logger\DataActionLogger;
 use App\Leaf\XSSHelpers;
-use App\Logger\Formatter\Leaf\DataActions;
-use App\Logger\Formatter\Leaf\LoggableTypes;
-use App\Logger\Leaf\LogItem;
+use App\Leaf\Logger\Formatter\DataActions;
+use App\Leaf\Logger\Formatter\LoggableTypes;
+use App\Leaf\Logger\LogItem;
 
 class System
 {
@@ -42,7 +43,7 @@ class System
         $commonConfig = new CommonConfig();
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
 
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
     }
 
     /**

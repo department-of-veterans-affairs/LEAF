@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Logger\Formatter\Leaf;
+namespace App\Leaf\Logger\Formatter;
 
 class FormatOptions
 {

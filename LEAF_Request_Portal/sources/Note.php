@@ -12,6 +12,7 @@
 namespace Portal;
 
 use App\Leaf\Db;
+use App\Leaf\Logger\DataActionLogger;
 
 class Note
 {
@@ -29,7 +30,7 @@ class Note
 
     /**
      *
-     * @var \Leaf\DataActionLogger
+     * @var DataActionLogger
      */
     private $dataActionLogger;
 
@@ -37,11 +38,11 @@ class Note
      *
      * @param Db $db
      * @param Login $login
-     * @param \Leaf\DataActionLogger $dataActionLogger
+     * @param DataActionLogger $dataActionLogger
      *
      * Created at: 10/3/2022, 10:21:10 AM (America/New_York)
      */
-    public function __construct(Db $db, Login $login, \Leaf\DataActionLogger $dataActionLogger)
+    public function __construct(Db $db, Login $login, DataActionLogger $dataActionLogger)
     {
         $this->db = $db;
         $this->login = $login;

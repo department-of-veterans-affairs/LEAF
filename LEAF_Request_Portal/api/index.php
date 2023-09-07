@@ -8,6 +8,8 @@
 
 */
 
+use App\Leaf\Logger\DataActionLogger;
+
 error_reporting(E_ERROR);
 
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
@@ -164,7 +166,7 @@ $controllerMap->register('userActivity', function() use ($p_db, $login, $action)
 });
 
 $controllerMap->register('note', function() use ($p_db, $login, $action) {
-    $dataActionLogger = new Leaf\DataActionLogger($p_db, $login);
+    $dataActionLogger = new DataActionLogger($p_db, $login);
 
     $NotesController = new Portal\NotesController($p_db, $login, $dataActionLogger);
     echo $NotesController->handler($action);

@@ -13,10 +13,10 @@
 namespace Portal;
 
 use App\Leaf\Db;
-use App\Logger\Formatter\Leaf\DataActions;
-use App\Logger\Formatter\Leaf\LoggableTypes;
-use App\Logger\Leaf\DataActionLogger;
-use App\Logger\Leaf\LogItem;
+use App\Leaf\Logger\Formatter\DataActions;
+use App\Leaf\Logger\Formatter\LoggableTypes;
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\Logger\LogItem;
 
 class Group
 {

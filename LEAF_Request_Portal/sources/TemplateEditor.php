@@ -9,9 +9,10 @@
 
 namespace Portal;
 
-use App\Logger\Formatter\Leaf\DataActions;
-use App\Logger\Formatter\Leaf\LoggableTypes;
-use App\Logger\Leaf\LogItem;
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\Logger\Formatter\DataActions;
+use App\Leaf\Logger\Formatter\LoggableTypes;
+use App\Leaf\Logger\LogItem;
 
 class TemplateEditor
 {
@@ -26,7 +27,7 @@ class TemplateEditor
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
     }
 
     public function getTemplateList()

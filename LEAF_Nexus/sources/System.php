@@ -11,10 +11,11 @@
 
 namespace Orgchart;
 
+use App\Leaf\Logger\DataActionLogger;
 use App\Leaf\XSSHelpers;
-use App\Logger\Formatter\Leaf\DataActions;
-use App\Logger\Formatter\Leaf\LoggableTypes;
-use App\Logger\Leaf\LogItem;
+use App\Leaf\Logger\Formatter\DataActions;
+use App\Leaf\Logger\Formatter\LoggableTypes;
+use App\Leaf\Logger\LogItem;
 
 class System
 {
@@ -31,7 +32,7 @@ class System
         $this->db = $db;
         $this->login = $login;
 
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';

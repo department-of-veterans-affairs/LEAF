@@ -9,6 +9,7 @@
 
 */
 
+use App\Leaf\Logger\DataActionLogger;
 use App\Leaf\XSSHelpers;
 
 error_reporting(E_ERROR);
@@ -20,7 +21,7 @@ function customTemplate($tpl)
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-$dataActionLogger = new Leaf\DataActionLogger($db, $login);
+$dataActionLogger = new DataActionLogger($db, $login);
 
 $login->loginUser();
 if ($login)

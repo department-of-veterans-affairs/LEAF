@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Logger\Leaf;
+namespace App\Leaf\Logger;
 
 class LogItem
 {
