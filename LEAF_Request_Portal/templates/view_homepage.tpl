@@ -14,7 +14,7 @@
 </a>
 
 <!--{if $inbox_status == 0}-->
-<a href="?a=inbox" role="button">
+<a href="report.php?a=LEAF_Inbox" role="button">
     <span class="menuButtonSmall" style="background-color: #c9c9c9">
         <img class="menuIconSmall" src="dynicons/?img=folder-open.svg&amp;w=76" style="position: relative" alt=""/>
         <span class="menuTextSmall">Inbox</span><br />
@@ -22,7 +22,7 @@
     </span>
 </a>
 <!--{else}-->
-<a href="?a=inbox" role="button">
+<a href="report.php?a=LEAF_Inbox" role="button">
     <span class="menuButtonSmall" style="background-color: #b6ef6d">
         <img class="menuIconSmall" src="dynicons/?img=document-open.svg&amp;w=76" style="position: relative" alt=""/>
         <span class="menuTextSmall">Inbox</span><br />
