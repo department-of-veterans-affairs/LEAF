@@ -7,13 +7,13 @@
     <classes>
       <class name="Execution.userAccessGroupsTESTING">
         <methods>
-          <include name="saveNexusEmployee2"/>
-          <include name="saveNexusEmployee3"/>
+          <include name="clickAssignBackup"/>
+          <include name="addBackupPosition1"/>
           <include name="setUp"/>
           <include name="initializeFramework"/>
+          <include name="selectMemberPosition1"/>
           <include name="closeDown"/>
-          <include name="clickAddUserInNexus3"/>
-          <include name="inputNexusEmployee3"/>
+          <include name="saveBackup"/>
         </methods>
       </class> <!-- Execution.userAccessGroupsTESTING -->
     </classes>

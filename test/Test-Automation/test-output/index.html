@@ -26,7 +26,7 @@
       <span class="top-banner-title-font">Test results</span>
       <button id="button" class="button">Switch Retro Theme</button> <!-- button -->
       <br/>
-      <span class="top-banner-font-1">1 suite</span>
+      <span class="top-banner-font-1">1 suite, 4 failed tests</span>
     </div> <!-- top-banner-root -->
     <div class="navigator-root">
       <div class="navigator-suite-header">
@@ -40,7 +40,7 @@
         <div class="rounded-window">
           <div class="suite-header light-rounded-window-top">
             <a href="#" panel-name="suite-RegressionSuite" class="navigator-link">
-              <span class="suite-name border-passed">RegressionSuite</span>
+              <span class="suite-name border-failed">RegressionSuite</span>
             </a> <!-- navigator-link -->
           </div> <!-- suite-header light-rounded-window-top -->
           <div class="navigator-suite-content">
@@ -93,7 +93,36 @@
               <div class="suite-section-content">
                 <ul>
                   <li>
-                    <span class="method-stats">15 methods,   15 passed</span>
+                    <span class="method-stats">19 methods, 4 failed,   15 passed</span>
+                  </li>
+                  <li>
+                    <span class="method-list-title failed">Failed methods</span>
+                    <span class="show-or-hide-methods failed">
+                      <a href="#" panel-name="suite-RegressionSuite" class="hide-methods failed suite-RegressionSuite"> (hide)</a> <!-- hide-methods failed suite-RegressionSuite -->
+                      <a href="#" panel-name="suite-RegressionSuite" class="show-methods failed suite-RegressionSuite"> (show)</a> <!-- show-methods failed suite-RegressionSuite -->
+                    </span>
+                    <div class="method-list-content failed suite-RegressionSuite">
+                      <span>
+                        <img src="failed.png" width="3%"/>
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="addBackupPosition1">addBackupPosition1</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="failed.png" width="3%"/>
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="clickAssignBackup">clickAssignBackup</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="failed.png" width="3%"/>
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="saveBackup">saveBackup</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                      <span>
+                        <img src="failed.png" width="3%"/>
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectMemberPosition1">selectMemberPosition1</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                    </div> <!-- method-list-content failed suite-RegressionSuite -->
                   </li>
                   <li>
                     <span class="method-list-title passed">Passed methods</span>
@@ -189,6 +218,132 @@
     <div class="wrapper">
       <div class="main-panel-root">
         <div panel-name="suite-RegressionSuite" class="panel RegressionSuite">
+          <div class="suite-RegressionSuite-class-failed">
+            <div class="main-panel-header rounded-window-top">
+              <img src="failed.png"/>
+              <span class="class-name">Execution.userAccessGroupsTESTING</span>
+            </div> <!-- main-panel-header rounded-window-top -->
+            <div class="main-panel-content rounded-window-bottom">
+              <div class="method">
+                <div class="method-content">
+                  <a name="addBackupPosition1">
+                  </a> <!-- addBackupPosition1 -->
+                  <span class="method-name">addBackupPosition1</span>
+                  <div class="stack-trace">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {&quot;method&quot;:&quot;xpath&quot;,&quot;selector&quot;:&quot;/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input&quot;}
+  (Session info: chrome=116.0.5845.180)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: &apos;3.141.59&apos;, revision: &apos;e82be7d358&apos;, time: &apos;2018-11-14T08:25:48&apos;
+System info: host: &apos;DESKTOP-OOHKJP3&apos;, ip: &apos;172.31.0.1&apos;, os.name: &apos;Windows 10&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;15.0.2&apos;
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58939}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 37ec0862112bd79649b020d929bf2e94
+*** Element info: {Using=xpath, value=/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input}
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+	at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+	at Execution.userAccessGroupsTESTING.addBackupPosition1(userAccessGroupsTESTING.java:863)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+... Removed 32 stack frames
+</div> <!-- stack-trace -->
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="clickAssignBackup">
+                  </a> <!-- clickAssignBackup -->
+                  <span class="method-name">clickAssignBackup</span>
+                  <div class="stack-trace">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {&quot;method&quot;:&quot;xpath&quot;,&quot;selector&quot;:&quot;//*[contains(text(), &apos; Assign Backup&apos;)]&quot;}
+  (Session info: chrome=116.0.5845.180)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: &apos;3.141.59&apos;, revision: &apos;e82be7d358&apos;, time: &apos;2018-11-14T08:25:48&apos;
+System info: host: &apos;DESKTOP-OOHKJP3&apos;, ip: &apos;172.31.0.1&apos;, os.name: &apos;Windows 10&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;15.0.2&apos;
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58939}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 37ec0862112bd79649b020d929bf2e94
+*** Element info: {Using=xpath, value=//*[contains(text(), &apos; Assign Backup&apos;)]}
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+	at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+	at Execution.userAccessGroupsTESTING.clickAssignBackup(userAccessGroupsTESTING.java:850)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+... Removed 32 stack frames
+</div> <!-- stack-trace -->
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="saveBackup">
+                  </a> <!-- saveBackup -->
+                  <span class="method-name">saveBackup</span>
+                  <div class="stack-trace">org.openqa.selenium.ElementNotInteractableException: element not interactable
+  (Session info: chrome=116.0.5845.180)
+Build info: version: &apos;3.141.59&apos;, revision: &apos;e82be7d358&apos;, time: &apos;2018-11-14T08:25:48&apos;
+System info: host: &apos;DESKTOP-OOHKJP3&apos;, ip: &apos;172.31.0.1&apos;, os.name: &apos;Windows 10&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;15.0.2&apos;
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58939}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 37ec0862112bd79649b020d929bf2e94
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+	at org.openqa.selenium.remote.RemoteWebElement.execute(RemoteWebElement.java:285)
+	at org.openqa.selenium.remote.RemoteWebElement.click(RemoteWebElement.java:84)
+	at Execution.userAccessGroupsTESTING.saveNexusEmployee(userAccessGroupsTESTING.java:727)
+	at Execution.userAccessGroupsTESTING.saveBackup(userAccessGroupsTESTING.java:884)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+... Removed 32 stack frames
+</div> <!-- stack-trace -->
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+              <div class="method">
+                <div class="method-content">
+                  <a name="selectMemberPosition1">
+                  </a> <!-- selectMemberPosition1 -->
+                  <span class="method-name">selectMemberPosition1</span>
+                  <div class="stack-trace">org.openqa.selenium.InvalidSelectorException: invalid selector: Unable to locate an element with the xpath expression //a[contains(text(), &apos;Abbott, Roman&apos; because of the following error:
+SyntaxError: Failed to execute &apos;evaluate&apos; on &apos;Document&apos;: The string &apos;//a[contains(text(), &apos;Abbott, Roman&apos;&apos; is not a valid XPath expression.
+  (Session info: chrome=116.0.5845.180)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/invalid_selector_exception.html
+Build info: version: &apos;3.141.59&apos;, revision: &apos;e82be7d358&apos;, time: &apos;2018-11-14T08:25:48&apos;
+System info: host: &apos;DESKTOP-OOHKJP3&apos;, ip: &apos;172.31.0.1&apos;, os.name: &apos;Windows 10&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;15.0.2&apos;
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58939}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 37ec0862112bd79649b020d929bf2e94
+*** Element info: {Using=xpath, value=//a[contains(text(), &apos;Abbott, Roman&apos;}
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+	at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+	at Execution.userAccessGroupsTESTING.selectMemberPosition1(userAccessGroupsTESTING.java:837)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+... Removed 32 stack frames
+</div> <!-- stack-trace -->
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+            </div> <!-- main-panel-content rounded-window-bottom -->
+          </div> <!-- suite-RegressionSuite-class-failed -->
           <div class="suite-RegressionSuite-class-passed">
             <div class="main-panel-header rounded-window-top">
               <img src="passed.png"/>
@@ -356,72 +511,88 @@ data.addColumn('number', 'Number');
 data.addColumn('string', 'Method');
 data.addColumn('string', 'Class');
 data.addColumn('number', 'Time (ms)');
-data.addRows(15);
+data.addRows(19);
 data.setCell(0, 0, 0)
 data.setCell(0, 1, 'createNexusDriver1')
 data.setCell(0, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(0, 3, 5470);
+data.setCell(0, 3, 5389);
 data.setCell(1, 0, 1)
-data.setCell(1, 1, 'getElementID')
+data.setCell(1, 1, 'clickAddUserInNexus')
 data.setCell(1, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(1, 3, 2964);
+data.setCell(1, 3, 4230);
 data.setCell(2, 0, 2)
-data.setCell(2, 1, 'inputNexusEmployee3')
+data.setCell(2, 1, 'clickAddUserInNexus2')
 data.setCell(2, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(2, 3, 1728);
+data.setCell(2, 3, 3447);
 data.setCell(3, 0, 3)
-data.setCell(3, 1, 'clickAddUserInNexus')
+data.setCell(3, 1, 'clickAddUserInNexus3')
 data.setCell(3, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(3, 3, 1680);
+data.setCell(3, 3, 3428);
 data.setCell(4, 0, 4)
-data.setCell(4, 1, 'inputNexusEmployee2')
+data.setCell(4, 1, 'getElementID')
 data.setCell(4, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(4, 3, 1667);
+data.setCell(4, 3, 3058);
 data.setCell(5, 0, 5)
 data.setCell(5, 1, 'inputNexusEmployee')
 data.setCell(5, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(5, 3, 1609);
+data.setCell(5, 3, 1795);
 data.setCell(6, 0, 6)
-data.setCell(6, 1, 'testForCertPage')
+data.setCell(6, 1, 'inputNexusEmployee2')
 data.setCell(6, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(6, 3, 1507);
+data.setCell(6, 3, 1585);
 data.setCell(7, 0, 7)
-data.setCell(7, 1, 'clickAddUserInNexus3')
+data.setCell(7, 1, 'inputNexusEmployee3')
 data.setCell(7, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(7, 3, 966);
+data.setCell(7, 3, 1579);
 data.setCell(8, 0, 8)
-data.setCell(8, 1, 'clickAddUserInNexus2')
+data.setCell(8, 1, 'testForCertPage')
 data.setCell(8, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(8, 3, 944);
+data.setCell(8, 3, 1556);
 data.setCell(9, 0, 9)
-data.setCell(9, 1, 'selectSearchEmployeesOnly3')
+data.setCell(9, 1, 'selectSearchEmployeesOnly')
 data.setCell(9, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(9, 3, 737);
+data.setCell(9, 3, 1456);
 data.setCell(10, 0, 10)
-data.setCell(10, 1, 'selectSearchEmployeesOnly')
+data.setCell(10, 1, 'selectSearchEmployeesOnly2')
 data.setCell(10, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(10, 3, 729);
+data.setCell(10, 3, 1432);
 data.setCell(11, 0, 11)
-data.setCell(11, 1, 'selectSearchEmployeesOnly2')
+data.setCell(11, 1, 'selectSearchEmployeesOnly3')
 data.setCell(11, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(11, 3, 725);
+data.setCell(11, 3, 1413);
 data.setCell(12, 0, 12)
-data.setCell(12, 1, 'saveNexusEmployee2')
+data.setCell(12, 1, 'selectMemberPosition1')
 data.setCell(12, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(12, 3, 475);
+data.setCell(12, 3, 1032);
 data.setCell(13, 0, 13)
-data.setCell(13, 1, 'saveNexusEmployee')
+data.setCell(13, 1, 'clickAssignBackup')
 data.setCell(13, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(13, 3, 475);
+data.setCell(13, 3, 1018);
 data.setCell(14, 0, 14)
-data.setCell(14, 1, 'saveNexusEmployee3')
+data.setCell(14, 1, 'saveNexusEmployee')
 data.setCell(14, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(14, 3, 455);
+data.setCell(14, 3, 474);
+data.setCell(15, 0, 15)
+data.setCell(15, 1, 'saveNexusEmployee3')
+data.setCell(15, 2, 'Execution.userAccessGroupsTESTING')
+data.setCell(15, 3, 463);
+data.setCell(16, 0, 16)
+data.setCell(16, 1, 'saveNexusEmployee2')
+data.setCell(16, 2, 'Execution.userAccessGroupsTESTING')
+data.setCell(16, 3, 447);
+data.setCell(17, 0, 17)
+data.setCell(17, 1, 'saveBackup')
+data.setCell(17, 2, 'Execution.userAccessGroupsTESTING')
+data.setCell(17, 3, 326);
+data.setCell(18, 0, 18)
+data.setCell(18, 1, 'addBackupPosition1')
+data.setCell(18, 2, 'Execution.userAccessGroupsTESTING')
+data.setCell(18, 3, 314);
 window.suiteTableData['RegressionSuite']= { tableData: data, tableDiv: 'times-div-RegressionSuite'}
 return data;
 }
               </script>
-              <span class="suite-total-time">Total running time: 22 seconds</span>
+              <span class="suite-total-time">Total running time: 34 seconds</span>
               <div id="times-div-RegressionSuite">
               </div> <!-- times-div-RegressionSuite -->
             </div> <!-- times-div -->
@@ -454,131 +625,171 @@ return data;
               </div> <!-- configuration-class before -->
               <div class="configuration-class before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">2466 ms</span>
+                <span class="method-start">2374 ms</span>
               </div> <!-- configuration-class before -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">2473 ms</span>
+                <span class="method-start">2381 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">testForCertPage</span>
-                <span class="method-start">2475 ms</span>
+                <span class="method-start">2382 ms</span>
               </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">3949 ms</span>
+              </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">getElementID</span>
-                <span class="method-start">3990 ms</span>
+                <span class="method-start">3951 ms</span>
               </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">3990 ms</span>
-              </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">createNexusDriver1</span>
-                <span class="method-start">6956 ms</span>
+                <span class="method-start">7011 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">6956 ms</span>
+                <span class="method-start">7011 ms</span>
               </div> <!-- configuration-method before -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">12436 ms</span>
+                <span class="method-start">12406 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">clickAddUserInNexus</span>
-                <span class="method-start">12437 ms</span>
+                <span class="method-start">12409 ms</span>
               </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">14121 ms</span>
-              </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">selectSearchEmployeesOnly</span>
-                <span class="method-start">14121 ms</span>
+                <span class="method-start">16642 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">14851 ms</span>
+                <span class="method-start">16642 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">18100 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">inputNexusEmployee</span>
-                <span class="method-start">14852 ms</span>
+                <span class="method-start">18100 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">16464 ms</span>
+                <span class="method-start">19897 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">saveNexusEmployee</span>
-                <span class="method-start">16464 ms</span>
+                <span class="method-start">19898 ms</span>
               </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">20376 ms</span>
+              </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">clickAddUserInNexus2</span>
-                <span class="method-start">16941 ms</span>
+                <span class="method-start">20377 ms</span>
               </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">16941 ms</span>
-              </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">selectSearchEmployeesOnly2</span>
-                <span class="method-start">17887 ms</span>
+                <span class="method-start">23826 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">17887 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">18614 ms</span>
+                <span class="method-start">23826 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">inputNexusEmployee2</span>
-                <span class="method-start">18614 ms</span>
+                <span class="method-start">25259 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">20282 ms</span>
+                <span class="method-start">25259 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">26845 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">saveNexusEmployee2</span>
-                <span class="method-start">20283 ms</span>
+                <span class="method-start">26846 ms</span>
               </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">20760 ms</span>
-              </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">clickAddUserInNexus3</span>
-                <span class="method-start">20761 ms</span>
+                <span class="method-start">27295 ms</span>
               </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">27295 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">30724 ms</span>
+              </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">selectSearchEmployeesOnly3</span>
-                <span class="method-start">21729 ms</span>
+                <span class="method-start">30724 ms</span>
               </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">21729 ms</span>
-              </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">inputNexusEmployee3</span>
-                <span class="method-start">22468 ms</span>
+                <span class="method-start">32139 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">22468 ms</span>
+                <span class="method-start">32139 ms</span>
               </div> <!-- configuration-method before -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">24198 ms</span>
+                <span class="method-start">33720 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">saveNexusEmployee3</span>
-                <span class="method-start">24199 ms</span>
+                <span class="method-start">33721 ms</span>
               </div> <!-- test-method -->
+              <div class="test-method">
+                <img src="failed.png">
+                </img>
+                <span class="method-name">selectMemberPosition1</span>
+                <span class="method-start">34185 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">34185 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <img src="failed.png">
+                </img>
+                <span class="method-name">clickAssignBackup</span>
+                <span class="method-start">35219 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">35219 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <img src="failed.png">
+                </img>
+                <span class="method-name">addBackupPosition1</span>
+                <span class="method-start">36239 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">36239 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <img src="failed.png">
+                </img>
+                <span class="method-name">saveBackup</span>
+                <span class="method-start">36555 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">36555 ms</span>
+              </div> <!-- configuration-method before -->
               <div class="configuration-class after">
                 <span class="method-name">closeDown</span>
-                <span class="method-start">24656 ms</span>
+                <span class="method-start">36882 ms</span>
               </div> <!-- configuration-class after -->
           </div> <!-- main-panel-content rounded-window-bottom -->
         </div> <!-- panel -->
