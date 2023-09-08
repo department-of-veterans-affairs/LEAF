@@ -160,9 +160,9 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('APIroot', '../api/');
+        $t_form->assign('APIroot', 'https://' . HTTP_HOST . '/app/api/');
         $t_form->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
-        $main->assign('javascripts', array('../libs/js/LEAF/workbookhelper.js'));
+        $main->assign('javascripts', array('https://' . HTTP_HOST . '/app/libs/js/LEAF/workbookhelper.js'));
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
 
@@ -175,28 +175,28 @@ switch ($action) {
 
            $main->assign('useUI', true);
            $main->assign('javascripts', array('js/dialogController.js',
-                   '../libs/js/codemirror/lib/codemirror.js',
-                   '../libs/js/codemirror/mode/xml/xml.js',
-                   '../libs/js/codemirror/mode/javascript/javascript.js',
-                   '../libs/js/codemirror/mode/css/css.js',
-                   '../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                   '../libs/js/codemirror/addon/search/search.js',
-                   '../libs/js/codemirror/addon/search/searchcursor.js',
-                   '../libs/js/codemirror/addon/dialog/dialog.js',
-                   '../libs/js/codemirror/addon/scroll/simplescrollbars.js',
-                   '../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
-                   '../libs/js/codemirror/addon/search/matchesonscrollbar.js',
-                   '../libs/js/codemirror/addon/display/fullscreen.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/xml/xml.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/javascript/javascript.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/css/css.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/search.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/searchcursor.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/dialog/dialog.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/simplescrollbars.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/annotatescrollbar.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/matchesonscrollbar.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/display/fullscreen.js',
            ));
-           $main->assign('stylesheets', array('../libs/js/codemirror/lib/codemirror.css',
-                   '../libs/js/codemirror/addon/dialog/dialog.css',
-                   '../libs/js/codemirror/addon/scroll/simplescrollbars.css',
-                   '../libs/js/codemirror/addon/search/matchesonscrollbar.css',
-                   '../libs/js/codemirror/addon/display/fullscreen.css',
+           $main->assign('stylesheets', array('https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.css',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/dialog/dialog.css',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/simplescrollbars.css',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/matchesonscrollbar.css',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/display/fullscreen.css',
            ));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-           $t_form->assign('APIroot', '../api/');
+           $t_form->assign('APIroot', 'https://' . HTTP_HOST . '/app/api/');
            $t_form->assign('domain_path', DOMAIN_PATH);
 
            switch ($action) {

@@ -52,6 +52,7 @@ $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
 $main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
+$main->assign('app_js_path', APP_JS_PATH);
 
 $main->assign('useUI', false);
 
@@ -90,7 +91,7 @@ switch ($action) {
             && file_exists("templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
-            $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
+            $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
             $main->assign('javascripts', array(
                 'js/form.js',
                 'js/workflow.js',
@@ -99,11 +100,11 @@ switch ($action) {
                 'js/formSearch.js',
                 'js/gridInput.js',
                 'js/lz-string/lz-string.min.js',
-                '../libs/js/LEAF/XSSHelpers.js',
+                APP_JS_PATH . '/LEAF/XSSHelpers.js',
                 '../libs/jsapi/nexus/LEAFNexusAPI.js',
                 '../libs/jsapi/portal/LEAFPortalAPI.js',
                 '../libs/jsapi/portal/model/FormQuery.js',
-                '../libs/js/choicesjs/choices.min.js'
+                APP_JS_PATH . '/choicesjs/choices.min.js'
             ));
 
             $form = new Portal\Form($db, $login);
@@ -121,7 +122,8 @@ switch ($action) {
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
-            $t_form->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
+            $t_form->assign('app_css_path', APP_CSS_PATH);
+            $t_form->assign('app_js_path', APP_JS_PATH);
 
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
             $tabText = '';

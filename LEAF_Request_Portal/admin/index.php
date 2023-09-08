@@ -94,7 +94,8 @@ $t_login->assign('name', $login->getName());
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
 $main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
-$main->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
+$main->assign('app_css_path', APP_CSS_PATH);
+$main->assign('app_js_path', APP_JS_PATH);
 
 $main->assign('emergency', '');
 $main->assign('hideFooter', false);
@@ -159,10 +160,10 @@ switch ($action) {
 
         $main->assign('useUI', true);
 
-        $main->assign('javascripts', array('../../libs/js/jsPlumb/dom.jsPlumb-min.js',
+        $main->assign('javascripts', array(APP_JS_PATH . '/jsPlumb/dom.jsPlumb-min.js',
                                            $site_paths['orgchart_path'] . '/js/groupSelector.js',
                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
-                                           '../../libs/js/LEAF/XSSHelpers.js',
+                                           APP_JS_PATH . '/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
                                            $site_paths['orgchart_path'] . '/css/groupSelector.css',
@@ -225,17 +226,17 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('../../libs/js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
-                                            '../../libs/js/filesaver/FileSaver.min.js',
-                                            '../../libs/js/codemirror/lib/codemirror.js',
-                                            '../../libs/js/codemirror/mode/xml/xml.js',
-                                            '../../libs/js/codemirror/mode/javascript/javascript.js',
-                                            '../../libs/js/codemirror/mode/css/css.js',
-                                            '../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                            '../../libs/js/codemirror/addon/display/fullscreen.js',
-                                            '../../libs/js/LEAF/XSSHelpers.js',
+        $main->assign('javascripts', array(APP_JS_PATH . '/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+                                            APP_JS_PATH . '/filesaver/FileSaver.min.js',
+                                            APP_JS_PATH . '/codemirror/lib/codemirror.js',
+                                            APP_JS_PATH . '/codemirror/mode/xml/xml.js',
+                                            APP_JS_PATH . '/codemirror/mode/javascript/javascript.js',
+                                            APP_JS_PATH . '/codemirror/mode/css/css.js',
+                                            APP_JS_PATH . '/codemirror/mode/htmlmixed/htmlmixed.js',
+                                            APP_JS_PATH . '/codemirror/addon/display/fullscreen.js',
+                                            APP_JS_PATH . '/LEAF/XSSHelpers.js',
                                             '../../libs/jsapi/portal/LEAFPortalAPI.js',
-                                            '../../libs/js/choicesjs/choices.min.js',
+                                            APP_JS_PATH . '/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
                                             '../js/formQuery.js',
                                             $site_paths['orgchart_path'] . '/js/employeeSelector.js',
@@ -243,10 +244,10 @@ switch ($action) {
                                             $site_paths['orgchart_path'] . '/js/positionSelector.js'
         ));
         $main->assign('stylesheets', array('css/mod_form.css',
-                                            '../../libs/js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
-                                            '../../libs/js/codemirror/lib/codemirror.css',
-                                            '../../libs/js/codemirror/addon/display/fullscreen.css',
-                                            '../../libs/js/choicesjs/choices.min.css',
+                                            APP_JS_PATH . '/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
+                                            APP_JS_PATH . '/codemirror/lib/codemirror.css',
+                                            APP_JS_PATH . '/codemirror/addon/display/fullscreen.css',
+                                            APP_JS_PATH . '/choicesjs/choices.min.css',
                                             $site_paths['orgchart_path'] . '/css/employeeSelector.css',
                                             $site_paths['orgchart_path'] . '/css/groupSelector.css',
                                             $site_paths['orgchart_path'] . '/css/positionSelector.css'
@@ -257,6 +258,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
+        $t_form->assign('app_js_path', APP_JS_PATH);
 
         if (isset($_GET['form']))
         {
@@ -285,28 +287,29 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
 
             $main->assign('useUI', true);
-            $main->assign('javascripts', array('../../libs/js/codemirror/lib/codemirror.js',
-                                                '../../libs/js/codemirror/mode/xml/xml.js',
-                                                '../../libs/js/codemirror/mode/javascript/javascript.js',
-                                                '../../libs/js/codemirror/mode/css/css.js',
-                                                '../../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                                '../../libs/js/codemirror/addon/search/search.js',
-                                                '../../libs/js/codemirror/addon/search/searchcursor.js',
-                                                '../../libs/js/codemirror/addon/dialog/dialog.js',
-                                                '../../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
-                                                '../../libs/js/codemirror/addon/search/matchesonscrollbar.js',
-                                                '../../libs/js/codemirror/addon/display/fullscreen.js',
+            $main->assign('javascripts', array(APP_JS_PATH . '/codemirror/lib/codemirror.js',
+                                                APP_JS_PATH . '/codemirror/mode/xml/xml.js',
+                                                APP_JS_PATH . '/codemirror/mode/javascript/javascript.js',
+                                                APP_JS_PATH . '/codemirror/mode/css/css.js',
+                                                APP_JS_PATH . '/codemirror/mode/htmlmixed/htmlmixed.js',
+                                                APP_JS_PATH . '/codemirror/addon/search/search.js',
+                                                APP_JS_PATH . '/codemirror/addon/search/searchcursor.js',
+                                                APP_JS_PATH . '/codemirror/addon/dialog/dialog.js',
+                                                APP_JS_PATH . '/codemirror/addon/scroll/annotatescrollbar.js',
+                                                APP_JS_PATH . '/codemirror/addon/search/matchesonscrollbar.js',
+                                                APP_JS_PATH . '/codemirror/addon/display/fullscreen.js',
             ));
-            $main->assign('stylesheets', array('../../libs/js/codemirror/lib/codemirror.css',
-                                                '../../libs/js/codemirror/addon/dialog/dialog.css',
-                                                '../../libs/js/codemirror/addon/scroll/simplescrollbars.css',
-                                                '../../libs/js/codemirror/addon/search/matchesonscrollbar.css',
-                                                '../../libs/js/codemirror/addon/display/fullscreen.css',
+            $main->assign('stylesheets', array(APP_JS_PATH . '/codemirror/lib/codemirror.css',
+                                                APP_JS_PATH . '/codemirror/addon/dialog/dialog.css',
+                                                APP_JS_PATH . '/codemirror/addon/scroll/simplescrollbars.css',
+                                                APP_JS_PATH . '/codemirror/addon/search/matchesonscrollbar.css',
+                                                APP_JS_PATH . '/codemirror/addon/display/fullscreen.css',
             ));
 
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('APIroot', '../api/');
             $t_form->assign('domain_path', DOMAIN_PATH);
+            $t_form->assign('app_js_path', APP_JS_PATH);
 
             switch ($action) {
                 case 'mod_templates':
@@ -373,6 +376,7 @@ switch ($action) {
            if ($login->checkGroup(1))
            {
                $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
+               $t_form->assign('app_js_path', APP_JS_PATH);
 
                $main->assign('body', $t_form->fetch('view_form_library.tpl'));
            }
@@ -426,13 +430,13 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        $libsPath = '../../libs/';
 
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
-        $main->assign('javascripts', array($libsPath.'js/choicesjs/choices.min.js'));
-        $main->assign('stylesheets', array($libsPath.'js/choicesjs/choices.min.css'));
+        $t_form->assign('app_css_path', APP_CSS_PATH);
+        $t_form->assign('app_js_path', APP_JS_PATH);
+        $main->assign('javascripts', array(APP_JS_PATH . '/choicesjs/choices.min.js'));
+        $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox.tpl')));
 
@@ -447,7 +451,7 @@ switch ($action) {
         $main->assign('useUI', true);
 //   		$t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js',
+        $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/XSSHelpers.js',
                                            '../js/formQuery.js'));
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
@@ -463,7 +467,7 @@ switch ($action) {
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
-            $main->assign('javascripts', array('../../libs/js/LEAF/XSSHelpers.js'));
+            $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/XSSHelpers.js'));
             $main->assign('useUI', true);
             //   		$t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -497,8 +501,8 @@ switch ($action) {
             '../js/formGrid.js',
             '../js/formQuery.js',
             $site_paths['orgchart_path'] . '/js/employeeSelector.js',
-            '../../libs/js/LEAF/XSSHelpers.js',
-            '../../libs/js/LEAF/intervalQueue.js'
+            APP_JS_PATH . '/LEAF/XSSHelpers.js',
+            APP_JS_PATH . '/LEAF/intervalQueue.js'
         ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -514,6 +518,7 @@ switch ($action) {
 
         $main->assign('useUI', true);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('app_js_path', APP_JS_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_access_matrix.tpl')));
 
@@ -530,7 +535,7 @@ switch ($action) {
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
 
         $main->assign('javascripts', array(
-            '../../libs/js/LEAF/XSSHelpers.js',
+            APP_JS_PATH . '/LEAF/XSSHelpers.js',
             '../../libs/jsapi/nexus/LEAFNexusAPI.js',
             '../../libs/jsapi/portal/LEAFPortalAPI.js',
         ));
@@ -589,9 +594,9 @@ switch ($action) {
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
 
-            $main->assign('javascripts', array('../../libs/js/jquery/jquery.min.js',
-                                           '../../libs/js/jquery/jquery-ui.custom.min.js',
-                                           '../../libs/js/jsPlumb/dom.jsPlumb-min.js', ));
+            $main->assign('javascripts', array(APP_JS_PATH . '/jquery/jquery.min.js',
+                                           APP_JS_PATH . '/jquery/jquery-ui.custom.min.js',
+                                           APP_JS_PATH . '/jsPlumb/dom.jsPlumb-min.js', ));
 
             $main->assign('body', $t_form->fetch(customTemplate('view_admin_menu.tpl')));
 

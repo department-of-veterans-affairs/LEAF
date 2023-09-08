@@ -59,7 +59,7 @@
                         priorityStyle = ' style="background-color: red; color: black"';
                     }
 
-                    document.querySelector(`#${data.cellContainerID}`).innerHTML = 
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML =
                         `<span class="browsecounter">
                             <a ${priorityStyle} href="index.php?a=printview&recordID=${data.recordID}" tabindex="-1">${data.recordID}</a>
                         </span>
@@ -161,6 +161,7 @@
     function main() {
         let query = new LeafFormQuery();
         let leafSearch = new LeafFormSearch('searchContainer');
+        leafSearch.setJsPath('<!--{$app_js_path}-->');
         leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
 
         let extendedQueryState = 0; // 0 = not run, 1 = completed extra query for records created by current user

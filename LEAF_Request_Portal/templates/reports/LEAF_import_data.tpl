@@ -31,8 +31,8 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@64798fd/shim.js"></script>
 <script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
 
-<script src="../../../libs/js/jquery/jquery-ui.custom.min.js"></script>
-<script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
+<script src="<!--{$app_js_path}-->/jquery/jquery-ui.custom.min.js"></script>
+<script src="<!--{$app_js_path}-->/promise-pollyfill/polyfill.min.js"></script>
 
 <div id="status" style="background-color: black; color: white; font-weight: bold; font-size: 140%"></div>
 <div id="uploadBox">
@@ -140,7 +140,7 @@
 
     var totalRecords;
 
-    
+
     var totalImported = 0;
     var createdRequests = 0;
     var failedRequests = [];
@@ -384,7 +384,7 @@
                         generateReport(title);
                         createdRequests = 0;
                         failedRequests = new Array();
-                        
+
                     }
                     resolve();
                 },
@@ -441,7 +441,7 @@
             value: false,
             change: function() {
                 progressLabel.text( "Current Progress: " + progressbar.progressbar( "value" ) + "%" );
-                
+
             },
             complete: function() {
                  $(".ui-dialog-titlebar-close").show();
@@ -459,12 +459,12 @@
         }
 
         function progress() {
-                        
+
             var val = progressbar.progressbar( "value" ) || 0;
-            
-             
+
+
             progressbar.progressbar( "value", Math.floor( totalImported/totalRecords *100) );
-        
+
             if ( val <= 99 ) {
                 progressTimer = setTimeout( progress, 50 );
             }
@@ -687,18 +687,18 @@
 
                                 answerQuestions().then(function(){resolve();});
                                 });
-                                
-                                
+
+
                             }
 
                             /* iterate through the sheet cells, which are organized by row */
                             totalRecords = sheet_data.cells.length - 1;
-                            
-                            
+
+
                             dialog.dialog( "open" );
 
                             var preserveOrder = $("#preserve_new").prop("checked");
-                            
+
                             if(preserveOrder){
 
                                 placeInOrder = 1;
@@ -716,18 +716,18 @@
                             }
                             else{
                                 for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
-                                    
+
                                     var doublet = [];
                                     doublet.push(selectRowToAnswer(i));
-                                    
+
                                     var addAnother = i+1 <= sheet_data.cells.length - 1;
-                                    
+
                                     if(addAnother){
                                         doublet.push(selectRowToAnswer(i+1));
                                     }
-                                    
+
                                     Promise.all(doublet).then(function(results){
-                                        
+
                                         totalImported += results.length;
                                     });
                                 }
@@ -758,11 +758,11 @@
                 var requestData = new Object();
                 function answerQuestions() {
                     return new Promise(function(resolve, reject){
-                        
+
                     if (completed === indicatorArray.length) {
                         requestData['title'] = titleInputExisting.val() + '_' + titleIndex;
                         makeRequests(categorySelect.val(), requestData).then(function(){
-                            
+
                             resolve();
                         });
                     } else {
@@ -772,7 +772,7 @@
                         if (indicatorColumn === "-1") {
                             completed++;
                             answerQuestions().then(function(){resolve();});
-                            
+
                         } else {
                             var currentIndicator = indicatorArray[completed].indicatorID;
                             var currentFormat = indicatorArray[completed].format;
@@ -890,7 +890,7 @@
                     })
                 }
 
-            
+
                  answerQuestions().then(function(){resolve();})
                 });
 
@@ -898,9 +898,9 @@
 
             /* iterate through the sheet cells, which are organized by row */
             totalRecords = sheet_data.cells.length -1;
-            
+
             dialog.dialog( "open" );
-            
+
             var preserveOrder = $("#preserve_existing").prop("checked");
 
             if(preserveOrder){
@@ -920,18 +920,18 @@
             }
             else{
                 for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
-                    
+
                     var doublet = [];
                     doublet.push(selectRowToAnswer(i));
-                    
+
                     var addAnother = i+1 <= sheet_data.cells.length - 1;
-                    
+
                     if(addAnother){
                         doublet.push(selectRowToAnswer(i+1));
                     }
-                    
+
                     Promise.all(doublet).then(function(results){
-                        
+
                         totalImported += results.length;
                     });
                 }
@@ -1073,7 +1073,7 @@
                     }
                     for (var j = 0; j < columnNames.length; j++) {
                         if (i === 0){
-                            if (typeof (rawSheet[columnNames[j] + (i + 1).toString()]) === "undefined") {                                
+                            if (typeof (rawSheet[columnNames[j] + (i + 1).toString()]) === "undefined") {
                             } else {
                                 headers[columnNames[j]] = rawSheet[columnNames[j] + (i + 1).toString()].v;
                             }

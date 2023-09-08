@@ -138,6 +138,7 @@ $(function() {
     });
 
     var leafSearch = new LeafFormSearch('searchContainer');
+    leafSearch.setJsPath('<!--{$app_js_path}-->');
     leafSearch.setRootURL('../');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.setSearchFunc(function(search) {

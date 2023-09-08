@@ -41,6 +41,7 @@ $t_menu->assign('hide_main_control', false);
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
 $main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
+$main->assign('app_js_path', APP_JS_PATH);
 
 $main->assign('emergency', '');
 $main->assign('status', '');
@@ -101,8 +102,15 @@ switch ($action) {
         break;
     case 'view':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('css/view.css', '../libs/js/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/gridInput.js', 'js/formGrid.js', '../libs/js/LEAF/XSSHelpers.js', '../libs/js/choicesjs/choices.min.js'));
+        $main->assign('stylesheets',
+            array('css/view.css',
+                APP_JS_PATH . '/choicesjs/choices.min.css'));
+        $main->assign('javascripts',
+            array('js/form.js',
+                'js/gridInput.js',
+                'js/formGrid.js',
+                APP_JS_PATH  . '/LEAF/XSSHelpers.js',
+                APP_JS_PATH . '/choicesjs/choices.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
         $form = new Portal\Form($db, $login);
@@ -126,6 +134,7 @@ switch ($action) {
             $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
             $t_form->assign('empUID', (int)$login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
+            $t_form->assign('app_js_path', APP_JS_PATH);
 
             // since $thisRecord was already commented out above, this can probably be removed
             // if(isset($thisRecord['approval'])) {
@@ -153,7 +162,7 @@ switch ($action) {
         break;
     case 'printview':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
+        $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
         $main->assign('javascripts', array(
             'js/form.js',
             'js/gridInput.js',
@@ -162,13 +171,13 @@ switch ($action) {
             'js/formQuery.js',
             'js/formPrint.js',
             'js/jsdiff.js',
-            '../libs/js/LEAF/XSSHelpers.js',
+            APP_JS_PATH . '/LEAF/XSSHelpers.js',
             '../libs/jsapi/portal/LEAFPortalAPI.js',
-            '../libs/js/es6-promise/es6-promise.min.js',
-            '../libs/js/es6-promise/es6-promise.auto.min.js',
-            '../libs/js/jspdf/jspdf.min.js',
-            '../libs/js/jspdf/jspdf.plugin.autotable.min.js',
-            '../libs/js/choicesjs/choices.min.js',
+            APP_JS_PATH . '/es6-promise/es6-promise.min.js',
+            APP_JS_PATH . '/es6-promise/es6-promise.auto.min.js',
+            APP_JS_PATH . '/jspdf/jspdf.min.js',
+            APP_JS_PATH . '/jspdf/jspdf.plugin.autotable.min.js',
+            APP_JS_PATH . '/choicesjs/choices.min.js',
             'js/titleValidator.js'
         ));
 
@@ -218,6 +227,7 @@ switch ($action) {
         $formWorkflow = new Portal\FormWorkflow($db, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
         $t_form->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
+        $t_form->assign('app_js_path', APP_JS_PATH);
 
         switch ($action) {
             default:
@@ -253,8 +263,12 @@ switch ($action) {
         break;
     case 'inbox':
         $main->assign('useUI', true);
-        $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/gridInput.js', '../libs/js/choicesjs/choices.min.js'));
+        $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
+        $main->assign('javascripts', array('js/form.js',
+            'js/workflow.js',
+            'js/formGrid.js',
+            'js/gridInput.js',
+            APP_JS_PATH . '/choicesjs/choices.min.js'));
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -289,6 +303,7 @@ switch ($action) {
         $t_form->assign('descriptionID', $config->descriptionID);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('errors', $errors);
+        $t_form->assign('app_js_path', APP_JS_PATH);
 
         $main->assign('body', $t_form->fetch(customTemplate('view_inbox.tpl')));
 
@@ -450,7 +465,8 @@ switch ($action) {
 //        $powerQueryURL = "{$protocol}://" . AUTH_URL . "/report_auth.php?r=";
         $powerQueryURL = "https://" . AUTH_URL . "/report_auth.php?r=";
 
-        $main->assign('stylesheets', array('css/report.css', '../libs/js/choicesjs/choices.min.css'));
+        $main->assign('stylesheets', array('css/report.css',
+                APP_JS_PATH . '/choicesjs/choices.min.css'));
         $main->assign('javascripts', array('js/form.js',
                'js/formGrid.js',
                'js/formQuery.js',
@@ -459,8 +475,8 @@ switch ($action) {
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
                '../libs/jsapi/portal/LEAFPortalAPI.js',
-               '../libs/js/LEAF/XSSHelpers.js',
-               '../libs/js/choicesjs/choices.min.js'
+               APP_JS_PATH . '/LEAF/XSSHelpers.js',
+               APP_JS_PATH . '/choicesjs/choices.min.js'
            ));
            $main->assign('useUI', true);
 
@@ -505,7 +521,11 @@ switch ($action) {
         exit();
     default:
 
-        $main->assign('javascripts', array('js/form.js', 'js/formGrid.js', 'js/formQuery.js', 'js/formSearch.js','../libs/js/LEAF/XSSHelpers.js',));
+        $main->assign('javascripts', array('js/form.js',
+                'js/formGrid.js',
+                'js/formQuery.js',
+                'js/formSearch.js',
+                APP_JS_PATH . '/LEAF/XSSHelpers.js',));
         $main->assign('useLiteUI', true);
 
         $o_login = $t_login->fetch('login.tpl');

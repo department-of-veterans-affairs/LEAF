@@ -182,7 +182,7 @@
 <!--{include file="site_elements/generic_OkDialog.tpl"}-->
 
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
-<script type="text/javascript" src="../libs/js/LEAF/sensitiveIndicator.js"></script>
+<script type="text/javascript" src="<!--{$app_js_path}-->/LEAF/sensitiveIndicator.js"></script>
 <script type="text/javascript">
 
     $(document).ready(function() {

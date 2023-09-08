@@ -12,7 +12,7 @@ $currDir = dirname(__FILE__);
 require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
 
 ?>
-<script type="text/javascript" src="../../libs/js/jquery/jquery.min.js"></script>
+<script type="text/javascript" src=<?= 'https://' . HTTP_HOST . '/app/libs/js/jquery/jquery.min.js'; ?>></script>
 
 <script>
 $(document).ready(function () {

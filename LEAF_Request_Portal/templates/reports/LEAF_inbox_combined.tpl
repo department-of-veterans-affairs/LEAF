@@ -1,5 +1,5 @@
-<script src="../libs/js/sha1.js"></script>
-<script src="../libs/js/LEAF/intervalQueue.js"></script>
+<script src="<!--{$app_js_path}-->/sha1.js"></script>
+<script src="<!--{$app_js_path}-->/LEAF/intervalQueue.js"></script>
 <script>
     let CSRFToken = '<!--{$CSRFToken}-->';
 
@@ -473,7 +473,7 @@
                 }
             }
         }
-        
+
         if (getData.length > 0 && offset == 0) {
             getData.forEach(id => query.getData(id));
             return $.ajax({
