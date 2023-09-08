@@ -186,6 +186,13 @@
         },
     };
 
+    function interfaceReady() {
+        document.querySelector('#viewport').style.visibility = 'visible';
+        $('#progressContainer').slideUp();
+        $('#loading').slideUp();
+        $('.inbox').fadeIn();
+    }
+
     // renderInbox iterates through the specified sites and renders the view, organized by form
     async function renderInbox() {
         for (let i in sites) {
@@ -221,9 +228,8 @@
                     sites[i]);
             });
         }
-        $('#progressContainer').slideUp();
-        $('#loading').slideUp();
-        $('.inbox').fadeIn();
+
+        interfaceReady();
     }
 
     function getSiteRoleData(sites, i) {
@@ -291,9 +297,8 @@
                     sites[i]);
             });
         }
-        $('#progressContainer').slideUp();
-        $('#loading').slideUp();
-        $('.inbox').fadeIn();
+
+        interfaceReady();
     }
 
     // Get site icons and name
@@ -473,7 +478,6 @@
 
     // Build forms and grids for the inbox's requests based on the list of $recordIDs, organized by step
     function buildDepInboxByStep(res, stepID, stepName, recordIDs, site) {
-        console.log(res);
         let hash = Sha1.hash(site.url);
 		let categoryName = '';
         if(Object.keys(recordIDs).length > 0) {
@@ -601,6 +605,7 @@
         query.onProgress(progress => {
             $('#progressCount').html(`~${progress} `);
         });
+        query.setAbortSignal(abortController.signal);
         query.addTerm('stepID', '=', 'actionable');
         query.addTerm('deleted', '=', 0);
         query.join('service');
@@ -739,6 +744,7 @@
     let dialog_message;
     let nonAdmin = true;
     let organizeByRole = false;
+    let abortController = new AbortController();
     // Script Start
     $(function() {
         document.title = 'Inbox - ' + document.title;
@@ -779,6 +785,7 @@
                 	renderInbox();
         		}
             });
+            queue.setAbortSignal(abortController.signal);
 
             sites.forEach(site => queue.push(site));
             
@@ -824,6 +831,12 @@
                 else {
                     window.location.href = currLocation + '&organizeByRole';
                 }
+            });
+
+            $('#btn_progressStop').on('click', function() {
+                abortController.abort();
+                $('#progressDetail').html(`Cleaning up...`);
+                triggerLoadWarning();
             });
 
             $('#headerTab').html('My Inbox');
@@ -887,11 +900,14 @@
 </div>
 <div id="status" style="text-align: center; color: red; font-weight: bold"></div>
 <div id="progressContainer"
-    style="width: 50%; border: 1px solid black; background-color: white; margin: auto; padding: 16px">
-    <h1 style="text-align: center">Loading...</h1>
+    style="width: 50%; border: 1px solid black; background-color: white; margin: auto; padding: 16px; text-align: center">
+    <h1>Loading...</h1>
     <div id="progressbar"></div>
-    <h2 id="progressDetail" style="text-align: center"></h2>
+    <h2 id="progressDetail"></h2>
+    <button id="btn_progressStop" class="buttonNorm">Stop and show results</button>
 </div>
+
+<div id="viewport" style="visibility: hidden">
 <button id="btn_adminView" class="buttonNorm" style="float: right; <!--{if !$empMembership['groupID'][1]}-->display: none<!--{/if}-->">View as Admin</button>
 <button id="btn_organize" class="buttonNorm" style="float: right">Organize by Roles</button>
 <button id="btn_expandAll" class="buttonNorm" style="float: right">Toggle sections</button>
@@ -907,3 +923,4 @@
 <h2 style="text-align: center; padding-top: 5em">No more items in your inbox. Have a good day!</h2>
 
 <a href="index.php?a=inbox" style="margin-top: 3em">View Original Inbox</a>
+</div>

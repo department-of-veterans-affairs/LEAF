@@ -10,6 +10,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   let extraParams = "";
   let results = {};
   let batchSize = 500;
+  let abortSignal;
 
   clearTerms();
 
@@ -207,6 +208,15 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
+   * setAbortSignal assigns an DOM AbortSignal to determine whether further getBulkData() iterations should be cancelled
+   * @param {AbortSignal} signal
+   * @memberOf LeafFormQuery
+   */
+  function setAbortSignal(signal) {
+    abortSignal = signal;
+  }
+
+  /**
    * Execute search query in chunks
    * @param {number} limitOffset Used in subsequent recursive calls to track current offset
    * @returns Promise resolving to query response
@@ -234,7 +244,9 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     }).then((res, resStatus, resJqXHR) => {
       results = Object.assign(results, res);
 
-      if (Object.keys(res).length == batchSize || resJqXHR.getResponseHeader("leaf-query") == "continue") {
+      if ((Object.keys(res).length == batchSize
+                || resJqXHR.getResponseHeader("leaf-query") == "continue")
+            && !abortSignal?.aborted) {
         let newOffset = limitOffset + batchSize;
         if (typeof progressCallback == "function") {
           progressCallback(newOffset);
@@ -297,6 +309,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     sort,
     onSuccess,
     onProgress,
+    setAbortSignal,
     execute
   };
 };
