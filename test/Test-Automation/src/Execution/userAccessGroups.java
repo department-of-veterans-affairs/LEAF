@@ -660,6 +660,9 @@ public class userAccessGroups extends setupFramework {
 	public void createNexusDriver1() {
 		createNexusDriver();
 	}
+
+	
+	
 	
 
 	
@@ -690,6 +693,9 @@ public class userAccessGroups extends setupFramework {
 	} 
 
 
+	
+	
+	
 	
 	//Input NEXUS User 		Terry, Rodney Jacobi	
 	@Test(priority = 1020)

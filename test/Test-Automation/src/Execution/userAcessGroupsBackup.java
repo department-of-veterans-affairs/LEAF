@@ -24,27 +24,8 @@ import Framework.waitMethods;
 import Framework.highlightElement;
 
 
-public class serviceChiefs extends setupFramework {
+public class userAcessGroupsBackup extends setupFramework {
 
-	
-	/* Navigation
-	 * 	https://localhost/LEAF_Request_Portal/  (Portal Home)
-	 * 		Select Portal 'Links' Nexus -> https://localhost/LEAF_Nexus/ 	
-	 * 			Select OC Admin Panel -> https://localhost/LEAF_Nexus/admin/
-	 * 				*** Select Groups -> https://localhost/LEAF_Nexus/?a=browse_group
-	 * 					Select 'Create New Group' ->  Modal   (contains = ' Create New Group'
-	 * 
-	 * 	
-	 * 
-	 * 	//  https://localhost/LEAF_Request_Portal/admin/
-	 *	//  contains 'Sync Services'
-	 * 
-	 */
-	
-	
-	
-	
-	
 	
 	public String sRand;
 	public String groupNum;
@@ -52,7 +33,7 @@ public class serviceChiefs extends setupFramework {
 	public String id;		
 	public WebDriver driverNexus;
 
-
+	
 	
 	
 	

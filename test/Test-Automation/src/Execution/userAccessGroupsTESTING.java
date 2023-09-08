@@ -697,7 +697,7 @@ public class userAccessGroupsTESTING extends setupFramework {
 	
 
 	
-//Input NEXUS User 		Terry, Rodney Jacobi	
+	//Input NEXUS User 		Terry, Rodney Jacobi	
 	@Test(priority = 1020)
 	public void inputNexusEmployee() {   
 	  	waitMethods.waiter(waitMethods.w300);     			//Input Box
@@ -830,11 +830,18 @@ public class userAccessGroupsTESTING extends setupFramework {
 	 */
 	
 	
+	
+	
+	
+	
 	// Add backups for 2 or three - Will probably have to be xpath
+	// Delete a couple - probably by xpath. Check on backups
+	// 
 	
 	
 	
-	
+	//  https://localhost/LEAF_Request_Portal/admin/
+	//  contains 'Sync Services'
 	
 	
 	

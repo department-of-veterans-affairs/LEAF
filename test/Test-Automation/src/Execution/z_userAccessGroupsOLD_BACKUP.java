@@ -24,7 +24,7 @@ import Framework.waitMethods;
 import Framework.highlightElement;
 
 
-public class userAccessGroupsBACKUP extends setupFramework {
+public class z_userAccessGroupsOLD_BACKUP extends setupFramework {
 
 	
 	public String sRand;
