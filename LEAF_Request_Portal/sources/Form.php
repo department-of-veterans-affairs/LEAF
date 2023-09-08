@@ -3558,7 +3558,7 @@ class Form
         // check actionable
         if ($filterActionable)
         {
-            $FormWorkflow = $formWorkflow = $this->getFormWorkflow();
+            $FormWorkflow = $this->getFormWorkflow();
 
             $actionable = $FormWorkflow->getActionable($this, $data);
 
