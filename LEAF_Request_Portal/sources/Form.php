@@ -1712,15 +1712,16 @@ class Form
             else {
                 $vars = array(':categoryID' => $categoryID,
                               ':userID' => $this->login->getUserID());
-                $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
+                $resCategoryPrivs = $this->db->prepared_query('SELECT COUNT(*) FROM category_privs
                                                             LEFT JOIN users USING (groupID)
                                                             WHERE categoryID=:categoryID
                                                                 AND userID=:userID
-                                                                AND writable=1', $vars);
+                                                                AND writable=1
+                                                                AND active=1', $vars);
                 $this->cache[$cacheHash] = $resCategoryPrivs;
             }
 
-            if (count($resCategoryPrivs) > 0)
+            if ($resCategoryPrivs[0]['COUNT(*)'] > 0)
             {
                 $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
                 $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
@@ -1735,13 +1736,14 @@ class Form
             {
                 $vars = array(':categoryID' => $category,
                               ':userID' => $this->login->getUserID(), );
-                $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
+                $resCategoryPrivs = $this->db->prepared_query('SELECT COUNT(*) FROM category_privs
                                                         LEFT JOIN users USING (groupID)
                                                         WHERE categoryID=:categoryID
                                                             AND userID=:userID
-            												AND writable=1', $vars);
+            												AND writable=1
+                                                            AND active=1', $vars);
 
-                if (count($resCategoryPrivs) > 0)
+                if ($resCategoryPrivs[0]['COUNT(*)'] > 0)
                 {
                     $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
                     $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
