@@ -34,6 +34,8 @@ class Form
 
     private $cache = array();
 
+    private $formWorkflow;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -47,6 +49,20 @@ class Form
         $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
         $this->position = new \Orgchart\Position($oc_db, $oc_login);
         $this->group = new \Orgchart\Group($oc_db, $oc_login);
+    }
+
+    /**
+     * getFormWorkflow initializes and returns a generic instance of FormWorkflow
+     * @return object
+     */
+    private function getFormWorkflow(): object
+    {
+        if (!isset($this->formWorkflow))
+        {
+            $this->formWorkflow = new FormWorkflow($this->db, $this->login, 0);
+        }
+
+        return $this->formWorkflow;
     }
 
     /**
@@ -3170,6 +3186,7 @@ class Form
         $joinRecordResolutionData = false;
         $joinRecordResolutionBy = false;
         $joinInitiatorNames = false;
+        $joinUnfilledDependencies = false;
         if (isset($query['joins']))
         {
             foreach ($query['joins'] as $table)
@@ -3220,6 +3237,8 @@ class Form
                         $joinInitiatorNames = true;
 
                         break;
+                    case 'unfilledDependencies':
+                        $joinUnfilledDependencies = true;
                     default:
                         break;
                 }
@@ -3495,6 +3514,21 @@ class Form
                 }
             }
 
+            if ($joinUnfilledDependencies) {
+                $formWorkflow = $this->getFormWorkflow();
+                $unfilledDependencies = $formWorkflow->getRecordsDependencyData($this, $data, true);
+                foreach ($unfilledDependencies as $ud) {
+                    $temp = [];
+                    $temp['description'] = $ud['description'];
+                    if(isset($ud['approverName'])) {
+                        $temp['approverName'] = $ud['approverName'];
+                    }
+                    if(isset($ud['approverUID'])) {
+                        $temp['approverUID'] = $ud['approverUID']; // uniquely identify approvers
+                    }
+                    $data[$ud['recordID']]['unfilledDependencyData'][$ud['dependencyID']] = $temp;
+                }
+            }
         }
 
         // check needToKnow mode
@@ -3506,8 +3540,7 @@ class Form
         // check actionable
         if ($filterActionable)
         {
-            include_once 'FormWorkflow.php';
-            $FormWorkflow = new FormWorkflow($this->db, $this->login, 0);
+            $FormWorkflow = $formWorkflow = $this->getFormWorkflow();
 
             $actionable = $FormWorkflow->getActionable($this, $data);
 
@@ -3525,7 +3558,7 @@ class Form
                 }
             }
             if($countPurged > 0) {
-                header('LEAF-Query: continue');
+                header('LEAF-Query: continue'); // signal frontend there might be more data
             }
         }
 
