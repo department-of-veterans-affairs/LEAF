@@ -832,7 +832,7 @@ class Email
                                 }
                             }
                         } else {
-                            trigger_error("Empuid was not set for case -1", E_USER_ERROR);
+                            trigger_error("Empuid was not set for case -1");
                         }
 
                         break;
@@ -868,7 +868,7 @@ class Email
                                 $this->addGroupRecipient($groupID);
                             }
                         } else {
-                            trigger_error("Groupid was not set for case -3", E_USER_ERROR);
+                            trigger_error("Groupid was not set for case -3");
                         }
                         break;
                 }
