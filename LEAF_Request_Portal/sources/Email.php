@@ -831,6 +831,8 @@ class Email
                                     $this->addCcBcc($tmp[0]['Email']);
                                 }
                             }
+                        } else {
+                            trigger_error("Empuid was not set for case -1", E_USER_ERROR);
                         }
 
                         break;
@@ -865,6 +867,8 @@ class Email
                             if ($groupID > 0) {
                                 $this->addGroupRecipient($groupID);
                             }
+                        } else {
+                            trigger_error("Groupid was not set for case -3", E_USER_ERROR);
                         }
                         break;
                 }
