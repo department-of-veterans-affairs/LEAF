@@ -1,7 +1,7 @@
 <?php
 ini_set('display_errors', 0); // Set to 1 to display errors
 
-require_once '/var/www/html/app/libs/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $debug = false;
 
