@@ -97,6 +97,9 @@
                                             .slideDown();
                                         $('#requestTitle').attr('tabindex', '0');
                                         $('#requestInfo').attr('tabindex', '0');
+                                    },
+                                    fail: function() {
+                                        triggerGenericLoadError();
                                     }
                                 })
                             }
@@ -191,6 +194,10 @@
         $('#progressContainer').slideUp();
         $('#loading').slideUp();
         $('.inbox').fadeIn();
+    }
+
+    function triggerGenericLoadError() {
+        alert('Error loading data. This error has been automatically reported. Please refresh the page and try again.');
     }
 
     // renderInbox iterates through the specified sites and renders the view, organized by form
@@ -674,6 +681,9 @@
                 res.forEach(w => {
                     dataWorkflowCategories[w.categoryID] = 1;
                 });
+            },
+            fail: function() {
+                triggerGenericLoadError();
             }
         });
     }
