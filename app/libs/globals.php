@@ -14,13 +14,12 @@ if (!defined('HTTP_HOST')) define('HTTP_HOST', getenv('APP_HTTP_HOST'));
 if (!defined('AUTH_URL')) define('AUTH_URL', getenv('APP_URL_AUTH'));
 if (!defined('AUTH_TYPE')) define('AUTH_TYPE', getenv('APP_AUTH_TYPE'));
 if (!defined('CIPHER_KEY')) define('CIPHER_KEY', getenv('APP_CIPHER_KEY'));
-// if (!defined('LIB_PATH')) define('LIB_PATH', rtrim('/', getenv('APP_LIB_PATH')));
 if (!defined('LIB_PATH')) define('LIB_PATH', '/var/www/html/libs');
-if (!defined('APP_PATH')) define('APP_PATH', '/var/www/html/app');
-if (!defined('APP_LIBS_PATH')) define('APP_LIBS_PATH', '/var/www/html/app/libs');
-if (!defined('APP_CSS_PATH')) define('APP_CSS_PATH', 'https://' . HTTP_HOST . '/app/libs/css');
-if (!defined('APP_JS_PATH')) define('APP_JS_PATH', 'https://' . HTTP_HOST . '/app/libs/js');
-//if (!defined('PORTAL_PATH')) define('PORTAL_PATH', str_replace('/var/www/html/', '', __DIR__));
+if (!defined('APP_PATH')) define('APP_PATH', getenv('APP_PATH'));
+if (!defined('APP_LIBS_PATH')) define('APP_LIBS_PATH', getenv('APP_LIBS_PATH'));
+if (!defined('APP_CSS_PATH')) define('APP_CSS_PATH', getenv('APP_CSS_PATH'));
+if (!defined('APP_JS_PATH')) define('APP_JS_PATH', getenv('APP_JS_PATH'));
+
 preg_match('(\/.+\/)', $_SERVER['SCRIPT_FILENAME'], $match);
 
 $path = str_replace('/var/www/html', '', $match[0]);
