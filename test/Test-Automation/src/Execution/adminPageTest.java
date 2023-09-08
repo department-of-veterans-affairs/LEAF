@@ -53,7 +53,6 @@ public class adminPageTest extends setupFramework {
 	
 	
 	@Test(priority = 30)  //		
-
 	public void verifyAdminPageTitle() {         
 		//waitMethods.implicitWait(waitMethods.w300);
 		String pageTitleExpected = "Academy Demo Site (Test site) | Washington DC | Washington DC";

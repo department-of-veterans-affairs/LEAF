@@ -198,7 +198,7 @@ public class serviceChiefs extends setupFramework {
 
 	//    https://localhost/LEAF_Request_Portal/admin/?a=mod_groups
 	
-	@Test(priority = 100) //
+	@Test(priority = 100) //  Rename ServiceChief
 	private void createUserAccessGroup() {
 		waitMethods.waiter(waitMethods.w200);
 		WebElement ele = driver.findElement(By.xpath("//button[contains(text(),' Create group')]"));
@@ -244,7 +244,7 @@ public class serviceChiefs extends setupFramework {
 	} 
 
 
-	@Test(priority = 130) //
+	@Test(priority = 130) // //  Rename ServiceChief
 	private void createUserAccessGroup2() {
 		createUserAccessGroup();
 	} 
