@@ -520,9 +520,8 @@ class Form
                 $form[$idx]['value'] = $this->fileToArray($data[0]['data']);
                 $form[$idx]['raw'] = $data[0]['data'];
             }
-
             // special handling for org chart data types
-            if ($data[0]['format'] == 'orgchart_employee'
+            else if ($data[0]['format'] == 'orgchart_employee'
                 && !empty($data[0]['data']))
             {
                 $empRes = $this->employee->lookupEmpUID($data[0]['data']);
@@ -532,19 +531,19 @@ class Form
                     $form[$idx]['displayedValue'] = '';
                 }
             }
-            if ($data[0]['format'] == 'orgchart_position'
+            else if ($data[0]['format'] == 'orgchart_position'
                 && isset($data[0]['data']))
             {
                 $positionTitle = $this->position->getTitle($data[0]['data']);
                 $form[$idx]['displayedValue'] = $positionTitle;
             }
-            if ($data[0]['format'] == 'orgchart_group'
+            else if ($data[0]['format'] == 'orgchart_group'
                 && isset($data[0]['data']))
             {
                 $groupTitle = $this->group->getGroup($data[0]['data']);
                 $form[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
             }
-            if (substr($data[0]['format'], 0, 4) == 'grid'
+            else if (substr($data[0]['format'], 0, 4) == 'grid'
                 && isset($data[0]['data']))
             {
                 $values = @unserialize($data[0]['data']);
@@ -559,10 +558,9 @@ class Form
                     error_log($te);
                 }
             }
-
             // handle multiselect and checkboxes format
             // includes backwards compatibility for data stored as CSV
-            if (isset($data[0]['data']) && $data[0]['data'] != ''
+            else if (isset($data[0]['data']) && $data[0]['data'] != ''
                 && (substr($data[0]['format'], 0, 11) == 'multiselect'
                     || substr($data[0]['format'], 0, 10) == 'checkboxes'))
             {
