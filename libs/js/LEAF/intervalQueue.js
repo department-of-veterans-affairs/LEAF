@@ -32,7 +32,7 @@ var intervalQueue = function() {
     }
 
     /**
-     * setAbortSignal assigns an DOM AbortSignal to determine whether further items in the queue should be cancelled
+     * setAbortSignal assigns a DOM AbortSignal to determine whether further items in the queue should be cancelled
      * @param {AbortSignal} signal
      * @memberOf LeafFormQuery
      */

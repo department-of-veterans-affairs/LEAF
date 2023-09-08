@@ -208,7 +208,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
-   * setAbortSignal assigns an DOM AbortSignal to determine whether further getBulkData() iterations should be cancelled
+   * setAbortSignal assigns a DOM AbortSignal to determine whether further getBulkData() iterations should be cancelled
    * @param {AbortSignal} signal
    * @memberOf LeafFormQuery
    */
