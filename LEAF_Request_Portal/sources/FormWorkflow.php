@@ -196,7 +196,7 @@ class FormWorkflow
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
-                    $resEmpUID = $form->getIndicator($depRecord['indicatorID_for_assigned_empUID'], 1, $depRecord['recordID']);
+                    $resEmpUID = $form->getIndicator($depRecord['indicatorID_for_assigned_empUID'], 1, $depRecord['recordID'], null, true);
 
                     // make sure the right person has access
                     $empUID = $resEmpUID[$depRecord['indicatorID_for_assigned_empUID']]['value'];
@@ -216,7 +216,7 @@ class FormWorkflow
                     break;
 
                 case -3: // dependencyID -3 is for a group designated by the requestor
-                    $resGroupID = $form->getIndicator($depRecord['indicatorID_for_assigned_groupID'], 1, $depRecord['recordID']);
+                    $resGroupID = $form->getIndicator($depRecord['indicatorID_for_assigned_groupID'], 1, $depRecord['recordID'], null, true);
                     $groupID = $resGroupID[$depRecord['indicatorID_for_assigned_groupID']]['value'];
 
                     // make sure the right person has access
@@ -300,7 +300,7 @@ class FormWorkflow
                 switch($res[$i]['dependencyID']) {
                     case -1: // dependencyID -1 is for a person designated by the requestor
                         $dir = $this->getDirectory();
-                        $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
+                        $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID'], null, true);
                         $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
 
                         if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
@@ -330,7 +330,7 @@ class FormWorkflow
                         }
                         break;
                     case -3: // dependencyID -3 is for a group designated by the requestor
-                        $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID']);
+                        $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID'], null, true);
                         $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
 
                         // get actual group name
@@ -356,14 +356,14 @@ class FormWorkflow
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
-                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
+                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID'], null, true);
 
                     // make sure the right person has access
                     $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
 
                     $res[$i]['isActionable'] = $this->checkEmployeeAccess($empUID);
 
-                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
+                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID'], null, true);
                     $dir = $this->getDirectory();
                     $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
 
@@ -404,7 +404,7 @@ class FormWorkflow
                     break;
 
                 case -3: // dependencyID -3 is for a group designated by the requestor
-                    $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID']);
+                    $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID'], null, true);
                     $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
 
                     // make sure the right person has access
@@ -734,7 +734,7 @@ class FormWorkflow
                     $resPerson = $this->db->prepared_query($strSQL, $varsPerson);
 
 
-                    $resEmpUID = $form->getIndicator($resPerson[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+                    $resEmpUID = $form->getIndicator($resPerson[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID, null, true);
                     $empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
 
                     $userAuthorized = $this->checkEmployeeAccess($empUID);
@@ -775,7 +775,7 @@ class FormWorkflow
                     $resGroup = $this->db->prepared_query($strSQLGroup, $varsGroup);
 
 
-                    $resGroupID = $form->getIndicator($resGroup[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                    $resGroupID = $form->getIndicator($resGroup[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID, null, true);
                     $groupID = $resGroupID[$resGroup[0]['indicatorID_for_assigned_groupID']]['value'];
 
                     if (!$this->login->checkGroup($groupID))

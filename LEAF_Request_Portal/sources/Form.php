@@ -439,10 +439,15 @@ class Form
      * @param int $series
      * @param int $recordID
      * @param bool $parseTemplate - parses html/htmlPrint template variables
+     * @param bool $forceReadOnly ***Only use in safe contexts*** Force allow read only access and
+     *                            bypasses normal access checks. Does not load child indicators.
      * @return array
      */
-    public function getIndicator($indicatorID, $series, $recordID = null, $parseTemplate = true)
+    public function getIndicator($indicatorID, $series, $recordID = null, $parseTemplate = true, $forceReadOnly = false)
     {
+        if(isset($this->cache["getIndicator_{$indicatorID}_{$series}_{$recordID}_{$parseTemplate}"])) {
+            return $this->cache["getIndicator_{$indicatorID}_{$series}_{$recordID}_{$parseTemplate}"];
+        }
         $form = array();
         if (!is_numeric($indicatorID) || !is_numeric($series))
         {
@@ -450,9 +455,8 @@ class Form
         }
 
         // check needToKnow mode
-        if ($recordID != null && $this->isNeedToKnow($recordID))
-        {
-            if (!$this->hasReadAccess($recordID))
+        if(!$forceReadOnly) {
+            if ($recordID != null && $this->isNeedToKnow($recordID) && !$this->hasReadAccess($recordID))
             {
                 return array();
             }
@@ -467,8 +471,14 @@ class Form
                                             WHERE indicatorID=:indicatorID AND series=:series AND recordID=:recordID AND disabled=0', $vars);
         if (!isset($data[0]))
         {
-            $vars = array(':indicatorID' => $indicatorID);
-            $data = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
+            if(isset($this->cache['getIndicator_'.$indicatorID])) {
+                $data = $this->cache['getIndicator_'.$indicatorID];
+            }
+            else {
+                $vars = array(':indicatorID' => $indicatorID);
+                $data = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
+                $this->cache['getIndicator_'.$indicatorID] = $data;
+            }
         }
 
         if (!empty($data)) {
@@ -488,8 +498,10 @@ class Form
             $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
             $form[$idx]['displayedValue'] = ''; // used for Org Charts
             $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ? $data[0]['timestamp'] : 0;
-            $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
-            $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
+            if(!$forceReadOnly) {
+                $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
+                $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
+            }
             $form[$idx]['sort'] = $data[0]['sort'];
 
             if (!empty($data[0]['html'])) {
@@ -607,9 +619,12 @@ class Form
 
             $form[$idx]['format'] = trim($inputType[0]);
 
-            $form[$idx]['child'] = $this->buildFormTree($data[0]['indicatorID'], $series, $recordID, $parseTemplate);
+            if(!$forceReadOnly) {
+                $form[$idx]['child'] = $this->buildFormTree($data[0]['indicatorID'], $series, $recordID, $parseTemplate);
+            }
         }
 
+        $this->cache["getIndicator_{$indicatorID}_{$series}_{$recordID}_{$parseTemplate}"] = $form;
         return $form;
     }
 
@@ -1691,13 +1706,21 @@ class Form
         // find out if explicit permissions have been granted to any groups
         if (count($multipleCategories) <= 1)
         {
-            $vars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID),
-                          ':userID' => $this->login->getUserID(), );
-            $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
-                                                        LEFT JOIN users USING (groupID)
-                                                        WHERE categoryID=:categoryID
-                                                            AND userID=:userID
-            												AND writable=1', $vars);
+            $resCategoryPrivs = null;
+            $cacheHash = 'hasWriteAccess_catPrivs_'.$categoryID.$this->login->getUserID();
+            if(isset($this->cache[$cacheHash])) {
+                $resCategoryPrivs = $this->cache[$cacheHash];
+            }
+            else {
+                $vars = array(':categoryID' => $categoryID,
+                              ':userID' => $this->login->getUserID());
+                $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
+                                                            LEFT JOIN users USING (groupID)
+                                                            WHERE categoryID=:categoryID
+                                                                AND userID=:userID
+                                                                AND writable=1', $vars);
+                $this->cache[$cacheHash] = $resCategoryPrivs;
+            }
 
             if (count($resCategoryPrivs) > 0)
             {
