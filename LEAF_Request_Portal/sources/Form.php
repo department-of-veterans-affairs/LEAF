@@ -472,9 +472,6 @@ class Form
         }
 
         if (!empty($data)) {
-            $required = isset($data[0]['required']) && $data[0]['required'] == 1 ? ' required="true" ' : '';
-
-
             $idx = $data[0]['indicatorID'];
             $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
             $form[$idx]['series'] = $series;
@@ -3906,9 +3903,6 @@ class Form
                 } else {
                     $idx = $field['indicatorID'];
                 }
-
-                // todo: cleanup required field
-                $required = isset($field['required']) && $field['required'] == 1 ? ' required="true" ' : '';
 
                 $child[$idx]['indicatorID'] = $field['indicatorID'];
                 $child[$idx]['series'] = $series;
