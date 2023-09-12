@@ -853,7 +853,15 @@ public class userAccessGroups extends setupFramework {
 	 */	
 	
 	
-	
+	@Test(priority = 1200)
+	public void selectMemberPosition1() {
+		waitMethods.waiter(waitMethods.w1k);
+		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(), 'Abbott, Roman'"));
+        highlightElement.highLightElement(driverNexus, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("selected Member in Position 1");
+	}	
 	
 	
 	

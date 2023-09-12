@@ -112,12 +112,12 @@ public class userAccessGroupsTESTING extends setupFramework {
 	}
 	
 	
-//	public void closeDownNexus() {
-//		
-//		driverNexus.quit();
-//		System.out.println("setupFramework reached @AfterClass, driverNexus.quit()");
-//		//System.out.println("Method closeDownNexus() Disabled - browser remains open");
-//	}
+	public void closeDownNexus() {
+		
+		driverNexus.quit();
+		System.out.println("setupFramework reached @AfterClass, driverNexus.quit()");
+		//System.out.println("Method closeDownNexus() Disabled - browser remains open");
+	}
 	
 	
 	public String generateRand() {
@@ -655,6 +655,13 @@ public class userAccessGroupsTESTING extends setupFramework {
 	    waitMethods.waiter(waitMethods.w500);
 	} 
 	
+
+	
+	@Test(priority = 993)
+	public void closeDownMainPortal1() {
+		closeDownMainPortal();
+	}
+	
 	
 	@Test(priority = 995) 
 	public void createNexusDriver1() {
@@ -662,8 +669,6 @@ public class userAccessGroupsTESTING extends setupFramework {
 	}
 	
 
-
-	
 	
 	
 	@Test(priority = 1000) //		
@@ -830,28 +835,22 @@ public class userAccessGroupsTESTING extends setupFramework {
 	 */
 	
 	
-	//PICKUP HERE:  NOW it's wiggin' on contains Abbott, Roman - msg says InvalidSelectorException  WTF??
-	/*  IT WORKED 5 min ago ?!?!
-	 * 
-	 * Element
-	 * <a class="buttonNorm" href="?a=view_employee&amp;empUID=118">Abbott, Roman</a>
-	 * 
-	 */
 	
 	
 	
 	@Test(priority = 1200)
 	public void selectMemberPosition1() {
-		waitMethods.waiter(waitMethods.w1k);
-		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(), 'Abbott, Roman'"));
+		waitMethods.waiter(waitMethods.w3k);
+		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Abbott, Roman')]"));
         highlightElement.highLightElement(driverNexus, ele);  
         ele.click();	
         waitMethods.waiter(waitMethods.w100);
-        System.out.println("selected Member in Position 1");
+        System.out.println("Selected Member in Position 1");
 	}
 	
 	
-	//PICKUP HERE:  It's not finding the Assign Backup element - may not be a Div
+
+	//===== ADD Backup for Position 1 ====================================================
 	
 	@Test(priority = 1210)
 	public void clickAssignBackup() {
@@ -883,7 +882,7 @@ public class userAccessGroupsTESTING extends setupFramework {
 	  	}
 	  	
 	  		waitMethods.waiter(waitMethods.w100);
-		    System.out.println("Input Nexus User and Select");		
+		    System.out.println("Backup Added for Position 1");		
 	}	
 	
 	
@@ -893,37 +892,77 @@ public class userAccessGroupsTESTING extends setupFramework {
 		saveNexusEmployee();
 	}
 	
-	
-	
-	
-	
-	/*
-		Add Backups
-			contains 		Abbott, Roman
-			contains 		Considine, Warren
-			contains		
-					ON individual employee pages		contains ' Assign Backup'  (note the space at beginning)
-						Emp Search Input:				/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input
-						Save Change						button_save  (Use existing Method (Call saveNexusEmployee(); ))
-						Cancel							button_cancelchange (existing Method = confirmNo();  )
-																Method confirmYes for id: confirm_button_save
-		Carroll, Zoila Lind.
-		
-		
-		Removing users in Nexus
-			Position 1: /html/body/div[2]/div/div/div[1]/div/div[4]/div[2]/div[1]/a[2]
-			Position 2: /html/body/div[2]/div/div/div[1]/div/div[4]/div[2]/div[2]/a[2]
 
-	*/
 	
-	// Add backups for 2 or three - Will probably have to be xpath
-	// Delete a couple - probably by xpath. Check on backups
-	// Assert.assertEquals(pageTitle, "Academy Demo Site (Test site) | Washington DC | Washington DC", "Page Title does not match expected value");
+	@Test(priority = 1240)
+	public void navigateNexusBack() {
+		driverNexus.navigate().back();;
+	}
+
+	
+	//===== ADD Backup for Position 2 ====================================================
+	
+	@Test(priority = 1250)
+	public void selectMemberPosition2() {
+		waitMethods.waiter(waitMethods.w3k);
+		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Considine, Warren')]"));
+        highlightElement.highLightElement(driverNexus, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Selected Member in Position 1");
+	}
+	
+	
+
+	
+	@Test(priority = 1260)
+	public void clickAssignBackup2() {
+		waitMethods.waiter(waitMethods.w1k);
+		WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(), ' Assign Backup')]"));
+        highlightElement.highLightElement(driverNexus, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Clicked Assign Backup");
+	}
 	
 	
 	
-	//  https://localhost/LEAF_Request_Portal/admin/
-	//  contains 'Sync Services'
+	
+	@Test(priority = 1270)
+	public void addBackupPosition2() {  
+	  	waitMethods.waiter(waitMethods.w300);     			//  
+	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input"));
+	  	highlightElement.highLightElement(driverNexus, ele);
+	  	ele.click();
+	  	
+	  	String name = "Carroll, Zoila Lind";
+	  	   
+	  	for(int i = 0; i < name.length(); i++) {
+	  		char c = name.charAt(i);
+	  		String s = new StringBuilder().append(c).toString();
+	  		ele.sendKeys(s);
+	   		waitMethods.waiter(waitMethods.w10);
+	  	}
+	  	
+	  		waitMethods.waiter(waitMethods.w100);
+	  		System.out.println("Backup Added for Position 2");		
+	}	
+	
+	
+	
+	@Test(priority = 1280)
+	public void saveBackup2() {
+		saveNexusEmployee();
+	}
+	
+	
+	
+			@Test(priority = 1290)
+	public void navigateNexusBack2() {
+		driverNexus.navigate().back();;
+	}
+	
+	
 	
 	
 	
@@ -935,18 +974,38 @@ public class userAccessGroupsTESTING extends setupFramework {
 	 */
 	
 	
+	
+	
+	/*
+	
+		Removing users in Nexus
+			Position 1: /html/body/div[2]/div/div/div[1]/div/div[4]/div[2]/div[1]/a[2]
+			Position 2: /html/body/div[2]/div/div/div[1]/div/div[4]/div[2]/div[2]/a[2]
+
+	*/
+	
+	// Delete a couple - probably by xpath. Check on backups
+	// Assert.assertEquals(pageTitle, "Academy Demo Site (Test site) | Washington DC | Washington DC", "Page Title does not match expected value");
+	
+	
+	
+	//  https://localhost/LEAF_Request_Portal/admin/
+	//  contains 'Sync Services'
+	
+	
+	
+	
 	/* ASSERTION Method
 	 * 
 	 * 	@Test(priority = 104) //
 		public void verifySearchByEmployee() {         
 			//waitMethods.implicitWait(waitMethods.w300);
-			waitMethods.waiter(waitMethods.w500);	
+			waitMethods.waiter(waitMethods.w300);	
 			WebElement ele = driver.findElement(By.partialLinkText("Wagner")); 
 			highlightElement.highLightElement(driver, ele);
 			String verify = ele.toString();
 			System.out.println(verify);
 			Assert.assertTrue(ele.toString().contains("Wagner"));	
-			waitMethods.waiter(waitMethods.w300);
 			System.out.println("Search for employee name on page");
 		}
 	 * 
@@ -970,7 +1029,6 @@ public class userAccessGroupsTESTING extends setupFramework {
 	
 	
 	/*
-	 * PICKUP HERE:
 	 * Add Assertions 
 	 * 
 	 * 
@@ -1034,9 +1092,13 @@ public class userAccessGroupsTESTING extends setupFramework {
 //        waitMethods.waiter(waitMethods.w300);
 //        System.out.println("Clicked Save");
 //	} 
-	
-	
-
+//			
+//			
+//	
+//	@Test(priority = 1300)
+//	public void closeDownNexus1() {
+//		closeDownNexus();
+//	}
 	
 	
 
