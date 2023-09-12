@@ -21,10 +21,10 @@ FROM base as dev
 # COPY /docker/php/etc/xdebug.ini "$PHP_INI_DIR/conf.d/xdebug.ini"
 
 FROM base as prod
-COPY ./LEAF_Nexus /var/www/html/app/Orgchart
-COPY ./LEAF_Request_Portal /var/www/html/app/Portal
+COPY ./LEAF_Nexus /var/www/app/Orgchart
+COPY ./LEAF_Request_Portal /var/www/app/Portal
 COPY ./libs /var/www/html/libs
-COPY ./health_checks /var/www/html/health_checks
+COPY ./health_checks /var/www/app/health_checks
 COPY ../LEAF_Request_Portal/vafavicon.ico /var/www/html/favicon.ico
 COPY ../LEAF_Request_Portal/vafavicon.ico /var/www/html/LEAF_Nexus/vafavicon.ico
 RUN chmod +x /var/www/html/
