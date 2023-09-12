@@ -239,11 +239,10 @@ public class userAccessGroups extends setupFramework {
 	
 	@Test(priority = 150) 
 	private void saveUserGroup() {									//Click Save button
-		waitMethods.waiter(waitMethods.w500);
+		waitMethods.waiter(waitMethods.w300);
 		WebElement ele = driver.findElement(By.id("button_save"));
         highlightElement.highLightElement(driver, ele);  
         ele.click();	
-        waitMethods.waiter(waitMethods.w100);
         System.out.println("Clicked Save");
 	} 
 
@@ -656,6 +655,13 @@ public class userAccessGroups extends setupFramework {
 	} 
 	
 	
+	
+	@Test(priority = 993)
+	public void closeDownMainPortal1() {
+		closeDownMainPortal();
+	}
+	
+	
 	@Test(priority = 995) 
 	public void createNexusDriver1() {
 		createNexusDriver();
@@ -664,15 +670,13 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-
-	
 	@Test(priority = 1000) //		
 	private void clickAddUserInNexus() {	
 		System.out.println("Entered addUseInNexus Method"); 
 			//Debugging
 			String sURL = driverNexus.getCurrentUrl();
 				System.out.println("URL in method addUserInNexus(): " + sURL); 
-		waitMethods.waiter(waitMethods.w3k);  
+		waitMethods.waiter(waitMethods.w1500);  
 		//WebElement ele = driverNexus.findElement(By.xpath("//button[contains(text(), ' Add Employee/Position')]"));
 		WebElement ele = driverNexus.findElement(By.id("button_addEmployeePosition"));
 		highlightElement.highLightElement(driverNexus, ele);
@@ -685,7 +689,7 @@ public class userAccessGroups extends setupFramework {
 	
 	@Test(priority = 1010) //
 	private void selectSearchEmployeesOnly() {				
-		waitMethods.waiter(waitMethods.w1k);  
+		waitMethods.waiter(waitMethods.w500);  
 		WebElement ele = driverNexus.findElement(By.id("ignorePositions"));		
 		highlightElement.highLightElement(driverNexus, ele);
 		ele.click();
@@ -822,25 +826,191 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-	/* 
-	 * NEXUS
-	 * Save							button_save
-	 * Cancel						button_cancelchange
-	 * X in upper right				/html/body/div[5]/div[1]/button/span[1]
-	 * Alt Name						abrinputtitle
-	 * 
-	 * Add Employee					button_addEmployeePosition
-	 * Edit Group Name
-	 * 
-	 * Search Employees Only		ignorePositions
-	 * Apply to all subordinates	includeSub
-	 * 		
-	*/
+	
+	
+	@Test(priority = 1200)
+	public void selectMemberPosition1() {
+		waitMethods.waiter(waitMethods.w3k);
+		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Abbott, Roman')]"));
+        highlightElement.highLightElement(driverNexus, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Selected Member in Position 1");
+	}
+	
+	
+
+	//===== ADD Backup for Position 1 ====================================================
+	
+	@Test(priority = 1210)
+	public void clickAssignBackup() {
+		waitMethods.waiter(waitMethods.w1k);
+		WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(), ' Assign Backup')]"));
+        highlightElement.highLightElement(driverNexus, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Clicked Assign Backup");
+	}
+	
+	
+	
+	
+	@Test(priority = 1220)
+	public void addBackupPosition1() {  
+	  	waitMethods.waiter(waitMethods.w300);     			//  
+	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input"));
+	  	highlightElement.highLightElement(driverNexus, ele);
+	  	ele.click();
+	  	
+	  	String name = "Kub, Brandon Schmidt.";
+	  	   
+	  	for(int i = 0; i < name.length(); i++) {
+	  		char c = name.charAt(i);
+	  		String s = new StringBuilder().append(c).toString();
+	  		ele.sendKeys(s);
+	   		waitMethods.waiter(waitMethods.w10);
+	  	}
+	  	
+	  		waitMethods.waiter(waitMethods.w100);
+		    System.out.println("Backup Added for Position 1");		
+	}	
+	
+	
+	
+	@Test(priority = 1230)
+	public void saveBackup() {
+		saveNexusEmployee();
+	}
+	
+
+	
+	@Test(priority = 1240)
+	public void navigateNexusBack() {
+		driverNexus.navigate().back();;
+	}
+
+	
+	//===== ADD Backup for Position 2 ====================================================
+	
+	@Test(priority = 1250)
+	public void selectMemberPosition2() {
+		waitMethods.waiter(waitMethods.w3k);
+		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Considine, Warren')]"));
+        highlightElement.highLightElement(driverNexus, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Selected Member in Position 1");
+	}
+	
+	
+
+	
+	@Test(priority = 1260)
+	public void clickAssignBackup2() {
+		waitMethods.waiter(waitMethods.w1k);
+		WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(), ' Assign Backup')]"));
+        highlightElement.highLightElement(driverNexus, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Clicked Assign Backup");
+	}
+	
+	
+	
+	
+	@Test(priority = 1270)
+	public void addBackupPosition2() {  
+	  	waitMethods.waiter(waitMethods.w300);     			//  
+	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input"));
+	  	highlightElement.highLightElement(driverNexus, ele);
+	  	ele.click();
+	  	
+	  	String name = "Carroll, Zoila Lind";
+	  	   
+	  	for(int i = 0; i < name.length(); i++) {
+	  		char c = name.charAt(i);
+	  		String s = new StringBuilder().append(c).toString();
+	  		ele.sendKeys(s);
+	   		waitMethods.waiter(waitMethods.w10);
+	  	}
+	  	
+	  		waitMethods.waiter(waitMethods.w100);
+	  		System.out.println("Backup Added for Position 2");		
+	}	
+	
+	
+	
+	@Test(priority = 1280)
+	public void saveBackup2() {
+		saveNexusEmployee();
+	}
+	
+	
+	
+	@Test(priority = 1290)
+	public void navigateNexusBack2() {
+		driverNexus.navigate().back();;
+	}
+	
+	
 	
 	
 	/*
-	 * PICKUP HERE:
-	 * Add Assertions 
+	 *  Go ahead and write methods to check xactions in Main Portal
+	 *  Delete users
+	 *  Remove backups
+	 *  Add additional assertions
+	 * 
+	 */
+	
+	
+	
+	/*
+	 * END ADD tests 
+	 */
+	
+	
+	
+	
+	/*
+	
+		Removing users in Nexus
+			Position 1: /html/body/div[2]/div/div/div[1]/div/div[4]/div[2]/div[1]/a[2]
+			Position 2: /html/body/div[2]/div/div/div[1]/div/div[4]/div[2]/div[2]/a[2]
+
+	*/
+	
+	// Delete a couple - probably by xpath. Check on backups
+	// Assert.assertEquals(pageTitle, "Academy Demo Site (Test site) | Washington DC | Washington DC", "Page Title does not match expected value");
+	
+	
+	
+	//  https://localhost/LEAF_Request_Portal/admin/
+	//  contains 'Sync Services'
+	
+	
+	
+	
+	/* ASSERTION Method to determine whether the value of an element is present (or not - Fail test) 
+	 * 
+	 * 	@Test(priority = 104) //
+		public void verifySearchByEmployee() {         
+			//waitMethods.implicitWait(waitMethods.w300);
+			waitMethods.waiter(waitMethods.w300);	
+			WebElement ele = driver.findElement(By.partialLinkText("Wagner")); 
+			highlightElement.highLightElement(driver, ele);
+			String verify = ele.toString();
+			System.out.println(verify);
+			Assert.assertTrue(ele.toString().contains("Wagner"));	
+			System.out.println("Search for employee name on page");
+		}
+	 * 
+	 */
+	
+	
+	
+	/*
+	 * Add Assertions (Main Portal?)
 	 * 
 	 * 
 	 * Show Inactive Users							showInactive
@@ -853,22 +1023,7 @@ public class userAccessGroups extends setupFramework {
 	 */	
 	
 	
-	@Test(priority = 1200)
-	public void selectMemberPosition1() {
-		waitMethods.waiter(waitMethods.w1k);
-		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(), 'Abbott, Roman'"));
-        highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();	
-        waitMethods.waiter(waitMethods.w100);
-        System.out.println("selected Member in Position 1");
-	}	
-	
-	
-	
-	
-	
-	
-	
+		
 	/*************  Ending Procedures  *********/	
 	
 //	@Test(priority = 9000) //
@@ -876,6 +1031,7 @@ public class userAccessGroups extends setupFramework {
 //		waitMethods.waiter(waitMethods.w1k);
 //
 //		//WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[2]/div/div/div[2]/div[1]/button[1]"));
+//		     //WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(), 'Abbott, Roman'"));
 //		WebElement ele = driverNexus.findElement(By.xpath("//button[contains(text(), ' Edit Group Name')]"));
 //	    highlightElement.highLightElement(driverNexus, ele);
 //	    ele.click();
@@ -917,9 +1073,13 @@ public class userAccessGroups extends setupFramework {
 //        waitMethods.waiter(waitMethods.w300);
 //        System.out.println("Clicked Save");
 //	} 
-	
-	
-
+//			
+//			
+//	
+//	@Test(priority = 1300)
+//	public void closeDownNexus1() {
+//		closeDownNexus();
+//	}
 	
 	
 
@@ -928,8 +1088,7 @@ public class userAccessGroups extends setupFramework {
 /*
  * IDs
  * userGroupSearch
- * 
- * 		//String s = ".Test User Access Group ";
+ * 		//String s = ".Test User Access Group ";    // don't forget prefacing dot (.)
 		//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), '" + s + "')]"));
  *  
  * */	

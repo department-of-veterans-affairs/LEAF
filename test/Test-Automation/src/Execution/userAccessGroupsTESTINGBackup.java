@@ -24,7 +24,7 @@ import Framework.waitMethods;
 import Framework.highlightElement;
 
 
-public class userAccessGroupsTESTING extends setupFramework {
+public class userAccessGroupsTESTINGBackup extends setupFramework {
 
 	
 	public String sRand;
@@ -676,7 +676,7 @@ public class userAccessGroupsTESTING extends setupFramework {
 			//Debugging
 			String sURL = driverNexus.getCurrentUrl();
 				System.out.println("URL in method addUserInNexus(): " + sURL); 
-		waitMethods.waiter(waitMethods.w1500);  
+		waitMethods.waiter(waitMethods.w3k);  
 		//WebElement ele = driverNexus.findElement(By.xpath("//button[contains(text(), ' Add Employee/Position')]"));
 		WebElement ele = driverNexus.findElement(By.id("button_addEmployeePosition"));
 		highlightElement.highLightElement(driverNexus, ele);
@@ -689,7 +689,7 @@ public class userAccessGroupsTESTING extends setupFramework {
 	
 	@Test(priority = 1010) //
 	private void selectSearchEmployeesOnly() {				
-		waitMethods.waiter(waitMethods.w500);  
+		waitMethods.waiter(waitMethods.w1k);  
 		WebElement ele = driverNexus.findElement(By.id("ignorePositions"));		
 		highlightElement.highLightElement(driverNexus, ele);
 		ele.click();
@@ -952,7 +952,7 @@ public class userAccessGroupsTESTING extends setupFramework {
 		driverNexus.navigate().back();;
 	}
 	
-	//======================== Everything UP is merged into userAccessGroups.java ==========
+	
 	
 	
 	/*

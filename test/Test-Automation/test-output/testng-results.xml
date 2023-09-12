@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results ignored="0" total="26" passed="23" failed="3" skipped="0">
+<testng-results ignored="0" total="77" passed="64" failed="13" skipped="0">
   <reporter-output>
   </reporter-output>
-  <suite started-at="2023-09-11T15:33:19 CDT" name="RegressionSuite" finished-at="2023-09-11T15:34:03 CDT" duration-ms="43017">
+  <suite started-at="2023-09-12T14:02:20 CDT" name="RegressionSuite" finished-at="2023-09-12T14:04:03 CDT" duration-ms="103420">
     <groups>
     </groups>
-    <test started-at="2023-09-11T15:33:19 CDT" name="User Access Groups TESTING" finished-at="2023-09-11T15:34:03 CDT" duration-ms="43017">
-      <class name="Execution.userAccessGroupsTESTING">
-        <test-method is-config="true" signature="initializeFramework(java.lang.String,java.lang.String)[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:20 CDT" name="initializeFramework" finished-at="2023-09-11T15:33:22 CDT" duration-ms="2320" status="PASS">
+    <test started-at="2023-09-12T14:02:20 CDT" name="User Access Groups" finished-at="2023-09-12T14:03:47 CDT" duration-ms="86986">
+      <class name="Execution.userAccessGroups">
+        <test-method is-config="true" signature="initializeFramework(java.lang.String,java.lang.String)[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:20 CDT" name="initializeFramework" finished-at="2023-09-12T14:02:23 CDT" duration-ms="3045" status="PASS">
           <params>
             <param index="0">
               <value>
@@ -23,98 +23,105 @@
           <reporter-output>
           </reporter-output>
         </test-method> <!-- initializeFramework -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:22 CDT" name="setUp" finished-at="2023-09-11T15:33:22 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:23 CDT" name="setUp" finished-at="2023-09-12T14:02:23 CDT" duration-ms="2" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:22 CDT" name="setUp" finished-at="2023-09-11T15:33:22 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:23 CDT" name="setUp" finished-at="2023-09-12T14:02:23 CDT" duration-ms="1" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="testForCertPage()[pri:1, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:22 CDT" name="testForCertPage" finished-at="2023-09-11T15:33:23 CDT" duration-ms="1545" status="PASS">
+        <test-method signature="testForCertPage()[pri:1, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:23 CDT" name="testForCertPage" finished-at="2023-09-12T14:02:24 CDT" duration-ms="1560" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- testForCertPage -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:23 CDT" name="setUp" finished-at="2023-09-11T15:33:23 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:24 CDT" name="setUp" finished-at="2023-09-12T14:02:24 CDT" duration-ms="1" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="getElementID()[pri:990, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:23 CDT" name="getElementID" finished-at="2023-09-11T15:33:26 CDT" duration-ms="2936" status="PASS">
+        <test-method signature="createUserAccessGroup()[pri:100, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:24 CDT" name="createUserAccessGroup" finished-at="2023-09-12T14:02:26 CDT" duration-ms="1712" status="PASS">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- getElementID -->
-        <test-method signature="createNexusDriver1()[pri:995, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:26 CDT" name="createNexusDriver1" finished-at="2023-09-11T15:33:32 CDT" duration-ms="5271" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- createNexusDriver1 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:26 CDT" name="setUp" finished-at="2023-09-11T15:33:26 CDT" duration-ms="0" status="PASS">
+        </test-method> <!-- createUserAccessGroup -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:26 CDT" name="setUp" finished-at="2023-09-12T14:02:26 CDT" duration-ms="1" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:32 CDT" name="setUp" finished-at="2023-09-11T15:33:32 CDT" duration-ms="2" status="PASS">
+        <test-method signature="inputGroupName()[pri:110, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:26 CDT" name="inputGroupName" finished-at="2023-09-12T14:02:28 CDT" duration-ms="2001" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- inputGroupName -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:28 CDT" name="setUp" finished-at="2023-09-12T14:02:28 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="clickAddUserInNexus()[pri:1000, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:32 CDT" name="clickAddUserInNexus" finished-at="2023-09-11T15:33:36 CDT" duration-ms="4188" status="PASS">
+        <test-method signature="cancelCreateUserGroup()[pri:120, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:28 CDT" name="cancelCreateUserGroup" finished-at="2023-09-12T14:02:29 CDT" duration-ms="834" status="PASS">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- clickAddUserInNexus -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:36 CDT" name="setUp" finished-at="2023-09-11T15:33:36 CDT" duration-ms="0" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method signature="selectSearchEmployeesOnly()[pri:1010, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:36 CDT" name="selectSearchEmployeesOnly" finished-at="2023-09-11T15:33:37 CDT" duration-ms="1438" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- selectSearchEmployeesOnly -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:37 CDT" name="setUp" finished-at="2023-09-11T15:33:37 CDT" duration-ms="1" status="PASS">
+        </test-method> <!-- cancelCreateUserGroup -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:29 CDT" name="setUp" finished-at="2023-09-12T14:02:29 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="inputNexusEmployee()[pri:1020, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:37 CDT" name="inputNexusEmployee" finished-at="2023-09-11T15:33:39 CDT" duration-ms="1814" status="PASS">
+        <test-method signature="createUserAccessGroup2()[pri:130, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:29 CDT" name="createUserAccessGroup2" finished-at="2023-09-12T14:02:30 CDT" duration-ms="743" status="PASS">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- inputNexusEmployee -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:39 CDT" name="setUp" finished-at="2023-09-11T15:33:39 CDT" duration-ms="0" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method signature="saveNexusEmployee()[pri:1030, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:39 CDT" name="saveNexusEmployee" finished-at="2023-09-11T15:33:40 CDT" duration-ms="505" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- saveNexusEmployee -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:40 CDT" name="setUp" finished-at="2023-09-11T15:33:40 CDT" duration-ms="0" status="PASS">
+        </test-method> <!-- createUserAccessGroup2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:30 CDT" name="setUp" finished-at="2023-09-12T14:02:30 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="clickAddUserInNexus2()[pri:1040, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:40 CDT" name="clickAddUserInNexus2" finished-at="2023-09-11T15:33:40 CDT" duration-ms="69" status="FAIL">
-          <exception class="org.openqa.selenium.UnhandledAlertException">
+        <test-method signature="inputGroupName2()[pri:140, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:30 CDT" name="inputGroupName2" finished-at="2023-09-12T14:02:31 CDT" duration-ms="1896" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- inputGroupName2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:31 CDT" name="setUp" finished-at="2023-09-12T14:02:32 CDT" duration-ms="2" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="saveUserGroup()[pri:150, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:32 CDT" name="saveUserGroup" finished-at="2023-09-12T14:02:32 CDT" duration-ms="768" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- saveUserGroup -->
+        <test-method signature="openAccessGroup()[pri:160, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:32 CDT" name="openAccessGroup" finished-at="2023-09-12T14:02:33 CDT" duration-ms="1049" status="FAIL">
+          <exception class="org.openqa.selenium.NoSuchElementException">
             <message>
-              <![CDATA[unexpected alert open: {Alert text : You must select an employee or position}
-  (Session info: chrome=116.0.5845.180): You must select an employee or position
+              <![CDATA[no such element: Unable to locate element: {"method":"xpath","selector":"/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
 Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
 System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
 Driver info: org.openqa.selenium.chrome.ChromeDriver
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58032}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Session ID: 96738ffe42079d38efe65c66b78478e6]]>
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0
+*** Element info: {Using=xpath, value=/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]}]]>
             </message>
             <full-stacktrace>
-              <![CDATA[org.openqa.selenium.UnhandledAlertException: unexpected alert open: {Alert text : You must select an employee or position}
-  (Session info: chrome=116.0.5845.180): You must select an employee or position
+              <![CDATA[org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"xpath","selector":"/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
 Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
 System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
 Driver info: org.openqa.selenium.chrome.ChromeDriver
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58032}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Session ID: 96738ffe42079d38efe65c66b78478e6
-at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:120)
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0
+*** Element info: {Using=xpath, value=/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]}
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
 at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
 at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
 at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
 at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
-at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:609)
-at org.openqa.selenium.remote.RemoteWebDriver.getCurrentUrl(RemoteWebDriver.java:287)
-at Execution.userAccessGroupsTESTING.clickAddUserInNexus(userAccessGroupsTESTING.java:673)
-at Execution.userAccessGroupsTESTING.clickAddUserInNexus2(userAccessGroupsTESTING.java:737)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+at Execution.userAccessGroups.openAccessGroup(userAccessGroups.java:259)
 at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
 at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -145,41 +152,114 @@ at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
 at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
 ]]>
             </full-stacktrace>
-          </exception> <!-- org.openqa.selenium.UnhandledAlertException -->
+          </exception> <!-- org.openqa.selenium.NoSuchElementException -->
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- clickAddUserInNexus2 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:40 CDT" name="setUp" finished-at="2023-09-11T15:33:40 CDT" duration-ms="1" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method signature="selectSearchEmployeesOnly2()[pri:1050, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:40 CDT" name="selectSearchEmployeesOnly2" finished-at="2023-09-11T15:33:41 CDT" duration-ms="1455" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- selectSearchEmployeesOnly2 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:41 CDT" name="setUp" finished-at="2023-09-11T15:33:41 CDT" duration-ms="1" status="PASS">
+        </test-method> <!-- openAccessGroup -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:32 CDT" name="setUp" finished-at="2023-09-12T14:02:32 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="inputNexusEmployee2()[pri:1060, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:41 CDT" name="inputNexusEmployee2" finished-at="2023-09-11T15:33:42 CDT" duration-ms="727" status="FAIL">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:33 CDT" name="setUp" finished-at="2023-09-12T14:02:33 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="inputEmployee()[pri:170, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:33 CDT" name="inputEmployee" finished-at="2023-09-12T14:02:34 CDT" duration-ms="621" status="FAIL">
+          <exception class="org.openqa.selenium.NoSuchElementException">
+            <message>
+              <![CDATA[no such element: Unable to locate element: {"method":"xpath","selector":"/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0
+*** Element info: {Using=xpath, value=/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input}]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"xpath","selector":"/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0
+*** Element info: {Using=xpath, value=/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input}
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+at Execution.userAccessGroups.inputEmployee(userAccessGroups.java:272)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.NoSuchElementException -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- inputEmployee -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:34 CDT" name="setUp" finished-at="2023-09-12T14:02:34 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="saveEmployee()[pri:180, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:34 CDT" name="saveEmployee" finished-at="2023-09-12T14:02:35 CDT" duration-ms="703" status="FAIL">
           <exception class="org.openqa.selenium.ElementNotInteractableException">
             <message>
               <![CDATA[element not interactable
-  (Session info: chrome=116.0.5845.180)
+  (Session info: chrome=116.0.5845.182)
 Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
 System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
 Driver info: org.openqa.selenium.chrome.ChromeDriver
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58032}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Session ID: 96738ffe42079d38efe65c66b78478e6]]>
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0]]>
             </message>
             <full-stacktrace>
               <![CDATA[org.openqa.selenium.ElementNotInteractableException: element not interactable
-  (Session info: chrome=116.0.5845.180)
+  (Session info: chrome=116.0.5845.182)
 Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
 System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
 Driver info: org.openqa.selenium.chrome.ChromeDriver
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58032}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Session ID: 96738ffe42079d38efe65c66b78478e6
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0
 at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
 at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
 at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
@@ -192,8 +272,9 @@ at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.ja
 at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
 at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
 at org.openqa.selenium.remote.RemoteWebElement.execute(RemoteWebElement.java:285)
-at org.openqa.selenium.remote.RemoteWebElement.sendKeys(RemoteWebElement.java:106)
-at Execution.userAccessGroupsTESTING.inputNexusEmployee2(userAccessGroupsTESTING.java:763)
+at org.openqa.selenium.remote.RemoteWebElement.click(RemoteWebElement.java:84)
+at Execution.userAccessGroups.saveUserGroup(userAccessGroups.java:245)
+at Execution.userAccessGroups.saveEmployee(userAccessGroups.java:298)
 at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
 at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -227,38 +308,586 @@ at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
           </exception> <!-- org.openqa.selenium.ElementNotInteractableException -->
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- inputNexusEmployee2 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:42 CDT" name="setUp" finished-at="2023-09-11T15:33:42 CDT" duration-ms="1" status="PASS">
+        </test-method> <!-- saveEmployee -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:35 CDT" name="setUp" finished-at="2023-09-12T14:02:35 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="saveNexusEmployee2()[pri:1070, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:42 CDT" name="saveNexusEmployee2" finished-at="2023-09-11T15:33:42 CDT" duration-ms="457" status="PASS">
+        <test-method signature="openAccessGroup1()[pri:190, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:35 CDT" name="openAccessGroup1" finished-at="2023-09-12T14:02:36 CDT" duration-ms="1422" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup1 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:36 CDT" name="setUp" finished-at="2023-09-12T14:02:36 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="inputEmployee2()[pri:200, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:36 CDT" name="inputEmployee2" finished-at="2023-09-12T14:02:38 CDT" duration-ms="2213" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- inputEmployee2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:38 CDT" name="setUp" finished-at="2023-09-12T14:02:38 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="saveEmployee2()[pri:210, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:38 CDT" name="saveEmployee2" finished-at="2023-09-12T14:02:39 CDT" duration-ms="803" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- saveEmployee2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:39 CDT" name="setUp" finished-at="2023-09-12T14:02:39 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="openAccessGroup2()[pri:220, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:39 CDT" name="openAccessGroup2" finished-at="2023-09-12T14:02:41 CDT" duration-ms="1462" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:41 CDT" name="setUp" finished-at="2023-09-12T14:02:41 CDT" duration-ms="2" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="inputEmployee3()[pri:230, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:41 CDT" name="inputEmployee3" finished-at="2023-09-12T14:02:43 CDT" duration-ms="2201" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- inputEmployee3 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:43 CDT" name="setUp" finished-at="2023-09-12T14:02:43 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="saveEmployee3()[pri:240, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:43 CDT" name="saveEmployee3" finished-at="2023-09-12T14:02:44 CDT" duration-ms="751" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- saveEmployee3 -->
+        <test-method signature="openAccessGroup3()[pri:250, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:44 CDT" name="openAccessGroup3" finished-at="2023-09-12T14:02:45 CDT" duration-ms="1462" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup3 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:44 CDT" name="setUp" finished-at="2023-09-12T14:02:44 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:45 CDT" name="setUp" finished-at="2023-09-12T14:02:45 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="addNexusUser_0()[pri:260, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:45 CDT" name="addNexusUser_0" finished-at="2023-09-12T14:02:46 CDT" duration-ms="857" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- addNexusUser_0 -->
+        <test-method signature="confirmNo()[pri:280, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:46 CDT" name="confirmNo" finished-at="2023-09-12T14:02:47 CDT" duration-ms="728" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- confirmNo -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:46 CDT" name="setUp" finished-at="2023-09-12T14:02:46 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:47 CDT" name="setUp" finished-at="2023-09-12T14:02:47 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="addNexusUser_0_2()[pri:300, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:47 CDT" name="addNexusUser_0_2" finished-at="2023-09-12T14:02:47 CDT" duration-ms="847" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- addNexusUser_0_2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:47 CDT" name="setUp" finished-at="2023-09-12T14:02:47 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="confirmYes()[pri:305, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:47 CDT" name="confirmYes" finished-at="2023-09-12T14:02:48 CDT" duration-ms="750" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- confirmYes -->
+        <test-method signature="openAccessGroup4()[pri:307, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:48 CDT" name="openAccessGroup4" finished-at="2023-09-12T14:02:50 CDT" duration-ms="1435" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup4 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:48 CDT" name="setUp" finished-at="2023-09-12T14:02:48 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:50 CDT" name="setUp" finished-at="2023-09-12T14:02:50 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="addNexusUser_1()[pri:310, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:50 CDT" name="addNexusUser_1" finished-at="2023-09-12T14:02:50 CDT" duration-ms="860" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- addNexusUser_1 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:50 CDT" name="setUp" finished-at="2023-09-12T14:02:50 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="confirmYes2()[pri:320, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:50 CDT" name="confirmYes2" finished-at="2023-09-12T14:02:51 CDT" duration-ms="737" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- confirmYes2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:51 CDT" name="setUp" finished-at="2023-09-12T14:02:51 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="openAccessGroup5()[pri:325, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:51 CDT" name="openAccessGroup5" finished-at="2023-09-12T14:02:53 CDT" duration-ms="1428" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup5 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:53 CDT" name="setUp" finished-at="2023-09-12T14:02:53 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="addNexusUser_2()[pri:330, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:53 CDT" name="addNexusUser_2" finished-at="2023-09-12T14:02:53 CDT" duration-ms="322" status="FAIL">
+          <exception class="org.openqa.selenium.NoSuchElementException">
+            <message>
+              <![CDATA[no such element: Unable to locate element: {"method":"css selector","selector":"#addNexusMember_2"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0
+*** Element info: {Using=id, value=addNexusMember_2}]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"#addNexusMember_2"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0
+*** Element info: {Using=id, value=addNexusMember_2}
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+at org.openqa.selenium.remote.RemoteWebDriver.findElementById(RemoteWebDriver.java:372)
+at org.openqa.selenium.By$ById.findElement(By.java:188)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+at Execution.userAccessGroups.addNexusUser_2(userAccessGroups.java:473)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.NoSuchElementException -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- addNexusUser_2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:53 CDT" name="setUp" finished-at="2023-09-12T14:02:53 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="confirmYes3()[pri:340, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:53 CDT" name="confirmYes3" finished-at="2023-09-12T14:02:54 CDT" duration-ms="581" status="FAIL">
+          <exception class="org.openqa.selenium.ElementNotInteractableException">
+            <message>
+              <![CDATA[element not interactable
+  (Session info: chrome=116.0.5845.182)
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.ElementNotInteractableException: element not interactable
+  (Session info: chrome=116.0.5845.182)
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebElement.execute(RemoteWebElement.java:285)
+at org.openqa.selenium.remote.RemoteWebElement.click(RemoteWebElement.java:84)
+at Execution.userAccessGroups.confirmYes3(userAccessGroups.java:487)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.ElementNotInteractableException -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- confirmYes3 -->
+        <test-method signature="openAccessGroup6()[pri:345, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:54 CDT" name="openAccessGroup6" finished-at="2023-09-12T14:02:56 CDT" duration-ms="2444" status="FAIL">
+          <exception class="org.openqa.selenium.ElementClickInterceptedException">
+            <message>
+              <![CDATA[element click intercepted: Element <div tabindex="0" id="288" title="groupID: 288" class="groupBlockWhite" style="border: solid 2px white">...</div> is not clickable at point (472, 433). Other element would receive the click: <th>...</th>
+  (Session info: chrome=116.0.5845.182)
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.ElementClickInterceptedException: element click intercepted: Element <div tabindex="0" id="288" title="groupID: 288" class="groupBlockWhite" style="border: solid 2px white">...</div> is not clickable at point (472, 433). Other element would receive the click: <th>...</th>
+  (Session info: chrome=116.0.5845.182)
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52193}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6e2ea5dc39ce16980c6d5504e26ad7f0
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebElement.execute(RemoteWebElement.java:285)
+at org.openqa.selenium.remote.RemoteWebElement.click(RemoteWebElement.java:84)
+at Execution.userAccessGroups.openAccessGroup(userAccessGroups.java:261)
+at Execution.userAccessGroups.openAccessGroup6(userAccessGroups.java:496)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.ElementClickInterceptedException -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup6 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:54 CDT" name="setUp" finished-at="2023-09-12T14:02:54 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:56 CDT" name="setUp" finished-at="2023-09-12T14:02:56 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="deleteUser_0()[pri:350, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:56 CDT" name="deleteUser_0" finished-at="2023-09-12T14:02:57 CDT" duration-ms="827" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- deleteUser_0 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:57 CDT" name="setUp" finished-at="2023-09-12T14:02:57 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="confirmNo2()[pri:360, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:57 CDT" name="confirmNo2" finished-at="2023-09-12T14:02:58 CDT" duration-ms="728" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- confirmNo2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:58 CDT" name="setUp" finished-at="2023-09-12T14:02:58 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="deleteUser_0_1()[pri:370, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:58 CDT" name="deleteUser_0_1" finished-at="2023-09-12T14:02:58 CDT" duration-ms="858" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- deleteUser_0_1 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:58 CDT" name="setUp" finished-at="2023-09-12T14:02:58 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="confirmYes4()[pri:380, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:58 CDT" name="confirmYes4" finished-at="2023-09-12T14:02:59 CDT" duration-ms="738" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- confirmYes4 -->
+        <test-method signature="openAccessGroup7()[pri:390, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:59 CDT" name="openAccessGroup7" finished-at="2023-09-12T14:03:01 CDT" duration-ms="1424" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup7 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:02:59 CDT" name="setUp" finished-at="2023-09-12T14:02:59 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:01 CDT" name="setUp" finished-at="2023-09-12T14:03:01 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="deleteUser_1()[pri:450, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:01 CDT" name="deleteUser_1" finished-at="2023-09-12T14:03:01 CDT" duration-ms="836" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- deleteUser_1 -->
+        <test-method signature="confirmYes5()[pri:460, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:01 CDT" name="confirmYes5" finished-at="2023-09-12T14:03:02 CDT" duration-ms="730" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- confirmYes5 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:01 CDT" name="setUp" finished-at="2023-09-12T14:03:01 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:02 CDT" name="setUp" finished-at="2023-09-12T14:03:02 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="openAccessGroup8()[pri:470, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:02 CDT" name="openAccessGroup8" finished-at="2023-09-12T14:03:04 CDT" duration-ms="1423" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup8 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:04 CDT" name="setUp" finished-at="2023-09-12T14:03:04 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="ShowHideInactive()[pri:480, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:04 CDT" name="ShowHideInactive" finished-at="2023-09-12T14:03:04 CDT" duration-ms="839" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- ShowHideInactive -->
+        <test-method signature="reactivateMember_0()[pri:490, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:04 CDT" name="reactivateMember_0" finished-at="2023-09-12T14:03:05 CDT" duration-ms="869" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- reactivateMember_0 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:04 CDT" name="setUp" finished-at="2023-09-12T14:03:04 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="confirmReactivateMember_0()[pri:500, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:05 CDT" name="confirmReactivateMember_0" finished-at="2023-09-12T14:03:06 CDT" duration-ms="727" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- confirmReactivateMember_0 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:05 CDT" name="setUp" finished-at="2023-09-12T14:03:05 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="openAccessGroup9()[pri:510, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:06 CDT" name="openAccessGroup9" finished-at="2023-09-12T14:03:07 CDT" duration-ms="1425" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup9 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:06 CDT" name="setUp" finished-at="2023-09-12T14:03:06 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:07 CDT" name="setUp" finished-at="2023-09-12T14:03:07 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="ShowHideInactive2()[pri:520, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:07 CDT" name="ShowHideInactive2" finished-at="2023-09-12T14:03:08 CDT" duration-ms="837" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- ShowHideInactive2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:08 CDT" name="setUp" finished-at="2023-09-12T14:03:08 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="reactivateMember_1()[pri:530, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:08 CDT" name="reactivateMember_1" finished-at="2023-09-12T14:03:09 CDT" duration-ms="857" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- reactivateMember_1 -->
+        <test-method signature="confirmReactivate()[pri:540, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:09 CDT" name="confirmReactivate" finished-at="2023-09-12T14:03:10 CDT" duration-ms="742" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- confirmReactivate -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:09 CDT" name="setUp" finished-at="2023-09-12T14:03:09 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:10 CDT" name="setUp" finished-at="2023-09-12T14:03:10 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="openAccessGroup10()[pri:550, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:10 CDT" name="openAccessGroup10" finished-at="2023-09-12T14:03:11 CDT" duration-ms="1434" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup10 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:11 CDT" name="setUp" finished-at="2023-09-12T14:03:11 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="getElementID()[pri:990, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:11 CDT" name="getElementID" finished-at="2023-09-12T14:03:14 CDT" duration-ms="2398" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- getElementID -->
+        <test-method signature="closeDownMainPortal1()[pri:993, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:14 CDT" name="closeDownMainPortal1" finished-at="2023-09-12T14:03:15 CDT" duration-ms="926" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- closeDownMainPortal1 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:14 CDT" name="setUp" finished-at="2023-09-12T14:03:14 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:15 CDT" name="setUp" finished-at="2023-09-12T14:03:15 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="createNexusDriver1()[pri:995, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:15 CDT" name="createNexusDriver1" finished-at="2023-09-12T14:03:22 CDT" duration-ms="6915" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- createNexusDriver1 -->
+        <test-method signature="clickAddUserInNexus()[pri:1000, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:22 CDT" name="clickAddUserInNexus" finished-at="2023-09-12T14:03:24 CDT" duration-ms="1985" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- clickAddUserInNexus -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:22 CDT" name="setUp" finished-at="2023-09-12T14:03:22 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:24 CDT" name="setUp" finished-at="2023-09-12T14:03:24 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="selectSearchEmployeesOnly()[pri:1010, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:24 CDT" name="selectSearchEmployeesOnly" finished-at="2023-09-12T14:03:25 CDT" duration-ms="941" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- selectSearchEmployeesOnly -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:25 CDT" name="setUp" finished-at="2023-09-12T14:03:25 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="inputNexusEmployee()[pri:1020, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:25 CDT" name="inputNexusEmployee" finished-at="2023-09-12T14:03:26 CDT" duration-ms="1748" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- inputNexusEmployee -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:26 CDT" name="setUp" finished-at="2023-09-12T14:03:26 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="saveNexusEmployee()[pri:1030, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:26 CDT" name="saveNexusEmployee" finished-at="2023-09-12T14:03:27 CDT" duration-ms="468" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- saveNexusEmployee -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:27 CDT" name="setUp" finished-at="2023-09-12T14:03:27 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="clickAddUserInNexus2()[pri:1040, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:27 CDT" name="clickAddUserInNexus2" finished-at="2023-09-12T14:03:29 CDT" duration-ms="1941" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- clickAddUserInNexus2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:29 CDT" name="setUp" finished-at="2023-09-12T14:03:29 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="selectSearchEmployeesOnly2()[pri:1050, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:29 CDT" name="selectSearchEmployeesOnly2" finished-at="2023-09-12T14:03:30 CDT" duration-ms="940" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- selectSearchEmployeesOnly2 -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:30 CDT" name="setUp" finished-at="2023-09-12T14:03:30 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="inputNexusEmployee2()[pri:1060, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:30 CDT" name="inputNexusEmployee2" finished-at="2023-09-12T14:03:31 CDT" duration-ms="1768" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- inputNexusEmployee2 -->
+        <test-method signature="saveNexusEmployee2()[pri:1070, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:31 CDT" name="saveNexusEmployee2" finished-at="2023-09-12T14:03:32 CDT" duration-ms="491" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- saveNexusEmployee2 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:42 CDT" name="setUp" finished-at="2023-09-11T15:33:42 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:31 CDT" name="setUp" finished-at="2023-09-12T14:03:31 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="clickAddUserInNexus3()[pri:1080, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:42 CDT" name="clickAddUserInNexus3" finished-at="2023-09-11T15:33:42 CDT" duration-ms="8" status="FAIL">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:32 CDT" name="setUp" finished-at="2023-09-12T14:03:32 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="clickAddUserInNexus3()[pri:1080, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:32 CDT" name="clickAddUserInNexus3" finished-at="2023-09-12T14:03:32 CDT" duration-ms="25" status="FAIL">
           <exception class="org.openqa.selenium.UnhandledAlertException">
             <message>
               <![CDATA[unexpected alert open: {Alert text : You must select an employee or position}
-  (Session info: chrome=116.0.5845.180): You must select an employee or position
+  (Session info: chrome=116.0.5845.182): You must select an employee or position
 Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
 System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
 Driver info: org.openqa.selenium.chrome.ChromeDriver
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58032}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Session ID: 96738ffe42079d38efe65c66b78478e6]]>
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa]]>
             </message>
             <full-stacktrace>
               <![CDATA[org.openqa.selenium.UnhandledAlertException: unexpected alert open: {Alert text : You must select an employee or position}
-  (Session info: chrome=116.0.5845.180): You must select an employee or position
+  (Session info: chrome=116.0.5845.182): You must select an employee or position
 Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
 System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
 Driver info: org.openqa.selenium.chrome.ChromeDriver
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.180, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:58032}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Session ID: 96738ffe42079d38efe65c66b78478e6
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
 at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:120)
 at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
 at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
@@ -266,8 +895,8 @@ at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverComman
 at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
 at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:609)
 at org.openqa.selenium.remote.RemoteWebDriver.getCurrentUrl(RemoteWebDriver.java:287)
-at Execution.userAccessGroupsTESTING.clickAddUserInNexus(userAccessGroupsTESTING.java:673)
-at Execution.userAccessGroupsTESTING.clickAddUserInNexus3(userAccessGroupsTESTING.java:782)
+at Execution.userAccessGroups.clickAddUserInNexus(userAccessGroups.java:677)
+at Execution.userAccessGroups.clickAddUserInNexus3(userAccessGroups.java:786)
 at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
 at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -302,123 +931,595 @@ at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
           <reporter-output>
           </reporter-output>
         </test-method> <!-- clickAddUserInNexus3 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:42 CDT" name="setUp" finished-at="2023-09-11T15:33:42 CDT" duration-ms="1" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:32 CDT" name="setUp" finished-at="2023-09-12T14:03:32 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="selectSearchEmployeesOnly3()[pri:1090, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:42 CDT" name="selectSearchEmployeesOnly3" finished-at="2023-09-11T15:33:44 CDT" duration-ms="1414" status="PASS">
+        <test-method signature="selectSearchEmployeesOnly3()[pri:1090, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:32 CDT" name="selectSearchEmployeesOnly3" finished-at="2023-09-12T14:03:33 CDT" duration-ms="922" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- selectSearchEmployeesOnly3 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:44 CDT" name="setUp" finished-at="2023-09-11T15:33:44 CDT" duration-ms="1" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method signature="inputNexusEmployee3()[pri:1100, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:44 CDT" name="inputNexusEmployee3" finished-at="2023-09-11T15:33:45 CDT" duration-ms="1542" status="PASS">
+        <test-method signature="inputNexusEmployee3()[pri:1100, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:33 CDT" name="inputNexusEmployee3" finished-at="2023-09-12T14:03:34 CDT" duration-ms="721" status="FAIL">
+          <exception class="org.openqa.selenium.ElementNotInteractableException">
+            <message>
+              <![CDATA[element not interactable
+  (Session info: chrome=116.0.5845.182)
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.ElementNotInteractableException: element not interactable
+  (Session info: chrome=116.0.5845.182)
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebElement.execute(RemoteWebElement.java:285)
+at org.openqa.selenium.remote.RemoteWebElement.sendKeys(RemoteWebElement.java:106)
+at Execution.userAccessGroups.inputNexusEmployee3(userAccessGroups.java:812)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.ElementNotInteractableException -->
           <reporter-output>
           </reporter-output>
         </test-method> <!-- inputNexusEmployee3 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:45 CDT" name="setUp" finished-at="2023-09-11T15:33:45 CDT" duration-ms="1" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:33 CDT" name="setUp" finished-at="2023-09-12T14:03:33 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="saveNexusEmployee3()[pri:1110, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:45 CDT" name="saveNexusEmployee3" finished-at="2023-09-11T15:33:46 CDT" duration-ms="449" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:34 CDT" name="setUp" finished-at="2023-09-12T14:03:34 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="saveNexusEmployee3()[pri:1110, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:34 CDT" name="saveNexusEmployee3" finished-at="2023-09-12T14:03:34 CDT" duration-ms="449" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- saveNexusEmployee3 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:46 CDT" name="setUp" finished-at="2023-09-11T15:33:46 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:34 CDT" name="setUp" finished-at="2023-09-12T14:03:34 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="selectMemberPosition1()[pri:1200, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:46 CDT" name="selectMemberPosition1" finished-at="2023-09-11T15:33:50 CDT" duration-ms="3928" status="PASS">
+        <test-method signature="selectMemberPosition1()[pri:1200, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:34 CDT" name="selectMemberPosition1" finished-at="2023-09-12T14:03:37 CDT" duration-ms="3006" status="FAIL">
+          <exception class="org.openqa.selenium.UnhandledAlertException">
+            <message>
+              <![CDATA[unexpected alert open: {Alert text : You must select an employee or position}
+  (Session info: chrome=116.0.5845.182): You must select an employee or position
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+*** Element info: {Using=xpath, value=//a[contains(text(),'Abbott, Roman')]}]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.UnhandledAlertException: unexpected alert open: {Alert text : You must select an employee or position}
+  (Session info: chrome=116.0.5845.182): You must select an employee or position
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+*** Element info: {Using=xpath, value=//a[contains(text(),'Abbott, Roman')]}
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:120)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+at Execution.userAccessGroups.selectMemberPosition1(userAccessGroups.java:834)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.UnhandledAlertException -->
           <reporter-output>
           </reporter-output>
         </test-method> <!-- selectMemberPosition1 -->
-        <test-method signature="clickAssignBackup()[pri:1210, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:50 CDT" name="clickAssignBackup" finished-at="2023-09-11T15:33:51 CDT" duration-ms="1537" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:37 CDT" name="setUp" finished-at="2023-09-12T14:03:37 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="clickAssignBackup()[pri:1210, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:37 CDT" name="clickAssignBackup" finished-at="2023-09-12T14:03:38 CDT" duration-ms="1019" status="FAIL">
+          <exception class="org.openqa.selenium.NoSuchElementException">
+            <message>
+              <![CDATA[no such element: Unable to locate element: {"method":"xpath","selector":"//*[contains(text(), ' Assign Backup')]"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+*** Element info: {Using=xpath, value=//*[contains(text(), ' Assign Backup')]}]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"xpath","selector":"//*[contains(text(), ' Assign Backup')]"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+*** Element info: {Using=xpath, value=//*[contains(text(), ' Assign Backup')]}
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+at Execution.userAccessGroups.clickAssignBackup(userAccessGroups.java:848)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.NoSuchElementException -->
           <reporter-output>
           </reporter-output>
         </test-method> <!-- clickAssignBackup -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:50 CDT" name="setUp" finished-at="2023-09-11T15:33:50 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:38 CDT" name="setUp" finished-at="2023-09-12T14:03:38 CDT" duration-ms="1" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:51 CDT" name="setUp" finished-at="2023-09-11T15:33:51 CDT" duration-ms="0" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method signature="addBackupPosition1()[pri:1220, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:51 CDT" name="addBackupPosition1" finished-at="2023-09-11T15:33:53 CDT" duration-ms="1660" status="PASS">
+        <test-method signature="addBackupPosition1()[pri:1220, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:38 CDT" name="addBackupPosition1" finished-at="2023-09-12T14:03:40 CDT" duration-ms="1762" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- addBackupPosition1 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:53 CDT" name="setUp" finished-at="2023-09-11T15:33:53 CDT" duration-ms="1" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method signature="saveBackup()[pri:1230, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:53 CDT" name="saveBackup" finished-at="2023-09-11T15:33:53 CDT" duration-ms="457" status="PASS">
+        <test-method signature="saveBackup()[pri:1230, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:40 CDT" name="saveBackup" finished-at="2023-09-12T14:03:40 CDT" duration-ms="466" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- saveBackup -->
-        <test-method signature="navigateNexusBack()[pri:1240, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:53 CDT" name="navigateNexusBack" finished-at="2023-09-11T15:33:54 CDT" duration-ms="461" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:40 CDT" name="setUp" finished-at="2023-09-12T14:03:40 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:40 CDT" name="setUp" finished-at="2023-09-12T14:03:40 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="navigateNexusBack()[pri:1240, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:40 CDT" name="navigateNexusBack" finished-at="2023-09-12T14:03:40 CDT" duration-ms="26" status="FAIL">
+          <exception class="org.openqa.selenium.UnhandledAlertException">
+            <message>
+              <![CDATA[unexpected alert open: {Alert text : You must select an employee or position}
+  (Session info: chrome=116.0.5845.182): You must select an employee or position
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.UnhandledAlertException: unexpected alert open: {Alert text : You must select an employee or position}
+  (Session info: chrome=116.0.5845.182): You must select an employee or position
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:120)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:609)
+at org.openqa.selenium.remote.RemoteWebDriver$RemoteNavigation.back(RemoteWebDriver.java:849)
+at Execution.userAccessGroups.navigateNexusBack(userAccessGroups.java:889)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.UnhandledAlertException -->
           <reporter-output>
           </reporter-output>
         </test-method> <!-- navigateNexusBack -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:53 CDT" name="setUp" finished-at="2023-09-11T15:33:53 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:40 CDT" name="setUp" finished-at="2023-09-12T14:03:40 CDT" duration-ms="1" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="selectMemberPosition2()[pri:1250, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:54 CDT" name="selectMemberPosition2" finished-at="2023-09-11T15:33:58 CDT" duration-ms="3802" status="PASS">
+        <test-method signature="selectMemberPosition2()[pri:1250, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:40 CDT" name="selectMemberPosition2" finished-at="2023-09-12T14:03:43 CDT" duration-ms="3016" status="FAIL">
+          <exception class="org.openqa.selenium.NoSuchElementException">
+            <message>
+              <![CDATA[no such element: Unable to locate element: {"method":"xpath","selector":"//a[contains(text(),'Considine, Warren')]"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+*** Element info: {Using=xpath, value=//a[contains(text(),'Considine, Warren')]}]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"xpath","selector":"//a[contains(text(),'Considine, Warren')]"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+*** Element info: {Using=xpath, value=//a[contains(text(),'Considine, Warren')]}
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+at Execution.userAccessGroups.selectMemberPosition2(userAccessGroups.java:898)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.NoSuchElementException -->
           <reporter-output>
           </reporter-output>
         </test-method> <!-- selectMemberPosition2 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:54 CDT" name="setUp" finished-at="2023-09-11T15:33:54 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:43 CDT" name="setUp" finished-at="2023-09-12T14:03:43 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:58 CDT" name="setUp" finished-at="2023-09-11T15:33:58 CDT" duration-ms="0" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method signature="clickAssignBackup2()[pri:1260, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:58 CDT" name="clickAssignBackup2" finished-at="2023-09-11T15:33:59 CDT" duration-ms="1516" status="PASS">
+        <test-method signature="clickAssignBackup2()[pri:1260, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:43 CDT" name="clickAssignBackup2" finished-at="2023-09-12T14:03:44 CDT" duration-ms="1015" status="FAIL">
+          <exception class="org.openqa.selenium.NoSuchElementException">
+            <message>
+              <![CDATA[no such element: Unable to locate element: {"method":"xpath","selector":"//*[contains(text(), ' Assign Backup')]"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+*** Element info: {Using=xpath, value=//*[contains(text(), ' Assign Backup')]}]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"xpath","selector":"//*[contains(text(), ' Assign Backup')]"}
+  (Session info: chrome=116.0.5845.182)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: '3.141.59', revision: 'e82be7d358', time: '2018-11-14T08:25:48'
+System info: host: 'DESKTOP-OOHKJP3', ip: '172.31.0.1', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '15.0.2'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.182, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:52220}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 86e0847fa6e8a748563eed27f90c61fa
+*** Element info: {Using=xpath, value=//*[contains(text(), ' Assign Backup')]}
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+at Execution.userAccessGroups.clickAssignBackup2(userAccessGroups.java:911)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:133)
+at org.testng.internal.TestInvoker.invokeMethod(TestInvoker.java:598)
+at org.testng.internal.TestInvoker.invokeTestMethod(TestInvoker.java:173)
+at org.testng.internal.MethodRunner.runInSequence(MethodRunner.java:46)
+at org.testng.internal.TestInvoker$MethodInvocationAgent.invoke(TestInvoker.java:824)
+at org.testng.internal.TestInvoker.invokeTestMethods(TestInvoker.java:146)
+at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:146)
+at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:128)
+at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+at org.testng.TestRunner.privateRun(TestRunner.java:794)
+at org.testng.TestRunner.run(TestRunner.java:596)
+at org.testng.SuiteRunner.runTest(SuiteRunner.java:377)
+at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:371)
+at org.testng.SuiteRunner.privateRun(SuiteRunner.java:332)
+at org.testng.SuiteRunner.run(SuiteRunner.java:276)
+at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:53)
+at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:96)
+at org.testng.TestNG.runSuitesSequentially(TestNG.java:1212)
+at org.testng.TestNG.runSuitesLocally(TestNG.java:1134)
+at org.testng.TestNG.runSuites(TestNG.java:1063)
+at org.testng.TestNG.run(TestNG.java:1031)
+at org.testng.remote.AbstractRemoteTestNG.run(AbstractRemoteTestNG.java:115)
+at org.testng.remote.RemoteTestNG.initAndRun(RemoteTestNG.java:251)
+at org.testng.remote.RemoteTestNG.main(RemoteTestNG.java:77)
+]]>
+            </full-stacktrace>
+          </exception> <!-- org.openqa.selenium.NoSuchElementException -->
           <reporter-output>
           </reporter-output>
         </test-method> <!-- clickAssignBackup2 -->
-        <test-method signature="addBackupPosition2()[pri:1270, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:59 CDT" name="addBackupPosition2" finished-at="2023-09-11T15:34:01 CDT" duration-ms="1638" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:44 CDT" name="setUp" finished-at="2023-09-12T14:03:44 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="addBackupPosition2()[pri:1270, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:44 CDT" name="addBackupPosition2" finished-at="2023-09-12T14:03:46 CDT" duration-ms="1665" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- addBackupPosition2 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:33:59 CDT" name="setUp" finished-at="2023-09-11T15:33:59 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:46 CDT" name="setUp" finished-at="2023-09-12T14:03:46 CDT" duration-ms="1" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="saveBackup2()[pri:1280, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:34:01 CDT" name="saveBackup2" finished-at="2023-09-11T15:34:01 CDT" duration-ms="449" status="PASS">
+        <test-method signature="saveBackup2()[pri:1280, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:46 CDT" name="saveBackup2" finished-at="2023-09-12T14:03:46 CDT" duration-ms="465" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- saveBackup2 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:34:01 CDT" name="setUp" finished-at="2023-09-11T15:34:01 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:46 CDT" name="setUp" finished-at="2023-09-12T14:03:46 CDT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:34:01 CDT" name="setUp" finished-at="2023-09-11T15:34:01 CDT" duration-ms="0" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method signature="navigateNexusBack2()[pri:1290, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:34:01 CDT" name="navigateNexusBack2" finished-at="2023-09-11T15:34:02 CDT" duration-ms="406" status="PASS">
+        <test-method signature="navigateNexusBack2()[pri:1290, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:46 CDT" name="navigateNexusBack2" finished-at="2023-09-12T14:03:47 CDT" duration-ms="118" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- navigateNexusBack2 -->
-        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:34:02 CDT" name="setUp" finished-at="2023-09-11T15:34:02 CDT" duration-ms="1" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method signature="closeDownNexus1()[pri:1300, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:34:02 CDT" name="closeDownNexus1" finished-at="2023-09-11T15:34:03 CDT" duration-ms="879" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- closeDownNexus1 -->
-        <test-method is-config="true" signature="closeDown()[pri:0, instance:Execution.userAccessGroupsTESTING@57af006c]" started-at="2023-09-11T15:34:03 CDT" name="closeDown" finished-at="2023-09-11T15:34:03 CDT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="closeDown()[pri:0, instance:Execution.userAccessGroups@d29f28]" started-at="2023-09-12T14:03:47 CDT" name="closeDown" finished-at="2023-09-12T14:03:47 CDT" duration-ms="2" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- closeDown -->
-      </class> <!-- Execution.userAccessGroupsTESTING -->
-    </test> <!-- User Access Groups TESTING -->
+      </class> <!-- Execution.userAccessGroups -->
+    </test> <!-- User Access Groups -->
+    <test started-at="2023-09-12T14:03:47 CDT" name="User Access Groups Part 2" finished-at="2023-09-12T14:04:03 CDT" duration-ms="16200">
+      <class name="Execution.userAccessGroupsPart2">
+        <test-method is-config="true" signature="initializeFramework(java.lang.String,java.lang.String)[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:47 CDT" name="initializeFramework" finished-at="2023-09-12T14:03:49 CDT" duration-ms="2439" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[chrome]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[https://localhost/LEAF_Request_Portal/admin/]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initializeFramework -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:49 CDT" name="setUp" finished-at="2023-09-12T14:03:49 CDT" duration-ms="4" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:49 CDT" name="setUp" finished-at="2023-09-12T14:03:49 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="testForCertPage()[pri:1, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:49 CDT" name="testForCertPage" finished-at="2023-09-12T14:03:51 CDT" duration-ms="1477" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testForCertPage -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:51 CDT" name="setUp" finished-at="2023-09-12T14:03:51 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="scrollDown()[pri:2000, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:51 CDT" name="scrollDown" finished-at="2023-09-12T14:03:53 CDT" duration-ms="2018" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- scrollDown -->
+        <test-method signature="syncServices()[pri:2010, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:53 CDT" name="syncServices" finished-at="2023-09-12T14:03:55 CDT" duration-ms="1997" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- syncServices -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:53 CDT" name="setUp" finished-at="2023-09-12T14:03:53 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="gotoAdminPanel()[pri:2020, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:55 CDT" name="gotoAdminPanel" finished-at="2023-09-12T14:03:58 CDT" duration-ms="3455" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- gotoAdminPanel -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:55 CDT" name="setUp" finished-at="2023-09-12T14:03:55 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="navigateAdminBack()[pri:2030, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:58 CDT" name="navigateAdminBack" finished-at="2023-09-12T14:03:59 CDT" duration-ms="333" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- navigateAdminBack -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:58 CDT" name="setUp" finished-at="2023-09-12T14:03:58 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="openUserAccessGroups()[pri:2040, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:59 CDT" name="openUserAccessGroups" finished-at="2023-09-12T14:04:01 CDT" duration-ms="2014" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openUserAccessGroups -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:03:59 CDT" name="setUp" finished-at="2023-09-12T14:03:59 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:04:01 CDT" name="setUp" finished-at="2023-09-12T14:04:01 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="scrollUp()[pri:2050, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:04:01 CDT" name="scrollUp" finished-at="2023-09-12T14:04:02 CDT" duration-ms="1014" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- scrollUp -->
+        <test-method is-config="true" signature="setUp()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:04:02 CDT" name="setUp" finished-at="2023-09-12T14:04:02 CDT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="openAccessGroup()[pri:2070, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:04:02 CDT" name="openAccessGroup" finished-at="2023-09-12T14:04:03 CDT" duration-ms="1426" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openAccessGroup -->
+        <test-method is-config="true" signature="closeDown()[pri:0, instance:Execution.userAccessGroupsPart2@5562c41e]" started-at="2023-09-12T14:04:03 CDT" name="closeDown" finished-at="2023-09-12T14:04:03 CDT" duration-ms="0" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- closeDown -->
+      </class> <!-- Execution.userAccessGroupsPart2 -->
+    </test> <!-- User Access Groups Part 2 -->
   </suite> <!-- RegressionSuite -->
 </testng-results>
