@@ -18,10 +18,12 @@ var LeafSecureReviewDialog = function(domId) {
             temp = res[i];
             temp.recordID = res[i].indicatorID;
             if(res[i].is_sensitive == '1') {
-            sensitiveFields.push(temp);
+                sensitiveFields.push(temp);
             }
             else {
-            nonSensitiveFields.push(temp);
+                if(temp.categoryID.indexOf('leaf_') == -1) {
+                    nonSensitiveFields.push(temp);
+                }
             }
         }
 

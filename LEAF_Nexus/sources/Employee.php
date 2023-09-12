@@ -562,7 +562,7 @@ class Employee extends Data
     private function updateEmployeeByUserName(string $user_name, array $national_user, Db $db): array
     {
         $vars = array(
-            ':userName' => $national_user['user_name'],
+            ':userName' => $national_user['userName'],
             ':lastName' => $national_user['lastName'],
             ':firstName' => $national_user['firstName'],
             ':midInit' => $national_user['middleName'],
@@ -709,7 +709,7 @@ class Employee extends Data
         $cacheHash = "lookupLogin{$userName}";
         unset($this->cache[$cacheHash]);
 
-        $db_nat = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $db_nat = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $login_nat = new Login($db_nat, $db_nat);
 
         $natEmployee = new NationalEmployee($db_nat, $login_nat);
@@ -1249,7 +1249,8 @@ class Employee extends Data
     }
 
     private function searchDeeper($input) {
-        return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
+        //return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
+        return []; // temporarily disable deep searches
     }
 
     public function search($input, $indicatorID = '')

@@ -839,7 +839,8 @@ var LeafFormSearch = function (containerID) {
         });
         break;
       case "data":
-        url = rootURL === '' ? './api/form/indicator/list' : rootURL + 'api/form/indicator/list';
+        let resultFilter = '?x-filterData=indicatorID,categoryName,name,format';
+        url = rootURL === '' ? `./api/form/indicator/list${resultFilter}` : rootURL + `api/form/indicator/list${resultFilter}`;
         $.ajax({
           type: "GET",
           url,
@@ -1146,8 +1147,7 @@ var LeafFormSearch = function (containerID) {
             if (callback != undefined) {
               callback();
             }
-          },
-          cache: false,
+          }
         });
         break;
       default:

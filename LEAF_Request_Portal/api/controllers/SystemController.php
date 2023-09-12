@@ -41,7 +41,15 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['GET']->register('system/updateService/[digit]', function ($args) use ($system) {
-            return $system->updateService($args[0]);
+            $updated_service = $system->updateService($args[0]);
+
+            if ($updated_service['status']['code'] == 4) {
+                $return_value = $updated_service['status']['message'];
+            } else {
+                $return_value = "groupID: " . $args[0] . " updated";
+            }
+
+            return $return_value;
         });
 
         $this->index['GET']->register('system/updateGroup/[digit]', function ($args) use ($system) {
@@ -88,8 +96,18 @@ class SystemController extends RESTfulResponse
             $this->index['POST']->register('system', function () {
             });
 
-            $this->index['POST']->register('system/actions', function () use ($system) {
+            $this->index['POST']->register('system/action', function () use ($system) {
                 return $system->addAction();
+            });
+
+            $this->index['POST']->register('system/actions', function () use ($system) {
+                $res = $system->addAction();
+
+                if ($res['status']['code'] == 4) {
+                    return $res['status']['message'];
+                } else {
+                    return '';
+                }
             });
 
             $this->index['POST']->register('system/settings/heading', function () use ($system) {
@@ -152,6 +170,10 @@ class SystemController extends RESTfulResponse
 
             $this->index['DELETE']->register('system/files/delete', function () use ($system) {
                 return $system->removeFile($_GET['file']);
+            });
+
+            $this->index['DELETE']->register('system/settings/leaf-secure', function () use ($system) {
+                return $system->removeLeafSecure();
             });
 
             return $this->index['DELETE']->runControl($act['key'], $act['args']);
