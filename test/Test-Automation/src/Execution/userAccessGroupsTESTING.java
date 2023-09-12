@@ -965,7 +965,13 @@ public class userAccessGroupsTESTING extends setupFramework {
 	
 	
 	
-	
+	/*
+	 *  Go ahead and write methods to check xactions in Main Portal
+	 *  Delete users
+	 *  Remove backups
+	 *  Add additional assertions
+	 * 
+	 */
 	
 	
 	
@@ -995,7 +1001,7 @@ public class userAccessGroupsTESTING extends setupFramework {
 	
 	
 	
-	/* ASSERTION Method
+	/* ASSERTION Method to determine whether the value of an element is present (or not - Fail test) 
 	 * 
 	 * 	@Test(priority = 104) //
 		public void verifySearchByEmployee() {         
@@ -1012,24 +1018,9 @@ public class userAccessGroupsTESTING extends setupFramework {
 	 */
 	
 	
-	/* 
-	 * NEXUS
-	 * Save							button_save
-	 * Cancel						button_cancelchange
-	 * X in upper right				/html/body/div[5]/div[1]/button/span[1]
-	 * Alt Name						abrinputtitle
-	 * 
-	 * Add Employee					button_addEmployeePosition
-	 * Edit Group Name
-	 * 
-	 * Search Employees Only		ignorePositions
-	 * Apply to all subordinates	includeSub
-	 * 		
-	*/
-	
 	
 	/*
-	 * Add Assertions 
+	 * Add Assertions (Main Portal?)
 	 * 
 	 * 
 	 * Show Inactive Users							showInactive
@@ -1107,8 +1098,7 @@ public class userAccessGroupsTESTING extends setupFramework {
 /*
  * IDs
  * userGroupSearch
- * 
- * 		//String s = ".Test User Access Group ";
+ * 		//String s = ".Test User Access Group ";    // don't forget prefacing dot (.)
 		//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), '" + s + "')]"));
  *  
  * */	
