@@ -2783,8 +2783,8 @@ class Form
                     return 0;
             }
 
-	        if ($q['id'] === 'userID') {
-            	$q['match'] = htmlspecialchars_decode($q['match'], ENT_QUOTES);
+            if ($q['id'] === 'userID') {
+                $q['match'] = htmlspecialchars_decode($q['match'], ENT_QUOTES);
             }
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
