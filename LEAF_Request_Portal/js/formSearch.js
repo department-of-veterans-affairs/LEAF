@@ -807,7 +807,7 @@ var LeafFormSearch = function (containerID) {
           dataType: "json",
           success: function (res) {
             let allStepsData = res;
-            var categories =
+            let categories =
               '<select id="' +
               prefixID +
               "widgetMat_" +
@@ -816,9 +816,9 @@ var LeafFormSearch = function (containerID) {
             categories += '<option value="submitted">Submitted</option>';
             categories += '<option value="deleted">Cancelled</option>';
             categories += '<option value="resolved">Resolved</option>';
-            categories +=
-              '<option value="actionable">Actionable by me</option>';
-            for (var i in allStepsData) {
+            categories += '<option value="actionable">Actionable by me</option>';
+            categories += '<option value="destruction">Scheduled for Destruction</option>';
+            for (let i in allStepsData) {
               categories +=
                 '<option value="' +
                 allStepsData[i].stepID +

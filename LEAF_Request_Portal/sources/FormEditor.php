@@ -624,7 +624,7 @@ class FormEditor
             if(!empty($input)) {
                 $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
                     new \Leaf\LogItem("categories", "categoryID", $categoryID),
-                    new \Leaf\LogItem("categories", "destructionAge", $input)
+                    new \Leaf\LogItem("categories", "destructionAge", $input." days")
                 ]);
             }
         }

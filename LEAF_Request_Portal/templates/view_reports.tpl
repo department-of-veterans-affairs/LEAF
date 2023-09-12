@@ -325,6 +325,25 @@ function addHeader(column) {
                 }
             });
             break;
+        case 'destruction':
+            filterData['submitted'] = 1;
+            filterData['destructionAge'] = 1;
+            leafSearch.getLeafFormQuery().join('categoryName'); //join w categories table which has the cat destAge info
+            headers.push({
+                name: 'Date of Destruction', indicatorID: 'destruction', editable: false, callback: function(data, blob) {
+                const destructionAgeDays = blob[data.recordID]?.destructionAge || null; //NOTE: there is no form info if the form is disabled
+                let content = '';
+                if (destructionAgeDays === null) {
+                    content = 'never';
+                } else {
+                    const destMilliseconds = destructionAgeDays * 24 * 60 * 60 * 1000;
+                    const submitDate = blob[data.recordID].submitted * 1000;
+                    content = submitDate === 0 ? 
+                        `${destructionAgeDays} days after submission` : new Date(submitDate + destMilliseconds).toLocaleDateString();
+                }
+                $('#'+data.cellContainerID).html(content);
+            }});
+            break;
         default:
             if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
                 filterData['recordsDependencies'] = 1;
@@ -418,6 +437,8 @@ function loadSearchPrereqs() {
             buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" /><span class="leaf_check"></span> Days Since Last Action</label></div>';
             buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_days_since_last_step_movement">';
             buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" /><span class="leaf_check"></span> Days Since Last Step Movement</label></div>';
+            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_destruction">';
+            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_destruction" name="indicators[destruction]" value="destruction" /><span class="leaf_check"></span> Scheduled for Destruction</label></div>';
             buffer += '</div>';
 
             var groupList = {};
