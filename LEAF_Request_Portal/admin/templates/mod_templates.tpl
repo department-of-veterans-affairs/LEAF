@@ -1,611 +1,21 @@
 <link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
+<link rel="stylesheet" href="../../libs/js/codemirror/theme/lucario.css">
+<link rel="stylesheet" href="./css/mod_templates.css">
 <script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
 <script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
-<style>
-    /* Glyph to improve usability of code compare */
-
-    .CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy {
-        visibility: hidden;
-    }
-
-    .CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy::before {
-        visibility: visible;
-        content: '\25ba\25ba\25ba';
-    }
-
-    .CodeMirror-merge-copy {
-        display: none !important;
-    }
-
-    .CodeMirror,
-    .cm-s-default {
-        height: auto !important;
-    }
-
-    .leaf-center-content {
-        display: flex;
-        flex-direction: column;
-        align-content: space-around;
-        align-items: center;
-        margin-top: 10px;
-        font-family: "PublicSans-Regular";
-        max-width: 2000px;
-    }
-
-    #codeAreaWrapper {
-        display: none;
-    }
-
-    #codeContainer {
-        width: 98% !important;
-        box-shadow: none;
-    }
-
-    .CodeMirror-merge,
-    .CodeMirror-merge {
-        height: 60vh !important;
-    }
-
-    .page-title-container {
-        width: 95%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-evenly;
-        align-items: flex-start;
-        flex-direction: row;
-        height: 10%;
-    }
-
-    .page-main-content {
-        display: flex;
-        width: 98%;
-        justify-content: space-evenly;
-        align-items: flex-start;
-        height: 80%;
-        flex-direction: row;
-        margin-top: 10px;
-    }
-
-    .keyboard_shortcuts {
-        display: flex;
-        justify-content: center;
-    }
-
-    .keyboard_shortcuts>table {
-        width: 100%;
-        max-width: 700px;
-    }
-
-    .leaf-left-nav,
-    .leaf-right-nav {
-        width: 15%;
-        max-width: 300px;
-        margin: 0;
-        flex: auto;
-    }
-
-    .sidenav,
-    .sidenav-right {
-        max-width: none;
-        padding: 0;
-        box-shadow: none;
-    }
-
-    .sidenav-right-compare {
-        background-color: #fff;
-        border-radius: 5px;
-    }
-
-    .controls-compare>button {
-        width: 100%;
-        font-size: .9rem;
-    }
-
-    #fileBrowser {
-        width: 90%;
-        margin: 0 auto;
-        padding: 10px 0;
-    }
-
-    #fileBrowser>h3 {
-        width: 100%;
-        text-align: left;
-    }
-
-    .main-content {
-        display: flex;
-        justify-content: space-evenly;
-        align-content: flex-start;
-        width: 65%;
-        flex: none;
-        margin: 0 auto;
-        transition: all 1s ease;
-    }
-
-    .sticky {
-        position: sticky;
-        top: 0;
-        padding-top: 10px;
-        transition: all 1s ease-in-out;
-    }
-
-    #filename {
-        padding: 10px;
-        margin-bottom: 10px;
-        font-size: 1.2rem;
-        background: #252f3e;
-        color: #fff;
-        text-align: center;
-    }
-
-    .leaf-btn-med {
-        margin: 10px 0 0 0;
-    }
-
-    .file-history {
-        width: 100%;
-        max-height: 600px;
-        overflow: auto;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-color: #fff;
-        margin: 10px auto;
-        padding: 20px 0;
-        border-radius: 5px;
-    }
-
-
-
-    .view-history {
-        width: 90%;
-        max-width: 250px;
-        padding: 10px 0;
-        background-color: #005EA2;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 10px;
-    }
-
-    .view-history:hover {
-        background-color: #112e51;
-    }
-
-    .file-history-res {
-        width: 85%;
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-
-    .accordion-container {
-        display: block;
-        margin-top: 10px;
-        width: 100%;
-        max-width: 250px;
-    }
-
-    .accordion {
-        width: 93%;
-        border-radius: 5px;
-        overflow: hidden;
-        margin-bottom: 10px;
-        background-color: #fff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        margin: 5px auto;
-    }
-
-    .accordion-header {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        background-color: #1a4480;
-        color: #fff;
-        font-size: 0.70rem;
-        font-weight: bold;
-        text-align: left;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .accordion-header:hover {
-        background-color: #112e51;
-    }
-
-    .accordion-header.accordion-active {
-        background-color: #112e51;
-    }
-
-    .accordion-date {
-        width: 80%;
-        border-right: 1px solid #fff;
-        padding: 8px;
-    }
-
-    .accordion-date,
-    .accordion-content a {
-        width: 100%;
-        color: #fff;
-        text-decoration: none;
-        font-weight: normal;
-    }
-
-    .accordion-chevron {
-        width: 20%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 0;
-        transition: transform 0.3s ease;
-    }
-
-    .chevron-rotate {
-        transform: rotate(90deg);
-    }
-
-    .accordion-content {
-        display: none;
-        padding: 10px;
-        font-size: 0.65rem;
-        line-height: 1.5;
-        background-color: #fff;
-    }
-
-    .accordion-content ul {
-        padding: 0;
-        margin: 0;
-    }
-
-    .accordion-content ul li {
-        list-style: none;
-        margin: 5px 0;
-        border-bottom: 2px solid #e4e4e4;
-        padding: 5px 0;
-    }
-
-    .accordion-content ul li:last-child {
-        border: none;
-    }
-
-    .accordion-content ul li strong {
-        text-transform: uppercase;
-    }
-
-    .accordion-content ul li p {
-        margin: 0;
-        font-size: .65rem;
-        overflow: auto;
-    }
-
-    .file_compare_file_btn {
-        width: 100%;
-        padding: 10px 0;
-        border: none;
-        background-color: #e99002;
-        color: #fff;
-        font-weight: 700;
-        margin-top: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-radius: 5px;
-        font-size: .75rem;
-    }
-
-    .file_compare_file_btn:hover {
-        background-color: #c97c00;
-    }
-
-    .copyIcon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: .6rem;
-        font-weight: bold;
-        text-transform: uppercase;
-        cursor: pointer;
-        padding: 5px 10px;
-        margin-top: 5px;
-        border: none;
-        transition: .5s ease;
-        border-radius: 5px;
-    }
-
-    .copyIcon:hover {
-        background-color: #45a245;
-        color: #fff;
-    }
-
-    .copyIcon span {
-        font-size: 1rem;
-        padding: 0 0 0 5px;
-    }
-
-    .template_link {
-        font-size: .8rem;
-        border: 1px solid #eee;
-        width: 100%;
-        padding: 5px;
-        border-radius: 5px;
-        box-sizing: border-box;
-        overflow: auto;
-        background-color: #ccc;
-    }
-
-    .file_replace_file_btn {
-        width: 100%;
-        padding: 10px 0;
-        border: none;
-        background-color: #e99002;
-        color: #fff;
-        font-weight: 700;
-        margin-top: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-radius: 5px;
-    }
-
-    .file_replace_file_btn:hover {
-        background-color: #c97c00;
-    }
-
-    .file_replace_file_btn,
-    .close_expand_mode_screen {
-        width: 100%;
-        padding: 10px 0;
-        border: none;
-        color: #fff;
-        font-weight: 700;
-        margin-top: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-radius: 5px;
-    }
-
-    .close_expand_mode_screen {
-        background-color: #ac4343;
-        font-size: 1rem;
-    }
-
-    .close_expand_mode_screen:hover {
-        background-color: #862a2a;
-    }
-
-    .page-title-container h2 {
-        width: 100%;
-        margin: 10px 0 0 0;
-        text-align: center;
-    }
-
-    .page-title-container .file_replace_file_btn {
-        display: none;
-        width: 20%;
-    }
-
-    .page-title-container .close_expand_mode_screen {
-        display: none;
-        width: 10%;
-        min-width: 200px;
-    }
-
-    #save_button_compare {
-        display: none;
-        margin: 10px 0;
-    }
-
-    #save_button,
-    #btn_history,
-    #restore_original,
-    #icon_library {
-        width: 100%;
-    }
-
-
-    .word-wrap-button {
-        display: inline-block;
-        background-color: #ddd;
-        border: none;
-        color: black;
-        padding: 10px;
-        text-align: center;
-        text-decoration: none;
-        font-size: 16px;
-        font-weight: bold;
-        margin: 10px 0 0 0;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-
-    .word-wrap-button.on {
-        background-color: #43ac6a;
-        color: white;
-    }
-
-    .word-wrap-button.off {
-        background-color: #ad4343;
-        color: white;
-    }
-
-    .contentMessage {
-        width: 100%;
-        font-size: .8rem;
-        padding: 10px 0;
-        text-align: center;
-    }
-
-    .usa-button {
-        /* width: 100%; */
-        max-width: 250px;
-        margin: 5px auto;
-    }
-
-    .leaf-ul {
-        width: 100%;
-        min-height: 300px;
-        overflow: auto;
-        padding: 0;
-        margin: 10px auto;
-    }
-
-    .leaf-ul>li {
-        width: 100%;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        flex-direction: row;
-        font-size: .8rem !important;
-        line-height: 2;
-        list-style: none;
-    }
-
-    .leaf-ul>li::before {
-        content: "";
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        margin-right: 5px;
-        background-image: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23000000' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M6.854 6.146a.5.5 0 010 .708L3.707 10l3.147 3.146a.5.5 0 01-.708.708l-3.5-3.5a.5.5 0 010-.708l3.5-3.5a.5.5 0 01.708 0zm6.292 0a.5.5 0 000 .708L16.293 10l-3.147 3.146a.5.5 0 00.708.708l3.5-3.5a.5.5 0 000-.708l-3.5-3.5a.5.5 0 00-.708 0zm-.999-3.124a.5.5 0 01.33.625l-4 13a.5.5 0 11-.955-.294l4-13a.5.5 0 01.625-.33z' clip-rule='evenodd'/></svg>");
-        background-repeat: no-repeat;
-        background-size: contain;
-    }
-
-    .leaf-ul>li>a {
-        width: 80%;
-        display: block;
-        text-decoration: none;
-        border-bottom: 2px solid #e4e4e4;
-        transition: all 0.3s ease;
-        color: #005ea2;
-    }
-
-    .leaf-ul>li>a:hover {
-        border-bottom: 2px solid #005ea2;
-    }
-
-
-    #controls,
-    .controls-compare {
-        width: 80%;
-        margin: 0 auto;
-        padding: 10px 0;
-        display: flex;
-        flex-direction: column;
-        justify-items: center;
-        align-items: center;
-    }
-
-    .compared-label-content {
-        width: 100%;
-        display: none;
-        justify-content: space-evenly;
-        align-items: center;
-    }
-
-    .CodeMirror-scroll {
-        margin-right: 0;
-        height: 60vh;
-    }
-
-    .CodeMirror-merge-pane-label {
-        width: 45%;
-        text-align: center;
-        font-weight: bold;
-        padding: 10px 0;
-    }
-
-    .CodeMirror-merge-pane-label:nth-child(1) {
-        color: #9f0000;
-    }
-
-    .CodeMirror-merge-pane-label:nth-child(2) {
-        color: #083;
-    }
-
-    .chevron-rotate {
-        animation: chevron-rotate .5s forwards;
-    }
-
-    @keyframes chevron-rotate {
-        100% {
-            transform: rotate(90deg);
-        }
-    }
-
-    .gg-chevron-right {
-        box-sizing: border-box;
-        position: relative;
-        display: block;
-        transform: scale(var(--ggs, 1));
-        width: 22px;
-        height: 22px;
-        border: 2px solid transparent;
-        border-radius: 100px
-    }
-
-    .gg-chevron-right::after {
-        content: "";
-        display: block;
-        box-sizing: border-box;
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        border-bottom: 2px solid;
-        border-right: 2px solid;
-        transform: rotate(-45deg);
-        right: 6px;
-        top: 4px
-    }
-
-    @media only screen and (max-width:1280px) {
-
-        .file-history-res,
-        #controls,
-        .controls-compare {
-            width: 90%;
-        }
-
-        .accordion {
-            width: 100%;
-        }
-
-        .accordion-header {
-            font-size: .6rem;
-        }
-
-        .leaf-btn-med,
-        .controls-compare>button {
-            font-size: .75rem;
-        }
-
-        .leaf-ul li {
-            font-size: .7rem !important;
-            line-height: 2;
-        }
-
-
-        .usa-table {
-            font-size: .8rem;
-        }
-
-    }
-</style>
 
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>Template Editor</h2>
+        <div class="mobileToolsNav">
+            <button class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
+        </div>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
             <aside class="sidenav">
                 <div id="fileBrowser">
-                    <h3>Templates:</h3>
+
                     <button
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         id="btn_history" onclick="viewHistory()">
@@ -621,41 +31,78 @@
                 <div id="filename"></div>
                 <div>
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label">(File being compared)</div>
-                        <div class="CodeMirror-merge-pane-label">(Current file)</div>
+                        <div class="CodeMirror-merge-pane-label">(Old File)</div>
+                        <div class="CodeMirror-merge-pane-label">(Current File)</div>
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
                 </div>
                 <div class="keyboard_shortcuts">
-                    <table class="usa-table">
-                        <tr>
-                            <td colspan="2">Keyboard Shortcuts within coding area</td>
-                        </tr>
-                        <tr>
-                            <td>Save</td>
-                            <td>Ctrl + S</td>
-                        </tr>
-                        <tr>
-                            <td>Undo</td>
-                            <td>Ctrl + Z</td>
-                        </tr>
-                        <tr>
-                            <td>Fullscreen</td>
-                            <td>F11</td>
-                        </tr>
-                        <tr>
-                            <td>Word Wrap</td>
-                            <td>Ctrl + W</td>
-                        </tr>
-                    </table>
+                    <div class="keboard_shortcuts_main_title">
+                        <h3>Keyboard Shortcuts within the Code Editor:</h3>
+                    </div>
+                    <div class="keyboard_shortcuts_section">
+                        <div class="keboard_shortcuts_box">
+                            <div class="keyboard_shortcuts_title">
+                                <h3>Save: </h3>
+                            </div>
+                            <div class="keyboard_shortcut">
+                                <p>Ctrl + S </p>
+                            </div>
+                        </div>
+                        <div class="keboard_shortcuts_box">
+                            <div class="keyboard_shortcuts_title">
+                                <h3>Undo: </h3>
+                            </div>
+                            <div class="keyboard_shortcut">
+                                <p>Ctrl + Z </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="keyboard_shortcuts_section">
+                        <div class="keboard_shortcuts_box">
+                            <div class="keyboard_shortcuts_title">
+                                <h3>Full Screen: </h3>
+                            </div>
+                            <div class="keyboard_shortcut">
+                                <p>F11 </p>
+                            </div>
+                        </div>
+                        <div class="keboard_shortcuts_box"></div>
+                    </div>
+                </div>
+
+                <div class="keyboard_shortcuts_merge">
+                    <div class="keboard_shortcuts_main_title_merge">
+                        <h3>Keyboard Shortcuts For Compare Code:</h3>
+                    </div>
+                    <div class="keyboard_shortcuts_section_merge">
+                        <div class="keboard_shortcuts_box_merge">
+                            <div class="keyboard_shortcuts_title_merge">
+                                <h3>Merge Changes: </h3>
+                            </div>
+                            <div class="keyboard_shortcut_merge">
+                                <p>Ctrl + M </p>
+                            </div>
+                        </div>
+                        <div class="keboard_shortcuts_box_merge">
+                            <div class="keyboard_shortcuts_title_merge">
+                                <h3>Exit Compare: </h3>
+                            </div>
+                            <div class="keyboard_shortcut_merge">
+                                <p>Ctrl + E </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
-
         <div class="leaf-right-nav">
+            <div id="closeMobileToolsNavBtnContainer"><button id="closeMobileToolsNavBtn"
+                    onclick="closeRightNavTools('leaf-right-nav')">X</button></div>
+            <aside class="filesMobile">
+            </aside>
             <aside class="sidenav-right">
-
                 <div id="controls" style="visibility: hidden">
 
                     <button id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
@@ -676,24 +123,32 @@
                         Stop Comparing
                     </button>
 
-                    <!-- <button
+                    <button
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
                         id="btn_compare" onclick="compare();">
                         Compare to Original
-                    </button> -->
+                    </button>
 
                     <button id="icon_library"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         target="_blank">
                         <a href="<!--{$domain_path}-->/libs/dynicons/gallery.php">Icon Library</a>
                     </button>
-                    <!-- <button class="view-history">View File History</button> -->
+                    <button
+                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem mobileHistory"
+                        id="btn_history" onclick="viewHistory()">
+                        View History
+                    </button>
                 </div>
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button class="file_replace_file_btn">Merge</button>
-                    <button id="word-wrap-button" class="word-wrap-button off">Word Wrap: Off</button>
+                    <button id="restore_original"
+                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
+                        onclick="restore();">
+                        Restore Original
+                    </button>
+                    <button class="file_replace_file_btn">Use Old File</button>
                     <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
@@ -711,21 +166,20 @@
 
 
 <script>
-    // browser listens when scrolling to scroll components
-    window.addEventListener('scroll', function() {
-        let mainEditorContent = document.querySelector('.main-content');
-        let rightSideNav = document.querySelector('.leaf-right-nav');
-        let code = mainEditorContent.getBoundingClientRect();
-        let buttonsNav = rightSideNav.getBoundingClientRect();
+    function openRightNavTools(option) {
+        let nav = $('.' + option + '');
+        nav.css({
+            'right': '0'
+        });
+    }
 
-        if (code.top <= 0 || buttonsNav.top <= 0) {
-            mainEditorContent.classList.add('sticky');
-            rightSideNav.classList.add('sticky');
-        } else {
-            mainEditorContent.classList.remove('sticky');
-            rightSideNav.classList.remove('sticky');
-        }
-    });
+    function closeRightNavTools(option) {
+        let nav = $('.' + option + '');
+        nav.css({
+            'right': '-100%'
+        });
+    }
+
     // saves current file content changes
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
@@ -850,6 +304,7 @@
         });
 
         dialog.show();
+        exitExpandScreen();
     }
 
     var dv;
@@ -860,6 +315,7 @@
         $('#btn_compare').css('display', 'none');
         $('#btn_compareStop').css('display', 'block');
         $('#save_button_compare').css('display', 'block');
+        $('.file-history').hide();
 
 
         $.ajax({
@@ -906,28 +362,6 @@
 
         return bytes.toFixed(2) + ' ' + units[i];
     }
-    // accordion content inside getFileHistory()
-    function displayAccordionContent(element) {
-        var accordionContent = $(element).parent().next(".accordion-content");
-        var chevron = $(element);
-
-        chevron.toggleClass("chevron-rotate");
-        accordionContent.slideToggle();
-
-        var accordions = $(".accordion");
-        accordions.each(function() {
-            var currentAccordionContent = $(this).find(".accordion-content");
-            var currentChevron = $(this).find(".accordion-chevron");
-
-            if (
-                !currentAccordionContent.is(accordionContent) &&
-                !currentChevron.is(chevron)
-            ) {
-                currentAccordionContent.slideUp();
-                currentChevron.removeClass("chevron-rotate");
-            }
-        });
-    }
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
         $('.page-title-container>.file_replace_file_btn').show();
@@ -935,14 +369,24 @@
         $('.sidenav-right').hide();
         $('.sidenav-right-compare').show();
         $('.page-title-container>h2').css({
-            'width': '35%',
             'text-align': 'left'
         });
-        $('.main-content').css({
-            'width': '80%',
-            'transition': 'all .5s ease',
-            'justify-content': 'flex-start'
-        });
+        $('.page-title-container>h2').html('Template Editor > Compare Code');
+        var windowWidth = $(window).width();
+        if (windowWidth < 1024) {
+            $('.leaf-right-nav').css('right', '-100%');
+            $('.main-content').css({
+                'width': '95%',
+                'transition': 'all .5s ease',
+                'justify-content': 'flex-start'
+            });
+        } else {
+            $('.main-content').css({
+                'width': '85%',
+                'transition': 'all .5s ease',
+                'justify-content': 'flex-start'
+            });
+        }
         $('.leaf-code-container').css({
             'width': '100% !important'
         });
@@ -955,6 +399,8 @@
         $('.page-title-container').css({
             'flex-direction': 'coloumn'
         });
+        $('.keyboard_shortcuts').css('display', 'none');
+        $('.keyboard_shortcuts_merge').show();
     }
     // exits the current and history comparison
     function exitExpandScreen() {
@@ -965,15 +411,30 @@
         $('#save_button_compare').css('display', 'none');
         $('.sidenav-right-compare').hide();
         $('.sidenav-right').show();
+        $('.file-history').show();
         $('.page-title-container>h2').css({
             'width': '100%',
-            'text-align': 'center'
+            'text-align': 'left'
         });
-        $('.main-content').css({
-            'width': '65%',
-            'transition': 'all .5s ease',
-            'justify-content': 'center'
-        });
+        $('.page-title-container>h2').html('Template Editor');
+
+        var windowWidth = $(window).width();
+
+        if (windowWidth < 1024) {
+            $('.leaf-right-nav').css('right', '-100%');
+            $('.main-content').css({
+                'width': '95%',
+                'transition': 'all .5s ease',
+                'justify-content': 'center'
+            });
+        } else {
+            $('.main-content').css({
+                'width': '65%',
+                'transition': 'all .5s ease',
+                'justify-content': 'center'
+            });
+        }
+
         $('#codeContainer').css({
             'display': 'block',
             'height': '95%',
@@ -989,8 +450,10 @@
         $('.page-title-container').css({
             'flex-direction': 'row'
         });
+        $('.keyboard_shortcuts').css('display', 'flex');
 
         $('#save_button').css('display', 'block');
+        $('.keyboard_shortcuts_merge').hide();
 
         // Will reset the URL
         var url = new URL(window.location.href);
@@ -1023,54 +486,27 @@
                     return;
                 }
 
-                var accordion = '<div class="accordion-container">';
+                var accordion = '<div id="file_history_container">' +
+                    '<div class="file_history_titles">' +
+                    '<div class="file_history_date">Date:</div>' +
+                    '<div class="file_history_author">Author:</div>' +
+                    '</div>' +
+                    '<div class="file_history_options_container">';
                 for (var i = 0; i < res.length; i++) {
-                    var fileId = res[i].file_id;
                     var fileParentName = res[i].file_parent_name;
                     var fileName = res[i].file_name;
-                    var filePath = res[i].file_path;
-                    var fileSize = res[i].file_size;
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
-                    var formattedFileSize = formatFileSize(fileSize);
                     ignoreUnsavedChanges = false;
-
-                    accordion += '<div class="accordion">' +
-                        '<div class="accordion-header">' +
-                        '<a href="#" id="scanFolderLink" class="accordion-date" onclick="compareHistoryFile(\'' +
-                        fileName + '\', \'' + fileParentName +
-                        '\', true)"><span><strong style="color:#37beff;">DATE:</strong><br>' +
-                        fileCreated + '</span></a>' +
-                        '<span class="accordion-chevron" onclick="displayAccordionContent(this)"><i class="gg-chevron-right"></i></span>' +
-                        '</div>' +
-                        '<div class="accordion-content">' +
-                        '<ul>' +
-                        '<li>' +
-                        '<strong>File Name: </strong>' +
-                        '<p>' + fileName + '</p>' +
-                        '</li>' +
-                        '<li>' +
-                        '<strong>Author: </strong>' +
-                        '<p>' + whoChangedFile + '</p>' +
-                        '</li>' +
-                        '<li>' +
-                        '<strong>File Size: </strong>' +
-                        '<p>' + formattedFileSize + '</p>' +
-                        '</li>' +
-                        '<li>' +
-                        '<strong>Share File URL:</strong>' +
-                        '<div class="textContainer">' +
-                        '<button class="copyIcon" onclick="getUrlLink(\'' + fileName + '\', \'' +
-                        fileParentName + '\', true)">Copy Link <span>&#10063;</span></button>' +
-                        '</div>' +
-                        '</li>' +
-                        '<li>' +
-                        '</li>' +
-                        '</ul>' +
-                        '</div>' +
+                    accordion +=
+                        '<div class="file_history_options_wrapper" onclick="compareHistoryFile(\'' +
+                        fileName + '\', \'' + fileParentName + '\', true)">' +
+                        '<div class="file_history_options_date">' + fileCreated + '</div>' +
+                        '<div class="file_history_options_author">' + whoChangedFile + '</div>' +
                         '</div>';
                 }
-                accordion += '</div>';
+                accordion += '</div>' +
+                    '</div>';
                 $('.file-history-res').html(accordion);
             },
             error: function(xhr, status, error) {
@@ -1079,29 +515,19 @@
             cache: false
         });
     }
-    // Copy URL when clicking the copy button
-    function getUrlLink(fileName, fileParentName, updateURL) {
-        let currentURL = new URL(window.location.href);
-        currentURL.searchParams.set('fileName', fileName);
-        currentURL.searchParams.set('parentFile', fileParentName);
 
-        let textField = document.createElement('textarea');
-        textField.value = currentURL.href;
-        document.body.appendChild(textField);
-        textField.select();
-        document.execCommand('copy');
-        textField.remove();
-        console.log('URL copied: ' + currentURL.href);
-    }
     // Retreave URL to display comparison of files
     function initializePage() {
-        var urlParams = new URLSearchParams(window.location.search);
-        var fileName = urlParams.get('fileName');
-        var parentFile = urlParams.get('parentFile');
+        let urlParams = new URLSearchParams(window.location.search);
+        let fileName = urlParams.get('fileName');
+        let parentFile = urlParams.get('parentFile');
+        let templateFile = urlParams.get('file');
 
-        if (fileName && parentFile) {
+        if (fileName && parentFile !== null) {
             loadContent(parentFile);
             compareHistoryFile(fileName, parentFile, false);
+        } else if (templateFile !== null) {
+            loadContent(templateFile);
         } else {
             loadContent('view_homepage.tpl');
         }
@@ -1142,7 +568,9 @@
         $('#btn_merge').css('display', 'block');
         $('#word-wrap-button').css('display', 'block');
         $('.save_button').css('display', 'none');
+        $('.file_replace_file_btn').css('display', 'block');
         var wordWrapEnabled = false; // default to false
+
 
         // Word Wrap when viewing the merge editor
         $('#word-wrap-button').click(function() {
@@ -1189,22 +617,44 @@
                                 collapseIdentical: true,
                                 lineWrapping: false, // initial value
                                 autoFormatOnStart: true,
-                                autoFormatOnMode: true,
-                                leftTitle: "Current File",
-                                rightTitle: "Comparison File"
+                                autoFormatOnMode: true
                             });
 
                             $('.CodeMirror-linebackground').css({
                                 'background-color': '#8ce79b !important'
                             });
 
+                            // Add a shortcut for exit from the merge screen
+                            $(document).on('keydown', function(event) {
+                                if (event.ctrlKey && event.key === 'm') {
+                                    mergeFile();
+                                }
+                                if (event.ctrlKey && event.key === 'w') {
+                                    toggleWordWrap();
+                                }
+                            });
+
+                            function mergeFile() {
+                                ignoreUnsavedChanges = true;
+                                let changedLines = codeEditor.leftOriginal().lineCount();
+                                let mergedContent = "";
+                                for (let i = 0; i < changedLines; i++) {
+                                    let mergeLine = codeEditor.leftOriginal().getLine(
+                                        i);
+                                    if (mergeLine !== null && mergeLine !== undefined) {
+                                        mergedContent += mergeLine + "\n";
+                                    }
+                                }
+                                saveMergedChangesToFile(fileParentFile, mergedContent);
+                            }
+
                             $('.file_replace_file_btn').click(function() {
                                 ignoreUnsavedChanges = true;
-                                var changedLines = codeEditor.leftOriginal()
+                                let changedLines = codeEditor.leftOriginal()
                                     .lineCount();
-                                var mergedContent = "";
-                                for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.leftOriginal().getLine(
+                                let mergedContent = "";
+                                for (let i = 0; i < changedLines; i++) {
+                                    let mergeLine = codeEditor.leftOriginal().getLine(
                                         i);
                                     if (mergeLine !== null && mergeLine !== undefined) {
                                         mergedContent += mergeLine + "\n";
@@ -1212,6 +662,14 @@
                                 }
                                 saveMergedChangesToFile(fileParentFile, mergedContent);
                             });
+
+                            function toggleWordWrap() {
+                                let lineWrapping = codeEditor.editor().getOption(
+                                    'lineWrapping');
+                                codeEditor.editor().setOption('lineWrapping', !lineWrapping);
+                                codeEditor.leftOriginal().setOption('lineWrapping', !
+                                    lineWrapping);
+                            }
                         }
                     });
                 }
@@ -1219,13 +677,19 @@
             }
         });
 
-        if (updateURL) {
-            var url = new URL(window.location.href);
+        if (updateURL !== null) {
+            let url = new URL(window.location.href);
             url.searchParams.set('fileName', fileName);
             url.searchParams.set('parentFile', parentFile);
             window.history.replaceState(null, null, url.toString());
         }
     }
+    // Add a shortcut for exit from the merge screen
+    $(document).on('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'e') {
+            exitExpandScreen();
+        }
+    });
     // overwrites current file content after merge
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
@@ -1265,6 +729,7 @@
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#btn_compareStop').css('display', 'none');
+        $('.keyboard_shortcuts_merge').hide();
 
         initEditor();
         currentFile = file;
@@ -1302,7 +767,7 @@
 
         editorCurrentContent();
 
-        // Add key bindings for undo, save, and full screen functionality
+        // Shortcuts for undo, save, and full screen functionality
         codeEditor.setOption('extraKeys', {
             'Ctrl-Z': function(cm) {
                 cm.undo();
@@ -1314,7 +779,13 @@
                 cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
             },
             'F11': function(cm) {
-                cm.setOption('fullScreen', !cm.getOption('fullScreen'));
+                if (cm.getOption('fullScreen')) {
+                    cm.setOption('fullScreen', false);
+                    $('.CodeMirror-scroll').css('height', '60vh');
+                } else {
+                    cm.setOption('fullScreen', true);
+                    $('.CodeMirror-scroll').css('height', '100vh');
+                }
             }
         });
 
@@ -1326,6 +797,30 @@
                 data = codeEditor.getValue();
             }
             return currentFileContent !== data;
+        }
+
+        // A shortcut for changing the theme
+        $(document).on('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'b') {
+                changeThemeToDracula();
+            }
+            if (event.ctrlKey && event.key === 'n') {
+                revertToOriginalTheme();
+            }
+        });
+
+        function changeThemeToDracula() {
+            codeEditor.setOption('theme', 'lucario');
+        }
+
+        function revertToOriginalTheme() {
+            codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
+        }
+
+        if (file !== null) {
+            let url = new URL(window.location.href);
+            url.searchParams.set('file', file);
+            window.history.replaceState(null, null, url.toString());
         }
     }
 
@@ -1360,6 +855,13 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
+        let windowWidth = $(window).width();
+
+        if (windowWidth < 1024) {
+            $('.leaf-right-nav').css('right', '-100%');
+        } else {
+            console.log('Please check the width of the window');
+        }
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=template&id=' + currentFile,
@@ -1394,34 +896,46 @@
                     url: '../api/template/custom',
                     dataType: 'json',
                     success: function(result) {
+                        let template_excluded = 'import_from_webHR.tpl';
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
+                        let filesMobile = '<h3>Template Files:</h3><select class="templateFiles">';
 
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
+                                if (res[i] === template_excluded) {
+                                    // Will skip the excluded template, until further notice.
+                                    continue;
+                                }
+
                                 if (result.includes(res[i])) {
-                                    custom =
-                                        '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
                                 } else {
                                     custom = '';
                                 }
 
                                 file = res[i].replace('.tpl', '');
 
-                                buffer += '<li onclick="loadContent(\'' + res[i] +
-                                    '\');"><a href="#">' + file +
-                                    '</a> ' + custom + '</li>';
+                                buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><div class="template_files"><a href="#">' +
+                                    file + '</a> ' + custom + '</div></li>';
+
+                                filesMobile += '<option onclick="loadContent(\'' + res[i] + '\');"><div class="template_files"><a href="#">' +
+                                    file + '</a> ' + custom + '</div></option>';
                             }
                         } else if (res_array.status['code'] === 4) {
-                            buffer += '<li>' + res_array.status['message'] +
-                                '</li>';
+                            buffer += '<li><div class="template_files">' + res_array
+                                .status['message'] + '</div></li>';
+                            filesMobile += '<select><option>' + res_array
+                                .status['message'] + '</option></select>';
                         } else {
                             buffer +=
-                                '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
+                                '<li>Internal error occurred, if this persists contact your Primary Admin.</li>';
                         }
 
                         buffer += '</ul>';
+                        filesMobile += '</select>';
                         $('#fileList').html(buffer);
+                        $('.filesMobile').html(filesMobile);
                     },
                     error: function(error) {
                         console.log(error);
@@ -1432,6 +946,7 @@
         });
 
         initializePage();
+
 
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
             'genericDialogloadIndicator',

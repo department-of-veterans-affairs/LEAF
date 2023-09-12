@@ -55,7 +55,11 @@ abstract class RESTfulResponse
 
                 break;
             case 'DELETE':
-                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken']) {
+                $DELETE_vars = [];
+                parse_str(file_get_contents('php://input', false, null, 0, 8192), $DELETE_vars); // only parse the first 8192 characters (arbitrary limit)
+
+                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken'] // Deprecation warning: The _GET implementation should be removed in favor of $DELETE_vars
+                    || $DELETE_vars['CSRFToken'] == $_SESSION['CSRFToken']) {
                     $return_value = $this->output($this->delete($action));
                 } else {
                     $return_value = $this->output('Invalid Token.');

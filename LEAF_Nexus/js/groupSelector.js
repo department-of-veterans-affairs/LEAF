@@ -23,6 +23,8 @@ function groupSelector(containerID) {
   this.selectionData = new Object();
   this.inputID = "#" + this.prefixID + "input";
   this.optionNoLimit = 0;
+  // this.leafRequest = null;
+  // this.adRequest = null;
   this.currRequest = null;
   this.jsonResponse = null;
 
@@ -30,7 +32,7 @@ function groupSelector(containerID) {
 }
 
 groupSelector.prototype.initialize = function () {
-  var t = this;
+  const t = this;
   const id = this.containerID.split("_")[1];
   const labelText = $("[for='" + id + "']")
     .text()
@@ -106,7 +108,7 @@ groupSelector.prototype.select = function (id) {
   )
     return;
   nodes = $("#" + this.containerID + " .groupSelected");
-  for (var i in nodes) {
+  for (let i in nodes) {
     if (nodes[i].id != undefined) {
       $("#" + nodes[i].id).removeClass("groupSelected");
       $("#" + nodes[i].id).addClass("groupSelector");
@@ -165,6 +167,41 @@ groupSelector.prototype.configInputID = function (inputID) {
   this.inputID = inputID;
 };
 
+// groupSelector.prototype.adSearch = function () {
+//   const ret = new Promise((resolve, reject) => {
+//     $.ajax({
+//       url: this.apiPath + "ad/group/" + this.q,
+//       dataType: "json",
+//       success: function (response) {
+//         response.map(group => ({ ...group, isAdDistro: true}));
+//         resolve(response);
+//       },
+//       fail: function(error) {
+//         reject(error);
+//       }
+//     })
+//   });
+//   return ret;
+// };
+
+// groupSelector.prototype.leafSearch = function () {
+//   const ret = new Promise((resolve, reject) => {
+//     $.ajax({
+//       url: this.apiPath + "group/search",
+//       dataType: "json",
+//       data: { q: this.q, tag: this.tag, noLimit: this.optionNoLimit },
+//       success: function (response) {
+//         response.map(group => ({ ...group, isAdDistro: false}));
+//         resolve(response);
+//       },
+//       fail: function(error) {
+//         reject(error);
+//       }
+//     });
+//   });
+//   return ret;
+// };
+
 groupSelector.prototype.search = function () {
   if (
     $("#" + this.prefixID + "input").val() == undefined ||
@@ -176,8 +213,8 @@ groupSelector.prototype.search = function () {
   this.timer += this.timer > 5000 ? 0 : 200;
 
   if (this.timer > 300) {
-    var skip = 0;
-    var txt = $("#" + this.prefixID + "input")
+    let skip = 0;
+    let txt = $("#" + this.prefixID + "input")
       .val()
       .replace(/<[^>]*>/g, "");
     if (txt == undefined) {
@@ -199,7 +236,7 @@ groupSelector.prototype.search = function () {
         this.currRequest.abort();
       }
 
-      var t = this;
+      let t = this;
       this.currRequest = $.ajax({
         url: this.apiPath + "group/search",
         dataType: "json",
@@ -211,7 +248,7 @@ groupSelector.prototype.search = function () {
           t.jsonResponse = response;
 
           $("#" + t.prefixID + "result").html("");
-          var buffer =
+          let buffer =
             '<table class="groupSelectorTable"><tr><th>Group Title</th></tr><tbody id="' +
             t.prefixID +
             'result_table"></tbody></table>';

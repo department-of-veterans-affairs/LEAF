@@ -13,6 +13,7 @@ var LeafForm = function (containerID) {
   var recordID = 0;
   var postModifyCallback;
   let rootURL = "";
+  let errorCount = 0;
 
   $("#" + containerID).html(
     '<div id="' +
@@ -805,7 +806,7 @@ var LeafForm = function (containerID) {
 
     $.ajax({
       type: "POST",
-      url: rootURL + "ajaxIndex.php?a=domodify",
+      url: rootURL + `api/form/${data.recordID}`,
       data: data,
       dataType: "text",
       success: function (res) {
@@ -816,7 +817,19 @@ var LeafForm = function (containerID) {
           .empty()
           .html(temp);
       },
-      cache: false,
+      error: function() {
+        errorCount++;
+        let errorMsg = 'Please try again, there was a problem saving the data. This issue has been automatically reported.';
+        if(errorCount > 2) {
+            errorMsg += "\n\nIf this message persists, please contact your administrator for additional guidance.";
+        }
+        alert(errorMsg);
+        dialog.setSaveHandler(function () {
+            doModify();
+        });
+        $("#" + dialog.btnSaveID)
+            .html(temp);
+      }
     });
   }
 
