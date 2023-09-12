@@ -2783,8 +2783,8 @@ class Form
                     return 0;
             }
 
-	        if ($q['id'] === 'userID') {
-            	$q['match'] = htmlspecialchars_decode($q['match'], ENT_QUOTES);
+            if ($q['id'] === 'userID') {
+                $q['match'] = htmlspecialchars_decode($q['match'], ENT_QUOTES);
             }
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
@@ -3952,7 +3952,7 @@ class Form
                      /* putting this here to see what this value is
                         the error is Array to string conversion and it gives the
                         location, so I checked the database that it is pulling this
-                        from and I don't see any arrays in their data
+                        from and I don't see any arrays in their data   
                     */
                     if (is_array($field['html'])) {
                         error_log(print_r($field['html'], true));
