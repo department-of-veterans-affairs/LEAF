@@ -2637,10 +2637,6 @@
      * Created at: 7/26/2023, 1:31:07 PM (America/New_York)
      */
     function postEvent(stepID, action, workflowID, event, callback) {
-        /* if (typeof stepID === 'undefined') {
-            stepID = -1;
-        } */
-
         $.ajax({
             type: 'POST',
             url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + action +
