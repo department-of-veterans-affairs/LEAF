@@ -24,6 +24,8 @@ class FormWorkflow
 
     private $cache = array();
 
+    private $dir; // employee directory
+
     // workflow actions are triggered from ./api/ except on submit
     private $eventFolder = '../scripts/events/';
 
@@ -48,6 +50,20 @@ class FormWorkflow
     public function initRecordID(int $recordID): void
     {
         $this->recordID = is_numeric($recordID) ? $recordID : 0;
+    }
+
+    /**
+     * getDirectory initializes and returns an instance of VAMC_Directory
+     * @return object
+     */
+    private function getDirectory(): object
+    {
+        if (!isset($this->dir))
+        {
+            $this->dir = new VAMC_Directory;
+        }
+
+        return $this->dir;
     }
 
     /**
@@ -140,14 +156,137 @@ class FormWorkflow
         }
         $recordIDs = trim($recordIDs, ',');
 
-        $strSQL = "SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, filled, stepBgColor, stepFontColor, stepBorder, description, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
+        $res = null;
+        $strSQL = "SELECT dependencyID, recordID, serviceID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, userID FROM records_workflow_state
             LEFT JOIN records USING (recordID)
             LEFT JOIN workflow_steps USING (stepID)
             LEFT JOIN step_dependencies USING (stepID)
-            LEFT JOIN dependencies USING (dependencyID)
             LEFT JOIN records_dependencies USING (recordID, dependencyID)
-            WHERE recordID IN ({$recordIDs})";
+            WHERE recordID IN ({$recordIDs})
+                AND filled=0";
+        
+        $cacheHash = 'unfilledRecordsDependencyData' . sha1($recordIDs); // the data columns must be a superset of the query above
+        if(isset($this->cache[$cacheHash])) {
+            $res = $this->cache[$cacheHash];
+        }
+        else {
+            $res = $this->db->prepared_query($strSQL, []);
+        }
+
+        foreach ($res as $depRecord) {
+            $depRecordID = $depRecord['recordID'];
+            if(!isset($records[$depRecordID]['isActionable'])) {
+                $records[$depRecordID]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable based on admin status
+            }
+
+            $res2 = $this->getDependencyPrivileges($depRecord['dependencyID']);
+
+            if ($records[$depRecordID]['isActionable']) {
+                continue;
+            }
+
+            // check permissions
+            switch($depRecord['dependencyID']) {
+                case 1: // dependencyID 1 is for a special service chief group
+                    $records[$depRecordID]['isActionable'] = $this->login->checkService($depRecord['serviceID']);
+                    break;
+
+                case 8: // dependencyID 8 is for a special quadrad group
+                    $records[$depRecordID]['isActionable'] = $this->checkServiceQuadradAccess($depRecord['serviceID']);
+                    break;
+
+                case -1: // dependencyID -1 is for a person designated by the requestor
+                    $resEmpUID = $form->getIndicator($depRecord['indicatorID_for_assigned_empUID'], 1, $depRecord['recordID'], null, true);
+
+                    // make sure the right person has access
+                    $empUID = $resEmpUID[$depRecord['indicatorID_for_assigned_empUID']]['value'];
+
+                    $records[$depRecordID]['isActionable'] = $this->checkEmployeeAccess($empUID);
+                    break;
+
+                case -2: // dependencyID -2 is for requestor followup
+                    $isActionable = $depRecord['userID'] == $this->login->getUserID();
+
+                    if(!$isActionable){
+                        $empUID = $this->getEmpUIDByUserName($depRecord['userID']);
+                        $isActionable = $this->checkEmployeeAccess($empUID);
+                    }
+
+                    $records[$depRecordID]['isActionable'] = $isActionable;
+                    break;
+
+                case -3: // dependencyID -3 is for a group designated by the requestor
+                    $resGroupID = $form->getIndicator($depRecord['indicatorID_for_assigned_groupID'], 1, $depRecord['recordID'], null, true);
+                    $groupID = $resGroupID[$depRecord['indicatorID_for_assigned_groupID']]['value'];
+
+                    // make sure the right person has access
+                    $records[$depRecordID]['isActionable'] = $this->login->checkGroup($groupID);
+                    break;
+
+                default:
+                    // check groups associated with dependency privileges
+                    foreach ($res2 as $group)
+                    {
+                        if ($this->login->checkGroup($group['groupID']))
+                        {
+                            $records[$depRecordID]['isActionable'] = true;
+
+                            break;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return $records;
+    }
+
+    /**
+     * getRecordsDependencyData retrieves dependency data related to records
+     * @param object $form instance of Form
+     * @param array $records result set from a query on db:records. Requires 'recordID'.
+     * @param bool optional Only select unfilled dependencies
+     * @return array $records list of dependencies * records
+     */
+    public function getRecordsDependencyData(object $form, array $records, bool $selectUnfilled = false): array {
+        $numRecords = count($records);
+        if ($numRecords == 0) {
+            return $records;
+        }
+
+        $recordIDs = '';
+
+        foreach ($records as $item) {
+            $recordIDs .= (int)$item['recordID'] . ',';
+        }
+        $recordIDs = trim($recordIDs, ',');
+
+        $strSQL = "";
+
+        if(!$selectUnfilled) {
+            $strSQL = "SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, filled, stepBgColor, stepFontColor, stepBorder, `description`, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
+                        LEFT JOIN records USING (recordID)
+                        LEFT JOIN workflow_steps USING (stepID)
+                        LEFT JOIN step_dependencies USING (stepID)
+                        LEFT JOIN dependencies USING (dependencyID)
+                        LEFT JOIN records_dependencies USING (recordID, dependencyID)
+                        WHERE recordID IN ({$recordIDs})";
+        }
+        else {
+            $strSQL = "SELECT dependencyID, recordID, stepTitle, serviceID, `description`, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, userID FROM records_workflow_state
+                        LEFT JOIN records USING (recordID)
+                        LEFT JOIN workflow_steps USING (stepID)
+                        LEFT JOIN step_dependencies USING (stepID)
+                        LEFT JOIN dependencies USING (dependencyID)
+                        LEFT JOIN records_dependencies USING (recordID, dependencyID)
+                        WHERE recordID IN ({$recordIDs})
+                            AND filled=0";
+        }
         $res = $this->db->prepared_query($strSQL, []);
+
+        if($selectUnfilled) {
+            $this->cache['unfilledRecordsDependencyData'.sha1($recordIDs)] = $res; // the selected columns must be a superset of the columns in getActionable()
+        }
 
         foreach ($res as $i => $record) {
             // override access if user is in the admin group
@@ -160,22 +299,44 @@ class FormWorkflow
             if ($res[$i]['isActionable']) {
                 switch($res[$i]['dependencyID']) {
                     case -1: // dependencyID -1 is for a person designated by the requestor
-                        $dir = new VAMC_Directory;
-                        $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
+                        $dir = $this->getDirectory();
+                        $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID'], null, true);
                         $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
-
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
 
                         if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
                             $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
+                            $res[$i]['approverName'] = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'];
+                            $res[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
+                        }
+                        else {
+                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
+                            $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
+                            $res[$i]['approverUID'] = $approver[0]['Email'];
+                        }
+                        break;
+                    case -2: // dependencyID -2 is for requestor followup
+                        $dir = $this->getDirectory();
+                        $approver = $dir->lookupLogin($res[$i]['userID']);
+
+                        if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup)';
+                            $res[$i]['approverName'] = '(Requestor followup)';
+                            $res[$i]['approverUID'] = $res[$i]['userID'];
+                        }
+                        else {
+                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
+                            $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
+                            $res[$i]['approverUID'] = $approver[0]['Email'];
                         }
                         break;
                     case -3: // dependencyID -3 is for a group designated by the requestor
-                        $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID']);
+                        $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID'], null, true);
                         $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
 
                         // get actual group name
-                        $res[$i]['description'] = $this->getActionableGroupName($groupID);
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $this->getActionableGroupName($groupID) . ')';
+                        $res[$i]['approverName'] = $this->getActionableGroupName($groupID);
+                        $res[$i]['approverUID'] = 'groupID:'. $groupID;
                         break;
                     default:
                         break;
@@ -195,21 +356,26 @@ class FormWorkflow
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
-                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
+                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID'], null, true);
 
                     // make sure the right person has access
                     $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
 
                     $res[$i]['isActionable'] = $this->checkEmployeeAccess($empUID);
 
-                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID']);
-                    $dir = new VAMC_Directory;
+                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID'], null, true);
+                    $dir = $this->getDirectory();
                     $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
-
-                    $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
 
                     if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
                         $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
+                        $res[$i]['approverName'] = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'];
+                        $res[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
+                    }
+                    else {
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
+                        $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
+                        $res[$i]['approverUID'] = $approver[0]['Email'];
                     }
                     break;
 
@@ -222,17 +388,32 @@ class FormWorkflow
                     }
 
                     $res[$i]['isActionable'] = $isActionable;
+
+                    $dir = $this->getDirectory();
+                    $approver = $dir->lookupLogin($res[$i]['userID']);
+                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup)';
+                        $res[$i]['approverName'] = '(Requestor followup)';
+                        $res[$i]['approverUID'] = $res[$i]['userID'];
+                    }
+                    else {
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
+                        $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
+                        $res[$i]['approverUID'] = $approver[0]['Email'];
+                    }
                     break;
 
                 case -3: // dependencyID -3 is for a group designated by the requestor
-                    $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID']);
+                    $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID'], null, true);
                     $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
 
                     // make sure the right person has access
                     $res[$i]['isActionable'] = $this->login->checkGroup($groupID);
 
                     // get actual group name
-                    $res[$i]['description'] = $this->getActionableGroupName($groupID);
+                    $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $this->getActionableGroupName($groupID) . ')';
+                    $res[$i]['approverName'] = $this->getActionableGroupName($groupID);
+                    $res[$i]['approverUID'] = 'groupID:' . $groupID;
                     break;
 
                 default:
@@ -268,11 +449,14 @@ class FormWorkflow
         }
 
         $steps = array();
-        $res = $this->getActionable($form, [['recordID' => $this->recordID]]);
+        $res = $this->getRecordsDependencyData($form, [['recordID' => $this->recordID]]);
 
         $numRes = count($res);
         if ($numRes > 0)
         {
+            // Setting filled=0 is a workaround if the workflow is in an inconsistent state.
+            // There normally shouldn't be a situation where a record is still on a step even though all
+            // dependencies have been fulfilled. This can be removed if there's no way the situation can happen.
             if ($numRes == 1 && $res[0]['filled'] == 1) {
                 $res[0]['filled'] = 0;
             }
@@ -382,7 +566,7 @@ class FormWorkflow
         if (isset($res[0])
             && $res[0]['dependencyID'] == -1)
         {
-            $dir = new VAMC_Directory;
+            $dir = $this->getDirectory();
 
             $approver = $dir->lookupLogin($res[0]['userID']);
 
@@ -422,7 +606,7 @@ class FormWorkflow
         $res = $this->db->prepared_query($strSQL, $vars);
 
         if(count($res) > 0) {
-            $dir = new VAMC_Directory;
+            $dir = $this->getDirectory();
 
             $signedSteps = [];
             foreach($res as $key => $sig) {
@@ -550,7 +734,7 @@ class FormWorkflow
                     $resPerson = $this->db->prepared_query($strSQL, $varsPerson);
 
 
-                    $resEmpUID = $form->getIndicator($resPerson[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID);
+                    $resEmpUID = $form->getIndicator($resPerson[0]['indicatorID_for_assigned_empUID'], 1, $this->recordID, null, true);
                     $empUID = $resEmpUID[$resPerson[0]['indicatorID_for_assigned_empUID']]['value'];
 
                     $userAuthorized = $this->checkEmployeeAccess($empUID);
@@ -591,7 +775,7 @@ class FormWorkflow
                     $resGroup = $this->db->prepared_query($strSQLGroup, $varsGroup);
 
 
-                    $resGroupID = $form->getIndicator($resGroup[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID);
+                    $resGroupID = $form->getIndicator($resGroup[0]['indicatorID_for_assigned_groupID'], 1, $this->recordID, null, true);
                     $groupID = $resGroupID[$resGroup[0]['indicatorID_for_assigned_groupID']]['value'];
 
                     if (!$this->login->checkGroup($groupID))
@@ -875,7 +1059,7 @@ class FormWorkflow
       * @param string $userName Username
       * @return string
       */
-    public function getEmpUIDByUserName(string $userName): string
+    public function getEmpUIDByUserName(string $userName): ?string
     {
         if(isset($this->cache['getEmpUIDByUserName'.$userName])) {
             return $this->cache['getEmpUIDByUserName'.$userName];
@@ -907,6 +1091,10 @@ class FormWorkflow
             return true;
         }
 
+        if(isset($this->cache['checkEmployeeAccess_'.$empUID])) {
+            return $this->cache['checkEmployeeAccess_'.$empUID];
+        }
+
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':empID' => $empUID);
         $strSQL = 'SELECT * FROM relation_employee_backup WHERE empUID =:empID';
@@ -916,10 +1104,12 @@ class FormWorkflow
         {
             if ($row['backupEmpUID'] == $this->login->getEmpUID())
             {
+                $this->cache['checkEmployeeAccess_'.$empUID] = true;
                 return true;
             }
         }
 
+        $this->cache['checkEmployeeAccess_'.$empUID] = false;
         return false;
     }
 
@@ -978,7 +1168,7 @@ class FormWorkflow
             ));
             $email->setTemplateByID(Email::SEND_BACK);
 
-            $dir = new VAMC_Directory;
+            $dir = $this->getDirectory();
 
             $requester = $dir->lookupLogin($record[0]['userID']);
             $author = $dir->lookupLogin($this->login->getUserID());
@@ -1037,7 +1227,7 @@ class FormWorkflow
                         "comment" => $comment
                     ));
 
-                    $dir = new VAMC_Directory;
+                    $dir = $this->getDirectory();
 
                     $author = $dir->lookupLogin($this->login->getUserID());
                     $email->setSender($author[0]['Email']);
@@ -1082,7 +1272,7 @@ class FormWorkflow
                         ));
                         $email->setTemplateByID(Email::NOTIFY_COMPLETE);
 
-                        $dir = new VAMC_Directory;
+                        $dir = $this->getDirectory();
 
                         $author = $dir->lookupLogin($requestRecords[0]['userID']);// this is the requestors info
 
@@ -1150,7 +1340,7 @@ class FormWorkflow
                         $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
                         $email->setTemplateByID($emailTemplateID);
 
-                        $dir = new VAMC_Directory;
+                        $dir = $this->getDirectory();
 
                         $author = $dir->lookupLogin($requestRecords[0]['userID']);
                         
@@ -1197,7 +1387,7 @@ class FormWorkflow
                     if (is_file($eventFile))
                     {
 
-                        $dir = new VAMC_Directory;
+                        $dir = $this->getDirectory();
                         $email = new Email();
 
                         $eventInfo = array('recordID' => $this->recordID,
