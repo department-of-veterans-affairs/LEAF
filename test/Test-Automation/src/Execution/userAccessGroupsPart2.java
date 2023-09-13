@@ -206,7 +206,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	@Test(priority = 2030)
 	public void navigateAdminBack() {
-		driver.navigate().back();;
+		driver.navigate().back();
 	}
 	
 	
@@ -292,21 +292,6 @@ public class userAccessGroupsPart2 extends setupFramework {
 //	    waitMethods.waiter(waitMethods.w500);
 //	} 
 //	
-//
-//	
-//	@Test(priority = 993)
-//	public void closeDownMainPortal1() {
-//		closeDownMainPortal();
-//	}
-//	
-//	
-//	@Test(priority = 995) 
-//	public void createNexusDriver1() {
-//		createNexusDriver();
-//	}
-//	
-//
-//	
 //	
 //	@Test(priority = 1000) //		
 //	private void clickAddUserInNexus() {	
@@ -337,59 +322,6 @@ public class userAccessGroupsPart2 extends setupFramework {
 //	
 //	
 //	
-//
-//	
-//	//Input NEXUS User 		Terry, Rodney Jacobi	
-//	@Test(priority = 1020)
-//	public void inputNexusEmployee() {   
-//	  	waitMethods.waiter(waitMethods.w300);     			//Input Box
-//	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div[3]/div[1]/input"));
-//	  	highlightElement.highLightElement(driverNexus, ele);
-//	  	
-//	  	String name = "Terry, Rodney Jacobi";
-//	  	   
-//	  	for(int i = 0; i < name.length(); i++) {
-//	  		char c = name.charAt(i);
-//	  		String s = new StringBuilder().append(c).toString();
-//	  		ele.sendKeys(s);
-//	   		waitMethods.waiter(waitMethods.w10);
-//	  	}
-//	  	
-//	  		waitMethods.waiter(waitMethods.w100);
-//		    System.out.println("Input Nexus User and Select");		
-//	}
-//	
-//	
-//	
-//	@Test(priority = 1030)
-//	public void saveNexusEmployee() {
-//		waitMethods.waiter(waitMethods.w300);
-//		WebElement ele = driverNexus.findElement(By.id("button_save"));
-//        //highlightElement.highLightElement(driverNexus, ele);  
-//        ele.click();	
-//        waitMethods.waiter(waitMethods.w100);
-//        System.out.println("Clicked Save");
-//	}
-//	
-//	
-//	
-//	
-//	@Test(priority = 1040) //		
-//	private void clickAddUserInNexus2() {	
-//		clickAddUserInNexus();
-//	} 
-//	
-//
-//	
-//	
-//	@Test(priority = 1050) //
-//	private void selectSearchEmployeesOnly2() {				
-//		selectSearchEmployeesOnly();
-//	} 
-//	
-//	
-//	
-//	
 //	//Input NEXUS User 			Walker, Taina Moen
 //	@Test(priority = 1060)
 //	public void inputNexusEmployee2() {   
@@ -409,31 +341,9 @@ public class userAccessGroupsPart2 extends setupFramework {
 //	  		waitMethods.waiter(waitMethods.w100);
 //		    System.out.println("Input Nexus User and Select");		
 //	}
-//	
-//	
-//	
-//	@Test(priority = 1070)
-//	public void saveNexusEmployee2() {
-//		saveNexusEmployee();
-//	}
-//	
-//	
-//	
-//	@Test(priority = 1080) //		
-//	private void clickAddUserInNexus3() {	
-//		clickAddUserInNexus();
-//	} 
-//	
 //
-//	
-//	
-//	@Test(priority = 1090) //
-//	private void selectSearchEmployeesOnly3() {				
-//		selectSearchEmployeesOnly();
-//	} 
-//	
-//	
-//	
+//
+//
 //	
 //	//Input NEXUS User 			Weber, Kurt Bradtke
 //	@Test(priority = 1100)

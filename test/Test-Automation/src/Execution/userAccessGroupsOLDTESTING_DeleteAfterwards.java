@@ -24,7 +24,7 @@ import Framework.waitMethods;
 import Framework.highlightElement;
 
 
-public class userAccessGroupsTESTINGBackup extends setupFramework {
+public class userAccessGroupsOLDTESTING_DeleteAfterwards extends setupFramework {
 
 	
 	public String sRand;
@@ -308,14 +308,14 @@ public class userAccessGroupsTESTINGBackup extends setupFramework {
 //	
 //	
 //	
-//	//Input User 2 = employeeSelectorInput	Smith, Harvey Schiller
+//	//Input User 2 = employeeSelectorInput	Sauer, Valentin Will.
 //	@Test(priority = 200)
 //	public void inputEmployee2() {   
 //    	waitMethods.waiter(waitMethods.w750);     			//Input Box
 //    	WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"));
 //    	highlightElement.highLightElement(driver, ele);
 //    	
-//    	String name = "Smith, Harvey Schiller";
+//    	String name = "Sauer, Valentin Will";
 //    	   
 //    	for(int i = 0; i < name.length(); i++) {
 //    		char c = name.charAt(i);
@@ -676,7 +676,7 @@ public class userAccessGroupsTESTINGBackup extends setupFramework {
 			//Debugging
 			String sURL = driverNexus.getCurrentUrl();
 				System.out.println("URL in method addUserInNexus(): " + sURL); 
-		waitMethods.waiter(waitMethods.w3k);  
+		waitMethods.waiter(waitMethods.w2k);  
 		//WebElement ele = driverNexus.findElement(By.xpath("//button[contains(text(), ' Add Employee/Position')]"));
 		WebElement ele = driverNexus.findElement(By.id("button_addEmployeePosition"));
 		highlightElement.highLightElement(driverNexus, ele);
@@ -689,7 +689,7 @@ public class userAccessGroupsTESTINGBackup extends setupFramework {
 	
 	@Test(priority = 1010) //
 	private void selectSearchEmployeesOnly() {				
-		waitMethods.waiter(waitMethods.w1k);  
+		waitMethods.waiter(waitMethods.w500);  
 		WebElement ele = driverNexus.findElement(By.id("ignorePositions"));		
 		highlightElement.highLightElement(driverNexus, ele);
 		ele.click();
@@ -952,7 +952,7 @@ public class userAccessGroupsTESTINGBackup extends setupFramework {
 		driverNexus.navigate().back();;
 	}
 	
-	
+	//======================== Everything UP is merged into userAccessGroups.java ==========
 	
 	
 	/*

@@ -175,7 +175,7 @@ public class userAccessGroups extends setupFramework {
 	} 
  
 	
-	
+	// Comment down to line 731 for 'Testing' Version
 
 	//    https://localhost/LEAF_Request_Portal/admin/?a=mod_groups
 	
@@ -239,7 +239,7 @@ public class userAccessGroups extends setupFramework {
 	
 	@Test(priority = 150) 
 	private void saveUserGroup() {									//Click Save button
-		waitMethods.waiter(waitMethods.w300);
+		waitMethods.waiter(waitMethods.w500);
 		WebElement ele = driver.findElement(By.id("button_save"));
         highlightElement.highLightElement(driver, ele);  
         ele.click();	
@@ -247,7 +247,7 @@ public class userAccessGroups extends setupFramework {
 	} 
 
 	
-	//															ERR HERE - This fails occasionally ???
+	//															
 	@Test(priority = 160) //
 	private void openAccessGroup() {
 		//System.out.println("Before opening Group\ngroupNum = " + groupNum);
@@ -268,7 +268,7 @@ public class userAccessGroups extends setupFramework {
 //  Input User = employeeSelectorInput		Considine, Warren Bayer		
 	@Test(priority = 170)
 	public void inputEmployee() {   
-    	waitMethods.waiter(waitMethods.w600);     			//Input Box
+    	waitMethods.waiter(waitMethods.w1k);     			//Input Box
     	WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"));
     	//WebElement ele = driver.findElement(By.className("employeeSelectorInput"));
     	//highlightElement.highLightElement(driver, ele);
@@ -308,14 +308,14 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-	//Input User 2 = employeeSelectorInput	Smith, Harvey Schiller
+	//Input User 2 = employeeSelectorInput	Sauer, Valentin Will.
 	@Test(priority = 200)
 	public void inputEmployee2() {   
-    	waitMethods.waiter(waitMethods.w750);     			//Input Box
+    	waitMethods.waiter(waitMethods.w1k);     			//Input Box
     	WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"));
     	highlightElement.highLightElement(driver, ele);
     	
-    	String name = "Smith, Harvey Schiller";
+    	String name = "Sauer, Valentin Will";
     	   
     	for(int i = 0; i < name.length(); i++) {
     		char c = name.charAt(i);
@@ -350,7 +350,7 @@ public class userAccessGroups extends setupFramework {
 	//  Input User 3 = employeeSelectorInput	Abbott, Roman Spencer
 	@Test(priority = 230)
 	public void inputEmployee3() {   
-    	waitMethods.waiter(waitMethods.w750);     			//Input Box
+    	waitMethods.waiter(waitMethods.w1k);     			//Input Box
     	WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"));
     	highlightElement.highLightElement(driver, ele);
     	
@@ -370,7 +370,7 @@ public class userAccessGroups extends setupFramework {
 	
 
 	//Click Save button
-	@Test(priority = 240) 
+	@Test(priority = 233) 
 	private void saveEmployee3() {									
 		saveUserGroup();
         System.out.println("Saved User Group");
@@ -378,11 +378,48 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-	@Test(priority = 250) //
+	@Test(priority = 236) //
 	private void openAccessGroup3() {
 		openAccessGroup();
 	} 
 
+	
+	
+	//  Input User 4 for PRUNING = employeeSelectorInput	Thiel, Darwin Ullrich
+	@Test(priority = 239)
+	public void inputEmployee4() {   
+    	waitMethods.waiter(waitMethods.w1k);     			//Input Box
+    	WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"));
+    	highlightElement.highLightElement(driver, ele);
+    	
+    	String name = "Thiel, Darwin Ullrich";
+    	   
+    	for(int i = 0; i < name.length(); i++) {
+    		char c = name.charAt(i);
+    		String s = new StringBuilder().append(c).toString();
+    		//ele.sendKeys(Keys.chord(name));
+    		ele.sendKeys(s);
+     		waitMethods.waiter(waitMethods.w10);
+    	}
+    	
+ 	    System.out.println("Input User 3 and Select");		
+	}
+	
+	
+
+	//Click Save button
+	@Test(priority = 242) 
+	private void saveEmployee99() {									
+		saveUserGroup();
+        System.out.println("Saved User Group");
+	} 
+	
+	
+	
+	@Test(priority = 250) //
+	private void openAccessGroup99() {
+		openAccessGroup();
+	} 
 	
 
 	
@@ -498,7 +535,7 @@ public class userAccessGroups extends setupFramework {
 
 	
 	
-	/***********    Deleting Users from Leaf Portal   ***************/
+	/***********    Deleting Users from Leaf Portal  Last one is Pruned (bc not added to Nexus)  ***************/
 	
 	@Test(priority = 350) 
 	private void deleteUser_0() {		// Should be Abbott, Roman
@@ -541,7 +578,7 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-	@Test(priority = 450) 
+	@Test(priority = 400) 
 	private void deleteUser_1() {	
 		waitMethods.waiter(waitMethods.w300);
 		WebElement ele = driver.findElement(By.id("removeMember_1"));
@@ -554,23 +591,48 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-	@Test(priority = 460) 
+	@Test(priority = 410) 
 	private void confirmYes5() {	
 		confirmYes();
 	} 
 
 	
 	
-	@Test(priority = 470) //
+	@Test(priority = 420) //
 	private void openAccessGroup8() {
 		openAccessGroup();
 	} 
 	
 
 	
+	@Test(priority = 425) 
+	private void deleteUser_3() {	
+		waitMethods.waiter(waitMethods.w300);
+		WebElement ele = driver.findElement(By.id("removeMember_3"));
+        highlightElement.highLightElement(driver, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Removed User 3");
+	} 
+	
+	
+	
+	
+	@Test(priority = 430) 
+	private void confirmYes6() {	
+		confirmYes();
+	} 
 
 	
-	@Test(priority = 480) 
+	
+	@Test(priority = 435) //
+	private void openAccessGroup12() {
+		openAccessGroup();
+	} 
+	
+
+	
+	@Test(priority = 440) 
 	private void ShowHideInactive() {	
 		waitMethods.waiter(waitMethods.w300);
 		WebElement ele = driver.findElement(By.id("showInactive"));
@@ -582,7 +644,7 @@ public class userAccessGroups extends setupFramework {
 
 	
 	
-	@Test(priority = 490) 
+	@Test(priority = 445) 
 	private void reactivateMember_0() {	
 		waitMethods.waiter(waitMethods.w300);
 		WebElement ele = driver.findElement(By.id("reActivateMember_0"));
@@ -639,12 +701,42 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-
+	@Test(priority = 555) 
+	private void ShowHideInactive3() {	
+		ShowHideInactive();
+	} 
 	
+	
+	@Test(priority = 560)   
+	private void pruneMember_3() {	
+		waitMethods.waiter(waitMethods.w300);
+		WebElement ele = driver.findElement(By.id("pruneMember_3"));
+        highlightElement.highLightElement(driver, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Prune Member 3");
+	} 
+	
+	
+	@Test(priority = 565) 
+	private void confirmReactivate1() {	
+		confirmYes();
+        System.out.println("Confirm Prune Member 3");
+	} 
+	
+	
+	@Test(priority = 570) //
+	private void openAccessGroup11() {
+		openAccessGroup();
+	} 
+	
+	
+
+	// Comment all above for the 'Testing' version
 	
 	@Test(priority = 990) //
 	private void getElementID() {				
-		waitMethods.waiter(waitMethods.w1500);  
+		waitMethods.waiter(waitMethods.w2k);  
 		WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]"));		
 		highlightElement.highLightElement(driver, ele);
 		id = ele.getAttribute("id").toString();
@@ -676,7 +768,7 @@ public class userAccessGroups extends setupFramework {
 			//Debugging
 			String sURL = driverNexus.getCurrentUrl();
 				System.out.println("URL in method addUserInNexus(): " + sURL); 
-		waitMethods.waiter(waitMethods.w1500);  
+		waitMethods.waiter(waitMethods.w2k);  
 		//WebElement ele = driverNexus.findElement(By.xpath("//button[contains(text(), ' Add Employee/Position')]"));
 		WebElement ele = driverNexus.findElement(By.id("button_addEmployeePosition"));
 		highlightElement.highLightElement(driverNexus, ele);
@@ -826,11 +918,11 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-	
+	//===== ADD Backup for Position 1 ====================================================
 	
 	@Test(priority = 1200)
 	public void selectMemberPosition1() {
-		waitMethods.waiter(waitMethods.w3k);
+		waitMethods.waiter(waitMethods.w2k);
 		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Abbott, Roman')]"));
         highlightElement.highLightElement(driverNexus, ele);  
         ele.click();	
@@ -840,7 +932,6 @@ public class userAccessGroups extends setupFramework {
 	
 	
 
-	//===== ADD Backup for Position 1 ====================================================
 	
 	@Test(priority = 1210)
 	public void clickAssignBackup() {
@@ -894,12 +985,12 @@ public class userAccessGroups extends setupFramework {
 	
 	@Test(priority = 1250)
 	public void selectMemberPosition2() {
-		waitMethods.waiter(waitMethods.w3k);
+		waitMethods.waiter(waitMethods.w2k);
 		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Considine, Warren')]"));
         highlightElement.highLightElement(driverNexus, ele);  
         ele.click();	
         waitMethods.waiter(waitMethods.w100);
-        System.out.println("Selected Member in Position 1");
+        System.out.println("Selected Member in Position 2");
 	}
 	
 	

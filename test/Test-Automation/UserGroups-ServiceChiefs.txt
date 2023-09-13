@@ -41,8 +41,43 @@ Shouldn’t matter if local or nexus
 
             Note: Cancel (in portal) it performs a sync services)
 
+ToDO:
+Delete Backups
 
-SERVICE CHIEFS will cover tomorrow
+As per below comment from Jamie
+Add local user that I will PRUNE
+
+
+
+
+SERVICE CHIEFS
+
+Nexus
+Admin panel of Nexus
+Setup Wizard
+Exec Lead Team
++ Create ELT
+
+Sync
+Service Chiefs
+
+Jamie Comments
+[2:05 PM] Jamie Holcomb
+the only thing I saw was maybe adding someone locally and deleting them so you can prune them.
+[2:05 PM] Jamie Holcomb
+you add two locally now but you add them to the nexus before trying to delete.
+[2:06 PM] Jamie Holcomb
+you could just add one to nexus and leave the other as local only.
+
+
+
+
+Workaround
+Import group
+
+
+Group#289  (ID from UAGs)
+
 
 
 

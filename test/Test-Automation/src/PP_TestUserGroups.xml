@@ -16,7 +16,7 @@
 	</test>    
 
   
- -->	
+	
    		
 	<test name="User Access Groups">
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
@@ -27,8 +27,9 @@
 		</parameter>
 	</test>
 
+ -->
 
-<!--   
+ 
 
 	<test name="User Access Groups TESTING">
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
@@ -39,7 +40,9 @@
 		</parameter>
 	</test>
 
- --> 
+
+<!--
+
 
 	<test name="User Access Groups Part 2">
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/">
@@ -51,9 +54,9 @@
 	</test>
 
 
- <!--  
+  
 	
-		
+
 	<test name="Admin Page">
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/">
 		<parameter name="browser" value="chrome"/>
@@ -62,6 +65,9 @@
 			</classes>
 		</parameter>
 	</test>      
+
+
+
 
  
 	<test name="New Request Workflow">
