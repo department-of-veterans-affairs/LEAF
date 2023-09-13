@@ -597,12 +597,13 @@ class FormEditor
      * @param string $categoryID - category having its destructionAge set
      * @param int|null $input - number of days to mark a record for destruction
      *
-     * @return int|null
+     * @return array
      */
-    public function setFormDestructionAge(string $categoryID, int $input = null): int|null {
+    public function setFormDestructionAge(string $categoryID, int $input = null): array {
         if (!$this->login->checkGroup(1))
         {
-            return 'Admin Only';
+            $return_value['status']['code'] = 4;
+            $return_value['status']['message'] = "Admin access required";
         }
 
         if ($input === 0 || $input === null) {
@@ -628,7 +629,11 @@ class FormEditor
                 ]);
             }
         }
-        return $input;
+        $return_value['status']['code'] = 2;
+        $return_value['status']['message'] = "Success";
+        $return_value['data'] = $input;
+
+        return $return_value;
     }
 
     /**
@@ -636,21 +641,25 @@ class FormEditor
      *
      * @param string $categoryID - category we are getting destructionAge for
      *
-     * @return int|null
+     * @return array
      */
-    public function getDestructionAge(string $categoryID): int|null
+    public function getDestructionAge(string $categoryID): array
     {
+        $return_value['status']['code'] = 4;
+        $return_value['status']['message'] = "Error";
         if ($categoryID) {
             $vars = array(':categoryID' => $categoryID);
             $strSQL = 'SELECT destructionAge FROM categories WHERE categoryID=:categoryID';
             $res = $this->db->prepared_query($strSQL, $vars);
 
             if (count($res) > 0) {
-                return $res['destructionAge'];
+                $return_value['status']['code'] = 2;
+                $return_value['status']['message'] = "Success";
+                $return_value['data'] = $res[0]['destructionAge'];
             }
         }
 
-        return null;
+        return $return_value;
     }
 
     public function getCategoryPrivileges($categoryID)

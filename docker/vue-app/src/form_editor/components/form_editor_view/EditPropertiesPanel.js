@@ -171,8 +171,9 @@ export default {
                         CSRFToken: this.CSRFToken
                     },
                     success: (res) => {
-                        if (+res === +this.destructionAgeYears * 365) {
-                            this.updateCategoriesProperty(this.formID, 'destructionAge', +res);
+                        if (+res?.status?.code === 2 && +res.data === +this.destructionAgeYears * 365) { //+null will become 0
+                            const newVal = res?.data > 0 ? +res.data : null;
+                            this.updateCategoriesProperty(this.formID, 'destructionAge', newVal);
                             this.lastUpdated = new Date().toLocaleString();
                             this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                         }
