@@ -218,7 +218,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/a[16]/span[1]"));
 	    highlightElement.highLightElement(driver, ele);
 	    ele.click();
-	    System.out.println("Clicked SYNC SERVICES");
+	    System.out.println("Opened User Group");
 	} 
 	
 	
@@ -236,33 +236,39 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	@Test(priority = 2070) //
 	private void openAccessGroup() {
-		waitMethods.waiter(waitMethods.w1k); 
-		WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]"));		
-		highlightElement.highLightElement(driver, ele); 
-	    ele.click();
-	    System.out.println("Opened Test User Group ");
+		openUserAccessGroups();
 	} 
 	
 	
+	@Test(priority = 990) //
+	private void getElementID() {				
+		waitMethods.waiter(waitMethods.w2k);  
+		WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]"));		
+		highlightElement.highLightElement(driver, ele);
+		id = ele.getAttribute("id").toString();
+		System.out.println("Element ID = " + id);
+	    System.out.println("Got User Access Group ID");  
+	    waitMethods.waiter(waitMethods.w500);
+	} 
 	
-//	@Test(priority = 160) //
-//	private void openAccessGroup() {
-//		//System.out.println("Before opening Group\ngroupNum = " + groupNum);
-//		waitMethods.waiter(waitMethods.w1k);    //  "Test User Access Group " + groupNum
-//		//String s = "Test User Access Group " + groupNum;
-//		//String s = ".Test User Access Group ";
-//		//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), '.Test User Access Group')]"));
-//		//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), '" + s + "')]"));
-//		WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]"));		
-//		highlightElement.highLightElement(driver, ele); 
-//	    ele.click();
-//	    System.out.println("Opened Test User Group ");
-//	} 
-//	
-//
-//	
-//	
-//	//Click Save button
+	
+
+	@Test(priority = 2080) 
+	public void createNexusDriver1() {
+		createNexusDriver();
+	}
+	
+	
+	//  PICKUP HERE
+	// Delete 2 users
+	
+	
+	
+	
+	
+	
+	
+	//	//Click Save button
 //	@Test(priority = 180) 
 //	private void saveEmployee() {									
 //		saveUserGroup();
