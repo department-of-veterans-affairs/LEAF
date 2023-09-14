@@ -729,7 +729,29 @@
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 
-                sites.push(...formattedSiteMap);
+                // Parse base URLs, order matters
+                formattedSiteMap.map(site => {
+                    if(site.url.indexOf('/admin/') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/admin/') + 1);
+                    }
+                    else if(site.url.indexOf('/?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/?') + 1);
+                    }
+                    else if(site.url.indexOf('/index.php?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/index.php?') + 1);
+                    }
+                    else if(site.url.indexOf('/report.php?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/report.php?') + 1);
+                    }
+                });
+
+                // Remove duplicate URLs
+                let uniqueSites = {};
+                formattedSiteMap.forEach(site => {
+                    uniqueSites[site.url] = site;
+                });
+
+                sites.push(...Object.values(uniqueSites));
                 resolve();
             },
             fail: function(err) {
