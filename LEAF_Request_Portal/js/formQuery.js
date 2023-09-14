@@ -10,6 +10,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   let extraParams = "";
   let results = {};
   let batchSize = 500;
+  let abortSignal;
 
   clearTerms();
 
@@ -119,13 +120,19 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
-   * @param {string|number} indicatorID
+   * getData includes data associated with $indicatorID in the result set
+   * @param {string|number|array} indicatorID
    * @memberOf LeafFormQuery
    */
   function getData(indicatorID = "") {
-    if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
-      query.getData.push(indicatorID);
-    }
+	if(Array.isArray(indicatorID)) {
+		indicatorID.forEach(id => {
+			getData(id);
+		});
+	}
+	else if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
+	    query.getData.push(indicatorID);
+	}
   }
 
   /**
@@ -207,6 +214,15 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
+   * setAbortSignal assigns a DOM AbortSignal to determine whether further getBulkData() iterations should be cancelled
+   * @param {AbortSignal} signal
+   * @memberOf LeafFormQuery
+   */
+  function setAbortSignal(signal) {
+    abortSignal = signal;
+  }
+
+  /**
    * Execute search query in chunks
    * @param {number} limitOffset Used in subsequent recursive calls to track current offset
    * @returns Promise resolving to query response
@@ -234,7 +250,9 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     }).then((res, resStatus, resJqXHR) => {
       results = Object.assign(results, res);
 
-      if (Object.keys(res).length == batchSize || resJqXHR.getResponseHeader("leaf-query") == "continue") {
+      if ((Object.keys(res).length == batchSize
+                || resJqXHR.getResponseHeader("leaf-query") == "continue")
+            && !abortSignal?.aborted) {
         let newOffset = limitOffset + batchSize;
         if (typeof progressCallback == "function") {
           progressCallback(newOffset);
@@ -297,6 +315,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     sort,
     onSuccess,
     onProgress,
+    setAbortSignal,
     execute
   };
 };
