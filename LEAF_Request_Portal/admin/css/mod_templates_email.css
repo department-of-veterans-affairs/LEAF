@@ -675,13 +675,17 @@ legend {
     padding: 10px 0;
     margin: 0 0 10px 0;
 }
+.template_select_container {
+    display: flex;
+}
 
 .templateFiles {
-    width: 85%;
+    width: 90%;
     padding: 10px;
     font-size: .8rem;
-    border: none;
+    border: 2px solid #333;
     border-radius: 5px;
+    margin: 0 auto;
 }
 
 .mobileToolsNav {
@@ -734,7 +738,7 @@ legend {
 #form-select-dropdown,
 #indicator-select-dropdown,
 #indicator-id {
-    border: none;
+    border: 2px solid #333;
     margin-top: 10px;
     padding: 10px;
     border-radius: 5px;
