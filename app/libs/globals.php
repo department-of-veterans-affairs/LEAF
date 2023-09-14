@@ -29,6 +29,7 @@ $path = str_replace('auth_domain', '', $path);
 $path = str_replace('dynicons', '', $path);
 $path = str_replace('qrcode', '', $path);
 $path = str_replace('scripts', '', $path);
+$path = str_replace('sources/../mailer', '', $path);
 $path = str_replace('utils', '', $path);
 $path = rtrim($path, '/');
 
