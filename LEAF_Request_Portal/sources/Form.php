@@ -2938,9 +2938,13 @@ class Form
 
                                 break;
                             case 'destruction':
-                                $conditions .= "{$gate}(categories.destructionAge IS NOT NULL AND submitted > 0)";
-                                $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ".
-                                    "LEFT JOIN categories USING (categoryID) ";
+                                $conditions .= "{$gate}(categories.destructionAge IS NOT NULL AND ".
+                                    "records_workflow_state.stepID IS NULL AND submitted != 0)";
+                                if (!strpos($joins,'category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                }
+                                $joins .= "LEFT JOIN categories USING (categoryID) ";
+                                $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
                                 break;
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
@@ -2996,9 +3000,14 @@ class Form
 
                                 break;
                             case 'destruction':
-                                $conditions .= "{$gate}(categories.destructionAge IS NULL AND submitted > 0)";
-                                $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ".
-                                    "LEFT JOIN categories USING (categoryID) ";
+                                $conditions .= "{$gate}(categories.destructionAge IS NULL OR ".
+                                    "(records_workflow_state.stepID IS NOT NULL OR submitted = 0)".
+                                ")";
+                                if (!strpos($joins,'category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                }
+                                $joins .= "LEFT JOIN categories USING (categoryID) ";
+                                $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
                                 break;
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
@@ -3204,6 +3213,10 @@ class Form
                         $joinInitiatorNames = true;
 
                         break;
+                    case 'destructionDate':
+                        $joinRecordResolutionData = true;
+                        $joinAllCategoryID = true;
+                        break;
                     default:
                         break;
                 }
@@ -3337,7 +3350,7 @@ class Form
             if ($joinAllCategoryID)
             {
 
-                $allCategorySQL = 'SELECT recordID,categoryName,categoryID
+                $allCategorySQL = 'SELECT recordID,categoryName,categoryID,destructionAge
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3348,6 +3361,7 @@ class Form
                 {
                     $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
                     $data[$item['recordID']]['categoryIDsUnabridged'][] = $item['categoryID'];
+                    $data[$item['recordID']]['destructionAge'] = $item['destructionAge'];
                 }
             }
 
