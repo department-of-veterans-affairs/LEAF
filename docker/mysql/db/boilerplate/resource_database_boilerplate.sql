@@ -871,7 +871,7 @@ CREATE TABLE IF NOT EXISTS `route_events` (
   CONSTRAINT `route_events_ibfk_1`
     FOREIGN KEY (`actionType`)
     REFERENCES `actions` (`actionType`),
-  CONSTRAINT `route_events_ibfk_1`
+  CONSTRAINT `route_events_ibfk_2`
     FOREIGN KEY (`eventID`)
     REFERENCES `events` (`eventID`)
     ON DELETE CASCADE
