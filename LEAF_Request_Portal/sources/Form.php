@@ -3182,7 +3182,7 @@ class Form
             if ($count === 0) {
                 $gate = '';
                 $conditions = '(';
-            } else {
+            } else if(!empty($q['gate'])) {
                 switch ($q['gate']) {
                     case 'OR':
                         $gate = ' OR ';
@@ -3725,7 +3725,7 @@ class Form
                             }
 
                             // if we are at our limit or no data then we need to close out the file.
-                            if ($maxlimit >= $query['limit'] || empty($res)) {
+                            if ((!empty($query['limit']) && $maxlimit >= $query['limit']) || empty($res)) {
                                 fclose($fp);
                                 // this fixes case where we are plopping json strings together.
                                 exec("sed -i 's/}{/,/g' $currentFileName");
