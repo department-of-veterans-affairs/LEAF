@@ -10,6 +10,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.testng.Assert;
@@ -225,7 +226,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	@Test(priority = 2040) //
 	private void openUserAccessGroups() {
-		waitMethods.waiter(waitMethods.w1500);
+		waitMethods.waiter(waitMethods.w2k);
 		WebElement ele = driver.findElement(By.xpath("//span[contains(text(),'User Access Groups')]"));
 		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/a[16]/span[1]"));
 	    highlightElement.highLightElement(driver, ele);
@@ -236,10 +237,16 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	@Test(priority = 2050)
 	private void scrollUp() {
+		waitMethods.waiter(waitMethods.w500);
+		Actions a = new Actions(driverNexus);
+		a.sendKeys(Keys.PAGE_UP).build().perform();
+		waitMethods.waiter(waitMethods.w1k);
+		System.out.println("Scroll UP");
+		
 		waitMethods.waiter(waitMethods.w1k);
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		js.executeScript("window.scrollBy(0,-300)", "");
-		System.out.println("Scroll UP");
+		
 		
 	}
 	
@@ -404,14 +411,14 @@ public class userAccessGroupsPart2 extends setupFramework {
 	@Test(priority = 2230) //
 	private void DELETE_GROUP() {
 		waitMethods.waiter(waitMethods.w1k);
-		WebElement ele = driver.findElement(By.xpath("//*[contains(text(),' Delete Group')]"));
-	    highlightElement.highLightElement(driver, ele);
+		WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(),' Delete Group')]"));
+	    highlightElement.highLightElement(driverNexus, ele);
 	    ele.click();
 	    System.out.println("Clicked DELETE GROUP");
 	} 
 	
 	
-	// *********** END Note to Comment out - will leave last 3 users and Not DELTE GROUP ************
+	// *********** END of Note to Comment out - will leave last 3 users and Not DELTE GROUP ************
 	
 	
 //	@Test(priority = 4000)
@@ -435,9 +442,15 @@ public class userAccessGroupsPart2 extends setupFramework {
 	} 
 	
 	
-	// getDriver();
-	//  or
-	// driver=getDriver();
+	@Test(priority = 6500) //
+	private void deleteUserGroup() {
+		waitMethods.waiter(waitMethods.w1k);
+		WebElement ele = driver.findElement(By.xpath("//button[contains(text(),'Delete Group')]"));
+		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/a[16]/span[1]"));
+	    highlightElement.highLightElement(driver, ele);
+	    ele.click();
+	    System.out.println("Clicked SYNC SERVICES");
+	} 
 	
 	
 	

@@ -264,7 +264,7 @@ public class userAccessGroups extends setupFramework {
 //  Input User = employeeSelectorInput		Considine, Warren Bayer		
 	@Test(priority = 170)
 	public void inputEmployee() {   
-    	waitMethods.waiter(waitMethods.w1k);     			//Input Box
+    	waitMethods.waiter(waitMethods.w1500);     			//Input Box
     	WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"));
     	highlightElement.highLightElement(driver, ele);
     	
@@ -302,7 +302,7 @@ public class userAccessGroups extends setupFramework {
 	//Input User 2 = employeeSelectorInput	Sauer, Valentin Will.
 	@Test(priority = 200)
 	public void inputEmployee2() {   
-    	waitMethods.waiter(waitMethods.w1k);     			//Input Box
+    	waitMethods.waiter(waitMethods.w1500);     			//Input Box
     	WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"));
     	highlightElement.highLightElement(driver, ele);
     	
@@ -341,7 +341,7 @@ public class userAccessGroups extends setupFramework {
 	//  Input User 3 = employeeSelectorInput	Abbott, Roman Spencer
 	@Test(priority = 230)
 	public void inputEmployee3() {   
-    	waitMethods.waiter(waitMethods.w1k);     			//Input Box
+    	waitMethods.waiter(waitMethods.w1500);     			//Input Box
     	WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"));
     	highlightElement.highLightElement(driver, ele);
     	
@@ -981,7 +981,7 @@ public class userAccessGroups extends setupFramework {
 	
 	@Test(priority = 1250)
 	public void selectMemberPosition2() {
-		waitMethods.waiter(waitMethods.w2k);
+		waitMethods.waiter(waitMethods.w2500);
 		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Considine, Warren')]"));
         highlightElement.highLightElement(driverNexus, ele);  
         ele.click();	
@@ -1043,7 +1043,7 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-	// Update userAccessGroups from here down
+
 	//===== REMOVE Backup for Position 1 ====================================================	
 	
 	@Test(priority = 1300)

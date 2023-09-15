@@ -53,6 +53,7 @@ public class waitMethods {
 		public final static int w750 = 750;		//750
 		public final static int w1k = 1000;		//1000
 		public final static int w1500 = 1500;	//1500
+		public final static int w2500 = 2500;	//2500
 		public final static int w2k = 2000;		//2000
 		public final static int w3k = 3000;		//3000
 		public final static int w4k = 4000;		//4000
@@ -85,10 +86,11 @@ public class waitMethods {
 //		public final static int w1k = 250;		//1000
 //		public final static int w2k = 350;		//2000
 //		public final static int w1500 = 400;	//1500
-//		public final static int w3k = 400;		//3000
-//		public final static int w4k = 500;		//4000
-//		public final static int w5k = 600;		//5000
-//		public final static int w8k = 800;		//8000
+//		public final static int w2500 = 700;	//2500
+//		public final static int w3k = 2000;		//3000
+//		public final static int w4k = 3000;		//4000
+//		public final static int w5k = 3500;		//5000
+//		public final static int w8k = 5500;		//8000
 
 	
 	
@@ -109,11 +111,12 @@ public class waitMethods {
 //		public final static int w750 = 1000;	//750
 //		public final static int w1k = 2000;		//1000
 //		public final static int w2k = 2000;		//2000
-//		public final static int w1500 = 1500;	//1500
-//		public final static int w3k = 3000;		//3000
-//		public final static int w4k = 4000;		//4000
-//		public final static int w5k = 5000;		//5000
-//		public final static int w8k = 8000;		//8000
+//		public final static int w1500 = 2000;	//1500
+//		public final static int w2500 = 3000;	//2500
+//		public final static int w3k = 3500;		//3000
+//		public final static int w4k = 4500;		//4000
+//		public final static int w5k = 5500;		//5000
+//		public final static int w8k = 8500;		//8000
 
 	
 	
