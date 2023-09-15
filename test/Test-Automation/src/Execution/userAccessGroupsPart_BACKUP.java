@@ -24,7 +24,7 @@ import Framework.waitMethods;
 import Framework.highlightElement;
 
 
-public class userAccessGroupsPart2 extends setupFramework {
+public class userAccessGroupsPart_BACKUP extends setupFramework {
 
 	
 	public String sRand;
@@ -32,13 +32,13 @@ public class userAccessGroupsPart2 extends setupFramework {
 	public String nexusURL = "https://localhost/LEAF_Nexus/?a=view_group&groupID=";
 	public String portalURL = "https://localhost/LEAF_Request_Portal/admin/?a=mod_groups";
 	public String id;		
-	public WebDriver driverNexus, driverPortal;
+	public WebDriver driverNexus;
 
 	
 	
 	
 	
-	private static WebDriver chromeLoginNexus(String env) {	  //Step 3 - call from createNexusDriver()
+	private static WebDriver chromeLoginNexus(String env) {	
 		System.out.println("Launching Chrome");  //Step Over until - return driver;
 		System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
 		
@@ -84,31 +84,19 @@ public class userAccessGroupsPart2 extends setupFramework {
 	} 
 	
 	
-	public WebDriver getDriverNexus() {		// Called from setUp() in @BeforeClass				
+	public WebDriver getDriverNexus() {						
         return driverNexus;					//Establish ChromeDriver for Nexus
 	}							
 
 	
 	
 	 
-	public void createNexusDriver() {		// Step 2 - called by createNexusDriver1()
+	public void createNexusDriver() {
 		String NexusURL = nexusURL + id;
 		System.out.println("NexusURL: " + NexusURL);
 	
 		driverNexus = chromeLoginNexus(NexusURL);
 		//driverNexus = chromeLoginNexus("https://localhost/LEAF_Nexus/?a=view_group&groupID=" + id);
-		waitMethods.waiter(waitMethods.w2k);
-		testForNexusCertPage();
-		System.out.println("Chromedriver for Nexus created");
-	}
-	
-
-					// TODO:  parameterize method to accept String URL
-	public void createPortalDriver() {		// Step 2 - called by  a new method to be created like createNexusDriver1()
-		String NexusURL = portalURL;
-		System.out.println("NexusURL: " + NexusURL);
-	
-		driverNexus = chromeLoginNexus(NexusURL);
 		waitMethods.waiter(waitMethods.w2k);
 		testForNexusCertPage();
 		System.out.println("Chromedriver for Nexus created");
@@ -145,12 +133,12 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	@BeforeMethod
 	@BeforeClass
-	public void setUp()  {			//Starts Here
+	public void setUp()  {
 		if(driver!= null) {
 			driver=getDriver();   //   from Framework.setupFramework
 		}
 		if(driverNexus!= null) {
-			driverNexus=getDriverNexus();   
+			driverNexus=getDriverNexus();   //   from Framework.setupFramework
 		}		
 	}
 	
@@ -272,7 +260,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 
 	@Test(priority = 2090) 
-	public void createNexusDriver1() {		// Step 1
+	public void createNexusDriver1() {
 		createNexusDriver();
 	}
 	

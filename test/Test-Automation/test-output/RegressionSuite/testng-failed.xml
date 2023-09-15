@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Failed suite [RegressionSuite]" guice-stage="DEVELOPMENT">
-  <test thread-count="5" name="User Access Groups TESTING(failed)">
+  <test thread-count="5" name="Service Chiefs(failed)">
     <parameter name="browser" value="chrome"/>
-    <parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups"/>
+    <parameter name="env" value="https://localhost/LEAF_Nexus/admin/"/>
     <classes>
-      <class name="Execution.userAccessGroupsTESTING">
+      <class name="Execution.serviceChiefs">
         <methods>
-          <include name="setUp"/>
+          <include name="openSCGroup"/>
           <include name="initializeFramework"/>
-          <include name="saveRemoveBackup2"/>
+          <include name="setUp"/>
           <include name="closeDown"/>
         </methods>
-      </class> <!-- Execution.userAccessGroupsTESTING -->
+      </class> <!-- Execution.serviceChiefs -->
     </classes>
-  </test> <!-- User Access Groups TESTING(failed) -->
+  </test> <!-- Service Chiefs(failed) -->
 </suite> <!-- Failed suite [RegressionSuite] -->

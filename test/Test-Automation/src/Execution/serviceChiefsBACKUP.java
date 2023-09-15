@@ -10,6 +10,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.testng.Assert;
@@ -24,15 +25,32 @@ import Framework.waitMethods;
 import Framework.highlightElement;
 
 
-public class userAccessGroupsTESTING extends setupFramework {
+public class serviceChiefsBACKUP extends setupFramework {
 
 	
 	public String sRand;
 	public String groupNum;
-	public String nexusURL = "https://localhost/LEAF_Nexus/?a=view_group&groupID=";
+	public String nexusURL = "https://localhost/LEAF_Request_Portal/admin/";
 	public String id ="";		
 	public WebDriver driverNexus;
 
+	
+	
+	/* Navigation
+	 * 	https://localhost/LEAF_Request_Portal/  (Portal Home)
+	 * 		Select Portal 'Links' Nexus -> https://localhost/LEAF_Nexus/ 	
+	 * 			Select OC Admin Panel -> https://localhost/LEAF_Nexus/admin/
+	 * 				*** Select Groups -> https://localhost/LEAF_Nexus/?a=browse_group
+	 * 					Select 'Create New Group' ->  Modal   (contains = ' Create New Group'
+	 * 
+	 * 	
+	 * 
+	 * 	//  https://localhost/LEAF_Request_Portal/admin/
+	 *	//  contains 'Sync Services'
+	 * 
+	 */
+	
+	
 	
 	
 	
@@ -93,7 +111,6 @@ public class userAccessGroupsTESTING extends setupFramework {
 	public void createNexusDriver() {
 		String NexusURL = nexusURL + id;
 		System.out.println("NexusURL: " + NexusURL);
-		//closeDownMainPortal();
 	
 		driverNexus = chromeLoginNexus(NexusURL);
 		//driverNexus = chromeLoginNexus("https://localhost/LEAF_Nexus/?a=view_group&groupID=" + id);
@@ -111,12 +128,12 @@ public class userAccessGroupsTESTING extends setupFramework {
 	}
 	
 	
-//	public void closeDownNexus() {
-//		
-//		driverNexus.quit();
-//		System.out.println("setupFramework reached @AfterClass, driverNexus.quit()");
-//		//System.out.println("Method closeDownNexus() Disabled - browser remains open");
-//	}
+	public void closeDownNexus() {
+		
+		driverNexus.quit();
+		System.out.println("setupFramework reached @AfterClass, driverNexus.quit()");
+		//System.out.println("Method closeDownNexus() Disabled - browser remains open");
+	}
 	
 	
 	public String generateRand() {
@@ -142,16 +159,7 @@ public class userAccessGroupsTESTING extends setupFramework {
 		}		
 	}
 	
-	
-//	private void gotoTab2() {
-//		driver.findElement(By.cssSelector("body")).sendKeys(Keys.CONTROL + "2");
-//	}
-//
-//	private void gotoTab1() {
-//		driver.findElement(By.cssSelector("body")).sendKeys(Keys.CONTROL + "2");
-//	}
 
-	
 	
 	
 	@Test(priority = 1) //MUST REMAIN #1 ( or zero) -test for certificate - if no, click Advanced -> Proceed
@@ -175,21 +183,200 @@ public class userAccessGroupsTESTING extends setupFramework {
 	} 
  
 	
-	// Comment down to line 731 for 'Testing' Version
-
-	//    https://localhost/LEAF_Request_Portal/admin/?a=mod_groups
 	
-//	@Test(priority = 100) //
-//	private void createUserAccessGroup() {
-//		waitMethods.waiter(waitMethods.w200);
-//		WebElement ele = driver.findElement(By.xpath("//button[contains(text(),' Create group')]"));
-//	    highlightElement.highLightElement(driver, ele);
-//	    ele.click();
-//		waitMethods.waiter(waitMethods.w100);
-//	    System.out.println("Clicked on + New Group");
-//	} 
-//
-//	
+	/*
+	 * 
+	 * Until I refactor, this class has REVERSED drivers.
+	 * 
+	 * driverNexus = main portal
+	 * driver = Nexus portal
+	 */
+	
+	
+	
+	
+	//===============  Begin Tests  =========================================
+	
+	@Test(priority = 100) //
+	private void clickSetupWizard() {
+		waitMethods.waiter(waitMethods.w2k);
+		WebElement ele = driver.findElement(By.xpath("/html/body/div[2]/div/div/div[1]/a[3]/span"));
+	    highlightElement.highLightElement(driver, ele);
+	    ele.click();
+		waitMethods.waiter(waitMethods.w100);
+	    System.out.println("Clicked on Setup Wizard");
+	} 
+
+
+	
+	
+	@Test(priority = 110) //  menu_leadership
+	private void clickExecLeadershipTeam() {
+		waitMethods.waiter(waitMethods.w2k);
+		WebElement ele = driver.findElement(By.id("menu_leadership"));
+		//WebElement ele = driver.findElement(By.xpath("//button[contains(text(),' Setup Wizard')]"));
+	    highlightElement.highLightElement(driver, ele);
+	    ele.click();
+		waitMethods.waiter(waitMethods.w100);
+	    System.out.println("Clicked on Executive Leadership Team");
+	} 
+	
+	
+	
+	@Test(priority = 120) //
+	private void clickCreateELT() {
+		waitMethods.waiter(waitMethods.w500);
+		WebElement ele = driver.findElement(By.xpath("//*[contains(text(),'Create')]"));
+		///html/body/div[2]/div/div/div[2]/div[1]/div
+	    highlightElement.highLightElement(driver, ele);
+	    ele.click();
+		waitMethods.waiter(waitMethods.w100);
+	    System.out.println("Clicked on Create ELT");
+	} 
+	
+	
+	
+	@Test(priority = 130) //  serviceName
+		public void enterNameOfService() {   
+	  	waitMethods.waiter(waitMethods.w2k);     			//Input Box
+	  	WebElement ele = driver.findElement(By.id("serviceName"));
+	  	highlightElement.highLightElement(driver, ele);
+	  	
+	  	String name = ".Automated Test Services";
+	  	   
+	  	for(int i = 0; i < name.length(); i++) {
+	  		char c = name.charAt(i);
+	  		String s = new StringBuilder().append(c).toString();
+	  		//ele.sendKeys(Keys.chord(name));
+	  		ele.sendKeys(s);
+	   		waitMethods.waiter(waitMethods.w10);
+	  	}
+	  	
+	  		waitMethods.waiter(waitMethods.w100);				
+		    System.out.println("Input Service Name");		
+	}
+	
+	
+	
+	
+	@Test(priority = 140) //  positionTitle
+	public void enterPositionTitle() {   
+	  	waitMethods.waiter(waitMethods.w1k);     			//Input Box
+	  	WebElement ele = driver.findElement(By.id("positionTitle"));
+	  	highlightElement.highLightElement(driver, ele);
+	  	
+	  	String name = "Burger King";    //  generateRand().toString();
+	  	   
+	  	for(int i = 0; i < name.length(); i++) {
+	  		char c = name.charAt(i);
+	  		String s = new StringBuilder().append(c).toString();  
+	  		//ele.sendKeys(Keys.chord(name));
+	  		ele.sendKeys(s);
+	   		waitMethods.waiter(waitMethods.w10);
+	  	}
+	  	
+	  		waitMethods.waiter(waitMethods.w100);				
+		    System.out.println("Input Position Title");		
+	}
+	
+	
+	
+	
+	@Test(priority = 150) //
+	public void inputEmployeeName() {   
+	  	waitMethods.waiter(waitMethods.w1k);     			//Input Box
+	  	WebElement ele = driver.findElement(By.xpath("/html/body/div[4]/div[2]/form/div/div[3]/table/tbody/tr[3]/td[2]/div/div[1]/input"));
+	  	highlightElement.highLightElement(driver, ele);
+	  	
+	  	String name = "Abbott, Roman Spencer";    //  generateRand().toString();
+	  	   
+	  	for(int i = 0; i < name.length(); i++) {
+	  		char c = name.charAt(i);
+	  		String s = new StringBuilder().append(c).toString();  
+	  		//ele.sendKeys(Keys.chord(name));
+	  		ele.sendKeys(s);
+	   		waitMethods.waiter(waitMethods.w10);
+	  	}
+	  	
+	  		waitMethods.waiter(waitMethods.w100);				
+		    System.out.println("Input Employee Name");		
+	}
+	
+
+
+
+	@Test(priority = 160) 
+	private void saveSCGroup() {									//Click Save button
+		waitMethods.waiter(waitMethods.w300);
+		WebElement ele = driver.findElement(By.id("button_save"));
+        //highlightElement.highLightElement(driver, ele);  
+        ele.click();	
+        System.out.println("Clicked Save");
+	} 
+	
+	
+	
+	@Test(priority = 200) 
+	public void createNexusDriver1() {
+		createNexusDriver();   // Actual Main Portal Driver
+	}
+	
+	
+	
+	@Test(priority = 210)
+	private void scrollDownNexus() {
+		waitMethods.waiter(waitMethods.w2k);
+		JavascriptExecutor js = (JavascriptExecutor) driverNexus;
+		js.executeScript("window.scrollBy(0,300)", "");
+		System.out.println("Scroll Down");
+		
+	}
+	
+	
+
+	
+	@Test(priority = 220) //
+	private void syncServices() {
+		waitMethods.waiter(waitMethods.w1k);
+		WebElement ele = driverNexus.findElement(By.xpath("//span[contains(text(),'Sync Services')]"));
+		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/a[16]/span[1]"));
+	    highlightElement.highLightElement(driverNexus, ele);
+	    ele.click();
+	    System.out.println("Clicked SYNC SERVICES");
+	} 
+	
+	
+	@Test(priority = 230)
+	private void scrollUpNexus() {
+		waitMethods.waiter(waitMethods.w500);
+		Actions a = new Actions(driverNexus);
+		a.sendKeys(Keys.PAGE_UP).build().perform();
+		
+		
+		//waitMethods.waiter(waitMethods.w1k);
+		//JavascriptExecutor js = (JavascriptExecutor) driverNexus;
+		//js.executeScript("window.scrollBy(0,-300)", "");
+		//System.out.println("Scroll UP");
+	}
+	
+	
+	
+	@Test(priority = 240) //
+	private void clickServiceChiefs() {
+		waitMethods.waiter(waitMethods.w500);
+		WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[1]/div/div/a[3]"));
+		///html/body/div[2]/div/div/div[2]/div[1]/div
+	    highlightElement.highLightElement(driverNexus, ele);
+	    ele.click();
+		waitMethods.waiter(waitMethods.w100);
+	    System.out.println("Clicked on Service Chiefs");
+	} 
+	
+	
+	
+	
+
+	
 ////  groupNameInput
 //	@Test(priority = 110)
 //	public void inputGroupName() {   
@@ -729,429 +916,429 @@ public class userAccessGroupsTESTING extends setupFramework {
 //	private void openAccessGroup11() {
 //		openAccessGroup();
 //	} 
-	
-	
-
-	// Comment all above for the 'Testing' version
-	
-	@Test(priority = 990) //
-	private void getElementID() {				
-		waitMethods.waiter(waitMethods.w2k);  
-		WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]"));		
-		highlightElement.highLightElement(driver, ele);
-		id = ele.getAttribute("id").toString();
-		System.out.println("Element ID = " + id);
-	    //ele.click();
-	    System.out.println("Got User Access Group ID");  
-	    waitMethods.waiter(waitMethods.w500);
-	} 
-	
-	
-	
-//	@Test(priority = 993)
-//	public void closeDownMainPortal1() {
-//		closeDownMainPortal();
+//	
+//	
+//
+//	// Comment all above for the 'Testing' version
+//	
+//	@Test(priority = 990) //
+//	private void getElementID() {				
+//		waitMethods.waiter(waitMethods.w2k);  
+//		WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]"));		
+//		highlightElement.highLightElement(driver, ele);
+//		id = ele.getAttribute("id").toString();
+//		System.out.println("Element ID = " + id);
+//	    //ele.click();
+//	    System.out.println("Got User Access Group ID");  
+//	    waitMethods.waiter(waitMethods.w500);
+//	} 
+//	
+//	
+//	
+////	@Test(priority = 993)
+////	public void closeDownMainPortal1() {
+////		closeDownMainPortal();
+////	}
+//	
+//	
+//	@Test(priority = 995) 
+//	public void createNexusDriver1() {
+//		createNexusDriver();
 //	}
-	
-	
-	@Test(priority = 995) 
-	public void createNexusDriver1() {
-		createNexusDriver();
-	}
-
-	
-	
-	
-	@Test(priority = 1000) //		
-	private void clickAddUserInNexus() {	
-		System.out.println("Entered addUseInNexus Method"); 
-			//Debugging
-			String sURL = driverNexus.getCurrentUrl();
-				System.out.println("URL in method addUserInNexus(): " + sURL); 
-		waitMethods.waiter(waitMethods.w2k);  
-		//WebElement ele = driverNexus.findElement(By.xpath("//button[contains(text(), ' Add Employee/Position')]"));
-		WebElement ele = driverNexus.findElement(By.id("button_addEmployeePosition"));
-		highlightElement.highLightElement(driverNexus, ele);
-		ele.click();
-	    System.out.println("Open Add Employee Dialogue");  
-	} 
-	
-
-	
-	
-	@Test(priority = 1010) //
-	private void selectSearchEmployeesOnly() {				
-		waitMethods.waiter(waitMethods.w500);  
-		WebElement ele = driverNexus.findElement(By.id("ignorePositions"));		
-		highlightElement.highLightElement(driverNexus, ele);
-		ele.click();
-	    System.out.println("Select Search Employees Only");  
-	} 
-
-
-	
-	
-	
-	
-	//Input NEXUS User 		Terry, Rodney Jacobi	
-	@Test(priority = 1020)
-	public void inputNexusEmployee() {   
-	  	waitMethods.waiter(waitMethods.w300);     			//Input Box
-	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div[3]/div[1]/input"));
-	  	highlightElement.highLightElement(driverNexus, ele);
-	  	
-	  	String name = "Terry, Rodney Jacobi";
-	  	   
-	  	for(int i = 0; i < name.length(); i++) {
-	  		char c = name.charAt(i);
-	  		String s = new StringBuilder().append(c).toString();
-	  		ele.sendKeys(s);
-	   		waitMethods.waiter(waitMethods.w10);
-	  	}
-	  	
-	  		waitMethods.waiter(waitMethods.w100);
-		    System.out.println("Input Nexus User and Select");		
-	}
-	
-	
-	
-	@Test(priority = 1030)
-	public void saveNexusEmployee() {
-		waitMethods.waiter(waitMethods.w300);
-		WebElement ele = driverNexus.findElement(By.id("button_save"));
-        //highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();	
-        waitMethods.waiter(waitMethods.w100);
-        System.out.println("Clicked Save");
-	}
-	
-	
-	
-	
-	@Test(priority = 1040) //		
-	private void clickAddUserInNexus2() {	
-		clickAddUserInNexus();
-	} 
-	
-
-	
-	
-	@Test(priority = 1050) //
-	private void selectSearchEmployeesOnly2() {				
-		selectSearchEmployeesOnly();
-	} 
-	
-	
-	
-	
-	//Input NEXUS User 			Walker, Taina Moen
-	@Test(priority = 1060)
-	public void inputNexusEmployee2() {   
-	  	waitMethods.waiter(waitMethods.w300);     			//Input Box
-	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div[3]/div[1]/input"));
-	  	highlightElement.highLightElement(driverNexus, ele);
-	  	
-	  	String name = "Walker, Taina Moen";
-	  	   
-	  	for(int i = 0; i < name.length(); i++) {
-	  		char c = name.charAt(i);
-	  		String s = new StringBuilder().append(c).toString();
-	  		ele.sendKeys(s);
-	   		waitMethods.waiter(waitMethods.w10);
-	  	}
-	  	
-	  		waitMethods.waiter(waitMethods.w100);
-		    System.out.println("Input Nexus User and Select");		
-	}
-	
-	
-	
-	@Test(priority = 1070)
-	public void saveNexusEmployee2() {
-		saveNexusEmployee();
-	}
-	
-	
-	
-	@Test(priority = 1080) //		
-	private void clickAddUserInNexus3() {	
-		clickAddUserInNexus();
-	} 
-	
-
-	
-	
-	@Test(priority = 1090) //
-	private void selectSearchEmployeesOnly3() {				
-		selectSearchEmployeesOnly();
-	} 
-	
-	
-	
-	
-	//Input NEXUS User 			Weber, Kurt Bradtke
-	@Test(priority = 1100)
-	public void inputNexusEmployee3() {   
-	  	waitMethods.waiter(waitMethods.w300);     			//Input Box
-	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div[3]/div[1]/input"));
-	  	highlightElement.highLightElement(driverNexus, ele);
-	  	
-	  	String name = "Weber, Kurt Bradtke";
-	  	   
-	  	for(int i = 0; i < name.length(); i++) {
-	  		char c = name.charAt(i);
-	  		String s = new StringBuilder().append(c).toString();
-	  		ele.sendKeys(s);
-	   		waitMethods.waiter(waitMethods.w10);
-	  	}
-	  	
-	  		waitMethods.waiter(waitMethods.w100);
-		    System.out.println("Input Nexus User and Select");		
-	}
-	
-	
-	
-	@Test(priority = 1110)
-	public void saveNexusEmployee3() {
-		saveNexusEmployee();
-	}
-	
-	
-	
-	//===== ADD Backup for Position 1 ====================================================	
-	
-	@Test(priority = 1200)
-	public void selectMemberPosition1() {
-		waitMethods.waiter(waitMethods.w2k);
-		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Abbott, Roman')]"));
-        highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();	
-        waitMethods.waiter(waitMethods.w100);
-        System.out.println("Selected Member in Position 1");
-	}
-	
-	
-
-	
-	@Test(priority = 1210)
-	public void clickAssignBackup() {
-		waitMethods.waiter(waitMethods.w1k);
-		WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(), ' Assign Backup')]"));
-        highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();	
-        waitMethods.waiter(waitMethods.w100);
-        System.out.println("Clicked Assign Backup");
-	}
-	
-	
-	
-	
-	@Test(priority = 1220)
-	public void addBackupPosition1() {  
-	  	waitMethods.waiter(waitMethods.w300);     			//  
-	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input"));
-	  	highlightElement.highLightElement(driverNexus, ele);
-	  	ele.click();
-	  	
-	  	String name = "Kub, Brandon Schmidt.";
-	  	   
-	  	for(int i = 0; i < name.length(); i++) {
-	  		char c = name.charAt(i);
-	  		String s = new StringBuilder().append(c).toString();
-	  		ele.sendKeys(s);
-	   		waitMethods.waiter(waitMethods.w10);
-	  	}
-	  	
-	  		waitMethods.waiter(waitMethods.w100);
-		    System.out.println("Backup Added for Position 1");		
-	}	
-	
-	
-	
-	@Test(priority = 1230)
-	public void saveBackup() {
-		saveNexusEmployee();
-	}
-	
-
-	
-	@Test(priority = 1240)
-	public void navigateNexusBack() {
-		driverNexus.navigate().back();;
-	}
-
-	
-	//===== ADD Backup for Position 2 ====================================================
-	
-	@Test(priority = 1250)
-	public void selectMemberPosition2() {
-		waitMethods.waiter(waitMethods.w2k);
-		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Considine, Warren')]"));
-        highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();	
-        waitMethods.waiter(waitMethods.w100);
-        System.out.println("Selected Member in Position 2");
-	}
-	
-	
-
-	
-	@Test(priority = 1260)
-	public void clickAssignBackup2() {
-		waitMethods.waiter(waitMethods.w1k);
-		WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(), ' Assign Backup')]"));
-        highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();	
-        waitMethods.waiter(waitMethods.w100);
-        System.out.println("Clicked Assign Backup");
-	}
-	
-	
-	
-	
-	@Test(priority = 1270)
-	public void addBackupPosition2() {  
-	  	waitMethods.waiter(waitMethods.w300);     			//  
-	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input"));
-	  	highlightElement.highLightElement(driverNexus, ele);
-	  	ele.click();
-	  	
-	  	String name = "Carroll, Zoila Lind";
-	  	   
-	  	for(int i = 0; i < name.length(); i++) {
-	  		char c = name.charAt(i);
-	  		String s = new StringBuilder().append(c).toString();
-	  		ele.sendKeys(s);
-	   		waitMethods.waiter(waitMethods.w10);
-	  	}
-	  	
-	  		waitMethods.waiter(waitMethods.w100);
-	  		System.out.println("Backup Added for Position 2");		
-	}	
-	
-	
-	
-	@Test(priority = 1280)
-	public void saveBackup2() {
-		saveNexusEmployee();
-	}
-	
-	
-	
-	@Test(priority = 1290)
-	public void navigateNexusBack0() {
-		navigateNexusBack();
-	}
-	
-
-	
-	
-	
-	// Update userAccessGroups from here down
-	//===== REMOVE Backup for Position 1 ====================================================	
-	
-	@Test(priority = 1300)
-	public void selectMemberPosition1_2() {
-		selectMemberPosition1();
-	}
-	
-	
-
-	
-	@Test(priority = 1310)
-	public void clickRemoveBackup() {
-		waitMethods.waiter(waitMethods.w1k);
-		WebElement ele = driverNexus.findElement(By.partialLinkText("Remove")); 
-        highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();	
-        waitMethods.waiter(waitMethods.w100);
-        System.out.println("Clicked Remove Backup");
-	}
-	
-		
-	@Test(priority = 1320)	
-	public void saveRemoveBackup() {
-		waitMethods.waiter(waitMethods.w300);
-		WebElement ele = driverNexus.findElement(By.id("confirm_saveBtnText"));
-        highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();	
-        waitMethods.waiter(waitMethods.w100);
-        System.out.println("Clicked Save");
-	}
-	
-	
-	
-	
-	@Test(priority = 1330)
-	public void navigateNexusBackTwice() {
-		navigateNexusBack();
-		waitMethods.waiter(waitMethods.w300);
-		navigateNexusBack();
-	}
-
-	
-	
-	@Test(priority = 1340)
-	public void selectMemberPosition1_3() {
-		selectMemberPosition1();
-		waitMethods.waiter(waitMethods.w1k);
-	}
-	
-	
-	
-	
-	@Test(priority = 1350)
-	public void navigateNexusBack1() {
-		navigateNexusBack();
-	}
-	
-	
-	
-	
-	
-	//===== REMOVE Backup for Position 2 ====================================================
-	
-	@Test(priority = 1360)
-	public void selectMemberPosition2_2() {
-		selectMemberPosition2();
-	}
-	
-	
-	
-	@Test(priority = 1370)
-	public void clickRemoveBackup2() {
-		clickRemoveBackup();
-	}
-	
-		
-	
-	@Test(priority = 1380)
-	public void saveRemoveBackup2() {
-		saveRemoveBackup();
-	}
-	
-	
-	
-	@Test(priority = 1390)
-	public void navigateNexusBackTwice2() {
-		navigateNexusBackTwice();
-	}
-	
-
-	
-	@Test(priority = 1400)
-	public void selectMemberPosition2_3() {
-		selectMemberPosition2();
-		waitMethods.waiter(waitMethods.w1k);
-	}
-	
-	
-	
-	
-	@Test(priority = 1410)
-	public void navigateNexusBack2() {
-		navigateNexusBack();
-	}
+//
+//	
+//	
+//	
+//	@Test(priority = 1000) //		
+//	private void clickAddUserInNexus() {	
+//		System.out.println("Entered addUseInNexus Method"); 
+//			//Debugging
+//			String sURL = driverNexus.getCurrentUrl();
+//				System.out.println("URL in method addUserInNexus(): " + sURL); 
+//		waitMethods.waiter(waitMethods.w2k);  
+//		//WebElement ele = driverNexus.findElement(By.xpath("//button[contains(text(), ' Add Employee/Position')]"));
+//		WebElement ele = driverNexus.findElement(By.id("button_addEmployeePosition"));
+//		highlightElement.highLightElement(driverNexus, ele);
+//		ele.click();
+//	    System.out.println("Open Add Employee Dialogue");  
+//	} 
+//	
+//
+//	
+//	
+//	@Test(priority = 1010) //
+//	private void selectSearchEmployeesOnly() {				
+//		waitMethods.waiter(waitMethods.w500);  
+//		WebElement ele = driverNexus.findElement(By.id("ignorePositions"));		
+//		highlightElement.highLightElement(driverNexus, ele);
+//		ele.click();
+//	    System.out.println("Select Search Employees Only");  
+//	} 
+//
+//
+//	
+//	
+//	
+//	
+//	//Input NEXUS User 		Terry, Rodney Jacobi	
+//	@Test(priority = 1020)
+//	public void inputNexusEmployee() {   
+//	  	waitMethods.waiter(waitMethods.w300);     			//Input Box
+//	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div[3]/div[1]/input"));
+//	  	highlightElement.highLightElement(driverNexus, ele);
+//	  	
+//	  	String name = "Terry, Rodney Jacobi";
+//	  	   
+//	  	for(int i = 0; i < name.length(); i++) {
+//	  		char c = name.charAt(i);
+//	  		String s = new StringBuilder().append(c).toString();
+//	  		ele.sendKeys(s);
+//	   		waitMethods.waiter(waitMethods.w10);
+//	  	}
+//	  	
+//	  		waitMethods.waiter(waitMethods.w100);
+//		    System.out.println("Input Nexus User and Select");		
+//	}
+//	
+//	
+//	
+//	@Test(priority = 1030)
+//	public void saveNexusEmployee() {
+//		waitMethods.waiter(waitMethods.w300);
+//		WebElement ele = driverNexus.findElement(By.id("button_save"));
+//        //highlightElement.highLightElement(driverNexus, ele);  
+//        ele.click();	
+//        waitMethods.waiter(waitMethods.w100);
+//        System.out.println("Clicked Save");
+//	}
+//	
+//	
+//	
+//	
+//	@Test(priority = 1040) //		
+//	private void clickAddUserInNexus2() {	
+//		clickAddUserInNexus();
+//	} 
+//	
+//
+//	
+//	
+//	@Test(priority = 1050) //
+//	private void selectSearchEmployeesOnly2() {				
+//		selectSearchEmployeesOnly();
+//	} 
+//	
+//	
+//	
+//	
+//	//Input NEXUS User 			Walker, Taina Moen
+//	@Test(priority = 1060)
+//	public void inputNexusEmployee2() {   
+//	  	waitMethods.waiter(waitMethods.w300);     			//Input Box
+//	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div[3]/div[1]/input"));
+//	  	highlightElement.highLightElement(driverNexus, ele);
+//	  	
+//	  	String name = "Walker, Taina Moen";
+//	  	   
+//	  	for(int i = 0; i < name.length(); i++) {
+//	  		char c = name.charAt(i);
+//	  		String s = new StringBuilder().append(c).toString();
+//	  		ele.sendKeys(s);
+//	   		waitMethods.waiter(waitMethods.w10);
+//	  	}
+//	  	
+//	  		waitMethods.waiter(waitMethods.w100);
+//		    System.out.println("Input Nexus User and Select");		
+//	}
+//	
+//	
+//	
+//	@Test(priority = 1070)
+//	public void saveNexusEmployee2() {
+//		saveNexusEmployee();
+//	}
+//	
+//	
+//	
+//	@Test(priority = 1080) //		
+//	private void clickAddUserInNexus3() {	
+//		clickAddUserInNexus();
+//	} 
+//	
+//
+//	
+//	
+//	@Test(priority = 1090) //
+//	private void selectSearchEmployeesOnly3() {				
+//		selectSearchEmployeesOnly();
+//	} 
+//	
+//	
+//	
+//	
+//	//Input NEXUS User 			Weber, Kurt Bradtke
+//	@Test(priority = 1100)
+//	public void inputNexusEmployee3() {   
+//	  	waitMethods.waiter(waitMethods.w300);     			//Input Box
+//	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div[3]/div[1]/input"));
+//	  	highlightElement.highLightElement(driverNexus, ele);
+//	  	
+//	  	String name = "Weber, Kurt Bradtke";
+//	  	   
+//	  	for(int i = 0; i < name.length(); i++) {
+//	  		char c = name.charAt(i);
+//	  		String s = new StringBuilder().append(c).toString();
+//	  		ele.sendKeys(s);
+//	   		waitMethods.waiter(waitMethods.w10);
+//	  	}
+//	  	
+//	  		waitMethods.waiter(waitMethods.w100);
+//		    System.out.println("Input Nexus User and Select");		
+//	}
+//	
+//	
+//	
+//	@Test(priority = 1110)
+//	public void saveNexusEmployee3() {
+//		saveNexusEmployee();
+//	}
+//	
+//	
+//	
+//	//===== ADD Backup for Position 1 ====================================================	
+//	
+//	@Test(priority = 1200)
+//	public void selectMemberPosition1() {
+//		waitMethods.waiter(waitMethods.w2k);
+//		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Abbott, Roman')]"));
+//        highlightElement.highLightElement(driverNexus, ele);  
+//        ele.click();	
+//        waitMethods.waiter(waitMethods.w100);
+//        System.out.println("Selected Member in Position 1");
+//	}
+//	
+//	
+//
+//	
+//	@Test(priority = 1210)
+//	public void clickAssignBackup() {
+//		waitMethods.waiter(waitMethods.w1k);
+//		WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(), ' Assign Backup')]"));
+//        highlightElement.highLightElement(driverNexus, ele);  
+//        ele.click();	
+//        waitMethods.waiter(waitMethods.w100);
+//        System.out.println("Clicked Assign Backup");
+//	}
+//	
+//	
+//	
+//	
+//	@Test(priority = 1220)
+//	public void addBackupPosition1() {  
+//	  	waitMethods.waiter(waitMethods.w300);     			//  
+//	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input"));
+//	  	highlightElement.highLightElement(driverNexus, ele);
+//	  	ele.click();
+//	  	
+//	  	String name = "Kub, Brandon Schmidt.";
+//	  	   
+//	  	for(int i = 0; i < name.length(); i++) {
+//	  		char c = name.charAt(i);
+//	  		String s = new StringBuilder().append(c).toString();
+//	  		ele.sendKeys(s);
+//	   		waitMethods.waiter(waitMethods.w10);
+//	  	}
+//	  	
+//	  		waitMethods.waiter(waitMethods.w100);
+//		    System.out.println("Backup Added for Position 1");		
+//	}	
+//	
+//	
+//	
+//	@Test(priority = 1230)
+//	public void saveBackup() {
+//		saveNexusEmployee();
+//	}
+//	
+//
+//	
+//	@Test(priority = 1240)
+//	public void navigateNexusBack() {
+//		driverNexus.navigate().back();;
+//	}
+//
+//	
+//	//===== ADD Backup for Position 2 ====================================================
+//	
+//	@Test(priority = 1250)
+//	public void selectMemberPosition2() {
+//		waitMethods.waiter(waitMethods.w2k);
+//		WebElement ele = driverNexus.findElement(By.xpath("//a[contains(text(),'Considine, Warren')]"));
+//        highlightElement.highLightElement(driverNexus, ele);  
+//        ele.click();	
+//        waitMethods.waiter(waitMethods.w100);
+//        System.out.println("Selected Member in Position 2");
+//	}
+//	
+//	
+//
+//	
+//	@Test(priority = 1260)
+//	public void clickAssignBackup2() {
+//		waitMethods.waiter(waitMethods.w1k);
+//		WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(), ' Assign Backup')]"));
+//        highlightElement.highLightElement(driverNexus, ele);  
+//        ele.click();	
+//        waitMethods.waiter(waitMethods.w100);
+//        System.out.println("Clicked Assign Backup");
+//	}
+//	
+//	
+//	
+//	
+//	@Test(priority = 1270)
+//	public void addBackupPosition2() {  
+//	  	waitMethods.waiter(waitMethods.w300);     			//  
+//	  	WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[5]/div[2]/form/div/div[3]/div/div[1]/input"));
+//	  	highlightElement.highLightElement(driverNexus, ele);
+//	  	ele.click();
+//	  	
+//	  	String name = "Carroll, Zoila Lind";
+//	  	   
+//	  	for(int i = 0; i < name.length(); i++) {
+//	  		char c = name.charAt(i);
+//	  		String s = new StringBuilder().append(c).toString();
+//	  		ele.sendKeys(s);
+//	   		waitMethods.waiter(waitMethods.w10);
+//	  	}
+//	  	
+//	  		waitMethods.waiter(waitMethods.w100);
+//	  		System.out.println("Backup Added for Position 2");		
+//	}	
+//	
+//	
+//	
+//	@Test(priority = 1280)
+//	public void saveBackup2() {
+//		saveNexusEmployee();
+//	}
+//	
+//	
+//	
+//	@Test(priority = 1290)
+//	public void navigateNexusBack0() {
+//		navigateNexusBack();
+//	}
+//	
+//
+//	
+//	
+//	
+//	// Update userAccessGroups from here down
+//	//===== REMOVE Backup for Position 1 ====================================================	
+//	
+//	@Test(priority = 1300)
+//	public void selectMemberPosition1_2() {
+//		selectMemberPosition1();
+//	}
+//	
+//	
+//
+//	
+//	@Test(priority = 1310)
+//	public void clickRemoveBackup() {
+//		waitMethods.waiter(waitMethods.w1k);
+//		WebElement ele = driverNexus.findElement(By.partialLinkText("Remove")); 
+//        highlightElement.highLightElement(driverNexus, ele);  
+//        ele.click();	
+//        waitMethods.waiter(waitMethods.w100);
+//        System.out.println("Clicked Remove Backup");
+//	}
+//	
+//		
+//	@Test(priority = 1320)	
+//	public void saveRemoveBackup() {
+//		waitMethods.waiter(waitMethods.w300);
+//		WebElement ele = driverNexus.findElement(By.id("confirm_saveBtnText"));
+//        highlightElement.highLightElement(driverNexus, ele);  
+//        ele.click();	
+//        waitMethods.waiter(waitMethods.w100);
+//        System.out.println("Clicked Save");
+//	}
+//	
+//	
+//	
+//	
+//	@Test(priority = 1330)
+//	public void navigateNexusBackTwice() {
+//		navigateNexusBack();
+//		waitMethods.waiter(waitMethods.w300);
+//		navigateNexusBack();
+//	}
+//
+//	
+//	
+//	@Test(priority = 1340)
+//	public void selectMemberPosition1_3() {
+//		selectMemberPosition1();
+//		waitMethods.waiter(waitMethods.w1k);
+//	}
+//	
+//	
+//	
+//	
+//	@Test(priority = 1350)
+//	public void navigateNexusBack1() {
+//		navigateNexusBack();
+//	}
+//	
+//	
+//	
+//	
+//	
+//	//===== REMOVE Backup for Position 2 ====================================================
+//	
+//	@Test(priority = 1360)
+//	public void selectMemberPosition2_2() {
+//		selectMemberPosition2();
+//	}
+//	
+//	
+//	
+//	@Test(priority = 1370)
+//	public void clickRemoveBackup2() {
+//		clickRemoveBackup();
+//	}
+//	
+//		
+//	
+//	@Test(priority = 1380)
+//	public void saveRemoveBackup2() {
+//		saveRemoveBackup();
+//	}
+//	
+//	
+//	
+//	@Test(priority = 1390)
+//	public void navigateNexusBackTwice2() {
+//		navigateNexusBackTwice();
+//	}
+//	
+//
+//	
+//	@Test(priority = 1400)
+//	public void selectMemberPosition2_3() {
+//		selectMemberPosition2();
+//		waitMethods.waiter(waitMethods.w1k);
+//	}
+//	
+//	
+//	
+//	
+//	@Test(priority = 1410)
+//	public void navigateNexusBack2() {
+//		navigateNexusBack();
+//	}
 	
 	
 	

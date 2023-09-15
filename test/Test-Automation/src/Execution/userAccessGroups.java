@@ -30,7 +30,7 @@ public class userAccessGroups extends setupFramework {
 	public String sRand;
 	public String groupNum;
 	public String nexusURL = "https://localhost/LEAF_Nexus/?a=view_group&groupID=";
-	public String id;		
+	public String id ="";		
 	public WebDriver driverNexus;
 
 	
@@ -111,12 +111,12 @@ public class userAccessGroups extends setupFramework {
 	}
 	
 	
-//	public void closeDownNexus() {
-//		
-//		driverNexus.quit();
-//		System.out.println("setupFramework reached @AfterClass, driverNexus.quit()");
-//		//System.out.println("Method closeDownNexus() Disabled - browser remains open");
-//	}
+	public void closeDownNexus() {
+		
+		driverNexus.quit();
+		System.out.println("setupFramework reached @AfterClass, driverNexus.quit()");
+		//System.out.println("Method closeDownNexus() Disabled - browser remains open");
+	}
 	
 	
 	public String generateRand() {
@@ -247,15 +247,11 @@ public class userAccessGroups extends setupFramework {
 	} 
 
 	
-	//															
+	//															ERR HERE - This fails occasionally ???
 	@Test(priority = 160) //
 	private void openAccessGroup() {
 		//System.out.println("Before opening Group\ngroupNum = " + groupNum);
 		waitMethods.waiter(waitMethods.w1k);    //  "Test User Access Group " + groupNum
-		//String s = "Test User Access Group " + groupNum;
-		//String s = ".Test User Access Group ";
-		//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), '.Test User Access Group')]"));
-		//WebElement ele = driver.findElement(By.xpath("//*[contains(text(), '" + s + "')]"));
 		WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div[1]/main/div[4]/div/div/div[1]"));		
 		highlightElement.highLightElement(driver, ele); 
 	    ele.click();
@@ -270,8 +266,6 @@ public class userAccessGroups extends setupFramework {
 	public void inputEmployee() {   
     	waitMethods.waiter(waitMethods.w1k);     			//Input Box
     	WebElement ele = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[1]/input"));
-    	//WebElement ele = driver.findElement(By.className("employeeSelectorInput"));
-    	//highlightElement.highLightElement(driver, ele);
     	highlightElement.highLightElement(driver, ele);
     	
     	String name = "Considine, Warren Bayer";
@@ -285,9 +279,6 @@ public class userAccessGroups extends setupFramework {
     	}
     	
     	waitMethods.waiter(waitMethods.w100);				//Results Grid
-    	//WebElement ele2 = driver.findElement(By.xpath("/html/body/div[3]/div[2]/form/div/main/div[2]/div[2]/table/tbody/tr/td[1]")); 
-    	//highlightElement.highLightElement(driver, ele2);
-    	//ele2.click();
  	    System.out.println("Input User and Select");		
 	}
 	
@@ -732,7 +723,12 @@ public class userAccessGroups extends setupFramework {
 	
 	
 
+	
+	
 	// Comment all above for the 'Testing' version
+
+	
+	
 	
 	@Test(priority = 990) //
 	private void getElementID() {				
@@ -918,7 +914,7 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	
-	//===== ADD Backup for Position 1 ====================================================
+	//===== ADD Backup for Position 1 ====================================================	
 	
 	@Test(priority = 1200)
 	public void selectMemberPosition1() {
@@ -977,7 +973,7 @@ public class userAccessGroups extends setupFramework {
 	
 	@Test(priority = 1240)
 	public void navigateNexusBack() {
-		driverNexus.navigate().back();;
+		driverNexus.navigate().back();
 	}
 
 	
@@ -1039,29 +1035,139 @@ public class userAccessGroups extends setupFramework {
 	
 	
 	@Test(priority = 1290)
-	public void navigateNexusBack2() {
-		driverNexus.navigate().back();;
+	public void navigateNexusBack0() {
+		navigateNexusBack();
+	}
+	
+
+	
+	
+	
+	// Update userAccessGroups from here down
+	//===== REMOVE Backup for Position 1 ====================================================	
+	
+	@Test(priority = 1300)
+	public void selectMemberPosition1_2() {
+		selectMemberPosition1();
+	}
+	
+	
+
+	
+	@Test(priority = 1310)
+	public void clickRemoveBackup() {
+		waitMethods.waiter(waitMethods.w1k);
+		WebElement ele = driverNexus.findElement(By.partialLinkText("Remove")); 
+        highlightElement.highLightElement(driverNexus, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Clicked Remove Backup");
+	}
+	
+		
+	@Test(priority = 1320)	
+	public void saveRemoveBackup() {
+		waitMethods.waiter(waitMethods.w300);
+		WebElement ele = driverNexus.findElement(By.id("confirm_saveBtnText"));
+        highlightElement.highLightElement(driverNexus, ele);  
+        ele.click();	
+        waitMethods.waiter(waitMethods.w100);
+        System.out.println("Clicked Save");
 	}
 	
 	
 	
 	
+	@Test(priority = 1330)
+	public void navigateNexusBackTwice() {
+		navigateNexusBack();
+		waitMethods.waiter(waitMethods.w300);
+		navigateNexusBack();
+	}
+
+	
+	
+	@Test(priority = 1340)
+	public void selectMemberPosition1_3() {
+		selectMemberPosition1();
+		waitMethods.waiter(waitMethods.w1k);
+	}
+	
+	
+	
+	
+	@Test(priority = 1350)
+	public void navigateNexusBack1() {
+		navigateNexusBack();
+	}
+	
+	
+	
+	
+	
+	//===== REMOVE Backup for Position 2 ====================================================
+	
+	@Test(priority = 1360)
+	public void selectMemberPosition2_2() {
+		selectMemberPosition2();
+	}
+	
+	
+	
+	@Test(priority = 1370)
+	public void clickRemoveBackup2() {
+		clickRemoveBackup();
+	}
+	
+		
+	
+	@Test(priority = 1380)
+	public void saveRemoveBackup2() {
+		saveRemoveBackup();
+	}
+	
+	
+	
+	@Test(priority = 1390)
+	public void navigateNexusBackTwice2() {
+		navigateNexusBackTwice();
+	}
+	
+
+	
+	@Test(priority = 1400)
+	public void selectMemberPosition2_3() {
+		selectMemberPosition2();
+		waitMethods.waiter(waitMethods.w1k);
+	}
+	
+	
+	
+	
+	@Test(priority = 1410)
+	public void navigateNexusBack2() {
+		navigateNexusBack();
+	}
+	
+	
+	
+	
+	@Test(priority = 9999)
+	public void closeDownNexus1() {
+		closeDownNexus();
+	}
+	
+	
+
+	
+	
 	/*
 	 *  Go ahead and write methods to check xactions in Main Portal
-	 *  Delete users
-	 *  Remove backups
 	 *  Add additional assertions
 	 * 
 	 */
 	
-	
-	
-	/*
-	 * END ADD tests 
-	 */
-	
-	
-	
+
 	
 	/*
 	

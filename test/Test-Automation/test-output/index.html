@@ -26,7 +26,7 @@
       <span class="top-banner-title-font">Test results</span>
       <button id="button" class="button">Switch Retro Theme</button> <!-- button -->
       <br/>
-      <span class="top-banner-font-1">1 suite</span>
+      <span class="top-banner-font-1">1 suite, 1 failed test</span>
     </div> <!-- top-banner-root -->
     <div class="navigator-root">
       <div class="navigator-suite-header">
@@ -40,7 +40,7 @@
         <div class="rounded-window">
           <div class="suite-header light-rounded-window-top">
             <a href="#" panel-name="suite-RegressionSuite" class="navigator-link">
-              <span class="suite-name border-passed">RegressionSuite</span>
+              <span class="suite-name border-failed">RegressionSuite</span>
             </a> <!-- navigator-link -->
           </div> <!-- suite-header light-rounded-window-top -->
           <div class="navigator-suite-content">
@@ -51,7 +51,7 @@
               <ul>
                 <li>
                   <a href="#" panel-name="test-xml-RegressionSuite" class="navigator-link ">
-                    <span>C:\Users\MaxRichard\Documents\GitHub\LEAF\test\Test-Automation\src\PP_TestUserGroups.xml</span>
+                    <span>C:\Users\MaxRichard\Documents\GitHub\LEAF\test\Test-Automation\src\PP_Test_SeviceChiefs.xml</span>
                   </a> <!-- navigator-link  -->
                 </li>
                 <li>
@@ -93,7 +93,21 @@
               <div class="suite-section-content">
                 <ul>
                   <li>
-                    <span class="method-stats">37 methods,   37 passed</span>
+                    <span class="method-stats">15 methods, 1 failed,   14 passed</span>
+                  </li>
+                  <li>
+                    <span class="method-list-title failed">Failed methods</span>
+                    <span class="show-or-hide-methods failed">
+                      <a href="#" panel-name="suite-RegressionSuite" class="hide-methods failed suite-RegressionSuite"> (hide)</a> <!-- hide-methods failed suite-RegressionSuite -->
+                      <a href="#" panel-name="suite-RegressionSuite" class="show-methods failed suite-RegressionSuite"> (show)</a> <!-- show-methods failed suite-RegressionSuite -->
+                    </span>
+                    <div class="method-list-content failed suite-RegressionSuite">
+                      <span>
+                        <img src="failed.png" width="3%"/>
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="openSCGroup">openSCGroup</a> <!-- method navigator-link -->
+                      </span>
+                      <br/>
+                    </div> <!-- method-list-content failed suite-RegressionSuite -->
                   </li>
                   <li>
                     <span class="method-list-title passed">Passed methods</span>
@@ -104,187 +118,72 @@
                     <div class="method-list-content passed suite-RegressionSuite">
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="addBackupPosition1">addBackupPosition1</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="clickCreateELT">clickCreateELT</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="addBackupPosition2">addBackupPosition2</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="clickExecLeadershipTeam">clickExecLeadershipTeam</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="clickAddUserInNexus">clickAddUserInNexus</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="clickServiceChiefs">clickServiceChiefs</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="clickAddUserInNexus2">clickAddUserInNexus2</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="clickSetupWizard">clickSetupWizard</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="clickAddUserInNexus3">clickAddUserInNexus3</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="createNexusDriver1">createNexusDriver1</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="clickAssignBackup">clickAssignBackup</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="enterNameOfService">enterNameOfService</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="clickAssignBackup2">clickAssignBackup2</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="enterPositionTitle">enterPositionTitle</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="clickRemoveBackup">clickRemoveBackup</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="inputEmployeeName">inputEmployeeName</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="clickRemoveBackup2">clickRemoveBackup2</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="navigateNexusBack">navigateNexusBack</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="createNexusDriver1">createNexusDriver1</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="saveSCGroup">saveSCGroup</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="getElementID">getElementID</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="scrollDownNexus">scrollDownNexus</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="inputNexusEmployee">inputNexusEmployee</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="scrollUpNexus">scrollUpNexus</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="inputNexusEmployee2">inputNexusEmployee2</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="syncServices">syncServices</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                       <span>
                         <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="inputNexusEmployee3">inputNexusEmployee3</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="navigateNexusBack">navigateNexusBack</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="navigateNexusBack0">navigateNexusBack0</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="navigateNexusBack1">navigateNexusBack1</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="navigateNexusBack2">navigateNexusBack2</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="navigateNexusBackTwice">navigateNexusBackTwice</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="navigateNexusBackTwice2">navigateNexusBackTwice2</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="saveBackup">saveBackup</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="saveBackup2">saveBackup2</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="saveNexusEmployee">saveNexusEmployee</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="saveNexusEmployee2">saveNexusEmployee2</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="saveNexusEmployee3">saveNexusEmployee3</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="saveRemoveBackup">saveRemoveBackup</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="saveRemoveBackup2">saveRemoveBackup2</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectMemberPosition1">selectMemberPosition1</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectMemberPosition1_2">selectMemberPosition1_2</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectMemberPosition1_3">selectMemberPosition1_3</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectMemberPosition2">selectMemberPosition2</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectMemberPosition2_2">selectMemberPosition2_2</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectMemberPosition2_3">selectMemberPosition2_3</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectSearchEmployeesOnly">selectSearchEmployeesOnly</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectSearchEmployeesOnly2">selectSearchEmployeesOnly2</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="selectSearchEmployeesOnly3">selectSearchEmployeesOnly3</a> <!-- method navigator-link -->
-                      </span>
-                      <br/>
-                      <span>
-                        <img src="passed.png" width="3%"/>
-                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.userAccessGroupsTESTING" class="method navigator-link" hash-for-method="testForCertPage">testForCertPage</a> <!-- method navigator-link -->
+                        <a href="#" panel-name="suite-RegressionSuite" title="Execution.serviceChiefs" class="method navigator-link" hash-for-method="testForCertPage">testForCertPage</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                     </div> <!-- method-list-content passed suite-RegressionSuite -->
@@ -299,73 +198,76 @@
     <div class="wrapper">
       <div class="main-panel-root">
         <div panel-name="suite-RegressionSuite" class="panel RegressionSuite">
-          <div class="suite-RegressionSuite-class-passed">
+          <div class="suite-RegressionSuite-class-failed">
             <div class="main-panel-header rounded-window-top">
-              <img src="passed.png"/>
-              <span class="class-name">Execution.userAccessGroupsTESTING</span>
+              <img src="failed.png"/>
+              <span class="class-name">Execution.serviceChiefs</span>
             </div> <!-- main-panel-header rounded-window-top -->
             <div class="main-panel-content rounded-window-bottom">
               <div class="method">
                 <div class="method-content">
-                  <a name="addBackupPosition1">
-                  </a> <!-- addBackupPosition1 -->
-                  <span class="method-name">addBackupPosition1</span>
+                  <a name="openSCGroup">
+                  </a> <!-- openSCGroup -->
+                  <span class="method-name">openSCGroup</span>
+                  <div class="stack-trace">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {&quot;method&quot;:&quot;xpath&quot;,&quot;selector&quot;:&quot;//*[contains(text(),&apos;000 Automated Test Services&apos;)]&quot;}
+  (Session info: chrome=116.0.5845.188)
+For documentation on this error, please visit: https://www.seleniumhq.org/exceptions/no_such_element.html
+Build info: version: &apos;3.141.59&apos;, revision: &apos;e82be7d358&apos;, time: &apos;2018-11-14T08:25:48&apos;
+System info: host: &apos;DESKTOP-OOHKJP3&apos;, ip: &apos;192.168.1.223&apos;, os.name: &apos;Windows 10&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;15.0.2&apos;
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 116.0.5845.188, chrome: {chromedriverVersion: 116.0.5845.96 (1a3918166880..., userDataDir: C:\Users\MAXRIC~1\AppData\L...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:63184}, javascriptEnabled: true, networkConnectionEnabled: false, pageLoadStrategy: normal, platform: WINDOWS, platformName: WINDOWS, proxy: Proxy(), setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 0092c0708900fb7e4a4686172e6e7914
+*** Element info: {Using=xpath, value=//*[contains(text(),&apos;000 Automated Test Services&apos;)]}
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.createException(W3CHttpResponseCodec.java:187)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:122)
+	at org.openqa.selenium.remote.http.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:49)
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:158)
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:83)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:552)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:323)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:428)
+	at org.openqa.selenium.By$ByXPath.findElement(By.java:353)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:315)
+	at Execution.serviceChiefs.openSCGroup(serviceChiefs.java:399)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+... Removed 32 stack frames
+</div> <!-- stack-trace -->
+                </div> <!-- method-content -->
+              </div> <!-- method -->
+            </div> <!-- main-panel-content rounded-window-bottom -->
+          </div> <!-- suite-RegressionSuite-class-failed -->
+          <div class="suite-RegressionSuite-class-passed">
+            <div class="main-panel-header rounded-window-top">
+              <img src="passed.png"/>
+              <span class="class-name">Execution.serviceChiefs</span>
+            </div> <!-- main-panel-header rounded-window-top -->
+            <div class="main-panel-content rounded-window-bottom">
+              <div class="method">
+                <div class="method-content">
+                  <a name="clickCreateELT">
+                  </a> <!-- clickCreateELT -->
+                  <span class="method-name">clickCreateELT</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="addBackupPosition2">
-                  </a> <!-- addBackupPosition2 -->
-                  <span class="method-name">addBackupPosition2</span>
+                  <a name="clickExecLeadershipTeam">
+                  </a> <!-- clickExecLeadershipTeam -->
+                  <span class="method-name">clickExecLeadershipTeam</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="clickAddUserInNexus">
-                  </a> <!-- clickAddUserInNexus -->
-                  <span class="method-name">clickAddUserInNexus</span>
+                  <a name="clickServiceChiefs">
+                  </a> <!-- clickServiceChiefs -->
+                  <span class="method-name">clickServiceChiefs</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="clickAddUserInNexus2">
-                  </a> <!-- clickAddUserInNexus2 -->
-                  <span class="method-name">clickAddUserInNexus2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="clickAddUserInNexus3">
-                  </a> <!-- clickAddUserInNexus3 -->
-                  <span class="method-name">clickAddUserInNexus3</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="clickAssignBackup">
-                  </a> <!-- clickAssignBackup -->
-                  <span class="method-name">clickAssignBackup</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="clickAssignBackup2">
-                  </a> <!-- clickAssignBackup2 -->
-                  <span class="method-name">clickAssignBackup2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="clickRemoveBackup">
-                  </a> <!-- clickRemoveBackup -->
-                  <span class="method-name">clickRemoveBackup</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="clickRemoveBackup2">
-                  </a> <!-- clickRemoveBackup2 -->
-                  <span class="method-name">clickRemoveBackup2</span>
+                  <a name="clickSetupWizard">
+                  </a> <!-- clickSetupWizard -->
+                  <span class="method-name">clickSetupWizard</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
@@ -377,30 +279,23 @@
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="getElementID">
-                  </a> <!-- getElementID -->
-                  <span class="method-name">getElementID</span>
+                  <a name="enterNameOfService">
+                  </a> <!-- enterNameOfService -->
+                  <span class="method-name">enterNameOfService</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="inputNexusEmployee">
-                  </a> <!-- inputNexusEmployee -->
-                  <span class="method-name">inputNexusEmployee</span>
+                  <a name="enterPositionTitle">
+                  </a> <!-- enterPositionTitle -->
+                  <span class="method-name">enterPositionTitle</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="inputNexusEmployee2">
-                  </a> <!-- inputNexusEmployee2 -->
-                  <span class="method-name">inputNexusEmployee2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="inputNexusEmployee3">
-                  </a> <!-- inputNexusEmployee3 -->
-                  <span class="method-name">inputNexusEmployee3</span>
+                  <a name="inputEmployeeName">
+                  </a> <!-- inputEmployeeName -->
+                  <span class="method-name">inputEmployeeName</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
@@ -412,149 +307,30 @@
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="navigateNexusBack0">
-                  </a> <!-- navigateNexusBack0 -->
-                  <span class="method-name">navigateNexusBack0</span>
+                  <a name="saveSCGroup">
+                  </a> <!-- saveSCGroup -->
+                  <span class="method-name">saveSCGroup</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="navigateNexusBack1">
-                  </a> <!-- navigateNexusBack1 -->
-                  <span class="method-name">navigateNexusBack1</span>
+                  <a name="scrollDownNexus">
+                  </a> <!-- scrollDownNexus -->
+                  <span class="method-name">scrollDownNexus</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="navigateNexusBack2">
-                  </a> <!-- navigateNexusBack2 -->
-                  <span class="method-name">navigateNexusBack2</span>
+                  <a name="scrollUpNexus">
+                  </a> <!-- scrollUpNexus -->
+                  <span class="method-name">scrollUpNexus</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
                 <div class="method-content">
-                  <a name="navigateNexusBackTwice">
-                  </a> <!-- navigateNexusBackTwice -->
-                  <span class="method-name">navigateNexusBackTwice</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="navigateNexusBackTwice2">
-                  </a> <!-- navigateNexusBackTwice2 -->
-                  <span class="method-name">navigateNexusBackTwice2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="saveBackup">
-                  </a> <!-- saveBackup -->
-                  <span class="method-name">saveBackup</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="saveBackup2">
-                  </a> <!-- saveBackup2 -->
-                  <span class="method-name">saveBackup2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="saveNexusEmployee">
-                  </a> <!-- saveNexusEmployee -->
-                  <span class="method-name">saveNexusEmployee</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="saveNexusEmployee2">
-                  </a> <!-- saveNexusEmployee2 -->
-                  <span class="method-name">saveNexusEmployee2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="saveNexusEmployee3">
-                  </a> <!-- saveNexusEmployee3 -->
-                  <span class="method-name">saveNexusEmployee3</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="saveRemoveBackup">
-                  </a> <!-- saveRemoveBackup -->
-                  <span class="method-name">saveRemoveBackup</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="saveRemoveBackup2">
-                  </a> <!-- saveRemoveBackup2 -->
-                  <span class="method-name">saveRemoveBackup2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="selectMemberPosition1">
-                  </a> <!-- selectMemberPosition1 -->
-                  <span class="method-name">selectMemberPosition1</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="selectMemberPosition1_2">
-                  </a> <!-- selectMemberPosition1_2 -->
-                  <span class="method-name">selectMemberPosition1_2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="selectMemberPosition1_3">
-                  </a> <!-- selectMemberPosition1_3 -->
-                  <span class="method-name">selectMemberPosition1_3</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="selectMemberPosition2">
-                  </a> <!-- selectMemberPosition2 -->
-                  <span class="method-name">selectMemberPosition2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="selectMemberPosition2_2">
-                  </a> <!-- selectMemberPosition2_2 -->
-                  <span class="method-name">selectMemberPosition2_2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="selectMemberPosition2_3">
-                  </a> <!-- selectMemberPosition2_3 -->
-                  <span class="method-name">selectMemberPosition2_3</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="selectSearchEmployeesOnly">
-                  </a> <!-- selectSearchEmployeesOnly -->
-                  <span class="method-name">selectSearchEmployeesOnly</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="selectSearchEmployeesOnly2">
-                  </a> <!-- selectSearchEmployeesOnly2 -->
-                  <span class="method-name">selectSearchEmployeesOnly2</span>
-                </div> <!-- method-content -->
-              </div> <!-- method -->
-              <div class="method">
-                <div class="method-content">
-                  <a name="selectSearchEmployeesOnly3">
-                  </a> <!-- selectSearchEmployeesOnly3 -->
-                  <span class="method-name">selectSearchEmployeesOnly3</span>
+                  <a name="syncServices">
+                  </a> <!-- syncServices -->
+                  <span class="method-name">syncServices</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
               <div class="method">
@@ -569,20 +345,20 @@
         </div> <!-- panel RegressionSuite -->
         <div panel-name="test-xml-RegressionSuite" class="panel">
           <div class="main-panel-header rounded-window-top">
-            <span class="header-content">C:\Users\MaxRichard\Documents\GitHub\LEAF\test\Test-Automation\src\PP_TestUserGroups.xml</span>
+            <span class="header-content">C:\Users\MaxRichard\Documents\GitHub\LEAF\test\Test-Automation\src\PP_Test_SeviceChiefs.xml</span>
           </div> <!-- main-panel-header rounded-window-top -->
           <div class="main-panel-content rounded-window-bottom">
             <pre>
 &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;!DOCTYPE suite SYSTEM &quot;https://testng.org/testng-1.0.dtd&quot;&gt;
 &lt;suite name=&quot;RegressionSuite&quot; guice-stage=&quot;DEVELOPMENT&quot;&gt;
-  &lt;test thread-count=&quot;5&quot; name=&quot;User Access Groups TESTING&quot;&gt;
+  &lt;test thread-count=&quot;5&quot; name=&quot;Service Chiefs&quot;&gt;
     &lt;parameter name=&quot;browser&quot; value=&quot;chrome&quot;/&gt;
-    &lt;parameter name=&quot;env&quot; value=&quot;https://localhost/LEAF_Request_Portal/admin/?a=mod_groups&quot;/&gt;
+    &lt;parameter name=&quot;env&quot; value=&quot;https://localhost/LEAF_Nexus/admin/&quot;/&gt;
     &lt;classes&gt;
-      &lt;class name=&quot;Execution.userAccessGroupsTESTING&quot;/&gt;
+      &lt;class name=&quot;Execution.serviceChiefs&quot;/&gt;
     &lt;/classes&gt;
-  &lt;/test&gt; &lt;!-- User Access Groups TESTING --&gt;
+  &lt;/test&gt; &lt;!-- Service Chiefs --&gt;
 &lt;/suite&gt; &lt;!-- RegressionSuite --&gt;
             </pre>
           </div> <!-- main-panel-content rounded-window-bottom -->
@@ -594,7 +370,7 @@
           <div class="main-panel-content rounded-window-bottom">
             <ul>
               <li>
-                <span class="test-name">User Access Groups TESTING (1 class)</span>
+                <span class="test-name">Service Chiefs (1 class)</span>
               </li>
             </ul>
           </div> <!-- main-panel-content rounded-window-bottom -->
@@ -620,160 +396,72 @@ data.addColumn('number', 'Number');
 data.addColumn('string', 'Method');
 data.addColumn('string', 'Class');
 data.addColumn('number', 'Time (ms)');
-data.addRows(37);
+data.addRows(15);
 data.setCell(0, 0, 0)
 data.setCell(0, 1, 'createNexusDriver1')
-data.setCell(0, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(0, 3, 5350);
+data.setCell(0, 2, 'Execution.serviceChiefs')
+data.setCell(0, 3, 5812);
 data.setCell(1, 0, 1)
-data.setCell(1, 1, 'selectMemberPosition2_3')
-data.setCell(1, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(1, 3, 3932);
+data.setCell(1, 1, 'enterNameOfService')
+data.setCell(1, 2, 'Execution.serviceChiefs')
+data.setCell(1, 3, 3849);
 data.setCell(2, 0, 2)
-data.setCell(2, 1, 'selectMemberPosition1_3')
-data.setCell(2, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(2, 3, 3801);
+data.setCell(2, 1, 'clickSetupWizard')
+data.setCell(2, 2, 'Execution.serviceChiefs')
+data.setCell(2, 3, 2910);
 data.setCell(3, 0, 3)
-data.setCell(3, 1, 'clickAddUserInNexus')
-data.setCell(3, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(3, 3, 3149);
+data.setCell(3, 1, 'clickExecLeadershipTeam')
+data.setCell(3, 2, 'Execution.serviceChiefs')
+data.setCell(3, 3, 2563);
 data.setCell(4, 0, 4)
-data.setCell(4, 1, 'selectMemberPosition2_2')
-data.setCell(4, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(4, 3, 2945);
+data.setCell(4, 1, 'inputEmployeeName')
+data.setCell(4, 2, 'Execution.serviceChiefs')
+data.setCell(4, 3, 2521);
 data.setCell(5, 0, 5)
-data.setCell(5, 1, 'getElementID')
-data.setCell(5, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(5, 3, 2925);
+data.setCell(5, 1, 'enterPositionTitle')
+data.setCell(5, 2, 'Execution.serviceChiefs')
+data.setCell(5, 3, 2074);
 data.setCell(6, 0, 6)
-data.setCell(6, 1, 'selectMemberPosition1_2')
-data.setCell(6, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(6, 3, 2918);
+data.setCell(6, 1, 'scrollDownNexus')
+data.setCell(6, 2, 'Execution.serviceChiefs')
+data.setCell(6, 3, 2013);
 data.setCell(7, 0, 7)
-data.setCell(7, 1, 'selectMemberPosition2')
-data.setCell(7, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(7, 3, 2876);
+data.setCell(7, 1, 'syncServices')
+data.setCell(7, 2, 'Execution.serviceChiefs')
+data.setCell(7, 3, 1792);
 data.setCell(8, 0, 8)
-data.setCell(8, 1, 'selectMemberPosition1')
-data.setCell(8, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(8, 3, 2874);
+data.setCell(8, 1, 'testForCertPage')
+data.setCell(8, 2, 'Execution.serviceChiefs')
+data.setCell(8, 3, 1525);
 data.setCell(9, 0, 9)
-data.setCell(9, 1, 'clickAddUserInNexus2')
-data.setCell(9, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(9, 3, 2444);
+data.setCell(9, 1, 'clickServiceChiefs')
+data.setCell(9, 2, 'Execution.serviceChiefs')
+data.setCell(9, 3, 1415);
 data.setCell(10, 0, 10)
-data.setCell(10, 1, 'clickAddUserInNexus3')
-data.setCell(10, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(10, 3, 2435);
+data.setCell(10, 1, 'clickCreateELT')
+data.setCell(10, 2, 'Execution.serviceChiefs')
+data.setCell(10, 3, 1059);
 data.setCell(11, 0, 11)
-data.setCell(11, 1, 'inputNexusEmployee2')
-data.setCell(11, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(11, 3, 1726);
+data.setCell(11, 1, 'openSCGroup')
+data.setCell(11, 2, 'Execution.serviceChiefs')
+data.setCell(11, 3, 1036);
 data.setCell(12, 0, 12)
-data.setCell(12, 1, 'addBackupPosition1')
-data.setCell(12, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(12, 3, 1659);
+data.setCell(12, 1, 'scrollUpNexus')
+data.setCell(12, 2, 'Execution.serviceChiefs')
+data.setCell(12, 3, 523);
 data.setCell(13, 0, 13)
-data.setCell(13, 1, 'inputNexusEmployee')
-data.setCell(13, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(13, 3, 1616);
+data.setCell(13, 1, 'saveSCGroup')
+data.setCell(13, 2, 'Execution.serviceChiefs')
+data.setCell(13, 3, 362);
 data.setCell(14, 0, 14)
-data.setCell(14, 1, 'addBackupPosition2')
-data.setCell(14, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(14, 3, 1566);
-data.setCell(15, 0, 15)
-data.setCell(15, 1, 'inputNexusEmployee3')
-data.setCell(15, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(15, 3, 1554);
-data.setCell(16, 0, 16)
-data.setCell(16, 1, 'clickRemoveBackup')
-data.setCell(16, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(16, 3, 1538);
-data.setCell(17, 0, 17)
-data.setCell(17, 1, 'clickRemoveBackup2')
-data.setCell(17, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(17, 3, 1536);
-data.setCell(18, 0, 18)
-data.setCell(18, 1, 'clickAssignBackup2')
-data.setCell(18, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(18, 3, 1527);
-data.setCell(19, 0, 19)
-data.setCell(19, 1, 'testForCertPage')
-data.setCell(19, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(19, 3, 1526);
-data.setCell(20, 0, 20)
-data.setCell(20, 1, 'clickAssignBackup')
-data.setCell(20, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(20, 3, 1524);
-data.setCell(21, 0, 21)
-data.setCell(21, 1, 'selectSearchEmployeesOnly')
-data.setCell(21, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(21, 3, 922);
-data.setCell(22, 0, 22)
-data.setCell(22, 1, 'selectSearchEmployeesOnly3')
-data.setCell(22, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(22, 3, 907);
-data.setCell(23, 0, 23)
-data.setCell(23, 1, 'selectSearchEmployeesOnly2')
-data.setCell(23, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(23, 3, 903);
-data.setCell(24, 0, 24)
-data.setCell(24, 1, 'saveRemoveBackup')
-data.setCell(24, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(24, 3, 824);
-data.setCell(25, 0, 25)
-data.setCell(25, 1, 'saveRemoveBackup2')
-data.setCell(25, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(25, 3, 800);
-data.setCell(26, 0, 26)
-data.setCell(26, 1, 'navigateNexusBackTwice')
-data.setCell(26, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(26, 3, 611);
-data.setCell(27, 0, 27)
-data.setCell(27, 1, 'navigateNexusBackTwice2')
-data.setCell(27, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(27, 3, 585);
-data.setCell(28, 0, 28)
-data.setCell(28, 1, 'saveNexusEmployee')
-data.setCell(28, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(28, 3, 492);
-data.setCell(29, 0, 29)
-data.setCell(29, 1, 'saveNexusEmployee3')
-data.setCell(29, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(29, 3, 452);
-data.setCell(30, 0, 30)
-data.setCell(30, 1, 'saveNexusEmployee2')
-data.setCell(30, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(30, 3, 451);
-data.setCell(31, 0, 31)
-data.setCell(31, 1, 'saveBackup2')
-data.setCell(31, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(31, 3, 448);
-data.setCell(32, 0, 32)
-data.setCell(32, 1, 'saveBackup')
-data.setCell(32, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(32, 3, 446);
-data.setCell(33, 0, 33)
-data.setCell(33, 1, 'navigateNexusBack1')
-data.setCell(33, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(33, 3, 405);
-data.setCell(34, 0, 34)
-data.setCell(34, 1, 'navigateNexusBack')
-data.setCell(34, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(34, 3, 296);
-data.setCell(35, 0, 35)
-data.setCell(35, 1, 'navigateNexusBack0')
-data.setCell(35, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(35, 3, 289);
-data.setCell(36, 0, 36)
-data.setCell(36, 1, 'navigateNexusBack2')
-data.setCell(36, 2, 'Execution.userAccessGroupsTESTING')
-data.setCell(36, 3, 287);
+data.setCell(14, 1, 'navigateNexusBack')
+data.setCell(14, 2, 'Execution.serviceChiefs')
+data.setCell(14, 3, 262);
 window.suiteTableData['RegressionSuite']= { tableData: data, tableDiv: 'times-div-RegressionSuite'}
 return data;
 }
               </script>
-              <span class="suite-total-time">Total running time: 1 minutes</span>
+              <span class="suite-total-time">Total running time: 29 seconds</span>
               <div id="times-div-RegressionSuite">
               </div> <!-- times-div-RegressionSuite -->
             </div> <!-- times-div -->
@@ -799,314 +487,140 @@ return data;
           </div> <!-- main-panel-header rounded-window-top -->
           <div class="main-panel-content rounded-window-bottom">
             <div class="chronological-class">
-              <div class="chronological-class-name">Execution.userAccessGroupsTESTING</div> <!-- chronological-class-name -->
+              <div class="chronological-class-name">Execution.serviceChiefs</div> <!-- chronological-class-name -->
               <div class="configuration-class before">
-                <span class="method-name">initializeFramework(chrome, https://localhost/LEAF_Request_Portal/admin/?a=mod_groups)</span>
+                <span class="method-name">initializeFramework(chrome, https://localhost/LEAF_Nexus/admin/)</span>
                 <span class="method-start">0 ms</span>
               </div> <!-- configuration-class before -->
               <div class="configuration-class before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">2347 ms</span>
+                <span class="method-start">2603 ms</span>
               </div> <!-- configuration-class before -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">2363 ms</span>
+                <span class="method-start">2625 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">testForCertPage</span>
-                <span class="method-start">2364 ms</span>
+                <span class="method-start">2626 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">3900 ms</span>
+                <span class="method-start">4163 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
-                <span class="method-name">getElementID</span>
-                <span class="method-start">3902 ms</span>
+                <span class="method-name">clickSetupWizard</span>
+                <span class="method-start">4164 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">6829 ms</span>
+                <span class="method-start">7076 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">clickExecLeadershipTeam</span>
+                <span class="method-start">7079 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">9644 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">clickCreateELT</span>
+                <span class="method-start">9645 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">10706 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">enterNameOfService</span>
+                <span class="method-start">10706 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">14557 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">enterPositionTitle</span>
+                <span class="method-start">14557 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">16634 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="test-method">
+                <span class="method-name">inputEmployeeName</span>
+                <span class="method-start">16634 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <span class="method-name">saveSCGroup</span>
+                <span class="method-start">19158 ms</span>
+              </div> <!-- test-method -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">19158 ms</span>
+              </div> <!-- configuration-method before -->
+              <div class="configuration-method before">
+                <span class="method-name">setUp</span>
+                <span class="method-start">19521 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">createNexusDriver1</span>
-                <span class="method-start">6830 ms</span>
+                <span class="method-start">19522 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">12184 ms</span>
+                <span class="method-start">25338 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
-                <span class="method-name">clickAddUserInNexus</span>
-                <span class="method-start">12185 ms</span>
+                <span class="method-name">scrollDownNexus</span>
+                <span class="method-start">25338 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">15336 ms</span>
+                <span class="method-start">27352 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
-                <span class="method-name">selectSearchEmployeesOnly</span>
-                <span class="method-start">15336 ms</span>
+                <span class="method-name">syncServices</span>
+                <span class="method-start">27352 ms</span>
               </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">16259 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">inputNexusEmployee</span>
-                <span class="method-start">16260 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">17877 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">saveNexusEmployee</span>
-                <span class="method-start">17878 ms</span>
-              </div> <!-- test-method -->
-              <div class="test-method">
-                <span class="method-name">clickAddUserInNexus2</span>
-                <span class="method-start">18373 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">18373 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">20819 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">selectSearchEmployeesOnly2</span>
-                <span class="method-start">20820 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">21724 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">inputNexusEmployee2</span>
-                <span class="method-start">21725 ms</span>
-              </div> <!-- test-method -->
-              <div class="test-method">
-                <span class="method-name">saveNexusEmployee2</span>
-                <span class="method-start">23452 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">23452 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">23904 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">clickAddUserInNexus3</span>
-                <span class="method-start">23905 ms</span>
-              </div> <!-- test-method -->
-              <div class="test-method">
-                <span class="method-name">selectSearchEmployeesOnly3</span>
-                <span class="method-start">26342 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">26342 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">27251 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">inputNexusEmployee3</span>
-                <span class="method-start">27251 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">28807 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">saveNexusEmployee3</span>
-                <span class="method-start">28808 ms</span>
-              </div> <!-- test-method -->
-              <div class="test-method">
-                <span class="method-name">selectMemberPosition1</span>
-                <span class="method-start">29261 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">29261 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">32138 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">clickAssignBackup</span>
-                <span class="method-start">32138 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">33663 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">addBackupPosition1</span>
-                <span class="method-start">33664 ms</span>
-              </div> <!-- test-method -->
-              <div class="test-method">
-                <span class="method-name">saveBackup</span>
-                <span class="method-start">35324 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">35324 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">35771 ms</span>
-              </div> <!-- configuration-method before -->
               <div class="test-method">
                 <span class="method-name">navigateNexusBack</span>
-                <span class="method-start">35772 ms</span>
+                <span class="method-start">29146 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">36070 ms</span>
+                <span class="method-start">29146 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
-                <span class="method-name">selectMemberPosition2</span>
-                <span class="method-start">36070 ms</span>
+                <span class="method-name">clickServiceChiefs</span>
+                <span class="method-start">29413 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">38947 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">clickAssignBackup2</span>
-                <span class="method-start">38947 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">40476 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">addBackupPosition2</span>
-                <span class="method-start">40476 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">42043 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">saveBackup2</span>
-                <span class="method-start">42043 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">42492 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">navigateNexusBack0</span>
-                <span class="method-start">42493 ms</span>
-              </div> <!-- test-method -->
-              <div class="test-method">
-                <span class="method-name">selectMemberPosition1_2</span>
-                <span class="method-start">42785 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">42785 ms</span>
+                <span class="method-start">29413 ms</span>
               </div> <!-- configuration-method before -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">45705 ms</span>
+                <span class="method-start">30829 ms</span>
               </div> <!-- configuration-method before -->
               <div class="test-method">
-                <span class="method-name">clickRemoveBackup</span>
-                <span class="method-start">45706 ms</span>
+                <span class="method-name">scrollUpNexus</span>
+                <span class="method-start">30830 ms</span>
+              </div> <!-- test-method -->
+              <div class="test-method">
+                <img src="failed.png">
+                </img>
+                <span class="method-name">openSCGroup</span>
+                <span class="method-start">31355 ms</span>
               </div> <!-- test-method -->
               <div class="configuration-method before">
                 <span class="method-name">setUp</span>
-                <span class="method-start">47245 ms</span>
+                <span class="method-start">31355 ms</span>
               </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">saveRemoveBackup</span>
-                <span class="method-start">47246 ms</span>
-              </div> <!-- test-method -->
-              <div class="test-method">
-                <span class="method-name">navigateNexusBackTwice</span>
-                <span class="method-start">48071 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">48071 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">48686 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">selectMemberPosition1_3</span>
-                <span class="method-start">48687 ms</span>
-              </div> <!-- test-method -->
-              <div class="test-method">
-                <span class="method-name">navigateNexusBack1</span>
-                <span class="method-start">52489 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">52489 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">52895 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">selectMemberPosition2_2</span>
-                <span class="method-start">52898 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">55845 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">clickRemoveBackup2</span>
-                <span class="method-start">55845 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">57382 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">saveRemoveBackup2</span>
-                <span class="method-start">57382 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">58183 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">navigateNexusBackTwice2</span>
-                <span class="method-start">58183 ms</span>
-              </div> <!-- test-method -->
-              <div class="test-method">
-                <span class="method-name">selectMemberPosition2_3</span>
-                <span class="method-start">58770 ms</span>
-              </div> <!-- test-method -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">58770 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="configuration-method before">
-                <span class="method-name">setUp</span>
-                <span class="method-start">62703 ms</span>
-              </div> <!-- configuration-method before -->
-              <div class="test-method">
-                <span class="method-name">navigateNexusBack2</span>
-                <span class="method-start">62703 ms</span>
-              </div> <!-- test-method -->
               <div class="configuration-class after">
                 <span class="method-name">closeDown</span>
-                <span class="method-start">62992 ms</span>
+                <span class="method-start">32394 ms</span>
               </div> <!-- configuration-class after -->
           </div> <!-- main-panel-content rounded-window-bottom -->
         </div> <!-- panel -->

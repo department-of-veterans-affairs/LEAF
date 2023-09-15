@@ -15,7 +15,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import Execution.userAccessGroups;
+//import Execution.userAccessGroupsOLD_DoNotUse;
 
 public class setupFramework {
 
@@ -106,7 +106,7 @@ public class setupFramework {
 	
 	@Parameters({ "browser", "env" })							//Pass Browser type and URL
 	@BeforeClass
-	//Kill all instances of Chrome and ChromeDriver ******************************************************TODO
+	//Kill all instances of Chrome and ChromeDriver ****************************************************** TODO
 	public void initializeFramework(String browser, String env) {
 		try {
 			setDriver(browser, env);
