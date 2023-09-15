@@ -205,7 +205,6 @@ function buildQuery(getCancelled, getSubmitted, getReminder) {
             match: "*" + extraTerms.trim() + "*",
         });
     }
-console.log(requestQuery);
     return requestQuery;
 }
 
@@ -230,7 +229,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
     let queryResult = {};
     let abortLoad = false;
 
-    console.log('here');
+    
     query.setLimit(offset, batchSize);
     query.setRootURL('./');
     query.importQuery(queryObj);
