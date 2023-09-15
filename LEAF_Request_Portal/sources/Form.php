@@ -3667,7 +3667,7 @@ class Form
 
             // make sure the directory exists
             if (!is_dir($directory)) {
-                mkdir($directory);
+                mkdir($directory,755,true);
             }
 
             $processQueryCheckVars = [
