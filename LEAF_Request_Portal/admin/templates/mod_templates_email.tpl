@@ -840,7 +840,6 @@
     }
     // loads all files and retreave's them
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
-        // console.log(name, file, subjectFile, emailToFile, emailCcFile);
         if (file === undefined) {
             name = currentName;
             file = currentFile;
@@ -1278,10 +1277,6 @@
             },
             cache: false
         });
-
-
-
-
 
         // Load content from those templates to the current main template
         initializePage();

@@ -952,9 +952,7 @@
             },
             cache: false
         });
-
-
-
+        
         initializePage();
 
 
