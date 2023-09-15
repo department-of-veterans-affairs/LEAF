@@ -183,26 +183,26 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $main->assign('useUI', true);
-        $main->assign('javascripts', array(APP_JS_PATH.'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
-                                            APP_JS_PATH.'js/filesaver/FileSaver.min.js',
-                                            APP_JS_PATH.'js/codemirror/lib/codemirror.js',
-                                            APP_JS_PATH.'js/codemirror/mode/xml/xml.js',
-                                            APP_JS_PATH.'js/codemirror/mode/javascript/javascript.js',
-                                            APP_JS_PATH.'js/codemirror/mode/css/css.js',
-                                            APP_JS_PATH.'js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                            APP_JS_PATH.'js/codemirror/addon/display/fullscreen.js',
-                                            APP_JS_PATH.'js/LEAF/XSSHelpers.js',
-                                            APP_JS_PATH.'js/choicesjs/choices.min.js',
+        $main->assign('javascripts', array(APP_JS_PATH . '/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+                                            APP_JS_PATH . '/filesaver/FileSaver.min.js',
+                                            APP_JS_PATH . '/codemirror/lib/codemirror.js',
+                                            APP_JS_PATH . '/codemirror/mode/xml/xml.js',
+                                            APP_JS_PATH . '/codemirror/mode/javascript/javascript.js',
+                                            APP_JS_PATH . '/codemirror/mode/css/css.js',
+                                            APP_JS_PATH . '/codemirror/mode/htmlmixed/htmlmixed.js',
+                                            APP_JS_PATH . '/codemirror/addon/display/fullscreen.js',
+                                            APP_JS_PATH . '/LEAF/XSSHelpers.js',
+                                            APP_JS_PATH . '/choicesjs/choices.min.js',
                                             '../js/formQuery.js',
                                             $site_paths['orgchart_path'] . '/js/employeeSelector.js',
                                             $site_paths['orgchart_path'] . '/js/groupSelector.js',
                                             $site_paths['orgchart_path'] . '/js/positionSelector.js'
         ));
-        $main->assign('stylesheets', array(APP_JS_PATH.'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
-                                            APP_JS_PATH.'js/codemirror/lib/codemirror.css',
-                                            APP_JS_PATH.'js/codemirror/addon/display/fullscreen.css',
-                                            APP_JS_PATH.'js/choicesjs/choices.min.css',
-                                            APP_JS_PATH.'js/vue-dest/form_editor/LEAF_FormEditor.css',
+        $main->assign('stylesheets', array(APP_JS_PATH . '/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
+                                            APP_JS_PATH . '/codemirror/lib/codemirror.css',
+                                            APP_JS_PATH . '/codemirror/addon/display/fullscreen.css',
+                                            APP_JS_PATH . '/choicesjs/choices.min.css',
+                                            APP_JS_PATH . '/vue-dest/form_editor/LEAF_FormEditor.css',
                                             $site_paths['orgchart_path'] . '/css/employeeSelector.css',
                                             $site_paths['orgchart_path'] . '/css/groupSelector.css',
                                             $site_paths['orgchart_path'] . '/css/positionSelector.css'
@@ -563,16 +563,16 @@ switch ($action) {
 
         $main->assign('javascripts', array(
             '../js/form.js', '../js/formGrid.js', '../js/formQuery.js', '../js/formSearch.js',
-            APP_JS_PATH.'js/jquery/chosen/chosen.jquery.min.js',
-            APP_JS_PATH.'js/choicesjs/choices.min.js',
-            APP_JS_PATH.'js/LEAF/XSSHelpers.js',
-            APP_JS_PATH.'js/jquery/jquery-ui.custom.min.js',
-            APP_JS_PATH.'js/jquery/trumbowyg/trumbowyg.min.js'
+            APP_JS_PATH . '/jquery/chosen/chosen.jquery.min.js',
+            APP_JS_PATH . '/choicesjs/choices.min.js',
+            APP_JS_PATH . '/LEAF/XSSHelpers.js',
+            APP_JS_PATH . '/jquery/jquery-ui.custom.min.js',
+            APP_JS_PATH . '/jquery/trumbowyg/trumbowyg.min.js'
         ));
         $main->assign('stylesheets', array(
-            APP_JS_PATH.'js/jquery/chosen/chosen.min.css',
-            APP_JS_PATH.'js/choicesjs/choices.min.css',
-            APP_JS_PATH.'js/vue-dest/site_designer/LEAF_Designer.css'
+            APP_JS_PATH . '/jquery/chosen/chosen.min.css',
+            APP_JS_PATH . '/choicesjs/choices.min.css',
+            APP_JS_PATH . '/vue-dest/site_designer/LEAF_Designer.css'
         ));
 
         if ($login->checkGroup(1)) {
