@@ -232,24 +232,38 @@
     function addEmailReminderDialog(stepID) {
         $('.workflowStepInfo').css('display', 'none');
         let workflowStep = null;
+        let reminderChecked = false;
         let reminderType = 'duration';
+        let reminderDays = '';
+        let reminderDate = '';
+        let reminder_days_additional = '';
+
+        const d = new Date();
+        const dateMin = d.getFullYear().toString() + '-'
+            + (d.getMonth() + 1).toString().padStart(2, '0') + '-'
+            + d.getDate().toString().padStart(2, '0');
 
         getStep(stepID, function (workflow_step) { //async is set to false
             workflowStep = workflow_step;
         });
-        if(isJSON(workflowStep?.stepData)) {
+        if(typeof workflowStep?.stepData === 'string' && isJSON(workflowStep?.stepData)) {
             const stepData = JSON.parse(workflowStep.stepData);
-            if (+stepData?.AutomatedEmailReminders?.DateSelected > 0) {
-                reminderType = 'specificDate';
+            if (stepData?.AutomatedEmailReminders?.DateSelected?.length > 0) {
+                reminderType = 'date';
             }
+            reminderChecked = stepData.AutomatedEmailReminders?.AutomateEmailGroup === 'true'; //string
+            reminderDays = stepData.AutomatedEmailReminders?.DaysSelected || '';
+            reminderDate = stepData.AutomatedEmailReminders?.DateSelected || '';
+            reminder_days_additional = stepData.AutomatedEmailReminders?.AdditionalDaysSelected || '';
         }
 
         dialog.setTitle('Email Reminder');
 
         let output =`<label for="edit_email_check" style="display: block; width:400px;">
-                Enable Automated Emails? <input type="checkbox" id="edit_email_check" onclick="editEmailChecked()">
+                Enable Automated Emails?
+                <input type="checkbox" id="edit_email_check" onclick="editEmailChecked()" ${reminderChecked ? "checked" : ""} />
             </label>
-            <div id="edit_email_container" style="display:none; margin: 1rem 0;">
+            <div id="edit_email_container" style="display:${reminderChecked ? "block" : "none"}; margin: 1rem 0;">
                 <div style="margin-bottom: 1rem;">
                     <div><b>Type of Reminder</b></div>
                     <label style="margin-right: 1rem; font-size: 1rem; font-family: 'Source Sans Pro Web'">Reminder for inactivity
@@ -260,20 +274,22 @@
                     <label style="font-size: 1rem; font-family: 'Source Sans Pro Web'">Reminder on specific date
                         <input type="radio" id="reminder_type_date"
                         name="reminderType" onchange="toggleReminderType()"
-                        value="specificDate" ${reminderType === "specificDate" ? "checked" : ""}/>
+                        value="date" ${reminderType === "date" ? "checked" : ""} />
                     </label>
                 </div>
                 <div id="email_reminder_duration" style="display: ${reminderType === "duration" ? "block" : "none"}">
                     Send a reminder after
-                    <input aria-label="number of days" type="number" min="1" id="reminder_days" style="width: 53px" /> days of inactivity.
+                    <input aria-label="number of days" type="number" min="1"
+                        id="reminder_days" style="width: 50px" value="${reminderDays}" /> days of inactivity.
                 </div>
-                <div id="email_reminder_date" style="display: ${reminderType === "specificDate" ? "block" : "none"}">
+                <div id="email_reminder_date" style="display: ${reminderType === "date" ? "block" : "none"}">
                     Start sending reminders on
-                    <input aria-label="specific date" type="date" id="reminder_date" />
+                    <input aria-label="specific date" type="date" id="reminder_date" min="${dateMin}" value="${reminderDate}"/>
                 </div>
                 <div style="margin: 1rem 0;">
                     After the initial notification send another reminder every
-                    <input aria-label="number of days additional" type="number" min="1" id="reminder_days_additional" style="width: 53px" /> days of inactivity.
+                    <input aria-label="number of days additional" type="number" min="1"
+                        id="reminder_days_additional" style="width: 50px" value="${reminder_days_additional}" /> days of inactivity.
                 </div>
             </div>`;
         dialog.setContent(output);
@@ -281,50 +297,49 @@
         dialog.setValidator('reminder_days', function() {
             const remindersChecked = document.getElementById('edit_email_check')?.checked;
             const reminderType = (document.querySelector('input[name="reminderType"]:checked')?.value || '').toLowerCase();
-            const reminderDays = parseInt(document.getElementById('reminder_days')?.value || 0);
-            const reminderDate = document.getElementById('reminder_date')?.value || 0;
-            console.log(remindersChecked, reminderType, reminderDays, reminderDate)
-            if (remindersChecked === true && (
-                (reminderType === 'duration' && reminderDays < 1) || 
-                (reminderType === 'specificdate' && reminderDate < 1))
-            ) {
-                return false;
-            } else {
-                return true;
-            }
+            const reminderDays = remindersChecked === true ? parseInt(document.getElementById('reminder_days')?.value || 0) : null;
+            return !(remindersChecked === true && reminderType === 'duration' && reminderDays < 1 )
         });
-
         dialog.setSubmitValid('reminder_days', function() {
             alert('Number of days to remind user must be greater than 0!');
         });
 
-        dialog.setValidator('reminder_days_additional', function() {
-
-            reminder_days_additional = $('#reminder_days_additional').val();
-            if ($('#edit_email_check').prop('checked') == true && parseInt(reminder_days_additional) < 1 ||
-                reminder_days_additional == '') {
-                return false;
-            } else {
-                return true;
-            }
+        dialog.setValidator('reminder_date', function() {
+            const remindersChecked = document.getElementById('edit_email_check')?.checked;
+            const reminderType = (document.querySelector('input[name="reminderType"]:checked')?.value || '').toLowerCase();
+            const reminderDate = remindersChecked === true ? document.getElementById('reminder_date')?.value : null;
+            return !(remindersChecked === true && reminderType === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(reminderDate));
+        });
+        dialog.setSubmitValid('reminder_date', function() {
+            alert('Please enter a valid date!');
         });
 
+        dialog.setValidator('reminder_days_additional', function() {
+            const remindersChecked = document.getElementById('edit_email_check')?.checked;
+            const additionalDays = remindersChecked === true ? document.getElementById('reminder_days_additional')?.value || 0 : null;
+            return !(remindersChecked === true && parseInt(additionalDays) < 1);
+        });
         dialog.setSubmitValid('reminder_days_additional', function() {
             alert('Additional Number of days to remind user must be greater than 0!');
         });
 
         dialog.setSaveHandler(function() {
-            console.log('save code commented out')
-            /*
+            const remindersChecked = document.getElementById('edit_email_check')?.checked;
+            const reminderType = (document.querySelector('input[name="reminderType"]:checked')?.value || '').toLowerCase();
+            const reminderDays = remindersChecked === true && reminderType === 'duration' ?
+                document.getElementById('reminder_days')?.value : '';
+            const reminderDate = remindersChecked === true && reminderType === 'date' ?
+                document.getElementById('reminder_date')?.value : '';
+            const additionalDays = remindersChecked === true ? document.getElementById('reminder_days_additional')?.value : '';
+
             let seriesData = {
                 AutomatedEmailReminders: {
-                    'Automate Email Group': $('#edit_email_check').prop('checked'),
-                    'Days Selected': $('#reminder_days').val(),
-                    //TODO: NOTE: DateSelected and make sure both can't have data
-                    'Additional Days Selected': $('#reminder_days_additional').val(),
+                    'Automate Email Group': remindersChecked,
+                    'Days Selected': reminderDays,
+                    'Date Selected': reminderDate,
+                    'Additional Days Selected': additionalDays,
                 }
             }
-
             updateStepData(seriesData, stepID, function (res) {
                 if (res == 1) {
                     loadWorkflow(currentWorkflow);
@@ -333,27 +348,8 @@
                     alert(res);
                 }
             });
-            */
         });
-
         dialog.show();
-
-        // dialog changes if data is setup properly
-        if (workflowStep?.stepData !== null) {
-            let stepParse = JSON.parse(workflowStep.stepData);
-            let automateEmailGroup = stepParse.AutomatedEmailReminders?.AutomateEmailGroup;
-            let daysSelected = stepParse.AutomatedEmailReminders?.DaysSelected;
-            let additionalDaysSelected = stepParse.AutomatedEmailReminders?.AdditionalDaysSelected;
-
-            if (automateEmailGroup?.toLowerCase() == "true") {
-                $('#edit_email_check').prop('checked', true);
-                editEmailChecked();
-                $("#reminder_days").val(daysSelected);
-                $("#reminder_days_additional").val(additionalDaysSelected);
-            } else {
-                $('#edit_email_check').prop('checked', false);
-            }
-        }
     }
 
     ///// Edit Automated Emails
@@ -1758,12 +1754,16 @@
                         output += '<hr />';
 
                         if (res.length > 0) {
-                            if (typeof res[0].stepData == 'string') {
+                            if (typeof res[0].stepData == 'string' && isJSON(res[0].stepData)) {
                                 let stepParse = JSON.parse(res[0].stepData);
                                 if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup === 'true') {
-                                    let dayCount = stepParse.AutomatedEmailReminders?.DaysSelected;
-                                    let dayText = ((dayCount > 1) ? 'Days' : 'Day')
-                                    output += `Email reminders will be sent after ${dayCount} ${dayText} of inactivity<hr>`
+                                    const dayCount = stepParse.AutomatedEmailReminders?.DaysSelected || '';
+                                    const dateSelected = stepParse.AutomatedEmailReminders?.DateSelected || '';
+                                    const reminderText = dayCount !== '' && dayCount !== null ?
+                                        `Email reminders will be sent after ${dayCount} Day${dayCount > 1 ? 's':''} of inactivity` :
+                                        `Email reminders will be sent starting on ${dateSelected}`;
+
+                                    output += `${reminderText}<hr/>`;
                                 }
                             }
                         }
@@ -2227,6 +2227,7 @@
                                 AutomatedEmailReminders: {
                                     'Automate Email Group': auto.AutomatedEmailReminders.AutomateEmailGroup,
                                     'Days Selected': auto.AutomatedEmailReminders.DaysSelected,
+                                    'Date Selected': auto.AutomatedEmailReminders?.DateSelected || '',
                                     'Additional Days Selected': auto.AutomatedEmailReminders.AdditionalDaysSelected,
                                 }
                             };
@@ -2871,7 +2872,7 @@
         if(inputChecked !== null) {
             const reminderType = inputChecked.value.toLowerCase();
             document.getElementById('email_reminder_duration').style.display = reminderType === 'duration' ? 'block' : 'none';
-            document.getElementById('email_reminder_date').style.display = reminderType === 'specificdate' ? 'block' : 'none';
+            document.getElementById('email_reminder_date').style.display = reminderType === 'date' ? 'block' : 'none';
         }
     }
 
