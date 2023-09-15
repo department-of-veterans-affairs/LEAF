@@ -49,6 +49,8 @@ $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
 $main->assign('userID', $oc_login->getUserID());
 $main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
+$main->assign('app_js_path', APP_JS_PATH);
+$main->assign('app_css_path', APP_CSS_PATH);
 
 switch ($action) {
     case 'navigator_service':
@@ -474,6 +476,8 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
 
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('app_css_path', APP_CSS_PATH);
+            $t_form->assign('app_js_path', APP_JS_PATH);
 
             $main->assign('body', $t_form->fetch(customTemplate('view_summary.tpl')));
 

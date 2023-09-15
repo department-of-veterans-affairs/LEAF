@@ -1,7 +1,7 @@
-<link rel="stylesheet" href='<!--{$css_path}-->/leaf.css' />
+<link rel="stylesheet" href='<!--{$app_css_path}-->/leaf.css' />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.1/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
+<script src="<!--{$app_js_path}-->/promise-pollyfill/polyfill.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <style>
