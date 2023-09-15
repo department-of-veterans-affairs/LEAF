@@ -181,29 +181,28 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        $libsPath = '../../libs/';
 
         $main->assign('useUI', true);
-        $main->assign('javascripts', array($libsPath.'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
-                                            $libsPath.'js/filesaver/FileSaver.min.js',
-                                            $libsPath.'js/codemirror/lib/codemirror.js',
-                                            $libsPath.'js/codemirror/mode/xml/xml.js',
-                                            $libsPath.'js/codemirror/mode/javascript/javascript.js',
-                                            $libsPath.'js/codemirror/mode/css/css.js',
-                                            $libsPath.'js/codemirror/mode/htmlmixed/htmlmixed.js',
-                                            $libsPath.'js/codemirror/addon/display/fullscreen.js',
-                                            $libsPath.'js/LEAF/XSSHelpers.js',
-                                            $libsPath.'js/choicesjs/choices.min.js',
+        $main->assign('javascripts', array(APP_JS_PATH.'js/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+                                            APP_JS_PATH.'js/filesaver/FileSaver.min.js',
+                                            APP_JS_PATH.'js/codemirror/lib/codemirror.js',
+                                            APP_JS_PATH.'js/codemirror/mode/xml/xml.js',
+                                            APP_JS_PATH.'js/codemirror/mode/javascript/javascript.js',
+                                            APP_JS_PATH.'js/codemirror/mode/css/css.js',
+                                            APP_JS_PATH.'js/codemirror/mode/htmlmixed/htmlmixed.js',
+                                            APP_JS_PATH.'js/codemirror/addon/display/fullscreen.js',
+                                            APP_JS_PATH.'js/LEAF/XSSHelpers.js',
+                                            APP_JS_PATH.'js/choicesjs/choices.min.js',
                                             '../js/formQuery.js',
                                             $site_paths['orgchart_path'] . '/js/employeeSelector.js',
                                             $site_paths['orgchart_path'] . '/js/groupSelector.js',
                                             $site_paths['orgchart_path'] . '/js/positionSelector.js'
         ));
-        $main->assign('stylesheets', array($libsPath.'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
-                                            $libsPath.'js/codemirror/lib/codemirror.css',
-                                            $libsPath.'js/codemirror/addon/display/fullscreen.css',
-                                            $libsPath.'js/choicesjs/choices.min.css',
-                                            $libsPath.'js/vue-dest/form_editor/LEAF_FormEditor.css',
+        $main->assign('stylesheets', array(APP_JS_PATH.'js/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
+                                            APP_JS_PATH.'js/codemirror/lib/codemirror.css',
+                                            APP_JS_PATH.'js/codemirror/addon/display/fullscreen.css',
+                                            APP_JS_PATH.'js/choicesjs/choices.min.css',
+                                            APP_JS_PATH.'js/vue-dest/form_editor/LEAF_FormEditor.css',
                                             $site_paths['orgchart_path'] . '/css/employeeSelector.css',
                                             $site_paths['orgchart_path'] . '/css/groupSelector.css',
                                             $site_paths['orgchart_path'] . '/css/positionSelector.css'
@@ -211,7 +210,8 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
-        $t_form->assign('libsPath', $libsPath);
+        $t_form->assign('app_js_path', APP_JS_PATH);
+        $t_form->assign('libsPath', '../../app/libs/');
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
@@ -554,25 +554,25 @@ switch ($action) {
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
-        $libsPath = '../../libs/';
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
-        $t_form->assign('libsPath', $libsPath);
+        $t_form->assign('app_js_path', APP_JS_PATH);
+        $t_form->assign('libsPath', '../../app/libs/');
         $t_form->assign('orgchartPath', '../..'.$site_paths['orgchart_path']);
         $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
 
         $main->assign('javascripts', array(
             '../js/form.js', '../js/formGrid.js', '../js/formQuery.js', '../js/formSearch.js',
-            $libsPath.'js/jquery/chosen/chosen.jquery.min.js',
-            $libsPath.'js/choicesjs/choices.min.js',
-            $libsPath.'js/LEAF/XSSHelpers.js',
-            $libsPath.'js/jquery/jquery-ui.custom.min.js',
-            $libsPath.'js/jquery/trumbowyg/trumbowyg.min.js'
+            APP_JS_PATH.'js/jquery/chosen/chosen.jquery.min.js',
+            APP_JS_PATH.'js/choicesjs/choices.min.js',
+            APP_JS_PATH.'js/LEAF/XSSHelpers.js',
+            APP_JS_PATH.'js/jquery/jquery-ui.custom.min.js',
+            APP_JS_PATH.'js/jquery/trumbowyg/trumbowyg.min.js'
         ));
         $main->assign('stylesheets', array(
-            $libsPath.'js/jquery/chosen/chosen.min.css',
-            $libsPath.'js/choicesjs/choices.min.css',
-            $libsPath.'js/vue-dest/site_designer/LEAF_Designer.css'
+            APP_JS_PATH.'js/jquery/chosen/chosen.min.css',
+            APP_JS_PATH.'js/choicesjs/choices.min.css',
+            APP_JS_PATH.'js/vue-dest/site_designer/LEAF_Designer.css'
         ));
 
         if ($login->checkGroup(1)) {

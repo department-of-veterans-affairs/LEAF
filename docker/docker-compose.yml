@@ -11,8 +11,8 @@ services:
         volumes:
             - "./vue-app/src:/app/src"
             - "/app/node_modules"
-            - "../libs/js/vue-dest:/app/vue-dest"
-            - "../libs/css:/app/css"
+            - "../app/libs/js/vue-dest:/app/vue-dest"
+            - "../app/libs/css:/app/css"
         networks:
             - leaf-sql
             - leaf
