@@ -101,8 +101,10 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('../css/employeeSelector.css', '../css/mod_system.css'));
-           $main->assign('javascripts', array('../js/dialogController.js', '../js/employeeSelector.js'));
+           $main->assign('stylesheets', array(LEAF_NEXUS_URL . 'css/employeeSelector.css',
+                        LEAF_NEXUS_URL . 'css/mod_system.css'));
+           $main->assign('javascripts', array(LEAF_NEXUS_URL . 'js/dialogController.js',
+                        LEAF_NEXUS_URL . 'js/employeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -135,7 +137,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('../admin/css/mod_groups.css', '../css/employeeSelector.css'));
+           $main->assign('stylesheets', array('../css/mod_groups.css', '../css/employeeSelector.css'));
            $main->assign('javascripts', array('../js/dialogController.js', '../js/nationalEmployeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);

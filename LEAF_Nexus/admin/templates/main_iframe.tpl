@@ -13,7 +13,7 @@
         {/if}
         @import "../css/style.css";
 {section name=i loop=$stylesheets}
-        @import "../{$stylesheets[i]}";
+        @import "{$stylesheets[i]}";
 {/section}
     </style>
     <style type="text/css" media="print">
@@ -27,7 +27,7 @@
     {if $useDojoUI == true}<script type="text/javascript" src="{$app_js_path}/jquery/jquery-ui.custom.min.js"></script>{/if}
     {/if}
 {section name=i loop=$javascripts}
-    <script type="text/javascript" src="../{$javascripts[i]}"></script>
+    <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
