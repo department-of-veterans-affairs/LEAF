@@ -817,7 +817,7 @@ var LeafFormSearch = function (containerID) {
             categories += '<option value="deleted">Cancelled</option>';
             categories += '<option value="resolved">Resolved</option>';
             categories += '<option value="actionable">Actionable by me</option>';
-            categories += '<option value="destruction">Scheduled for Destruction</option>';
+            //categories += '<option value="destruction">Scheduled for Destruction</option>';
             for (let i in allStepsData) {
               categories +=
                 '<option value="' +

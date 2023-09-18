@@ -332,7 +332,7 @@ function addHeader(column) {
             filterData['recordResolutionData'] = 1;
             leafSearch.getLeafFormQuery().join('destructionDate');
             headers.push({
-                name: 'Date of Destruction', indicatorID: 'destructionDate', editable: false, callback: function(data, blob) {
+                name: 'Date of Scheduled Destruction', indicatorID: 'destructionDate', editable: false, callback: function(data, blob) {
                 //NOTE: requests still show if the form is disabled but there is no info from categories table
                 const destructionAgeDays = blob[data.recordID]?.destructionAge || null;
                 let content = '';
@@ -345,7 +345,7 @@ function addHeader(column) {
                     //if there is no resolution data the report is either not yet fulfilled OR cancelled
                     if (recordResolutionData === null) {
                         if(deletionDate === 0) {
-                            content = `${destructionAgeDays} days after fulfillment`;
+                            content = `${destructionAgeDays} days after resolution`;
                         } else {
                             content = new Date(deletionDate + destMilliseconds).toLocaleDateString();
                         }
@@ -451,8 +451,6 @@ function loadSearchPrereqs() {
             buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_action" name="indicators[days_since_last_action]" value="days_since_last_action" /><span class="leaf_check"></span> Days Since Last Action</label></div>';
             buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_days_since_last_step_movement">';
             buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_days_since_last_step_movement" name="indicators[days_since_last_step_movement]" value="days_since_last_step_movement" /><span class="leaf_check"></span> Days Since Last Step Movement</label></div>';
-            buffer += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_destruction">';
-            buffer += '<input type="checkbox" class="icheck leaf_check" id="indicators_destruction" name="indicators[destructionDate]" value="destructionDate" /><span class="leaf_check"></span> Date of Destruction</label></div>';
             buffer += '</div>';
 
             var groupList = {};
@@ -618,6 +616,8 @@ function loadSearchPrereqs() {
                             buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" /><span class="leaf_check"></span> Date Request Resolved</label></div>';
                             buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_resolvedBy" title="Resolved By">';
                             buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" /><span class="leaf_check"></span> Resolved By</label></div>';
+                            buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_destruction">';
+                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_destruction" name="indicators[destructionDate]" value="destructionDate" /><span class="leaf_check"></span> Date of Scheduled Destruction</label></div>';
 
                             for(let i in res) {
                                 buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_depID_'+ res[i].dependencyID +'">';

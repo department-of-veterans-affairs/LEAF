@@ -2937,7 +2937,7 @@ class Form
                                 $filterActionable = true;
 
                                 break;
-                            case 'destruction':
+                            /*case 'destruction':
                                 $conditions .= "{$gate}(categories.destructionAge IS NOT NULL AND ".
                                     "records_workflow_state.stepID IS NULL AND submitted != 0)";
                                 if (!strpos($joins,'category_count')) {
@@ -2945,7 +2945,7 @@ class Form
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
                                 $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
-                                break;
+                                break;*/
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
@@ -2999,7 +2999,7 @@ class Form
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
-                            case 'destruction':
+                            /*case 'destruction':
                                 $conditions .= "{$gate}(categories.destructionAge IS NULL OR ".
                                     "(records_workflow_state.stepID IS NOT NULL OR submitted = 0)".
                                 ")";
@@ -3008,7 +3008,7 @@ class Form
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
                                 $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
-                                break;
+                                break;*/
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
