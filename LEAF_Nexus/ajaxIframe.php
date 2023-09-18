@@ -52,6 +52,7 @@ $t_login->assign('name', XSSHelpers::xscrub($oc_login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
+$main->assign('app_js_path', APP_JS_PATH);
 
 switch ($action) {
     case 'getuploadprompt':
