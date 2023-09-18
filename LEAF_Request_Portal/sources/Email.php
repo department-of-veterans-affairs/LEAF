@@ -185,30 +185,20 @@ class Email
     }
 
     /**
-     * Purpose: To check that email address is not already attached to this email send
+     * isExistingRecipient determines if the email address is already present as a recipient in the outgoing email
      * @param string|null $address
      * @return bool
      */
-    public function emailActiveNotAlreadyAdded(string|null $address): bool
+    public function isExistingRecipient(string|null $address): bool
     {
 
         if ( ( strpos($this->emailRecipient, $address) === false  )
             && (!in_array($address, $this->emailCC) )
             && (!in_array($address ,$this->emailBCC) ) ) {
 
-            $dir = new VAMC_Directory;
-
-            // Check that email address is active in Nexus
-            $vars = array(':emailAddress' => $address);
-            $strSQL = "SELECT e.deleted FROM employee as e ".
-                "INNER JOIN employee_data ed on e.empUID = ed.empUID ".
-                "WHERE e.deleted = 0 ".
-                "AND ed.data=:emailAddress";
-            $res = $this->nexus_db->prepared_query($strSQL, $vars);
-
-            return ( (!empty($res)) ? true : false );
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -226,7 +216,7 @@ class Email
         if ($this->emailRecipient == ''){
             $this->emailRecipient = $address;
         } else {
-            if ( $this->emailActiveNotAlreadyAdded($address) || $requiredAddress ) {
+            if ( !$this->isExistingRecipient($address) || $requiredAddress ) {
                 $this->emailRecipient .= ", " . $address;
             }
         }
@@ -288,7 +278,7 @@ class Email
             return false;
         }
 
-        if ( $this->emailActiveNotAlreadyAdded($address) || ($requiredAddress)  ) {
+        if ( !$this->isExistingRecipient($address) || ($requiredAddress)  ) {
           if (!$isBcc) {
               $this->emailCC[] = $address;
           } else {
@@ -878,7 +868,7 @@ class Email
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $recordInfo[0]['lastStatus'],
                 "siteRoot" => $this->siteRoot,
-                "field" => $fields
+                "field" => null
             ));
 
             $this->setTemplateByID($emailTemplateID);
