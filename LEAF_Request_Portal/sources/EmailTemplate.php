@@ -183,10 +183,10 @@ class EmailTemplate
         $history = [];
 
         $fields = [
-            'body' => \Leaf\LoggableTypes::EMAIL_TEMPLATE_BODY,
-            'emailTo' => \Leaf\LoggableTypes::EMAIL_TEMPLATE_TO,
-            'emailCc' => \Leaf\LoggableTypes::EMAIL_TEMPLATE_CC,
-            'subject' => \Leaf\LoggableTypes::EMAIL_TEMPLATE_SUBJECT
+            'body' => LoggableTypes::EMAIL_TEMPLATE_BODY,
+            'emailTo' => LoggableTypes::EMAIL_TEMPLATE_TO,
+            'emailCc' => LoggableTypes::EMAIL_TEMPLATE_CC,
+            'subject' => LoggableTypes::EMAIL_TEMPLATE_SUBJECT
         ];
 
         foreach ($fields as $field => $type) {

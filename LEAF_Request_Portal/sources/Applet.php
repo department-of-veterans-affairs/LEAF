@@ -254,7 +254,7 @@ class Applet
         $history = [];
 
         $fields = [
-            'message' => \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY
+            'message' => LoggableTypes::TEMPLATE_REPORTS_BODY
         ];
         foreach ($fields as $field => $type) {
             $fieldHistory = $this->dataActionLogger->getHistory(NULL, $field, $type);
