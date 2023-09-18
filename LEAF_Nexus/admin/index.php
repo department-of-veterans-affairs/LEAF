@@ -101,7 +101,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('css/employeeSelector.css', 'css/mod_system.css'));
+           $main->assign('stylesheets', array('../css/employeeSelector.css', '../css/mod_system.css'));
            $main->assign('javascripts', array('../js/dialogController.js', '../js/employeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -135,7 +135,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('admin/css/mod_groups.css', 'css/employeeSelector.css'));
+           $main->assign('stylesheets', array('../admin/css/mod_groups.css', '../css/employeeSelector.css'));
            $main->assign('javascripts', array('../js/dialogController.js', '../js/nationalEmployeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
@@ -228,12 +228,12 @@ switch ($action) {
                                            '../js/groupSelector.js',
                                            '../js/dialogController.js',
                                            '../js/orgchartForm.js', ));
-        $main->assign('stylesheets', array('css/employeeSelector.css',
-                                           'css/view_employee.css',
-                                           'css/positionSelector.css',
-                                           'css/view_position.css',
-                                           'css/groupSelector.css',
-                                           'css/view_group.css', ));
+        $main->assign('stylesheets', array('../css/employeeSelector.css',
+                                           '../css/view_employee.css',
+                                           '../css/positionSelector.css',
+                                           '../css/view_position.css',
+                                           '../css/groupSelector.css',
+                                           '../css/view_group.css', ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('userDomain', $oc_login->getDomain());
