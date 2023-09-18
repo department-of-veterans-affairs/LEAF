@@ -102,7 +102,7 @@ switch ($action) {
 
            //$main->assign('useUI', true);
            $main->assign('stylesheets', array('css/employeeSelector.css', 'css/mod_system.css'));
-           $main->assign('javascripts', array('js/dialogController.js', 'js/employeeSelector.js'));
+           $main->assign('javascripts', array('../js/dialogController.js', '../js/employeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -177,7 +177,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            $main->assign('useUI', true);
-           $main->assign('javascripts', array('js/dialogController.js',
+           $main->assign('javascripts', array('../js/dialogController.js',
                    'https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.js',
                    'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/xml/xml.js',
                    'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/javascript/javascript.js',

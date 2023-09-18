@@ -18,7 +18,7 @@
         {/if}
         @import "../css/style.css";
 {section name=i loop=$stylesheets}
-        @import "../{$stylesheets[i]}";
+        @import "{$stylesheets[i]}";
 {/section}
     </style>
     <style type="text/css" media="print">
