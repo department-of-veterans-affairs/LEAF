@@ -1,0 +1,7 @@
+paths-ignore:
+  - 'docs/**'
+  - 'fort_report/**'
+  - 'pipeline/fortify/**'
+  - 'servlets/digital-signature/**'
+  - 'servlets/digital-signing/**'
+  - 'test/**'
