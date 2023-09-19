@@ -59,6 +59,10 @@ class FormEditorController extends RESTfulResponse
             return $formEditor->getStapledCategories(XSSHelpers::xscrub($args[0]));
         });
 
+        $this->index['GET']->register('formEditor/[text]/destructionAge', function ($args) use ($formEditor) {
+            return $formEditor->getDestructionAge($args[0]);
+        });
+
         return $this->index['GET']->runControl($act['key'], $act['args']);
     }
 

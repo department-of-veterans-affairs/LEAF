@@ -9,7 +9,7 @@ export default {
             type: this.focusedFormRecord?.type || '',
             formID: this.focusedFormRecord?.categoryID || '',
             formParentID: this.focusedFormRecord?.parentID || '',
-            destructionAge: this.focusedFormRecord?.destructionAge || null,
+            destructionAgeYears: this.focusedFormRecord?.destructionAge > 0 ?  this.focusedFormRecord?.destructionAge / 365 : null,
             lastUpdated: ''
         }
     },
@@ -161,18 +161,19 @@ export default {
             })
         },
         updateDestructionAge() {
-            if(this.destructionAge === null || (this.destructionAge >= 1 && this.destructionAge <= 30)) {
+            if(this.destructionAgeYears === null || (this.destructionAgeYears >= 1 && this.destructionAgeYears <= 30)) {
                 $.ajax({
                     type: 'POST',
                     url: `${this.APIroot}formEditor/destructionAge`,
                     data: {
-                        destructionAge: this.destructionAge,
+                        destructionAge: this.destructionAgeYears,
                         categoryID: this.formID,
                         CSRFToken: this.CSRFToken
                     },
                     success: (res) => {
-                        if (res === this.destructionAge) {
-                            this.updateCategoriesProperty(this.formID, 'destructionAge', this.destructionAge);
+                        if (+res?.status?.code === 2 && +res.data === +this.destructionAgeYears * 365) { //+null will become 0
+                            const newVal = res?.data > 0 ? +res.data : null;
+                            this.updateCategoriesProperty(this.formID, 'destructionAge', newVal);
                             this.lastUpdated = new Date().toLocaleString();
                             this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
                         }
@@ -246,10 +247,10 @@ export default {
                     </label>
                     <div style="display:flex; align-items: center; column-gap: 1rem;">
                         <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age (Years)
-                            <select id="destructionAgeYears" v-model="destructionAge"
+                            <select id="destructionAgeYears" v-model="destructionAgeYears"
                                 title="resolved request destruction age in years" 
                                 @change="updateDestructionAge">
-                                <option :value="null" :selected="destructionAge===null">never</option>
+                                <option :value="null" :selected="destructionAgeYears===null">never</option>
                                 <option v-for="i in 30" :value="i">{{i}}</option>
                             </select>
                         </label>

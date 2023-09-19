@@ -325,6 +325,39 @@ function addHeader(column) {
                 }
             });
             break;
+        case 'destructionDate':
+            filterData['submitted'] = 1;
+            filterData['destructionAge'] = 1;
+            filterData['deleted'] = 1;
+            filterData['recordResolutionData'] = 1;
+            leafSearch.getLeafFormQuery().join('destructionDate');
+            headers.push({
+                name: 'Date of Scheduled Destruction', indicatorID: 'destructionDate', editable: false, callback: function(data, blob) {
+                //NOTE: requests still show if the form is disabled but there is no info from categories table
+                const destructionAgeDays = blob[data.recordID]?.destructionAge || null;
+                let content = '';
+                if (destructionAgeDays === null) {
+                    content = 'never';
+                } else {
+                    const destMilliseconds = destructionAgeDays * 24 * 60 * 60 * 1000;
+                    const recordResolutionData = blob[data.recordID]?.recordResolutionData || null;
+                    const deletionDate = blob[data.recordID].deleted * 1000;
+                    //if there is no resolution data the report is either not yet fulfilled OR cancelled
+                    if (recordResolutionData === null) {
+                        if(deletionDate === 0) {
+                            content = `${destructionAgeDays} days after resolution`;
+                        } else {
+                            content = new Date(deletionDate + destMilliseconds).toLocaleDateString();
+                        }
+                    //fulfilled requests
+                    } else {
+                        const fulfillmentTime = recordResolutionData.fulfillmentTime * 1000;
+                        content = new Date(fulfillmentTime + destMilliseconds).toLocaleDateString();
+                    }
+                }
+                $('#'+data.cellContainerID).html(content);
+            }});
+            break;
         default:
             if(column.substr(0, 6) === 'depID_') { // backwards compatibility for LEAF workflow requirement based approval dates
                 filterData['recordsDependencies'] = 1;
@@ -583,6 +616,8 @@ function loadSearchPrereqs() {
                             buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_dateResolved" name="indicators[dateResolved]" value="dateResolved" /><span class="leaf_check"></span> Date Request Resolved</label></div>';
                             buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_resolvedBy" title="Resolved By">';
                             buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_resolvedBy" name="indicators[resolvedBy]" value="resolvedBy" /><span class="leaf_check"></span> Resolved By</label></div>';
+                            buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_destruction">';
+                            buffer2 += '<input type="checkbox" class="icheck leaf_check" id="indicators_destruction" name="indicators[destructionDate]" value="destructionDate" /><span class="leaf_check"></span> Date of Scheduled Destruction</label></div>';
 
                             for(let i in res) {
                                 buffer2 += '<div class="indicatorOption"><label class="checkable leaf_check" for="indicators_depID_'+ res[i].dependencyID +'">';
