@@ -35,6 +35,8 @@ class Form
 
     private $cache = array();
 
+    private $formWorkflow;
+
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -48,6 +50,20 @@ class Form
         $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
         $this->position = new \Orgchart\Position($oc_db, $oc_login);
         $this->group = new \Orgchart\Group($oc_db, $oc_login);
+    }
+
+    /**
+     * getFormWorkflow initializes and returns a generic instance of FormWorkflow
+     * @return object
+     */
+    private function getFormWorkflow(): object
+    {
+        if (!isset($this->formWorkflow))
+        {
+            $this->formWorkflow = new FormWorkflow($this->db, $this->login, 0);
+        }
+
+        return $this->formWorkflow;
     }
 
     /**
@@ -424,10 +440,15 @@ class Form
      * @param int $series
      * @param int $recordID
      * @param bool $parseTemplate - parses html/htmlPrint template variables
+     * @param bool $forceReadOnly ***Only use in safe contexts*** Force allow read only access and
+     *                            bypasses normal access checks. Does not load child indicators.
      * @return array
      */
-    public function getIndicator($indicatorID, $series, $recordID = null, $parseTemplate = true)
+    public function getIndicator($indicatorID, $series, $recordID = null, $parseTemplate = true, $forceReadOnly = false)
     {
+        if(isset($this->cache["getIndicator_{$indicatorID}_{$series}_{$recordID}_{$parseTemplate}"])) {
+            return $this->cache["getIndicator_{$indicatorID}_{$series}_{$recordID}_{$parseTemplate}"];
+        }
         $form = array();
         if (!is_numeric($indicatorID) || !is_numeric($series))
         {
@@ -435,9 +456,8 @@ class Form
         }
 
         // check needToKnow mode
-        if ($recordID != null && $this->isNeedToKnow($recordID))
-        {
-            if (!$this->hasReadAccess($recordID))
+        if(!$forceReadOnly) {
+            if ($recordID != null && $this->isNeedToKnow($recordID) && !$this->hasReadAccess($recordID))
             {
                 return array();
             }
@@ -452,14 +472,17 @@ class Form
                                             WHERE indicatorID=:indicatorID AND series=:series AND recordID=:recordID AND disabled=0', $vars);
         if (!isset($data[0]))
         {
-            $vars = array(':indicatorID' => $indicatorID);
-            $data = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
+            if(isset($this->cache['getIndicator_'.$indicatorID])) {
+                $data = $this->cache['getIndicator_'.$indicatorID];
+            }
+            else {
+                $vars = array(':indicatorID' => $indicatorID);
+                $data = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
+                $this->cache['getIndicator_'.$indicatorID] = $data;
+            }
         }
 
         if (!empty($data)) {
-            $required = isset($data[0]['required']) && $data[0]['required'] == 1 ? ' required="true" ' : '';
-
-
             $idx = $data[0]['indicatorID'];
             $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
             $form[$idx]['series'] = $series;
@@ -476,8 +499,10 @@ class Form
             $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
             $form[$idx]['displayedValue'] = ''; // used for Org Charts
             $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ? $data[0]['timestamp'] : 0;
-            $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
-            $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
+            if(!$forceReadOnly) {
+                $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
+                $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
+            }
             $form[$idx]['sort'] = $data[0]['sort'];
 
             if (!empty($data[0]['html'])) {
@@ -496,9 +521,8 @@ class Form
                 $form[$idx]['value'] = $this->fileToArray($data[0]['data']);
                 $form[$idx]['raw'] = $data[0]['data'];
             }
-
             // special handling for org chart data types
-            if ($data[0]['format'] == 'orgchart_employee'
+            else if ($data[0]['format'] == 'orgchart_employee'
                 && !empty($data[0]['data']))
             {
                 $empRes = $this->employee->lookupEmpUID($data[0]['data']);
@@ -508,19 +532,19 @@ class Form
                     $form[$idx]['displayedValue'] = '';
                 }
             }
-            if ($data[0]['format'] == 'orgchart_position'
+            else if ($data[0]['format'] == 'orgchart_position'
                 && isset($data[0]['data']))
             {
                 $positionTitle = $this->position->getTitle($data[0]['data']);
                 $form[$idx]['displayedValue'] = $positionTitle;
             }
-            if ($data[0]['format'] == 'orgchart_group'
+            else if ($data[0]['format'] == 'orgchart_group'
                 && isset($data[0]['data']))
             {
                 $groupTitle = $this->group->getGroup($data[0]['data']);
                 $form[$idx]['displayedValue'] = $groupTitle[0]['groupTitle'];
             }
-            if (substr($data[0]['format'], 0, 4) == 'grid'
+            else if (substr($data[0]['format'], 0, 4) == 'grid'
                 && isset($data[0]['data']))
             {
                 $values = @unserialize($data[0]['data']);
@@ -535,10 +559,9 @@ class Form
                     error_log($te);
                 }
             }
-
             // handle multiselect and checkboxes format
             // includes backwards compatibility for data stored as CSV
-            if (isset($data[0]['data']) && $data[0]['data'] != ''
+            else if (isset($data[0]['data']) && $data[0]['data'] != ''
                 && (substr($data[0]['format'], 0, 11) == 'multiselect'
                     || substr($data[0]['format'], 0, 10) == 'checkboxes'))
             {
@@ -595,9 +618,12 @@ class Form
 
             $form[$idx]['format'] = trim($inputType[0]);
 
-            $form[$idx]['child'] = $this->buildFormTree($data[0]['indicatorID'], $series, $recordID, $parseTemplate);
+            if(!$forceReadOnly) {
+                $form[$idx]['child'] = $this->buildFormTree($data[0]['indicatorID'], $series, $recordID, $parseTemplate);
+            }
         }
 
+        $this->cache["getIndicator_{$indicatorID}_{$series}_{$recordID}_{$parseTemplate}"] = $form;
         return $form;
     }
 
@@ -1679,15 +1705,24 @@ class Form
         // find out if explicit permissions have been granted to any groups
         if (count($multipleCategories) <= 1)
         {
-            $vars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID),
-                          ':userID' => $this->login->getUserID(), );
-            $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
-                                                        LEFT JOIN users USING (groupID)
-                                                        WHERE categoryID=:categoryID
-                                                            AND userID=:userID
-            												AND writable=1', $vars);
+            $resCategoryPrivs = null;
+            $cacheHash = 'hasWriteAccess_catPrivs_'.$categoryID.$this->login->getUserID();
+            if(isset($this->cache[$cacheHash])) {
+                $resCategoryPrivs = $this->cache[$cacheHash];
+            }
+            else {
+                $vars = array(':categoryID' => $categoryID,
+                              ':userID' => $this->login->getUserID());
+                $resCategoryPrivs = $this->db->prepared_query('SELECT COUNT(*) FROM category_privs
+                                                            LEFT JOIN users USING (groupID)
+                                                            WHERE categoryID=:categoryID
+                                                                AND userID=:userID
+                                                                AND writable=1
+                                                                AND active=1', $vars);
+                $this->cache[$cacheHash] = $resCategoryPrivs;
+            }
 
-            if (count($resCategoryPrivs) > 0)
+            if ($resCategoryPrivs[0]['COUNT(*)'] > 0)
             {
                 $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
                 $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
@@ -1702,13 +1737,14 @@ class Form
             {
                 $vars = array(':categoryID' => $category,
                               ':userID' => $this->login->getUserID(), );
-                $resCategoryPrivs = $this->db->prepared_query('SELECT * FROM category_privs
+                $resCategoryPrivs = $this->db->prepared_query('SELECT COUNT(*) FROM category_privs
                                                         LEFT JOIN users USING (groupID)
                                                         WHERE categoryID=:categoryID
                                                             AND userID=:userID
-            												AND writable=1', $vars);
+            												AND writable=1
+                                                            AND active=1', $vars);
 
-                if (count($resCategoryPrivs) > 0)
+                if ($resCategoryPrivs[0]['COUNT(*)'] > 0)
                 {
                     $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
                     $this->log["write"]["{$recordID}_{$categoryID}_group"] = 'You are in group with appropriate write permissions.';
@@ -3171,6 +3207,7 @@ class Form
         $joinRecordResolutionData = false;
         $joinRecordResolutionBy = false;
         $joinInitiatorNames = false;
+        $joinUnfilledDependencies = false;
         if (isset($query['joins']))
         {
             foreach ($query['joins'] as $table)
@@ -3221,6 +3258,8 @@ class Form
                         $joinInitiatorNames = true;
 
                         break;
+                    case 'unfilledDependencies':
+                        $joinUnfilledDependencies = true;
                     default:
                         break;
                 }
@@ -3496,6 +3535,21 @@ class Form
                 }
             }
 
+            if ($joinUnfilledDependencies) {
+                $formWorkflow = $this->getFormWorkflow();
+                $unfilledDependencies = $formWorkflow->getRecordsDependencyData($this, $data, true);
+                foreach ($unfilledDependencies as $ud) {
+                    $temp = [];
+                    $temp['description'] = $ud['description'];
+                    if(isset($ud['approverName'])) {
+                        $temp['approverName'] = $ud['approverName'];
+                    }
+                    if(isset($ud['approverUID'])) {
+                        $temp['approverUID'] = $ud['approverUID']; // uniquely identify approvers
+                    }
+                    $data[$ud['recordID']]['unfilledDependencyData'][$ud['dependencyID']] = $temp;
+                }
+            }
         }
 
         // check needToKnow mode
@@ -3507,8 +3561,7 @@ class Form
         // check actionable
         if ($filterActionable)
         {
-            include_once 'FormWorkflow.php';
-            $FormWorkflow = new FormWorkflow($this->db, $this->login, 0);
+            $FormWorkflow = $this->getFormWorkflow();
 
             $actionable = $FormWorkflow->getActionable($this, $data);
 
@@ -3526,7 +3579,7 @@ class Form
                 }
             }
             if($countPurged > 0) {
-                header('LEAF-Query: continue');
+                header('LEAF-Query: continue'); // signal frontend there might be more data
             }
         }
 
@@ -3874,9 +3927,6 @@ class Form
                 } else {
                     $idx = $field['indicatorID'];
                 }
-
-                // todo: cleanup required field
-                $required = isset($field['required']) && $field['required'] == 1 ? ' required="true" ' : '';
 
                 $child[$idx]['indicatorID'] = $field['indicatorID'];
                 $child[$idx]['series'] = $series;
