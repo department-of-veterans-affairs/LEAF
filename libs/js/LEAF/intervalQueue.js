@@ -1,15 +1,16 @@
 'use strict';
 
 var intervalQueue = function() {
-    var maxConcurrent = 2;
-    var queue = [];
-    var onCompleteCallback;
-    var workerFunction;
-    var workerErrorFunction;
+    let maxConcurrent = 2;
+    let queue = [];
+    let onCompleteCallback;
+    let workerFunction;
+    let workerErrorFunction;
 
-    var loading = 0;
-    var loaded = 0;
-    var interval = null;
+    let loading = 0;
+    let loaded = 0;
+    let interval = null;
+    let abortSignal;
 
     function setConcurrency(limit) {
         if(limit > 6) {
@@ -28,6 +29,15 @@ var intervalQueue = function() {
 
     function onComplete(func) {
         onCompleteCallback = func;
+    }
+
+    /**
+     * setAbortSignal assigns a DOM AbortSignal to determine whether further items in the queue should be cancelled
+     * @param {AbortSignal} signal
+     * @memberOf LeafFormQuery
+     */
+    function setAbortSignal(signal) {
+        abortSignal = signal;
     }
 
     function push(item) {
@@ -67,6 +77,13 @@ var intervalQueue = function() {
                             console.log(e);
                         }
                     }
+
+                    // empty the queue if aborting, and clear loading state
+                    if(abortSignal?.aborted) {
+                        queue = [];
+                        loading = 0;
+                        break;
+                    }
                 }
     
                 // When finished
@@ -96,6 +113,7 @@ var intervalQueue = function() {
         getLoaded: function() {
             return loaded;
         },
-        onComplete: onComplete
+        onComplete: onComplete,
+        setAbortSignal
     };
 };
