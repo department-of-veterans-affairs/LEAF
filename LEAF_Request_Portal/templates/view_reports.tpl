@@ -1274,8 +1274,16 @@ $(function() {
         let offset = 0;
         let queryResult = {};
         let abortLoad = false;
+        let masquerade = '';
+        let urlParams = new URLSearchParams(window.location.search);
+        let addMasqueradeParam = '';
+        urlMasqueradeParam = urlParams.get('masquerade');
+        if(urlMasqueradeParam == 'nonAdmin') {
+            addMasqueradeParam = '&masquerade=nonAdmin';
+        }
+
         leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
-        leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(','));
+        leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
 
         leafSearch.getLeafFormQuery().onSuccess(function(res, resStatus, resJqXHR) {
             queryResult = Object.assign(queryResult, res);

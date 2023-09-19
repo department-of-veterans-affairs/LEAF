@@ -2212,6 +2212,7 @@
             workflows[workflowID] = workflows[currentWorkflow];
             workflows[workflowID]['workflowID'] = parseInt(workflowID);
             workflows[workflowID]['description'] = title;
+            old_steps[-1] = -1;
 
             for(let i in steps) {
                 // add step, if successful update that step
