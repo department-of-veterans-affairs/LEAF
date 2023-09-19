@@ -3,10 +3,11 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+use App\Leaf\XSSHelpers;
+
 set_time_limit(240);
 
-require_once '../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $login->setBaseDir('../');
 $login->loginUser();
@@ -81,30 +82,30 @@ foreach ($res as $pos)
             $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
         }
 
-        echo "\"". Leaf\XSSHelpers::xscrub($pos['positionID']) . "\",";
-        echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']) ."\",";
-        echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['service']) ."\",";
-        echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']) ."\",";
-        echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Classification Title']) ."\",";
+        echo "\"". XSSHelpers::xscrub($pos['positionID']) . "\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['service']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Classification Title']) ."\",";
         if ($emp['lastName'] != ''
             && $emp['isActing'] == 0)
         {
-            echo "\"". Leaf\XSSHelpers::xscrub($emp['lastName']) .",". Leaf\XSSHelpers::xscrub($emp['firstName']) ."\",";
+            echo "\"". XSSHelpers::xscrub($emp['lastName']) .",". XSSHelpers::xscrub($emp['firstName']) ."\",";
         }
         else
         {
             echo '"",';
         }
-        echo "\"". Leaf\XSSHelpers::xscrub($emp['userName']) ."\",";
-        echo "\"". Leaf\XSSHelpers::xscrub($supervisorName) ."\",";
-        echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
-        echo "=\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
-        echo "=\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";
+        echo "\"". XSSHelpers::xscrub($emp['userName']) ."\",";
+        echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
+        echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
+        echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";
         //		echo "\"{$output[$pos['positionID']]['data']['FTE Ceiling']}\",";
         //		echo "\"{$output[$pos['positionID']]['data']['Current FTE']}\",";
-        echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE']) ."\",";
-        echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']) ."\",";
-        echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']) ."\",";
+        echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']) ."\",";
         if ($data[19]['data'] == 0)
         {
             echo '"Missing Total Headcount",';
@@ -129,22 +130,22 @@ foreach ($res as $pos)
                 $supervisorName = "{$supervisor[0]['lastName']}, {$supervisor[0]['firstName']}";
             }
 
-            echo "\"". Leaf\XSSHelpers::xscrub($pos['positionID']) ."\",";
-            echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']) ."\",";
-            echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['service']) ."\",";
-            echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']) ."\",";
-            echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Classification Title']) ."\",";
+            echo "\"". XSSHelpers::xscrub($pos['positionID']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['service']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Classification Title']) ."\",";
             echo '"",'; // vacant employee
             echo '"",'; // vacant employee
-            echo "\"". Leaf\XSSHelpers::xscrub($supervisorName) ."\",";
-            echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
-            echo "=\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
-            echo "=\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";
+            echo "\"". XSSHelpers::xscrub($supervisorName) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']) ."\",";
+            echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']) ."\",";
+            echo "=\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']) ."\",";
             //		echo "\"{$output[$pos['positionID']]['data']['FTE Ceiling']}\",";
             //		echo "\"{$output[$pos['positionID']]['data']['Current FTE']}\",";
-            echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE']) ."\",";
-            echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']) ."\",";
-            echo "\"". Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']) ."\",";
+            echo "\"". XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']) ."\",";
             if ($data[19]['data'] == 0)
             {
                 echo '"Missing Total Headcount",';

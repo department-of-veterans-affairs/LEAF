@@ -1064,6 +1064,7 @@ $(function() {
     dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
     dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
     leafSearch = new LeafFormSearch('searchContainer');
+    leafSearch.setJsPath('<!--{$app_js_path}-->');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
 

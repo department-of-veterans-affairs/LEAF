@@ -19,14 +19,14 @@
     </leaf-form-dialog>
 </div>
 
-<script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/form_editor/LEAF_FormEditor.js" defer></script>
+<script type="text/javascript" src="<!--{$app_js_path}-->/vue-dest/form_editor/LEAF_FormEditor.js" defer></script>
 
 <script>
     const CSRFToken = '<!--{$CSRFToken}-->';
     const APIroot = '<!--{$APIroot}-->';
     const libsPath = '<!--{$libsPath}-->';
     const orgchartPath = '<!--{$orgchartPath}-->';
-    
+
     let postRenderFormBrowser;
 
     $(function() {

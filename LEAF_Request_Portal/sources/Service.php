@@ -9,6 +9,11 @@
 
 */
 namespace Portal;
+use App\Leaf\Db;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\Logger\LogItem;
 
 class Service
 {
@@ -24,7 +29,7 @@ class Service
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -168,10 +173,10 @@ class Service
             // Update on duplicate keys
             $this->db->prepared_query($sql, $vars);
 
-            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::SERVICE_CHIEF, [
-                new \Leaf\LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
-                new \Leaf\LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("service_chiefs", "locallyManaged", "false")
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::SERVICE_CHIEF, [
+                new LogItem("service_chiefs","serviceID", $groupID, $this->getServiceName($groupID)),
+                new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)),
+                new LogItem("service_chiefs", "locallyManaged", "false")
             ]);
 
             // check if this service is also an ELT
@@ -232,10 +237,10 @@ class Service
      */
     public function importChief(int $serviceID, string $userID, string|null $backupID): array
     {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::SERVICE_CHIEF, [
-            new \Leaf\LogItem("service_chiefs","serviceID", $serviceID, $this->getServiceName($serviceID)),
-            new \Leaf\LogItem("service_chiefs", "userID", $userID, $this->getEmployeeDisplay($userID)),
-            new \Leaf\LogItem("service_chiefs", "locallyManaged", "false")
+        $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::SERVICE_CHIEF, [
+            new LogItem("service_chiefs","serviceID", $serviceID, $this->getServiceName($serviceID)),
+            new LogItem("service_chiefs", "userID", $userID, $this->getEmployeeDisplay($userID)),
+            new LogItem("service_chiefs", "locallyManaged", "false")
         ]);
         $sql_vars = array(':userID' => $userID,
                     ':serviceID' => $serviceID,
@@ -257,9 +262,9 @@ class Service
     public function deactivateChief(int $groupID, string $member): array
     {
         if (is_numeric($groupID) && $member != '') {
-            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::SERVICE_CHIEF, [
-                new \Leaf\LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID))
+            $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::SERVICE_CHIEF, [
+                new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member)),
+                new LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID))
             ]);
 
             $vars = array(':userID' => $member,
@@ -310,9 +315,9 @@ class Service
      */
     public function pruneChief(int $serviceID, string $userName): array
     {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::SERVICE_CHIEF, [
-            new \Leaf\LogItem("service_chiefs", "userID", $userName, $this->getEmployeeDisplay($userName)),
-            new \Leaf\LogItem("service_chiefs", "serviceID", $serviceID, $this->getServiceName($serviceID))
+        $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::SERVICE_CHIEF, [
+            new LogItem("service_chiefs", "userID", $userName, $this->getEmployeeDisplay($userName)),
+            new LogItem("service_chiefs", "serviceID", $serviceID, $this->getServiceName($serviceID))
         ]);
 
         $vars = array(':serviceID' => $serviceID,
@@ -348,9 +353,9 @@ class Service
      */
     public function reactivateChief(string $member, int $serviceID): array
     {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
-            new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-            new \Leaf\LogItem("users", "groupID", $serviceID, $this->getServiceName($serviceID))
+        $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::EMPLOYEE, [
+            new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+            new LogItem("users", "groupID", $serviceID, $this->getServiceName($serviceID))
         ]);
 
         $vars = array(':serviceID' => $serviceID,
@@ -385,9 +390,9 @@ class Service
             $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::SERVICE_CHIEF, [
-                new \Leaf\LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID)),
-                new \Leaf\LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
+            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::SERVICE_CHIEF, [
+                new LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID)),
+                new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
             ]);
 
             $sql = 'UPDATE service_chiefs
@@ -463,9 +468,9 @@ class Service
      */
     public function removeChief(int $serviceID, string $userID, string $backupID = ""): array
     {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE,\Leaf\LoggableTypes::SERVICE_CHIEF,[
-            new \Leaf\LogItem("service_chiefs","serviceID", $serviceID, $this->getServiceName($serviceID)),
-            new \Leaf\LogItem("service_chiefs", "userID", $userID, $this->getEmployeeDisplay($userID))
+        $this->dataActionLogger->logAction(DataActions::DELETE,LoggableTypes::SERVICE_CHIEF,[
+            new LogItem("service_chiefs","serviceID", $serviceID, $this->getServiceName($serviceID)),
+            new LogItem("service_chiefs", "userID", $userID, $this->getEmployeeDisplay($userID))
         ]);
 
         $vars = array(':userID' => $userID,
@@ -644,6 +649,6 @@ class Service
      */
     public function getHistory(?int $filterById): array
     {
-        return $this->dataActionLogger->getHistory($filterById, "serviceID", \Leaf\LoggableTypes::SERVICE_CHIEF);
+        return $this->dataActionLogger->getHistory($filterById, "serviceID", LoggableTypes::SERVICE_CHIEF);
     }
 }

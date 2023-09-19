@@ -9,10 +9,11 @@
 
 */
 
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
-require_once 'globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $oc_login->loginUser();
 if (!$oc_login->isLogin() || !$oc_login->isInDB())
@@ -47,10 +48,11 @@ else
     $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 }
 
-$t_login->assign('name', Leaf\XSSHelpers::xscrub($oc_login->getName()));
+$t_login->assign('name', XSSHelpers::xscrub($oc_login->getName()));
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
+$main->assign('app_js_path', APP_JS_PATH);
 
 switch ($action) {
     case 'getuploadprompt':
@@ -74,7 +76,7 @@ switch ($action) {
         $t_iframe->assign('categoryID', (int)$_GET['categoryID']);
         $t_iframe->assign('UID', (int)$_GET['UID']);
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
-        $t_iframe->assign('file', Leaf\XSSHelpers::xscrub(strip_tags($_GET['file'])));
+        $t_iframe->assign('file', XSSHelpers::xscrub(strip_tags($_GET['file'])));
         $t_iframe->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('body', $t_iframe->fetch('file_form_delete.tpl'));
 
@@ -113,7 +115,7 @@ switch ($action) {
 
         $t_iframe->left_delimiter = '<!--{';
         $t_iframe->right_delimiter = '}-->';
-        $t_iframe->assign('privileges', $oc_login->getIndicatorPrivileges(array((int)$_GET['indicatorID']), Leaf\XSSHelpers::xscrub($type), (int)$_GET['UID']));
+        $t_iframe->assign('privileges', $oc_login->getIndicatorPrivileges(array((int)$_GET['indicatorID']), XSSHelpers::xscrub($type), (int)$_GET['UID']));
         $t_iframe->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_iframe->assign('UID', (int)$_GET['UID']);
         $main->assign('body', $t_iframe->fetch('permission_iframe.tpl'));
@@ -180,6 +182,6 @@ $main->assign('title', $config->title);
 $main->assign('city', $config->city);
 
 $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
-$main->assign('revision', Leaf\XSSHelpers::xscrub($rev[0]['data']));
+$main->assign('revision', XSSHelpers::xscrub($rev[0]['data']));
 
 $main->display('main_iframe.tpl');

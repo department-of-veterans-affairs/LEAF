@@ -1,5 +1,5 @@
 <!--{if $empMembership['groupID'][1]}-->
-<script src="../libs/js/LEAF/intervalQueue.js"></script>
+<script src="<!--{$app_js_path}-->/LEAF/intervalQueue.js"></script>
 <style>
 li {
     padding: 8px;
@@ -79,20 +79,20 @@ $(function() {
                 }
             });
         });
-    
+
         queue.setOnWorkerError(function(item, reason) { // Errors can be logged here
             console.log(`Error processing: ${item}`);
         });
-    
+
         queue.onComplete(function() {
             return 'Complete';
         });
-    
+
         for(var i in sites) {
             queue.push(sites[i]);
             totalCount++;
         }
-    
+
     	queue.start().then(function() {
 			$('#outputLog').val($('#outputLog').val() + "\r\nDistribution complete!");
             $('#prodStatus').append('Distribution complete!<br />');
@@ -119,7 +119,7 @@ $(function() {
             sites = res.national_linkedSubordinateList.split(/\n/).filter(function(site) {
                 return site != "" ? true : false;
             });
-            
+
 			let queue = new intervalQueue();
             queue.setConcurrency(3);
             queue.setWorker(function(site) {
@@ -135,11 +135,11 @@ $(function() {
 					$('#loadingStatus').html(`Checking ${queue.getLoaded()} of ${sites.length} sites`);
                });
             });
-            
+
             sites.forEach(function(site, i) {
  				queue.push(site);
             });
-            
+
             queue.start().then(function() {
                 $('#loadingIndicator').slideUp();
                 if(siteErrors == 0) {

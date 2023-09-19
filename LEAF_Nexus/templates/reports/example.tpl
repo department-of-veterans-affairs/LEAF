@@ -1,9 +1,9 @@
-<script src="../libs/js/LEAF/formQuery.js"></script>
-<script src="../libs/js/LEAF/formGrid.js"></script>
+<script src="<!--{$app_js_path}-->/LEAF/formQuery.js"></script>
+<script src="<!--{$app_js_path}-->/LEAF/formGrid.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/2.3.0/bignumber.min.js"></script>
 
-<link rel="stylesheet" type="text/css" href="../libs/js/jquery/layout-grid/css/layout-grid.min.css" />
+<link rel="stylesheet" type="text/css" href="<!--{$app_js_path}-->/jquery/layout-grid/css/layout-grid.min.css" />
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-beta.27/dc.min.js"></script>

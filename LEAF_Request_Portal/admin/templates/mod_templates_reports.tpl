@@ -1,8 +1,8 @@
-<link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
-<link rel="stylesheet" href="../../libs/js/codemirror/theme/lucario.css">
+<link rel=stylesheet href="<!--{$app_js_path}-->/codemirror/addon/merge/merge.css">
+<link rel="stylesheet" href="<!--{$app_js_path}-->/codemirror/theme/lucario.css">
 <link rel="stylesheet" href="./css/mod_templates_reports.css">
-<script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
-<script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
+<script src="<!--{$app_js_path}-->/diff-match-patch/diff-match-patch.js"></script>
+<script src="<!--{$app_js_path}-->/codemirror/addon/merge/merge.js"></script>
 
 <div class="leaf-center-content">
     <div class="page-title-container">
@@ -208,7 +208,7 @@
             }
         });
     }
-    // creates a copy of the current file content 
+    // creates a copy of the current file content
     function saveFileHistory() {
         $.ajax({
             type: 'POST',
@@ -883,7 +883,7 @@
             'button_cancelchange');
         dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
             'confirm_button_save', 'confirm_button_cancelchange');
-        
+
         initializePage();
         updateFileList();
 

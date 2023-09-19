@@ -1,7 +1,7 @@
-<link rel="stylesheet" href="../../../libs/css/leaf.css" />
+<link rel="stylesheet" href='<!--{$app_css_path}-->/leaf.css' />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.1/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="../../../libs/js/promise-pollyfill/polyfill.min.js"></script>
+<script src="<!--{$app_js_path}-->/promise-pollyfill/polyfill.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <style>
@@ -61,7 +61,7 @@
         });
 
         $(".header-select").change(function(){
-            
+
             if(previewShowing){
                 $("#preview-tbody").empty();
                 $("#preview-data").hide();
@@ -73,7 +73,7 @@
 
         // step 1
         $("#step1btn").click( function(){
-            
+
             var input = document.getElementById('import-fileInput');
             if (input.files[0] != null) {
                 workbook = new WorkbookHelper(input.files[0]);
@@ -95,11 +95,11 @@
                 $("#importStep2").hide();
                 moveToComplete(results);
             });
-            
+
         });
 
         $("#preview-btn").click(function(){
-            
+
             var employeeEmailIndex = $('#employee-select').val();
             var supervisorEmailIndex = $('#supervisor-select').val();
             var positionIndex = $('#position-select').val();
@@ -128,7 +128,7 @@
                     "</td>"+
                 "</tr>");
             }
-            
+
             previewShowing = true;
             $("#preview-btn").hide();
             $("#step2btn").show();
@@ -150,7 +150,7 @@
             workbookData = workbook.getData(1); //skipping first row of headers
 
             var importedDataPromises = [];
-            
+
             for(var i= 0; i <workbookData.length; i++){
                 var workbookItem = workbookData[i];
                 importedDataPromises.push(
@@ -161,9 +161,9 @@
                             workbookItem[positionIndex])
                     )
                 );
-            } 
+            }
             return Promise.all(importedDataPromises);
-            
+
         }
 
          function doImport(employee){
@@ -197,7 +197,7 @@
 
                     // check if user exists in local to see if it needs to be imported
                     var localResult;
-                    
+
                     getLocalEmployeeData(employee.email).then(function(result){
                         localResult = result;
                         var localEmployeeData = null;
@@ -219,7 +219,7 @@
                                 }
 
                                 if(userImported){
-                                
+
                                     if(supervisorValid){
                                         employee.supervisorDisplayName = supervisorResponse.firstName + ' ' + supervisorResponse.lastName;
                                     }
@@ -233,11 +233,11 @@
                                     valid = userValid && supervisorValid && positionValid;
 
                                     if(valid){
-                                        
+
                                         var found = false;
-                                        
-                                        var supervisorLocalResult; 
-                                        
+
+                                        var supervisorLocalResult;
+
                                         getLocalEmployeeData(employee.supervisorEmail).then(function(result){
 
                                             supervisorLocalResult = result;
@@ -248,7 +248,7 @@
                                                 fullSupervisorInfo = supervisorLocalResult[Object.keys(supervisorLocalResult)[0]];
 
                                                 var supervisorPositions;
-                                                
+
                                                 getEmployeePositionData(fullSupervisorInfo.empUID).then(function(result){
 
                                                     supervisorPositions = result;
@@ -277,7 +277,7 @@
                                                         resolve(employee);
                                                     }
                                                 });
-                                                
+
                                             }
 
                                         });
@@ -321,7 +321,7 @@
                 });
 
             });
-            
+
         };
 
         function getPositionSupervisors(supervisors){
@@ -337,7 +337,7 @@
         }
 
         function addEmployeeToPosition(employeeID, positionID){
-            
+
             return new Promise(function(resolve, reject){
                 $.ajax({
                     type: 'POST',
@@ -364,11 +364,11 @@
                     dataType: 'json',
                     data: {CSRFToken: CSRFToken},
                     success: function(response) {
-                        
+
                         resolve(response);
                     },
                     error: function(response){
-                        
+
                         reject(response);
                     },
                     cache: false
@@ -388,7 +388,7 @@
                         resolve(response.employee.positions);
                     },
                     error: function(response){
-                        
+
                         reject(response);
                     },
                     cache: false
@@ -468,7 +468,7 @@
                 var newOption = $('<option value='+i+'>'+ (headers[i] ? headers[i] : '') +'</option>');
                 $(".header-select").append(newOption);
             }
-            
+
         }
 
         function moveToStepTwo(){
@@ -481,9 +481,9 @@
 
         function progress() {
             var val = progressbar.progressbar( "value" ) || 0;
-            
+
             progressbar.progressbar( "value", Math.floor( totalImported/totalRecords *100) );
-        
+
             if ( val <= 99 ) {
                 progressTimer = setTimeout( progress, 50 );
             }
@@ -511,21 +511,21 @@
                     errorCounter++;
                     $(newRow).css("background-color", "#FFC0CB");
                     $(newRow).append("<td class='errorMessage' style='border-style:none;'>" + results[i].errorMessage+ "</td>");
-                    
+
                 }
-                
-                
+
+
             }
 
             $("#status").text("Import successful, "+ (results.length - errorCounter) + " row(s) imported with " + errorCounter + " error(s).");
-            
+
         }
 
         function moveToComplete(results){
 
             buildResultsTable(results);
 
-            
+
             $("#step2").removeClass('current').addClass('complete');
             $("#importStep3").show();
             $("#step2").removeClass('next').addClass('complete');

@@ -11,6 +11,13 @@
 
 namespace Orgchart;
 
+use App\Leaf\CommonConfig;
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\XSSHelpers;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\LogItem;
+
 abstract class Data
 {
     protected $db;
@@ -38,7 +45,7 @@ abstract class Data
         $this->db = $db;
         $this->login = $login;
         $this->initialize();
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
     }
 
     /**
@@ -366,7 +373,7 @@ abstract class Data
         // Check for file uploads
         if (is_array($_FILES))
         {
-            $commonConfig = new \Leaf\CommonConfig();
+            $commonConfig = new CommonConfig();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
@@ -388,7 +395,7 @@ abstract class Data
                     if (in_array($fileExtension, $fileExtensionWhitelist))
                     {
                         $sanitizedFileName = $this->getFileHash($this->dataTableCategoryID, $UID, $indicator, $this->sanitizeInput($_FILES[$indicator]['name']));
-                        // $sanitizedFileName = \Leaf\XSSHelpers::scrubFilename($sanitizedFileName);
+                        // $sanitizedFileName = XSSHelpers::scrubFilename($sanitizedFileName);
                         if (!is_dir(Config::$uploadDir))
                         {
                             mkdir(Config::$uploadDir, 0755, true);
@@ -418,10 +425,10 @@ abstract class Data
                 // handle JSON indicator type
                 if (isset($res[0]['format']) && $res[0]['format'] == 'json')
                 {
-                    $res_temp = \Leaf\XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode($res[0]['data']), true));
+                    $res_temp = XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode($res[0]['data']), true));
                     if (is_array($res_temp))
                     {
-                        $_POST[$key] = \Leaf\XSSHelpers::scrubObjectOrArray(json_decode($_POST[$key], true));
+                        $_POST[$key] = XSSHelpers::scrubObjectOrArray(json_decode($_POST[$key], true));
 
                         $jsonKeys = array_keys($res_temp);
                         foreach ($jsonKeys as $jsonKey)
@@ -552,9 +559,9 @@ abstract class Data
 
         $this->updateLastModified();
 
-        $this->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::TAG, [
-            new \Leaf\LogItem($this->dataTagTable, $this->dataTableUID, $uid),
-            new \Leaf\LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        $this->logAction(DataActions::ADD, LoggableTypes::TAG, [
+            new LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
         ]);
 
         return true;
@@ -577,9 +584,9 @@ abstract class Data
 
         $this->updateLastModified();
 
-        $this->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::TAG, [
-            new \Leaf\LogItem($this->dataTagTable, $this->dataTableUID, $uid),
-            new \Leaf\LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        $this->logAction(DataActions::DELETE, LoggableTypes::TAG, [
+            new LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
         ]);
 
         return true;
@@ -597,9 +604,9 @@ abstract class Data
 
         $this->updateLastModified();
 
-        $this->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::TAG, [
-            new \Leaf\LogItem($this->dataTagTable, $this->dataTableUID, $uid),
-            new \Leaf\LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
+        $this->logAction(DataActions::DELETE, LoggableTypes::TAG, [
+            new LogItem($this->dataTagTable, $this->dataTableUID, $uid),
+            new LogItem($this->dataTagTable, "tag", $this->sanitizeInput($tag))
         ]);
 
         return true;
@@ -720,7 +727,7 @@ abstract class Data
     }
 
     public function getHistory($filterById){
-        return $this->dataActionLogger->getHistory($filterById, $this->dataTableUID, \Leaf\LoggableTypes::GROUP);
+        return $this->dataActionLogger->getHistory($filterById, $this->dataTableUID, LoggableTypes::GROUP);
     }
 
     /**
@@ -731,7 +738,7 @@ abstract class Data
     public function getAllHistoryIDs()
     {
         // this method doesn't accept any arguments
-        // return $this->dataActionLogger->getAllHistoryIDs($this->dataTableUID, \Leaf\LoggableTypes::GROUP);
+        // return $this->dataActionLogger->getAllHistoryIDs($this->dataTableUID, LoggableTypes::GROUP);
         return $this->dataActionLogger->getAllHistoryIDs();
     }
 
