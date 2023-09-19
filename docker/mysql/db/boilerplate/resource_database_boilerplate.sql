@@ -389,7 +389,7 @@ CREATE TABLE IF NOT EXISTS `records_dependencies` (
   UNIQUE KEY `recordID` (`recordID`,`dependencyID`),
   INDEX `filled` (`dependencyID`,`filled`),
   INDEX `time` (`time`),
-  CONSTRAINT `records_dependency_dependency`
+  CONSTRAINT `fk_records_dependencyID`
     FOREIGN KEY (`dependencyID`)
     REFERENCES `dependencies` (`dependencyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -437,7 +437,7 @@ CREATE TABLE IF NOT EXISTS `workflow_steps` (
   `stepData` TEXT NULL,
   PRIMARY KEY (`stepID`),
   INDEX `workflowID` (`workflowID`),
-  CONSTRAINT `workflow_steps_workflow`
+  CONSTRAINT `workflow_steps_ibfk_1`
     FOREIGN KEY (`workflowID`)
     REFERENCES `workflows` (`workflowID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
@@ -495,10 +495,10 @@ CREATE TABLE IF NOT EXISTS `workflow_routes` (
   UNIQUE KEY `workflowID` (`workflowID`,`stepID`,`actionType`),
   INDEX `stepID` (`stepID`),
   INDEX `actionType` (`actionType`),
-  CONSTRAINT `workflow_routes_workflow`
+  CONSTRAINT `workflow_routes_ibfk_1`
     FOREIGN KEY (`workflowID`)
     REFERENCES `workflows` (`workflowID`),
-  CONSTRAINT `workflow_routes_actionType`
+  CONSTRAINT `workflow_routes_ibfk_3`
     FOREIGN KEY (`actionType`)
     REFERENCES `actions` (`actionType`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -526,10 +526,10 @@ CREATE TABLE IF NOT EXISTS `step_dependencies` (
   `dependencyID` smallint(6) NOT NULL,
   UNIQUE KEY `stepID` (`stepID`,`dependencyID`),
   INDEX `dependencyID` (`dependencyID`),
-  CONSTRAINT `step_dependency_dependency`
+  CONSTRAINT `fk_step_dependencyID`
     FOREIGN KEY (`dependencyID`)
     REFERENCES `dependencies` (`dependencyID`),
-  CONSTRAINT `step_dependency_step`
+  CONSTRAINT `step_dependencies_ibfk_3`
     FOREIGN KEY (`stepID`)
     REFERENCES `workflow_steps` (`stepID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -565,7 +565,7 @@ CREATE TABLE IF NOT EXISTS `action_history` (
   INDEX `actionTypeID` (`actionTypeID`),
   INDEX `dependencyID` (`dependencyID`),
   INDEX `actionType` (`actionType`),
-  CONSTRAINT `action_history_action_type`
+  CONSTRAINT `action_history_ibfk_2`
     FOREIGN KEY (`actionTypeID`)
     REFERENCES `action_types` (`actionTypeID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -635,7 +635,7 @@ CREATE TABLE IF NOT EXISTS `category_count` (
   `count` tinyint(3) UNSIGNED NOT NULL,
   PRIMARY KEY (`recordID`,`categoryID`),
   INDEX `categoryID` (`categoryID`),
-  CONSTRAINT `category_count_category`
+  CONSTRAINT `category_count_ibfk_1`
     FOREIGN KEY (`categoryID`)
     REFERENCES `categories` (`categoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -653,7 +653,7 @@ CREATE TABLE IF NOT EXISTS `category_privs` (
   `writable` tinyint(4) NOT NULL,
   UNIQUE KEY `categoryID` (`categoryID`,`groupID`),
   INDEX `groupID` (`groupID`),
-  CONSTRAINT `category_privs_categories`
+  CONSTRAINT `category_privs_ibfk_2`
     FOREIGN KEY (`categoryID`)
     REFERENCES `categories` (`categoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -669,7 +669,7 @@ CREATE TABLE IF NOT EXISTS `category_staples` (
   `stapledCategoryID` varchar(20) NOT NULL,
   UNIQUE KEY `category_stapled` (`categoryID`,`stapledCategoryID`),
   INDEX `categoryID` (`categoryID`),
-  CONSTRAINT `category_staples_category`
+  CONSTRAINT `category_staples_ibfk_1`
     FOREIGN KEY (`categoryID`)
     REFERENCES `categories` (`categoryID`)
     ON DELETE CASCADE
@@ -703,7 +703,7 @@ CREATE TABLE IF NOT EXISTS `indicators` (
   INDEX `categoryID` (`categoryID`),
   INDEX `parentID` (`parentID`),
   INDEX `sort` (`sort`),
-  CONSTRAINT `indicator_category`
+  CONSTRAINT `indicators_ibfk_1`
     FOREIGN KEY (`categoryID`)
     REFERENCES `categories` (`categoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -798,7 +798,7 @@ CREATE TABLE IF NOT EXISTS `dependency_privs` (
   `groupID` mediumint(9) NOT NULL,
   UNIQUE KEY `dependencyID` (`dependencyID`,`groupID`),
   INDEX `groupID` (`groupID`),
-  CONSTRAINT `dependency_privs_dependency`
+  CONSTRAINT `fk_privs_dependencyID`
     FOREIGN KEY (`dependencyID`)
     REFERENCES `dependencies` (`dependencyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -868,10 +868,10 @@ CREATE TABLE IF NOT EXISTS `route_events` (
   INDEX `eventID` (`eventID`),
   INDEX `workflowID` (`workflowID`,`stepID`,`actionType`),
   INDEX `actionType` (`actionType`),
-  CONSTRAINT `route_events_actionType`
+  CONSTRAINT `route_events_ibfk_1`
     FOREIGN KEY (`actionType`)
     REFERENCES `actions` (`actionType`),
-  CONSTRAINT `route_events_event`
+  CONSTRAINT `route_events_ibfk_2`
     FOREIGN KEY (`eventID`)
     REFERENCES `events` (`eventID`)
     ON DELETE CASCADE
