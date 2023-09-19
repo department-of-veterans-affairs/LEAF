@@ -24,6 +24,7 @@ services:
     env_file: 
       - ./env_files/globals_local.env
       - ./env_files/secrets.env
+      - ./env_files/globals_leaf20_local.env
     build:
       context: ../
       dockerfile: docker/php/leaf_monlith.dockerfile
