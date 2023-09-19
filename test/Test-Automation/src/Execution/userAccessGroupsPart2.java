@@ -409,6 +409,11 @@ public class userAccessGroupsPart2 extends setupFramework {
 	    System.out.println("Clicked DELETE GROUP");
 	} 
 	
+
+	@Test(priority = 2240) 
+	private void confirmYes6() {			
+		confirmYes();
+	} 
 	
 	
 //	//  Dismiss JS Alert - 'OK' 

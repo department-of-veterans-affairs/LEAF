@@ -3,21 +3,17 @@
 <suite name="Failed suite [Default suite]" guice-stage="DEVELOPMENT">
   <test thread-count="5" name="Default test(failed)">
     <classes>
-      <class name="Execution.userAccessGroupsTESTING">
+      <class name="Execution.userAccessGroupsPart3">
         <methods>
-          <include name="testForCertPage"/>
-          <include name="inputNewGroupTitle"/>
-          <include name="addUserInNexus"/>
-          <include name="setUp"/>
+          <include name="deleteUserGroup"/>
           <include name="initializeFramework"/>
-          <include name="editGroupName"/>
-          <include name="saveUserGroupNexus"/>
-          <include name="getElementID"/>
-          <include name="selectSearchEmployeesOnly"/>
+          <include name="confirmYes"/>
+          <include name="openAccessGroup"/>
+          <include name="testForCertPage"/>
           <include name="closeDown"/>
-          <include name="createNexusDriver1"/>
+          <include name="setUp"/>
         </methods>
-      </class> <!-- Execution.userAccessGroupsTESTING -->
+      </class> <!-- Execution.userAccessGroupsPart3 -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->

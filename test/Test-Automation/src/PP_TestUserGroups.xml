@@ -17,7 +17,7 @@
 
    		
    		
-   		
+ -->	  		
    		
 	<test name="User Access Groups">
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
@@ -41,7 +41,7 @@
 		</parameter>
 	</test>
 
--->	
+
 
 	<test name="User Access Groups Part 3">
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
@@ -51,8 +51,6 @@
 			</classes>
 		</parameter>
 	</test>
-
-
 
 
 <!--
