@@ -42,19 +42,37 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         continue;
     }
 
-    // DateSelected * DaysSelected * what is a day anyway= how many days to bug this person.
+    //Reminders are either after specified days of inactivity or after a specific date.
+    //The other should be empty or null.  Dates are from datepicker entry in yyyy-mm-dd.
+    $reminderType = null;
     $daysago = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
+    $specificDate = isset($eventDataArray['AutomatedEmailReminders']['DateSelected']) ?
+        $eventDataArray['AutomatedEmailReminders']['DateSelected'] : '';
 
-    // pass ?current=asdasd to get the present time for testing purposes
-    $intialDaysAgoTimestamp = time() - ((int) $daysago * $timeAdjustment);
+    $intialCheckpointTimestamp = null;
+    if (!empty($daysago)) {
+        $reminderType = 'duration';
+        $intialCheckpointTimestamp = time() - ((int) $daysago * $timeAdjustment);
+    }
+    if (!empty($specificDate) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $specificDate)) {
+        $reminderType = 'date';
+        $ymd = explode('-', $specificDate);
+        $intialCheckpointTimestamp = mktime(0, 0, 0, (int) $ymd[1], (int) $ymd[2], (int) $ymd[0]);
+    }
+    if($reminderType === null) {
+        continue;
+    }
 
-    echo "Working on step: {$workflowStep['stepID']}, Initial Notification: ".date('Y-m-d H:i:s',$intialDaysAgoTimestamp)."\r\n";
+    echo "Working on step: {$workflowStep['stepID']}, Initial Notification: ".date('Y-m-d H:i:s',$intialCheckpointTimestamp)."\r\n";
 
     // step id, I think workflow id is also needed here
-    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$intialDaysAgoTimestamp)];
+    $getRecordVar = [
+        ':stepID' => $workflowStep['stepID'],
+        ':lastNotified' => date('Y-m-d H:i:s',$intialCheckpointTimestamp)
+    ];
 
-    // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
-    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`
+    //initial reminder. get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
+    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`, initialNotificationSent
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
         LEFT JOIN services USING(serviceID)
@@ -65,21 +83,30 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
 
     $getRecordResInitial = $db->prepared_query($getRecordSql, $getRecordVar);
 
-    foreach($getRecordResInitial as $getRecordResInitialKey=>$getRecordResInitialValue){
-        $getRecordResInitial[$getRecordResInitialKey]['daysSince'] = $daysago;
+    foreach($getRecordResInitial as $getRecordResInitialKey=>$getRecordResInitialValue) {
+        $getRecordResInitial[$getRecordResInitialKey]['daysSince'] = $reminderType === 'duration' ? $daysago : $specificDate;
     }
 
     // make sure additional days selected is set, this will be a required field moving forward however there is a chance this could not be set.
     if(empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
-        $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'] = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
+        if($reminderType === 'duration') {
+            $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'] =  $daysago;
+        } else {
+            //additional days should always be set for a date type reminder, but didn't want to put an arbitrary value
+            trigger_error($workflowStep['stepID']." Unexpected outcome: date type reminder additional days selected was not set\r\n");
+            continue;
+        }
     }
 
     $addldaysago = $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'];
     $addDaysAgoTimestamp = time() - ($addldaysago * $timeAdjustment);
 
-    $getRecordVar = [':stepID' => $workflowStep['stepID'], ':lastNotified' => date('Y-m-d H:i:s',$addDaysAgoTimestamp)];
-    // get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
-    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`
+    $getRecordVar = [
+        ':stepID' => $workflowStep['stepID'],
+        ':lastNotified' => date('Y-m-d H:i:s',$addDaysAgoTimestamp)
+    ];
+    //followup reminders. get the records that have not been responded to, had actions taken on, in x amount of time and never been responded to
+    $getRecordSql = 'SELECT records.recordID, records.title, records.userID, `service`, records.`submitted`, initialNotificationSent
         FROM records_workflow_state
         JOIN records ON records.recordID = records_workflow_state.recordID
         LEFT JOIN services USING(serviceID)
@@ -131,8 +158,13 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];
 
         // add in variables for the smarty template
+        $reminderText = $reminderType === 'duration' ||  $record['initialNotificationSent'] == 1 ?
+            $record['daysSince']." days" : $specificDate;
+            //NOTE: formatting? //date("F j, Y,
+            //$ymd = explode('-', $specificDate);
+
         $email->addSmartyVariables(array(
-            "daysSince" => $record['daysSince'],
+            "daysSince" => $reminderText,
             "actualDaysAgo" => $lastActionDays,
             "truncatedTitle" => $title,
             "fullTitle" => $record['title'],
