@@ -727,7 +727,7 @@ abstract class Data
     }
 
     public function getHistory($filterById){
-        return $this->dataActionLogger->getHistory($filterById, $this->dataTableUID, \Leaf\LoggableTypes::GROUP);
+        return $this->dataActionLogger->getHistory($filterById, $this->dataTableUID, LoggableTypes::GROUP);
     }
 
     /**
@@ -738,7 +738,7 @@ abstract class Data
     public function getAllHistoryIDs()
     {
         // this method doesn't accept any arguments
-        // return $this->dataActionLogger->getAllHistoryIDs($this->dataTableUID, \Leaf\LoggableTypes::GROUP);
+        // return $this->dataActionLogger->getAllHistoryIDs($this->dataTableUID, LoggableTypes::GROUP);
         return $this->dataActionLogger->getAllHistoryIDs();
     }
 

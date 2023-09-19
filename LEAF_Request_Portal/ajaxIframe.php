@@ -56,6 +56,7 @@ $t_menu->assign('hide_main_control', true);
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
 $main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
+$main->assign('app_js_path', APP_JS_PATH);
 
 $main->assign('emergency', '');
 $main->assign('useUI', false);

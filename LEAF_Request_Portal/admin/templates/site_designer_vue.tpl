@@ -29,7 +29,7 @@
     const userID = '<!--{$userID}-->';
 </script>
 
-<script type="text/javascript" src="<!--{$libsPath}-->js/vue-dest/site_designer/LEAF_designer.js" defer></script>
+<script type="text/javascript" src="<!--{$app_js_path}-->/vue-dest/site_designer/LEAF_designer.js" defer></script>
 <!--{else}-->
     <div class="lf-alert">The page you are looking for does not exist or may have been moved. Please update your bookmarks.</div>
 <!--{/if}-->

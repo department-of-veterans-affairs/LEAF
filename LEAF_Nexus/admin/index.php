@@ -48,6 +48,8 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 // HQ logo
 $main->assign('logo', '<img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
+$main->assign('app_js_path', APP_JS_PATH);
+$main->assign('app_css_path', APP_CSS_PATH);
 
 $t_login->assign('name', $oc_login->getName());
 
@@ -99,8 +101,10 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('css/employeeSelector.css', 'css/mod_system.css'));
-           $main->assign('javascripts', array('js/dialogController.js', 'js/employeeSelector.js'));
+           $main->assign('stylesheets', array(LEAF_NEXUS_URL . 'css/employeeSelector.css',
+                        LEAF_NEXUS_URL . 'css/mod_system.css'));
+           $main->assign('javascripts', array(LEAF_NEXUS_URL . 'js/dialogController.js',
+                        LEAF_NEXUS_URL . 'js/employeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -133,8 +137,8 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('admin/css/mod_groups.css', 'css/employeeSelector.css'));
-           $main->assign('javascripts', array('js/dialogController.js', 'js/nationalEmployeeSelector.js'));
+           $main->assign('stylesheets', array('../css/mod_groups.css', '../css/employeeSelector.css'));
+           $main->assign('javascripts', array('../js/dialogController.js', '../js/nationalEmployeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -161,8 +165,9 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', 'https://' . HTTP_HOST . '/app/api/');
-        $t_form->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
-        $main->assign('javascripts', array('https://' . HTTP_HOST . '/app/libs/js/LEAF/workbookhelper.js'));
+        $t_form->assign('app_css_path', APP_CSS_PATH);
+        $t_form->assign('app_js_path', APP_JS_PATH);
+        $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/workbookhelper.js'));
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
 
@@ -174,7 +179,7 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            $main->assign('useUI', true);
-           $main->assign('javascripts', array('js/dialogController.js',
+           $main->assign('javascripts', array('../js/dialogController.js',
                    'https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.js',
                    'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/xml/xml.js',
                    'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/javascript/javascript.js',
@@ -220,17 +225,17 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('js/nationalEmployeeSelector.js',
-                                           'js/positionSelector.js',
-                                           'js/groupSelector.js',
-                                           'js/dialogController.js',
-                                           'js/orgchartForm.js', ));
-        $main->assign('stylesheets', array('css/employeeSelector.css',
-                                           'css/view_employee.css',
-                                           'css/positionSelector.css',
-                                           'css/view_position.css',
-                                           'css/groupSelector.css',
-                                           'css/view_group.css', ));
+        $main->assign('javascripts', array('../js/nationalEmployeeSelector.js',
+                                           '../js/positionSelector.js',
+                                           '../js/groupSelector.js',
+                                           '../js/dialogController.js',
+                                           '../js/orgchartForm.js', ));
+        $main->assign('stylesheets', array('../css/employeeSelector.css',
+                                           '../css/view_employee.css',
+                                           '../css/positionSelector.css',
+                                           '../css/view_position.css',
+                                           '../css/groupSelector.css',
+                                           '../css/view_group.css', ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('userDomain', $oc_login->getDomain());
