@@ -15,8 +15,9 @@
 		</parameter>
 	</test>    
 
-
--->	
+   		
+   		
+   		
    		
 	<test name="User Access Groups">
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
@@ -25,10 +26,10 @@
 				<class name="Execution.userAccessGroups"/>
 			</classes>
 		</parameter>
-	</test>
+	</test>	
 
 
- 
+
  
 
 	<test name="User Access Groups Part 2">
@@ -39,6 +40,19 @@
 			</classes>
 		</parameter>
 	</test>
+
+-->	
+
+	<test name="User Access Groups Part 3">
+		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
+		<parameter name="browser" value="chrome"/>
+			<classes>
+				<class name="Execution.userAccessGroupsPart3"/>
+			</classes>
+		</parameter>
+	</test>
+
+
 
 
 <!--

@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
 import org.testng.AssertJUnit;
 import org.testng.asserts.*;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -158,6 +159,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 
 	
 	
+	//***************** Tests Begin *******************************************************
 	
 	@Test(priority = 1) //MUST REMAIN #1 ( or zero) -test for certificate - if no, click Advanced -> Proceed
 	private void testForCertPage() /*throws InterruptedException */ {
@@ -213,7 +215,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 	    highlightElement.highLightElement(driver, ele);
 	    ele.click();
 	    waitMethods.waiter(waitMethods.w2k);
-	    System.out.println("Clicked SYNC SERVICES");
+	    System.out.println("Navigate to Admin Panel");
 	} 
 	
 	
@@ -224,7 +226,19 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	
 	
-	@Test(priority = 2040) //
+	@Test(priority = 2040)
+	private void scrollUp() {
+		waitMethods.waiter(waitMethods.w500);
+		Actions a = new Actions(driver);
+		a.sendKeys(Keys.PAGE_UP).build().perform();
+		waitMethods.waiter(waitMethods.w1k);
+		System.out.println("Scroll UP");
+
+		
+	}
+	
+	
+	@Test(priority = 2050) //
 	private void openUserAccessGroups() {
 		waitMethods.waiter(waitMethods.w2k);
 		WebElement ele = driver.findElement(By.xpath("//span[contains(text(),'User Access Groups')]"));
@@ -234,29 +248,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 	    System.out.println("Opened User Group");
 	} 
 	
-	
-	@Test(priority = 2050)
-	private void scrollUp() {
-		waitMethods.waiter(waitMethods.w500);
-		Actions a = new Actions(driverNexus);
-		a.sendKeys(Keys.PAGE_UP).build().perform();
-		waitMethods.waiter(waitMethods.w1k);
-		System.out.println("Scroll UP");
-		
-		waitMethods.waiter(waitMethods.w1k);
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		js.executeScript("window.scrollBy(0,-300)", "");
-		
-		
-	}
-	
-	
-	
-	
-	@Test(priority = 2070) //
-	private void openAccessGroup() {
-		openUserAccessGroups();
-	} 
+
 	
 	
 	@Test(priority = 2080) //
@@ -299,7 +291,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	@Test(priority = 2120) 
 	private void confirmYes() {			
-		waitMethods.waiter(waitMethods.w200);
+		waitMethods.waiter(waitMethods.w500);
 		WebElement ele = driverNexus.findElement(By.id("confirm_button_save"));
         highlightElement.highLightElement(driverNexus, ele);  
         ele.click();	
@@ -314,7 +306,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 		waitMethods.waiter(waitMethods.w1k);	
 		WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[2]/div/div/div[1]/div/div[4]/div[2]/div[5]/a[2]")); 
         highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();	
+        ele.click();
         waitMethods.waiter(waitMethods.w100);
         System.out.println("Clicked Remove User - Walker, Taina");
 	}
@@ -418,40 +410,33 @@ public class userAccessGroupsPart2 extends setupFramework {
 	} 
 	
 	
+	
+//	//  Dismiss JS Alert - 'OK' 
+//	@Test(priority = 2240) //
+//	private void dismissOKAlertNexus() {
+//		waitMethods.waiter(waitMethods.w1k);
+//		Alert alert = driverNexus.switchTo().alert();
+//		alert.accept();
+//		//driverNexus.switchTo().alert().accept();
+//		 System.out.println("Dismiss JS Alert");
+//		 
+//		 /*
+//		  * This is what I use in formsWorkflowPart2
+//		  * driver.switchTo().alert().accept();
+//		  */
+//	}
+	
+	
 	// *********** END of Note to Comment out - will leave last 3 users and Not DELTE GROUP ************
 	
 	
-//	@Test(priority = 4000)
-//	public void closeDownNexus1() {
-//		closeDownNexus();
-//	}
-	
-
-	
-	@Test(priority = 5000) 
-	public void createPortalDriver1() {
-		//getDriver();
-		driver.navigate().to("https://localhost/LEAF_Request_Portal/admin/?a=mod_groups");
+	@Test(priority = 4000)
+	public void closeDownNexus1() {
+		closeDownNexus();
 	}
-	
 
 	
-	@Test(priority = 6000) //
-	private void openAccessGroup2() {
-		openUserAccessGroups();
-	} 
-	
-	
-	@Test(priority = 6500) //
-	private void deleteUserGroup() {
-		waitMethods.waiter(waitMethods.w1k);
-		WebElement ele = driver.findElement(By.xpath("//button[contains(text(),'Delete Group')]"));
-		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/a[16]/span[1]"));
-	    highlightElement.highLightElement(driver, ele);
-	    ele.click();
-	    System.out.println("Clicked SYNC SERVICES");
-	} 
-	
+
 	
 	
 }  //class userAccessGroupsPart2

@@ -215,7 +215,7 @@ public class userAccessGroups extends setupFramework {
 
 
 	@Test(priority = 120) 
-	private void cancelCreateUserGroup() {									//Click Cancel button
+	private void cancelCreateUserGroup() {			//Click Cancel button
 		waitMethods.waiter(waitMethods.w250);
 		WebElement ele = driver.findElement(By.id("button_cancelchange"));
         highlightElement.highLightElement(driver, ele);  
