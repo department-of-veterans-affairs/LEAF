@@ -920,6 +920,7 @@ var LeafFormSearch = function (containerID) {
                             '<option value="resolved">Resolved</option>';
                         categories +=
                             '<option value="actionable">Actionable by me</option>';
+                        //categories += '<option value="destruction">Scheduled for Destruction</option>';
                         for (var i in allStepsData) {
                             categories +=
                                 '<option value="' +
