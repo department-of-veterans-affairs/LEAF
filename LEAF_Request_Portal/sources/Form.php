@@ -2835,8 +2835,29 @@ class Form
      * @param string $inQuery - this is what is fed directly into query
      * @return array
      */
-    private function storeQueryForProcess(string $inQuery): array
+    private function storeQueryForProcess(string $inQuery): string
     {
+
+        // we need to look at the launch pad to get the site id, may be something here but I did not see it
+        $this->db->query("USE `national_leaf_launchpad`");
+        $siteVars = [
+            'portal_path' => '/'.PORTAL_PATH
+        ];
+        $siteSql = "SELECT id,site_type,site_path,site_uploads,portal_database,orgchart_path,orgchart_database FROM `sites` WHERE site_path = :portal_path LIMIT 1";
+        $siteInfo = $this->db->prepared_query($siteSql, $siteVars);
+
+        $siteLargeQueryVars = [
+            ':site_id' => $siteInfo[0]['id'],
+            ':created_at' => time()
+        ];
+        $insertSiteLargeQuerySql = 'INSERT INTO site_large_query ( site_id, created_at) 
+        VALUES (:site_id, :created_at) ON DUPLICATE KEY UPDATE created_at=:created_at, currently_running=0';
+        
+        $this->db->prepared_query($insertSiteLargeQuerySql, $siteLargeQueryVars);
+
+        // go back to the previous db.
+        $this->db->query("USE `{$siteInfo[0]['portal_database']}`");
+        
         $dir = new VAMC_Directory;
 
         // look up current user
@@ -2870,12 +2891,12 @@ class Form
 
             // else output the request if we have the proper user?
             http_response_code(202);
-            $returnData =  ['status' => 2, 'errors' => ["The data is being prepared, and you are number $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready."]];
+            $returnData =  "The data is being prepared, and you are number $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready.";
         } else {
             http_response_code(202);
-            $returnData =  ['status' => 2, 'errors' => ["The data is still being prepared, and you are number $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready."]];
+            $returnData =  "The data is still being prepared, and you are number $totalToProcess in line. You will receive an email containing the report link at {$user[0]['email']} when it is ready.";
         }
-
+        
         return $returnData;
     }
 
@@ -3164,6 +3185,7 @@ class Form
             $this->outputFile($inQuery);
 
             $retValue = $this->storeQueryForProcess($inQuery);
+
             if (!empty($retValue)) {
 
                 return $retValue;

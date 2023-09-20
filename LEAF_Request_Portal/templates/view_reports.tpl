@@ -810,7 +810,6 @@ function setExportFormat() {
 
         switch($('#format').val().toLowerCase()) {
             case 'json':
-            case 'bulkdatadownload':
                 $('#exportFormat').html('');
                 break;
             default:
@@ -830,7 +829,7 @@ let maxLimit = 10000;
 function setQueryLimit(currentQuery){
     
     switch($('#format').val().toLowerCase()) {
-        case 'bulkdatadownload':
+        case 'json':
             delete currentQuery.limit;
             delete currentQuery.limitOffset;
             break;
@@ -846,6 +845,10 @@ function showJSONendpoint() {
     let pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
     leafSearch.getLeafFormQuery().setLimit(0, maxLimit);
     let currentQuery = leafSearch.getLeafFormQuery().getQuery();
+
+    delete currentQuery.limit;
+    delete currentQuery.limitOffset;
+
     let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + JSON.stringify(currentQuery);
     let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
@@ -861,7 +864,6 @@ function showJSONendpoint() {
                            + '<option value="csv">CSV</option>'
                            + '<option value="xml">XML</option>'
                            + '<option value="debug">Plaintext</option>'
-                           + '<option value="bulkdatadownload">Bulk Data Download</option>'
                            + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
                            + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
