@@ -9,7 +9,6 @@ if (!defined('DIRECTORY_DB')) define('DIRECTORY_DB', getenv('DATABASE_DB_DIRECTO
 if (!defined('DIRECTORY_USER')) define('DIRECTORY_USER', getenv('DATABASE_USERNAME'));
 if (!defined('DIRECTORY_PASS')) define('DIRECTORY_PASS', getenv('DATABASE_PASSWORD'));
 
-if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS'));
 if (!defined('HTTP_HOST')) define('HTTP_HOST', getenv('APP_HTTP_HOST'));
 if (!defined('AUTH_URL')) define('AUTH_URL', getenv('APP_URL_AUTH'));
 if (!defined('AUTH_TYPE')) define('AUTH_TYPE', getenv('APP_AUTH_TYPE'));
@@ -31,6 +30,8 @@ $path = str_replace('qrcode', '', $path);
 $path = str_replace('scripts', '', $path);
 $path = str_replace('sources/../mailer', '', $path);
 $path = str_replace('utils', '', $path);
+$l_path = ltrim($path, '/');
 $path = rtrim($path, '/');
 
 if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $path);
+if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . $l_path);
