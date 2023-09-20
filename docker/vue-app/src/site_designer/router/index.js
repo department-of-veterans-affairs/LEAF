@@ -10,13 +10,17 @@ const routes = [
         redirect: { name: 'homepage' }
     },
     {
+        path: '/bodyarea', //fixes an issue caused by the hashed navskip in main.tpl
+        redirect: { name: 'homepage' }
+    },
+    {
         path: '/homepage',
         name: 'homepage',
         component: Homepage
     },
     {
-        path: '/testview',
-        name: 'testview',
+        path: '/testpage',
+        name: 'testpage',
         component: TestView
     }
 ];

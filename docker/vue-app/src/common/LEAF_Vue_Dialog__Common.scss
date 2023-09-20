@@ -49,6 +49,8 @@ input[type="color"] {
 }
 #vue-formeditor-app *, #site-designer-app *, #leaf_dialog_content * {
     box-sizing: border-box;
+}
+#vue-formeditor-app label, #site-designer-app label, #leaf_dialog_content label {
     font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
 }
 #vue-formeditor-app button:not(.choices__button,[class*="trumbowyg"]),
@@ -164,7 +166,8 @@ td a.router-link {
     
         h2 {
             color: inherit;
-            margin: 0;
+            font-size: 22px;
+            margin: 0 1.5rem 0 0;
         }
     } 
     #leaf-vue-dialog-close {

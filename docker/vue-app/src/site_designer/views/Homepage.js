@@ -1,6 +1,13 @@
 import { computed } from 'vue';
+
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import DesignCardDialog from "../components/dialog_content/DesignCardDialog.js";
+import ConfirmPublishDialog from "../components/dialog_content/ConfirmPublishDialog.js";
+import ConfirmDeleteDialog from "../components/dialog_content/ConfirmDeleteDialog.js";
+import NewDesignDialog from "../components/dialog_content/NewDesignDialog.js";
+import HistoryDialog from "../components/dialog_content/HistoryDialog.js";
+
+import CustomHeader from "../components/CustomHeader.js";
 import CustomHomeMenu from "../components/CustomHomeMenu";
 import CustomSearch from "../components/CustomSearch";
 
@@ -8,116 +15,93 @@ export default {
     name: 'homepage',
     data() {
         return {
-            menuIsUpdating: false,
             builtInIDs: ["btn_reports","btn_bookmarks","btn_inbox","btn_new_request"],
+            pageSections: ['header', 'menuCardList', 'menuDirection', 'searchHeaders'],
             menuItem: {},
+
+            header: null,
+            menuDirection: null,
+            menuCardList: null,
+            searchHeaders: null
         }
     },
-    created() {
-        console.log('homepage view created, getting design data')
-        this.getDesignData();
-    },
     mounted() {
-        console.log('homepage mounted')
+        if(this.selectedDesignContent !== null) {
+            this.setSectionData(this.selectedDesignContent);
+        }
+    },
+    unmounted() {
+        console.log('search unmounted')
     },
     inject: [
-        'CSRFToken',
-        'APIroot',
         'appIsGettingData',
-        'appIsPublishing',
-        'toggleEnableTemplate',
-        'updateLocalDesignData',
-        'getDesignData',
-        'designData',
+        'appIsUpdating',
+        'postDesignContent',
+        'selectedDesign',
+        'currentDesignID',
+        'currentView',
         'isEditingMode',
+        'generateID',
 
+        'openDesignCardDialog',
         'showFormDialog',
         'dialogFormContent',
-        'setDialogTitleHTML',
-        'setDialogContent',
-        'openDialog'
+        'dialogProps'
     ],
     provide() {
         return {
             menuItem: computed(() => this.menuItem),
             menuDirection: computed(() => this.menuDirection),
-            menuItemList: computed(() => this.menuItemList),
-            chosenHeaders: computed(() => this.chosenHeaders),
-            menuIsUpdating: computed(() => this.menuIsUpdating),
+            menuCardList: computed(() => this.menuCardList),
+            searchHeaders: computed(() => this.searchHeaders),
+            header: computed(() => this.header),
 
             builtInIDs: this.builtInIDs,
             setMenuItem: this.setMenuItem,
+            updateHomeDesign: this.updateHomeDesign,
             updateMenuItemList: this.updateMenuItemList,
-            postHomeMenuSettings: this.postHomeMenuSettings,
-            postSearchSettings: this.postSearchSettings
         }
     },
     components: {
         LeafFormDialog,
         DesignCardDialog,
+        ConfirmPublishDialog,
+        ConfirmDeleteDialog,
+        NewDesignDialog,
+        HistoryDialog,
+
+        CustomHeader,
         CustomHomeMenu,
         CustomSearch
     },
     computed: {
-        enabled() {
-            return parseInt(this.designData?.homepage_enabled) === 1;
+        selectedDesignContent() {
+            return this.selectedDesign === null ? null : JSON.parse(this.selectedDesign?.designContent || '{}');
         },
-        menuItemList() {
-            let returnVal;
-            if (this.appIsGettingData) {
-                returnVal = null;
-            } else {
-                const homeData = JSON.parse(this.designData?.homepage_design_json || "{}");
-                let menuItems = homeData?.menuCards || [];
-                menuItems.map(item => {
-                    item.link = XSSHelpers.decodeHTMLEntities(item.link);
-                    item.title = XSSHelpers.decodeHTMLEntities(item.title);
-                    item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
-                });
-                returnVal = menuItems.sort((a,b) => a.order - b.order);
-            }
-            return returnVal;
-        },
-        menuDirection() {
-            let returnVal;
-            if (this.appIsGettingData) {
-                returnVal = null;
-            } else {
-                const homeData = JSON.parse(this.designData?.homepage_design_json || "{}");
-                returnVal = homeData?.direction || 'v';
-            }
-            return returnVal;
-        },
-        chosenHeaders() {
-            let returnVal;
-            if (this.appIsGettingData) {
-                returnVal = null;
-            } else {
-                const searchTemplateJSON = this.designData?.search_design_json || "{}";
-                const obj = JSON.parse(searchTemplateJSON);
-                returnVal = obj?.chosenHeaders || [];
-            }
-            return returnVal
-        },
+        showSearch() {
+            return this.isEditingMode || (!this.isEditingMode && this.searchHeaders?.length > 0);
+        }
     },
     methods: {
-        openDesignButtonDialog() {
-            this.setDialogTitleHTML('<h2>Menu Editor</h2>');
-            this.setDialogContent('design-card-dialog');
-            this.openDialog();
-        },
-        generateID() {
-            let result = '';
-            do {
-                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                for (let i = 0; i < 5; i++ ) {
-                   result += characters.charAt(Math.floor(Math.random() * characters.length));
-                }
-            } while (this.buttonIDExists(result));
-            return result;
-        },
-        buttonIDExists(ID = '') {
-            return this.menuItemList.some(button => button?.id === ID);
+        setSectionData(content = {}) {
+            this.header = content?.header || {};
+            if(this.header.title !== undefined) {
+                this.header.title = XSSHelpers.stripAllTags(
+                    XSSHelpers.decodeHTMLEntities(this.header.title)
+                ).trim();
+            }
+
+            this.menuDirection = content?.menu?.direction || 'v';
+
+            let menuItems = content?.menu?.menuCards || [];
+            menuItems.map(item => {
+                item.link = XSSHelpers.decodeHTMLEntities(item.link);
+                item.title = XSSHelpers.decodeHTMLEntities(item.title);
+                item.subtitle = XSSHelpers.decodeHTMLEntities(item.subtitle);
+            });
+            this.menuCardList = menuItems.sort((a,b) => a.order - b.order);
+
+            this.searchHeaders = content?.searchHeaders || [];
         },
         /**
          * @param {object|null} menuItem set menuitem for editing
@@ -125,12 +109,33 @@ export default {
         setMenuItem(menuItem = null) {
             this.menuItem = menuItem !== null ? menuItem :
                 {
-                    id: this.generateID(),
-                    order: this.menuItemList.length,
+                    id: this.generateID(this.menuCardList, 'id'),
+                    order: this.menuCardList.length,
                     enabled: 0
                 }
 
-            this.openDesignButtonDialog();
+            this.openDesignCardDialog();
+        },
+        /**
+         * @param {string} designKey 
+         * @param {mixed} designVal 
+         */
+        updateHomeDesign(designKey = '', designVal = '') {
+            if (this.pageSections.includes(designKey)) {
+                this[designKey] = designVal;
+
+                this.postDesignContent(
+                    JSON.stringify({
+                        menu: {
+                            menuCards: this.menuCardList || [],
+                            direction: this.menuDirection || 'v',
+                        },
+                        header: this.header || '{}',
+                        searchHeaders: this.searchHeaders || []
+                    }),
+                    designKey
+                );
+            }
         },
         /**
          * Updates order on drop and click to move, or adds new/edited item.  Posts the updated list
@@ -138,9 +143,9 @@ export default {
          * @param {boolean} markedForDeletion
          */
         updateMenuItemList(menuItem = null, markedForDeletion = false) {
-            let newItems = this.menuItemList.map(item => ({...item}));
+            let newItems = this.menuCardList.map(item => ({...item}));
 
-            if (menuItem === null) { //update the order after drag drop or clickToMove
+            if (menuItem === null) { //if null, update the order after drag drop or clickToMove
                 let itemIDs = []
                 let elList = Array.from(document.querySelectorAll('ul#menu > li'));
                 elList.forEach(li => itemIDs.push(li.id));
@@ -152,61 +157,44 @@ export default {
                     }
                 });
 
-            } else { //editing modal - either updating or deleting an item
+            } else { //if not null, editing modal is being used
                 newItems = newItems.filter(item => item.id !== menuItem.id);
                 if (markedForDeletion !== true) {
                     newItems.push(menuItem);
                 }
             }
-            this.postHomeMenuSettings(newItems, this.menuDirection);
-        },
-        postHomeMenuSettings(menuCards = this.menuItemList, direction = this.menuDirection) {
-            this.menuIsUpdating = true;
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}site/settings/homepage_design_json`,
-                data: {
-                    CSRFToken: this.CSRFToken,
-                    home_menu_list: menuCards,
-                    menu_direction: direction
-                },
-                success: (res) => {
-                    if(+res?.code !== 1) {
-                        console.log('unexpected response returned:', res);
-                    } else {
-                        const newJSON = JSON.stringify({menuCards, direction})
-                        this.updateLocalDesignData('homepage', newJSON);
-                    }
-                    this.menuIsUpdating = false;
-                },
-                error: (err) => console.log(err)
-            });
+            this.menuCardList = newItems.sort((a,b) => a.order - b.order);
+            this.updateHomeDesign('menuCardList', newItems)
         },
     },
-    template: `<div v-if="appIsGettingData" style="border: 2px solid black; text-align: center; 
-        font-size: 24px; font-weight: bold; padding: 16px;">
+    watch: {
+        selectedDesign(newVal, oldVal) {
+            if(newVal !== null) {
+                this.setSectionData(this.selectedDesignContent);
+            } else {
+                this.header = null;
+                this.searchHeaders = null;
+                this.menuCardList = null;
+                this.menuDirection = null;
+                this.menuItem = {};
+            }
+        }
+    },
+    template: `<div v-if="appIsGettingData" class="loading">
         Loading... 
         <img src="../images/largespinner.gif" alt="loading..." />
     </div>
-    <div v-else id="site_designer_hompage">
-        <h3 id="designer_page_header" :class="{editMode: isEditingMode}" style="margin: 1rem 0;">
-            {{ isEditingMode ? 'Editing the Homepage' : 'Homepage Preview'}}
-        </h3>
-        <h4 style="margin: 0.5rem 0;">This page is {{ enabled ? '' : 'not'}} enabled</h4>
-        <button type="button" @click="toggleEnableTemplate('homepage')"
-            class="btn-confirm" :class="{enabled: enabled}" 
-            style="width: 100px; margin-bottom: 1rem;" :disabled="appIsPublishing">
-            {{ enabled ? 'Disable' : 'Publish'}}
-        </button>
-        <div style="color:#b00000; border:1px solid #b00000; width:100%;">TODO banner section</div>
-        <div style="display: flex; flex-wrap: wrap;">
-            <custom-home-menu v-if="menuItemList!==null"></custom-home-menu>
-            <custom-search v-if="chosenHeaders!==null"></custom-search>
+    <div>
+        <CustomHeader v-if="header!==null" :key="'header_' + currentDesignID" />
+        <div id="menu_and_search" :class="{editMode: isEditingMode}">
+            <customHomeMenu v-if="menuCardList!==null" :key="'menu_' + currentDesignID" />
+            <customSearch v-if="searchHeaders!==null && showSearch" :key="'search_' + currentDesignID" />
         </div>
-        <!-- HOMEPAGE DIALOGS -->
+
+        <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
-                <component :is="dialogFormContent"></component>
+                <component :is="dialogFormContent" :dialogProps="dialogProps"></component>
             </template>
         </leaf-form-dialog>
     </div>`

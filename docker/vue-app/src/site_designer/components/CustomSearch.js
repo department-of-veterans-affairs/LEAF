@@ -2,7 +2,7 @@ export default {
     name: 'custom-search',
     data() {
         return {
-            searchIsUpdating: false,
+            isSearching: false,
             months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
             adminHeaders: {
                 date: {
@@ -103,7 +103,7 @@ export default {
                     name: 'Initiator',
                     indicatorID: 'initiator',
                     editable: false,
-                    callback: function(data, blob) {
+                    callback: (data, blob) => {
                         let elContainer = document.querySelector(`#${data.cellContainerID}`);
                         if(elContainer !== null) {
                             elContainer.innerHTML = blob[data.recordID].firstName + " " + blob[data.recordID].lastName;
@@ -113,44 +113,63 @@ export default {
             },
             sort: {column:'recordID', direction: 'desc'},
             headerOptions: ['date', 'title', 'service', 'status', 'initiatorName'],
-            chosenHeadersSelect: [...this.chosenHeaders],
-            mostRecentHeaders: '',
+            searchHeadersSelect: [...this.searchHeaders],
             choicesSelectID: 'choices_header_select',
+
             /*TODO: obj, keys same, other info eg bgcolor [date:{bgcolor:#,}]?
 
             getData: [],
             hilite: [status === 'approved', date < #,  lastaction > #],
             hide: []*/
-            //categoryName automatically included in joins because it's needed for the title
-            potentialJoins:["service","status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"]
         }
     },
     mounted() {
-        //console.log('search mounted, DOM available');
-        if(this.chosenHeadersSelect.length === 0) {
-            this.chosenHeadersSelect = ['date','title','service','status'];
-            this.createChoices();
-            this.postSearchSettings();
-        } else {
-            this.createChoices();
+        this.createChoices();
+        let search = document.getElementById('searchContainer');
+        if(this.isEditingMode === false && this.searchHeadersSelect?.length > 0 && this.isSearching === false && search !== null) {
+            search.innerHTML = '';
             this.main();
         }
     },
     inject: [
-        'APIroot',
-        'CSRFToken',
         'userID',
         'rootPath',
         'orgchartPath',
         'isEditingMode',
-        'chosenHeaders',
+        'appIsUpdating',
+        'searchHeaders',
+        'updateHomeDesign',
+        'currentDesignID',
+        'openHistoryDialog'
     ],
+    computed: {
+        contentChanged() {
+            return JSON.stringify(this.searchHeaders) !== JSON.stringify(this.searchHeadersSelect);
+        },
+        searchJoins() {
+            const potentialJoins = ["service","categoryName", "status","initiatorName","action_history","stepFulfillmentOnly","recordResolutionData"];
+            let joins = [];
+            this.searchHeadersSelect.forEach(col => {
+                switch(col) {
+                    case 'title':
+                        joins.push('categoryName');
+                        break;
+                    default:
+                        if(potentialJoins.includes(col)) {
+                            joins.push(col);
+                        }
+                    break;
+                }
+            });
+            return joins;
+        }
+    },
     methods: {
         createChoices() {
             const elSelect = document.getElementById(this.choicesSelectID);
             if (elSelect !== null && elSelect.multiple === true && elSelect?.getAttribute('data-choice') !== 'active') {
                 //add any saved ones first, so that the order will be retained
-                let options = [...this.chosenHeadersSelect];
+                let options = [...this.searchHeadersSelect];
                 this.headerOptions.forEach(o => {
                     if (!options.includes(o)) {
                         options.push(o);
@@ -159,7 +178,7 @@ export default {
                 options = options.map(o =>({
                     value: o,
                     label: this.getLabel(o),
-                    selected: this.chosenHeadersSelect.includes(o)
+                    selected: this.searchHeadersSelect.includes(o)
                 }));
                 const choices = new Choices(elSelect, {
                     allowHTML: false,
@@ -170,8 +189,15 @@ export default {
                 });
                 elSelect.choicesjs = choices;
             }
-            document.querySelector(`#${this.choicesSelectID} ~ input.choices__input`)
-                .setAttribute('aria-labelledby', this.choicesSelectID + '_label');
+            //508 fix to set listbox and option role attrs for inner selection / deletion display
+            let innerSelect = elSelect.nextElementSibling;
+            if(innerSelect !== null) {
+                innerSelect.setAttribute('role', 'listbox');
+                let choicesOptions = innerSelect.querySelectorAll(`.choices__item.choices__item--selectable`);
+                choicesOptions.forEach(o => {
+                    o.setAttribute('role', 'option');
+                });
+            }
         },
         getLabel(option) {
             let label = '';
@@ -191,39 +217,8 @@ export default {
             }
             return label;
         },
-        removeChoices() {
-            const elSelect = document.getElementById(this.choicesSelectID);
-            if (elSelect.choicesjs !== undefined && typeof elSelect.choicesjs.destroy === 'function') {
-                elSelect.choicesjs.destroy();
-            }
-        },
-        postSearchSettings() {
-            if (JSON.stringify(this.chosenHeadersSelect) !== this.mostRecentHeaders) {
-                this.searchIsUpdating = true;
-                $.ajax({
-                    type: 'POST',
-                    url: `${this.APIroot}site/settings/search_design_json`,
-                    data: {
-                        CSRFToken: this.CSRFToken,
-                        chosen_headers: this.chosenHeadersSelect,
-                    },
-                    success: (res) => {
-                        if(+res?.code !== 1) {
-                            console.log('unexpected response returned:', res);
-                        }
-                        document.getElementById('searchContainer').innerHTML = '';
-                        setTimeout(() => {
-                            this.main();
-                            this.searchIsUpdating = false;
-                        }, 150);
-                    },
-                    error: (err) => console.log(err)
-                });
-            } else console.log('headers have not changed');
-        },
         renderResult(leafSearch, res) {
-            const searchHeaders = this.chosenHeadersSelect.map(h => ({ ...this.adminHeaders[h]}));
-            this.mostRecentHeaders = JSON.stringify(this.chosenHeadersSelect);
+            const searchHeaders = this.searchHeadersSelect.map(h => ({ ...this.adminHeaders[h]}));
             let grid = new LeafFormGrid(leafSearch.getResultContainerID(), { readOnly: true });
             grid.setRootURL(this.rootPath);
             grid.hideIndex();
@@ -240,6 +235,7 @@ export default {
             grid.announceResults();
         },
         main() {
+            this.isSearching = true;
             let query = new LeafFormQuery();
             query.setRootURL(this.rootPath);
 
@@ -298,75 +294,76 @@ export default {
                 this.renderResult(leafSearch, resultSet);
                 window.scrollTo(0, scrollY);
                 // UI for "show more results" button
-                document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults ? 'inline' : 'none';
+                document.querySelector('#searchContainer_getMoreResults').style.display = !loadAllResults && this.isEditingMode === false ? 'inline' : 'none';
+                this.isSearching = false;
             });
-            leafSearch.setSearchFunc((txt) => {
-                if(txt === undefined || txt === 'undefined') {
-                    txt = '';
-                    let elInput = document.querySelector('input[id$="_searchtxt"]');
-                    if(elInput !== null) {
-                        elInput.value = '';
-                    }
-                }
-                // prep new search
-                query.clearTerms();
-                resultSet = {};
-                offset = 0;
-                loadAllResults = false;
-                scrollY = 0;
-                abortSearch = false;
-    
-                let isJSON = true;
-                let advSearch = {};
-                try {
-                    advSearch = JSON.parse(txt);
-                } catch(err) {
-                    isJSON = false;
-                }
 
-                txt = txt ? txt.trim() : '';
-                if(txt == '') {
-                    query.addTerm('title', 'LIKE', '*');
-                } else if(!isNaN(parseFloat(txt)) && isFinite(txt)) { // check if numeric
-                    query.addTerm('recordID', '=', txt);
-                } else if(isJSON) {
-                    for(let i in advSearch) {
-                        if(advSearch[i].id != 'data'
-                            && advSearch[i].id != 'dependencyID') {
-                            query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+            const designID = +this.currentDesignID;
+            leafSearch.setSearchFunc((txt) => {
+                if(!this.isEditingMode && designID === +this.currentDesignID) { //make sure the CB still set for the current design and not a prior one
+                    if(txt === undefined || txt === 'undefined') {
+                        txt = '';
+                        let elInput = document.querySelector('input[id$="_searchtxt"]');
+                        if(elInput !== null) {
+                            elInput.value = '';
                         }
-                        else {
-                            query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+                    } else {
+                        txt = (txt || '').trim();
+                    }
+                    // prep new search
+                    query.clearTerms();
+                    resultSet = {};
+                    offset = 0;
+                    loadAllResults = false;
+                    scrollY = 0;
+                    abortSearch = false;
+
+                    let advSearch = {};
+                    let isJSON = true;
+                    try {
+                        advSearch = JSON.parse(txt);
+                    } catch(err) {
+                        isJSON = false;
+                    }
+
+                    if(txt === '') {
+                        query.addTerm('title', 'LIKE', '*');
+                    } else if(!isNaN(parseFloat(txt)) && isFinite(txt)) { // check if numeric
+                        query.addTerm('recordID', '=', txt);
+                    } else if(isJSON) {
+                        for(let i in advSearch) {
+                            if(advSearch[i].id != 'data'
+                                && advSearch[i].id != 'dependencyID') {
+                                query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+                            }
+                            else {
+                                query.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
+                            }
+                        }
+                    } else {
+                        query.addTerm('title', 'LIKE', '*' + txt + '*');
+                    }
+
+                    // check if the user wants to search for cancelled requests
+                    let hasDeleteQuery = false;
+                    for(let i in query.getQuery().terms) {
+                        if(query.getQuery().terms[i].id == 'stepID'
+                            && query.getQuery().terms[i].operator == '='
+                            && query.getQuery().terms[i].match == 'deleted') {
+                            hasDeleteQuery = true;
+                            break;
                         }
                     }
-                } else {
-                    query.addTerm('title', 'LIKE', '*' + txt + '*');
-                }
-    
-                // check if the user wants to search for cancelled requests
-                let hasDeleteQuery = false;
-                for(let i in query.getQuery().terms) {
-                    if(query.getQuery().terms[i].id == 'stepID'
-                        && query.getQuery().terms[i].operator == '='
-                        && query.getQuery().terms[i].match == 'deleted') {
-                        hasDeleteQuery = true;
-                        break;
+                    // hide cancelled requests by default
+                    if(!hasDeleteQuery) {
+                        query.addTerm('deleted', '=', 0);
                     }
+
+                    query.setLimit(batchSize);
+                    this.searchJoins.forEach(j => query.join(j));
+                    query.sort('date', 'DESC');
+                    return query.execute();
                 }
-                // hide cancelled requests by default
-                if(!hasDeleteQuery) {
-                    query.addTerm('deleted', '=', 0);
-                }
-    
-                query.setLimit(batchSize);
-                query.join('categoryName');
-                this.potentialJoins.forEach(j => {
-                    if (this.chosenHeadersSelect.includes(j)) {
-                        query.join(j);
-                    }
-                });
-                query.sort('date', 'DESC');
-                return query.execute();
             });
             leafSearch.init();
             document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = '<h3>Searching for records...</h3>';
@@ -385,22 +382,45 @@ export default {
                 }
                 offset += batchSize;
                 query.setLimit(offset, batchSize);
-                query.execute()
+                query.execute();
             });
         }
     },
-    template: `<section style="display: flex; flex-direction: column; width: fit-content;">
-        <div v-show="isEditingMode" class="designer_inputs" style="margin-top: 2rem;">
-            <div>
-                <label :id="choicesSelectID + '_label'">Select headers in the order that you would like them to appear</label>
-                <select :id="choicesSelectID" v-model="chosenHeadersSelect" multiple></select>
+    watch: {
+        isEditingMode(newVal, oldVal) {
+            let search = document.getElementById('searchContainer');
+            if(search !== null) {
+                search.innerHTML = '';
+                if(newVal === false && this.searchHeadersSelect?.length > 0) {
+                    this.main();
+                }
+            }
+        }
+    },
+    template: `<section style="display: flex; flex-direction: column;" :style="{margin: isEditingMode ? '0' : 'auto'}" :key="'searchsection_' + currentDesignID">
+        <div v-show="isEditingMode" id="edit_search">
+            <div class="design_control_heading">
+                <h3>Search Controls</h3>
+                <button type="button" id="custom_search_last_update" @click.prevent="openHistoryDialog"
+                    style="display: none;">
+                </button>
             </div>
+            <p>Select table headers in the order that you would like them to appear 
+            (Choose no headers for no search section).</p>
+            <label :id="choicesSelectID + '_label'" style="display:block;">Selected headers
+                <select :id="choicesSelectID" v-model="searchHeadersSelect" multiple></select>
+            </label>
             <button type="button" class="btn-confirm" style="align-self: flex-end;"
-                @click="postSearchSettings" :disabled="searchIsUpdating || chosenHeadersSelect.length===0">Apply Selections
+                :disabled="appIsUpdating || !contentChanged"
+                @click="updateHomeDesign('searchHeaders', searchHeadersSelect)">Save Changes
             </button>
         </div>
-        <div id="searchContainer" style="padding-top:2px;"></div>
-        <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">
+        <div v-if="isSearching" class="loading">
+            Loading...
+            <img src="../images/largespinner.gif" alt="loading..." />
+        </div>
+        <div v-show="!isSearching" id="searchContainer"></div>
+        <button v-show="!isEditingMode" id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">
             Show more records
         </button>
     </section>`

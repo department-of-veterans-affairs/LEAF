@@ -17,6 +17,7 @@ class LogFormatter
         LoggableTypes::EMAIL_TEMPLATE_BODY => EmailTemplateFormatter::TEMPLATES,
         LoggableTypes::TEMPLATE_BODY => TemplateFormatter::TEMPLATES,
         LoggableTypes::TEMPLATE_REPORTS_BODY => AppletFormatter::TEMPLATES,
+        LoggableTypes::TEMPLATE_DESIGN => DesignFormatter::TEMPLATES,
     );
 
     public static function getFormattedString($logData, $logType){

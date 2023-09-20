@@ -63,6 +63,26 @@ if (class_exists('Portal\Config')) {
     if (!defined('PORTAL_CONFIG')) define('PORTAL_CONFIG', $config);
 }
 
+$design_pages = Array(
+    0 => 'homepage_enabled',
+    1 => 'testpage_enabled'
+);
+$activeDesignIDs = '';
+foreach ($design_pages as $i => $page) {
+    if (isset($settings[$page]) && (int)$settings[$page] > 0) { //NOTE: design id of published design or 0
+        $activeDesignIDs .= $settings[$page].',';
+    }
+}
+$activeDesignIDs = trim($activeDesignIDs, ',');
+if (strlen($activeDesignIDs) > 0) {
+    $sql = "SELECT designID, templateName, designContent FROM template_designs WHERE designID IN ({$activeDesignIDs})";
+    $res = $db->prepared_query($sql, null);
+    foreach($res as $record) {
+        $page = $record['templateName'];
+        $design_data[$page][] = $record;
+    }
+}
+
 $vars = array(':site_path' => $site_paths['orgchart_path']);
 $sql = 'SELECT site_uploads
         FROM sites

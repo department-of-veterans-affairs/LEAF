@@ -289,6 +289,10 @@ switch ($action) {
                 $type = new Portal\Applet($db, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
+            case 'design':
+                $type = new Portal\Design($db, $login);
+                $t_form->assign('titleOverride', ' ');
+                break;
         }
 
 

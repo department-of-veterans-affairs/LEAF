@@ -61,6 +61,12 @@ $controllerMap->register('site', function () use ($p_db, $login, $action) {
     echo $siteController->handler($action);
 });
 
+$controllerMap->register('design', function () use ($p_db, $login, $action) {
+    $design = new Portal\Design($p_db, $login);
+    $designController = new Portal\DesignController($design);
+    echo $designController->handler($action);
+});
+
 // admin only
 if ($login->checkGroup(1))
 {
