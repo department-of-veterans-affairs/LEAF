@@ -6,7 +6,7 @@
  * @subpackage PluginsModifier
  */
 
-use App\Leaf\XSSHelpers;
+use Leaf\XSSHelpers;
 
 /**
  * Smarty HTML sanitation modifier plugin
