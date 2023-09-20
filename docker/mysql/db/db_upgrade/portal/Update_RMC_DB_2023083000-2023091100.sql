@@ -12,7 +12,7 @@ START TRANSACTION;
 
 ALTER TABLE `data` DROP INDEX `data`;
 
-UPDATE `settings` SET `data` = '2023082401' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2023083000' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
 */
