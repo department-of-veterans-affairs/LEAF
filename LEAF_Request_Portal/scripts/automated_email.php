@@ -48,6 +48,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $daysago = $eventDataArray['AutomatedEmailReminders']['DaysSelected'];
     $specificDate = isset($eventDataArray['AutomatedEmailReminders']['DateSelected']) ?
         $eventDataArray['AutomatedEmailReminders']['DateSelected'] : '';
+    $formattedDate = null;
 
     $intialCheckpointTimestamp = null;
     if (!empty($daysago)) {
@@ -58,6 +59,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $reminderType = 'date';
         $ymd = explode('-', $specificDate);
         $intialCheckpointTimestamp = mktime(0, 0, 0, (int) $ymd[1], (int) $ymd[2], (int) $ymd[0]);
+        $formattedDate = date("F j, Y", $intialCheckpointTimestamp);
     }
     if($reminderType === null) {
         continue;
@@ -84,8 +86,9 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $getRecordResInitial = $db->prepared_query($getRecordSql, $getRecordVar);
 
     foreach($getRecordResInitial as $getRecordResInitialKey=>$getRecordResInitialValue) {
-        $getRecordResInitial[$getRecordResInitialKey]['daysSince'] = $reminderType === 'duration' ? $daysago : $specificDate;
+        $getRecordResInitial[$getRecordResInitialKey]['daysSince'] = $daysago;
     }
+
 
     // make sure additional days selected is set, this will be a required field moving forward however there is a chance this could not be set.
     if(empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
@@ -158,14 +161,20 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];
 
         // add in variables for the smarty template
-        $reminderText = $reminderType === 'duration' ||  $record['initialNotificationSent'] == 1 ?
-            $record['daysSince']." days" : $specificDate;
-            //NOTE: formatting? //date("F j, Y,
-            //$ymd = explode('-', $specificDate);
+        $pl = (int)$record['daysSince'] > 1 ? 's' : '';
+        $pla = (int)$lastActionDays > 1 ? 's' : '';
+        $reminderBodyText = "Number of days outstanding: <b>".$lastActionDays." day".$pla."</b>";
+
+        $reminderBodyText .= $reminderType === 'duration' ?
+            " (Threshold: ".$record['daysSince']." day".$pl.")" : " (Date reminder: ".$formattedDate.")";
+
+        $daysSinceText = $reminderType === 'duration' || $record['initialNotificationSent'] == 1 ?
+            $record['daysSince']."+ Day" : $formattedDate." Date";
 
         $email->addSmartyVariables(array(
-            "daysSince" => $reminderText,
-            "actualDaysAgo" => $lastActionDays,
+            "daysSince" => $daysSinceText,      //used in email subject.  retaining variable name for backward compat
+            "actualDaysAgo" => $lastActionDays, //customized template backward compat
+            "reminderBodyText" => $reminderBodyText,
             "truncatedTitle" => $title,
             "fullTitle" => $record['title'],
             "recordID" => $record['recordID'],
@@ -189,6 +198,6 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
                                             WHERE recordID=:recordID';
         $db->prepared_query($updateRecordsWorkflowStateSql, $updateRecordsWorkflowStateVars);
 
-        echo "Email sent for {$record['recordID']} \r\n";
+        echo "Email sent for {$record['recordID']} ({$daysSinceText}) \r\n";
     }
 }
