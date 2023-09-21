@@ -553,6 +553,7 @@ switch ($action) {
             $t_form->assign('tpl_search', 'nocode_templates/view_search.tpl');
             $main->assign('body', $t_form->fetch('./templates/nocode_templates/view_homepage.tpl'));
         } else {
+            $t_form->assign('app_js_path', APP_JS_PATH);
             $t_form->assign('tpl_search', customTemplate('view_search.tpl'));
             $main->assign('body', $t_form->fetch(customTemplate('view_homepage.tpl')));
         }
