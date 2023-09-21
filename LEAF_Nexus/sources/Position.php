@@ -290,7 +290,7 @@ class Position extends Data
         $res = $this->db->prepared_query('SELECT * FROM positions
                                             WHERE positionID=:positionID', $vars);
 
-        if (count($res[0]) > 0)
+        if (isset($res[0]))
         {
             $data['employeeList'] = $this->getEmployees($positionID);
 

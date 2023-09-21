@@ -664,7 +664,7 @@ class FormWorkflow
      * @param string $comment
      * @return array {status(int), errors[string]}
      */
-    public function handleAction(int $dependencyID, string $actionType, string $comment = ''): array
+    public function handleAction(int $dependencyID, string $actionType, ?string $comment = ''): array
     {
         if (!is_numeric($dependencyID))
         {
