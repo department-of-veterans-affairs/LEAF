@@ -887,7 +887,7 @@ class Employee extends Data
      * @param string $login
      * @param bool $searchDeleted
      */
-    public function lookupLogin($login, bool $searchDeleted = false): array
+    public function lookupLogin($login, bool $searchDeleted = true): array
     {
         $cacheHash = "lookupLogin{$login}";
         if (isset($this->cache[$cacheHash]))
@@ -896,7 +896,7 @@ class Employee extends Data
         }
 
         $sqlVars = array(':login' => $login);
-        $accountStatus = $searchDeleted ? "" : " AND deleted = 0";
+        $accountStatus = $searchDeleted ? '' : ' AND deleted = 0';
         $strSQL = "SELECT empUID, userName, lastName, firstName, middleName,
             phoneticFirstName, phoneticLastName, domain, deleted, lastUpdated, new_empUUID
             FROM {$this->tableName} WHERE userName = :login".$accountStatus;
@@ -1098,7 +1098,6 @@ class Employee extends Data
                 LEFT JOIN {$this->tableName} USING (empUID)
                 WHERE indicatorID = 6
                     AND data = :email
-                    AND deleted = 0
                 {$this->limit}";
 
         $vars = array(':email' => $email);
@@ -1346,6 +1345,7 @@ class Employee extends Data
             case substr(strtolower($input), 0, 3) === 'vba':
             case substr(strtolower($input), 0, 3) === 'cem':
             case substr(strtolower($input), 0, 3) === 'oit':
+            case substr(strtolower($input), 0, 3) === 'vtr':
             case substr(strtolower($input), 0, 9) === 'username:':
                 if ($this->debug)
                 {
