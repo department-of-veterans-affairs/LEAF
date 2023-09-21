@@ -661,7 +661,7 @@ class FormWorkflow
      * Handle an action
      * @param int $dependencyID
      * @param string $actionType
-     * @param string $comment
+     * @param string (optional) $comment
      * @return array {status(int), errors[string]}
      */
     public function handleAction(int $dependencyID, string $actionType, ?string $comment = ''): array
@@ -1118,7 +1118,7 @@ class FormWorkflow
      * @param int $workflowID
      * @param int $stepID
      * @param string $actionType
-     * @param string $comment
+     * @param string (optional) $comment
      * @return array {status(int), errors[]}
      * @throws Exception
      */
