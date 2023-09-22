@@ -1114,7 +1114,7 @@ class Employee extends Data
                         AND deleted = 0
                         {$this->limit}";
 
-        $vars = array(':phone' => $this->parseWildcard('*' . $phone));
+        $vars = array(':phone' => $this->parseWildcard('*' . $phone)); 
 
         return $this->db->prepared_query($sql, $vars);
     }
@@ -1339,7 +1339,7 @@ class Employee extends Data
                 $searchResult = $this->lookupEmail($input);
 
                 break;
-            // Format: Loginname && will search all active and disabled accounts
+            // Format: Loginname && Will search all active and disabled accounts
             case substr(strtolower($input), 0, 3) === 'vha':
             case substr(strtolower($input), 0, 4) === 'vaco':
             case substr(strtolower($input), 0, 3) === 'vba':
@@ -1352,8 +1352,33 @@ class Employee extends Data
                     $this->log[] = 'Format Detected: Loginname';
                 }
                 $input = str_replace('username:', '', strtolower($input));
-                $searchResult = $this->lookupLogin($input, true);
+                $searchResult = $this->lookupLogin($input);
 
+                break;
+            //explicit search for disabled accounts
+            case substr(strtolower($input), 0, 18) === 'username_disabled:':
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Loginname';
+                }
+                $input = str_replace('username_disabled:', '', strtolower($input));
+                $searchResult = $this->lookupLogin($input, true);
+                break;
+            case substr(strtolower($input), 0, 9) === 'disabled:':
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Loginname';
+                }
+                $input = str_replace('disabled:', '', strtolower($input));
+                $searchResult = $this->lookupLogin($input, true);
+                break;
+            case substr(strtolower($input), 0, 14) === 'disabled.user:':
+                if ($this->debug)
+                {
+                    $this->log[] = 'Format Detected: Loginname';
+                }
+                $input = str_replace('disabled.user:', '', strtolower($input));
+                $searchResult = $this->lookupLogin($input, true);
                 break;
             // Format: ID number
             case (substr($input, 0, 1) == '#') && is_numeric(substr($input, 1)):
