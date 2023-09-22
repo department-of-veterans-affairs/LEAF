@@ -149,8 +149,9 @@ class FormWorkflow
      * @param array $srcRecords list of records
      * @param array $pdRecords list of record IDs that utilize "person designated"
      * @param array $pdIndicator list of indicator IDs mapped to "person designated" fields
+     * @param bool $skipNames set true to exclude employee lookups
      */
-    private function includePersonDesignatedData(array $srcRecords, array $pdRecords, array $pdIndicators): array
+    private function includePersonDesignatedData(array $srcRecords, array $pdRecords, array $pdIndicators, bool $skipNames = false): array
     {
         // sanitize for use in query
         $pdIndicators = array_map(function($x) {
@@ -182,7 +183,13 @@ class FormWorkflow
         // merge approver data
         foreach($srcRecords as $i => $v) {
             if($v['dependencyID'] == -1 && isset($dRecords[$v['recordID']])) {
-                $res[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$v['recordID']]['data']);
+                if($res[$i]['isActionable'] == 0) {
+                    $res[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$v['recordID']]['data']);
+                }
+
+                if($skipNames) {
+                    continue;
+                }
                 $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
 
                 if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
@@ -237,6 +244,8 @@ class FormWorkflow
             $res = $this->db->prepared_query($strSQL, []);
         }
 
+        $personDesignatedRecords = []; // map of records using "person designated"
+        $personDesignatedIndicators = []; // map of indicators using "person designated"
         foreach ($res as $depRecord) {
             $depRecordID = $depRecord['recordID'];
             if(!isset($records[$depRecordID]['isActionable'])) {
@@ -260,12 +269,8 @@ class FormWorkflow
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
-                    $resEmpUID = $form->getIndicator($depRecord['indicatorID_for_assigned_empUID'], 1, $depRecord['recordID'], null, true);
-
-                    // make sure the right person has access
-                    $empUID = $resEmpUID[$depRecord['indicatorID_for_assigned_empUID']]['value'];
-
-                    $records[$depRecordID]['isActionable'] = $this->checkEmployeeAccess($empUID);
+                    $personDesignatedRecords[$depRecord['recordID']] = 1;
+                    $personDesignatedIndicators[$depRecord['indicatorID_for_assigned_empUID']] = 1;
                     break;
 
                 case -2: // dependencyID -2 is for requestor followup
@@ -300,6 +305,10 @@ class FormWorkflow
                     }
                     break;
             }
+        }
+
+        if(count($personDesignatedRecords) > 0) {
+            $records = $this->includePersonDesignatedData($records, array_keys($personDesignatedRecords), array_keys($personDesignatedIndicators), true);
         }
 
         return $records;
