@@ -138,6 +138,70 @@ class FormWorkflow
     }
 
     /**
+     * includePersonDesignatedApproverData efficiently merges approver data to $srcRecords, for a
+     * given list of $pdRecordList and $pdIndicators.
+     * 
+     * WARNING: This function should only be used to support getRecordsDependencyData().
+     *          Usage in other areas must be carefully reviewed as this retrieves data without
+     *          checking for valid access. The $pdIndicators variable must only contain indicator IDs
+     *          that are related to a "person designated" field AND workflow that utilizes the "person 
+     *          designated" feature.
+     * @param array $srcRecords list of records
+     * @param array $pdRecords list of record IDs that utilize "person designated"
+     * @param array $pdIndicator list of indicator IDs mapped to "person designated" fields
+     */
+    private function includePersonDesignatedData(array $srcRecords, array $pdRecords, array $pdIndicators): array
+    {
+        // sanitize for use in query
+        $pdIndicators = array_map(function($x) {
+                            return (int)$x;
+                        }, $pdIndicators);
+        $pdIndicators = implode(',', $pdIndicators);
+
+        $pdRecords = array_map(function($x) {
+                        return (int)$x;
+                    }, $pdRecords);
+        $pdRecords = implode(',', $pdRecords);
+
+        $query = "SELECT recordID, `data`, `name` FROM `data`
+                    LEFT JOIN indicators USING (indicatorID)
+                    WHERE indicatorID IN ({$pdIndicators}) 
+                        AND recordID IN ({$pdRecords})
+                        AND series=1
+                        AND disabled=0";
+        $res = $this->db->prepared_query($query, []);
+
+        // create map
+        $dRecords = [];
+        foreach($res as $record) {
+            $dRecords[$record['recordID']]['data'] = $record['data'];
+            $dRecords[$record['recordID']]['name'] = $record['name'];
+        }
+
+        $dir = $this->getDirectory();
+        // merge approver data
+        foreach($srcRecords as $i => $v) {
+            if($v['dependencyID'] == -1 && isset($dRecords[$v['recordID']])) {
+                $res[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$v['recordID']]['data']);
+                $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
+
+                if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                    $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $dRecords[$v['recordID']]['name'] . ')';
+                    $srcRecords[$i]['approverName'] = $dRecords[$v['recordID']]['name'];
+                    $srcRecords[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
+                }
+                else {
+                    $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
+                    $srcRecords[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
+                    $srcRecords[$i]['approverUID'] = $approver[0]['Email'];
+                }
+            }
+        }
+
+        return $srcRecords;
+    }
+
+    /**
      * Adds an "isActionable" parameter for each record within $records
      * @param object $form instance of Form
      * @param array $records result set from a query on db:records. Requires 'recordID'.
@@ -288,6 +352,8 @@ class FormWorkflow
             $this->cache['unfilledRecordsDependencyData'.sha1($recordIDs)] = $res; // the selected columns must be a superset of the columns in getActionable()
         }
 
+        $personDesignatedRecords = []; // map of records using "person designated"
+        $personDesignatedIndicators = []; // map of indicators using "person designated"
         foreach ($res as $i => $record) {
             // override access if user is in the admin group
             $res[$i]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable
@@ -299,20 +365,8 @@ class FormWorkflow
             if ($res[$i]['isActionable']) {
                 switch($res[$i]['dependencyID']) {
                     case -1: // dependencyID -1 is for a person designated by the requestor
-                        $dir = $this->getDirectory();
-                        $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID'], null, true);
-                        $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
-
-                        if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
-                            $res[$i]['approverName'] = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'];
-                            $res[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
-                        }
-                        else {
-                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                            $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
-                            $res[$i]['approverUID'] = $approver[0]['Email'];
-                        }
+                        $personDesignatedRecords[$res[$i]['recordID']] = 1;
+                        $personDesignatedIndicators[$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                         break;
                     case -2: // dependencyID -2 is for requestor followup
                         $dir = $this->getDirectory();
@@ -356,27 +410,8 @@ class FormWorkflow
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
-                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID'], null, true);
-
-                    // make sure the right person has access
-                    $empUID = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value'];
-
-                    $res[$i]['isActionable'] = $this->checkEmployeeAccess($empUID);
-
-                    $resEmpUID = $form->getIndicator($res[$i]['indicatorID_for_assigned_empUID'], 1, $res[$i]['recordID'], null, true);
-                    $dir = $this->getDirectory();
-                    $approver = $dir->lookupEmpUID($resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['value']);
-
-                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'] . ')';
-                        $res[$i]['approverName'] = $resEmpUID[$res[$i]['indicatorID_for_assigned_empUID']]['name'];
-                        $res[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
-                    }
-                    else {
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                        $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
-                        $res[$i]['approverUID'] = $approver[0]['Email'];
-                    }
+                    $personDesignatedRecords[$res[$i]['recordID']] = 1;
+                    $personDesignatedIndicators[$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                     break;
 
                 case -2: // dependencyID -2 is for requestor followup
@@ -429,6 +464,10 @@ class FormWorkflow
                     }
                     break;
             }
+        }
+
+        if(count($personDesignatedRecords) > 0) {
+            $res = $this->includePersonDesignatedData($res, array_keys($personDesignatedRecords), array_keys($personDesignatedIndicators));
         }
 
         return $res;
