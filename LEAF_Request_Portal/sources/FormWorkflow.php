@@ -169,7 +169,7 @@ class FormWorkflow
                     WHERE indicatorID IN ({$pdIndicators}) 
                         AND recordID IN ({$pdRecords})
                         AND series=1
-                        AND disabled=0";
+                        AND `disabled`=0";
         $res = $this->db->prepared_query($query, []);
 
         // create map
@@ -1124,7 +1124,7 @@ class FormWorkflow
      * Checks if logged in user has access to the given empUID
      * Also checks if the current user is a backup of the given empUID
      *
-     * $empUID should be a string, if it is not thus method will
+     * $empUID should be an int, if it is not thus method will
      * not return the expected result. setting the type in the method
      * signature to mixed as we currently have string, array and null
      * coming through.
@@ -1134,31 +1134,30 @@ class FormWorkflow
      */
     public function checkEmployeeAccess(mixed $empUID): bool
     {
+        $empUID = (int)$empUID;
         if ($empUID == $this->login->getEmpUID())
         {
             return true;
         }
 
-        if(isset($this->cache['checkEmployeeAccess_'.$empUID])) {
-            return $this->cache['checkEmployeeAccess_'.$empUID];
+        if(isset($this->cache['checkEmployeeAccess'])) {
+            return isset($this->cache['checkEmployeeAccess'][$empUID]);
         }
 
         $nexusDB = $this->login->getNexusDB();
-        $vars = array(':empID' => $empUID);
-        $strSQL = 'SELECT * FROM relation_employee_backup WHERE empUID =:empID';
+        $vars = array(':currEmpUID' => $this->login->getEmpUID());
+        $strSQL = 'SELECT empUID FROM relation_employee_backup
+                    WHERE backupEmpUID =:currEmpUID
+                        AND approved=1';
         $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
+        $this->cache['checkEmployeeAccess'] = [];
         foreach ($backupIds as $row)
         {
-            if ($row['backupEmpUID'] == $this->login->getEmpUID())
-            {
-                $this->cache['checkEmployeeAccess_'.$empUID] = true;
-                return true;
-            }
+            $this->cache['checkEmployeeAccess'][$row['empUID']] = true;
         }
 
-        $this->cache['checkEmployeeAccess_'.$empUID] = false;
-        return false;
+        return isset($this->cache['checkEmployeeAccess'][$empUID]);
     }
 
     /**
