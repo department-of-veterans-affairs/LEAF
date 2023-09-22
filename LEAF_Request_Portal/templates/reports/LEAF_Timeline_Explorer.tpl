@@ -356,7 +356,6 @@ function loadData(site, categoryID) {
     let siteURL = getSiteURL(site);
     let promise = new Promise((resolve, reject) => {
         let query = new LeafFormQuery();
-        let batchLimit = 5000;
         let index = 0;
 
         query.addTerm('dateSubmitted', '>=', queryFirstDateSubmitted);
@@ -367,19 +366,9 @@ function loadData(site, categoryID) {
         query.join('action_history');
         query.join('service');
         query.setExtraParams('&x-filterData=recordID,service,categoryID,action_history.stepID,action_history.time');
-        query.setLimit(batchLimit);
         query.onSuccess(function(res) {
-            if(Object.keys(res).length > 0) {
-                processData(res, categoryData[site][categoryID], site);
-                let dispIndex = index > 0 ? `${index} ` : '';
-                $('#progressDetail').html(`Processing ${dispIndex}records (${dataCategories[categoryID]})...`);
-                index += batchLimit;
-                query.setLimit(index, batchLimit);
-                query.execute();
-            }
-            else {
-                resolve();
-            }
+            processData(res, categoryData[site][categoryID], site);
+            resolve();
         });
 
         for(let i in getDataFields) {
@@ -481,17 +470,25 @@ function renderGrid() {
     grid.setData(dataTimelineRes);
     grid.setDataBlob(dataTimelineRes);
     let headers = [
-        {name: 'Site', indicatorID: 'site', callback: function(data, blob) {
-            let recordData = grid.getDataByRecordID(data.recordID);
-            $('#'+ data.cellContainerID).html(recordData.site);
-        }}
+        {
+            name: 'Site',
+            indicatorID: 'site',
+            callback: function(data, blob) {
+                let recordData = grid.getDataByRecordID(data.recordID);
+                $('#'+ data.cellContainerID).html(recordData.site);
+            }
+        }
     ];
 
     if (hasServices) {
-        headers.push({name: 'Service', indicatorID: 'service', callback: function(data, blob) {
-        	let recordData = grid.getDataByRecordID(data.recordID);
-        	$('#'+ data.cellContainerID).html(recordData.service);
-        }});
+        headers.push({
+            name: 'Service',
+            indicatorID: 'service',
+            callback: function(data, blob) {
+                let recordData = grid.getDataByRecordID(data.recordID);
+                $('#'+ data.cellContainerID).html(recordData.service);
+            }
+        });
     }
     for (let i in dataSteps) {
         (function (i) {
@@ -1212,7 +1209,7 @@ $(function() {
         url: `./files/${tempFilename}`,
         success: function(res) {
             res = JSON.parse(LZString.decompressFromBase64(res));
-            if(res.version != 2) {
+            if(res?.version != 2) {
                 start();
                 return;
             }
