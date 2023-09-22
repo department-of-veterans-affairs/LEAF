@@ -141,7 +141,7 @@ class FormWorkflow
      * includePersonDesignatedApproverData efficiently merges approver data to $srcRecords, for a
      * given list of $pdRecordList and $pdIndicators.
      * 
-     * WARNING: This function should only be used to support getRecordsDependencyData().
+     * WARNING: This function should only be used to support getRecordsDependencyData() and getActionable().
      *          Usage in other areas must be carefully reviewed as this retrieves data without
      *          checking for valid access. The $pdIndicators variable must only contain indicator IDs
      *          that are related to a "person designated" field AND workflow that utilizes the "person 
