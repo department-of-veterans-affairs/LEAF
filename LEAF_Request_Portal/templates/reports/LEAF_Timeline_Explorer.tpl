@@ -356,7 +356,6 @@ function loadData(site, categoryID) {
     let siteURL = getSiteURL(site);
     let promise = new Promise((resolve, reject) => {
         let query = new LeafFormQuery();
-        let batchLimit = 5000;
         let index = 0;
 
         query.addTerm('dateSubmitted', '>=', queryFirstDateSubmitted);
@@ -367,23 +366,9 @@ function loadData(site, categoryID) {
         query.join('action_history');
         query.join('service');
         query.setExtraParams('&x-filterData=recordID,service,categoryID,action_history.stepID,action_history.time');
-        query.setLimit(batchLimit);
         query.onSuccess(function(res) {
-            const resLength = Object.keys(res)?.length || 0;
-            if(resLength > 0) {
-                processData(res, categoryData[site][categoryID], site);
-                let dispIndex = index > 0 ? `${index} ` : '';
-                $('#progressDetail').html(`Processing ${dispIndex}records (${dataCategories[categoryID]})...`);
-                index += batchLimit;
-                if(resLength === batchLimit) {
-                    query.setLimit(index, batchLimit);
-                    query.execute();
-                } else {
-                    resolve();
-                }
-            } else {
-                resolve();
-            }
+            processData(res, categoryData[site][categoryID], site);
+            resolve();
         });
 
         for(let i in getDataFields) {
