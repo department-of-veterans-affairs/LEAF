@@ -1,0 +1,539 @@
+<html>
+<head>
+<title>TestNG:  User Access Groups TESTING</title>
+<link href="../testng.css" rel="stylesheet" type="text/css" />
+<link href="../my-testng.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+.log { display: none;} 
+.stack-trace { display: none;} 
+</style>
+<script type="text/javascript">
+<!--
+function flip(e) {
+  current = e.style.display;
+  if (current == 'block') {
+    e.style.display = 'none';
+    return 0;
+  }
+  else {
+    e.style.display = 'block';
+    return 1;
+  }
+}
+
+function toggleBox(szDivId, elem, msg1, msg2)
+{
+  var res = -1;  if (document.getElementById) {
+    res = flip(document.getElementById(szDivId));
+  }
+  else if (document.all) {
+    // this is the way old msie versions work
+    res = flip(document.all[szDivId]);
+  }
+  if(elem) {
+    if(res == 0) elem.innerHTML = msg1; else elem.innerHTML = msg2;
+  }
+
+}
+
+function toggleAllBoxes() {
+  if (document.getElementsByTagName) {
+    d = document.getElementsByTagName('div');
+    for (i = 0; i < d.length; i++) {
+      if (d[i].className == 'log') {
+        flip(d[i]);
+      }
+    }
+  }
+}
+
+// -->
+</script>
+
+</head>
+<body>
+<h2 align='center'>User Access Groups TESTING</h2><table border='1' align="center">
+<tr>
+<td>Tests passed/Failed/Skipped:</td><td>92/0/0</td>
+</tr><tr>
+<td>Started on:</td><td>Thu Sep 14 14:04:59 CDT 2023</td>
+</tr>
+<tr><td>Total time:</td><td>128 seconds (128118 ms)</td>
+</tr><tr>
+<td>Included groups:</td><td></td>
+</tr><tr>
+<td>Excluded groups:</td><td></td>
+</tr>
+</table><p/>
+<small><i>(Hover the method name to see the test class name)</i></small><p/>
+<table width='100%' border='1' class='invocation-passed'>
+<tr><td colspan='4' align='center'><b>PASSED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup7()'><b>openAccessGroup7</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.inputEmployee2()'><b>inputEmployee2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmReactivate()'><b>confirmReactivate</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.addNexusUser_1()'><b>addNexusUser_1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.deleteUser_0()'><b>deleteUser_0</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.selectSearchEmployeesOnly()'><b>selectSearchEmployeesOnly</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.reactivateMember_1()'><b>reactivateMember_1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.navigateNexusBack1()'><b>navigateNexusBack1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.addBackupPosition1()'><b>addBackupPosition1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.clickAssignBackup2()'><b>clickAssignBackup2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.clickAssignBackup()'><b>clickAssignBackup</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveNexusEmployee()'><b>saveNexusEmployee</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.addNexusUser_0()'><b>addNexusUser_0</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.inputNexusEmployee3()'><b>inputNexusEmployee3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup1()'><b>openAccessGroup1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmYes2()'><b>confirmYes2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.clickAddUserInNexus3()'><b>clickAddUserInNexus3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.reactivateMember_0()'><b>reactivateMember_0</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.inputEmployee()'><b>inputEmployee</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup8()'><b>openAccessGroup8</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.selectMemberPosition2()'><b>selectMemberPosition2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.clickAddUserInNexus2()'><b>clickAddUserInNexus2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup4()'><b>openAccessGroup4</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmReactivate1()'><b>confirmReactivate1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.ShowHideInactive()'><b>ShowHideInactive</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.navigateNexusBackTwice()'><b>navigateNexusBackTwice</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveEmployee3()'><b>saveEmployee3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveNexusEmployee3()'><b>saveNexusEmployee3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.deleteUser_0_1()'><b>deleteUser_0_1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.pruneMember_3()'><b>pruneMember_3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup5()'><b>openAccessGroup5</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.navigateNexusBack0()'><b>navigateNexusBack0</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.clickRemoveBackup()'><b>clickRemoveBackup</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveEmployee2()'><b>saveEmployee2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.inputEmployee4()'><b>inputEmployee4</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmYes6()'><b>confirmYes6</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.inputGroupName()'><b>inputGroupName</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveBackup2()'><b>saveBackup2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.addNexusUser_2()'><b>addNexusUser_2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.clickRemoveBackup2()'><b>clickRemoveBackup2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.inputGroupName2()'><b>inputGroupName2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup99()'><b>openAccessGroup99</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.addBackupPosition2()'><b>addBackupPosition2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup3()'><b>openAccessGroup3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.closeDownNexus1()'><b>closeDownNexus1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmYes3()'><b>confirmYes3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveRemoveBackup()'><b>saveRemoveBackup</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.selectSearchEmployeesOnly2()'><b>selectSearchEmployeesOnly2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.navigateNexusBackTwice2()'><b>navigateNexusBackTwice2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveUserGroup()'><b>saveUserGroup</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup()'><b>openAccessGroup</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.ShowHideInactive2()'><b>ShowHideInactive2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup11()'><b>openAccessGroup11</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.createUserAccessGroup2()'><b>createUserAccessGroup2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.deleteUser_3()'><b>deleteUser_3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveNexusEmployee2()'><b>saveNexusEmployee2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmYes4()'><b>confirmYes4</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.selectMemberPosition1()'><b>selectMemberPosition1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveBackup()'><b>saveBackup</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.selectMemberPosition1_2()'><b>selectMemberPosition1_2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmYes()'><b>confirmYes</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.navigateNexusBack2()'><b>navigateNexusBack2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup2()'><b>openAccessGroup2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup12()'><b>openAccessGroup12</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveEmployee99()'><b>saveEmployee99</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmNo()'><b>confirmNo</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.inputEmployee3()'><b>inputEmployee3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.getElementID()'><b>getElementID</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmYes5()'><b>confirmYes5</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.closeDownMainPortal1()'><b>closeDownMainPortal1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.ShowHideInactive3()'><b>ShowHideInactive3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.deleteUser_1()'><b>deleteUser_1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.selectSearchEmployeesOnly3()'><b>selectSearchEmployeesOnly3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.inputNexusEmployee2()'><b>inputNexusEmployee2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.selectMemberPosition2_3()'><b>selectMemberPosition2_3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>3</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.addNexusUser_0_2()'><b>addNexusUser_0_2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmNo2()'><b>confirmNo2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.selectMemberPosition2_2()'><b>selectMemberPosition2_2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>2</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.createNexusDriver1()'><b>createNexusDriver1</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>5</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.testForCertPage()'><b>testForCertPage</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup6()'><b>openAccessGroup6</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup9()'><b>openAccessGroup9</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.openAccessGroup10()'><b>openAccessGroup10</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.inputNexusEmployee()'><b>inputNexusEmployee</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveEmployee()'><b>saveEmployee</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.cancelCreateUserGroup()'><b>cancelCreateUserGroup</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.createUserAccessGroup()'><b>createUserAccessGroup</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>1</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.navigateNexusBack()'><b>navigateNexusBack</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.confirmReactivateMember_0()'><b>confirmReactivateMember_0</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.clickAddUserInNexus()'><b>clickAddUserInNexus</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>3</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.saveRemoveBackup2()'><b>saveRemoveBackup2</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>0</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+<tr>
+<td title='Execution.userAccessGroupsTESTING.selectMemberPosition1_3()'><b>selectMemberPosition1_3</b><br>Test class: Execution.userAccessGroupsTESTING</td>
+<td></td>
+<td>3</td>
+<td>Execution.userAccessGroupsTESTING@6babf3bf</td></tr>
+</table><p>
+</body>
+</html>
