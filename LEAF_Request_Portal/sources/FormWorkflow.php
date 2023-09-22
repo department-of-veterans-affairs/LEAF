@@ -150,6 +150,7 @@ class FormWorkflow
      * @param array $pdRecords list of record IDs that utilize "person designated"
      * @param array $pdIndicator list of indicator IDs mapped to "person designated" fields
      * @param bool $skipNames set true to exclude employee lookups
+     * @return array Amended records
      */
     private function includePersonDesignatedData(array $srcRecords, array $pdRecords, array $pdIndicators, bool $skipNames = false): array
     {
