@@ -32,8 +32,8 @@ $path = str_replace('qrcode', '', $path);
 $path = str_replace('scripts', '', $path);
 $path = str_replace('sources/../mailer', '', $path);
 $path = str_replace('utils', '', $path);
-$l_path = ltrim($path, '/');
+$l_path = trim($path, '/');
 $path = rtrim($path, '/');
 
 if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $path);
-if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . $l_path);
+if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . $l_path . '/');

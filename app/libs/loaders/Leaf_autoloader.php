@@ -20,7 +20,12 @@ $loader->addNamespace('App\Leaf\Logger\Formatters', $app_dir . '/Leaf/Logger/For
 
 $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-$vars = array(':site_path' => PORTAL_PATH);
+if (substr(PORTAL_PATH, 0, 1) !== '/') {
+    $my_path = '/' . PORTAL_PATH;
+} else {
+    $my_path = PORTAL_PATH;
+}
+$vars = array(':site_path' => $my_path);
 $sql = 'SELECT `site_path`, `site_uploads`, `portal_database`, `orgchart_path`,
             `orgchart_database`
         FROM `sites`
