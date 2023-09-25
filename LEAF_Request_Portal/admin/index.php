@@ -375,7 +375,7 @@ switch ($action) {
 
            if ($login->checkGroup(1))
            {
-               $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
+               $t_form->assign('LEAF_DOMAIN', LEAF_DOMAIN);
                $t_form->assign('app_js_path', APP_JS_PATH);
 
                $main->assign('body', $t_form->fetch('view_form_library.tpl'));
