@@ -108,7 +108,7 @@ $(function() {
             {name: 'Workflow Example', indicatorID: 6, sortable: false, editable: false, callback: function(data, blob) {
                 if(blob[data.index].s1.id6 != undefined
                         && blob[data.index].s1.id6 != '') {
-                	var imageURL = '<!--{$LEAF_NEXUS_URL}-->LEAF/library/image.php?form=' + blob[data.index].recordID + '&id=6&series=1&file=0';
+                	var imageURL = '<!--{$LEAF_DOMAIN}-->LEAF/library/image.php?form=' + blob[data.index].recordID + '&id=6&series=1&file=0';
                     $('#'+data.cellContainerID).html('<img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="border: 1px solid black; max-width: 150px; cursor: pointer" />');
                     $('#workflowImg_'+ blob[data.index].recordID).on('click', function() {
                     	dialog_simple.setTitle(blob[data.index].title + ' (example workflow)');
