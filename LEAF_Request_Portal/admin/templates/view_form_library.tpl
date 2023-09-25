@@ -62,7 +62,7 @@ $(function() {
 
     query = new LeafFormQuery();
     query.useJSONP(true);
-    query.setRootURL('<!--{$LEAF_NEXUS_URL}-->LEAF/library/');
+    query.setRootURL('<!--{$LEAF_DOMAIN}-->LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
         var tData = [];
