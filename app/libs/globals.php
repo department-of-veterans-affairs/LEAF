@@ -18,6 +18,7 @@ if (!defined('APP_PATH')) define('APP_PATH', getenv('APP_PATH'));
 if (!defined('APP_LIBS_PATH')) define('APP_LIBS_PATH', getenv('APP_LIBS_PATH'));
 if (!defined('APP_CSS_PATH')) define('APP_CSS_PATH', getenv('APP_CSS_PATH'));
 if (!defined('APP_JS_PATH')) define('APP_JS_PATH', getenv('APP_JS_PATH'));
+if (!defined('LEAF_DOMAIN')) define('LEAF_DOMAIN', getenv('APP_URL_NEXUS'));
 
 preg_match('(\/.+\/)', $_SERVER['SCRIPT_FILENAME'], $match);
 
