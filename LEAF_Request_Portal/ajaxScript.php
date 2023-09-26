@@ -3,13 +3,14 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
-require_once 'globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
-$script = isset($_GET['s']) ? Leaf\XSSHelpers::scrubFilename(Leaf\XSSHelpers::xscrub($_GET['s'])) : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
+$script = isset($_GET['s']) ? XSSHelpers::scrubFilename(XSSHelpers::xscrub($_GET['s'])) : '';
 
 $main = new Smarty;
 $main->left_delimiter = '{{';
@@ -29,7 +30,7 @@ switch ($action) {
                                             WHERE stepID=:stepID
                                                 AND moduleName=:moduleName', $vars);
             if(count($res) > 0) {
-                $moduleConfig = Leaf\XSSHelpers::scrubObjectOrArray(json_decode($res[0]['moduleConfig']));
+                $moduleConfig = XSSHelpers::scrubObjectOrArray(json_decode($res[0]['moduleConfig']));
                 $main->assign('moduleConfig', json_encode($moduleConfig));
             }
 

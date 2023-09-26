@@ -1,3 +1,7 @@
+<?php
+require_once '/var/www/html/app/libs/globals.php';
+
+?>
 <!doctype html>
 
 <html lang="en">
@@ -6,7 +10,7 @@
 
   <title>LEAF Header Design Template</title>
 
-  <link rel="stylesheet" href="../../libs/css/leaf.css">
+  <link rel="stylesheet" href=<?= 'https://' . HTTP_HOST . '/app/libs/css/leaf.css'; ?>>
 
 </head>
 
@@ -21,7 +25,7 @@
 
 <header id="header" class="usa-header site-header">
     <nav class="usa-navbar site-header-navbar">
-        
+
         <div class="usa-logo site-logo" id="logo">
             <em class="usa-logo__text">
                 <a href="/index.php" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
@@ -31,15 +35,15 @@
                 </a>
             </em>
         </div>
-        
+
         <div class="leaf-header-right">
             <div class="leaf-user-menu">
                 <span>Welcome, </span><a href="javascript:void(0)">Sample User</a>
             </div>
             <ul class="leaf-main-nav">
-            
+
                 <li class="leaf-width-7rem"><a href="javascript:void(0)">Home</a></li>
-                
+
                 <li class="leaf-width-10rem"><a href="javascript:void(0)">Report Builder</a></li>
 
                 <li class="leaf-width-10rem">

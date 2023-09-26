@@ -1,174 +1,172 @@
 version: "3.7"
 
 services:
-  leaf_vue_ui:
-    container_name: leaf_vue_ui
-    env_file:
-      - ./env_files/vue_ui_local.env
-    build:
-      context: ./vue-app
-      dockerfile: leaf_vue.dockerfile
-    volumes:
-      - './vue-app/src:/app/src'
-      - '/app/node_modules'
-      - '../libs/js/vue-dest:/app/vue-dest'
-      - '../libs/css:/app/css'
-    networks:
-      - leaf-sql
-      - leaf
+    leaf_vue_ui:
+        container_name: leaf_vue_ui
+        env_file:
+            - ./env_files/vue_ui_local.env
+        build:
+            context: ./vue-app
+            dockerfile: leaf_vue.dockerfile
+        volumes:
+            - "./vue-app/src:/app/src"
+            - "/app/node_modules"
+            - "../app/libs/js/vue-dest:/app/vue-dest"
+            - "../app/libs/css:/app/css"
+        networks:
+            - leaf-sql
+            - leaf
 
+    leaf-php-8:
+        image: leaf-fpm
+        container_name: leaf-fpm
+        env_file:
+            - ./env_files/globals_local.env
+            - ./env_files/secrets.env
+            - ./env_files/globals_leaf20_local.env
+        build:
+            context: ../
+            dockerfile: docker/php/leaf_monlith.dockerfile
+            args:
+                - BUILD_UID=${BUILD_UID}
+                - SMTP_HOST=leaf-smtp
+                - MAIL_HUB=leaf-smtp
+        volumes:
+            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
+            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+            - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
+            - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
+            # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
+            - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
+            - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
+            - ../health_checks:/var/www/html/health_checks
+            - ../app:/var/www/html/app
+            - ../libs:/var/www/html/libs # temp step.  Will shift to below later
+            - ../docker/mysql/db:/var/www/db
+            # - leaf-lib:/var/www/html/libs
+            # - ../test:/var/www/html/test
+            # - ../test_server:/var/www/html/test_server
+            # - ./docker/php/conf.d/xdebug.ini  # Not sure what this is even for.
+        networks:
+            # - traefik
+            - leaf-sql
+            - leaf
+        environment:
+            - REMOTE_USER=${REMOTE_USER}
+            - APACHE_RUN_USER=build_user
 
-  leaf-php-8:
-    image: leaf-fpm
-    container_name: leaf-fpm
-    env_file: 
-      - ./env_files/globals_local.env
-      - ./env_files/secrets.env
-      - ./env_files/globals_leaf20_local.env
-    build:
-      context: ../
-      dockerfile: docker/php/leaf_monlith.dockerfile
-      args:
-        - BUILD_UID=${BUILD_UID}
-        - SMTP_HOST=leaf-smtp
-        - MAIL_HUB=leaf-smtp
-    volumes:
-      - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-      - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
-      - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
-      - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
-      # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
-      - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
-      - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
-      - ../health_checks:/var/www/html/health_checks
-      - ../app:/var/www/html/app
-      - ../libs:/var/www/html/libs  # temp step.  Will shift to below later
-      - ../docker/mysql/db:/var/www/db
-      # - leaf-lib:/var/www/html/libs
-      # - ../test:/var/www/html/test
-      # - ../test_server:/var/www/html/test_server
-      # - ./docker/php/conf.d/xdebug.ini  # Not sure what this is even for.
-    networks:
-      # - traefik
-      - leaf-sql
-      - leaf
-    environment:
-      - REMOTE_USER=${REMOTE_USER}
-      - APACHE_RUN_USER=build_user
+    leaf-nginx:
+        image: leaf-nginx
+        container_name: leaf-nginx
+        env_file:
+            - ./env_files/nginx_local.env
+        build:
+            context: ../
+            dockerfile: docker/nginx/leaf_nginx.dockerfile
+        volumes:
+            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
+            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+            #      - ./nginx/src:/var/www/html
+            - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
+        volumes_from:
+            - leaf-php-8
+        ports:
+            - 80:${HTTP_PORT}
+            - 443:${HTTPS_PORT}
+        networks:
+            - traefik
+            - leaf
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik"
+            - "traefik.http.services.leaf_8.loadbalancer.server.port=8443"
+            - "traefik.http.routers.leaf_8.rule=Host(`leaf-8.dev.vovina-tisa.net`)"
+            - "traefik.http.routers.leaf_8.entrypoints=web, web-secure"
+            - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
 
-  leaf-nginx:
-    image: leaf-nginx
-    container_name: leaf-nginx
-    env_file: 
-      - ./env_files/nginx_local.env
-    build:
-      context: ../
-      dockerfile: docker/nginx/leaf_nginx.dockerfile
-    volumes:
-      - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-      - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
-#      - ./nginx/src:/var/www/html
-      - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
-    volumes_from:
-      - leaf-php-8
-    ports:
-      - 80:${HTTP_PORT}
-      - 443:${HTTPS_PORT}
-    networks:
-      - traefik
-      - leaf
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.http.services.leaf_8.loadbalancer.server.port=8443"
-      - "traefik.http.routers.leaf_8.rule=Host(`leaf-8.dev.vovina-tisa.net`)"
-      - "traefik.http.routers.leaf_8.entrypoints=web, web-secure"
-      - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
-    
+    leaf-smtp:
+        #   image: kurzdigital/fake-smtp # https://hub.docker.com/r/kurzdigital/fake-smtp/
+        #   expose:
+        #     - '2525'
+        #   ports:
+        #     - "2525:25" # smtp port
+        #     - "5080:5080" # web ui port
+        #   restart: 'always'
+        #   networks:
+        #     code-network:
+        #       aliases:
+        #         - smtp
 
-  leaf-smtp:
-  #   image: kurzdigital/fake-smtp # https://hub.docker.com/r/kurzdigital/fake-smtp/
-  #   expose:
-  #     - '2525'
-  #   ports:
-  #     - "2525:25" # smtp port
-  #     - "5080:5080" # web ui port
-  #   restart: 'always'
-  #   networks:
-  #     code-network:
-  #       aliases:
-  #         - smtp
+        #   environment:
+        #     - "SMTP_PORT=${SMTP_PORT}"
+        #     - "APP_USER=${APP_USER}" # ui login -- defaults to tester
+        #     - "APP_PASSWORD=${APP_PASSWORD}"
+        #     - "MYSQL_USER=${MYSQL_USER}"
+        #     - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
+        image: pelentan/fake-smtp:1.0
+        container_name: leaf-smtp
+        env_file:
+            - ./env_files/globals_local.env
+            - ./env_files/secrets.env
+        ports:
+            - "2525:25"
+            - "5080:5080"
+        restart: "always"
+        networks:
+            - traefik
+            - leaf
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik"
+            - "traefik.http.services.leaf_smtp.loadbalancer.server.port=5080"
+            - "traefik.http.routers.leaf_smtp.rule=Host(`smtp.dev.vovina-tisa.net`)"
+            - "traefik.http.routers.leaf_smtp.entrypoints=web, web-secure"
+            - "traefik.http.routers.leaf_smtp.tls.certresolver=dev_http"
 
-  #   environment:
-  #     - "SMTP_PORT=${SMTP_PORT}"
-  #     - "APP_USER=${APP_USER}" # ui login -- defaults to tester
-  #     - "APP_PASSWORD=${APP_PASSWORD}"
-  #     - "MYSQL_USER=${MYSQL_USER}"
-  #     - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
-    image: pelentan/fake-smtp:1.0
-    container_name: leaf-smtp
-    env_file: 
-      - ./env_files/globals_local.env
-      - ./env_files/secrets.env
-    ports:
-      - "2525:25"
-      - "5080:5080"
-    restart: 'always'
-    networks:
-      - traefik
-      - leaf    
-    labels:          
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.http.services.leaf_smtp.loadbalancer.server.port=5080"
-      - "traefik.http.routers.leaf_smtp.rule=Host(`smtp.dev.vovina-tisa.net`)"
-      - "traefik.http.routers.leaf_smtp.entrypoints=web, web-secure"
-      - "traefik.http.routers.leaf_smtp.tls.certresolver=dev_http"
+    leaf-adminer:
+        container_name: leaf-adminer
+        image: adminer
+        environment:
+            ADMINER_DEFAULT_SERVER: leaf-mysql
+        ports:
+            - "8080:8080"
+        networks:
+            - traefik
+            - leaf-sql
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik"
+            - "traefik.http.services.leaf_adminer.loadbalancer.server.port=8080"
+            - "traefik.http.routers.leaf_adminer.rule=Host(`leaf-adminer.dev.vovina-tisa.net`)"
+            - "traefik.http.routers.leaf_adminer.entrypoints=web, web-secure"
+            - "traefik.http.routers.leaf_adminer.tls.certresolver=dev_http"
 
-  leaf-adminer:
-    container_name: leaf-adminer
-    image: adminer
-    environment:
-      ADMINER_DEFAULT_SERVER: leaf-mysql
-    ports:
-      - "8080:8080"
-    networks:
-      - traefik
-      - leaf-sql
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.http.services.leaf_adminer.loadbalancer.server.port=8080"
-      - "traefik.http.routers.leaf_adminer.rule=Host(`leaf-adminer.dev.vovina-tisa.net`)"
-      - "traefik.http.routers.leaf_adminer.entrypoints=web, web-secure"
-      - "traefik.http.routers.leaf_adminer.tls.certresolver=dev_http"
-
-  leaf-mysql:
-    image: pelentan/leaf-mysql:2.5
-    container_name: leaf-mysql
-    ports:
-      - "3306:3306"
-    env_file: 
-      - ./env_files/mysql_local.env
-      - ./env_files/secrets.env
-    restart: 'always'
-    networks:
-      - leaf-sql
-    volumes:
-      - leaf-mysql-data:/var/lib/mysql
+    leaf-mysql:
+        image: pelentan/leaf-mysql:2.5
+        container_name: leaf-mysql
+        ports:
+            - "3306:3306"
+        env_file:
+            - ./env_files/mysql_local.env
+            - ./env_files/secrets.env
+        restart: "always"
+        networks:
+            - leaf-sql
+        volumes:
+            - leaf-mysql-data:/var/lib/mysql
 
 volumes:
-  leaf-php-data:
-    external: true
-  leaf-lib:
-    external: true
-  leaf-mysql-data:
-    external: false
+    leaf-php-data:
+        external: true
+    leaf-lib:
+        external: true
+    leaf-mysql-data:
+        external: false
 
 networks:
-  leaf-sql:
-    external: true
-  traefik:
-    external: true
-  leaf:
-    external: true
+    leaf-sql:
+        external: true
+    traefik:
+        external: true
+    leaf:
+        external: true

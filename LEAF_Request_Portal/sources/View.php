@@ -11,11 +11,13 @@
 
 namespace Portal;
 
+use App\Leaf\Db;
+
 class View
 {
     /**
      *
-     * @var \Leaf\Db
+     * @var Db
      */
     private $db;
 
@@ -27,12 +29,12 @@ class View
 
     /**
      *
-     * @param \Leaf\Db $db
+     * @param Db $db
      * @param \Login $login
      *
      * Created at: 10/14/2022, 8:25:14 AM (America/New_York)
      */
-    public function __construct(\Leaf\Db $db, Login $login)
+    public function __construct(Db $db, Login $login)
     {
         $this->db = $db;
         $this->login = $login;

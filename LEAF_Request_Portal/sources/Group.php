@@ -12,10 +12,16 @@
 
 namespace Portal;
 
+use App\Leaf\Db;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\Logger\LogItem;
+
 class Group
 {
     /**
-     * @var \Leaf\Db
+     * @var Db
      */
     private $db;
 
@@ -25,20 +31,20 @@ class Group
     private $login;
 
     /**
-     * @var \Leaf\DataActionLogger
+     * @var DataActionLogger
      */
     private $dataActionLogger;
 
     /**
-     * @param \Leaf\Db $db
+     * @param Db $db
      * @param Login $login
-     * @param \Leaf\DataActionLogger $dataActionLogger
+     * @param DataActionLogger $dataActionLogger
      */
-    public function __construct(\Leaf\Db $db, Login $login)
+    public function __construct(Db $db, Login $login)
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
     }
 
     /**
@@ -50,8 +56,8 @@ class Group
     public function importGroup($groupName): void
     {
         // Log group imports
-        $this->dataActionLogger->logAction(\Leaf\DataActions::IMPORT, \Leaf\LoggableTypes::PORTAL_GROUP, [
-            new \Leaf\LogItem("users", "groupID", $groupName, $groupName)
+        $this->dataActionLogger->logAction(DataActions::IMPORT, LoggableTypes::PORTAL_GROUP, [
+            new LogItem("users", "groupID", $groupName, $groupName)
         ]);
     }
 
@@ -64,8 +70,8 @@ class Group
     public function addGroup($groupName): void
     {
         // Log group creates
-        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::PORTAL_GROUP, [
-            new \Leaf\LogItem("groups", "name", $groupName, $groupName)
+        $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::PORTAL_GROUP, [
+            new LogItem("groups", "name", $groupName, $groupName)
         ]);
     }
 
@@ -80,8 +86,8 @@ class Group
      */
     public function syncImportGroup(array $group): array
     {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::IMPORT, \Leaf\LoggableTypes::PORTAL_GROUP, [
-            new \Leaf\LogItem("users", "groupID", $group['name'], $group['name'])
+        $this->dataActionLogger->logAction(DataActions::IMPORT, LoggableTypes::PORTAL_GROUP, [
+            new LogItem("users", "groupID", $group['name'], $group['name'])
         ]);
 
         $sql_vars = array(':groupID' => $group['groupID'],
@@ -112,8 +118,8 @@ class Group
 
             if (isset($res[0]) && $res[0]['parentGroupID'] == null) {
                 // Log group deletes
-                $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PORTAL_GROUP, [
-                    new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+                $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::PORTAL_GROUP, [
+                    new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
                 ]);
 
                 $sql = 'DELETE
@@ -158,9 +164,9 @@ class Group
      */
     public function removeUser(string $userID, int $groupID, string $backupID = ""): array
     {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
-                new \Leaf\LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+        $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EMPLOYEE, [
+                new LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
+                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
         $vars = array(':userID' => $userID,
@@ -299,9 +305,9 @@ class Group
         $res = $this->db->pdo_insert_query($sql, $vars);
 
         if ($res['status']['code'] == 2) {
-            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
-                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::EMPLOYEE, [
+                new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             // include the backups of employees
@@ -354,9 +360,9 @@ class Group
      */
     public function importUser(string $userID, int $groupID, string $backupID): array
     {
-        $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
-            new \Leaf\LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
-            new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+        $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::EMPLOYEE, [
+            new LogItem("users", "userID", $userID, $this->getEmployeeDisplay($userID)),
+            new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
         ]);
 
         $vars = array(':userID' => $userID,
@@ -386,9 +392,9 @@ class Group
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY, \Leaf\LoggableTypes::EMPLOYEE, [
-                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::EMPLOYEE, [
+                new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             $sql = 'UPDATE `users`
@@ -416,9 +422,9 @@ class Group
     public function removeMember($member, $groupID): void
     {
         if (is_numeric($groupID) && $member != '') {
-            $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::EMPLOYEE, [
-                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EMPLOYEE, [
+                new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             $vars = array(':userID' => $member,
@@ -446,9 +452,9 @@ class Group
     public function reActivateMember(string $member, int $groupID): array
     {
         if (is_numeric($groupID) && $member != '') {
-            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::EMPLOYEE, [
-                new \Leaf\LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
-                new \Leaf\LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::EMPLOYEE, [
+                new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
+                new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             $sql_vars = array(':userID' => $member,
@@ -609,7 +615,7 @@ class Group
      */
     public function getHistory(?int $filterById): array
     {
-        return $this->dataActionLogger->getHistory($filterById, "groupID", \Leaf\LoggableTypes::PORTAL_GROUP);
+        return $this->dataActionLogger->getHistory($filterById, "groupID", LoggableTypes::PORTAL_GROUP);
     }
 
     /**
@@ -620,7 +626,7 @@ class Group
     public function getAllHistoryIDs(): array
     {
         // this method doesn't expect any arguments
-        //return $this->dataActionLogger->getAllHistoryIDs("groupID", \Leaf\LoggableTypes::PORTAL_GROUP);
+        //return $this->dataActionLogger->getAllHistoryIDs("groupID", LoggableTypes::PORTAL_GROUP);
         return $this->dataActionLogger->getAllHistoryIDs();
     }
 

@@ -11,6 +11,10 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+use App\Leaf\CommonConfig;
+use App\Leaf\Db;
+
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
 
 class Form
@@ -284,7 +288,7 @@ class Form
         }
         else
         {
-            $vars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($limitCategory));
+            $vars = array(':categoryID' => XSSHelpers::xscrub($limitCategory));
             $res2 = $this->db->prepared_query('SELECT * FROM categories
                                                     WHERE categoryID = :categoryID', $vars);
             $res2[0]['count'] = 1;
@@ -315,7 +319,7 @@ class Form
         {
             return 'Error: Invalid token.';
         }
-        $title = \Leaf\XSSHelpers::sanitizeHTML($_POST['title']);
+        $title = XSSHelpers::sanitizeHTML($_POST['title']);
         $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
         $_POST['priority'] = !isset($_POST['priority']) || $_POST['priority'] == '' ? 0 : (int)$_POST['priority'];
@@ -372,7 +376,7 @@ class Form
         $vars = array(':date' => time(),
                       ':serviceID' => $serviceID,
                       ':userID' => $userID,
-                      ':title' => \Leaf\XSSHelpers::sanitizer($_POST['title']),
+                      ':title' => XSSHelpers::sanitizer($_POST['title']),
                       ':priority' => $_POST['priority'], );
 
         $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority)
@@ -393,7 +397,7 @@ class Form
 
                     if ($tCount >= 1)
                     {
-                        $categoryID = \Leaf\XSSHelpers::xscrub(strtolower(substr($key, 3)));
+                        $categoryID = XSSHelpers::xscrub(strtolower(substr($key, 3)));
                         $vars = array(':recordID' => $recordID,
                                 ':categoryID' => $categoryID,
                                 ':count' => $tCount, );
@@ -693,7 +697,7 @@ class Form
 
     public function buildFormJSONStructure($categoryID, $series = 1)
     {
-        $categoryID = ($categoryID == null) ? 'general' : \Leaf\XSSHelpers::xscrub($categoryID);
+        $categoryID = ($categoryID == null) ? 'general' : XSSHelpers::xscrub($categoryID);
 
         if (!isset($this->cache["categoryID{$categoryID}_indicators"]))
         {
@@ -783,7 +787,7 @@ class Form
                             ':actionType' => 'deleted',
                             ':actionTypeID' => 4,
                             ':time' => time(),
-                            ':comment' => \Leaf\XSSHelpers::xscrub($comment));
+                            ':comment' => XSSHelpers::xscrub($comment));
                 $sql = 'INSERT INTO `action_history`
                             (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
                         VALUES
@@ -1020,7 +1024,7 @@ class Form
         {
             return $this->cache['isCategory_' . $categoryID];
         }
-        $vars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
+        $vars = array(':categoryID' => XSSHelpers::xscrub($categoryID));
         $res = $this->db->prepared_query('SELECT COUNT(*) FROM categories WHERE categoryID=:categoryID', $vars);
         if ($res[0]['COUNT(*)'] != 0)
         {
@@ -1044,12 +1048,12 @@ class Form
     {
         if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
-            $_POST[$key] = \Leaf\XSSHelpers::scrubObjectOrArray($_POST[$key]);
+            $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
             $_POST[$key] = serialize($_POST[$key]);
         }
         else
         {
-            $_POST[$key] = \Leaf\XSSHelpers::sanitizeHTML($_POST[$key]);
+            $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
         }
 
         $vars = array(':recordID' => $recordID,
@@ -1162,7 +1166,7 @@ class Form
         // Check for file uploads
         if (is_array($_FILES))
         {
-            $commonConfig = new \Leaf\CommonConfig();
+            $commonConfig = new CommonConfig();
             $fileExtensionWhitelist = $commonConfig->requestWhitelist;
             $fileIndicators = array_keys($_FILES);
             foreach ($fileIndicators as $indicator)
@@ -1174,8 +1178,8 @@ class Form
                     {
                         return 0;
                     }
-                    $_FILES[$indicator]['name'] = \Leaf\XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
-                    $_POST[$indicator] = \Leaf\XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
+                    $_FILES[$indicator]['name'] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
+                    $_POST[$indicator] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
 
                     $filenameParts = explode('.', $_FILES[$indicator]['name']);
                     $fileExtension = array_pop($filenameParts);
@@ -1188,7 +1192,7 @@ class Form
                             mkdir($uploadDir, 0755, true);
                         }
 
-                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, \Leaf\XSSHelpers::sanitizeHTML($_FILES[$indicator]['name']));
+                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, XSSHelpers::sanitizeHTML($_FILES[$indicator]['name']));
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     }
                     else
@@ -1215,7 +1219,7 @@ class Form
                         return 0;
                     }
                     $vars = array(':recordID' => (int)$recordID,
-                                  ':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID),
+                                  ':categoryID' => XSSHelpers::xscrub($categoryID),
                                   ':count' => $_POST[$key], );
 
                     if ($this->isCategory($categoryID))
@@ -1231,7 +1235,7 @@ class Form
 
             $priority = isset($_POST['priority']) ? $_POST['priority'] : 0;
             $vars = array(':recordID' => (int)$recordID,
-                          ':title' => \Leaf\XSSHelpers::sanitizeHTML($_POST['title']),
+                          ':title' => XSSHelpers::sanitizeHTML($_POST['title']),
                           ':priority' => (int)$priority, );
 
             $res = $this->db->prepared_query('UPDATE records SET
@@ -2598,7 +2602,7 @@ class Form
             return 0;
         }
         $vars = array(':recordID' => (int)$recordID,
-                      ':tag' => \Leaf\XSSHelpers::xscrub($tag),
+                      ':tag' => XSSHelpers::xscrub($tag),
                       ':timestamp' => time(),
                       ':userID' => $this->login->getUserID(), );
 
@@ -2614,7 +2618,7 @@ class Form
             return 0;
         }
         $vars = array(':recordID' => (int)$recordID,
-                      ':tag' => \Leaf\XSSHelpers::xscrub($tag),
+                      ':tag' => XSSHelpers::xscrub($tag),
                       ':userID' => $this->login->getUserID(), );
 
         $res = $this->db->prepared_query('DELETE FROM tags WHERE recordID=:recordID AND userID=:userID AND tag=:tag', $vars);
@@ -2636,7 +2640,7 @@ class Form
         {
             if (trim($tag) != '')
             {
-                $this->addTag((int)$recordID, \Leaf\XSSHelpers::xscrub(trim($tag)));
+                $this->addTag((int)$recordID, XSSHelpers::xscrub(trim($tag)));
             }
         }
     }
@@ -2666,7 +2670,7 @@ class Form
         {
             return;
         }
-        $title = \Leaf\XSSHelpers::sanitizeHTML($title);
+        $title = XSSHelpers::sanitizeHTML($title);
 
         if ($this->hasWriteAccess($recordID))
         {
@@ -2845,8 +2849,8 @@ class Form
                     return 0;
             }
 
-	    if ($q['id'] === 'userID') {
-            	$q['match'] = htmlspecialchars_decode($q['match'], ENT_QUOTES);
+            if ($q['id'] === 'userID') {
+                $q['match'] = htmlspecialchars_decode($q['match'], ENT_QUOTES);
             }
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
@@ -2999,6 +3003,15 @@ class Form
                                 $filterActionable = true;
 
                                 break;
+                            /*case 'destruction':
+                                $conditions .= "{$gate}(categories.destructionAge IS NOT NULL AND ".
+                                    "records_workflow_state.stepID IS NULL AND submitted != 0)";
+                                if (!strpos($joins,'category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                }
+                                $joins .= "LEFT JOIN categories USING (categoryID) ";
+                                $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
+                                break;*/
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
@@ -3052,6 +3065,16 @@ class Form
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
+                            /*case 'destruction':
+                                $conditions .= "{$gate}(categories.destructionAge IS NULL OR ".
+                                    "(records_workflow_state.stepID IS NOT NULL OR submitted = 0)".
+                                ")";
+                                if (!strpos($joins,'category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                }
+                                $joins .= "LEFT JOIN categories USING (categoryID) ";
+                                $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
+                                break;*/
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
@@ -3257,6 +3280,10 @@ class Form
                         $joinInitiatorNames = true;
 
                         break;
+                    case 'destructionDate':
+                        $joinRecordResolutionData = true;
+                        $joinAllCategoryID = true;
+                        break;
                     case 'unfilledDependencies':
                         $joinUnfilledDependencies = true;
                     default:
@@ -3350,7 +3377,7 @@ class Form
                                                         WHERE ' . $conditions . $sort . $limit, $vars);
             }
             else {
-                return \Leaf\XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+                return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
             }
         }
         $res = $this->db->prepared_query('SELECT * FROM records
@@ -3373,7 +3400,7 @@ class Form
 
             if ($joinCategoryID)
             {
-                $categorySQL = 'SELECT recordID,categoryName,categoryID
+                $categorySQL = 'SELECT recordID,categoryName,categoryID,destructionAge
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3385,13 +3412,14 @@ class Form
                 {
                     $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
                     $data[$item['recordID']]['categoryIDs'][] = $item['categoryID'];
+                    $data[$item['recordID']]['destructionAge'] = $item['destructionAge'];
                 }
             }
 
             if ($joinAllCategoryID)
             {
 
-                $allCategorySQL = 'SELECT recordID,categoryName,categoryID
+                $allCategorySQL = 'SELECT recordID,categoryName,categoryID,destructionAge
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3402,6 +3430,7 @@ class Form
                 {
                     $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
                     $data[$item['recordID']]['categoryIDsUnabridged'][] = $item['categoryID'];
+                    $data[$item['recordID']]['destructionAge'] = $item['destructionAge'];
                 }
             }
 
@@ -3863,7 +3892,7 @@ class Form
      */
     public function sanitizeInput($in)
     {
-        return \Leaf\XSSHelpers::sanitizeHTML($in);
+        return XSSHelpers::sanitizeHTML($in);
     }
 
     /**
@@ -4059,7 +4088,7 @@ class Form
      */
     private function fileToArray($data)
     {
-        $data = \Leaf\XSSHelpers::sanitizeHTML($data);
+        $data = XSSHelpers::sanitizeHTML($data);
         $data = str_replace('<br />', "\n", $data);
         $data = str_replace('<br>', "\n", $data);
         $tmpFileNames = explode("\n", $data);
@@ -4116,7 +4145,7 @@ class Form
         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
         $uploadDir = $uploadDir === UPLOAD_DIR ? '../' . UPLOAD_DIR : $uploadDir;
 
-        $cleanedFile = \Leaf\XSSHelpers::scrubFilename($fileName);
+        $cleanedFile = XSSHelpers::scrubFilename($fileName);
 
         $sourceFile = $uploadDir . $recordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
         $destFile = $uploadDir . $newRecordID . '_' . $indicatorID . '_' . $series . '_' . $cleanedFile;
@@ -4130,7 +4159,7 @@ class Form
 
     public function getRecordsByCategory($categoryID)
     {
-        $vars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
+        $vars = array(':categoryID' => XSSHelpers::xscrub($categoryID));
         $data = $this->db->prepared_query('SELECT recordID, title, userID, categoryID, submitted
                                             FROM records
                                             JOIN category_count USING (recordID)
@@ -4262,7 +4291,7 @@ class Form
         $values = $this->fileToArray($data[0]['data']);
 
         // right now we will have special chars encoded in the filename. We need this decoded.
-        $fileName = \Leaf\XSSHelpers::sanitizeHTML($fileName);
+        $fileName = XSSHelpers::sanitizeHTML($fileName);
 
         for ($i = 0; $i < count($values); $i++) {
             if ($values[$i] == $fileName) {

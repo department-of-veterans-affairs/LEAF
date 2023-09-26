@@ -1,4 +1,4 @@
-<script src="../libs/js/LEAF/intervalQueue.js"></script>
+<script src="<!--{$app_js_path}-->/LEAF/intervalQueue.js"></script>
 <script src="js/formSearchMultisite.js"></script>
 <style>
     @import 'css/report.css';
@@ -1021,6 +1021,7 @@ $(async function() {
 	dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
     leafSearch = new LeafFormSearchMultisite('searchContainer');
+    leafSearch.setJsPath('<!--{$app_js_path}-->');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
     leafSearch.renderUI();
 

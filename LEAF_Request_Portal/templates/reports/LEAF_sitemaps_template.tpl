@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../libs/css/leaf.css">
+<link rel="stylesheet" href="<!--{$app_css_path}-->/leaf.css">
 
 <!--{include file="../site_elements/generic_xhrDialog.tpl"}-->
 

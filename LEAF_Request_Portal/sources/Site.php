@@ -5,6 +5,8 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+
 class Site
 {
 	public $siteRoot = '';
@@ -51,10 +53,10 @@ class Site
             return $status;
         }
         foreach ($menuItems as $i => $item) {
-            $menuItems[$i]['title'] = \Leaf\XSSHelpers::sanitizer($item['title']);
-            $menuItems[$i]['subtitle'] = \Leaf\XSSHelpers::sanitizer($item['subtitle']);
-            $menuItems[$i]['link'] = \Leaf\XSSHelpers::scrubNewLinesFromURL(\Leaf\XSSHelpers::xscrub($item['link']));
-            $menuItems[$i]['icon'] = \Leaf\XSSHelpers::scrubFilename($item['icon']);
+            $menuItems[$i]['title'] = XSSHelpers::sanitizer($item['title']);
+            $menuItems[$i]['subtitle'] = XSSHelpers::sanitizer($item['subtitle']);
+            $menuItems[$i]['link'] = XSSHelpers::scrubNewLinesFromURL(XSSHelpers::xscrub($item['link']));
+            $menuItems[$i]['icon'] = XSSHelpers::scrubFilename($item['icon']);
         }
         $home_design_data = array();
         $home_design_data['menuCards'] = $menuItems;
@@ -79,7 +81,7 @@ class Site
             return $status;
         }
         $search_design_data = array();
-        $search_design_data['chosenHeaders'] = \Leaf\XSSHelpers::scrubObjectOrArray($chosenHeaders);
+        $search_design_data['chosenHeaders'] = XSSHelpers::scrubObjectOrArray($chosenHeaders);
         $search_design_json = json_encode($search_design_data);
 
         $strSQL = 'INSERT INTO settings (setting, `data`)

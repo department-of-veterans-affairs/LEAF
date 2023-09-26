@@ -4,8 +4,8 @@
 <head>
     <title>Organizational Chart Utility - Count FTE Ceiling</title>
     <style type="text/css" media="screen">
-        @import "../../libs/js/jquery/css/dcvamc/jquery-ui.custom.min.css";
-        @import "../../libs/js/jquery/chosen/chosen.min.css";
+        @import <?= APP_JS_PATH . "/jquery/css/dcvamc/jquery-ui.custom.min.css" ?>;
+        @import <?= APP_JS_PATH . "/jquery/chosen/chosen.min.css" ?>;
         @import "../css/style.css";
         @import "../css/editor.css";
         @import "../css/positionSelector.css";
@@ -14,9 +14,9 @@
         @import "../css/printer.css";
         @import "../css/editor_printer.css";
     </style>
-    <script type="text/javascript" src="../../libs/js/jquery/jquery.min.js"></script>
-    <script type="text/javascript" src="../../libs/js/jquery/jquery-ui.custom.min.js"></script>
-    <script type="text/javascript" src="../../libs/js/jquery/chosen/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src=<?= APP_JS_PATH . "/jquery/jquery.min.js" ?>></script>
+    <script type="text/javascript" src=<?= APP_JS_PATH . "/jquery/jquery-ui.custom.min.js" ?>></script>
+    <script type="text/javascript" src=<?= APP_JS_PATH . "/jquery/chosen/chosen.jquery.min.js" ?>></script>
     <script type="text/javascript" src="../js/positionSelector.js"></script>
     <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
 </head>
