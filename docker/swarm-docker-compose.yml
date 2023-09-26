@@ -6,6 +6,7 @@ services:
     env_file: 
       # - ./env_files/globals_swarm.env
       - ./env_files/globals_swarm_prod.env
+      - ./env_files/globals_prod.leaf2.env
       # - ./env_files/secrets.env
     ports:
       - 80:80
