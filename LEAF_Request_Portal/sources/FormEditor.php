@@ -616,28 +616,31 @@ class FormEditor
             $input = null;
             $vars = array(':categoryID' => $categoryID, ':input' => $input);
             $strSQL = 'UPDATE categories SET destructionAge=:input WHERE categoryID=:categoryID';
-            $result =  $this->db->prepared_query($strSQL, $vars);
+            $return_value = $this->db->pdo_insert_query($strSQL, $vars);
 
-            $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
-                new \Leaf\LogItem("categories", "categoryID", $categoryID),
-                new \Leaf\LogItem("categories", "destructionAge", 'never')
-            ]);
+            if($return_value['status']['code'] == 2){
+                $return_value['data'] = $input;
+                $this->dataActionLogger->logAction(\Leaf\DataActions::MODIFY,\Leaf\LoggableTypes::FORM,[
+                    new \Leaf\LogItem("categories", "categoryID", $categoryID),
+                    new \Leaf\LogItem("categories", "destructionAge", 'never')
+                ]);
+            }
         } else {
             $input = $input * 365;
             $vars = array(':categoryID' => $categoryID, ':input' => $input);
             $strSQL = 'UPDATE categories SET destructionAge=:input WHERE categoryID=:categoryID';
-            $result =  $this->db->prepared_query($strSQL, $vars);
+            $return_value = $this->db->pdo_insert_query($strSQL, $vars);
 
-            if(!empty($input)) {
-                $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::FORM,[
-                    new LogItem("categories", "categoryID", $categoryID),
-                    new LogItem("categories", "destructionAge", $input." days")
-                ]);
+            if($return_value['status']['code'] == 2){
+                $return_value['data'] = $input;
+                if(!empty($input)) {
+                    $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::FORM,[
+                        new LogItem("categories", "categoryID", $categoryID),
+                        new LogItem("categories", "destructionAge", $input." days")
+                    ]);
+                }
             }
         }
-        $return_value['status']['code'] = 2;
-        $return_value['status']['message'] = "Success";
-        $return_value['data'] = $input;
 
         return $return_value;
     }
