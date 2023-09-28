@@ -23,16 +23,16 @@ if (!defined('LEAF_DOMAIN')) define('LEAF_DOMAIN', getenv('APP_URL_NEXUS'));
 preg_match('(\/.+\/)', $_SERVER['SCRIPT_FILENAME'], $match);
 
 $path = str_replace('/var/www/html', '', $match[0]);
-$path = str_replace('admin', '', $path);
-$path = str_replace('api', '', $path);
-$path = str_replace('auth_cookie', '', $path);
-$path = str_replace('auth_domain', '', $path);
-$path = str_replace('auth_token', '', $path);
-$path = str_replace('dynicons', '', $path);
-$path = str_replace('qrcode', '', $path);
-$path = str_replace('scripts', '', $path);
+$path = str_replace('/admin/', '/', $path);
+$path = str_replace('/api/', '/', $path);
+$path = str_replace('/auth_cookie/', '/', $path);
+$path = str_replace('/auth_domain/', '/', $path);
+$path = str_replace('/auth_token/', '/', $path);
+$path = str_replace('/dynicons/', '/', $path);
+$path = str_replace('/qrcode/', '/', $path);
+$path = str_replace('/scripts/', '/', $path);
 $path = str_replace('sources/../mailer', '', $path);
-$path = str_replace('utils', '', $path);
+$path = str_replace('/utils/', '/', $path);
 $l_path = trim($path, '/');
 $path = rtrim($path, '/');
 
