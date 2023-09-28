@@ -62,7 +62,10 @@ foreach ($queue as $item)
             if (strlen(trim($email['recipient'])) == 0)
             {
                 // delete invalid cache
-                unlink($folder . $item);
+                if (file_exists($folder . $item)) {
+                    unlink($folder . $item);
+                }
+
                 trigger_error('Mail no recipient: ' . $email['subject']);
             }
             else
@@ -70,7 +73,9 @@ foreach ($queue as $item)
                 touch($folder . $item);    // reset timer
                 if (mail($email['recipient'], $email['subject'], $email['body'], $email['headers']))
                 {
-                    unlink($folder . $item);
+                    if (file_exists($folder . $item)) {
+                        unlink($folder . $item);
+                    }
                     trigger_error('Queued mail sent: ' . $email['subject']);
                     if ($webMode)
                     {
