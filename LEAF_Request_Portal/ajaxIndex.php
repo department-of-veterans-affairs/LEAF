@@ -9,17 +9,19 @@
 
 */
 
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
-require_once 'globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 function customTemplate($tpl)
 {
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-$dataActionLogger = new Leaf\DataActionLogger($db, $login);
+$dataActionLogger = new DataActionLogger($db, $login);
 
 $login->loginUser();
 if ($login)
@@ -58,7 +60,7 @@ switch ($action) {
             $t_form = new Smarty;
 
             $indicatorID = (int)$_GET['indicatorID'];
-            $series = Leaf\XSSHelpers::xscrub($_GET['series']);
+            $series = XSSHelpers::xscrub($_GET['series']);
             $recordID = (int)$_GET['recordID'];
 
             $indicator = $form->getIndicator($indicatorID, $series, $recordID);
@@ -70,7 +72,7 @@ switch ($action) {
                 $t_form->assign('recordID', $recordID);
                 $t_form->assign('series', $series);
                 $t_form->assign('serviceID', (int)$recordInfo['serviceID']);
-                $t_form->assign('recorder', Leaf\XSSHelpers::sanitizeHTML($_SESSION['name']));
+                $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
@@ -88,7 +90,7 @@ switch ($action) {
     case 'getprintindicator':
         $form = new Portal\Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
-        $series = Leaf\XSSHelpers::xscrub($_GET['series']);
+        $series = XSSHelpers::xscrub($_GET['series']);
         $recordID = (int)$_GET['recordID'];
 
         if (is_numeric($indicatorID))
@@ -101,7 +103,7 @@ switch ($action) {
             {
                 $t_form->assign('recordID', $recordID);
                 $t_form->assign('series', $series);
-                $t_form->assign('recorder', Leaf\XSSHelpers::sanitizeHTML($_SESSION['name']));
+                $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
@@ -113,7 +115,7 @@ switch ($action) {
     case 'getindicatorlog':
         $form = new Portal\Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
-        $series = Leaf\XSSHelpers::xscrub($_GET['series']);
+        $series = XSSHelpers::xscrub($_GET['series']);
         $recordID = (int)$_GET['recordID'];
 
         if (is_numeric($indicatorID))
@@ -176,7 +178,7 @@ switch ($action) {
 
         $lastActionTime = isset($res[0]['time']) ? $res[0]['time'] : 0;
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : Leaf\XSSHelpers::sanitizeHTML($settings['requestLabel']);
+        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
 
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
@@ -257,6 +259,8 @@ switch ($action) {
         $main = new Smarty;
         $t_form = new Smarty;
 
+        $main->assign('app_js_path', APP_JS_PATH);
+
         if ($uploadOk)
         {
             $form = new Portal\Form($db, $login);
@@ -333,7 +337,7 @@ switch ($action) {
     case 'deleteattachment':
         $form = new Portal\Form($db, $login);
 
-        echo $form->deleteAttachment((int)$_POST['recordID'], (int)$_POST['indicatorID'], Leaf\XSSHelpers::xscrub($_POST['series']), Leaf\XSSHelpers::xscrub($_POST['file']));
+        echo $form->deleteAttachment((int)$_POST['recordID'], (int)$_POST['indicatorID'], XSSHelpers::xscrub($_POST['series']), XSSHelpers::xscrub($_POST['file']));
 
         break;
     case 'getstatus':
@@ -344,11 +348,11 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $recordInfo = $form->getRecordInfo((int)$_GET['recordID']);
-        $t_form->assign('name', Leaf\XSSHelpers::sanitizeHTML($recordInfo['name']));
-        $t_form->assign('title', Leaf\XSSHelpers::sanitizeHTML($recordInfo['title']));
+        $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
+        $t_form->assign('title', XSSHelpers::sanitizeHTML($recordInfo['title']));
         $t_form->assign('priority', (int)$recordInfo['priority']);
         $t_form->assign('submitted', (int)$recordInfo['submitted']);
-        $t_form->assign('service', Leaf\XSSHelpers::sanitizeHTML($recordInfo['service']));
+        $t_form->assign('service', XSSHelpers::sanitizeHTML($recordInfo['service']));
         $t_form->assign('date', $recordInfo['date']);
         $t_form->assign('recordID', (int)$_GET['recordID']);
         $t_form->assign('agenda', $view->buildViewStatus((int)$_GET['recordID']));
@@ -384,20 +388,20 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
             $t_form->assign('recordID', $recordIDToPrint);
-            $t_form->assign('name', Leaf\XSSHelpers::sanitizeHTML($recordInfo['name']));
-            $t_form->assign('title', Leaf\XSSHelpers::sanitizeHTMl($recordInfo['title']));
+            $t_form->assign('name', XSSHelpers::sanitizeHTML($recordInfo['name']));
+            $t_form->assign('title', XSSHelpers::sanitizeHTMl($recordInfo['title']));
             $t_form->assign('priority', (int)$recordInfo['priority']);
             $t_form->assign('submitted', (int)$recordInfo['submitted']);
-            $t_form->assign('service', Leaf\XSSHelpers::sanitizeHTMl($recordInfo['service']));
+            $t_form->assign('service', XSSHelpers::sanitizeHTMl($recordInfo['service']));
             $t_form->assign('date', $recordInfo['submitted']);
-            $t_form->assign('categoryText', Leaf\XSSHelpers::sanitizeHTML($categoryText));
+            $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {
                 case 'internalonlyview':
-                    $t_form->assign('form', $form->getFullForm($recordIDToPrint, Leaf\XSSHelpers::xssafe($_GET['childCategoryID'])));
+                    $t_form->assign('form', $form->getFullForm($recordIDToPrint, XSSHelpers::xssafe($_GET['childCategoryID'])));
 
                     break;
                 default:
@@ -418,7 +422,7 @@ switch ($action) {
                     $tChildForms[$childForm['childCategoryID']] = $childForm['childCategoryName'];
                 }
 
-                $t_form->assign('subtype', isset($_GET['childCategoryID']) ? '(' . strip_tags($tChildForms[Leaf\XSSHelpers::xssafe($_GET['childCategoryID'])]) . ')' : '');
+                $t_form->assign('subtype', isset($_GET['childCategoryID']) ? '(' . strip_tags($tChildForms[XSSHelpers::xssafe($_GET['childCategoryID'])]) . ')' : '');
                 $t_form->display(customTemplate('print_form_ajax.tpl'));
             }
             else
@@ -437,6 +441,8 @@ switch ($action) {
                 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
 
                 $main->assign('login', $t_login->fetch('login.tpl'));
+                $main->assign('app_js_path', APP_JS_PATH);
+
                 $main->display('main.tpl');
             }
         }
@@ -476,9 +482,9 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $tagMembers = $form->getTagMembers(Leaf\XSSHelpers::xscrub($_GET['tag']));
+        $tagMembers = $form->getTagMembers(XSSHelpers::xscrub($_GET['tag']));
 
-        $t_form->assign('tag', Leaf\XSSHelpers::xscrub($_GET['tag']));
+        $t_form->assign('tag', XSSHelpers::xscrub($_GET['tag']));
         $t_form->assign('totalNum', count($tagMembers));
         $t_form->assign('requests', $tagMembers);
         $t_form->display('tag_show_members.tpl');
@@ -486,7 +492,7 @@ switch ($action) {
         break;
     case 'updatetags':
         $form = new Portal\Form($db, $login);
-        $form->parseTags((int)$_POST['recordID'], Leaf\XSSHelpers::xscrub($_POST['taginput']));
+        $form->parseTags((int)$_POST['recordID'], XSSHelpers::xscrub($_POST['taginput']));
 
         break;
     case 'addbookmark':
@@ -495,7 +501,7 @@ switch ($action) {
             exit();
         }
         $form = new Portal\Form($db, $login);
-        $form->addTag((int)$_GET['recordID'], 'bookmark_' . Leaf\XSSHelpers::xscrub($login->getUserID()));
+        $form->addTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
         break;
     case 'removebookmark':
@@ -504,7 +510,7 @@ switch ($action) {
             exit();
         }
         $form = new Portal\Form($db, $login);
-        $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . Leaf\XSSHelpers::xscrub($login->getUserID()));
+        $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
         break;
     default:

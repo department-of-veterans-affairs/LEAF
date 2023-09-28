@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../libs/css/leaf.css">
+<link rel="stylesheet" href="<!--{$css_path}-->/leaf.css">
 
 <div class="leaf-marginAll-1rem">
 

@@ -1,12 +1,12 @@
 <?php
+use App\Leaf\Db;
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
 error_reporting(E_ERROR);
 
-require_once '../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $oc_db = $oc_db;
 $oc_login->setBaseDir('../');
@@ -83,7 +83,7 @@ switch ($key) {
         break;
     case 'national':
         $controllerMap->register('national', function () use ($action) {
-            $oc_db_nat = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+            $oc_db_nat = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
             $oc_login_nat = new Orgchart\Login($oc_db_nat, $oc_db_nat);
 
             $nationalEmployeeController = new Orgchart\NationalEmployeeController($oc_db_nat, $oc_login_nat);

@@ -1,8 +1,8 @@
-<link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
-<link rel="stylesheet" href="../../libs/js/codemirror/theme/lucario.css">
+<link rel=stylesheet href="<!--{$app_js_path}-->/codemirror/addon/merge/merge.css">
+<link rel="stylesheet" href="<!--{$app_js_path}-->/codemirror/theme/lucario.css">
 <link rel="stylesheet" href="./css/mod_templates_reports.css">
-<script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
-<script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
+<script src="<!--{$app_js_path}-->/diff-match-patch/diff-match-patch.js"></script>
+<script src="<!--{$app_js_path}-->/codemirror/addon/merge/merge.js"></script>
 
 <div class="leaf-center-content">
     <div class="page-title-container">
@@ -111,6 +111,7 @@
                 <button id="open_file_button"
                     class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="
                     runReport();">Open File</button>
+                <button class="new-report mobile_new_report_btn" onclick="newReport();">New File</button>
                 <button id="deleteButton"
                     class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="
                     deleteReport();">Delete File
@@ -207,7 +208,7 @@
             }
         });
     }
-    // creates a copy of the current file content 
+    // creates a copy of the current file content
     function saveFileHistory() {
         $.ajax({
             type: 'POST',
@@ -799,30 +800,49 @@
     }
     // example report templates
     function updateFileList() {
+
         $.ajax({
             type: 'GET',
             url: '../api/applet',
-            success: function(res) {
+            success: function (res) {
                 let buffer = '<ul class="leaf-ul">';
                 let bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
-                let filesMobile = '<h3>Template Files:</h3><select class="templateFiles">';
+                let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
+                
                 for (let i in res) {
                     let file = res[i].replace('.tpl', '');
+                    
                     if (!isExcludedFile(file)) {
-                        buffer += '<li onclick="loadContent(\'' + file + '\');"><a href="#">' + file + '</a></li>';
-                        filesMobile += '<option onclick="loadContent(\'' + file + '\');"><div class="template_files">' + file + '</div></option>';
+                        buffer += '<li><a href="#" data-file="' + file + '">' + file + '</a></li>';
+                        filesMobile += '<option value="' + file + '"><div class="template_files">' + file + '</div></option>';
                     } else {
-                        bufferExamples += '<li onclick="loadContent(\'' + file + '\');" ><a href="#">' + file + '</a></li>';
+                        bufferExamples += '<li><a href="#" data-file="' + file + '">' + file + '</a></li>';
                     }
                 }
+                
                 buffer += '</ul>';
                 bufferExamples += '</ul>';
-                filesMobile += '</select>';
+                filesMobile += '</select></div>';
+                
                 $('#fileList').html(buffer + bufferExamples);
                 $('.filesMobile').html(filesMobile);
+                
+                // Attach click event handler to template links in the buffer
+                $('#fileList a').on('click', function (e) {
+                    e.preventDefault();
+                    let selectedFile = $(this).data('file');
+                    loadContent(selectedFile);
+                });
+                
+                // Attach onchange event handler to templateFiles select element
+                $('.template_select_container').on('change', 'select.templateFiles', function () {
+                    let selectedFile = $(this).val();
+                    loadContent(selectedFile);
+                });
             },
             cache: false
         });
+
     }
     // Displays  user's history when creating, merge, and so on
     function viewHistory() {
@@ -863,7 +883,7 @@
             'button_cancelchange');
         dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
             'confirm_button_save', 'confirm_button_cancelchange');
-        
+
         initializePage();
         updateFileList();
 

@@ -9,10 +9,11 @@
 
 */
 
+use App\Leaf\XSSHelpers;
+
 set_time_limit(10);
 $currDir = dirname(__FILE__);
-require_once $currDir.'/../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 // Mail queue folder
 
@@ -22,7 +23,7 @@ $webMode = false;
 $webLog = array();
 if (isset($argv[1]))
 {
-    $file = Leaf\XSSHelpers::scrubFilename($argv[1]);
+    $file = XSSHelpers::scrubFilename($argv[1]);
 }
 else
 {

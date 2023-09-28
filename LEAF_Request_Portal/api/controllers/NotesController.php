@@ -5,6 +5,9 @@
 
 namespace Portal;
 
+use App\Leaf\Db;
+use App\Leaf\Logger\DataActionLogger;
+
 class NotesController extends RESTfulResponse
 {
     /**
@@ -31,13 +34,13 @@ class NotesController extends RESTfulResponse
 
     /**
      *
-     * @param \Leaf\Db $db
+     * @param Db $db
      * @param Login $login
-     * @param \Leaf\DataActionLogger $dataActionLogger
+     * @param DataActionLogger $dataActionLogger
      *
      * Created at: 10/7/2022, 9:45:22 AM (America/New_York)
      */
-    public function __construct(\Leaf\Db $db, Login $login, \Leaf\DataActionLogger $dataActionLogger)
+    public function __construct(Db $db, Login $login, DataActionLogger $dataActionLogger)
     {
         $this->db = $db;
         $this->login = $login;

@@ -13,10 +13,12 @@
 1. prevent double submits
 2. clean up
 */
+
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
-require_once '../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -46,6 +48,8 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 // HQ logo
 $main->assign('logo', '<img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
+$main->assign('app_js_path', APP_JS_PATH);
+$main->assign('app_css_path', APP_CSS_PATH);
 
 $t_login->assign('name', $oc_login->getName());
 
@@ -97,8 +101,10 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('css/employeeSelector.css', 'css/mod_system.css'));
-           $main->assign('javascripts', array('js/dialogController.js', 'js/employeeSelector.js'));
+           $main->assign('stylesheets', array(LEAF_NEXUS_URL . 'css/employeeSelector.css',
+                        LEAF_NEXUS_URL . 'css/mod_system.css'));
+           $main->assign('javascripts', array(LEAF_NEXUS_URL . 'js/dialogController.js',
+                        LEAF_NEXUS_URL . 'js/employeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
@@ -106,8 +112,8 @@ switch ($action) {
 
            //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
            $t_form->assign('timeZone', $settings['timeZone']);
-           $t_form->assign('heading', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
            $tagObj = new Orgchart\Tag($db, $oc_login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
@@ -131,14 +137,14 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            //$main->assign('useUI', true);
-           $main->assign('stylesheets', array('admin/css/mod_groups.css', 'css/employeeSelector.css'));
-           $main->assign('javascripts', array('js/dialogController.js', 'js/nationalEmployeeSelector.js'));
+           $main->assign('stylesheets', array('../css/mod_groups.css', '../css/employeeSelector.css'));
+           $main->assign('javascripts', array('../js/dialogController.js', '../js/nationalEmployeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
            //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('heading', \Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', \Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
 
            $memberships = $oc_login->getMembership();
            if (isset($memberships['groupID'][1]))
@@ -158,8 +164,10 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-        $t_form->assign('APIroot', '../api/');
-        $main->assign('javascripts', array('../libs/js/LEAF/workbookhelper.js'));
+        $t_form->assign('APIroot', 'https://' . HTTP_HOST . '/app/api/');
+        $t_form->assign('app_css_path', APP_CSS_PATH);
+        $t_form->assign('app_js_path', APP_JS_PATH);
+        $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/workbookhelper.js'));
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
 
@@ -171,29 +179,29 @@ switch ($action) {
            $t_form->right_delimiter = '}-->';
 
            $main->assign('useUI', true);
-           $main->assign('javascripts', array('js/dialogController.js',
-                   '../libs/js/codemirror/lib/codemirror.js',
-                   '../libs/js/codemirror/mode/xml/xml.js',
-                   '../libs/js/codemirror/mode/javascript/javascript.js',
-                   '../libs/js/codemirror/mode/css/css.js',
-                   '../libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
-                   '../libs/js/codemirror/addon/search/search.js',
-                   '../libs/js/codemirror/addon/search/searchcursor.js',
-                   '../libs/js/codemirror/addon/dialog/dialog.js',
-                   '../libs/js/codemirror/addon/scroll/simplescrollbars.js',
-                   '../libs/js/codemirror/addon/scroll/annotatescrollbar.js',
-                   '../libs/js/codemirror/addon/search/matchesonscrollbar.js',
-                   '../libs/js/codemirror/addon/display/fullscreen.js',
+           $main->assign('javascripts', array('../js/dialogController.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/xml/xml.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/javascript/javascript.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/css/css.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/mode/htmlmixed/htmlmixed.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/search.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/searchcursor.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/dialog/dialog.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/simplescrollbars.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/annotatescrollbar.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/matchesonscrollbar.js',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/display/fullscreen.js',
            ));
-           $main->assign('stylesheets', array('../libs/js/codemirror/lib/codemirror.css',
-                   '../libs/js/codemirror/addon/dialog/dialog.css',
-                   '../libs/js/codemirror/addon/scroll/simplescrollbars.css',
-                   '../libs/js/codemirror/addon/search/matchesonscrollbar.css',
-                   '../libs/js/codemirror/addon/display/fullscreen.css',
+           $main->assign('stylesheets', array('https://' . HTTP_HOST . '/app/libs/js/codemirror/lib/codemirror.css',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/dialog/dialog.css',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/scroll/simplescrollbars.css',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/search/matchesonscrollbar.css',
+                   'https://' . HTTP_HOST . '/app/libs/js/codemirror/addon/display/fullscreen.css',
            ));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-           $t_form->assign('APIroot', '../api/');
+           $t_form->assign('APIroot', 'https://' . HTTP_HOST . '/app/api/');
            $t_form->assign('domain_path', DOMAIN_PATH);
 
            switch ($action) {
@@ -217,17 +225,17 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('javascripts', array('js/nationalEmployeeSelector.js',
-                                           'js/positionSelector.js',
-                                           'js/groupSelector.js',
-                                           'js/dialogController.js',
-                                           'js/orgchartForm.js', ));
-        $main->assign('stylesheets', array('css/employeeSelector.css',
-                                           'css/view_employee.css',
-                                           'css/positionSelector.css',
-                                           'css/view_position.css',
-                                           'css/groupSelector.css',
-                                           'css/view_group.css', ));
+        $main->assign('javascripts', array('../js/nationalEmployeeSelector.js',
+                                           '../js/positionSelector.js',
+                                           '../js/groupSelector.js',
+                                           '../js/dialogController.js',
+                                           '../js/orgchartForm.js', ));
+        $main->assign('stylesheets', array('../css/employeeSelector.css',
+                                           '../css/view_employee.css',
+                                           '../css/positionSelector.css',
+                                           '../css/view_position.css',
+                                           '../css/groupSelector.css',
+                                           '../css/view_group.css', ));
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('userDomain', $oc_login->getDomain());
@@ -256,9 +264,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', Leaf\XSSHelpers::xscrub($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', XSSHelpers::xscrub($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

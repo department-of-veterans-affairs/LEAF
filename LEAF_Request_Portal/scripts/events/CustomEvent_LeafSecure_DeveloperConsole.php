@@ -9,6 +9,7 @@
 */
 
 namespace Portal;
+use App\Leaf\Db;
 
 class CustomEvent_LeafSecure_DeveloperConsole
 {

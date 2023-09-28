@@ -1,4 +1,5 @@
 <?php
+use App\Leaf\Db;
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
@@ -9,8 +10,7 @@
 
 */
 
-require_once '../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 {
@@ -47,7 +47,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
     else
     {
         // try searching through national database
-        $globalDB = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
         $res = $globalDB->prepared_query('SELECT * FROM employee_data
 											LEFT JOIN employee USING (empUID)

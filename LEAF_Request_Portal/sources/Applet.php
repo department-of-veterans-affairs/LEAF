@@ -9,6 +9,11 @@
 
 namespace Portal;
 
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\LogItem;
+
 class Applet
 {
     public $siteRoot = '';
@@ -22,7 +27,7 @@ class Applet
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
     }
 
     public function getReportTemplateList()
@@ -143,9 +148,9 @@ class Applet
         if (array_search($template, $list) === false)
         {
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::CREATE,
-                \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY,
-                [new \Leaf\LogItem("template_reports_editor", "body", $template, $template)]
+                DataActions::CREATE,
+                LoggableTypes::TEMPLATE_REPORTS_BODY,
+                [new LogItem("template_reports_editor", "body", $template, $template)]
             );
             file_put_contents("../templates/reports/{$template}", '');
         }
@@ -186,9 +191,9 @@ class Applet
         {
             file_put_contents("../templates/reports/{$template}", $_POST['file']);
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::MODIFY,
-                \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY,
-                [new \Leaf\LogItem("template_reports_editor", "body", $template, $template)]
+                DataActions::MODIFY,
+                LoggableTypes::TEMPLATE_REPORTS_BODY,
+                [new LogItem("template_reports_editor", "body", $template, $template)]
             );
         }
     }
@@ -211,9 +216,9 @@ class Applet
         if (array_search($template, $list) !== false)
         {
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::DELETE,
-                \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY,
-                [new \Leaf\LogItem("template_reports_editor", "body", $template, $template)]
+                DataActions::DELETE,
+                LoggableTypes::TEMPLATE_REPORTS_BODY,
+                [new LogItem("template_reports_editor", "body", $template, $template)]
             );
             if (file_exists("../templates/reports/{$template}"))
             {
@@ -249,7 +254,7 @@ class Applet
         $history = [];
 
         $fields = [
-            'message' => \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY
+            'message' => LoggableTypes::TEMPLATE_REPORTS_BODY
         ];
         foreach ($fields as $field => $type) {
             $fieldHistory = $this->dataActionLogger->getHistory(NULL, $field, $type);
@@ -313,9 +318,9 @@ class Applet
         if (array_search($template, $list) !== false) {
             file_put_contents("../templates/reports/{$template}", $_POST['file']);
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::MERGE,
-                \Leaf\LoggableTypes::TEMPLATE_REPORTS_BODY,
-                [new \Leaf\LogItem("template_reports_editor", "body", $template, $template)]
+                DataActions::MERGE,
+                LoggableTypes::TEMPLATE_REPORTS_BODY,
+                [new LogItem("template_reports_editor", "body", $template, $template)]
             );
         }
     }

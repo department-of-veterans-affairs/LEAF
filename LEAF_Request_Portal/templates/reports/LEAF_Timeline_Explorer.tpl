@@ -1,7 +1,7 @@
 <script src="js/lz-string/lz-string.min.js"></script>
-<script src="../libs/js/LEAF/intervalQueue.js"></script>
-<link rel="stylesheet" type="text/css" href="../libs/js/jquery/layout-grid/css/layout-grid.min.css" />
-<script src="../libs/js/jquery/layout-grid/js/layout-grid.min.js"></script>
+<script src="<!--{$app_js_path}-->/LEAF/intervalQueue.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$app_js_path}-->/jquery/layout-grid/css/layout-grid.min.css" />
+<script src="<!--{$app_js_path}-->/jquery/layout-grid/js/layout-grid.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/4.2.7/style/dc.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.2.0/d3.min.js"></script>
@@ -89,7 +89,7 @@ function prepCrossfilter(site, service, label, recordID, categoryID, stepID, day
     dataSet.days = days;
     dataSet.timestamp = new Date(timestamp * 1000);
     dataSet.isFinal = isFinal;
-    
+
     // process custom data fields
     for(let i in getDataFields) {
         if(getDataFields[i].transform != undefined) {
@@ -378,7 +378,7 @@ function loadData(site, categoryID) {
         let data = {};
         query.execute();
     });
-    
+
     return promise;
 }
 
@@ -563,7 +563,7 @@ function flagActionDeterminingResolution() {
         parsedData[tCache[i].index].isFinal = 1;
     }
 }
-    
+
 let chart_workload_timescale_numRequests;
 let chart_workload_timescale;
 
@@ -576,7 +576,7 @@ function setupChart() {
         alert('No data matches the selected set. Please expand the time range.');
         return false;
     }
-    
+
     flagActionDeterminingResolution();
     facts = crossfilter(parsedData);
 
@@ -606,7 +606,7 @@ function setupChart() {
             break;
     }
     $('.unitTime').html($('#reportTimeUnit').val());
-    
+
     // setup chart
     chart_workload_timescale_numRequests = dc.barChart("#chart_workload_timescale_numRequests");
     chart_workload_timescale = dc.barChart("#chart_workload_timescale");
@@ -832,7 +832,7 @@ function setupChart() {
         })
         .group(avgTimeSpentBySite)
         .formatNumber(d3.format(',.01f'));
-    
+
     chart_countResolvedRequests
         .valueAccessor(function(d) {
             return groupRequests.all().filter(function(d) { return d.value > 0; }).length;
@@ -871,7 +871,7 @@ function setupChart() {
 //  chart_workload_timescale.yAxis().ticks(4);
     chart_workload_timescale.xAxis().ticks(5);
 //chart_workload_timescale.xAxis().tickFormat(d3.timeFormat("%b %Y"));
-    
+
 	chart_workload_timescale.filterHandler(function(dimension, filters) {
         if(filters[0]?.length == 2 && typeof filters[0][0].toISOString == 'function') {
             $('#filterStart').val(filters[0][0].toISOString().substring(0, 10));
@@ -886,7 +886,7 @@ function setupChart() {
 
 		return filters;
     });
-    
+
     chart_workload_timescale_numRequests
         .useViewBoxResizing(true)
         .height(176)
@@ -1070,7 +1070,7 @@ function setupChart() {
         .othersLabel('All others')
         .fixedBarHeight(14)
         .elasticX(true);
-    
+
     chart_workload_type.xAxis().ticks(5);
 
     chart_workload_facilities_numRequests
@@ -1085,7 +1085,7 @@ function setupChart() {
         .othersLabel('All others')
         .fixedBarHeight(14)
         .elasticX(true);
-    
+
     chart_workload_facilities_numRequests.xAxis().ticks(5);
 
     chart_form_type
@@ -1100,7 +1100,7 @@ function setupChart() {
         .othersLabel('All others')
         .fixedBarHeight(14)
         .elasticX(true);
-    
+
     chart_form_type.xAxis().ticks(5);
 
     chart_table_requests
@@ -1119,7 +1119,7 @@ function setupChart() {
         .size(Infinity)
         .beginSlice(0)
         .endSlice(10);
-    
+
     return true;
 }
 
@@ -1162,7 +1162,7 @@ function saveCache() {
  */
 function start() {
     let progressbar = $('#progressbar').progressbar();
-    
+
     let today = new Date();
     $('#generateDate').html(today.toLocaleDateString());
 
@@ -1190,11 +1190,11 @@ function start() {
                 saveCache();
             }
         });
-        
+
         for(var i in data) {
             queue.push(i);
         }
-        
+
         queue.start();
     });
 
@@ -1217,7 +1217,7 @@ $(function() {
     		$('#reportTimeUnit').val(res.config.reportTimeUnit);
     		$('#showDateSubmitted').val(res.config.showDateSubmitted);
             dataSteps = res.dataSteps;
-            
+
             parsedData = res.data;
             for(let i in parsedData) {
                 parsedData[i].timestamp = new Date(parsedData[i].timestamp);
@@ -1249,7 +1249,7 @@ $(function() {
 
 	$('#refreshData').on('click', function() {
         $('#refreshData').css('display', 'none');
-        
+
         queryFirstDateSubmitted = $('#showDateSubmitted').val();
         parsedData = [];
         $('#chartBody').slideUp();
@@ -1266,15 +1266,15 @@ $(function() {
             setupChart();
             dc.renderAll();
             //renderGrid();
-            
+
             saveCache();
         });
     });
-    
-    
+
+
     $('#btn_exportData').on('click', function() {
         let uploadPacket = JSON.stringify(facts.all());
-        
+
         let filename = `leaf_timeline_data-${new Date().getTime()/1000}.json`;
         let file = new Blob([uploadPacket], {type: 'application/json'});
         let obj = URL.createObjectURL(file);
@@ -1284,7 +1284,7 @@ $(function() {
         document.body.appendChild(link);
         link.click();
     });
-    
+
     $('#filterStart, #filterEnd').on('change', function() {
         let startVal = $('#filterStart').val();
         let endVal = $('#filterEnd').val();
@@ -1297,8 +1297,8 @@ $(function() {
         $('#filterStart').val(startVal)
         $('#filterEnd').val(endVal)
     });
-    
-    
+
+
     let historicalDataOptions = '';
     for(let i = 2; i <= 15; i++) {
         historicalDataOptions += `<option value="${i} years ago">${i} years ago</option>`;
@@ -1316,13 +1316,13 @@ $(function() {
 
 <div id="chartBody" style="display: none">
     <h1 style="text-align: center">Timeline Data Explorer <span style="background-color: white; color: red; border: 2px solid black; padding: 8px; font-style: italic">BETA 2</span></h1>
-    <h2 style="text-align: center">Requests submitted 
+    <h2 style="text-align: center">Requests submitted
         <select id="reportTimeUnit">
             <option value="day">daily</option>
             <option value="week">weekly</option>
             <option value="month" selected="selected">monthly</option>
             <option value="year">yearly</option>
-        </select> from 
+        </select> from
         <select id="showDateSubmitted">
             <option value="1 month ago">1 month ago</option>
             <option value="3 months ago" selected="selected">3 months ago</option>
@@ -1410,7 +1410,7 @@ $(function() {
                 <div id="chart_workload_timescale_numRequests" class="chart"></div>
             </div>
         </div>
-        
+
         <!-- chart for service workload -->
         <div class="lt lt-xs-x-0 lt-xs-y-5 lt-xs-w-1 lt-xs-h-1
                     lt-sm-x-2 lt-sm-y-3 lt-sm-w-1 lt-sm-h-1

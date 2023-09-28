@@ -6,6 +6,8 @@
  * @subpackage PluginsModifier
  */
 
+use Leaf\XSSHelpers;
+
 /**
  * Smarty HTML sanitation modifier plugin
  * Type:     modifier<br>
@@ -27,5 +29,5 @@ if(!class_exists('Leaf\XSSHelpers')){
 
 function smarty_modifier_sanitize($in)
 {
-    return Leaf\XSSHelpers::sanitizeHTML($in);
+    return XSSHelpers::sanitizeHTML($in);
 }

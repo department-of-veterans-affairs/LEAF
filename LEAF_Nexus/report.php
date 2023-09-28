@@ -9,10 +9,11 @@
 
 */
 
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
-require_once 'globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -34,7 +35,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 function customTemplate($tpl)
 {
@@ -47,6 +48,7 @@ $t_login->assign('name', $oc_login->getName());
 
 $main->assign('useDojo', true);
 $main->assign('useDojoUI', true);
+$main->assign('app_js_path', APP_JS_PATH);
 
 switch ($action) {
     case 'about':
@@ -55,7 +57,7 @@ switch ($action) {
         $t_form->right_delimiter = '}-->';
 
         $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', Leaf\XSSHelpers::xscrub($rev[0]['data']));
+        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -109,9 +111,9 @@ $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
 //$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', Leaf\XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', Leaf\XSSHelpers::scrubNewLinesFromURL($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+$main->assign('revision', XSSHelpers::scrubNewLinesFromURL($settings['version']));
 
 if (!isset($_GET['iframe']))
 {

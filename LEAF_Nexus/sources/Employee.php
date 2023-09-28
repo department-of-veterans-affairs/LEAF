@@ -11,7 +11,7 @@
 
 namespace Orgchart;
 
-use Leaf\Db;
+use App\Leaf\Db;
 
 class Employee extends Data
 {

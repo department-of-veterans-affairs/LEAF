@@ -21,7 +21,7 @@ class IconPicker
     /**
      * Construct IconPicker
      *
-     * @param \Leaf\Db $db, Login $login
+     * @param \App\Leaf\Db $db, Login $login
      */
     public function __construct($db, $login)
     {

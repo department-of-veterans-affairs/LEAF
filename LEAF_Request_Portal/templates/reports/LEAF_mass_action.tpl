@@ -23,8 +23,8 @@
         background-color: rgb(209, 223, 255);
     }
     table#requests td {
-        border: 1px solid black; 
-        padding: 8px; 
+        border: 1px solid black;
+        padding: 8px;
         font-size: 12px;
     }
     .buttonNorm.takeAction, .buttonNorm.buttonDaySearch {
@@ -37,13 +37,14 @@
 <script id="mass-action-js" src="./js/pages/mass_action.js"
         data-token="<!--{$CSRFToken}-->"
         data-orgChartPath="<!--{$orgchartPath}-->"
+        data-jsPath="<!--{$app_js_path}-->"
         type="text/javascript"></script>
 
 <div id="massActionContainer">
     <h1>Mass Action</h1>
     <div id="actionContainer">
         <label for="action"> Choose Action </label>
-        <select id="action" name="action">  
+        <select id="action" name="action">
             <option value="">-Select-</option>
             <option value="cancel">Cancel</option>
             <option value="restore">Restore</option>

@@ -10,6 +10,8 @@
 */
 
 namespace Orgchart;
+use App\Leaf\Db;
+use App\Leaf\XSSHelpers;
 
 class Login
 {
@@ -164,7 +166,7 @@ class Login
         }
 
         // try to copy the user from the national DB
-        $globalDB = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':userName' => $_SESSION['userID']);
         $res = $globalDB->prepared_query('SELECT * FROM employee
 											LEFT JOIN employee_data USING (empUID)
@@ -395,7 +397,7 @@ class Login
         foreach ($res as $item)
         {
             $resIndicatorID = (int)$item['indicatorID'];
-            $resCategoryID = \Leaf\XSSHelpers::xscrub($item['categoryID']);
+            $resCategoryID = XSSHelpers::xscrub($item['categoryID']);
             $resUID = (int)$item['UID'];
             $resRead = (int)$item['read'];
             $resWrite = (int)$item['write'];

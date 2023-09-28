@@ -9,6 +9,11 @@
 
 namespace Portal;
 
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\LogItem;
+
 class TemplateEditor
 {
     public $siteRoot = '';
@@ -22,7 +27,7 @@ class TemplateEditor
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
     }
 
     public function getTemplateList()
@@ -83,9 +88,9 @@ class TemplateEditor
             file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::MODIFY,
-                \Leaf\LoggableTypes::TEMPLATE_BODY,
-                [new \Leaf\LogItem("template_editor", "body", $template, $template)]
+                DataActions::MODIFY,
+                LoggableTypes::TEMPLATE_BODY,
+                [new LogItem("template_editor", "body", $template, $template)]
             );
         }
     }
@@ -103,9 +108,9 @@ class TemplateEditor
             if (file_exists("../templates/custom_override/{$template}"))
             {
                 $this->dataActionLogger->logAction(
-                    \Leaf\DataActions::RESTORE,
-                    \Leaf\LoggableTypes::TEMPLATE_BODY,
-                    [new \Leaf\LogItem("template_editor", "body", $template, $template)]
+                    DataActions::RESTORE,
+                    LoggableTypes::TEMPLATE_BODY,
+                    [new LogItem("template_editor", "body", $template, $template)]
                 );
                 return unlink("../templates/custom_override/{$template}");
             }
@@ -118,7 +123,7 @@ class TemplateEditor
         $history = [];
 
         $fields = [
-            'message' => \Leaf\LoggableTypes::TEMPLATE_BODY
+            'message' => LoggableTypes::TEMPLATE_BODY
         ];
         foreach ($fields as $field => $type) {
             $fieldHistory = $this->dataActionLogger->getHistory(NULL, $field, $type);
