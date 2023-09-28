@@ -31,7 +31,6 @@ export default {
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
             focusedFormID: '',
             focusedFormTree: [],
-            selectedNodeIndicatorID: null,
             allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
             workflowRecords: [],            //array of all 'workflows' table records
             indicatorRecord: {},          //'indicators' table record for a specific indicatorID
@@ -61,8 +60,6 @@ export default {
             focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             focusedFormRecord: computed(() => this.focusedFormRecord),
             focusedFormTree: computed(() => this.focusedFormTree),
-            selectedNodeIndicatorID: computed(() => this.selectedNodeIndicatorID),
-            selectedFormNode: computed(() => this.selectedFormNode),
             appIsLoadingCategoryList: computed(() => this.appIsLoadingCategoryList),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
             activeForms: computed(() => this.activeForms),
@@ -86,7 +83,6 @@ export default {
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
             selectNewCategory: this.selectNewCategory,
-            selectNewFormNode: this.selectNewFormNode,
             getFormByCategoryID: this.getFormByCategoryID,
             updateCategoriesProperty: this.updateCategoriesProperty,
             updateStapledFormsInfo: this.updateStapledFormsInfo,
@@ -160,20 +156,6 @@ export default {
          */
         focusedFormRecord() {
             return this.categories[this.focusedFormID] || {};
-        },
-        /**
-         * @returns {Object} form tree node
-         */
-        selectedFormNode() {
-            let selectedNode = null;
-            if (this.selectedNodeIndicatorID !== null) {
-                this.focusedFormTree.forEach(section => {
-                    if (selectedNode === null) {
-                        selectedNode = this.getNodeSelection(section, this.selectedNodeIndicatorID) || null;
-                    }
-                });
-            }
-            return selectedNode;
         },
         /**
          * @returns {boolean} true once sensitive indicator found
@@ -371,10 +353,9 @@ export default {
             const formReg = /^form_[0-9a-f]{5}$/i;
             const formID = formReg.test(this.$route.query?.formID || '') ? this.$route.query.formID : null;
             if (formID === null || this.categories[formID] === undefined) {
-                this.selectNewCategory();
-                //console.log('no form selected or form does not exist');
+                this.selectNewCategory(); //no form selected or form does not exist
             } else {
-                this.selectNewCategory(formID, this.selectedNodeIndicatorID, true);
+                this.selectNewCategory(formID, null, true);
             }
         },
         /**
@@ -507,7 +488,6 @@ export default {
                     success: (res)=> {
                         this.focusedFormID = catID;
                         this.focusedFormTree = res;
-                        this.selectedNodeIndicatorID = subnodeIndID;
                         this.appIsLoadingForm = false;
                         resolve(res)
                     },
@@ -590,16 +570,14 @@ export default {
         },
         /**
          * @param {string} catID of the form to select
-         * @param {number|null} subnodeIndID indicatorID of currently selected form section
+         * @param {number|null} subnodeIndID indicatorID of currently selected form section or indicator
          */
         selectNewCategory(catID = '', subnodeIndID = null, setFormLoading = false) {
             this.setDefaultAjaxResponseMessage();
             if (catID !== '') {
                 if (setFormLoading === true) this.appIsLoadingForm = true
                 this.getFormByCategoryID(catID, subnodeIndID);
-
             } else {  //card browser.
-                this.selectedNodeIndicatorID = null;
                 this.focusedFormID = '';
                 this.focusedFormTree = [];
                 this.categories = {};
@@ -610,22 +588,6 @@ export default {
                 this.getFileManagerTextFiles();
             }
         },
-        /**
-         * 
-         * @param {Object} event
-         * @param {Object|null} node of the form section selected in the Form Index
-         */
-        selectNewFormNode(event = {}, node = null) {
-            if (event.target.classList.contains('icon_move') || event.target.classList.contains('sub-menu-chevron')) {
-                return //prevents enter/space activation from move and menu toggle buttons
-            }
-            this.selectedNodeIndicatorID = node?.indicatorID || null;
-            if (node?.indicatorID !== null) {
-                const elsMenu = Array.from(document.querySelectorAll(`li#index_listing_${node?.indicatorID} .sub-menu-chevron.closed`));
-                elsMenu.forEach(el => el.click());
-            }
-        },
-
         /** DIALOG MODAL RELATED */
         /**
          * close dialog and reset values

@@ -39,6 +39,8 @@ export default {
             showToolbars: true,
             sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
             updateKey: 0,
+            currentFormPage: 0,
+            selectedNodeIndicatorID: null
         }
     },
     components: {
@@ -66,8 +68,7 @@ export default {
         'appIsLoadingForm',
         'categories',
         'internalFormRecords',
-        'selectedNodeIndicatorID',
-        'selectedFormNode',
+        'selectNewCategory',
         'getFormByCategoryID',
         'showLastUpdate',
         'openFormHistoryDialog',
@@ -92,6 +93,9 @@ export default {
             vm.setDefaultAjaxResponseMessage();
         });
     },
+    beforeRouteLeave(to, from) {
+        this.selectNewCategory(); //this will clear out focussed form info.
+    },
     provide() {
         return {
             listTracker: computed(() => this.listTracker),
@@ -99,6 +103,8 @@ export default {
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
+            selectNewFormNode: this.selectNewFormNode,
+            selectedNodeIndicatorID: this.selectedNodeIndicatorID,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
@@ -120,13 +126,6 @@ export default {
             return this.focusedFormRecord?.parentID ?
                 this.focusedFormRecord.categoryID : '';
         },
-        currentSectionNumber() {
-            let indID = parseInt(this.selectedFormNode?.indicatorID);
-            const elHeaderItems = Array.from(document.querySelectorAll('#base_drop_area > li'));
-            const elThisItem = document.getElementById(`index_listing_${indID}`);
-            const index = elHeaderItems.indexOf(elThisItem);
-            return index === -1 ? '' : index + 1;
-        }, 
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
         },
@@ -162,6 +161,22 @@ export default {
     methods: {
         forceUpdate() {
             this.updateKey += 1;
+        },
+        /**
+         * @param {Object} event
+         * @param {Object|null} node of the form section selected in the Form Index
+         * @param {Number} page base 0 form page 
+         */
+        selectNewFormNode(event = {}, node = null, page = 0) {
+            if (event.target.classList.contains('icon_move') || event.target.classList.contains('sub-menu-chevron')) {
+                return //prevents enter/space activation from move and menu toggle buttons
+            }
+            this.currentFormPage = page;
+            this.selectedNodeIndicatorID = node?.indicatorID || null;
+            if (node?.indicatorID !== null) {
+                const elsMenu = Array.from(document.querySelectorAll(`li#index_listing_${node?.indicatorID} .sub-menu-chevron.closed`));
+                elsMenu.forEach(el => el.click());
+            }
         },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
@@ -235,7 +250,13 @@ export default {
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.focusedFormID, this.selectedNodeIndicatorID).then(()=> {
                         this.showLastUpdate('form_properties_last_update');
+                        const el = document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`);
                         this.forceUpdate();
+                        if(el !== null) {
+                            el.dispatchEvent(new Event("click"));
+                        } else {
+                            console.log(this.selectedNodeIndicatorID)
+                        }
 
                     }).catch(err => console.log(err));
                 }
@@ -297,6 +318,7 @@ export default {
                     try {
                         parentEl.append(elLiToMove);
                         this.updateListTracker(indID, formParIndID, 0);
+                        this.selectedNodeIndicatorID = indID;
                     } catch (error) {
                         console.log(error);
                     }
@@ -313,7 +335,7 @@ export default {
                                 const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
                                 this.updateListTracker(indID, formParIndID, i);
                             });
-
+                            this.selectedNodeIndicatorID = indID;
                         } catch(error) {
                             console.log(error);
                         }
@@ -340,6 +362,12 @@ export default {
         onDragEnter(event = {}) {
             if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move' && event?.target?.classList.contains('form-index-listing-ul')){
                 event.target.classList.add('entered-drop-zone');
+            }
+        },
+        dispatchIndexClick(indID = 0) {
+            const el = document.getElementById(`index_listing_${indID}`);
+            if(el !== null) {
+                el.dispatchEvent(new Event("click"));
             }
         },
         toggleToolbars(event = {}, indicatorID = null) {
@@ -373,8 +401,12 @@ export default {
             const name = this.decodeAndStripHTML(form?.categoryName || 'Untitled');
             return this.truncateText(name, len).trim();
         },
+        shortIndicatorNameStripped(text = '[ blank ]', len = 35) {
+            const name = this.decodeAndStripHTML(text);
+            return this.truncateText(name, len).trim();
+        },
         layoutBtnIsDisabled(form) {
-            return form.categoryID === this.focusedFormRecord.categoryID && this.selectedFormNode === null
+            return form.categoryID === this.focusedFormRecord.categoryID && this.selectedNodeIndicatorID === null
         },
         makePreviewKey(node) {
             return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
@@ -463,6 +495,7 @@ export default {
 
                                 <form-index-listing v-for="(formSection, i) in focusedFormTree"
                                     :id="'index_listing_'+formSection.indicatorID"
+                                    :formPage=i
                                     :depth=0
                                     :formNode="formSection"
                                     :index=i
@@ -488,6 +521,7 @@ export default {
 
                         <form-index-listing v-for="(formSection, i) in focusedFormTree"
                             :id="'index_listing_'+formSection.indicatorID"
+                            :formPage=i
                             :depth=0
                             :formNode="formSection"
                             :index=i
@@ -531,12 +565,9 @@ export default {
             <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
             <template v-if="focusedFormTree.length > 0">
                 <!-- ENTIRE FORM EDIT / PREVIEW -->
-                <div v-if="selectedFormNode === null" id="form_entry_and_preview">
-                    <div class="form-section-header" style="display: flex;">
-                        <h3 style="margin: 0; color: black;">Form Editing and Preview</h3>
-                    </div>
+                <div id="form_entry_and_preview">
                     <template v-for="(formSection, i) in focusedFormTree" :key="'editing_display_' + formSection.indicatorID">
-                        <div class="printformblock">
+                        <div v-if="i === currentFormPage" class="printformblock">
                             <form-editing-display
                                 :depth="0"
                                 :formNode="formSection"
@@ -544,21 +575,12 @@ export default {
                                 :key="'FED_' + formSection.indicatorID + makePreviewKey(formSection)">
                             </form-editing-display>
                         </div>
+                        <div v-else tabindex="0" class="form-page-card"
+                            @click="dispatchIndexClick(formSection.indicatorID)"
+                            @keypress.enter="dispatchIndexClick(formSection.indicatorID)">
+                            {{ shortIndicatorNameStripped(formSection?.name) }} (page {{i + 1}})
+                        </div>
                     </template>
-                </div>
-                <!-- SUBSECTION EDIT / PREVIEW -->
-                <div v-else id="form_entry_and_preview">
-                    <div class="form-section-header" style="display: flex;">
-                        <h3 style="margin: 0; color: black;">Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
-                    </div>
-                    <div class="printformblock">
-                        <form-editing-display
-                            :depth="0"
-                            :formNode="selectedFormNode"
-                            :index="-1"
-                            :key="'FED_' + selectedFormNode.indicatorID + makePreviewKey(selectedFormNode)">
-                        </form-editing-display>
-                    </div>
                 </div>
             </template>
         </div>

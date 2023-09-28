@@ -91,7 +91,7 @@ export default {
                             class="btn-general"
                             @click="editQuestion(parseInt(formNode.indicatorID))"
                             :title="'edit indicator ' + formNode.indicatorID">
-                            Edit
+                            {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
                         <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + formNode.indicatorID"
                             class="btn-general"

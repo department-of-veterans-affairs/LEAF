@@ -4,7 +4,6 @@ export default {
         'APIroot',
         'truncateText',
         'decodeAndStripHTML',
-        'selectNewCategory',
         'categories',
         'focusedFormRecord',
         'internalFormRecords',
@@ -106,7 +105,7 @@ export default {
             <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
             <ul v-if="$route.name === 'browser' || $route.name === 'restore'" id="page-menu">
                 <li v-if="$route.name === 'restore'">
-                    <router-link :to="{ name: 'browser' }" class="router-link" @click="selectNewCategory()">
+                    <router-link :to="{ name: 'browser' }" class="router-link">
                         Form Browser
                     </router-link>                
                 </li>

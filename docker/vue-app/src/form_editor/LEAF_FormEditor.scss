@@ -537,18 +537,18 @@ div#form_content_view {
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     overflow: visible;
 
-    .form-section-header {
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 0.75rem;
-
-        #indicator_toolbar_toggle {
-            width: 160px;
+    .form-page-card {
+        cursor: pointer;
+        padding: 0.5em;
+        border: 2px outset $BG_Pearl;
+        border-radius: 2px;
+        &:not(:last-child) {
+            margin-bottom: 0.5rem;
         }
     }
 
     div.printformblock {
-        page-break-inside: avoid;
+        break-inside: avoid;
     }
 
     div.printResponse {

@@ -19,7 +19,6 @@ export default {
     },
     inject: [
         'setDefaultAjaxResponseMessage',
-        'selectNewCategory',
 
         'showFormDialog',
         'dialogFormContent',
@@ -34,7 +33,6 @@ export default {
         console.log('entering browser route')
         next(vm => {
             vm.setDefaultAjaxResponseMessage();
-            vm.selectNewCategory();
         });
     },
     methods: {

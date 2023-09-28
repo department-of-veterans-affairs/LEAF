@@ -18,7 +18,6 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'selectNewCategory',
         'setDefaultAjaxResponseMessage',
 
         'showFormDialog',
@@ -41,7 +40,6 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            vm.selectNewCategory(); //clear out focussed form info.  update during more signif refactor of restorefields view
             vm.setDefaultAjaxResponseMessage();
         });
     },
