@@ -1005,6 +1005,7 @@ class Employee extends Data
         $sql = "SELECT *
                 FROM {$this->tableName}
                 WHERE firstName LIKE :firstName
+                AND deleted = 0
                 ORDER BY {$this->sortBy} {$this->sortDir}
                 {$this->limit}";
 
@@ -1015,6 +1016,7 @@ class Employee extends Data
             $sql = "SELECT *
                     FROM {$this->tableName}
                     WHERE phoneticFirstName LIKE :firstName
+                    AND deleted = 0
                     ORDER BY {$this->sortBy} {$this->sortDir}
                     {$this->limit}";
 
@@ -1091,13 +1093,15 @@ class Employee extends Data
         return $result;
     }
 
-    public function lookupEmail($email)
+    public function lookupEmail(string $email, bool $searchDisabledEmail = false): array
     {
+        $accountStatus = $searchDisabledEmail ? '' : ' AND deleted = 0';
         $sql = "SELECT *
                 FROM {$this->dataTable}
                 LEFT JOIN {$this->tableName} USING (empUID)
                 WHERE indicatorID = 6
-                    AND data = :email
+                AND data = :email
+                {$accountStatus}
                 {$this->limit}";
 
         $vars = array(':email' => $email);
@@ -1336,7 +1340,19 @@ class Employee extends Data
                 {
                     $this->log[] = 'Format Detected: Email';
                 }
-                $searchResult = $this->lookupEmail($input);
+                
+                if(substr(strtolower($input), 0, 15) === 'email_disabled:') {
+                    $input = str_replace('email_disabled:', '', strtolower($input));
+                    $searchResult = $this->lookupEmail($input, true);
+                } else if (substr(strtolower($input), 0, 9) === 'disabled:'){
+                    $input = str_replace('disabled:', '', strtolower($input));
+                    $searchResult = $this->lookupEmail($input, true);
+                } else if (substr(strtolower($input), 0, 15) === 'disabled.email:'){
+                    $input = str_replace('disabled.email:', '', strtolower($input));
+                    $searchResult = $this->lookupEmail($input, true);
+                } else {
+                    $searchResult = $this->lookupEmail($input);
+                }
 
                 break;
             // Format: Loginname && Will search all active and disabled accounts
