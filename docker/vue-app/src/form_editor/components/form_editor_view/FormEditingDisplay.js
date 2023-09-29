@@ -60,10 +60,8 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    template:`<div class="printResponse" 
-            :class="{'form-header': isHeaderLocation}"
-            style="margin-bottom: 1rem;"
-            :id="printResponseID">
+    template:`<div class="printResponse" :class="{'form-header': isHeaderLocation}"
+            style="margin-bottom: 1rem;" :id="printResponseID">
 
             <!-- EDITING AREA FOR INDICATOR -->
             <div class="form_editing_area" style="display:flex"

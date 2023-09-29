@@ -212,14 +212,17 @@ export default {
             supplementalForms = supplementalForms.sort((eleA, eleB) => eleA.sort - eleB.sort);
             return supplementalForms;
         },
+        mainFormID() {
+            return this.focusedFormRecord?.parentID === '' ?
+                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
+        },
         /**
-         * 
-         * @returns {array} categories records that are internal forms of the focused form
+         * @returns {array} categories records that are internal forms of the main form
          */
         internalFormRecords() {
             let internalFormRecords = [];
             for(let c in this.categories) {
-                if (this.categories[c].parentID === this.focusedFormID) {
+                if (this.categories[c].parentID === this.mainFormID) { //focusedFormID
                     internalFormRecords.push({...this.categories[c]});
                 }
             }

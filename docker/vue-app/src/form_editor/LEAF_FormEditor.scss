@@ -342,19 +342,18 @@ div#form_content_view {
 
 
 #form_index_and_editing {
-    display: flex; 
+    display: flex;
+    gap: 1rem;
 }
 
 
 /* form index */
 #form_index_display {
     position: relative;
-    margin: 0;
     padding: 0.75rem;
     width: 420px;
     flex: 0 0 420px;
     align-self:flex-start;
-    margin-right: 1.25rem;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
@@ -365,8 +364,7 @@ div#form_content_view {
         background-color: white;
         margin-top: 0.5rem;
         padding: 0 0 6px 0;
-        border: 3px solid $BG_Pearl;
-        border-radius: 3px;
+        border-top: 1px solid #d0d0d4;
         &.entered-drop-zone, ul.entered-drop-zone {
             background-color: #e8ebf0;
         }
@@ -473,53 +471,88 @@ div#form_content_view {
         }
     }
 
-    /* Layout and Internal Forms areas */
-    div[id^="internalFormRecords_"], div[id^="layoutFormRecords_"] {
+}
+
+#form_index_and_editing #internalFormRecordsDisplay {
+    min-width: 200px;
+    padding: 0.75rem;
+    background-color: white;
+    align-self: flex-start;
+    border-radius: 4px;
+    h3 {
+        margin: 0 0 0.5rem 0;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        color: black;
+    }
+    > ul > li  {
         button {
             padding: 0.25rem;
             display: flex;
             justify-content: flex-start;
             width: 100%;
             height: 100%;
-            background-color: inherit;
-            border: 2px solid transparent;
             overflow: hidden;
-            max-height: 50px;
-    
-            &:not(:disabled):not(#addInternalUse) {
-                color: $charcoal;
-            }
-    
-            &:not(:disabled):hover, &:not(:disabled):focus, &:not(:disabled):active {
+            border: 2px solid transparent;
+            &:not(#addInternalUse) {
                 background-color: $lt_cyan;
-                border: 2px solid $LEAF_CSS_outline !important;
-                outline: none;
             }
-            &:disabled:hover, &:disabled:focus, &:disabled:active {
-                cursor: default;
-                background-color: inherit;
-                outline: none;
-            }
-            &.layout-listitem {
-                min-height: 50px;
-                border-radius: 0;
-                padding: 0.5rem;
-            }
-            &.layout-listitem:disabled {
-                color: $base_navy;
-                border: 2px solid $LEAF_CSS_outline !important;
+            &.selected {
+                border: 2px solid $LEAF_CSS_outline;
             }
         }
+        #addInternalUse {
+            padding: 2px 0.5rem;
+            border: 2px solid $base-navy;
+            justify-content: space-between;
+        }
+        &:not(:last-child) {
+            margin-bottom: 0.5rem;
+        }
     }
-    div[id^="layoutFormRecords_"] > ul > li {
-        margin-bottom: 0.5rem;
+
+}
+/* lists for main and stapled forms   */
+#form_index_display div[id^="layoutFormRecords_"] button {
+    padding: 0.25rem;
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    border: 2px solid transparent;
+    overflow: hidden;
+    max-height: 50px;
+    background-color: $lt_cyan;
+    &:not(:disabled) {
+        color: $charcoal;
+    }
+    &:not(:disabled):hover, &:not(:disabled):focus, &:not(:disabled):active {
         background-color: $lt_cyan;
-        min-height: 50px;
+        border: 2px solid $LEAF_CSS_outline;
+        outline: none;
     }
-    div[id^="internalFormRecords_"] button span.internal {
-        text-decoration: underline;
-        font-weight: normal;
+    &:disabled:hover, &:disabled:focus, &:disabled:active {
+        cursor: default;
+        outline: none
+    }
+    &.layout-listitem {
+        min-height: 50px;
+        border-radius: 0;
+        padding: 0.5rem;
+    }
+    &.layout-listitem:disabled {
         color: $base_navy;
+        border: 2px solid $LEAF_CSS_outline;
+    }
+}
+
+/* these li will contain the drag-drop zone if selected */
+div[id^="layoutFormRecords_"] > ul > li  {
+    min-height: 50px;
+    margin-bottom: 0.5rem;
+    &.selected {
+        border: 2px solid $lt_cyan;
     }
 }
 
@@ -532,7 +565,7 @@ div#form_content_view {
     width: 100%;
     min-width: 420px;
     background-color: white;
-    padding: 0.75rem;
+    padding: 0.75rem 0.75rem 0.75rem 0.5rem;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     overflow: visible;
@@ -684,7 +717,7 @@ div#form_content_view {
 
 /* ifthen sections */
 #condition_editor_center_panel {
-    min-width: 600px;
+    min-width: 700px;
     max-width: 900px;
     margin: auto;
     background-color: white;
@@ -704,11 +737,12 @@ div#form_content_view {
     }
     div#if-then-setup {
         display: flex;
-        gap: 0 1rem;
+        gap: 0.75rem;
         align-items: center;
+        min-height: 60px;
         padding-bottom: 0;
         > select, #parent_choices_wrapper {
-            width: 30%;
+            width: 31%;
             margin: 0;
         }
         > div.crosswalks {
@@ -873,8 +907,6 @@ div#form_content_view {
         
             #form_index_display {
                 width: 100%;
-                margin: 0;
-                margin-bottom: 1rem;
                 flex: 0 0 100%;
             }
 
@@ -893,5 +925,14 @@ div#form_content_view {
         width: 100%;
         min-width: 400px;
         border: 0;
+        div#if-then-setup {
+            flex-direction: column;
+            > select, > h3, #parent_choices_wrapper {
+                width: 100%;
+            }
+            .choices__inner {
+                max-width: 100%;
+            }
+        }
     }
 }

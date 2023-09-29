@@ -25,6 +25,7 @@ export default {
         'moveListItem'
     ],
     mounted() {
+        console.log('mounted list item')
         //each list item is added to the array on parent component (FormEditorView), to track indicatorID, parentID, sort and current index values
         this.addToListTracker(this.formNode, this.parentID, this.index);
         //expands the selected section if it's currently focussed
@@ -77,20 +78,20 @@ export default {
         <li tabindex=0 :title="'index item '+ formNode.indicatorID"
             :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
-            @click.stop="selectNewFormNode($event, formNode, formPage)"
-            @keypress.enter.stop="selectNewFormNode($event, formNode, formPage)">
+            @click.stop="selectNewFormNode(formNode.indicatorID, formPage)"
+            @keydown.enter.prevent="selectNewFormNode(formNode.indicatorID, formPage)">
             <div>
                 {{headingNumber}}&nbsp;{{indexDisplay}}
                 <div class="icon_move_container">
                     <div v-show="formNode.indicatorID === selectedNodeIndicatorID" 
                         tabindex="0" class="icon_move up" role="button" title="move item up"
                         @click.stop="moveListItem($event, selectedNodeIndicatorID, true)"
-                        @keydown.stop.enter.space="moveListItem($event, selectedNodeIndicatorID, true)">
+                        @keydown.enter.space.prevent.stop="moveListItem($event, selectedNodeIndicatorID, true)">
                     </div>
                     <div v-show="formNode.indicatorID === selectedNodeIndicatorID"
                         tabindex="0" class="icon_move down" role="button" title="move item down"
                         @click.stop="moveListItem($event, selectedNodeIndicatorID, false)"
-                        @keydown.stop.enter.space="moveListItem($event, selectedNodeIndicatorID, false)">
+                        @keydown.enter.space.prevent.stop="moveListItem($event, selectedNodeIndicatorID, false)">
                     </div>
                 </div>
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !subMenuOpen}"
