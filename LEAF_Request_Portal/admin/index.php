@@ -211,7 +211,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('app_js_path', APP_JS_PATH);
-        $t_form->assign('libsPath', '../../app/libs/');
+        $t_form->assign('libsPath', LEAF_DOMAIN.'app/libs/');
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
         $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
@@ -375,7 +375,7 @@ switch ($action) {
 
            if ($login->checkGroup(1))
            {
-               $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
+               $t_form->assign('LEAF_DOMAIN', LEAF_DOMAIN);
                $t_form->assign('app_js_path', APP_JS_PATH);
 
                $main->assign('body', $t_form->fetch('view_form_library.tpl'));
@@ -557,7 +557,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('app_js_path', APP_JS_PATH);
-        $t_form->assign('libsPath', '../../app/libs/');
+        $t_form->assign('libsPath', LEAF_DOMAIN.'app/libs/');
         $t_form->assign('orgchartPath', '../..'.$site_paths['orgchart_path']);
         $t_form->assign('userID', XSSHelpers::sanitizeHTML($login->getUserID()));
 

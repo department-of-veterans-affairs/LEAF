@@ -2849,8 +2849,8 @@ class Form
                     return 0;
             }
 
-	    if ($q['id'] === 'userID') {
-            	$q['match'] = htmlspecialchars_decode($q['match'], ENT_QUOTES);
+            if ($q['id'] === 'userID') {
+                $q['match'] = htmlspecialchars_decode($q['match'], ENT_QUOTES);
             }
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
@@ -3003,6 +3003,15 @@ class Form
                                 $filterActionable = true;
 
                                 break;
+                            /*case 'destruction':
+                                $conditions .= "{$gate}(categories.destructionAge IS NOT NULL AND ".
+                                    "records_workflow_state.stepID IS NULL AND submitted != 0)";
+                                if (!strpos($joins,'category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                }
+                                $joins .= "LEFT JOIN categories USING (categoryID) ";
+                                $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
+                                break;*/
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
@@ -3056,6 +3065,16 @@ class Form
                                 $joins .= 'LEFT JOIN records_workflow_state USING (recordID) ';
 
                                 break;
+                            /*case 'destruction':
+                                $conditions .= "{$gate}(categories.destructionAge IS NULL OR ".
+                                    "(records_workflow_state.stepID IS NOT NULL OR submitted = 0)".
+                                ")";
+                                if (!strpos($joins,'category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                }
+                                $joins .= "LEFT JOIN categories USING (categoryID) ";
+                                $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
+                                break;*/
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
@@ -3261,6 +3280,10 @@ class Form
                         $joinInitiatorNames = true;
 
                         break;
+                    case 'destructionDate':
+                        $joinRecordResolutionData = true;
+                        $joinAllCategoryID = true;
+                        break;
                     case 'unfilledDependencies':
                         $joinUnfilledDependencies = true;
                     default:
@@ -3377,7 +3400,7 @@ class Form
 
             if ($joinCategoryID)
             {
-                $categorySQL = 'SELECT recordID,categoryName,categoryID
+                $categorySQL = 'SELECT recordID,categoryName,categoryID,destructionAge
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3389,13 +3412,14 @@ class Form
                 {
                     $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
                     $data[$item['recordID']]['categoryIDs'][] = $item['categoryID'];
+                    $data[$item['recordID']]['destructionAge'] = $item['destructionAge'];
                 }
             }
 
             if ($joinAllCategoryID)
             {
 
-                $allCategorySQL = 'SELECT recordID,categoryName,categoryID
+                $allCategorySQL = 'SELECT recordID,categoryName,categoryID,destructionAge
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -3406,6 +3430,7 @@ class Form
                 {
                     $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
                     $data[$item['recordID']]['categoryIDsUnabridged'][] = $item['categoryID'];
+                    $data[$item['recordID']]['destructionAge'] = $item['destructionAge'];
                 }
             }
 

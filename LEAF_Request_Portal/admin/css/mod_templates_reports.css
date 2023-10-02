@@ -241,6 +241,10 @@
     cursor: pointer;
 }
 
+.mobile_new_report_btn {
+    display: none;
+}
+
 .main-content {
     display: flex;
     justify-content: space-evenly;
@@ -646,11 +650,15 @@
     margin: 0 0 10px 0;
 }
 
+.template_select_container {
+    width: 78%;
+}
+
 .templateFiles {
-    width: 80%;
+    width: 100%;
     padding: 10px;
     font-size: .8rem;
-    border: none;
+    border: 2px solid #333;
     border-radius: 5px;
 }
 
@@ -797,5 +805,9 @@
 
     .keyboard_shortcuts_section {
         width: 100%;
+    }
+
+    .mobile_new_report_btn {
+        display: block;
     }
 }

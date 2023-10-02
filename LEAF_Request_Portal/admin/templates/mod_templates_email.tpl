@@ -840,7 +840,6 @@
     }
     // loads all files and retreave's them
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
-        // console.log(name, file, subjectFile, emailToFile, emailCcFile);
         if (file === undefined) {
             name = currentName;
             file = currentFile;
@@ -1206,60 +1205,79 @@
         $.ajax({
             type: 'GET',
             url: '../api/emailTemplates',
-            success: function(res) {
+            success: function (res) {
                 $.ajax({
                     type: 'GET',
                     url: '../api/emailTemplates/custom',
                     dataType: 'json',
-                    success: function(result) {
+                    success: function (result) {
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
-                        let filesMobile = '<h3>Template Files:</h3><select class="templateFiles">';
+                        let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
 
                         if (res_array.status['code'] === 2) {
-
                             for (let i in res) {
+                                let custom = '';
+
                                 if (result.includes(res[i].fileName)) {
                                     custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
-                                } else {
-                                    custom = '';
-                                }
-                                // This displays the mobile file dropdown
-                                filesMobile += '<option onclick="loadContent(\'' + res[i].displayName + '\' , ' + '\'' + res[i].fileName + '\'';
-
-                                buffer += '<li onclick="loadContent(\'' + res[i].displayName + '\', ' + '\'' + res[i].fileName + '\'';
-
-                                if (res[i].subjectFileName != '') {
-                                    buffer += ', \'' + res[i].subjectFileName + '\', ' + '\'' + res[i].emailToFileName + '\', ' + '\'' + res[i].emailCcFileName + '\'';
-                                    filesMobile += ', \'' + res[i].subjectFileName + '\', ' + '\'' + res[i].emailToFileName + '\', ' + '\'' + res[i].emailCcFileName + '\'';
-                                } else {
-                                    buffer += ', undefined, undefined, undefined';
-                                    filesMobile += ', undefined, undefined, undefined';
                                 }
 
-                                buffer += ');"><div class="template_files"><a href="#">' + res[i].displayName + '</a> ' + custom + ' </div></li>';
-                                filesMobile += ');"><div class="template_files"><a href="#">' + res[i].displayName + '</a> ' + custom + '</div></option>';
+                                // Construct the option element with data- attributes for filesMobile
+                                filesMobile += '<option data-template-data=\'' + JSON.stringify({
+                                    displayName: res[i].displayName,
+                                    fileName: res[i].fileName,
+                                    subjectFileName: res[i].subjectFileName || '',
+                                    emailToFileName: res[i].emailToFileName || '',
+                                    emailCcFileName: res[i].emailCcFileName || '',
+                                }) + '\'>' + res[i].displayName + custom + '</option>';
 
+                                // Construct the li element for buffer
+                                buffer += '<li>' + '<div class="template_files"><a href="#" data-template-index="' + i + '">' + res[i].displayName + '</a> ' + custom + ' </div>' + '</li>';
                             }
+
+                            filesMobile += '</select></div>';
+                            buffer += '</ul>';
                         } else if (res_array.status['code'] === 4) {
                             buffer += '<li>' + res_array.status['message'] + '</li>';
                             filesMobile += '<select><option>' + res_array.status['message'] + '</option></select>';
                         } else {
-                            buffer += '<li>Internal error occured, if this persists contact your Primary Admin.</li>';
+                            buffer += '<li>Internal error occurred. If this persists, contact your Primary Admin.</li>';
+                            filesMobile += '<div>Internal error occurred. If this persists, contact your Primary Admin.</div>';
                         }
 
-                        buffer += '</ul>';
-                        filesMobile += '</select>';
                         $('#fileList').html(buffer);
                         $('.filesMobile').html(filesMobile);
+
+                        // Attach onchange event handler to templateFiles select element
+                        $('.template_select_container').on('change', 'select.templateFiles', function () {
+                            let selectedOption = $(this).find(':selected');
+                            let templateData = selectedOption.data('template-data');
+
+                            if (templateData) {
+                                // Call the loadContent function with the required parameters
+                                loadContent(templateData.displayName, templateData.fileName, templateData.subjectFileName, templateData.emailToFileName, templateData.emailCcFileName);
+                            }
+                        });
+
+                        // Attach click event handler to template links in the buffer
+                        $('.template_files a').on('click', function (e) {
+                            e.preventDefault();
+                            let templateIndex = $(this).data('template-index');
+                            let template = res[templateIndex];
+
+                            // Call the loadContent function with the required parameters
+                            loadContent(template.displayName, template.fileName, template.subjectFileName || '', template.emailToFileName || '', template.emailCcFileName || '');
+                        });
                     },
-                    error: function(error) {
+                    error: function (error) {
                         console.log(error);
                     }
                 });
             },
             cache: false
         });
+
         // Load content from those templates to the current main template
         initializePage();
         // Refresh CodeMirror

@@ -808,27 +808,36 @@ class Email
                         $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
                         $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
-                        $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
 
-                        //check if the requester has any backups
-                        $vars4 = array(':empId' => $empUID);
-                        $strSQL = "SELECT backupEmpUID FROM relation_employee_backup WHERE empUID =:empId";
-                        $backupIds = $this->nexus_db->prepared_query($strSQL, $vars4);
+                        // empuid is required to move forward, make sure this exists before continuing. 
+                        // This can be a result of user not setting a user in form field
+                        if(is_array($resEmpUID) && !empty($resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']])){
 
-                        if ($empUID > 0) {
-                            $tmp = $dir->lookupEmpUID($empUID);
-                            if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                                $this->addRecipient($tmp[0]['Email']);
+                            $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
+
+                            //check if the requester has any backups
+                            $vars4 = array(':empId' => $empUID);
+                            $strSQL = "SELECT backupEmpUID FROM relation_employee_backup WHERE empUID =:empId";
+                            $backupIds = $this->nexus_db->prepared_query($strSQL, $vars4);
+
+                            if ($empUID > 0) {
+                                $tmp = $dir->lookupEmpUID($empUID);
+                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                    $this->addRecipient($tmp[0]['Email']);
+                                }
                             }
+
+                            // add for backups
+                            foreach ($backupIds as $row) {
+                                $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
+                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                    $this->addCcBcc($tmp[0]['Email']);
+                                }
+                            }
+                        } else {
+                            trigger_error("Empuid was not set for case -1");
                         }
 
-                        // add for backups
-                        foreach ($backupIds as $row) {
-                            $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
-                            if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                                $this->addCcBcc($tmp[0]['Email']);
-                            }
-                        }
                         break;
 
                     // requestor followup
@@ -852,10 +861,17 @@ class Email
                         $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
                         $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
-                        $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
+                        
+                        // groupid is required to move forward, make sure this exists before continuing. 
+                        // This can be a result of user not setting a group in form field
+                        if(is_array($resGroupID) && !empty($resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']])){
+                            $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
 
-                        if ($groupID > 0) {
-                            $this->addGroupRecipient($groupID);
+                            if ($groupID > 0) {
+                                $this->addGroupRecipient($groupID);
+                            }
+                        } else {
+                            trigger_error("Groupid was not set for case -3");
                         }
                         break;
                 }

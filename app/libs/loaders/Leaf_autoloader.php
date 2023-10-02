@@ -20,7 +20,12 @@ $loader->addNamespace('App\Leaf\Logger\Formatters', $app_dir . '/Leaf/Logger/For
 
 $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-$vars = array(':site_path' => PORTAL_PATH);
+if (substr(PORTAL_PATH, 0, 1) !== '/') {
+    $my_path = '/' . PORTAL_PATH;
+} else {
+    $my_path = PORTAL_PATH;
+}
+$vars = array(':site_path' => $my_path);
 $sql = 'SELECT `site_path`, `site_uploads`, `portal_database`, `orgchart_path`,
             `orgchart_database`
         FROM `sites`
@@ -32,6 +37,12 @@ $site_paths = $site_paths['data'][0];
 
 /** Here down is old loader stuff, will be deprecated as we go along getting everything into a single source of code. */
 $working_dir = $curr_dir;
+
+if (is_dir($working_dir . 'libs/php-commons')) {
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
+    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');
+}
 
 if (is_dir($working_dir . $site_paths['site_path'])) {
     $loader->addNamespace('Portal', $working_dir . $site_paths['site_path']);
