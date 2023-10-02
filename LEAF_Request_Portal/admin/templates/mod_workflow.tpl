@@ -275,11 +275,16 @@
                 <div id="email_reminder_duration" style="display: ${reminderType === "duration" ? "block" : "none"}">
                     Send a reminder after
                     <input aria-label="number of days" type="number" min="1"
-                        id="reminder_days" style="width: 50px" value="${reminderDays}" /> days of inactivity.
+                        id="reminder_days"
+                        style="width: 50px" value="${reminderDays}"
+                        ${reminderType !== 'duration' ? 'aria-disabled="true" disabled' : ''} /> days of inactivity.
                 </div>
                 <div id="email_reminder_date" style="display: ${reminderType === "date" ? "block" : "none"}">
                     Start sending reminders on
-                    <input aria-label="specific date" type="date" id="reminder_date" min="${dateMin}" value="${reminderDate}"/>
+                    <input aria-label="specific date" type="date"
+                    id="reminder_date"
+                    min="${dateMin}" value="${reminderDate}"
+                    ${reminderType !== 'date' ? 'aria-disabled="true" disabled' : ''} />
                 </div>
                 <div>
                     After the initial notification send another reminder every
@@ -2870,8 +2875,26 @@
         const elSelect = document.getElementById('reminder_type_select');
         if(elSelect !== null) {
             const reminderType = elSelect.value.toLowerCase();
-            document.getElementById('email_reminder_duration').style.display = reminderType === 'duration' ? 'block' : 'none';
-            document.getElementById('email_reminder_date').style.display = reminderType === 'date' ? 'block' : 'none';
+
+            let elInputDuration = document.getElementById('reminder_days');
+            let elInputDate = document.getElementById('reminder_date');
+            if(elInputDuration !== null) {
+                elInputDuration.disabled = reminderType !== 'duration';
+                elInputDuration.setAttribute('aria-disabled', reminderType !== 'duration');
+            }
+            if(elInputDate !== null) {
+                elInputDate.disabled = reminderType !== 'date';
+                elInputDate.setAttribute('aria-disabled', reminderType !== 'date');
+            }
+
+            let elContainerDuration = document.getElementById('email_reminder_duration');
+            let elContainerDate = document.getElementById('email_reminder_date');
+            if(elContainerDuration !== null) {
+                elContainerDuration.style.display = reminderType === 'duration' ? 'block' : 'none';
+            }
+            if(elContainerDate !== null) {
+                elContainerDate.style.display = reminderType === 'date' ? 'block' : 'none';
+            }
         }
     }
 
