@@ -729,7 +729,29 @@
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 
-                sites.push(...formattedSiteMap);
+                // Parse base URLs, order matters
+                formattedSiteMap.map(site => {
+                    if(site.url.indexOf('/admin/') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/admin/') + 1);
+                    }
+                    else if(site.url.indexOf('/?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/?') + 1);
+                    }
+                    else if(site.url.indexOf('/index.php?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/index.php?') + 1);
+                    }
+                    else if(site.url.indexOf('/report.php?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/report.php?') + 1);
+                    }
+                });
+
+                // Remove duplicate URLs
+                let uniqueSites = {};
+                formattedSiteMap.forEach(site => {
+                    uniqueSites[site.url] = site;
+                });
+
+                sites.push(...Object.values(uniqueSites));
                 resolve();
             },
             fail: function(err) {
@@ -780,7 +802,7 @@
             let queue = new intervalQueue();
             queue.setWorker(site => {
                 $('#progressbar').progressbar('option', 'value', queue.getLoaded());
-                $('#progressDetail').html(`Retrieving <span id="progressCount"></span>records from ${site.name}...`);
+                $('#progressDetail').html(`Searching <span id="progressCount"></span>records from ${site.name}...`);
                 return loadInboxData(site).then(() => {
                     if(Object.keys(dataInboxes[site.url]).length > 0) {
                         return buildWorkflowCategoryCache(site);
