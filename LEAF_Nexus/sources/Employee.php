@@ -1355,7 +1355,7 @@ class Employee extends Data
                 }
 
                 break;
-            // Format: Loginname && Will search all active and disabled accounts
+            // Format: Loginname
             case substr(strtolower($input), 0, 3) === 'vha':
             case substr(strtolower($input), 0, 4) === 'vaco':
             case substr(strtolower($input), 0, 3) === 'vba':
