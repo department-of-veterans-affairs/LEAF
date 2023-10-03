@@ -25,7 +25,7 @@ export default {
         'moveListItem'
     ],
     mounted() {
-        console.log('mounted list item')
+        //console.log('mounted list item')
         //each list item is added to the array on parent component (FormEditorView), to track indicatorID, parentID, sort and current index values
         this.addToListTracker(this.formNode, this.parentID, this.index);
         //expands the selected section if it's currently focussed

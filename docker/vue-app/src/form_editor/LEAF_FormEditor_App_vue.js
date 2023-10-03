@@ -1,6 +1,5 @@
 import { computed } from 'vue';
 
-import ModFormMenu from "./components/ModFormMenu.js";
 import ResponseMessage from "./components/ResponseMessage";
 
 import './LEAF_FormEditor.scss';
@@ -19,7 +18,7 @@ export default {
             secureStatusText: 'LEAF-Secure Certified',
             secureBtnText: 'View Details',
             secureBtnLink: '',
-            fileManagerTextFiles: [],
+            
             showCertificationStatus: false,
             isEditingModal: false,
             orgchartFormats: ['orgchart_group','orgchart_position','orgchart_employee'],
@@ -32,7 +31,6 @@ export default {
             focusedFormID: '',
             focusedFormTree: [],
             allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
-            workflowRecords: [],            //array of all 'workflows' table records
             indicatorRecord: {},          //'indicators' table record for a specific indicatorID
             advancedMode: false,
 
@@ -49,11 +47,11 @@ export default {
     provide() {
         return {
             CSRFToken: computed(() => this.CSRFToken),
+            siteSettings: computed(() => this.siteSettings),
             currIndicatorID: computed(() => this.currIndicatorID),
             newIndicatorParentID: computed(() => this.newIndicatorParentID),
             indicatorRecord: computed(() => this.indicatorRecord),
             isEditingModal: computed(() => this.isEditingModal),
-            workflowRecords: computed(() => this.workflowRecords),
             categories: computed(() => this.categories),
             currentFormCollection: computed(() => this.currentFormCollection),
             allStapledFormCatIDs: computed(() => this.allStapledFormCatIDs),
@@ -69,13 +67,13 @@ export default {
             secureStatusText: computed(() => this.secureStatusText),
             secureBtnText: computed(() => this.secureBtnText),
             secureBtnLink: computed(() => this.secureBtnLink),
-            fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
             internalFormRecords: computed(() => this.internalFormRecords),
             advancedMode: computed(() => this.advancedMode),
 
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
+            getCategoryListAll: this.getCategoryListAll,
             hasDevConsoleAccess: this.hasDevConsoleAccess,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
             newQuestion: this.newQuestion,
@@ -117,7 +115,6 @@ export default {
         }
     },
     components: {
-        ModFormMenu,
         ResponseMessage
     },
     created() {
@@ -127,8 +124,6 @@ export default {
                 this.getFormFromQueryParam();
             }
         }).catch(err => console.log('error getting category list', err));
-        this.getWorkflowRecords();
-        this.getFileManagerTextFiles();
         this.getSiteSettings();
     },
     watch: {
@@ -234,16 +229,18 @@ export default {
          */
         currentFormCollection() {
             let allRecords = [];
-            let currStapleIDs = this.currentCategoryQuery?.stapledFormIDs || [];
-            currStapleIDs.forEach(id => {
-                allRecords.push({...this.categories[id], formContextType: 'staple'});
-            });
- 
-            let focusedFormType = this.currentCategoryQuery.parentID !== '' ?
+            if(Object.keys(this.currentCategoryQuery)?.length > 0) {
+                let currStapleIDs = this.currentCategoryQuery?.stapledFormIDs || [];
+                currStapleIDs.forEach(id => {
+                    allRecords.push({...this.categories[id], formContextType: 'staple'});
+                });
+    
+                let focusedFormType = this.currentCategoryQuery.parentID !== '' ?
                         'internal' : 
                         this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
                         'staple' : 'main form';
-            allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType,});
+                allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType,});
+            }
             return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
         },
     },
@@ -360,23 +357,6 @@ export default {
             } else {
                 this.selectNewCategory(formID, null, true);
             }
-        },
-        /**
-         * 
-         * @returns {array} of objects with all fields from the workflows table
-         */
-        getWorkflowRecords() {
-            return new Promise((resolve, reject)=> {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}workflow`,
-                    success: (res) => {
-                        this.workflowRecords = res;
-                        resolve(res);
-                    },
-                    error: (err) => reject(err)
-                });
-            });
         },
         /**
          * @returns {Object} of all records from the portal's settings table
@@ -515,21 +495,6 @@ export default {
                 });
             });
         },
-        getFileManagerTextFiles() {
-            $.ajax({
-              type: 'GET',
-              url: `${this.APIroot}system/files`,
-              success: (res) => {
-                const files = res || [];
-                this.fileManagerTextFiles = files.filter(
-                    filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1);
-              },
-              error: (err) => {
-                console.log(err);
-              },
-              cache: false
-            });
-        },
         /**
          * updates app categories object property value
          * @param {string} catID
@@ -574,21 +539,21 @@ export default {
         /**
          * @param {string} catID of the form to select
          * @param {number|null} subnodeIndID indicatorID of currently selected form section or indicator
+         * @param {boolean} setFormLoading show loader
          */
         selectNewCategory(catID = '', subnodeIndID = null, setFormLoading = false) {
             this.setDefaultAjaxResponseMessage();
             if (catID !== '') {
                 if (setFormLoading === true) this.appIsLoadingForm = true
                 this.getFormByCategoryID(catID, subnodeIndID);
-            } else {  //card browser.
+
+            } else {  //card browser. TODO: move to FE or Browser views
+                console.log('snc called with empty, clearing info')
                 this.focusedFormID = '';
                 this.focusedFormTree = [];
                 this.categories = {};
-                this.workflowRecords = [];
                 this.getCategoryListAll();
                 this.getSecureFormsInfo();
-                this.getWorkflowRecords();
-                this.getFileManagerTextFiles();
             }
         },
         /** DIALOG MODAL RELATED */

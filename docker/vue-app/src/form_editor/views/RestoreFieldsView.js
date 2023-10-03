@@ -1,7 +1,7 @@
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
-
+import BrowserAndRestoreMenu from "../components/BrowserAndRestoreMenu.js";
 
 export default {
     name: 'restore-fields-view',
@@ -14,6 +14,7 @@ export default {
         LeafFormDialog,
         NewFormDialog,
         ImportFormDialog,
+        BrowserAndRestoreMenu
     },
     inject: [
         'APIroot',
@@ -64,7 +65,8 @@ export default {
             });
         },
     },
-    template: `<div>
+    template: `<BrowserAndRestoreMenu />
+        <section>
             <h3>List of disabled fields available for recovery</h3>
             <div>Deleted fields and associated data will be not display in the Report Builder</div>
 
@@ -104,5 +106,5 @@ export default {
                     <component :is="dialogFormContent"></component>
                 </template>
             </leaf-form-dialog>
-        </div>`
+        </section>`
 }

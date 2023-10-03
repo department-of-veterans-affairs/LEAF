@@ -474,7 +474,7 @@ div#form_content_view {
 }
 
 #form_index_and_editing #internalFormRecordsDisplay {
-    min-width: 200px;
+    min-width: 220px;
     padding: 0.75rem;
     background-color: white;
     align-self: flex-start;
@@ -496,22 +496,27 @@ div#form_content_view {
             overflow: hidden;
             border: 2px solid transparent;
             &:not(#addInternalUse) {
-                background-color: $lt_cyan;
+                background-color: $BG_Pearl;
+                &.selected {
+                    background-color: $lt_cyan;
+                    border: 2px solid $LEAF_CSS_outline;
+                }
             }
-            &.selected {
-                border: 2px solid $LEAF_CSS_outline;
+            &:hover, &:focus, &:active {
+                outline: none !important;
             }
-        }
-        #addInternalUse {
-            padding: 2px 0.5rem;
-            border: 2px solid $base-navy;
-            justify-content: space-between;
         }
         &:not(:last-child) {
             margin-bottom: 0.5rem;
         }
     }
-
+    #addInternalUse {
+        margin-top: 0.75rem;
+        padding: 2px 0.5rem;
+        width: 100%;
+        border: 2px solid $base-navy;
+        justify-content: space-between;
+    }
 }
 /* lists for main and stapled forms   */
 #form_index_display div[id^="layoutFormRecords_"] button {
@@ -523,7 +528,7 @@ div#form_content_view {
     border: 2px solid transparent;
     overflow: hidden;
     max-height: 50px;
-    background-color: $lt_cyan;
+    
     &:not(:disabled) {
         color: $charcoal;
     }
@@ -533,6 +538,7 @@ div#form_content_view {
         outline: none;
     }
     &:disabled:hover, &:disabled:focus, &:disabled:active {
+        background-color: $lt_cyan;
         cursor: default;
         outline: none
     }
@@ -541,7 +547,7 @@ div#form_content_view {
         border-radius: 0;
         padding: 0.5rem;
     }
-    &.layout-listitem:disabled {
+    &.layout-listitem:disabled { /* the currently selected form */
         color: $base_navy;
         border: 2px solid $LEAF_CSS_outline;
     }
@@ -553,6 +559,9 @@ div[id^="layoutFormRecords_"] > ul > li  {
     margin-bottom: 0.5rem;
     &.selected {
         border: 2px solid $lt_cyan;
+        button {
+            background-color: $lt_cyan;
+        }
     }
 }
 
@@ -600,22 +609,12 @@ div[id^="layoutFormRecords_"] > ul > li  {
         padding: 2px 2px 0.5rem 2px;
         background-color: white;
 
-        button:not(.icon) {
+        button:not(.choices__button) {
             border: 1px solid $LtNavy;
             &:hover, &:focus, &:active {
                 border: 1px solid $LEAF_CSS_outline !important;
             }
-        }
-        button.icon {
-            border: 0;
-            padding: 0;
-            background-color: transparent;
-            border-radius: 2px;
-            align-self: flex-start;
-
-            img {
-                display: block;
-            }
+            
         }
 
         div[class*="SelectorBorder"] {
@@ -679,7 +678,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
                 /* format specific styling */
                 .text_input_preview {
                     display: inline-block;
-                    width: 50%;
+                    width: 75%;
                     font-size: 1.3em; 
                     font-family: monospace;
                     background-color: white;
@@ -902,6 +901,9 @@ div[id^="layoutFormRecords_"] > ul > li  {
             }
         }
 
+        #internalFormRecordsDisplay {
+            min-width: 100%;
+        }
         #form_index_and_editing {
             flex-direction: column;
         

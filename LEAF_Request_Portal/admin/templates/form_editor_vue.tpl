@@ -1,15 +1,6 @@
 <div id="vue-formeditor-app" v-cloak>
     <main v-if="ajaxResponseMessage===''">
-        <mod-form-menu></mod-form-menu>
-        <div v-if="siteSettings?.siteType==='national_subordinate'"
-            style="padding: 0.5rem; margin: 0.5rem 0;" id="subordinate_site_warning">
-            <h3 style="margin: 0 0 0.5rem 0; color: #a00;">This is a Nationally Standardized Subordinate Site</h3>
-            <span><b>Do not make modifications!</b> &nbsp;Synchronization problems will occur. &nbsp;Please contact your process POC if modifications need to be made.</span>
-        </div>
-
-        <section>
-            <router-view></router-view>
-        </section>
+        <router-view></router-view>
     </main>
     <response-message v-else :message="ajaxResponseMessage"></response-message>
 </div>
