@@ -3,10 +3,11 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
+use App\Leaf\XSSHelpers;
+
 set_time_limit(240);
 
-require_once '../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $oc_login->setBaseDir('../');
 $oc_login->loginUser();
@@ -28,7 +29,7 @@ $tag = new Orgchart\Tag($oc_db, $oc_login);
 
         $scrubCache = json_decode($cache['jsonExport_PDL.php']['data']);
         if(json_last_error() == JSON_ERROR_NONE) { // validate JSON object
-            $scrubCache = Leaf\XSSHelpers::scrubObjectOrArray($scrubCache);
+            $scrubCache = XSSHelpers::scrubObjectOrArray($scrubCache);
             echo json_encode($scrubCache);
         }
         exit();
@@ -118,13 +119,13 @@ foreach ($res as $pos)
 
             $packet = array();
             $packet['positionID'] = (int)$pos['positionID'];
-            $packet['positionTitle'] = Leaf\XSSHelpers::xscrub($pos['positionTitle']);
+            $packet['positionTitle'] = XSSHelpers::xscrub($pos['positionTitle']);
 
             if ($emp['lastName'] != ''
                 && $emp['isActing'] == 0)
             {
-                $packet['employee'] = Leaf\XSSHelpers::xscrub("{$emp['lastName']}, {$emp['firstName']}");
-                $packet['employeeUserName'] = Leaf\XSSHelpers::xscrub($emp['userName']);
+                $packet['employee'] = XSSHelpers::xscrub("{$emp['lastName']}, {$emp['firstName']}");
+                $packet['employeeUserName'] = XSSHelpers::xscrub($emp['userName']);
                 $packet['employeeUID'] = (int)$emp['empUID'];
             }
             else
@@ -134,15 +135,15 @@ foreach ($res as $pos)
                 $packet['employeeUID'] = '';
             }
 
-            $packet['supervisor'] = Leaf\XSSHelpers::xscrub($supervisorName);
-            $packet['service'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['service']);
-            $packet['payPlan'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
-            $packet['series'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
-            $packet['payGrade'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
-            $packet['fteCeiling'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
-            $packet['currentFte'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
-            $packet['pdNumber'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
-            $packet['hrSmartPosition'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
+            $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
+            $packet['service'] = XSSHelpers::xscrub($output[$pos['positionID']]['service']);
+            $packet['payPlan'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
+            $packet['series'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
+            $packet['payGrade'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
+            $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
+            $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
+            $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
+            $packet['hrSmartPosition'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
             $jsonOut[] = $packet;
         }
         else
@@ -168,19 +169,19 @@ foreach ($res as $pos)
 
             $packet = array();
             $packet['positionID'] = (int)$pos['positionID'];
-            $packet['positionTitle'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']);
+            $packet['positionTitle'] = XSSHelpers::xscrub($output[$pos['positionID']]['positionTitle']);
             $packet['employee'] = '';
             $packet['employeeUserName'] = '';
             $packet['employeeUID'] = '';
-            $packet['supervisor'] = Leaf\XSSHelpers::xscrub($supervisorName);
-            $packet['service'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['service']);
-            $packet['payPlan'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
-            $packet['series'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
-            $packet['payGrade'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
-            $packet['fteCeiling'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
-            $packet['currentFte'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
-            $packet['pdNumber'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
-            $packet['hrSmartPosition'] = Leaf\XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
+            $packet['supervisor'] = XSSHelpers::xscrub($supervisorName);
+            $packet['service'] = XSSHelpers::xscrub($output[$pos['positionID']]['service']);
+            $packet['payPlan'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Plan']);
+            $packet['series'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Series']);
+            $packet['payGrade'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Pay Grade']);
+            $packet['fteCeiling'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['FTE Ceiling']);
+            $packet['currentFte'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['Current FTE']);
+            $packet['pdNumber'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['PD Number']);
+            $packet['hrSmartPosition'] = XSSHelpers::xscrub($output[$pos['positionID']]['data']['HR Smart Position #']);
             $jsonOut[] = $packet;
         }
     }

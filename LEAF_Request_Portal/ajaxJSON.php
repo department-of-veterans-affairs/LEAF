@@ -9,10 +9,11 @@
 
 */
 
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
-require_once 'globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $login->loginUser();
 
@@ -70,7 +71,7 @@ switch ($action) {
         $record = $res[0];
         foreach (array_keys($record) as $key)
         {
-            $record[$key] = Leaf\XSSHelpers::xscrub($record[$key]);
+            $record[$key] = XSSHelpers::xscrub($record[$key]);
         }
 
         echo json_encode($record);

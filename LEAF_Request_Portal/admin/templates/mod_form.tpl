@@ -28,7 +28,7 @@ let portalAPI;                      //@ready
 let columns = 0;                    //number, def @ ~1268
 </script>
 
-<script src="../../libs/js/vue3/vue.global.prod.js"></script>
+<script src="<!--{$app_js_path}-->/vue3/vue.global.prod.js"></script>
 <script src="../js/vue_conditions_editor/LEAF_conditions_editor.js"></script>
 <link rel="stylesheet" href="../js/vue_conditions_editor/LEAF_conditions_editor.css" />
 

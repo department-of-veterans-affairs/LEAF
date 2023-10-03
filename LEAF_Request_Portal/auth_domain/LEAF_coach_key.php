@@ -1,7 +1,6 @@
 <?php
 // give coaches admin access
-require_once '../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 ini_set('display_errors', 1);
 

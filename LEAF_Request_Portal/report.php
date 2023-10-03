@@ -9,10 +9,11 @@
 
 */
 
+use App\Leaf\XSSHelpers;
+
 error_reporting(E_ERROR);
 
-require_once 'globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 header('X-UA-Compatible: IE=edge');
 
@@ -33,7 +34,7 @@ $o_login = '';
 $o_menu = '';
 $tabText = '';
 
-$action = isset($_GET['a']) ? Leaf\XSSHelpers::xscrub($_GET['a']) : '';
+$action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 // HQ logo
 $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
@@ -51,6 +52,7 @@ $t_menu->assign('menu_help', customTemplate('menu_help.tpl'));
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
 $main->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
+$main->assign('app_js_path', APP_JS_PATH);
 
 $main->assign('useUI', false);
 
@@ -58,7 +60,7 @@ $main->assign('useUI', false);
 
 foreach (array_keys($settings) as $key)
 {
-    $settings[$key] = Leaf\XSSHelpers::sanitizeHTMLRich($settings[$key]);
+    $settings[$key] = XSSHelpers::sanitizeHTMLRich($settings[$key]);
 }
 
 switch ($action) {
@@ -89,7 +91,7 @@ switch ($action) {
             && file_exists("templates/reports/{$action}.tpl"))
         {
             $main->assign('useUI', true);
-            $main->assign('stylesheets', array('../libs/js/choicesjs/choices.min.css'));
+            $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
             $main->assign('javascripts', array(
                 'js/form.js',
                 'js/workflow.js',
@@ -98,11 +100,11 @@ switch ($action) {
                 'js/formSearch.js',
                 'js/gridInput.js',
                 'js/lz-string/lz-string.min.js',
-                '../libs/js/LEAF/XSSHelpers.js',
+                APP_JS_PATH . '/LEAF/XSSHelpers.js',
                 '../libs/jsapi/nexus/LEAFNexusAPI.js',
                 '../libs/jsapi/portal/LEAFPortalAPI.js',
                 '../libs/jsapi/portal/model/FormQuery.js',
-                '../libs/js/choicesjs/choices.min.js'
+                APP_JS_PATH . '/choicesjs/choices.min.js'
             ));
 
             $form = new Portal\Form($db, $login);
@@ -115,11 +117,13 @@ switch ($action) {
             $t_form->assign('userID', $login->getUserID());
             $t_form->assign('empUID', $login->getEmpUID());
             $t_form->assign('empMembership', $login->getMembership());
-            $t_form->assign('currUserActualName', Leaf\XSSHelpers::xscrub($login->getName()));
+            $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('systemSettings', $settings);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
             $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+            $t_form->assign('app_css_path', APP_CSS_PATH);
+            $t_form->assign('app_js_path', APP_JS_PATH);
 
             $main->assign('body', $t_form->fetch("reports/{$action}.tpl"));
             $tabText = '';
@@ -132,7 +136,7 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', Leaf\XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);

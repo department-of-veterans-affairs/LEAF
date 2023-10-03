@@ -1,4 +1,7 @@
 <?php
+
+use App\Leaf\XSSHelpers;
+
 header('X-UA-Compatible: IE=edge');
 
 // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
@@ -6,12 +9,11 @@ header('X-UA-Compatible: IE=edge');
 $https = true;
 setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
-require_once '../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$settings['heading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
-$settings['subHeading'] = Leaf\XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+$settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
+$settings['subHeading'] = XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
 
 function getBaseDir()
 {

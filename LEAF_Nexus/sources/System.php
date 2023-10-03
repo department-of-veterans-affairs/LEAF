@@ -11,6 +11,12 @@
 
 namespace Orgchart;
 
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\XSSHelpers;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\LogItem;
+
 class System
 {
     public $siteRoot = '';
@@ -26,7 +32,7 @@ class System
         $this->db = $db;
         $this->login = $login;
 
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
 
         // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -57,7 +63,7 @@ class System
         {
             return 'Admin access required';
         }
-        $in = preg_replace('/[^\040-\176]/', '', \Leaf\XSSHelpers::sanitizeHTML($heading));
+        $in = preg_replace('/[^\040-\176]/', '', XSSHelpers::sanitizeHTML($heading));
         $vars = array(':input' => $in);
 
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="heading"', $vars);
@@ -72,7 +78,7 @@ class System
         {
             return 'Admin access required';
         }
-        $in = preg_replace('/[^\040-\176]/', '', \Leaf\XSSHelpers::sanitizeHTML($subHeading));
+        $in = preg_replace('/[^\040-\176]/', '', XSSHelpers::sanitizeHTML($subHeading));
         $vars = array(':input' => $in);
 
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="subheading"', $vars);
@@ -270,7 +276,7 @@ class System
      */
     public function setPrimaryAdmin(): array
     {
-        $userID = \Leaf\XSSHelpers::xscrub($_POST['userID']);
+        $userID = XSSHelpers::xscrub($_POST['userID']);
 
         //check if user is system admin
         $employee = new Employee($this->db, $this->login);
@@ -294,9 +300,9 @@ class System
 
             $primary = $this->getPrimaryAdmin();
 
-            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
-                new \Leaf\LogItem("settings", "setting", 'primaryAdmin'),
-                new \Leaf\LogItem("settings", "data", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"]),
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::PRIMARY_ADMIN, [
+                new LogItem("settings", "setting", 'primaryAdmin'),
+                new LogItem("settings", "data", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"]),
             ]);
         }
 
@@ -315,9 +321,9 @@ class System
         $strSQL = "DELETE FROM `settings` WHERE `setting` = 'primaryAdmin'";
         $result = $this->db->query($strSQL);
 
-        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
-            new \Leaf\LogItem("users", "primary_admin", 1),
-            new \Leaf\LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+        $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::PRIMARY_ADMIN, [
+            new LogItem("users", "primary_admin", 1),
+            new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
         ]);
 
         return $result;

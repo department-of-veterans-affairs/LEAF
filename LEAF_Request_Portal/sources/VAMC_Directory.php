@@ -15,6 +15,7 @@
 */
 
 namespace Portal;
+use App\Leaf\Db;
 
 class VAMC_Directory
 {

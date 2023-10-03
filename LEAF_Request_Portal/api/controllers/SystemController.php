@@ -5,6 +5,8 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+
 class SystemController extends RESTfulResponse
 {
     public $index = array();
@@ -111,13 +113,13 @@ class SystemController extends RESTfulResponse
             });
 
             $this->index['POST']->register('system/settings/heading', function () use ($system) {
-                $_POST['heading'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['heading']);
+                $_POST['heading'] = XSSHelpers::sanitizeHTML($_POST['heading']);
 
                 return $system->setHeading();
             });
 
             $this->index['POST']->register('system/settings/subHeading', function () use ($system) {
-                $_POST['subHeading'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['subHeading']);
+                $_POST['subHeading'] = XSSHelpers::sanitizeHTML($_POST['subHeading']);
 
                 return $system->setSubHeading();
             });
@@ -143,7 +145,7 @@ class SystemController extends RESTfulResponse
             });
 
             $this->index['POST']->register('system/setPrimaryadmin', function () use ($system) {
-                $_POST['userID'] = \Leaf\XSSHelpers::sanitizeHTML($_POST['userID']);
+                $_POST['userID'] = XSSHelpers::sanitizeHTML($_POST['userID']);
                 return $system->setPrimaryAdmin();
             });
 
