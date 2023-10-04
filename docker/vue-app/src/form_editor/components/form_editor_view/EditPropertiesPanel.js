@@ -197,7 +197,7 @@ export default {
                     @click="openEditCollaboratorsDialog">
                     Edit Special Write Access
                 </button>
-                <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog"
+                <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog(this.focusedFormRecord.categoryID)"
                     style="display: none;">
                 </button>
             </div>

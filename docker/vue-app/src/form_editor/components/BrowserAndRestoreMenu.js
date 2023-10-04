@@ -14,7 +14,7 @@ export default {
                 </router-link>                
             </li>
             <li>
-                <button type="button" id="createFormButton" @click="openNewFormDialog($event)">
+                <button type="button" id="createFormButton" @click="openNewFormDialog">
                     Create Form<span role="img" aria="">📄</span>
                 </button>
             </li>

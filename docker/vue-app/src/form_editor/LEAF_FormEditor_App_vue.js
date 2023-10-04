@@ -207,22 +207,6 @@ export default {
             supplementalForms = supplementalForms.sort((eleA, eleB) => eleA.sort - eleB.sort);
             return supplementalForms;
         },
-        mainFormID() {
-            return this.focusedFormRecord?.parentID === '' ?
-                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
-        },
-        /**
-         * @returns {array} categories records that are internal forms of the main form
-         */
-        internalFormRecords() {
-            let internalFormRecords = [];
-            for(let c in this.categories) {
-                if (this.categories[c].parentID === this.mainFormID) { //focusedFormID
-                    internalFormRecords.push({...this.categories[c]});
-                }
-            }
-            return internalFormRecords;
-        },
         /**
          * 
          * @returns {array} of categories records for queried form and any staples
@@ -351,11 +335,16 @@ export default {
         },
         getFormFromQueryParam() {
             const formReg = /^form_[0-9a-f]{5}$/i;
-            const formID = formReg.test(this.$route.query?.formID || '') ? this.$route.query.formID : null;
-            if (formID === null || this.categories[formID] === undefined) {
-                this.selectNewCategory(); //no form selected or form does not exist
+            if (formReg.test(this.$route.query?.formID || '') === true) {
+                const formID = this.$route.query.formID;
+                if (this.categories[formID] === undefined) {
+                    this.selectNewCategory(); //valid formID pattern but form does not exist
+                } else {
+                    this.selectNewCategory(formID, null, true);
+                }
+
             } else {
-                this.selectNewCategory(formID, null, true);
+                this.$router.push({ name:'browser' });
             }
         },
         /**
@@ -640,6 +629,9 @@ export default {
             }).catch(err => console.log('error getting indicator information', err));
         },
         openNewFormDialog(event = {}, mainFormID = '') {
+            this.dialogData = {
+                parentID: mainFormID,
+            };
             const titleHTML = mainFormID === '' ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
             this.setCustomDialogTitle(titleHTML);
             this.setFormDialogComponent('new-form-dialog');
@@ -650,10 +642,10 @@ export default {
             this.setFormDialogComponent('import-form-dialog');
             this.showFormDialog = true;  
         },
-        openFormHistoryDialog() {
+        openFormHistoryDialog(catID = '') {
             this.dialogData = {
                 historyType: 'form',
-                historyID: this.focusedFormRecord.categoryID,
+                historyID: catID,
             };
             this.setCustomDialogTitle(`<h2>Form History</h2>`);
             this.setFormDialogComponent('history-dialog');

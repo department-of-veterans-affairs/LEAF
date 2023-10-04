@@ -3,14 +3,15 @@ export default {
     data() {
         return {
             categoryName: '',
-            categoryDescription: ''
+            categoryDescription: '',
+            newFormParentID: this.dialogData.parentID,
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
         'setDialogSaveFunction',
-        'focusedFormRecord',
+        'dialogData',
         'addNewCategory',
         'selectNewCategory',
         'closeFormDialog'
@@ -27,10 +28,6 @@ export default {
         },
         descrCharsRemaining(){
             return Math.max(255 - this.categoryDescription.length, 0);
-        },
-        newFormParentID() {
-            //if the focused form does not have a parent, it's a main form - the new form should have that as its parent
-            return this.focusedFormRecord?.parentID === '' ? this.focusedFormRecord.categoryID : '';
         }
     },
     methods: {
@@ -62,9 +59,9 @@ export default {
                     temp.destructionAge = null;
                     this.addNewCategory(newCatID, temp);
 
-                    if(!this.focusedFormRecord?.categoryID) { //browser page, new main form
+                    if(this.newFormParentID === '') { //new main form
                         this.$router.push({name: 'category', query: { formID: newCatID }});
-                    } else { //from existing form, new internal
+                    } else { //new internal
                         this.selectNewCategory(newCatID)
                     }
                     this.closeFormDialog();

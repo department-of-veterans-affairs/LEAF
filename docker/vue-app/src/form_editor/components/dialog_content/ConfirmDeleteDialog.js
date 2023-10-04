@@ -37,11 +37,14 @@ export default {
                     type: 'DELETE',
                     url: `${this.APIroot}formStack/_${delID}?` + $.param({CSRFToken:this.CSRFToken}),
                     success: (res) => {
-                        //res for successful deletion had initially been true and is now '1'.  +res will cover 1, '1', and true
+                        //+res will cover 1, '1', and true
                         if(+res === 1) {
-                            //if a subform is deleted, re-focus its parent, otherwise go to browser
-                            this.selectNewCategory(parID, null, true);
                             this.removeCategory(delID);
+                            if(parID === '') { //if a main form is deleted go to browser
+                                this.$router.push({ name: 'browser'});
+                            } else { //otherwise focus parent
+                                this.selectNewCategory(parID, null, true);
+                            }
                             this.closeFormDialog();
                         } else {
                             alert(res);

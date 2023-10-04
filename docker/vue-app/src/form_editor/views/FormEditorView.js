@@ -71,11 +71,9 @@ export default {
         'appIsLoadingCategoryList',
         'appIsLoadingForm',
         'categories',
-        'internalFormRecords',
         'selectNewCategory',
         'getFormByCategoryID',
         'showLastUpdate',
-        'openFormHistoryDialog',
         'newQuestion',
         'editQuestion',
         'focusedFormRecord',
@@ -109,6 +107,8 @@ export default {
             selectedNodeIndicatorID: computed(() => this.selectedNodeIndicatorID),
             fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
             workflowRecords: computed(() => this.workflowRecords),
+            internalFormRecords: computed(() => this.internalFormRecords),
+            noForm: computed(() => this.noForm),
 
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
@@ -134,6 +134,21 @@ export default {
         subformID() {
             return this.focusedFormRecord?.parentID ?
                 this.focusedFormRecord.categoryID : '';
+        },
+        noForm() {
+            return !this.appIsLoadingForm && this.focusedFormID === '';
+        },
+        /**
+         * @returns {array} categories records that are internal forms of the main form
+         */
+        internalFormRecords() {
+            let internalFormRecords = [];
+            for(let c in this.categories) {
+                if (this.categories[c].parentID === this.mainFormID && this.mainFormID !== '') {
+                    internalFormRecords.push({...this.categories[c]});
+                }
+            }
+            return internalFormRecords;
         },
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
@@ -450,6 +465,13 @@ export default {
         <div v-if="appIsLoadingForm || appIsLoadingCategoryList" class="page_loading">
             Loading... 
             <img src="../images/largespinner.gif" alt="loading..." />
+        </div>
+
+        <div v-else-if="noForm">
+            The form you are looking for ({{ this.$route?.query?.formID }}) was not found.
+            <router-link :to="{ name: 'browser' }" class="router-link" style="display: inline-block;">
+                Back to&nbsp;<b>Form Browser</b>
+            </router-link>
         </div>
 
         <template v-else>

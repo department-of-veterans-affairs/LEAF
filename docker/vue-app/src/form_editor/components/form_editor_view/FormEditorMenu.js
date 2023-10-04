@@ -8,6 +8,7 @@ export default {
         'focusedFormTree',
         'allStapledFormCatIDs',
         'siteSettings',
+        'noForm',
 
         'openFormHistoryDialog',
         'openStapleFormsDialog',
@@ -96,17 +97,17 @@ export default {
                     Manage Stapled Forms <span role="img" aria="">📌</span>
                 </button>
             </li>
-            <li>
-                <button type="button" @click="openFormHistoryDialog" title="view form history">
+            <li v-if="!noForm">
+                <button type="button" @click="openFormHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history">
                     View History<span role="img" aria="">🕗</span>
                 </button>
             </li>
-            <li>
+            <li v-if="!noForm">
                 <button type="button" @click="exportForm" title="export form">
                     Export Form<span role="img" aria="">💾</span>
                 </button>
             </li>
-            <li>
+            <li v-if="!noForm">
                 <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form">
                     Delete this form<span role="img" aria="">❌</span>
                 </button>
