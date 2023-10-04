@@ -959,6 +959,7 @@ class Employee extends Data
         $sql = "SELECT *
                 FROM {$this->tableName}
                 WHERE lastName LIKE :lastName
+                AND deleted = 0
                 ORDER BY {$this->sortBy} {$this->sortDir}
                 {$this->limit}";
 
@@ -969,6 +970,7 @@ class Employee extends Data
             $sql = "SELECT *
                     FROM {$this->tableName}
                     WHERE phoneticLastName LIKE :lastName
+                    AND deleted = 0
                     ORDER BY {$this->sortBy} {$this->sortDir}
                     {$this->limit}";
 
