@@ -9,7 +9,7 @@ $app_dir = '/var/www/html/app';
 
 require_once $app_dir . '/libs/globals.php';
 require_once $app_dir . '/Leaf/Psr4AutoloaderClass.php';
-require_once $curr_dir . '/libs/smarty/bootstrap.php';
+require_once $app_dir . '/libs/smarty/bootstrap.php';
 
 $loader = new Psr4AutoloaderClass;
 $loader->register();
@@ -35,30 +35,29 @@ $site_paths = $file_paths_db->pdo_select_query($sql, $vars);
 //error_log(print_r($site_paths, true));
 $site_paths = $site_paths['data'][0];
 
-if (is_dir($curr_dir . '/libs/php-commons')) {
-    //Commenting this out for testing purposes, this will be uncommented before going to prod.
+/** Here down is old loader stuff, will be deprecated as we go along getting everything into a single source of code. */
+$working_dir = $curr_dir;
 
-    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
-    $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
-    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');
+$loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
+$loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
+$loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');
 
-    $working_dir = $curr_dir;
+$working_dir = $curr_dir;
 
-    if (is_dir($working_dir . $site_paths['site_path'])) {
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path']);
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api');
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api/controllers');
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/sources');
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/scripts/events');
-    }
+if (is_dir($working_dir . $site_paths['site_path'])) {
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path']);
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api');
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api/controllers');
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/sources');
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/scripts/events');
+}
 
-    if (is_dir($working_dir . $site_paths['orgchart_path'])) {
+if (is_dir($working_dir . $site_paths['orgchart_path'])) {
 
-        $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path']);
-        $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/api');
-        $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/api/controllers');
-        $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/sources');
-    }
+    $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path']);
+    $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/api');
+    $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/api/controllers');
+    $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/sources');
 }
 
 if (!empty($site_paths['portal_database'])){
