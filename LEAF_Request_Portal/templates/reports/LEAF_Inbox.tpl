@@ -675,6 +675,9 @@
                     else if(site.url.indexOf('/report.php?') != -1) {
                         site.url = site.url.substring(0, site.url.indexOf('/report.php?') + 1);
                     }
+                    else if(site.url.indexOf('/api/open/form/query/') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/api/open/form/query/') + 1);
+                    }
                 });
 
                 // Remove duplicate URLs
