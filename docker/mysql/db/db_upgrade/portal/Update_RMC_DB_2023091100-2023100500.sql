@@ -20,6 +20,6 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8;
  /**** Revert DB *****
  START TRANSACTION;
  DROP TABLE IF EXISTS `process_query`;
- UPDATE `settings` SET `data` = '2023092100' WHERE `settings`.`setting` = 'dbversion';
+ UPDATE `settings` SET `data` = '2023091100' WHERE `settings`.`setting` = 'dbversion';
  COMMIT;
  */
