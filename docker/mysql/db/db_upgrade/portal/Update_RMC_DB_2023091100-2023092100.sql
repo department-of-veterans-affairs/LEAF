@@ -12,7 +12,7 @@ START TRANSACTION;
 
 ALTER TABLE `relation_employee_backup` DROP INDEX `backupEmpUID`;
 
-UPDATE `settings` SET `data` = '2023999999' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2023091100' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
 */
