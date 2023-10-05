@@ -12,7 +12,7 @@ CREATE TABLE `process_query` (
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
- UPDATE `settings` SET `data` = '2023060500' WHERE `settings`.`setting` = 'dbversion';
+ UPDATE `settings` SET `data` = '2023100500' WHERE `settings`.`setting` = 'dbversion';
 
  COMMIT;
 
@@ -20,6 +20,6 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8;
  /**** Revert DB *****
  START TRANSACTION;
  DROP TABLE IF EXISTS `process_query`;
- UPDATE `settings` SET `data` = '2023052500' WHERE `settings`.`setting` = 'dbversion';
+ UPDATE `settings` SET `data` = '2023092100' WHERE `settings`.`setting` = 'dbversion';
  COMMIT;
  */
