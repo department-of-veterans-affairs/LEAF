@@ -351,8 +351,8 @@ div#form_content_view {
 #form_index_display {
     position: relative;
     padding: 0.75rem;
-    width: 420px;
-    flex: 0 0 420px;
+    width: 400px;
+    flex: 0 0 400px;
     align-self:flex-start;
     background-color: white;
     border-radius: 4px;
@@ -479,6 +479,7 @@ div#form_content_view {
     background-color: white;
     align-self: flex-start;
     border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     h3 {
         margin: 0 0 0.5rem 0;
         height: 28px;
@@ -835,7 +836,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
     }
 }
 
-@media only screen and (max-width: 576px) {
+@media only screen and (max-width: 600px) {
     #leaf_dialog_content {
         min-width: 400px;
     }
@@ -846,8 +847,9 @@ div[id^="layoutFormRecords_"] > ul > li  {
             flex-direction: column;
         }
 
-        main section {
+        main > section {
             margin: 0;
+            padding: 0;
         }
         nav#top-menu-nav {
             width: 100%;
@@ -893,6 +895,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
         }
         #edit-properties-panel {
             flex-direction: column;
+            border-radius: 0;
             > div {
                 width: 100%;
             }
@@ -907,7 +910,10 @@ div[id^="layoutFormRecords_"] > ul > li  {
         }
         #form_index_and_editing {
             flex-direction: column;
-        
+            gap: 1.25rem;
+            > div {
+                border-radius: 0;
+            }
             #form_index_display {
                 width: 100%;
                 flex: 0 0 100%;

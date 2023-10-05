@@ -51,7 +51,9 @@ input[type="color"] {
     main {
         margin: 0;
         > section {
-            margin: 0rem 1rem 1rem 1rem;
+            margin: auto;
+            padding: 0 0.5em;
+            max-width: 1800px;
         }
     }
 }
