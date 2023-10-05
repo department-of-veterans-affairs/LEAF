@@ -186,8 +186,8 @@ class FormWorkflow
         // merge approver data
         foreach($srcRecords as $i => $v) {
             if($v['dependencyID'] == -1 && isset($dRecords[$v['recordID']])) {
-                if($res[$i]['isActionable'] == 0) {
-                    $res[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$v['recordID']]['data']);
+                if($srcRecords[$i]['isActionable'] == 0) {
+                    $srcRecords[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$v['recordID']]['data']);
                 }
 
                 if($skipNames) {
