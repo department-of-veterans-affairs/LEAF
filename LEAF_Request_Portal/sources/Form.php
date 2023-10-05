@@ -3589,9 +3589,9 @@ class Form
         // check actionable
         if ($filterActionable)
         {
-            $FormWorkflow = $this->getFormWorkflow();
+            $formWorkflow = $this->getFormWorkflow();
 
-            $actionable = $FormWorkflow->getActionable($this, $data);
+            $actionable = $formWorkflow->getActionable($this, $data);
 
             $actionLookup = [];
             foreach($actionable as $t) {

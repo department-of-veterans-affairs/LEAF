@@ -102,10 +102,7 @@ class VAMC_Directory
             $tdata = $result;
             $tdata['Lname'] = $result['lastName'];
             $tdata['Fname'] = $result['firstName'];
-
-            // orgchart data
-            $ocData = $this->Employee->getAllData($result['empUID']);
-            $tdata['Email'] = $ocData[6]['data'];
+            $tdata['Email'] = $result['email'];
             $data[] = $tdata;
         }
 

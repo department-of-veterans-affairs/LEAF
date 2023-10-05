@@ -266,7 +266,7 @@
                 let uDD = dataInboxes[sites[i].url][j].unfilledDependencyData[depID];
                 let roleID = depID;
                 let description = uDD.description;
-                if(roleID < 0) { // handle "smart requirements"
+                if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     roleID = Sha1.hash(uDD.approverUID);
                     description = uDD.approverName;
                 }
@@ -375,13 +375,16 @@
 			<span style="font-size: 130%; font-weight: bold">${categoryName}</span></div>
 			<div id="depList${hash}_${depID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + depID).on('click', function() {
+            buildInboxGridView(res, depID, categoryName, recordIDs, site, hash, categoryIDs);
             if ($('#depList' + hash + '_' + depID).css('display') == 'none') {
                 $('#depList' + hash + '_' + depID).css('display', 'inline');
             } else {
                 $('#depList' + hash + '_' + depID).css('display', 'none');
             }
         });
+    }
 
+    function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
         let customColumns = false;
         if (categoryIDs != undefined) {
             categoryIDs.forEach(categoryID => {
@@ -407,116 +410,11 @@
                 }
             });
         }
+
         let customCols = [];
         if (customColumns == false) {
             site.columns = site.columns ?? 'UID,service,title,status';
         }
-        site.columns.split(',').forEach(col => {
-            if (isNaN(col)) {
-                customCols.push(headerDefinitions[col](site));
-            } else {
-                customCols.push({
-                    name: (dataDictionary[site.url]?.[col]?.name ?? dataDictionary[site.url]?.[col]?.description), indicatorID: parseInt(col), editable: false
-                });
-            }
-        });
-
-        let headers = [{
-            name: 'Action',
-            indicatorID: 'action',
-            editable: false,
-            sortable: false,
-            callback: function(data, blob) {
-                let depDescription = 'Take Action';
-                $('#' + data.cellContainerID).css('text-align', 'center');
-                $('#' + data.cellContainerID).html('<button id="btn_action' + hash + '_' + depID + '_' +
-                                                   data.recordID +
-                                                   '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal">' +
-                                                   depDescription + '</button>');
-                $('#btn_action' + hash + '_' + depID + '_' + data.recordID).on('click', function() {
-                    loadWorkflow(data.recordID, formGrid.getPrefixID(), site.url);
-                    waitForElm('iframe').then((el) => {
-                        if (!sites.some(site => el.getAttribute('src').includes(site.url))) {
-                            el.setAttribute('src', site.url + el.getAttribute('src'));
-                            el.addEventListener('load', () => {
-                                if (!sites.some(site => el.contentWindow?.document?.querySelector('#record').getAttribute('action').includes(site.url))) {
-                                    el.contentWindow?.document?.querySelector('#record').setAttribute('action', site.url + el.contentWindow?.document?.querySelector('#record').getAttribute('action'));
-                                }
-                            });
-                        }
-                    });
-                })
-            }
-        }];
-        headers = customCols.concat(headers);
-
-        let formGrid = new LeafFormGrid('depList' + hash + '_' + depID);
-        formGrid.setRootURL(site.url);
-        formGrid.disableVirtualHeader(); // TODO: figure out why headers aren't sized correctly
-        formGrid.setDataBlob(res);
-        formGrid.hideIndex();
-        formGrid.setHeaders(headers);
-        let tGridData = [];
-        let hasServices = false;
-        recordIDs.forEach(recordID => {
-            if (res[recordID].service != null) {
-                hasServices = true;
-            }
-            tGridData.push(res[recordID]);
-        });
-        // remove service column if there's no services
-        if (hasServices == false) {
-            let tHeaders = formGrid.headers();
-            for (let i = 0; i < tHeaders.length; i++) {
-                if (tHeaders[i].indicatorID == 'service') {
-                    tHeaders.splice(i, 1);
-                }
-            }
-            formGrid.setHeaders(tHeaders);
-        }
-        formGrid.setData(tGridData);
-        formGrid.sort('recordID', 'asc');
-        formGrid.renderBody();
-        //formGrid.loadData(tGridData.map(v => v.recordID).join(','));
-        $('#' + formGrid.getPrefixID() + 'table').css('width', '99%');
-        $('#' + formGrid.getPrefixID() + 'header_title').css('width', '60%');
-        $('#depContainerIndicator_' + depID).css('display', 'none');
-    }
-
-    // Build forms and grids for the inbox's requests based on the list of $recordIDs, organized by step
-    function buildDepInboxByStep(res, stepID, stepName, recordIDs, site) {
-        let hash = Sha1.hash(site.url);
-		let categoryName = '';
-        if(Object.keys(recordIDs).length > 0) {
-            categoryName = `${res[recordIDs[0]].categoryName} - ${res[recordIDs[0]].stepTitle}`;
-        }
-
-        let icon = getIcon(site.icon, site.name);
-        if (document.getElementById('siteContainer' + hash) == null) {
-            $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
-            $('#inbox').append(`<a name="${hash}"></a>
-				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
-				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
-				<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
-				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
-    			</div>`);
-        }
-        $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}" class="depContainer">
-            <div id="depLabel${hash}_${stepID}" class="depInbox" style="padding: 8px; background-color: ${site.backgroundColor}">
-			<span style="float: right; text-decoration: underline; font-weight: bold">View ${recordIDs.length} requests</span>
-			<span style="font-size: 130%; font-weight: bold">${stepName}</span><br />
-            <span>${categoryName}</span></div>
-			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
-        $('#depLabel' + hash + '_' + stepID).on('click', function() {
-            if ($('#depList' + hash + '_' + stepID).css('display') == 'none') {
-                $('#depList' + hash + '_' + stepID).css('display', 'inline');
-            } else {
-                $('#depList' + hash + '_' + stepID).css('display', 'none');
-            }
-        });
-
-        let customCols = [];
-        site.columns = site.columns ?? 'UID,service,title,status';
         site.columns.split(',').forEach(col => {
             if (isNaN(col)) {
                 customCols.push(headerDefinitions[col](site));
@@ -587,6 +485,40 @@
         $('#' + formGrid.getPrefixID() + 'table').css('width', '99%');
         $('#' + formGrid.getPrefixID() + 'header_title').css('width', '60%');
         $('#depContainerIndicator_' + stepID).css('display', 'none');
+    }
+
+    // Build forms and grids for the inbox's requests based on the list of $recordIDs, organized by step
+    function buildDepInboxByStep(res, stepID, stepName, recordIDs, site) {
+        let hash = Sha1.hash(site.url);
+		let categoryName = '';
+        if(Object.keys(recordIDs).length > 0) {
+            categoryName = `${res[recordIDs[0]].categoryName} - ${res[recordIDs[0]].stepTitle}`;
+        }
+
+        let icon = getIcon(site.icon, site.name);
+        if (document.getElementById('siteContainer' + hash) == null) {
+            $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
+            $('#inbox').append(`<a name="${hash}"></a>
+				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
+				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
+				<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
+				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
+    			</div>`);
+        }
+        $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}" class="depContainer">
+            <div id="depLabel${hash}_${stepID}" class="depInbox" style="padding: 8px; background-color: ${site.backgroundColor}">
+			<span style="float: right; text-decoration: underline; font-weight: bold">View ${recordIDs.length} requests</span>
+			<span style="font-size: 130%; font-weight: bold">${stepName}</span><br />
+            <span>${categoryName}</span></div>
+			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
+        $('#depLabel' + hash + '_' + stepID).on('click', function() {
+            buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);
+            if ($('#depList' + hash + '_' + stepID).css('display') == 'none') {
+                $('#depList' + hash + '_' + stepID).css('display', 'inline');
+            } else {
+                $('#depList' + hash + '_' + stepID).css('display', 'none');
+            }
+        });
     }
 
     let dataInboxes = {};
@@ -729,7 +661,32 @@
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 
-                sites.push(...formattedSiteMap);
+                // Parse base URLs, order matters
+                formattedSiteMap.map(site => {
+                    if(site.url.indexOf('/admin/') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/admin/') + 1);
+                    }
+                    else if(site.url.indexOf('/?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/?') + 1);
+                    }
+                    else if(site.url.indexOf('/index.php?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/index.php?') + 1);
+                    }
+                    else if(site.url.indexOf('/report.php?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/report.php?') + 1);
+                    }
+                    else if(site.url.indexOf('/api/open/form/query/') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/api/open/form/query/') + 1);
+                    }
+                });
+
+                // Remove duplicate URLs
+                let uniqueSites = {};
+                formattedSiteMap.forEach(site => {
+                    uniqueSites[site.url] = site;
+                });
+
+                sites.push(...Object.values(uniqueSites));
                 resolve();
             },
             fail: function(err) {
@@ -780,7 +737,7 @@
             let queue = new intervalQueue();
             queue.setWorker(site => {
                 $('#progressbar').progressbar('option', 'value', queue.getLoaded());
-                $('#progressDetail').html(`Retrieving <span id="progressCount"></span>records from ${site.name}...`);
+                $('#progressDetail').html(`Searching <span id="progressCount"></span>records from ${site.name}...`);
                 return loadInboxData(site).then(() => {
                     if(Object.keys(dataInboxes[site.url]).length > 0) {
                         return buildWorkflowCategoryCache(site);

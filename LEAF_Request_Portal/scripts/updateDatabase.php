@@ -55,7 +55,7 @@ function updateDB($thisVer, $updateList, $folder, $db)
     {
         echo 'Update found: ' . $updateList[$thisVer] . BR;
         $update = file_get_contents($folder . $updateList[$thisVer]);
-        echo 'Processing update... ';
+        echo 'Processing update for ' . PORTAL_PATH . ' ...';
         $db->prepared_query($update, array());
         echo ' ... Complete.' . BR;
         $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
