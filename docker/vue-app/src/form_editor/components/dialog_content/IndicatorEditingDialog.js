@@ -339,7 +339,7 @@ export default {
                         })
                     );
                 }
-                if (sensitiveChanged && this.is_sensitive === true) {
+                if (sensitiveChanged && this.is_sensitive === true && +this.focusedFormRecord.needToKnow !== 1) {
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -351,8 +351,10 @@ export default {
                             },
                             success: () => {
                                 let panelEl = document.querySelector('select#needToKnow');
-                                panelEl.value = 1;
-                                panelEl.dispatchEvent(new Event("change"));
+                                if(panelEl !== null) {
+                                    panelEl.value = 1;
+                                    panelEl.dispatchEvent(new Event("change"));
+                                }
                             },
                             error: err => console.log('set form need to know post err', err)
                         })
@@ -401,7 +403,8 @@ export default {
                 }
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
-                if (this.is_sensitive) {
+                if (this.is_sensitive && +this.focusedFormRecord.needToKnow !== 1) {
+                    //if the form is not already marked need to know, update this too
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -413,8 +416,10 @@ export default {
                             },
                             success: () => {
                                 let panelEl = document.querySelector('select#needToKnow');
-                                panelEl.value = 1;
-                                panelEl.dispatchEvent(new Event("change"));
+                                if(panelEl !== null) {
+                                    panelEl.value = 1;
+                                    panelEl.dispatchEvent(new Event("change"));
+                                }
                             },
                             error: err => console.log('set form need to know post err', err)
                         })
@@ -446,16 +451,19 @@ export default {
 
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 if (res.length > 0) {
+                    this.selectNewCategory(this.formID);
                     //if a new section was created
-                    if (this.newIndicatorID !== null && this.parentID === null) {
-                        this.selectNewCategory(this.formID, this.newIndicatorID);
-
-                    //other edits
-                    } else {
-                        const nodeID = this.currIndicatorID === this.selectedNodeIndicatorID &&
-                            (this.archived === true || this.deleted === true) ? this.parentID : this.selectedNodeIndicatorID;
-                        this.selectNewCategory(this.formID, nodeID);
-                    }
+                    // TODO: FE view now owns selectedIndID, so passing the indID to selectNew might not matter as the selectedIndID won't reset when the form is updated
+                    // It might still be ideal to update it to a parentID if a child is deleted, or to a new ind if created
+                    // if (this.newIndicatorID !== null && this.parentID === null) {
+                    //     this.selectNewCategory(this.formID);
+                    // }
+                    // //other edits
+                    // } else {
+                    //     const nodeID = this.currIndicatorID === this.selectedNodeIndicatorID &&
+                    //         (this.archived === true || this.deleted === true) ? this.parentID : this.selectedNodeIndicatorID;
+                    //     this.selectNewCategory(this.formID, nodeID);
+                    // }
                 }
                 this.closeFormDialog();
             }).catch(err => console.log('an error has occurred', err));

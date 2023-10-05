@@ -79,7 +79,7 @@ export default {
         'focusedFormRecord',
         'focusedFormTree',
         'openNewFormDialog',
-        'currentFormCollection',
+        'allStapledFormCatIDs',
         'decodeAndStripHTML',
         'truncateText',
 
@@ -124,6 +124,13 @@ export default {
         }
     },
     computed: {
+        /**
+         * @returns {Object} current query from categories object
+         */
+        currentCategoryQuery() {
+            const queryID = this.$route.query.formID;
+            return this.categories[queryID] || {};
+        },
         focusedFormID() {
             return this.focusedFormRecord?.categoryID || '';
         },
@@ -149,6 +156,25 @@ export default {
                 }
             }
             return internalFormRecords;
+        },
+        /**
+         * @returns {array} of categories records for queried form and any staples
+         */
+        currentFormCollection() {
+            let allRecords = [];
+            if(Object.keys(this.currentCategoryQuery)?.length > 0) {
+                const currStapleIDs = this.currentCategoryQuery?.stapledFormIDs || [];
+                currStapleIDs.forEach(id => {
+                    allRecords.push({...this.categories[id], formContextType: 'staple'});
+                });
+
+                const focusedFormType = this.currentCategoryQuery.parentID !== '' ?
+                        'internal' :
+                        this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
+                        'staple' : 'main form';
+                allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType,});
+            }
+            return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
         },
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
@@ -221,7 +247,7 @@ export default {
         selectNewFormNode(nodeID = null, page = 0) {
             this.selectedNodeIndicatorID = nodeID;
             this.currentFormPage = page;
-
+            console.log('called select new node', nodeID, page)
             setTimeout(() => {
                 const target = document.getElementById(`index_listing_${nodeID}`);
                 if (target !== null) {
@@ -248,13 +274,17 @@ export default {
             const condition = moveup === true ? listitem.listIndex > 0 : listitem.listIndex < oldElsLI.length - 1;
             const spliceLoc = moveup === true ? -1 : 1;
             if(condition) {
-                newElsLI.splice(listitem.listIndex + spliceLoc, 0, elToMove);
+                const oldIndex = listitem.listIndex;
+                newElsLI.splice(oldIndex + spliceLoc, 0, elToMove);
                 oldElsLI.forEach(li => parentEl.removeChild(li));
                 newElsLI.forEach((li, i) => {
                     const liIndID = parseInt(li.id.replace('index_listing_', ''));
                     parentEl.appendChild(li);
                     this.listTracker[liIndID].listIndex = i;
                 });
+                if(parentEl?.id === "base_drop_area" && oldIndex === this.currentFormPage) {
+                    this.currentFormPage += spliceLoc;
+                }
                 event?.currentTarget?.focus();
             }
         },
@@ -302,7 +332,7 @@ export default {
             const all = updateSort.concat(updateParentID);
             Promise.all(all).then((res)=> {
                 if (res.length > 0) {
-                    this.getFormByCategoryID(this.focusedFormID, this.selectedNodeIndicatorID).then(()=> {
+                    this.getFormByCategoryID(this.focusedFormID).then(()=> {
                         this.showLastUpdate('form_properties_last_update');
                         this.forceUpdate();
                     }).catch(err => console.log(err));
@@ -352,6 +382,7 @@ export default {
         onDrop(event = {}) {
             if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
                 event.preventDefault();
+                const baseDropArea = document.querySelector('ul#base_drop_area');
                 const draggedElID = event.dataTransfer.getData('text');
                 const parentEl = event.currentTarget; //drop event is on the parent ul
 
@@ -366,6 +397,15 @@ export default {
                         parentEl.append(elLiToMove);
                         this.updateListTracker(indID, formParIndID, 0);
                         this.selectedNodeIndicatorID = indID;
+                        const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
+                        if(elClosestFormPage !== null && baseDropArea !== null) {
+                            const allPages = Array.from(baseDropArea.querySelectorAll(':scope > li'));
+                            const thisPageIndex = allPages.indexOf(elClosestFormPage);
+                            if(thisPageIndex > -1) {
+                                this.currentFormPage = thisPageIndex
+                            }
+                        }
+
                     } catch (error) {
                         console.log(error);
                     }
@@ -383,6 +423,15 @@ export default {
                                 this.updateListTracker(indID, formParIndID, i);
                             });
                             this.selectedNodeIndicatorID = indID;
+                            const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
+                            if(elClosestFormPage !== null && baseDropArea !== null) {
+                                const allPages = Array.from(baseDropArea.querySelectorAll(':scope > li'));
+                                const thisPageIndex = allPages.indexOf(elClosestFormPage);
+                                if(thisPageIndex > -1) {
+                                    this.currentFormPage = thisPageIndex
+                                }
+                            }
+
                         } catch(error) {
                             console.log(error);
                         }

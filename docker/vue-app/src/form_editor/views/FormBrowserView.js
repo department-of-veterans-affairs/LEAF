@@ -1,8 +1,8 @@
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
-import BrowserAndRestoreMenu from "../components/BrowserAndRestoreMenu.js";
 
+import BrowserAndRestoreMenu from "../components/BrowserAndRestoreMenu.js";
 import FormBrowser from '../components/FormBrowser.js';
 
 export default {
@@ -23,8 +23,10 @@ export default {
     ],
     beforeRouteEnter(to, from, next) {
         next(vm => {
+            console.log('entering form browser');
             vm.setDefaultAjaxResponseMessage();
-            if(!vm.appIsLoadingCategoryList) {
+            if(vm.appIsLoadingCategoryList === false) {
+                console.log('browser view initiated category list update')
                 vm.getCategoryListAll();
             }
         });

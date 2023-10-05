@@ -43,7 +43,7 @@ export default {
                             if(parID === '') { //if a main form is deleted go to browser
                                 this.$router.push({ name: 'browser'});
                             } else { //otherwise focus parent
-                                this.selectNewCategory(parID, null, true);
+                                this.selectNewCategory(parID, true);
                             }
                             this.closeFormDialog();
                         } else {

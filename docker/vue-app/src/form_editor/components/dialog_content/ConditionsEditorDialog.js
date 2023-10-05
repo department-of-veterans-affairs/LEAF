@@ -171,7 +171,7 @@ export default {
                     },
                     success: (res)=> {
                         if (res !== 'Invalid Token.') {
-                            this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
+                            this.selectNewCategory(this.formID);
                             this.closeFormDialog();
                         } else { console.log('error adding condition', res) }
                     },

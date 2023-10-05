@@ -34,7 +34,6 @@ export default {
             indicatorRecord: {},          //'indicators' table record for a specific indicatorID
             advancedMode: false,
 
-
             /* modal properties */
             dialogTitle: '',
             dialogFormContent: '',
@@ -53,16 +52,12 @@ export default {
             indicatorRecord: computed(() => this.indicatorRecord),
             isEditingModal: computed(() => this.isEditingModal),
             categories: computed(() => this.categories),
-            currentFormCollection: computed(() => this.currentFormCollection),
             allStapledFormCatIDs: computed(() => this.allStapledFormCatIDs),
             focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             focusedFormRecord: computed(() => this.focusedFormRecord),
             focusedFormTree: computed(() => this.focusedFormTree),
             appIsLoadingCategoryList: computed(() => this.appIsLoadingCategoryList),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
-            activeForms: computed(() => this.activeForms),
-            inactiveForms: computed(() => this.inactiveForms),
-            supplementalForms: computed(() => this.supplementalForms),
             showCertificationStatus: computed(() => this.showCertificationStatus),
             secureStatusText: computed(() => this.secureStatusText),
             secureBtnText: computed(() => this.secureBtnText),
@@ -118,9 +113,10 @@ export default {
         ResponseMessage
     },
     created() {
-        console.log('APP created')
+        console.log('APP created, initiating category list update');
         this.getCategoryListAll().then(() => {
             if(this.$route.name === 'category' && this.$route.query.formID) {
+                console.log('app created at the form editor view and formID exists, getting form from query');
                 this.getFormFromQueryParam();
             }
         }).catch(err => console.log('error getting category list', err));
@@ -129,6 +125,7 @@ export default {
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {
             if(this.$route.name === 'category' && !this.appIsLoadingCategoryList) {
+                console.log('app watcher on route trigged getFormFromQuery')
                 this.getFormFromQueryParam();
             }
         },
@@ -139,13 +136,6 @@ export default {
         }
     },
     computed: {
-        /**
-         * @returns {Object} current query from categories object
-         */
-        currentCategoryQuery() {
-            const queryID = this.$route.query.formID;
-            return this.categories[queryID] || {};
-        },
         /**
          * @returns {Object} focused form record from categories object
          */
@@ -163,70 +153,7 @@ export default {
                 }
             });
             return isSensitive;
-        },
-        /**
-         * @returns {array} of non-internal forms that have workflows and are available
-         */
-        activeForms() {
-            let active = [];
-            for (let c in this.categories) {
-                if (this.categories[c].parentID === '' &&
-                    parseInt(this.categories[c].workflowID) !== 0 &&
-                    parseInt(this.categories[c].visible) === 1) {
-                        active.push({...this.categories[c]});
-                }
-            }
-            active = active.sort((eleA, eleB) => eleA.sort - eleB.sort);
-            return active;
-        },
-        /**
-         * @returns {array} of non-internal forms that have workflows and are hidden
-         */
-        inactiveForms() {
-            let inactive = [];
-            for (let c in this.categories) {
-                if (this.categories[c].parentID === '' &&
-                    parseInt(this.categories[c].workflowID) !== 0 &&
-                    parseInt(this.categories[c].visible) === 0) {
-                    inactive.push({...this.categories[c]});
-                }
-            }
-            inactive = inactive.sort((eleA, eleB) => eleA.sort - eleB.sort);
-            return inactive;
-        },
-        /**
-         * @returns {array} of non-internal forms that have no workflows
-         */
-        supplementalForms() {
-            let supplementalForms = [];
-            for(let c in this.categories) {
-                if (this.categories[c].parentID === '' && parseInt(this.categories[c].workflowID) === 0 ) {
-                    supplementalForms.push({...this.categories[c]});
-                }
-            }
-            supplementalForms = supplementalForms.sort((eleA, eleB) => eleA.sort - eleB.sort);
-            return supplementalForms;
-        },
-        /**
-         * 
-         * @returns {array} of categories records for queried form and any staples
-         */
-        currentFormCollection() {
-            let allRecords = [];
-            if(Object.keys(this.currentCategoryQuery)?.length > 0) {
-                let currStapleIDs = this.currentCategoryQuery?.stapledFormIDs || [];
-                currStapleIDs.forEach(id => {
-                    allRecords.push({...this.categories[id], formContextType: 'staple'});
-                });
-    
-                let focusedFormType = this.currentCategoryQuery.parentID !== '' ?
-                        'internal' : 
-                        this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
-                        'staple' : 'main form';
-                allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType,});
-            }
-            return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
-        },
+        }
     },
     methods: {
         truncateText(str='', maxlength = 40, overflow = '...') {
@@ -338,12 +265,18 @@ export default {
             if (formReg.test(this.$route.query?.formID || '') === true) {
                 const formID = this.$route.query.formID;
                 if (this.categories[formID] === undefined) {
-                    this.selectNewCategory(); //valid formID pattern but form does not exist
+                    this.selectNewCategory(); //valid formID pattern, but form does not exist.  This will clear out info but also provide a message and link back
                 } else {
-                    this.selectNewCategory(formID, null, true);
+                    //if the form does exist, check that an internal form was not entered (it would need to be explicitly entered to the url, but would cause issues)
+                    const parID = this.categories[formID].parentID;
+                    if (parID === '') {
+                        this.selectNewCategory(formID, true);
+                    } else {
+                        this.$router.push({name:'category', query:{formID: parID}});
+                    }
                 }
 
-            } else {
+            } else { //if the value of formID is not a valid catID nav back to browser view
                 this.$router.push({ name:'browser' });
             }
         },
@@ -449,10 +382,9 @@ export default {
         },
         /**
          * @param {string} catID 
-         * @param {number|null} subnodeIndID indicatorID of the focused form node
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
-        getFormByCategoryID(catID = '', subnodeIndID = null) {
+        getFormByCategoryID(catID = '') {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
@@ -497,17 +429,18 @@ export default {
         },
         /**
          * updates app array allStapledFormCatIDs and stapledFormIds of categories object
+         * @param {string} catID id of the form having a staple added or removed
          * @param {string} stapledCatID id of the form being merged/unmerged
          * @param {boolean} removeStaple indicates whether staple is being added or removed
          */
-        updateStapledFormsInfo(stapledCatID = '', removeStaple = false) {
-            const formID = this.currentCategoryQuery.categoryID;
+        updateStapledFormsInfo(catID = '', stapledCatID = '', removeStaple = false) {
+            const formID = catID;
             if(removeStaple === true) {
                 this.allStapledFormCatIDs = this.allStapledFormCatIDs.filter(id => id !== stapledCatID);
                 this.categories[formID].stapledFormIDs = this.categories[formID].stapledFormIDs.filter(id => id !== stapledCatID);
             } else {
                 this.allStapledFormCatIDs = Array.from(new Set([...this.allStapledFormCatIDs, stapledCatID]));
-                this.categories[formID].stapledFormIDs  = [...this.currentCategoryQuery.stapledFormIDs, stapledCatID];
+                this.categories[formID].stapledFormIDs = Array.from(new Set([...this.categories[formID].stapledFormIDs, stapledCatID]));
             }
         },
         /**
@@ -530,11 +463,11 @@ export default {
          * @param {number|null} subnodeIndID indicatorID of currently selected form section or indicator
          * @param {boolean} setFormLoading show loader
          */
-        selectNewCategory(catID = '', subnodeIndID = null, setFormLoading = false) {
+        selectNewCategory(catID = '', setFormLoading = false) {
             this.setDefaultAjaxResponseMessage();
             if (catID !== '') {
                 if (setFormLoading === true) this.appIsLoadingForm = true
-                this.getFormByCategoryID(catID, subnodeIndID);
+                this.getFormByCategoryID(catID);
 
             } else {  //card browser. TODO: move to FE or Browser views
                 console.log('snc called with empty, clearing info')

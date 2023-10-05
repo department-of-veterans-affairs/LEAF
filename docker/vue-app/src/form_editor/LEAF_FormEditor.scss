@@ -557,6 +557,7 @@ div#form_content_view {
 div[id^="layoutFormRecords_"] > ul > li  {
     min-height: 50px;
     margin-bottom: 0.5rem;
+    border: 2px solid transparent;
     &.selected {
         border: 2px solid $lt_cyan;
         button {
