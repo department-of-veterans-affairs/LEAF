@@ -18,24 +18,8 @@ $loader->addNamespace('App\Leaf', $app_dir . '/Leaf');
 $loader->addNamespace('App\Leaf\Logger', $app_dir . '/Leaf/Logger');
 $loader->addNamespace('App\Leaf\Logger\Formatters', $app_dir . '/Leaf/Logger/Formatters');
 
-$file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-if (substr(PORTAL_PATH, 0, 1) !== '/') {
-    $my_path = '/' . PORTAL_PATH;
-} else {
-    $my_path = PORTAL_PATH;
-}
-$vars = array(':site_path' => $my_path);
-$sql = 'SELECT `site_path`, `site_uploads`, `portal_database`, `orgchart_path`,
-            `orgchart_database`
-        FROM `sites`
-        WHERE `site_path` = BINARY :site_path';
-//error_log(print_r($vars, true));
-$site_paths = $file_paths_db->pdo_select_query($sql, $vars);
-//error_log(print_r($site_paths, true));
-$site_paths = $site_paths['data'][0];
-
-/** Here down is old loader stuff, will be deprecated as we go along getting everything into a single source of code. */
+/** Here down is old loader stuff, will be deprecated once we can verify that they are no longer being used. */
 $working_dir = $curr_dir;
 
 $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
@@ -60,6 +44,12 @@ if (is_dir($working_dir . $site_paths['orgchart_path'])) {
     $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/sources');
 }
 
+/* This ends the deprecation area
+
+    below this point can be refactored once the code above is removed.
+    just needs to be cleaned up as much as possible.
+*/
+
 if (!empty($site_paths['portal_database'])){
     $db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
 } else {
@@ -77,6 +67,9 @@ if (class_exists('Portal\Config')) {
     if (!defined('PORTAL_CONFIG')) define('PORTAL_CONFIG', $config);
 }
 
+/*
+    TODO: move this to the Site class
+*/
 $vars = array(':site_path' => $site_paths['orgchart_path']);
 $sql = 'SELECT site_uploads
         FROM sites

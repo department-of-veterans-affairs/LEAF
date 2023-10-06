@@ -20,21 +20,27 @@ if (!defined('APP_CSS_PATH')) define('APP_CSS_PATH', getenv('APP_CSS_PATH'));
 if (!defined('APP_JS_PATH')) define('APP_JS_PATH', getenv('APP_JS_PATH'));
 if (!defined('LEAF_DOMAIN')) define('LEAF_DOMAIN', getenv('APP_URL_NEXUS'));
 
-preg_match('(\/.+\/)', $_SERVER['SCRIPT_FILENAME'], $match);
+/*
+    We need to extract the portal url from the SCRIPT_FILENAME so we can get the data from the sites table.
+    There are times where there is another folder tacked on to the end of the url, in those cases that folder
+    needs to be striped from the url
 
-$folders = array('admin', 'api', 'auth.cookie', 'auth_domain', 'auth_token', 'dynicons', 'login', 'qrcode', 'scripts', 'utils', 'sources', '..', 'mailer', 'var', 'www', 'html', '');
+    i.e. /Academy/Demo1/admin
+    I decided it best to put this into a class and have the class deal with it to keep this file clean
+*/
 
-$path = '';
+require_once getenv('APP_PATH') . '/Leaf/Db.php';
+require_once getenv('APP_PATH') . '/Leaf/Site.php';
 
-$path_array = explode('/', $match[0]);
+$file_paths_db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-foreach ($path_array as $value) {
-    if (!in_array($value, $folders)) {
-        $path .= '/' . $value;
-    }
+$site = new App\Leaf\Site($file_paths_db, $_SERVER['SCRIPT_FILENAME']);
+
+if ($site->error) {
+    // redirect to 404 not found
+} else {
+    $my_path = $site->getPortalPath();
+    if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $my_path);
+    if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . trim($my_path) . '/');
+    $site_paths = $site->getSitePath();
 }
-
-$l_path = trim($path, '/');
-
-if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $path);
-if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . $l_path . '/');
