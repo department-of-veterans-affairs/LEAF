@@ -9,6 +9,11 @@
 
 namespace Portal;
 
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\LogItem;
+
 class EmailTemplate
 {
     private $db;
@@ -21,7 +26,7 @@ class EmailTemplate
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
     }
 
     public function isEmailTemplateValid($template, $list)
@@ -178,10 +183,10 @@ class EmailTemplate
         $history = [];
 
         $fields = [
-            'body' => \Leaf\LoggableTypes::EMAIL_TEMPLATE_BODY,
-            'emailTo' => \Leaf\LoggableTypes::EMAIL_TEMPLATE_TO,
-            'emailCc' => \Leaf\LoggableTypes::EMAIL_TEMPLATE_CC,
-            'subject' => \Leaf\LoggableTypes::EMAIL_TEMPLATE_SUBJECT
+            'body' => LoggableTypes::EMAIL_TEMPLATE_BODY,
+            'emailTo' => LoggableTypes::EMAIL_TEMPLATE_TO,
+            'emailCc' => LoggableTypes::EMAIL_TEMPLATE_CC,
+            'subject' => LoggableTypes::EMAIL_TEMPLATE_SUBJECT
         ];
 
         foreach ($fields as $field => $type) {
@@ -214,9 +219,9 @@ class EmailTemplate
                 file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
 
                 $this->dataActionLogger->logAction(
-                    \Leaf\DataActions::MODIFY,
-                    \Leaf\LoggableTypes::EMAIL_TEMPLATE_BODY,
-                    [new \Leaf\LogItem("email_templates", "body", $template, $label)]
+                    DataActions::MODIFY,
+                    LoggableTypes::EMAIL_TEMPLATE_BODY,
+                    [new LogItem("email_templates", "body", $template, $label)]
                 );
             }
 
@@ -228,9 +233,9 @@ class EmailTemplate
                 file_put_contents("../templates/email/custom_override/" . $_POST['subjectFileName'], $_POST['subjectFile']);
 
                 $this->dataActionLogger->logAction(
-                    \Leaf\DataActions::MODIFY,
-                    \Leaf\LoggableTypes::EMAIL_TEMPLATE_SUBJECT,
-                    [new \Leaf\LogItem("email_templates", "subject", $template, $label)]
+                    DataActions::MODIFY,
+                    LoggableTypes::EMAIL_TEMPLATE_SUBJECT,
+                    [new LogItem("email_templates", "subject", $template, $label)]
                 );
             }
 
@@ -242,9 +247,9 @@ class EmailTemplate
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailToFileName'], $_POST['emailToFile']);
 
                 $this->dataActionLogger->logAction(
-                    \Leaf\DataActions::MODIFY,
-                    \Leaf\LoggableTypes::EMAIL_TEMPLATE_TO,
-                    [new \Leaf\LogItem("email_templates", "emailTo", $template, $label)]
+                    DataActions::MODIFY,
+                    LoggableTypes::EMAIL_TEMPLATE_TO,
+                    [new LogItem("email_templates", "emailTo", $template, $label)]
                 );
             }
 
@@ -256,9 +261,9 @@ class EmailTemplate
                 file_put_contents("../templates/email/custom_override/" . $_POST['emailCcFileName'], $_POST['emailCcFile']);
 
                 $this->dataActionLogger->logAction(
-                    \Leaf\DataActions::MODIFY,
-                    \Leaf\LoggableTypes::EMAIL_TEMPLATE_CC,
-                    [new \Leaf\LogItem("email_templates", "emailCc", $template, $label)]
+                    DataActions::MODIFY,
+                    LoggableTypes::EMAIL_TEMPLATE_CC,
+                    [new LogItem("email_templates", "emailCc", $template, $label)]
                 );
             }
         }
@@ -369,9 +374,9 @@ class EmailTemplate
             if (file_exists("../templates/email/custom_override/{$template}")) {
                 unlink("../templates/email/custom_override/{$template}");
                 $this->dataActionLogger->logAction(
-                    \Leaf\DataActions::RESTORE,
-                    \Leaf\LoggableTypes::EMAIL_TEMPLATE_BODY,
-                    [new \Leaf\LogItem("email_templates", "body", $template, $template)]
+                    DataActions::RESTORE,
+                    LoggableTypes::EMAIL_TEMPLATE_BODY,
+                    [new LogItem("email_templates", "body", $template, $template)]
                 );
             }
 

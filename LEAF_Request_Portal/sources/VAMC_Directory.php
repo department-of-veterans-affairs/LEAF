@@ -15,6 +15,7 @@
 */
 
 namespace Portal;
+use App\Leaf\Db;
 
 class VAMC_Directory
 {
@@ -47,7 +48,7 @@ class VAMC_Directory
     // Connect to the database
     public function __construct()
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
         $login = new \Orgchart\Login($oc_db, $oc_db);
         $this->Employee = new \Orgchart\Employee($oc_db, $login);
         $this->Group = new \Orgchart\Group($oc_db, $login);
@@ -101,10 +102,7 @@ class VAMC_Directory
             $tdata = $result;
             $tdata['Lname'] = $result['lastName'];
             $tdata['Fname'] = $result['firstName'];
-
-            // orgchart data
-            $ocData = $this->Employee->getAllData($result['empUID']);
-            $tdata['Email'] = $ocData[6]['data'];
+            $tdata['Email'] = $result['email'];
             $data[] = $tdata;
         }
 

@@ -11,7 +11,7 @@
 
 namespace Orgchart;
 
-use Leaf\Db;
+use App\Leaf\Db;
 
 class Employee extends Data
 {
@@ -928,16 +928,14 @@ class Employee extends Data
             return $this->cache["lookupEmpUID_{$empUID}"];
         }
 
-        $strSQL = "SELECT * FROM {$this->tableName} WHERE empUID = :empUID AND deleted = 0";
+        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName, domain, 
+                        deleted, lastUpdated, new_empUUID, data as email FROM {$this->tableName}
+                    LEFT JOIN employee_data USING (empUID)
+                    WHERE empUID = :empUID
+                        AND deleted = 0
+                        AND indicatorID = 6";
         $sqlVars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($strSQL, $sqlVars);
-
-        $strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
-        $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
-
-        if(isset($result[0]) && isset($resEmail[0])) {
-            $result[0] = array_merge($result[0], $resEmail[0]);
-        }
 
         $this->cache["lookupEmpUID_{$empUID}"] = $result;
 

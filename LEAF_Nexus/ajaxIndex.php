@@ -9,17 +9,16 @@
 
 */
 
-
+use App\Leaf\XSSHelpers;
 
 error_reporting(E_ERROR);
 
-require_once 'globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 //$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
 if (isset($settings['timeZone']))
 {
-    date_default_timezone_set(Leaf\XSSHelpers::xscrub($settings['timeZone']));
+    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
 }
 
 

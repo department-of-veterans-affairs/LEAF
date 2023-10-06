@@ -3,17 +3,18 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require_once 'globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+use App\Leaf\XSSHelpers;
+
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $login->loginUser();
 
 $form = new Portal\Form($db, $login);
 
 $data = $form->getIndicator(
-    Leaf\XSSHelpers::xscrub($_GET['id']),
-    Leaf\XSSHelpers::xscrub($_GET['series']),
-    Leaf\XSSHelpers::xscrub($_GET['form'])
+    XSSHelpers::xscrub($_GET['id']),
+    XSSHelpers::xscrub($_GET['series']),
+    XSSHelpers::xscrub($_GET['form'])
 );
 
 if (isset($data[$_GET['id']]['value'])){

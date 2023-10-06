@@ -1,8 +1,8 @@
-<link rel=stylesheet href="../../libs/js/codemirror/addon/merge/merge.css">
-<link rel="stylesheet" href="../../libs/js/codemirror/theme/lucario.css">
+<link rel=stylesheet href="<!--{$app_js_path}-->/codemirror/addon/merge/merge.css">
+<link rel="stylesheet" href="<!--{$app_js_path}-->/codemirror/theme/lucario.css">
 <link rel="stylesheet" href="./css/mod_templates.css">
-<script src="../../libs/js/diff-match-patch/diff-match-patch.js"></script>
-<script src="../../libs/js/codemirror/addon/merge/merge.js"></script>
+<script src="<!--{$app_js_path}-->/diff-match-patch/diff-match-patch.js"></script>
+<script src="<!--{$app_js_path}-->/codemirror/addon/merge/merge.js"></script>
 
 <div class="leaf-center-content">
     <div class="page-title-container">
@@ -265,7 +265,7 @@
             }
         });
     }
-    // creates a copy of the current file content 
+    // creates a copy of the current file content
     function saveFileHistory() {
         var data = '';
         if (codeEditor.getValue == undefined) {
@@ -890,17 +890,17 @@
         $.ajax({
             type: 'GET',
             url: '../api/template/',
-            success: function(res) {
+            success: function (res) {
                 $.ajax({
                     type: 'GET',
                     url: '../api/template/custom',
                     dataType: 'json',
-                    success: function(result) {
+                    success: function (result) {
                         let template_excluded = 'import_from_webHR.tpl';
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
-                        let filesMobile = '<h3>Template Files:</h3><select class="templateFiles">';
-
+                        let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
+                        
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
                                 if (res[i] === template_excluded) {
@@ -914,37 +914,45 @@
                                     custom = '';
                                 }
 
-                                file = res[i].replace('.tpl', '');
+                                let file = res[i].replace('.tpl', '');
 
-                                buffer += '<li onclick="loadContent(\'' + res[i] + '\');"><div class="template_files"><a href="#">' +
-                                    file + '</a> ' + custom + '</div></li>';
+                                buffer += '<li><div class="template_files"><a href="#" data-file="' + res[i] + '">' + file + '</a> ' + custom + '</div></li>';
 
-                                filesMobile += '<option onclick="loadContent(\'' + res[i] + '\');"><div class="template_files"><a href="#">' +
-                                    file + '</a> ' + custom + '</div></option>';
+                                filesMobile += '<option value="' + res[i] + '">' + file + ' ' + custom + '</option>';
                             }
                         } else if (res_array.status['code'] === 4) {
-                            buffer += '<li><div class="template_files">' + res_array
-                                .status['message'] + '</div></li>';
-                            filesMobile += '<select><option>' + res_array
-                                .status['message'] + '</option></select>';
+                            buffer += '<li><div class="template_files">' + res_array.status['message'] + '</div></li>';
+                            filesMobile += '<select><option>' + res_array.status['message'] + '</option></select>';
                         } else {
-                            buffer +=
-                                '<li>Internal error occurred, if this persists contact your Primary Admin.</li>';
+                            buffer += '<li>Internal error occurred, if this persists contact your Primary Admin.</li>';
                         }
 
                         buffer += '</ul>';
-                        filesMobile += '</select>';
+                        filesMobile += '</select></div>';
                         $('#fileList').html(buffer);
                         $('.filesMobile').html(filesMobile);
+
+                        // Attach click event handler to template links in the buffer
+                        $('#fileList a').on('click', function (e) {
+                            e.preventDefault();
+                            let selectedFile = $(this).data('file');
+                            loadContent(selectedFile);
+                        });
+
+                        // Attach onchange event handler to templateFiles select element
+                        $('.template_select_container').on('change', 'select.templateFiles', function () {
+                            let selectedFile = $(this).val();
+                            loadContent(selectedFile);
+                        });
                     },
-                    error: function(error) {
+                    error: function (error) {
                         console.log(error);
                     }
                 });
             },
             cache: false
         });
-
+        
         initializePage();
 
 

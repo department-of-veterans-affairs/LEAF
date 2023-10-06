@@ -11,6 +11,9 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+use App\Leaf\Db;
+
 class Email
 {
     public string $emailSender = '';
@@ -185,30 +188,20 @@ class Email
     }
 
     /**
-     * Purpose: To check that email address is not already attached to this email send
+     * isExistingRecipient determines if the email address is already present as a recipient in the outgoing email
      * @param string|null $address
      * @return bool
      */
-    public function emailActiveNotAlreadyAdded(string|null $address): bool
+    public function isExistingRecipient(string|null $address): bool
     {
 
         if ( ( strpos($this->emailRecipient, $address) === false  )
             && (!in_array($address, $this->emailCC) )
             && (!in_array($address ,$this->emailBCC) ) ) {
 
-            $dir = new VAMC_Directory;
-
-            // Check that email address is active in Nexus
-            $vars = array(':emailAddress' => $address);
-            $strSQL = "SELECT e.deleted FROM employee as e ".
-                "INNER JOIN employee_data ed on e.empUID = ed.empUID ".
-                "WHERE e.deleted = 0 ".
-                "AND ed.data=:emailAddress";
-            $res = $this->nexus_db->prepared_query($strSQL, $vars);
-
-            return ( (!empty($res)) ? true : false );
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -226,7 +219,7 @@ class Email
         if ($this->emailRecipient == ''){
             $this->emailRecipient = $address;
         } else {
-            if ( $this->emailActiveNotAlreadyAdded($address) || $requiredAddress ) {
+            if ( !$this->isExistingRecipient($address) || $requiredAddress ) {
                 $this->emailRecipient .= ", " . $address;
             }
         }
@@ -288,7 +281,7 @@ class Email
             return false;
         }
 
-        if ( $this->emailActiveNotAlreadyAdded($address) || ($requiredAddress)  ) {
+        if ( !$this->isExistingRecipient($address) || ($requiredAddress)  ) {
           if (!$isBcc) {
               $this->emailCC[] = $address;
           } else {
@@ -388,7 +381,7 @@ class Email
     function initPortalDB(): void
     {
         // set up org chart assets
-        $this->portal_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, Config::$portalDb);
+        $this->portal_db = new Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, Config::$portalDb);
     }
 
     /**
@@ -398,7 +391,7 @@ class Email
     function initNexusDB(): void
     {
         // set up org chart assets
-        $this->nexus_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $this->nexus_db = OC_DB;
     }
 
     /**
@@ -464,10 +457,10 @@ class Email
                 WHERE `emailTemplateID` = :emailTemplateID";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
-        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body'] == null ? '' : $res[0]['body']));
+        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo'] == null ? '' : $res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc'] == null ? '' : $res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject'] == null ? '' : $res[0]['subject']));
+        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body'] == null ? '' : $res[0]['body']));
     }
 
     /**
@@ -482,10 +475,10 @@ class Email
             "WHERE label = :emailTemplateLabel;";
         $res = $this->portal_db->prepared_query($strSQL, $vars);
 
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailTo']));
-        $this->setEmailToCcWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['emailCc']), true);
-        $this->setSubjectWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['subject']));
-        $this->setBodyWithTemplate(\Leaf\XSSHelpers::xscrub($res[0]['body']));
+        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailTo']));
+        $this->setEmailToCcWithTemplate(XSSHelpers::xscrub($res[0]['emailCc']), true);
+        $this->setSubjectWithTemplate(XSSHelpers::xscrub($res[0]['subject']));
+        $this->setBodyWithTemplate(XSSHelpers::xscrub($res[0]['body']));
     }
 
     /**
@@ -506,9 +499,9 @@ class Email
             // For each line in template, add that email address, if valid
             foreach($emailList as $emailAddress) {
                 if ($isCc) {
-                    $this->addCcBcc(\Leaf\XSSHelpers::xscrub($emailAddress), true);
+                    $this->addCcBcc(XSSHelpers::xscrub($emailAddress), true);
                 } else {
-                    $this->addRecipient(\Leaf\XSSHelpers::xscrub($emailAddress), true);
+                    $this->addRecipient(XSSHelpers::xscrub($emailAddress), true);
                 }
             }
         }
@@ -805,27 +798,36 @@ class Email
                         $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
                         $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
-                        $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
 
-                        //check if the requester has any backups
-                        $vars4 = array(':empId' => $empUID);
-                        $strSQL = "SELECT backupEmpUID FROM relation_employee_backup WHERE empUID =:empId";
-                        $backupIds = $this->nexus_db->prepared_query($strSQL, $vars4);
+                        // empuid is required to move forward, make sure this exists before continuing. 
+                        // This can be a result of user not setting a user in form field
+                        if(is_array($resEmpUID) && !empty($resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']])){
 
-                        if ($empUID > 0) {
-                            $tmp = $dir->lookupEmpUID($empUID);
-                            if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                                $this->addRecipient($tmp[0]['Email']);
+                            $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
+
+                            //check if the requester has any backups
+                            $vars4 = array(':empId' => $empUID);
+                            $strSQL = "SELECT backupEmpUID FROM relation_employee_backup WHERE empUID =:empId";
+                            $backupIds = $this->nexus_db->prepared_query($strSQL, $vars4);
+
+                            if ($empUID > 0) {
+                                $tmp = $dir->lookupEmpUID($empUID);
+                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                    $this->addRecipient($tmp[0]['Email']);
+                                }
                             }
+
+                            // add for backups
+                            foreach ($backupIds as $row) {
+                                $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
+                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                    $this->addCcBcc($tmp[0]['Email']);
+                                }
+                            }
+                        } else {
+                            trigger_error("Empuid was not set for case -1");
                         }
 
-                        // add for backups
-                        foreach ($backupIds as $row) {
-                            $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
-                            if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                                $this->addCcBcc($tmp[0]['Email']);
-                            }
-                        }
                         break;
 
                     // requestor followup
@@ -849,10 +851,17 @@ class Email
                         $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
                         $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
-                        $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
+                        
+                        // groupid is required to move forward, make sure this exists before continuing. 
+                        // This can be a result of user not setting a group in form field
+                        if(is_array($resGroupID) && !empty($resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']])){
+                            $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
 
-                        if ($groupID > 0) {
-                            $this->addGroupRecipient($groupID);
+                            if ($groupID > 0) {
+                                $this->addGroupRecipient($groupID);
+                            }
+                        } else {
+                            trigger_error("Groupid was not set for case -3");
                         }
                         break;
                 }
@@ -878,7 +887,7 @@ class Email
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $recordInfo[0]['lastStatus'],
                 "siteRoot" => $this->siteRoot,
-                "field" => $fields
+                "field" => null
             ));
 
             $this->setTemplateByID($emailTemplateID);

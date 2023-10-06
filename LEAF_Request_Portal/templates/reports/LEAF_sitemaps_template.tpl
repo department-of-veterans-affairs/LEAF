@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="../libs/css/leaf.css">
+<link rel="stylesheet" href="<!--{$app_css_path}-->/leaf.css">
 
 <!--{include file="../site_elements/generic_xhrDialog.tpl"}-->
 
@@ -382,7 +382,7 @@
                 class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Sitemap</a>
         </div>
         <div>
-            <a href="./report.php?a=LEAF_inbox_combined" target="_blank"
+            <a href="./report.php?a=LEAF_Inbox" target="_blank"
                 class="usa-button usa-button--outline leaf-marginTopBot-halfRem leaf-width100pct">View Combined
                 Inbox</a>
         </div>

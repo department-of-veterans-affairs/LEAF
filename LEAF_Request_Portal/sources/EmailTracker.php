@@ -9,7 +9,7 @@
 
 namespace Portal;
 
-use Leaf\Db;
+use App\Leaf\Db;
 
 class EmailTracker
 {

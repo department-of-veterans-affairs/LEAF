@@ -2,10 +2,11 @@ version: "3.9"
 
 services:
   leaf-php-8:
-    image: pelentan/leaf-swarm
+    image: pelentan/leaf-swarm:production
     env_file: 
-      - ./env_files/globals_swarm.env
-      # - ./env_files/globals_swarm_prod.env
+      # - ./env_files/globals_swarm.env
+      - ./env_files/globals_swarm_prod.env
+      - ./env_files/globals_prod.leaf2.env
       # - ./env_files/secrets.env
     ports:
       - 80:80
@@ -16,19 +17,25 @@ services:
     command: 'source /startup.sh'
     networks:
       - leaf
-    # environment:
-    #   - DATABASE_PASSWORD=/run/secrets/db_password
     deploy:
       mode: replicated
-      replicas: 4
+      replicas: 1 
       restart_policy:
         condition: on-failure
-    # configs:
-    #   - source: entrypoint
-    #     target: ./etc/init.d/ss.sh
-    #     mode: 0777
-    # entrypoint: ["/etc/init.d/ss.sh","/startup.sh"]
-        
+      resources:
+        limits:
+          memory: 70gb
+    sysctls:
+      net.ipv4.ip_local_port_range: "15000 64000"
+    healthcheck:
+      test: curl --fail http://localhost/ || exit 1
+      interval: 20s
+      timeout: 20s
+      start_period: 600s
+      retries: 2
+    labels:
+      - "traefik.enable=true"
+
     secrets:
       - source: leaf_key
         target: /etc/ssl/certs/leaf.key
@@ -45,6 +52,7 @@ services:
       - source: cdw_host
       - source: cdw_pass
       - source: cipher_key
+        # - source: db_host_ip
 
   leaf-adminer:
     image: adminer
@@ -68,12 +76,16 @@ services:
 volumes:
   leaf-vol:
     external: true
+  leaf:
+    external: false
   leaf-vol-html:
     external: true
 
 networks:
   leaf:
     external: false
+  leaf-swarm:
+    external: true
 
 secrets:
   leaf_key:
@@ -98,3 +110,5 @@ secrets:
     external: true
   cipher_key:
     external: true
+      #db_host_ip:
+      # external: true

@@ -11,6 +11,14 @@
 
 namespace Portal;
 
+use App\Leaf\CommonConfig;
+use App\Leaf\Db;
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\XSSHelpers;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\LogItem;
+
 class System
 {
     public $siteRoot = '';
@@ -32,10 +40,10 @@ class System
 //        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
         $protocol = 'https';
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
-        $commonConfig = new \Leaf\CommonConfig();
+        $commonConfig = new CommonConfig();
         $this->fileExtensionWhitelist = $commonConfig->fileManagerWhitelist;
 
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
     }
 
     /**
@@ -55,7 +63,7 @@ class System
                 )
             );
         } else {
-            $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+            $oc_db = OC_DB;
             $group = new \Orgchart\Group($oc_db, $this->login);
             $position = new \Orgchart\Position($oc_db, $this->login);
             $tag = new \Orgchart\Tag($oc_db, $this->login);
@@ -155,7 +163,7 @@ class System
      *
      * Created at: 6/30/2023, 1:24:51 PM (America/New_York)
      */
-    public function updateGroup(int $groupID, ?\Leaf\Db $oc_db = null): array
+    public function updateGroup(int $groupID, ?Db $oc_db = null): array
     {
         if (!is_numeric($groupID)) {
             $return_value = array(
@@ -173,7 +181,7 @@ class System
             );
         } else {
             if ($oc_db === null) {
-                $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+                $oc_db = OC_DB;
             }
 
             $group = new \Orgchart\Group($oc_db, $this->login);
@@ -293,7 +301,7 @@ class System
             //$this->db->prepared_query('DELETE FROM users WHERE groupID=:groupID AND backupID IS NULL', $vars);
             $this->db->prepared_query('DELETE FROM `groups` WHERE groupID=:groupID', $vars);
 
-            $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+            $oc_db = OC_DB;
             $group = new \Orgchart\Group($oc_db, $this->login);
             $position = new \Orgchart\Position($oc_db, $this->login);
             $employee = new \Orgchart\Employee($oc_db, $this->login);
@@ -556,7 +564,7 @@ class System
             return 'Admin access required';
         }
 
-        $vars = array(':input' => \Leaf\XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
+        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedSubordinateList']));
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedSubordinateList"', $vars);
 
         return 1;
@@ -569,7 +577,7 @@ class System
             return 'Admin access required';
         }
 
-        $vars = array(':input' => \Leaf\XSSHelpers::xscrub($_POST['national_linkedPrimary']));
+        $vars = array(':input' => XSSHelpers::xscrub($_POST['national_linkedPrimary']));
         $this->db->prepared_query('UPDATE settings SET data=:input WHERE setting="national_linkedPrimary"', $vars);
 
         return 1;
@@ -605,8 +613,8 @@ class System
             return 'Invalid Token.';
         }
         $in = $_FILES['file']['name'];
-        $fileName = \Leaf\XSSHelpers::scrubFilename($in);
-        $fileName = \Leaf\XSSHelpers::xscrub($fileName);
+        $fileName = XSSHelpers::scrubFilename($in);
+        $fileName = XSSHelpers::xscrub($fileName);
         if ($fileName != $in
                 || $fileName == 'index.html'
                 || $fileName == '')
@@ -707,7 +715,7 @@ class System
      */
     public function setPrimaryAdmin()
     {
-        $vars = array(':userID' => \Leaf\XSSHelpers::xscrub($_POST['userID']));
+        $vars = array(':userID' => XSSHelpers::xscrub($_POST['userID']));
         //check if user is system admin
         $res = $this->db->prepared_query('SELECT *
                                             FROM `users`
@@ -725,9 +733,9 @@ class System
 
             $primary = $this->getPrimaryAdmin();
 
-            $this->dataActionLogger->logAction(\Leaf\DataActions::ADD, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
-                new \Leaf\LogItem("users", "primary_admin", 1),
-                new \Leaf\LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::PRIMARY_ADMIN, [
+                new LogItem("users", "primary_admin", 1),
+                new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
             ]);
         }
         else
@@ -750,9 +758,9 @@ class System
 
         $result = $this->db->prepared_query('UPDATE `users` SET `primary_admin` = 0', array());
 
-        $this->dataActionLogger->logAction(\Leaf\DataActions::DELETE, \Leaf\LoggableTypes::PRIMARY_ADMIN, [
-            new \Leaf\LogItem("users", "primary_admin", 1),
-            new \Leaf\LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
+        $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::PRIMARY_ADMIN, [
+            new LogItem("users", "primary_admin", 1),
+            new LogItem("users", "userID", $primary["empUID"], $primary["firstName"].' '.$primary["lastName"])
         ]);
 
         return $result;
@@ -760,7 +768,7 @@ class System
 
     public function getHistory($filterById)
     {
-        return $this->dataActionLogger->getHistory($filterById, null, \Leaf\LoggableTypes::PRIMARY_ADMIN);
+        return $this->dataActionLogger->getHistory($filterById, null, LoggableTypes::PRIMARY_ADMIN);
     }
 
     /**
@@ -782,7 +790,7 @@ class System
 
         $this->removeGroups();
         $groups = $this->getOrgchartImportTags($nexus_group);
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
 
         foreach ($groups as $group) {
             $this->updateGroup($group['groupID'], $oc_db);
@@ -1031,7 +1039,7 @@ class System
      */
     private function addBackups(int $groupID, bool $group = true): array
     {
-        $oc_db = new \Leaf\Db(\DIRECTORY_HOST, \DIRECTORY_USER, \DIRECTORY_PASS, \ORGCHART_DB);
+        $oc_db = OC_DB;
         $employee = new \Orgchart\Employee($oc_db, $this->login);
 
         // get all users for this group

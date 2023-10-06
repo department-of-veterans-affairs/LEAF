@@ -1,6 +1,6 @@
 The following request requires your review.<br />
 <br />
-Please review your inbox at: {{$siteRoot}}?a=inbox<br />
+Please review your inbox at: {{$siteRoot}}report.php?a=LEAF_Inbox<br />
 <br />
 Request ID#: {{$recordID}}<br />
 Request title: {{$fullTitle}}<br />

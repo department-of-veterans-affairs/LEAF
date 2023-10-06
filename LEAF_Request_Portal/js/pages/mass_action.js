@@ -10,6 +10,9 @@ let massActionToken = document
 let orgChartPath = document
     .getElementById("mass-action-js")
     .getAttribute("data-orgChartPath");
+let app_js_path = document
+    .getElementById("mass-action-js")
+    .getAttribute("data-jsPath");
 let processedRequests = 0;
 let totalActions = 0;
 let successfulActionRecordIDs = [];
@@ -59,6 +62,7 @@ $(document).ready(function () {
 
     // Do the search from the input textbox if it is requested
     leafSearch = new LeafFormSearch("searchRequestsContainer");
+    leafSearch.setJsPath(app_js_path);
     leafSearch.setRootURL("./");
     leafSearch.setOrgchartPath(orgChartPath);
     leafSearch.setSearchFunc(function (search) {

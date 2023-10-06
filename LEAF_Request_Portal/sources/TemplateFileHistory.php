@@ -9,6 +9,11 @@
 
 namespace Portal;
 
+use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\Logger\Formatters\DataActions;
+use App\Leaf\Logger\Formatters\LoggableTypes;
+use App\Leaf\Logger\LogItem;
+
 /**
  * Summary of TemplateFileHistory
  */
@@ -30,7 +35,7 @@ class TemplateFileHistory
     {
         $this->db = $db;
         $this->login = $login;
-        $this->dataActionLogger = new \Leaf\DataActionLogger($db, $login);
+        $this->dataActionLogger = new DataActionLogger($db, $login);
     }
     /**
      * Summary of getTemplateList
@@ -209,9 +214,9 @@ class TemplateFileHistory
             file_put_contents("../templates/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::MERGE,
-                \Leaf\LoggableTypes::TEMPLATE_BODY,
-                [new \Leaf\LogItem("template_editor", "body", $template, $template)]
+                DataActions::MERGE,
+                LoggableTypes::TEMPLATE_BODY,
+                [new LogItem("template_editor", "body", $template, $template)]
             );
         }
 
@@ -231,9 +236,9 @@ class TemplateFileHistory
             file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(
-                \Leaf\DataActions::MERGE,
-                \Leaf\LoggableTypes::EMAIL_TEMPLATE_BODY,
-                [new \Leaf\LogItem("email_template_body", "body", $template, $template)]
+                DataActions::MERGE,
+                LoggableTypes::EMAIL_TEMPLATE_BODY,
+                [new LogItem("email_template_body", "body", $template, $template)]
             );
         }
 

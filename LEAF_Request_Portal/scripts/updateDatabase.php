@@ -3,8 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-require_once __DIR__ . '/../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 define('PREFIX', 'Update_RMC_DB_');
 if (php_sapi_name() == 'cli') {
@@ -56,7 +55,7 @@ function updateDB($thisVer, $updateList, $folder, $db)
     {
         echo 'Update found: ' . $updateList[$thisVer] . BR;
         $update = file_get_contents($folder . $updateList[$thisVer]);
-        echo 'Processing update... ';
+        echo 'Processing update for ' . PORTAL_PATH . ' ...';
         $db->prepared_query($update, array());
         echo ' ... Complete.' . BR;
         $res = $db->prepared_query('SELECT * FROM settings WHERE setting="dbversion"', array());
