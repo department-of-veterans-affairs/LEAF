@@ -1947,7 +1947,7 @@ class Form
 
     /**
      * batchUpdateDependencyAccess amends $accessList for specific dependencyIDs to optimize
-     * performance for dependencyIDs related to dynamic assignments, such as "person designated by requestor"
+     * performance related to dynamic assignments, such as "person designated by requestor"
      *
      * @param array $accessList Map of recordID->int of the current user's access. 1 = has access
      * @param array $records List of records to process
