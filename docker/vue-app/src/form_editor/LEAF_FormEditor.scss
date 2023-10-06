@@ -586,16 +586,17 @@ div[id^="layoutFormRecords_"] > ul > li  {
         padding: 0.5em;
         border: 2px outset $BG_Pearl;
         border-radius: 2px;
-        &:not(:last-child) {
-            margin-bottom: 0.5rem;
-        }
+        margin-bottom: 0.5rem;
     }
 
     div.printformblock {
         break-inside: avoid;
+        padding-left: 6px;
+        margin-left: -6px;
     }
 
     div.printResponse {
+        position: relative;
         padding: 0;
         min-height: 50px;
         float: none; /* style.css style collision */
@@ -605,9 +606,25 @@ div[id^="layoutFormRecords_"] > ul > li  {
         &:not(.form-header) {
             margin-left: 0.5rem;
         }
+        button.card_toggle {
+            position: absolute;
+            margin-left: -6px;
+            padding: 1px;
+            align-items: flex-start;
+            height: 100%;
+            border: 0;
+            border-radius: 4px 0 0 4px;
+            background-color: $BG_Pearl;
+            font-size: 85%;
+            &:hover, &:focus, &:active {
+                border: 0;
+                outline: none;
+            }
+        }
     }
 
     .form_editing_area {
+        display: flex;
         padding: 2px 2px 0.5rem 2px;
         background-color: white;
 
@@ -616,7 +633,6 @@ div[id^="layoutFormRecords_"] > ul > li  {
             &:hover, &:focus, &:active {
                 border: 1px solid $LEAF_CSS_outline !important;
             }
-            
         }
 
         div[class*="SelectorBorder"] {

@@ -43,7 +43,6 @@ export default {
             currentFormPage: 0,
             selectedNodeIndicatorID: null,
             fileManagerTextFiles: [],
-            workflowRecords: [],            //array of all 'workflows' table records
         }
     },
     components: {
@@ -94,7 +93,6 @@ export default {
         next(vm => {
             vm.setDefaultAjaxResponseMessage();
             vm.getFileManagerTextFiles();
-            vm.getWorkflowRecords();
         });
     },
     beforeRouteLeave(to, from) {
@@ -106,7 +104,6 @@ export default {
             showToolbars: computed(() => this.showToolbars),
             selectedNodeIndicatorID: computed(() => this.selectedNodeIndicatorID),
             fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
-            workflowRecords: computed(() => this.workflowRecords),
             internalFormRecords: computed(() => this.internalFormRecords),
             noForm: computed(() => this.noForm),
 
@@ -120,6 +117,7 @@ export default {
             onDrop: this.onDrop,
             moveListItem: this.moveListItem,
             toggleToolbars: this.toggleToolbars,
+            shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey
         }
     },
@@ -209,19 +207,6 @@ export default {
         }
     },
     methods: {
-        /**
-         * @returns {array} of objects with all fields from the workflows table
-         */
-        getWorkflowRecords() {
-            $.ajax({
-                type: 'GET',
-                url: `${this.APIroot}workflow`,
-                success: (res) => {
-                    this.workflowRecords = res || [];
-                },
-                error: (err) => console.log(err)
-            });
-        },
         getFileManagerTextFiles() {
             $.ajax({
               type: 'GET',
@@ -491,9 +476,9 @@ export default {
             const name = this.decodeAndStripHTML(form?.categoryName || 'Untitled');
             return this.truncateText(name, len).trim();
         },
-        shortIndicatorNameStripped(text = '[ blank ]', len = 35) {
+        shortIndicatorNameStripped(text = '', len = 35) {
             const name = this.decodeAndStripHTML(text);
-            return this.truncateText(name, len).trim();
+            return this.truncateText(name, len).trim() || '[ blank ]';
         },
         layoutBtnIsDisabled(form) {
             return form.categoryID === this.focusedFormRecord.categoryID && this.selectedNodeIndicatorID === null
@@ -641,27 +626,20 @@ export default {
 
                 <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
-                    <template v-if="focusedFormTree.length > 0">
-                        <template v-for="(formSection, i) in focusedFormTree" :key="'editing_display_' + formSection.indicatorID">
-                            <div v-if="i === currentFormPage" class="printformblock">
-                                <form-editing-display
-                                    :depth="0"
-                                    :formNode="formSection"
-                                    :index="i"
-                                    :key="'FED_' + formSection.indicatorID + makePreviewKey(formSection)">
-                                </form-editing-display>
-                            </div>
-                            <div v-else tabindex="0" class="form-page-card"
-                                @click.stop="selectNewFormNode(formSection.indicatorID, i)"
-                                @keydown.enter.prevent.stop="selectNewFormNode(formSection.indicatorID, i)">
-                                {{ shortIndicatorNameStripped(formSection?.name) }} (page {{i + 1}})
-                            </div>
-                        </template>
-                    </template>
+                    <div class="printformblock">
+                        <form-editing-display v-for="(formSection, i) in focusedFormTree"
+                            :key="'editing_display_' + formSection.indicatorID + makePreviewKey(formSection)"
+                            :depth="0"
+                            :formPage="i"
+                            :formNode="formSection"
+                        >
+                        </form-editing-display>
+                    </div>
                     <button type="button" class="btn-general" style="width: 100%; margin-top: auto;"
                         @click="newQuestion(null)"
                         id="add_new_form_section_2"
-                        title="Add new form section">
+                        title="Add new form section"
+                    >
                         + Add Section
                     </button>
                 </div>

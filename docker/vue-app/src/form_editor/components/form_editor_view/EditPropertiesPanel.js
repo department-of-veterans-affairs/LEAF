@@ -10,13 +10,18 @@ export default {
             type: this.focusedFormRecord?.type || '',
             formID: this.focusedFormRecord?.categoryID || '',
             formParentID: this.focusedFormRecord?.parentID || '',
-            destructionAge: this.focusedFormRecord?.destructionAge || null
+            destructionAge: this.focusedFormRecord?.destructionAge || null,
+            workflowsLoading: true,
+            workflowRecords: []
         }
+    },
+    created() {
+        this.getWorkflowRecords();
     },
     inject: [
         'APIroot',
         'CSRFToken',
-        'workflowRecords',
+        'appIsLoadingForm',
         'allStapledFormCatIDs',
         'focusedFormRecord',
         'focusedFormIsSensitive',
@@ -28,6 +33,9 @@ export default {
         'decodeAndStripHTML',
 	],
     computed: {
+        loading() {
+            return this.appIsLoadingForm || this.workflowsLoading;
+        },
         workflowDescription() {
             let returnValue = '';
             if (this.workflowID !== 0) {
@@ -53,6 +61,20 @@ export default {
         },
     },
     methods: {
+        /**
+         * @returns {array} of objects with all fields from the workflows table
+         */
+        getWorkflowRecords() {
+            $.ajax({
+                type: 'GET',
+                url: `${this.APIroot}workflow`,
+                success: (res) => {
+                    this.workflowRecords = res || [];
+                    this.workflowsLoading = false;
+                },
+                error: (err) => console.log(err)
+            });
+        },
         updateName() {
             $.ajax({
                 type: 'POST',
@@ -190,14 +212,14 @@ export default {
             </label>
             <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3" @change="updateDescription"></textarea>
         </div>
-        <div id="edit-properties-other-properties">
+        <div v-if="!loading" id="edit-properties-other-properties">
             <div style="display:flex; justify-content: space-between;">
                 <button type="button" id="editFormPermissions" class="btn-general"
                     style="width: fit-content;"
                     @click="openEditCollaboratorsDialog">
                     Edit Special Write Access
                 </button>
-                <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog(this.focusedFormRecord.categoryID)"
+                <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog(focusedFormRecord.categoryID)"
                     style="display: none;">
                 </button>
             </div>
@@ -223,7 +245,7 @@ export default {
                             </template>
                         </select></label>
                     </template>
-                    <div v-if="workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
+                    <div v-if="!workflowsLoading && workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
                     <label for="availability" title="When hidden, users will not be able to select this form">Availability
                         <select id="availability" title="Select Availability" v-model.number="visible" @change="updateAvailability">

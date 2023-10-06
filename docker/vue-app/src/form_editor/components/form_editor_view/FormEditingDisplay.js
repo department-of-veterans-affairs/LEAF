@@ -2,10 +2,15 @@ import FormatPreview from "./FormatPreview";
 
 export default {
     name: 'form-editing-display',
+    data() {
+        return {
+            subMenuOpen: false
+        }
+    },
     props: {
         depth: Number,
-        formNode: Object,
-        index: Number
+        formPage: Number,
+        formNode: Object
     },
     components: {
         FormatPreview
@@ -13,6 +18,9 @@ export default {
     inject: [
         'libsPath',
         'newQuestion',
+        'shortIndicatorNameStripped',
+        'selectNewFormNode',
+        'selectedNodeIndicatorID',
         'editQuestion',
         'openAdvancedOptionsDialog',
         'openIfThenDialog',
@@ -23,6 +31,9 @@ export default {
         'makePreviewKey'
     ],
     computed: {
+        showDetails() {
+            return !this.showToolbars || this.subMenuOpen || this.depth > 0;
+        },
         isHeaderLocation() {
             let ID = parseInt(this.formNode.indicatorID);
             let item = this.listTracker[ID];
@@ -43,12 +54,11 @@ export default {
         },
         indicatorName() {
             const contentRequired = this.required ? `<span class="input-required-sensitive">*&nbsp;Required</span>` : '';
-            const contentSensitive = this.sensitive ? `<span class="input-required-sensitive">*&nbsp;Sensitive</span>` : '';
+            const contentSensitive = this.sensitive ? `<span class="input-required-sensitive">*&nbsp;Sensitive</span>&nbsp;${this.sensitiveImg}` : '';
             const shortLabel = (this.formNode?.description || '') !== '' ? ` (${this.formNode.description})` : '';
+            const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
 
-            let name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
-            name = `${name}${shortLabel}${contentRequired}${contentSensitive}  &nbsp;${this.sensitiveImg}`;
-            return name;
+            return `${name}${shortLabel}${contentRequired}${contentSensitive}`;
         },
         printResponseID() {
             return `xhrIndicator_${this.formNode.indicatorID}_${this.formNode.series}`;
@@ -60,13 +70,21 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    template:`<div class="printResponse" :class="{'form-header': isHeaderLocation}"
+    methods: {
+        openCard(nodeID = 0, formPage = 0) { 
+            console.log(nodeID, formPage)
+            if(nodeID !== 0 && this.selectedNodeIndicatorID !== nodeID) {
+                this.selectNewFormNode(nodeID, formPage);
+            }
+            this.subMenuOpen = true;
+        }
+    },
+    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation}"
             style="margin-bottom: 1rem;" :id="printResponseID">
-
+            <button v-if="depth===0 && showToolbars" type="button" class="card_toggle" @click="subMenuOpen=false">-</button>
             <!-- EDITING AREA FOR INDICATOR -->
-            <div class="form_editing_area" style="display:flex"
+            <div class="form_editing_area"
                 :class="{'conditional': conditionalQuestion, 'form-header': isHeaderLocation}">
-
                 <div style="width: 100%;">
                     <!-- NAME -->
                     <div style="display:flex;">
@@ -116,9 +134,16 @@ export default {
             <template v-if="formNode.child">
                 <form-editing-display v-for="child in formNode.child"
                     :depth="depth + 1"
+                    :formPage="formPage"
                     :formNode="child"
                     :key="'FED_' + child.indicatorID + makePreviewKey(child)">
                 </form-editing-display>
             </template>
-        </div>`
+    </div>
+
+    <div v-else tabindex="0" class="form-page-card"
+        @click.stop="openCard(formNode.indicatorID, formPage)"
+        @keydown.enter.prevent.stop="openCard(formNode.indicatorID, formPage)">
+        {{ shortIndicatorNameStripped(formNode?.name || '') }} (page {{formPage + 1}})
+    </div>`
 }
