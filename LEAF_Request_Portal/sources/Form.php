@@ -303,7 +303,7 @@ class Form
             return 'Error: Invalid token.';
         }
 
-        $title = \Leaf\XSSHelpers::sanitizeHTML($_POST['title']);
+        $title = XSSHelpers::sanitizeHTML($_POST['title']);
 
         $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
@@ -1075,7 +1075,7 @@ class Form
             $_POST[$key] = \Leaf\XSSHelpers::scrubObjectOrArray($_POST[$key]);
             $_POST[$key] = serialize($_POST[$key]);
         } else {
-            $_POST[$key] = \Leaf\XSSHelpers::sanitizeHTML($_POST[$key]);
+            $_POST[$key] = XSSHelpers::sanitizeHTML($_POST[$key]);
         }
 
         $indicatorDataVars = array(
@@ -1220,7 +1220,7 @@ class Form
                             mkdir($uploadDir, 0755, true);
                         }
 
-                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, \Leaf\XSSHelpers::sanitizeHTML($_FILES[$indicator]['name']));
+                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, XSSHelpers::sanitizeHTML($_FILES[$indicator]['name']));
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     } else {
                         return 0;
@@ -1262,7 +1262,7 @@ class Form
             $priority = isset($_POST['priority']) ? $_POST['priority'] : 0;
 
             $updateRecordVars = array(':recordID' => (int)$recordID,
-                          ':title' => \Leaf\XSSHelpers::sanitizeHTML($_POST['title']),
+                          ':title' => XSSHelpers::sanitizeHTML($_POST['title']),
                           ':priority' => (int)$priority, );
 
             $updateRecordSQl = 'UPDATE records SET
@@ -2676,7 +2676,7 @@ class Form
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return;
         }
-        $title = \Leaf\XSSHelpers::sanitizeHTML($title);
+        $title = XSSHelpers::sanitizeHTML($title);
 
         if ($this->hasWriteAccess($recordID)) {
             $updateRecordTitleVars = array(
@@ -4093,7 +4093,7 @@ class Form
      */
     public function sanitizeInput($in)
     {
-        return \Leaf\XSSHelpers::sanitizeHTML($in);
+        return XSSHelpers::sanitizeHTML($in);
     }
 
     /**
@@ -4283,7 +4283,7 @@ class Form
      */
     private function fileToArray(string $data): array
     {
-        $data = \Leaf\XSSHelpers::sanitizeHTML($data);
+        $data = XSSHelpers::sanitizeHTML($data);
         $data = str_replace('<br />', "\n", $data);
         $data = str_replace('<br>', "\n", $data);
         $tmpFileNames = explode("\n", $data);
@@ -4505,7 +4505,7 @@ class Form
         $values = $this->fileToArray($data[0]['data']);
 
         // right now we will have special chars encoded in the filename. We need this decoded.
-        $fileName = \Leaf\XSSHelpers::sanitizeHTML($fileName);
+        $fileName = XSSHelpers::sanitizeHTML($fileName);
 
         for ($i = 0; $i < count($values); $i++) {
             if ($values[$i] == $fileName) {
