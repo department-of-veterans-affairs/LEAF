@@ -18,6 +18,18 @@ $loader->addNamespace('App\Leaf', $app_dir . '/Leaf');
 $loader->addNamespace('App\Leaf\Logger', $app_dir . '/Leaf/Logger');
 $loader->addNamespace('App\Leaf\Logger\Formatters', $app_dir . '/Leaf/Logger/Formatters');
 
+$file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+
+$site = new App\Leaf\Site($file_paths_db, $_SERVER['SCRIPT_FILENAME']);
+
+if ($site->error) {
+    // redirect to 404 not found
+} else {
+    $my_path = $site->getPortalPath();
+    if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $my_path);
+    if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . trim($my_path) . '/');
+    $site_paths = $site->getSitePath();
+}
 
 /** Here down is old loader stuff, will be deprecated once we can verify that they are no longer being used. */
 $working_dir = $curr_dir;

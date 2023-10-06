@@ -121,6 +121,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('timeZone', $tz);
         $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
+        $t_form->assign('app_libs', APP_LIBS_PATH);
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
