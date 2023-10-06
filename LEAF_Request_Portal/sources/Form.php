@@ -11,6 +11,10 @@
 
 namespace Portal;
 
+use App\Leaf\XSSHelpers;
+use App\Leaf\CommonConfig;
+use App\Leaf\Db;
+
 define('UPLOAD_DIR', './UPLOADS/'); // with trailing slash
 
 class Form
@@ -265,7 +269,7 @@ class Form
 
             $categoryRes = $this->db->prepared_query($categoryCountSQL, $categoryCountVars);
         } else {
-            $categoryByCatIDVars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($limitCategory));
+            $categoryByCatIDVars = array(':categoryID' => XSSHelpers::xscrub($limitCategory));
             $categoryByCatIDSQL = 'SELECT categoryID, parentID,categoryName,categoryDescription,workflowID,`sort`,needToKnow,formLibraryID,`visible`, `disabled`,`type`, destructionAge, lastModified FROM categories
             WHERE categoryID = :categoryID';
             $categoryRes = $this->db->prepared_query($categoryByCatIDSQL, $categoryByCatIDVars);
@@ -370,7 +374,7 @@ class Form
                     $tCount = is_numeric($_POST[$key]) ? $_POST[$key] : 1; // check how many copies of the form we need
 
                     if ($tCount >= 1) {
-                        $categoryID = \Leaf\XSSHelpers::xscrub(strtolower(substr($key, 3)));
+                        $categoryID = XSSHelpers::xscrub(strtolower(substr($key, 3)));
 
 
                         if ($this->isCategory($categoryID)) {
@@ -679,7 +683,7 @@ class Form
      */
     public function buildFormJSONStructure($categoryID, $series = 1): array
     {
-        $categoryID = ($categoryID == null) ? 'general' : \Leaf\XSSHelpers::xscrub($categoryID);
+        $categoryID = ($categoryID == null) ? 'general' : XSSHelpers::xscrub($categoryID);
 
         if (!isset($this->cache["categoryID{$categoryID}_indicators"])) {
             $indicatorsVars = array(':categoryID' => $categoryID);
@@ -771,7 +775,7 @@ class Form
                             ':actionType' => 'deleted',
                             ':actionTypeID' => 4,
                             ':time' => time(),
-                            ':comment' => \Leaf\XSSHelpers::xscrub($comment));
+                            ':comment' => XSSHelpers::xscrub($comment));
                 $sql = 'INSERT INTO `action_history`
                             (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
                         VALUES
@@ -1044,7 +1048,7 @@ class Form
         if (isset($this->cache['isCategory_' . $categoryID])) {
             return $this->cache['isCategory_' . $categoryID];
         }
-        $categoryVars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
+        $categoryVars = array(':categoryID' => XSSHelpers::xscrub($categoryID));
         $categorySQL = 'SELECT COUNT(*) FROM categories WHERE categoryID=:categoryID';
         $categoryRes = $this->db->prepared_query($categorySQL, $categoryVars);
         if ($categoryRes[0]['COUNT(*)'] != 0) {
@@ -1241,7 +1245,7 @@ class Form
 
                         $insertCategoryCountVars = array(
                             ':recordID' => (int)$recordID,
-                            ':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID),
+                            ':categoryID' => XSSHelpers::xscrub($categoryID),
                             ':count' => $_POST[$key],
                         );
 
@@ -1313,7 +1317,7 @@ class Form
             $return_value = array('status' => 0, 'errors' => array('Invalid Record'));
         } else if (!$this->hasWriteAccess($recordID)) {
             $return_value = array('status' => 0, 'errors' => array('No Write Access'));
-        } else if ($res[0]['submitted'] > 0) {
+        } else if ($recordRes[0]['submitted'] > 0) {
             // make sure request isn't already submitted
             $return_value = array('status' => 0, 'errors' => array('Already Submitted'));
         } else {
@@ -1736,7 +1740,7 @@ class Form
         // find out if explicit permissions have been granted to any groups
         if (count($multipleCategories) <= 1) {
             $vars = array(
-                ':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID),
+                ':categoryID' => XSSHelpers::xscrub($categoryID),
                 ':userID' => $this->login->getUserID(),
             );
 
@@ -2579,7 +2583,7 @@ class Form
         }
         $vars = array(
             ':recordID' => (int)$recordID,
-            ':tag' => \Leaf\XSSHelpers::xscrub($tag),
+            ':tag' => XSSHelpers::xscrub($tag),
             ':timestamp' => time(),
             ':userID' => $this->login->getUserID(),
         );
@@ -2600,7 +2604,7 @@ class Form
         }
         $vars = array(
             ':recordID' => (int)$recordID,
-            ':tag' => \Leaf\XSSHelpers::xscrub($tag),
+            ':tag' => XSSHelpers::xscrub($tag),
             ':userID' => $this->login->getUserID(),
         );
         $deleteTagSQL = 'DELETE FROM tags WHERE recordID=:recordID AND userID=:userID AND tag=:tag';
@@ -2629,7 +2633,7 @@ class Form
         $tags = explode(' ', trim($input));
         foreach ($tags as $tag) {
             if (trim($tag) != '') {
-                $this->addTag((int)$recordID, \Leaf\XSSHelpers::xscrub(trim($tag)));
+                $this->addTag((int)$recordID, XSSHelpers::xscrub(trim($tag)));
             }
         }
         return 1;
@@ -4354,7 +4358,7 @@ class Form
      */
     public function getRecordsByCategory(string $categoryID): array
     {
-        $recordCategoryVars = array(':categoryID' => \Leaf\XSSHelpers::xscrub($categoryID));
+        $recordCategoryVars = array(':categoryID' => XSSHelpers::xscrub($categoryID));
         $recordCategorySQL = 'SELECT recordID, title, userID, categoryID, submitted
         FROM records
         JOIN category_count USING (recordID)
