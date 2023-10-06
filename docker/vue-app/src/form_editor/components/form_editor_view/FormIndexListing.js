@@ -1,11 +1,12 @@
 export default {
-    name: 'FormIndexListing',
+    name: 'form-index-listing',
     data() {
         return {
             subMenuOpen: false
         }
     },
     props: {
+        formPage: Number,
         depth: Number,
         formNode: Object,
         index: Number,
@@ -21,12 +22,14 @@ export default {
         'onDragEnter',
         'onDragLeave',
         'onDrop',
-        'moveListing'
+        'moveListItem'
     ],
     mounted() {
-        //each list item is added to the array on parent component, to track indicatorID, parentID, sort and current index values
+        //console.log('mounted list item')
+        //each list item is added to the array on parent component (FormEditorView), to track indicatorID, parentID, sort and current index values
         this.addToListTracker(this.formNode, this.parentID, this.index);
-        if(this.selectedNodeIndicatorID !== null && this.selectedNodeIndicatorID === this.formNode.indicatorID) {
+        //expands the selected section if it's currently focussed
+        if(this.selectedNodeIndicatorID === this.formNode.indicatorID) {
             let el = document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`);
             if (el !== null) {
                 const headingEl = el.closest('li.section_heading');
@@ -49,17 +52,22 @@ export default {
         toggleSubMenu(event = {}) {
             if(event?.keyCode === 32) event.preventDefault();
             this.subMenuOpen = !this.subMenuOpen;
-            event.currentTarget.closest('li')?.focus();
+            const elLi = event.currentTarget.closest('li');
+            if(elLi !== null) {
+                elLi.focus();
+                const elLiID = (elLi.id || '').replace('index_listing_', '');
+                const cardIDText = this.subMenuOpen ? 'closed' : 'open';
+                const elBtn = document.getElementById(`card_btn_${cardIDText}_${elLiID}`);
+                if(elBtn !== null) {
+                    elBtn.dispatchEvent(new Event('click'));
+                }
+            }
         }
     },
     computed: {
         headingNumber() {
             return this.depth === 0 ? this.index + 1 + '.' : '';
         },
-        hasConditions() {
-            return (this.depth !== 0 && this.formNode.conditions !== null && this.formNode.conditions !== '' && this.formNode.conditions !== 'null');
-        },
-        //NOTE: Uses globally available XSSHelpers.js (LEAF class)
         indexDisplay() {
             //if the indicator has a short label (description), display that, otherwise display the name. Show 'blank' if it has neither
             let display = this.formNode.description ?  XSSHelpers.stripAllTags(this.formNode.description) : XSSHelpers.stripAllTags(this.formNode.name);
@@ -79,21 +87,20 @@ export default {
         <li tabindex=0 :title="'index item '+ formNode.indicatorID"
             :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
-            @click.stop="selectNewFormNode($event, formNode)"
-            @keypress.enter.stop="selectNewFormNode($event, formNode)">
+            @click.stop="selectNewFormNode(formNode.indicatorID, formPage)"
+            @keydown.enter.prevent="selectNewFormNode(formNode.indicatorID, formPage)">
             <div>
-                <span v-if="hasConditions" title="question is conditionally shown">→</span>
                 {{headingNumber}}&nbsp;{{indexDisplay}}
                 <div class="icon_move_container">
                     <div v-show="formNode.indicatorID === selectedNodeIndicatorID" 
                         tabindex="0" class="icon_move up" role="button" title="move item up"
-                        @click.stop="moveListing($event, selectedNodeIndicatorID, true)"
-                        @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, true)">
+                        @click.stop="moveListItem($event, selectedNodeIndicatorID, true)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, selectedNodeIndicatorID, true)">
                     </div>
                     <div v-show="formNode.indicatorID === selectedNodeIndicatorID"
                         tabindex="0" class="icon_move down" role="button" title="move item down"
-                        @click.stop="moveListing($event, selectedNodeIndicatorID, false)"
-                        @keydown.stop.enter.space="moveListing($event, selectedNodeIndicatorID, false)">
+                        @click.stop="moveListItem($event, selectedNodeIndicatorID, false)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, selectedNodeIndicatorID, false)">
                     </div>
                 </div>
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !subMenuOpen}"
@@ -115,6 +122,7 @@ export default {
                 <template v-if="formNode.child">
                     <form-index-listing v-show="subMenuOpen" v-for="(child, k, i) in formNode.child"
                         :id="'index_listing_' + child.indicatorID"
+                        :formPage=formPage
                         :depth="depth + 1"
                         :parentID="formNode.indicatorID"
                         :formNode="child"

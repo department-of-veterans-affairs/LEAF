@@ -1,16 +1,16 @@
 export default {
-    name: 'form-history-dialog',
+    name: 'history-dialog',
     data() {
         return {
             divSaveCancelID: 'leaf-vue-dialog-cancel-save',
             page: 1,
-            formID: this.focusedFormRecord.categoryID,
-            ajaxRes: ''
-            
+            historyType: this.dialogData.historyType,
+            historyID: this.dialogData.historyID,
+            ajaxRes: null
         }
     },
     inject: [
-        'focusedFormRecord',
+        'dialogData'
     ],
     mounted() {
         document.getElementById(this.divSaveCancelID).style.display = 'none';
@@ -18,7 +18,7 @@ export default {
     },
     computed: {
         showNext() {
-            return this.ajaxRes.indexOf('No history to show') === -1;
+            return this.ajaxRes === null ? false : this.ajaxRes.indexOf('No history to show') === -1;
         },
         showPrev() {
             return this.page > 1;
@@ -28,26 +28,29 @@ export default {
         getNext() {
             this.page++;
             this.getPage();
-
         },
         getPrev() {
             this.page--;
             this.getPage();
         },
-        getPage(){
-            $.ajax({
-                type: 'GET',
-                url: `ajaxIndex.php?a=gethistory&type=form&gethistoryslice=1&page=${this.page}&id=${this.formID}`,
-                dataType: 'text',
-                success: (res) => {
-                    this.ajaxRes = res;
-                },
-                error: err => console.log(err),
-                cache: false
-            })
+        getPage() {
+            try {
+                const url = `ajaxIndex.php?a=gethistory&type=${this.historyType}&gethistoryslice=1&page=${this.page}&id=${this.historyID}`;
+                fetch(url).then(res => {
+                    res.text().then(txt => this.ajaxRes = txt);
+                });
+            }
+            catch (error) {
+                console.log('error getting history', error);
+            }
         }
     },
-    template:`<div id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
+    template:`<div>
+        <div v-if="ajaxRes === null" class="page_loading">
+            Loading...
+            <img src="../images/largespinner.gif" alt="loading..." />
+        </div>
+        <div v-else id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
         <div id="history-page-buttons" style="display: flex; justify-content: space-between;">
             <button v-if="showPrev" id="prev" type="button"
                 class="btn-general"
@@ -61,5 +64,6 @@ export default {
                 @click="getNext" title="get next page">
                 Next page
             </button>
-        </div>`
+        </div>
+    </div>`
 }

@@ -8,6 +8,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
         'truncateText',
         'decodeAndStripHTML',
         'categories',
@@ -15,6 +16,9 @@ export default {
         'closeFormDialog',
         'updateStapledFormsInfo'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     mounted() {
         if (this.isSubform) {
             this.closeFormDialog();
@@ -54,7 +58,7 @@ export default {
                 type: 'DELETE',
                 url: `${this.APIroot}formEditor/_${this.formID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
                 success: res => {
-                    this.updateStapledFormsInfo(stapledCatID, true);
+                    this.updateStapledFormsInfo(this.formID, stapledCatID, true);
                 },
                 error: err => console.log(err)
             });
@@ -72,7 +76,7 @@ export default {
                         if(+res !== 1) {
                             alert(res);
                         } else {
-                            this.updateStapledFormsInfo(this.catIDtoStaple);
+                            this.updateStapledFormsInfo(this.formID, this.catIDtoStaple);
                             this.catIDtoStaple = '';
                         }
                     },

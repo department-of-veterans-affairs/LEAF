@@ -16,6 +16,7 @@ export default {
         'APIroot',
         'libsPath',
         'CSRFToken',
+        'setDialogSaveFunction',
         'closeFormDialog',
         'focusedFormRecord',
         'currIndicatorID',
@@ -24,9 +25,12 @@ export default {
         'hasDevConsoleAccess',
         'selectedNodeIndicatorID'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     mounted(){
         document.querySelector(this.initialFocusElID)?.focus();
-        if(parseInt(this.hasDevConsoleAccess) === 1) {
+        if(+this.hasDevConsoleAccess === 1) {
             this.setupAdvancedOptions();
         }
     },
@@ -81,7 +85,7 @@ export default {
                     this.html = htmlValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_html').innerHTML = ', Last saved: ' + time;
-                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.formID);
                 },
                 error: (err) => console.log(err)
             });
@@ -99,7 +103,7 @@ export default {
                     this.htmlPrint = htmlPrintValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_htmlPrint').innerHTML =', Last saved: ' + time;
-                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.formID);
                 },
                 error: (err) => console.log(err)
             });
@@ -142,7 +146,7 @@ export default {
             Promise.all(advancedOptionsUpdates).then((res)=> {
                 this.closeFormDialog();
                 if (res.length > 0) {
-                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
+                    this.selectNewCategory(this.formID);
                 }
             }).catch(err => console.log('an error has occurred', err));
         }

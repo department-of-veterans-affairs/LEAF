@@ -1,16 +1,9 @@
 @import '../common/LEAF_Vue_Dialog__Common.scss';
 
-nav#form-editor-nav {
+nav#top-menu-nav, ul#form-breadcrumb-menu {
     width: 100%;
 
-    h2 {
-        @include flexcenter;
-        margin: 0;
-        font-size: 26px;
-        color: black;
-    }
-
-    ul li {
+    li {
         @include flexcenter;
         width: 200px;
         min-width: fit-content;
@@ -34,72 +27,78 @@ nav#form-editor-nav {
         span[role="img"] {
             margin-left: 0.5rem;
         }
-        span.header-arrow {
-            margin-left: 1rem;
+    }
+}
+
+ul#page-menu {
+    @include flexcenter;
+    justify-content: flex-start;
+    color: $charcoal;
+    background-color: $lt_cyan;
+    border-bottom: 1px solid $charcoal;
+    position: relative;
+    z-index: 10;
+    margin-bottom: 1rem;
+
+    > li {
+        position: relative;
+        height: 32px;
+
+        &:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            display: block;
+            height: 50%;
+            border-radius: 2px;
+            width: 1px;
+            background-color: black;
+        };
+    }
+    button, a {
+        &:hover, &:focus, &:active {
+            border: 2px solid $LEAF_CSS_outline;
+            outline: none !important;
+            background-color: $base_navy;
+            color: white;
         }
     }
-    
-    ul#form-editor-menu {
-        @include flexcenter;
-        justify-content: flex-start;
-        color: $charcoal;
-        background-color: $lt_cyan;
-        border-bottom: 1px solid $charcoal;
+}
+
+ul#form-breadcrumb-menu {
+    margin: 1rem 0 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: transparent;
+    color: black;
+
+    li {
+        width: fit-content;
         position: relative;
-        z-index: 10;
-        margin-bottom: 1rem;
-
-        > li {
-            position: relative;
-            height: 32px;
-
-            &:not(:last-child)::after {
-                content: '';
-                position: absolute;
-                right: 0;
-                display: block;
-                height: 50%;
-                border-radius: 2px;
-                width: 1px;
-                background-color: black;
-            }; 
+        margin-right: 0.75rem;
+        h2 {
+            @include flexcenter;
+            margin: 0;
+            font-size: 26px;
+            color: black;
         }
         button, a {
+            padding: 0.25rem;
+            border-radius: 3px;
+            text-decoration: underline;
+            outline: none !important;
             &:hover, &:focus, &:active {
-                border: 2px solid $LEAF_CSS_outline;
-                outline: none !important;
-                background-color: $base_navy;
-                color: white;
+                border: 2px solid $LEAF_CSS_outline !important;
+            }
+            &:disabled {
+                border: 2px solid transparent !important;
+                text-decoration: none;
+                cursor: default;
             }
         }
-    }
-
-    ul#form-breadcrumb-menu {
-        margin: 1rem 1rem 0 1rem;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        background-color: transparent;
-        color: black;
-
-        li {
-            width: fit-content;
-            position: relative;
-            margin-right: 1rem;
-            button, a {
-                padding: 0.25rem;
-                border-radius: 3px;
-                text-decoration: underline;
-                outline: none !important;
-                &:hover, &:focus, &:active {
-                    border: 2px solid $LEAF_CSS_outline !important;
-                }
-                &:disabled {
-                    border: 2px solid transparent !important;
-                    text-decoration: none;
-                    cursor: default;
-                }
-            }
+        span.header-arrow {
+            margin-left: 1rem;
         }
     }
 }
@@ -319,12 +318,11 @@ table[class$="SelectorTable"] th {
         }
     }
 }
-#form_properties_last_update, #form_index_last_update {
-    opacity: 0;
+#form_properties_last_update {
     color: $base_navy;
     font-size: 90%;
     background-color: transparent;
-    border: 0;
+    border: 2px solid transparent;
 }
 
 /* Form History modal */
@@ -344,32 +342,34 @@ div#form_content_view {
 
 
 #form_index_and_editing {
-    display: flex; 
+    display: flex;
+    gap: 1rem;
 }
 
 
 /* form index */
 #form_index_display {
     position: relative;
-    margin: 0;
     padding: 0.75rem;
-    width: 420px;
-    flex: 0 0 420px;
+    width: 400px;
+    flex: 0 0 400px;
     align-self:flex-start;
-    margin-right: 1.25rem;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
 
     /* Drag-Drop area for focused form */
     ul#base_drop_area {
+        position: relative;
         background-color: white;
         margin-top: 0.5rem;
         padding: 0 0 6px 0;
-        border: 3px solid $BG_Pearl;
-        border-radius: 3px;
+        border-top: 1px solid #d0d0d4;
         &.entered-drop-zone, ul.entered-drop-zone {
             background-color: #e8ebf0;
+        }
+        ul[id^="drop_area_parent_"] {
+            position: relative;
         }
 
         li.section_heading {
@@ -471,54 +471,99 @@ div#form_content_view {
         }
     }
 
+}
 
-    /* Layout and Internal Forms areas */
-    div[id^="internalFormRecords_"], div[id^="layoutFormRecords_"] {
+#form_index_and_editing #internalFormRecordsDisplay {
+    min-width: 220px;
+    padding: 0.75rem;
+    background-color: white;
+    align-self: flex-start;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    h3 {
+        margin: 0 0 0.5rem 0;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        color: black;
+    }
+    > ul > li  {
         button {
             padding: 0.25rem;
             display: flex;
             justify-content: flex-start;
             width: 100%;
             height: 100%;
-            background-color: inherit;
-            border: 2px solid transparent;
             overflow: hidden;
-            max-height: 50px;
-    
-            &:not(:disabled):not(#addInternalUse) {
-                color: $charcoal;
+            border: 2px solid transparent;
+            &:not(#addInternalUse) {
+                background-color: $BG_Pearl;
+                &.selected {
+                    background-color: $lt_cyan;
+                    border: 2px solid $LEAF_CSS_outline;
+                }
             }
-    
-            &:not(:disabled):hover, &:not(:disabled):focus, &:not(:disabled):active {
-                background-color: $lt_cyan;
-                border: 2px solid $LEAF_CSS_outline !important;
-                outline: none;
-            }
-            &:disabled:hover, &:disabled:focus, &:disabled:active {
-                cursor: default;
-                background-color: inherit;
-                outline: none;
-            }
-            &.layout-listitem {
-                min-height: 50px;
-                border-radius: 0;
-                padding: 0.5rem;
-            }
-            &.layout-listitem:disabled {
-                color: $base_navy;
-                border: 2px solid $LEAF_CSS_outline !important;
+            &:hover, &:focus, &:active {
+                outline: none !important;
             }
         }
+        &:not(:last-child) {
+            margin-bottom: 0.5rem;
+        }
     }
-    div[id^="layoutFormRecords_"] > ul > li {
-        margin-bottom: 0.5rem;
+    #addInternalUse {
+        margin-top: 0.75rem;
+        padding: 2px 0.5rem;
+        width: 100%;
+        border: 2px solid $base-navy;
+        justify-content: space-between;
+    }
+}
+/* lists for main and stapled forms   */
+#form_index_display div[id^="layoutFormRecords_"] button {
+    padding: 0.25rem;
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    border: 2px solid transparent;
+    overflow: hidden;
+    max-height: 50px;
+    
+    &:not(:disabled) {
+        color: $charcoal;
+    }
+    &:not(:disabled):hover, &:not(:disabled):focus, &:not(:disabled):active {
         background-color: $lt_cyan;
-        min-height: 50px;
+        border: 2px solid $LEAF_CSS_outline;
+        outline: none;
     }
-    div[id^="internalFormRecords_"] button span.internal {
-        text-decoration: underline;
-        font-weight: normal;
+    &:disabled:hover, &:disabled:focus, &:disabled:active {
+        background-color: $lt_cyan;
+        cursor: default;
+        outline: none
+    }
+    &.layout-listitem {
+        min-height: 50px;
+        border-radius: 0;
+        padding: 0.5rem;
+    }
+    &.layout-listitem:disabled { /* the currently selected form */
         color: $base_navy;
+        border: 2px solid $LEAF_CSS_outline;
+    }
+}
+
+/* these li will contain the drag-drop zone if selected */
+div[id^="layoutFormRecords_"] > ul > li  {
+    min-height: 50px;
+    margin-bottom: 0.5rem;
+    border: 2px solid transparent;
+    &.selected {
+        border: 2px solid $lt_cyan;
+        button {
+            background-color: $lt_cyan;
+        }
     }
 }
 
@@ -531,31 +576,54 @@ div#form_content_view {
     width: 100%;
     min-width: 420px;
     background-color: white;
-    padding: 0.75rem;
+    padding: 0.75rem 0.75rem 0.75rem 0.5rem;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     overflow: visible;
 
-    .form-section-header {
-        align-items: center;
-        justify-content: space-between;
+    .form-page-card {
+        position: relative;
+        padding: 0.5em;
+        border: 3px solid $BG_Pearl;
+        border-left: 7px solid $BG_Pearl;
+        border-radius: 4px;
         margin-bottom: 0.75rem;
-
-        #indicator_toolbar_toggle {
-            width: 160px;
+    }
+    button.card_toggle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin-left: -6px;
+        padding: 1px 1px 1px 2px;
+        align-items: flex-start;
+        height: 100%;
+        border: 0;
+        border-radius: 4px 0 0 4px;
+        background-color: $BG_Pearl;
+        font-size: 90%;
+        &.closed {
+            font-size: 60%;
+        }
+        &:hover, &:focus, &:active {
+            border: 0;
+            outline: none;
         }
     }
 
     div.printformblock {
-        page-break-inside: avoid;
+        break-inside: avoid;
+        padding-left: 6px;
+        margin-left: -6px;
     }
 
     div.printResponse {
+        position: relative;
         padding: 0;
+        margin-bottom: 1rem;
         min-height: 50px;
         float: none; /* style.css style collision */
         border-radius: 4px;
-        border-left: 6px solid $BG_Pearl;
+        border-left: 7px solid $BG_Pearl;
 
         &:not(.form-header) {
             margin-left: 0.5rem;
@@ -563,37 +631,14 @@ div#form_content_view {
     }
 
     .form_editing_area {
+        display: flex;
         padding: 2px 2px 0.5rem 2px;
         background-color: white;
 
-        button {
-            padding: 2px 0.4rem;
-            border: 1px solid transparent;
+        button:not(.choices__button) {
+            border: 1px solid $LtNavy;
             &:hover, &:focus, &:active {
                 border: 1px solid $LEAF_CSS_outline !important;
-            }
-        }
-        button.icon {
-            padding: 0;
-            background-color: transparent;
-            border-radius: 2px;
-            align-self: flex-start;
-
-            img {
-                display: block;
-            }
-        }
-        button.add-subquestion {
-            width: -moz-fit-content; /*firefox prior to nov 2021*/
-            width: fit-content;
-            background-color: $lt_cyan;
-            color: #1b1b1b;
-            font-weight: normal;
-            border: 1px solid #88a;
-            border-radius: 2px;
-            &:hover, &:focus, &:active {
-                color: white;
-                background-color: $base_navy;
             }
         }
 
@@ -618,27 +663,26 @@ div#form_content_view {
 
         div[id^="form_editing_toolbar_"] {
             margin-left: 0.25rem;
-            padding: 0.25rem;
+            padding: 3px;
             border-radius: 2px;
             display: flex;
             flex-direction:column;
-            align-items: flex-end;
+            align-items: stretch;
             align-self: flex-start;
             font-size: 90%;
             color: black;
-            gap: 4px;
+            gap: 3px;
 
             > div {
                 display: flex; 
                 align-items: center;
-                /*align-self: stretch;*/
+                justify-content: space-between;
+                gap: 3px;
+                min-width: 221px;
             }
-            span.sensitive-icon {
-                display:flex; 
-                align-items: center; 
-                margin-left: 0.4rem;
+            button {
+                font-weight: normal;
             }
-
         }
         &.form-header {
             background-color: $manila;
@@ -659,7 +703,7 @@ div#form_content_view {
                 /* format specific styling */
                 .text_input_preview {
                     display: inline-block;
-                    width: 50%;
+                    width: 75%;
                     font-size: 1.3em; 
                     font-family: monospace;
                     background-color: white;
@@ -674,7 +718,6 @@ div#form_content_view {
                 }
                 div.tableinput { /* fixes for grid tables */
                     overflow-x: auto;
-                    max-width: 900px;
                     
                     table {
                         margin: 0;
@@ -697,7 +740,7 @@ div#form_content_view {
 
 /* ifthen sections */
 #condition_editor_center_panel {
-    min-width: 600px;
+    min-width: 700px;
     max-width: 900px;
     margin: auto;
     background-color: white;
@@ -717,11 +760,12 @@ div#form_content_view {
     }
     div#if-then-setup {
         display: flex;
-        gap: 0 1rem;
+        gap: 0.75rem;
         align-items: center;
+        min-height: 60px;
         padding-bottom: 0;
         > select, #parent_choices_wrapper {
-            width: 30%;
+            width: 31%;
             margin: 0;
         }
         > div.crosswalks {
@@ -814,7 +858,7 @@ div#form_content_view {
     }
 }
 
-@media only screen and (max-width: 576px) {
+@media only screen and (max-width: 600px) {
     #leaf_dialog_content {
         min-width: 400px;
     }
@@ -825,13 +869,14 @@ div#form_content_view {
             flex-direction: column;
         }
 
-        main section {
+        main > section {
             margin: 0;
+            padding: 0;
         }
-        nav#form-editor-nav {
+        nav#top-menu-nav {
             width: 100%;
 
-            ul#form-editor-menu {
+            ul#page-menu {
                 flex-direction: column;
                 height: fit-content;
 
@@ -854,13 +899,12 @@ div#form_content_view {
                     }
                 }
             }
-            
-            ul#form-breadcrumb-menu {
-                margin: 1rem 0 0;
-                flex-direction: column;
-                align-items: flex-start;
-                height: auto;
-            }
+        }
+        ul#form-breadcrumb-menu {
+            margin: 1rem 0 0;
+            flex-direction: column;
+            align-items: flex-start;
+            height: auto;
         }
 
         #secure_forms_info {
@@ -873,6 +917,7 @@ div#form_content_view {
         }
         #edit-properties-panel {
             flex-direction: column;
+            border-radius: 0;
             > div {
                 width: 100%;
             }
@@ -882,13 +927,17 @@ div#form_content_view {
             }
         }
 
+        #internalFormRecordsDisplay {
+            min-width: 100%;
+        }
         #form_index_and_editing {
             flex-direction: column;
-        
+            gap: 1.25rem;
+            > div {
+                border-radius: 0;
+            }
             #form_index_display {
                 width: 100%;
-                margin: 0;
-                margin-bottom: 1rem;
                 flex: 0 0 100%;
             }
 
@@ -907,5 +956,14 @@ div#form_content_view {
         width: 100%;
         min-width: 400px;
         border: 0;
+        div#if-then-setup {
+            flex-direction: column;
+            > select, > h3, #parent_choices_wrapper {
+                width: 100%;
+            }
+            .choices__inner {
+                max-width: 100%;
+            }
+        }
     }
 }

@@ -73,7 +73,6 @@ export default {
                 (this.indicatorRecord[this.currIndicatorID].options || []).join('\n') : '',
 
             //used for grid formats
-            gridBodyElement: 'div#container_indicatorGrid > div',
             gridJSON: this.indicatorRecord[this.currIndicatorID]?.format === 'grid' ? 
                JSON.parse(this.indicatorRecord[this.currIndicatorID]?.options[0]) : [],
 
@@ -84,6 +83,8 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'advancedMode',
+        'setDialogSaveFunction',
         'initializeOrgSelector',
         'isEditingModal',
         'closeFormDialog',
@@ -98,6 +99,9 @@ export default {
         'decodeAndStripHTML',
         'orgchartFormats'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     provide() {
         return {
             gridJSON: computed(() => this.gridJSON),
@@ -140,6 +144,13 @@ export default {
         }
     },
     computed:{
+        nameLabelText() {
+            return this.parentID === null ? 'Section Heading' : 'Field Name';
+        },
+        showFormatSelect() {
+            //not a header, or in advanced mode, or the format of the header is already a format other than none
+            return this.parentID !== null || this.advancedMode === true || this.format !== ''
+        },
         shortLabelTriggered() {
             return this.name.trim().split(' ').length > 3;
         },
@@ -328,7 +339,7 @@ export default {
                         })
                     );
                 }
-                if (sensitiveChanged && this.is_sensitive === true) {
+                if (sensitiveChanged && this.is_sensitive === true && +this.focusedFormRecord.needToKnow !== 1) {
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -340,8 +351,10 @@ export default {
                             },
                             success: () => {
                                 let panelEl = document.querySelector('select#needToKnow');
-                                panelEl.value = 1;
-                                panelEl.dispatchEvent(new Event("change"));
+                                if(panelEl !== null) {
+                                    panelEl.value = 1;
+                                    panelEl.dispatchEvent(new Event("change"));
+                                }
                             },
                             error: err => console.log('set form need to know post err', err)
                         })
@@ -390,7 +403,8 @@ export default {
                 }
 
             } else {  /* CALLS FOR CREATING A NEW QUESTION */
-                if (this.is_sensitive) {
+                if (this.is_sensitive && +this.focusedFormRecord.needToKnow !== 1) {
+                    //if the form is not already marked need to know, update this too
                     indicatorEditingUpdates.push(
                         $.ajax({
                             type: 'POST',
@@ -402,8 +416,10 @@ export default {
                             },
                             success: () => {
                                 let panelEl = document.querySelector('select#needToKnow');
-                                panelEl.value = 1;
-                                panelEl.dispatchEvent(new Event("change"));
+                                if(panelEl !== null) {
+                                    panelEl.value = 1;
+                                    panelEl.dispatchEvent(new Event("change"));
+                                }
                             },
                             error: err => console.log('set form need to know post err', err)
                         })
@@ -435,16 +451,19 @@ export default {
 
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 if (res.length > 0) {
+                    this.selectNewCategory(this.formID);
                     //if a new section was created
-                    if (this.newIndicatorID !== null && this.parentID === null) {
-                        this.selectNewCategory(this.formID, this.newIndicatorID);
-
-                    //other edits
-                    } else {
-                        const nodeID = this.currIndicatorID === this.selectedNodeIndicatorID &&
-                            (this.archived === true || this.deleted === true) ? this.parentID : this.selectedNodeIndicatorID;
-                        this.selectNewCategory(this.formID, nodeID);
-                    }
+                    // TODO: FE view now owns selectedIndID, so passing the indID to selectNew might not matter as the selectedIndID won't reset when the form is updated
+                    // It might still be ideal to update it to a parentID if a child is deleted, or to a new ind if created
+                    // if (this.newIndicatorID !== null && this.parentID === null) {
+                    //     this.selectNewCategory(this.formID);
+                    // }
+                    // //other edits
+                    // } else {
+                    //     const nodeID = this.currIndicatorID === this.selectedNodeIndicatorID &&
+                    //         (this.archived === true || this.deleted === true) ? this.parentID : this.selectedNodeIndicatorID;
+                    //     this.selectNewCategory(this.formID, nodeID);
+                    // }
                 }
                 this.closeFormDialog();
             }).catch(err => console.log('an error has occurred', err));
@@ -465,14 +484,13 @@ export default {
             this.gridJSON.push({});
         },
         /**
-         * 
-         * @param {string} dropDownOptions from grid dropdown question textarea
-         * @returns {array} of unique options with possible 'no' values updated to 'No'
+         * @param {string} dropDownOptions from the value of grid cell dropdown type textarea
+         * @returns {array} of unique options with commas rm and possible 'no' values updated to 'No'
          */
-        gridDropdown(dropDownOptions = '') {
+        formatGridDropdown(dropDownOptions = '') {
             let returnValue = []
             if (dropDownOptions !== null && dropDownOptions.length !== 0) {
-                let uniqueOptions = dropDownOptions.split("\n");
+                let uniqueOptions = dropDownOptions.replaceAll(/,/g, "").split("\n");
                 uniqueOptions = uniqueOptions.map(option => option.trim());
                 uniqueOptions = uniqueOptions.map(option => option === 'no' ? 'No' : option);
                 returnValue = Array.from(new Set(uniqueOptions));
@@ -481,23 +499,22 @@ export default {
         },
         updateGridJSON() {
             let gridJSON = [];
-            let t = this;
-            //gather column names and column types. if type is dropdown, adds property.options
-            $(this.gridBodyElement).find('div.cell').each(function() {
+            const gridParent = document.getElementById('gridcell_col_parent');
+            const gridCells = Array.from(gridParent.querySelectorAll('div.cell'));
+            gridCells.forEach(cell => {
+                const id = cell.id;
+                const type = (document.getElementById('gridcell_type_' + id)?.value || '').toLowerCase();
                 let properties = new Object();
-                if($(this).children('input:eq(0)').val() === 'undefined'){
-                    properties.name = 'No title';
-                } else {
-                    properties.name = $(this).children('input:eq(0)').val();
+                properties.id = id;
+                properties.name = document.getElementById('gridcell_title_' + id)?.value || 'No Title';
+                properties.type = type;
+                if(type === 'dropdown') {
+                    const elTextarea = document.getElementById('gridcell_options_' + id);
+                    properties.options = this.formatGridDropdown(elTextarea.value || '');
                 }
-                properties.id = $(this).attr('id');
-                properties.type = $(this).find('select').val();
-                if(properties.type !== undefined && properties.type !== null){
-                    if(properties.type.toLowerCase() === 'dropdown') {
-                        properties.options = t.gridDropdown($(this).find('textarea').val().replace(/,/g, ""));
-                    }
-                } else {
-                    properties.type = 'textarea';
+                if(type === 'dropdown_file') {
+                    properties.file = document.getElementById('dropdown_file_select_' + id)?.value;
+                    properties.hasHeader = Boolean(document.getElementById('dropdown_file_header_select_' + id)?.value);
                 }
                 gridJSON.push(properties);
             });
@@ -558,7 +575,7 @@ export default {
     },
     template: `<div id="indicator-editing-dialog-content">
         <div>
-            <label for="name">Field Name</label>
+            <label for="name">{{ nameLabelText }}</label>
             <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
             <div style="display:flex; justify-content: space-between;">
                 <button type="button" class="btn-general" id="rawNameEditor"
@@ -581,7 +598,7 @@ export default {
             <input type="text" id="description" v-model="description" maxlength="50" />
         </div>
         <div>
-            <div>
+            <div v-if="showFormatSelect">
                 <label for="indicatorType">Input Format</label>
                 <div style="display:flex;">
                     <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">

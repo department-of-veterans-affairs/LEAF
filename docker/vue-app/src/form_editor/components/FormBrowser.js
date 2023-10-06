@@ -1,23 +1,62 @@
 import CategoryItem from "./CategoryItem";
 
 export default {
-    data() {
-        return {
-            test: 'test'
-        }
-    },
+    name: 'form-browser',
     inject: [
         'appIsLoadingCategoryList',
         'showCertificationStatus',
         'secureStatusText',
         'secureBtnText',
         'secureBtnLink',
-        'activeForms',
-        'inactiveForms',
-        'supplementalForms'
+        'categories'
     ],
     components: {
         CategoryItem,
+    },
+    computed: {
+        /**
+         * @returns {array} of non-internal forms that have workflows and are available
+         */
+        activeForms() {
+            let active = [];
+            for (let c in this.categories) {
+                if (this.categories[c].parentID === '' &&
+                    parseInt(this.categories[c].workflowID) !== 0 &&
+                    parseInt(this.categories[c].visible) === 1) {
+                        active.push({...this.categories[c]});
+                }
+            }
+            active = active.sort((eleA, eleB) => eleA.sort - eleB.sort);
+            return active;
+        },
+        /**
+         * @returns {array} of non-internal forms that have workflows and are hidden
+         */
+        inactiveForms() {
+            let inactive = [];
+            for (let c in this.categories) {
+                if (this.categories[c].parentID === '' &&
+                    parseInt(this.categories[c].workflowID) !== 0 &&
+                    parseInt(this.categories[c].visible) === 0) {
+                    inactive.push({...this.categories[c]});
+                }
+            }
+            inactive = inactive.sort((eleA, eleB) => eleA.sort - eleB.sort);
+            return inactive;
+        },
+        /**
+         * @returns {array} of non-internal forms that have no workflows
+         */
+        supplementalForms() {
+            let supplementalForms = [];
+            for(let c in this.categories) {
+                if (this.categories[c].parentID === '' && parseInt(this.categories[c].workflowID) === 0 ) {
+                    supplementalForms.push({...this.categories[c]});
+                }
+            }
+            supplementalForms = supplementalForms.sort((eleA, eleB) => eleA.sort - eleB.sort);
+            return supplementalForms;
+        },
     },
     template:
     `<template v-if="appIsLoadingCategoryList === false">

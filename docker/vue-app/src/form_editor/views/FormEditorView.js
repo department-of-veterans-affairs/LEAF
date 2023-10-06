@@ -1,6 +1,17 @@
 import { computed } from 'vue';
 
-import FormBrowser from '../components/form_editor_view/FormBrowser.js';
+import LeafFormDialog from "@/common/components/LeafFormDialog.js";
+import HistoryDialog from "@/common/components/HistoryDialog.js";
+import IndicatorEditingDialog from "../components/dialog_content/IndicatorEditingDialog.js";
+import AdvancedOptionsDialog from "../components/dialog_content/AdvancedOptionsDialog.js";
+import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
+import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
+import StapleFormDialog from "../components/dialog_content/StapleFormDialog.js";
+import EditCollaboratorsDialog from "../components/dialog_content/EditCollaboratorsDialog.js";
+import ConfirmDeleteDialog from "../components/dialog_content/ConfirmDeleteDialog.js";
+import ConditionsEditorDialog from "../components/dialog_content/ConditionsEditorDialog.js";
+
+import FormEditorMenu from "../components/form_editor_view/FormEditorMenu.js";
 import FormEditingDisplay from '../components/form_editor_view/FormEditingDisplay.js';
 import FormIndexListing from '../components/form_editor_view/FormIndexListing.js';
 import EditPropertiesPanel from '../components/form_editor_view/EditPropertiesPanel.js';
@@ -28,15 +39,28 @@ export default {
             ],
             showToolbars: true,
             sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
-            sortLastUpdated: '',
             updateKey: 0,
+            currentFormPage: 0,
+            selectedNodeIndicatorID: null,
+            fileManagerTextFiles: [],
         }
     },
     components: {
+        LeafFormDialog,
+        IndicatorEditingDialog,
+        AdvancedOptionsDialog,
+        NewFormDialog,
+        ImportFormDialog,
+        HistoryDialog,
+        StapleFormDialog,
+        EditCollaboratorsDialog,
+        ConfirmDeleteDialog,
+        ConditionsEditorDialog,
+
+        FormEditorMenu,
         FormEditingDisplay,
         FormIndexListing,
-        EditPropertiesPanel,
-        FormBrowser
+        EditPropertiesPanel
     },
     inject: [
         'APIroot',
@@ -46,56 +70,110 @@ export default {
         'appIsLoadingCategoryList',
         'appIsLoadingForm',
         'categories',
-        'internalFormRecords',
-        'selectedNodeIndicatorID',
-        'selectedFormNode',
+        'selectNewCategory',
         'getFormByCategoryID',
         'showLastUpdate',
-        'openFormHistoryDialog',
         'newQuestion',
         'editQuestion',
         'focusedFormRecord',
         'focusedFormTree',
         'openNewFormDialog',
-        'currentFormCollection',
+        'allStapledFormCatIDs',
         'decodeAndStripHTML',
         'truncateText',
+
+        'showFormDialog',
+        'dialogFormContent'
     ],
     mounted() {
-        //console.log('MOUNTED FORM EDITOR VIEW');
+        console.log('mounted form editor view');
     },
     beforeRouteEnter(to, from, next) {
+        window.scrollTo(0,0);
         next(vm => {
             vm.setDefaultAjaxResponseMessage();
+            vm.getFileManagerTextFiles();
         });
+    },
+    beforeRouteLeave(to, from) {
+        this.selectNewCategory(); //this will clear out focussed form info.
     },
     provide() {
         return {
             listTracker: computed(() => this.listTracker),
             showToolbars: computed(() => this.showToolbars),
+            selectedNodeIndicatorID: computed(() => this.selectedNodeIndicatorID),
+            fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
+            internalFormRecords: computed(() => this.internalFormRecords),
+            noForm: computed(() => this.noForm),
+
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
+            selectNewFormNode: this.selectNewFormNode,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
-            moveListing: this.moveListing,
+            moveListItem: this.moveListItem,
             toggleToolbars: this.toggleToolbars,
+            shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey
         }
     },
     computed: {
+        /**
+         * @returns {Object} current query from categories object
+         */
+        currentCategoryQuery() {
+            const queryID = this.$route.query.formID;
+            return this.categories[queryID] || {};
+        },
         focusedFormID() {
             return this.focusedFormRecord?.categoryID || '';
         },
-        currentSectionNumber() {
-            let indID = parseInt(this.selectedFormNode?.indicatorID);
-            const elHeaderItems = Array.from(document.querySelectorAll('#base_drop_area > li'));
-            const elThisItem = document.getElementById(`index_listing_${indID}`);
-            const index = elHeaderItems.indexOf(elThisItem);
-            return index === -1 ? '' : index + 1;
-        }, 
+        mainFormID() {
+            return this.focusedFormRecord?.parentID === '' ?
+                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
+        },
+        subformID() {
+            return this.focusedFormRecord?.parentID ?
+                this.focusedFormRecord.categoryID : '';
+        },
+        noForm() {
+            return !this.appIsLoadingForm && this.focusedFormID === '';
+        },
+        /**
+         * @returns {array} categories records that are internal forms of the main form
+         */
+        internalFormRecords() {
+            let internalFormRecords = [];
+            for(let c in this.categories) {
+                if (this.categories[c].parentID === this.mainFormID && this.mainFormID !== '') {
+                    internalFormRecords.push({...this.categories[c]});
+                }
+            }
+            return internalFormRecords;
+        },
+        /**
+         * @returns {array} of categories records for queried form and any staples
+         */
+        currentFormCollection() {
+            let allRecords = [];
+            if(Object.keys(this.currentCategoryQuery)?.length > 0) {
+                const currStapleIDs = this.currentCategoryQuery?.stapledFormIDs || [];
+                currStapleIDs.forEach(id => {
+                    allRecords.push({...this.categories[id], formContextType: 'staple'});
+                });
+
+                const focusedFormType = this.currentCategoryQuery.parentID !== '' ?
+                        'internal' :
+                        this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
+                        'staple' : 'main form';
+                allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType,});
+            }
+            return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
+        },
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
         },
@@ -129,8 +207,41 @@ export default {
         }
     },
     methods: {
+        getFileManagerTextFiles() {
+            $.ajax({
+              type: 'GET',
+              url: `${this.APIroot}system/files`,
+              success: (res) => {
+                const files = res || [];
+                this.fileManagerTextFiles = files.filter(
+                    filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1);
+              },
+              error: (err) => {
+                console.log(err);
+              },
+              cache: false
+            });
+        },
         forceUpdate() {
             this.updateKey += 1;
+        },
+        /**
+         * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
+         * @param {Number} page base 0 form page 
+         */
+        selectNewFormNode(nodeID = null, page = 0) {
+            this.selectedNodeIndicatorID = nodeID;
+            this.currentFormPage = page;
+            console.log('called select new node', nodeID, page)
+            setTimeout(() => {
+                const target = document.getElementById(`index_listing_${nodeID}`);
+                if (target !== null) {
+                    const elsClosedMenu = Array.from(target.querySelectorAll(`.sub-menu-chevron.closed`));
+                    elsClosedMenu.forEach(el => {
+                        el.click()
+                    });
+                }
+            })
         },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
@@ -138,37 +249,28 @@ export default {
          * @param {number} indID of the list item to move
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
-        moveListing(event = {}, indID = 0, moveup = false) {
+        moveListItem(event = {}, indID = 0, moveup = false) {
             if (event?.keyCode === 32) event.preventDefault();
             const parentEl = event?.currentTarget?.closest('ul');
             const elToMove = document.getElementById(`index_listing_${indID}`);
             const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
             const newElsLI = oldElsLI.filter(li => li !== elToMove);
             const listitem = this.listTracker[indID];
-
-            if(moveup) {
-                if(listitem.listIndex > 0) {
-                    newElsLI.splice(listitem.listIndex - 1, 0, elToMove);
-                    oldElsLI.forEach(li => parentEl.removeChild(li));
-                    newElsLI.forEach((li, i) => {
-                        const liIndID = parseInt(li.id.replace('index_listing_', ''));
-                        parentEl.appendChild(li);
-                        this.listTracker[liIndID].listIndex = i;
-                    });
-                    event?.currentTarget?.focus();
+            const condition = moveup === true ? listitem.listIndex > 0 : listitem.listIndex < oldElsLI.length - 1;
+            const spliceLoc = moveup === true ? -1 : 1;
+            if(condition) {
+                const oldIndex = listitem.listIndex;
+                newElsLI.splice(oldIndex + spliceLoc, 0, elToMove);
+                oldElsLI.forEach(li => parentEl.removeChild(li));
+                newElsLI.forEach((li, i) => {
+                    const liIndID = parseInt(li.id.replace('index_listing_', ''));
+                    parentEl.appendChild(li);
+                    this.listTracker[liIndID].listIndex = i;
+                });
+                if(parentEl?.id === "base_drop_area" && oldIndex === this.currentFormPage) {
+                    this.currentFormPage += spliceLoc;
                 }
-            } 
-            else {
-                if(listitem.listIndex < oldElsLI.length - 1) {
-                    newElsLI.splice(listitem.listIndex + 1, 0, elToMove);
-                    oldElsLI.forEach(li => parentEl.removeChild(li));
-                    newElsLI.forEach((li, i) => {
-                        const liIndID = parseInt(li.id.replace('index_listing_', ''));
-                        parentEl.appendChild(li);
-                        this.listTracker[liIndID].listIndex = i;
-                    });
-                    event?.currentTarget?.focus();
-                }
+                event?.currentTarget?.focus();
             }
         },
         /**
@@ -215,11 +317,9 @@ export default {
             const all = updateSort.concat(updateParentID);
             Promise.all(all).then((res)=> {
                 if (res.length > 0) {
-                    this.getFormByCategoryID(this.focusedFormID, this.selectedNodeIndicatorID).then(()=> {
-                        this.sortLastUpdated = new Date().toLocaleString();
-                        this.showLastUpdate('form_index_last_update', `last modified: ${this.sortLastUpdated}`);
+                    this.getFormByCategoryID(this.focusedFormID).then(()=> {
+                        this.showLastUpdate('form_properties_last_update');
                         this.forceUpdate();
-
                     }).catch(err => console.log(err));
                 }
             }).catch(err => console.log('an error has occurred', err));
@@ -267,6 +367,7 @@ export default {
         onDrop(event = {}) {
             if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
                 event.preventDefault();
+                const baseDropArea = document.querySelector('ul#base_drop_area');
                 const draggedElID = event.dataTransfer.getData('text');
                 const parentEl = event.currentTarget; //drop event is on the parent ul
 
@@ -274,41 +375,51 @@ export default {
                 const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
 
                 const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
-                if (elsLI.length === 0) { //if the drop ul has no lis, just append it
+                const elLiToMove = document.getElementById(draggedElID);
+                //if the drop target ul has no items yet, just append
+                if (elsLI.length === 0) {
                     try {
-                        parentEl.append(document.getElementById(draggedElID));
+                        parentEl.append(elLiToMove);
                         this.updateListTracker(indID, formParIndID, 0);
-                        //TODO: not certain if needed - old parent list updates? (it would just batch on the next load otherwise)
+                        this.selectedNodeIndicatorID = indID;
+                        const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
+                        if(elClosestFormPage !== null && baseDropArea !== null) {
+                            const allPages = Array.from(baseDropArea.querySelectorAll(':scope > li'));
+                            const thisPageIndex = allPages.indexOf(elClosestFormPage);
+                            if(thisPageIndex > -1) {
+                                this.currentFormPage = thisPageIndex
+                            }
+                        }
+
                     } catch (error) {
                         console.log(error);
                     }
-                    
-                } else { //otherwise, find the closest li to the droppoint to insert before
-                    let dist = 9999;
-                    let closestLI_id = null;
-                    elsLI.forEach(el => {
-                        const newDist = el.getBoundingClientRect().top - event.clientY;
-                        if(el.id !== draggedElID && newDist > 0 && newDist < dist) {
-                            dist = newDist;
-                            closestLI_id = el.id;
+                //otherwise, find the closest li to the drop-point and mv it if it has changed pos
+                } else {
+                    const parTop = parentEl.getBoundingClientRect().top;
+                    const closest = elsLI.find(item => event.clientY - parTop <= item.offsetTop + item.offsetHeight/2) || null;
+                    if (closest !== elLiToMove) {
+                        try {
+                            parentEl.insertBefore(elLiToMove, closest);
+                            //update the new indexes
+                            const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
+                            newElsLI.forEach((li, i) => {
+                                const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
+                                this.updateListTracker(indID, formParIndID, i);
+                            });
+                            this.selectedNodeIndicatorID = indID;
+                            const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
+                            if(elClosestFormPage !== null && baseDropArea !== null) {
+                                const allPages = Array.from(baseDropArea.querySelectorAll(':scope > li'));
+                                const thisPageIndex = allPages.indexOf(elClosestFormPage);
+                                if(thisPageIndex > -1) {
+                                    this.currentFormPage = thisPageIndex;
+                                }
+                            }
+
+                        } catch(error) {
+                            console.log(error);
                         }
-                    });
-                
-                    try {
-                        if(closestLI_id !== null) {
-                            parentEl.insertBefore(document.getElementById(draggedElID), document.getElementById(closestLI_id));
-                        } else {
-                            //it's at the end of the list
-                            parentEl.append(document.getElementById(draggedElID));
-                        }
-                        //check the new indexes
-                        const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
-                        newElsLI.forEach((li,i) => {
-                            const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
-                            this.updateListTracker(indID, formParIndID, i);
-                        });
-                    } catch(error) {
-                        console.log(error);
                     }
                 }
                 if(parentEl.classList.contains('entered-drop-zone')){
@@ -324,7 +435,6 @@ export default {
             if(event?.target?.classList.contains('form-index-listing-ul')){
                 event.target.classList.remove('entered-drop-zone');
             }
-            
         },
         /**
          * 
@@ -366,8 +476,12 @@ export default {
             const name = this.decodeAndStripHTML(form?.categoryName || 'Untitled');
             return this.truncateText(name, len).trim();
         },
+        shortIndicatorNameStripped(text = '', len = 35) {
+            const name = this.decodeAndStripHTML(text);
+            return this.truncateText(name, len).trim() || '[ blank ]';
+        },
         layoutBtnIsDisabled(form) {
-            return form.categoryID === this.focusedFormRecord.categoryID && this.selectedFormNode === null
+            return form.categoryID === this.focusedFormRecord.categoryID && this.selectedNodeIndicatorID === null
         },
         makePreviewKey(node) {
             return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
@@ -380,37 +494,87 @@ export default {
             }
         }
     },
-    template:`<div id="formEditor_content">
-    <div v-if="appIsLoadingForm || appIsLoadingCategoryList" style="border: 2px solid black; text-align: center; 
-        font-size: 24px; font-weight: bold; padding: 16px;">
-        Loading... 
-        <img src="../images/largespinner.gif" alt="loading..." />
-    </div>
+    template:`<FormEditorMenu />
+    <section id="formEditor_content">
+        <div v-if="appIsLoadingForm || appIsLoadingCategoryList" class="page_loading">
+            Loading... 
+            <img src="../images/largespinner.gif" alt="loading..." />
+        </div>
 
-    <template v-else>
-        <FormBrowser v-if="focusedFormID===''"></FormBrowser>
+        <div v-else-if="noForm">
+            The form you are looking for ({{ this.$route?.query?.formID }}) was not found.
+            <router-link :to="{ name: 'browser' }" class="router-link" style="display: inline-block;">
+                Back to&nbsp;<b>Form Browser</b>
+            </router-link>
+        </div>
 
         <template v-else>
+            <!-- FORM EDITING BREADCRUMBS -->
+            <ul v-if="mainFormID !== ''" id="form-breadcrumb-menu">
+                <li>
+                    <router-link :to="{ name: 'browser'}" title="to Form Browser">
+                        <h2>Form Editor</h2>
+                    </router-link>
+                    <span v-if="mainFormID !== ''" class="header-arrow" role="img" aria="">❯</span>
+                </li>
+                <li>
+                    <button type="button" v-if="mainFormID !== ''"
+                        @click="selectNewCategory(mainFormID)" :title="'to parent form ' + mainFormID" :disabled="subformID === ''">
+                        <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
+                    </button>
+                    <span v-if="subformID !== ''" class="header-arrow" role="img" aria="">❯</span>
+                </li>
+                <li v-if="subformID !== ''">
+                    <button type="button" :id="'header_' + subformID"
+                        :title="'viewing internal form ' + subformID" disabled>
+                        <h2>{{shortFormNameStripped(subformID, 50)}}</h2>
+                    </button>
+                </li>
+            </ul>
             <!-- TOP INFO PANEL -->
             <edit-properties-panel :key="'panel_' + focusedFormID"></edit-properties-panel>
 
             <div id="form_index_and_editing">
+                <!-- INTERNAL FORMS -->
+                <div v-if="showToolbars" id="internalFormRecordsDisplay">
+                    <h3>Internal Forms</h3>
+                    <ul :id="'internalFormRecords_' + focusedFormID">
+                        <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
+                            <button type="button" @click="selectNewCategory(i.categoryID)"
+                                :class="{selected: i.categoryID === focusedFormID}">
+                                <span role="img" aria="">📃&nbsp;</span>
+                                {{shortFormNameStripped(i.categoryID, 20)}}
+                            </button>
+                        </li>
+                    </ul>
+                    <button v-if="focusedFormRecord?.parentID === ''" type="button" class="btn-general"
+                        id="addInternalUse"
+                        @click="openNewFormDialog($event, focusedFormRecord.categoryID)"
+                        title="New Internal-Use Form" >
+                        Add Internal-Use&nbsp;<span role="img" aria="">➕</span>
+                    </button>
+                </div>
+
                 <!-- FORM INDEX -->
                 <div id="form_index_display">
                     <div style="display:flex; align-items: center; justify-content: space-between; height: 28px; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; color: black;">{{ indexHeaderText }}</h3>
-                        <img v-if="currentFormCollection.length > 1" 
+                        <img v-if="currentFormCollection.length > 1"
                             :src="libsPath + 'dynicons/svg/emblem-notice.svg'"
-                            style="width: 16px; margin-left: 0.25rem; margin-right:auto;" 
+                            style="width: 16px; margin-left: 0.25rem; margin-right:auto;"
                             title="Details for the selected form are shown below" alt="" />
-                        <button type="button" id="form_index_last_update" @click.prevent="openFormHistoryDialog"
-                            :style="{display: sortLastUpdated==='' ? 'none' : 'flex'}">
-                        </button>
+                            <button type="button" v-if="focusedFormTree.length > 0" id="indicator_toolbar_toggle" class="btn-general" style="width: 133px;"
+                                @click.stop="toggleToolbars($event)">
+                                {{showToolbars ? 'Preview this form' : 'Edit this form'}}
+                            </button>
                     </div>
-                    <!-- FORM LAYOUT OVERVIEW -->
-                    <div v-if="currentFormCollection.length > 1" :id="'layoutFormRecords_' + $route.query.formID">
+
+                    <!-- FORM LAYOUT (including stapled forms) -->
+                    <div v-if="currentFormCollection.length > 0" :id="'layoutFormRecords_' + $route.query.formID">
                         <ul>
-                            <li v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID" draggable="false">
+                            <li v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID"
+                                draggable="false" :class="{selected: form.categoryID === focusedFormID}">
+
                                 <button type="button" @click="getFormByCategoryID(form.categoryID)"
                                     class="layout-listitem" :disabled="layoutBtnIsDisabled(form)"
                                     :title="'form ' + form.categoryID">
@@ -425,8 +589,10 @@ export default {
                                         (parent)
                                     </em>
                                 </button>
-                                <!-- focused drop zone for collection -->
-                                <ul v-if="form.categoryID === focusedFormID && focusedFormTree.length > 0"
+
+                                <!-- DRAG-DROP ZONE -->
+                                <ul v-if="focusedFormTree.length > 0 &&
+                                    (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)"
                                     id="base_drop_area" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
                                     class="form-index-listing-ul"
                                     data-effect-allowed="move"
@@ -436,7 +602,8 @@ export default {
                                     @dragleave="onDragLeave">
 
                                     <form-index-listing v-for="(formSection, i) in focusedFormTree"
-                                        :id="'index_listing_'+formSection.indicatorID"
+                                        :id="'index_listing_' + formSection.indicatorID"
+                                        :formPage=i
                                         :depth=0
                                         :formNode="formSection"
                                         :index=i
@@ -449,102 +616,41 @@ export default {
                             </li>
                         </ul>
                     </div>
-                    <!-- focused drop zone for single form -->
-                    <template v-else>
-                        <ul v-if="focusedFormTree.length > 0"
-                            id="base_drop_area" :key="'drop_zone_primary' + updateKey"
-                            class="form-index-listing-ul"
-                            data-effect-allowed="move"
-                            @drop.stop="onDrop"
-                            @dragover.prevent
-                            @dragenter.prevent="onDragEnter"
-                            @dragleave="onDragLeave">
-
-                            <form-index-listing v-for="(formSection, i) in focusedFormTree"
-                                :id="'index_listing_'+formSection.indicatorID"
-                                :depth=0
-                                :formNode="formSection"
-                                :index=i
-                                :parentID=null
-                                :key="'index_list_item_' + formSection.indicatorID"
-                                draggable="true"
-                                @dragstart.stop="startDrag">
-                            </form-index-listing>
-                        </ul>
-                    </template>
-
-                    <div style="margin: 0.5rem 0 0 0">
-                        <button type="button" class="btn-general" style="width: 100%" 
-                            @click="newQuestion(null)"
-                            id="add_new_form_section"
-                            title="Add new form section">
-                            + Add Section
-                        </button>
-                    </div>
-                    <!-- INTERNAL FORMS SECTION -->
-                    <div v-if="focusedFormRecord?.parentID === '' && focusedFormTree.length > 0"
-                        :id="'internalFormRecords_' + focusedFormID"  style="margin-top: 0.5rem;">
-                        <ul>
-                            <li>
-                                <button type="button" id="addInternalUse" @click="openNewFormDialog($event, focusedFormRecord.categoryID)"
-                                    title="New Internal-Use Form" style="color: black;">
-                                    Add Internal-Use&nbsp;<span role="img" aria="">➕</span>
-                                </button>
-                            </li>
-                            <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
-                                <button @click="getFormByCategoryID(i.categoryID)">
-                                    <span class="internal">
-                                        {{shortFormNameStripped(i.categoryID, 45)}}
-                                    </span>
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
+                    <button type="button" class="btn-general" style="width: 100%;"
+                        @click="newQuestion(null)"
+                        id="add_new_form_section_1"
+                        title="Add new form section">
+                        + Add Section
+                    </button>
                 </div>
 
                 <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
-                <template v-if="focusedFormTree.length > 0">
-                    <!-- ENTIRE FORM EDIT / PREVIEW -->
-                    <div v-if="selectedFormNode === null" id="form_entry_and_preview">
-                        <div class="form-section-header" style="display: flex;">
-                            <h3 style="margin: 0; color: black;">Form Editing and Preview</h3>
-                            <button type="button" id="indicator_toolbar_toggle" class="btn-general"
-                                @click.stop="toggleToolbars($event)">
-                                {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}
-                            </button>
-                        </div>
-                        <template v-for="(formSection, i) in focusedFormTree" :key="'editing_display_' + formSection.indicatorID">
-                            <div class="printformblock">
-                                <form-editing-display 
-                                    :depth="0"
-                                    :formNode="formSection"
-                                    :index="i"
-                                    :key="'FED_' + formSection.indicatorID + makePreviewKey(formSection)">
-                                </form-editing-display>
-                            </div>
-                        </template>
+                <div id="form_entry_and_preview">
+                    <div class="printformblock">
+                        <form-editing-display v-for="(formSection, i) in focusedFormTree"
+                            :key="'editing_display_' + formSection.indicatorID + makePreviewKey(formSection)"
+                            :depth="0"
+                            :formPage="i"
+                            :formNode="formSection"
+                        >
+                        </form-editing-display>
                     </div>
-                    <!-- SUBSECTION EDIT / PREVIEW -->
-                    <div v-else id="form_entry_and_preview">
-                        <div class="form-section-header" style="display: flex;">
-                            <h3 style="margin: 0; color: black;">Form {{currentSectionNumber !== '' ? 'Page ' + currentSectionNumber : 'Selection'}}</h3>
-                            <button type="button" id="indicator_toolbar_toggle" class="btn-general"
-                                @click.stop="toggleToolbars($event)">
-                                {{showToolbars ? 'Preview This Section' : 'Edit This Section'}}
-                            </button>
-                        </div>
-                        <div class="printformblock">
-                            <form-editing-display 
-                                :depth="0"
-                                :formNode="selectedFormNode"
-                                :index="-1"
-                                :key="'FED_' + selectedFormNode.indicatorID + makePreviewKey(selectedFormNode)">
-                            </form-editing-display>
-                        </div>
-                    </div>
-                </template>
+                    <button type="button" class="btn-general" style="width: 100%; margin-top: auto;"
+                        @click="newQuestion(null)"
+                        id="add_new_form_section_2"
+                        title="Add new form section"
+                    >
+                        + Add Section
+                    </button>
+                </div>
             </div>
         </template>
-    </template>
-</div>`
+
+        <!-- DIALOGS -->
+        <leaf-form-dialog v-if="showFormDialog">
+            <template #dialog-content-slot>
+                <component :is="dialogFormContent"></component>
+            </template>
+        </leaf-form-dialog>
+    </section>`
 }

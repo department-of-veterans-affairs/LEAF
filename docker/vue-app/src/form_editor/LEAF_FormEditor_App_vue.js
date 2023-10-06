@@ -1,18 +1,5 @@
 import { computed } from 'vue';
 
-import LeafFormDialog from "../common/components/LeafFormDialog.js";
-
-import IndicatorEditingDialog from "./components/dialog_content/IndicatorEditingDialog.js";
-import AdvancedOptionsDialog from "./components/dialog_content/AdvancedOptionsDialog.js";
-import NewFormDialog from "./components/dialog_content/NewFormDialog.js";
-import ImportFormDialog from "./components/dialog_content/ImportFormDialog.js";
-import FormHistoryDialog from "./components/dialog_content/FormHistoryDialog.js";
-import StapleFormDialog from "./components/dialog_content/StapleFormDialog.js";
-import EditCollaboratorsDialog from "./components/dialog_content/EditCollaboratorsDialog.js";
-import ConfirmDeleteDialog from "./components/dialog_content/ConfirmDeleteDialog.js";
-import ConditionsEditorDialog from "./components/dialog_content/ConditionsEditorDialog.js";
-
-import ModFormMenu from "./components/ModFormMenu.js";
 import ResponseMessage from "./components/ResponseMessage";
 
 import './LEAF_FormEditor.scss';
@@ -24,25 +11,15 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             CSRFToken: CSRFToken,
+            hasDevConsoleAccess: +hasDevConsoleAccess,
             ajaxResponseMessage: '',
 
             siteSettings: {},
             secureStatusText: 'LEAF-Secure Certified',
             secureBtnText: 'View Details',
             secureBtnLink: '',
-            fileManagerTextFiles: [],
-
+            
             showCertificationStatus: false,
-            dialogTitle: '',
-            dialogFormContent: '',
-            dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
-            showFormDialog: false,
-            //this sets the method associated with the save btn of the current dialog modal to the onSave method of its current component
-            formSaveFunction: ()=> {
-                if(this.$refs[this.dialogFormContent]) {
-                    this.$refs[this.dialogFormContent].onSave();
-                } else { console.log('possible error setting modal save method')}
-            },
             isEditingModal: false,
             orgchartFormats: ['orgchart_group','orgchart_position','orgchart_employee'],
 
@@ -53,61 +30,58 @@ export default {
             categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
             focusedFormID: '',
             focusedFormTree: [],
-            selectedNodeIndicatorID: null,
             allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
-            workflowRecords: [],            //array of all 'workflows' table records
             indicatorRecord: {},          //'indicators' table record for a specific indicatorID
+            advancedMode: false,
+
+            /* modal properties */
+            dialogTitle: '',
+            dialogFormContent: '',
+            dialogButtonText: {confirm: 'Save', cancel: 'Cancel'},
+            formSaveFunction: null,
+            showFormDialog: false,
+            dialogData: null
         }
     },
     provide() {
         return {
             CSRFToken: computed(() => this.CSRFToken),
+            siteSettings: computed(() => this.siteSettings),
             currIndicatorID: computed(() => this.currIndicatorID),
             newIndicatorParentID: computed(() => this.newIndicatorParentID),
             indicatorRecord: computed(() => this.indicatorRecord),
             isEditingModal: computed(() => this.isEditingModal),
-            workflowRecords: computed(() => this.workflowRecords),
             categories: computed(() => this.categories),
-            currentFormCollection: computed(() => this.currentFormCollection),
             allStapledFormCatIDs: computed(() => this.allStapledFormCatIDs),
             focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             focusedFormRecord: computed(() => this.focusedFormRecord),
             focusedFormTree: computed(() => this.focusedFormTree),
-            selectedNodeIndicatorID: computed(() => this.selectedNodeIndicatorID),
-            selectedFormNode: computed(() => this.selectedFormNode),
             appIsLoadingCategoryList: computed(() => this.appIsLoadingCategoryList),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
-            activeForms: computed(() => this.activeForms),
-            inactiveForms: computed(() => this.inactiveForms),
-            supplementalForms: computed(() => this.supplementalForms),
             showCertificationStatus: computed(() => this.showCertificationStatus),
             secureStatusText: computed(() => this.secureStatusText),
             secureBtnText: computed(() => this.secureBtnText),
             secureBtnLink: computed(() => this.secureBtnLink),
-            fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
-
-            showFormDialog: computed(() => this.showFormDialog),
-            dialogTitle: computed(() => this.dialogTitle),
-            dialogFormContent: computed(() => this.dialogFormContent),
-            dialogButtonText: computed(() => this.dialogButtonText),
-            formSaveFunction: computed(() => this.formSaveFunction),
             internalFormRecords: computed(() => this.internalFormRecords),
+            advancedMode: computed(() => this.advancedMode),
+
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
+            getCategoryListAll: this.getCategoryListAll,
+            hasDevConsoleAccess: this.hasDevConsoleAccess,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
             selectNewCategory: this.selectNewCategory,
-            selectNewFormNode: this.selectNewFormNode,
             getFormByCategoryID: this.getFormByCategoryID,
             updateCategoriesProperty: this.updateCategoriesProperty,
             updateStapledFormsInfo: this.updateStapledFormsInfo,
             addNewCategory: this.addNewCategory,
             removeCategory: this.removeCategory,
-            closeFormDialog: this.closeFormDialog,
+
             openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
             openNewFormDialog: this.openNewFormDialog,
             openImportFormDialog: this.openImportFormDialog,
@@ -121,76 +95,52 @@ export default {
             truncateText: this.truncateText,
             decodeAndStripHTML: this.decodeAndStripHTML,
             showLastUpdate: this.showLastUpdate,
+
+            /** dialog */
+            closeFormDialog: this.closeFormDialog,
+            setDialogSaveFunction: this.setDialogSaveFunction,
+            //not sure if title, button text and content setters are needed here
+
+            showFormDialog: computed(() => this.showFormDialog),
+            dialogTitle: computed(() => this.dialogTitle),
+            dialogFormContent: computed(() => this.dialogFormContent),
+            dialogButtonText: computed(() => this.dialogButtonText),
+            dialogData: computed(() => this.dialogData),
+            formSaveFunction: computed(() => this.formSaveFunction),
         }
     },
     components: {
-        LeafFormDialog,
-        IndicatorEditingDialog,
-        AdvancedOptionsDialog,
-        NewFormDialog,
-        ImportFormDialog,
-        FormHistoryDialog,
-        StapleFormDialog,
-        EditCollaboratorsDialog,
-        ConfirmDeleteDialog,
-        ConditionsEditorDialog,
-        ModFormMenu,
         ResponseMessage
     },
     created() {
+        console.log('APP created, initiating category list update');
         this.getCategoryListAll().then(() => {
             if(this.$route.name === 'category' && this.$route.query.formID) {
+                console.log('app created at the form editor view and formID exists, getting form from query');
                 this.getFormFromQueryParam();
             }
         }).catch(err => console.log('error getting category list', err));
-        this.getWorkflowRecords();
-        this.getFileManagerTextFiles();
-    },
-    mounted() {
-        this.getSiteSettings().then(res => {
-            this.siteSettings = res;
-            if(res.siteType === 'national_subordinate') {
-                document.getElementById('subordinate_site_warning').style.display = 'block';
-            }
-            if (res.leafSecure >= 1) {
-                this.getSecureFormsInfo();
-            }
-        }).catch(err => console.log('error getting site settings', err));
+        this.getSiteSettings();
     },
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {
             if(this.$route.name === 'category' && !this.appIsLoadingCategoryList) {
+                console.log('app watcher on route trigged getFormFromQuery')
                 this.getFormFromQueryParam();
+            }
+        },
+        siteSettings(newVal, oldVal) {
+            if (+newVal?.leafSecure >= 1) {
+                this.getSecureFormsInfo();
             }
         }
     },
     computed: {
         /**
-         * @returns {Object} current query from categories object
-         */
-        currentCategoryQuery() {
-            const queryID = this.$route.query.formID;
-            return this.categories[queryID] || {};
-        },
-        /**
          * @returns {Object} focused form record from categories object
          */
         focusedFormRecord() {
             return this.categories[this.focusedFormID] || {};
-        },
-        /**
-         * @returns {Object} form tree node
-         */
-        selectedFormNode() {
-            let selectedNode = null;
-            if (this.selectedNodeIndicatorID !== null) {
-                this.focusedFormTree.forEach(section => {
-                    if (selectedNode === null) {
-                        selectedNode = this.getNodeSelection(section, this.selectedNodeIndicatorID) || null;
-                    }
-                });
-            }
-            return selectedNode;
         },
         /**
          * @returns {boolean} true once sensitive indicator found
@@ -203,81 +153,7 @@ export default {
                 }
             });
             return isSensitive;
-        },
-        /**
-         * @returns {array} of non-internal forms that have workflows and are available
-         */
-        activeForms() {
-            let active = [];
-            for (let c in this.categories) {
-                if (this.categories[c].parentID === '' &&
-                    parseInt(this.categories[c].workflowID) !== 0 &&
-                    parseInt(this.categories[c].visible) === 1) {
-                        active.push({...this.categories[c]});
-                }
-            }
-            active = active.sort((eleA, eleB) => eleA.sort - eleB.sort);
-            return active;
-        },
-        /**
-         * @returns {array} of non-internal forms that have workflows and are hidden
-         */
-        inactiveForms() {
-            let inactive = [];
-            for (let c in this.categories) {
-                if (this.categories[c].parentID === '' &&
-                    parseInt(this.categories[c].workflowID) !== 0 &&
-                    parseInt(this.categories[c].visible) === 0) {
-                    inactive.push({...this.categories[c]});
-                }
-            }
-            inactive = inactive.sort((eleA, eleB) => eleA.sort - eleB.sort);
-            return inactive;
-        },
-        /**
-         * @returns {array} of non-internal forms that have no workflows
-         */
-        supplementalForms() {
-            let supplementalForms = [];
-            for(let c in this.categories) {
-                if (this.categories[c].parentID === '' && parseInt(this.categories[c].workflowID) === 0 ) {
-                    supplementalForms.push({...this.categories[c]});
-                }
-            }
-            supplementalForms = supplementalForms.sort((eleA, eleB) => eleA.sort - eleB.sort);
-            return supplementalForms;
-        },
-        /**
-         * 
-         * @returns {array} categories records that are internal forms of the focused form
-         */
-        internalFormRecords() {
-            let internalFormRecords = [];
-            for(let c in this.categories) {
-                if (this.categories[c].parentID === this.focusedFormID) {
-                    internalFormRecords.push({...this.categories[c]});
-                }
-            }
-            return internalFormRecords;
-        },
-        /**
-         * 
-         * @returns {array} of categories records for queried form and any staples
-         */
-        currentFormCollection() {
-            let allRecords = [];
-            let currStapleIDs = this.currentCategoryQuery?.stapledFormIDs || [];
-            currStapleIDs.forEach(id => {
-                allRecords.push({...this.categories[id], formContextType: 'staple'});
-            });
- 
-            let focusedFormType = this.currentCategoryQuery.parentID !== '' ?
-                        'internal' : 
-                        this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
-                        'staple' : 'main form';
-            allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType,});
-            return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
-        },
+        }
     },
     methods: {
         truncateText(str='', maxlength = 40, overflow = '...') {
@@ -293,11 +169,12 @@ export default {
             elDiv.innerHTML = content;
             return XSSHelpers.stripAllTags(elDiv.innerText);
         },
-        showLastUpdate(elementID = '', text = '') {
+        showLastUpdate(elementID = '') {
+            const lastUpdated = new Date().toLocaleString();
             const el = document.getElementById(elementID);
             if(el !== null) {
-                el.innerText = text;
-                el.style.opacity = 1;
+                el.style.display = 'flex';
+                el.innerText = `last modified: ${lastUpdated}`;
                 el.style.border = '2px solid #20a0f0';
                 setTimeout(() => {
                     el.style.border = '2px solid transparent';
@@ -385,45 +262,35 @@ export default {
         },
         getFormFromQueryParam() {
             const formReg = /^form_[0-9a-f]{5}$/i;
-            const formID = formReg.test(this.$route.query?.formID || '') ? this.$route.query.formID : null;
-            if (formID === null || this.categories[formID] === undefined) {
-                this.selectNewCategory();
-                //console.log('no form selected or form does not exist');
-            } else {
-                this.selectNewCategory(formID, this.selectedNodeIndicatorID, true);
+            if (formReg.test(this.$route.query?.formID || '') === true) {
+                const formID = this.$route.query.formID;
+                if (this.categories[formID] === undefined) {
+                    this.selectNewCategory(); //valid formID pattern, but form does not exist.  This will clear out info but also provide a message and link back
+                } else {
+                    //if the form does exist, check that an internal form was not entered (it would need to be explicitly entered to the url, but would cause issues)
+                    const parID = this.categories[formID].parentID;
+                    if (parID === '') {
+                        this.selectNewCategory(formID, true);
+                    } else {
+                        this.$router.push({name:'category', query:{formID: parID}});
+                    }
+                }
+
+            } else { //if the value of formID is not a valid catID nav back to browser view
+                this.$router.push({ name:'browser' });
             }
         },
         /**
-         * 
-         * @returns {array} of objects with all fields from the workflows table
-         */
-        getWorkflowRecords() {
-            return new Promise((resolve, reject)=> {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}workflow`,
-                    success: (res) => {
-                        this.workflowRecords = res;
-                        resolve(res);
-                    },
-                    error: (err) => reject(err)
-                });
-            });
-        },
-        /**
-         * 
          * @returns {Object} of all records from the portal's settings table
          */
         getSiteSettings() {
-            return new Promise((resolve, reject)=> {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}system/settings`,
-                    success: (res) => resolve(res),
-                    error: (err) => reject(err),
-                    cache: false
-                })
-            });
+            try {
+                fetch(`${this.APIroot}system/settings`).then(res => {
+                    res.json().then(data => this.siteSettings = data);
+                });
+            } catch(error) {
+                console.log('error getting site settings', error);
+            }
         },
         /**
          * 
@@ -515,10 +382,9 @@ export default {
         },
         /**
          * @param {string} catID 
-         * @param {number|null} subnodeIndID indicatorID of the focused form node
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
-        getFormByCategoryID(catID = '', subnodeIndID = null) {
+        getFormByCategoryID(catID = '') {
             return new Promise((resolve, reject)=> {
                 $.ajax({
                     type: 'GET',
@@ -526,7 +392,6 @@ export default {
                     success: (res)=> {
                         this.focusedFormID = catID;
                         this.focusedFormTree = res;
-                        this.selectedNodeIndicatorID = subnodeIndID;
                         this.appIsLoadingForm = false;
                         resolve(res)
                     },
@@ -551,21 +416,6 @@ export default {
                 });
             });
         },
-        getFileManagerTextFiles() {
-            $.ajax({
-              type: 'GET',
-              url: `${this.APIroot}system/files`,
-              success: (res) => {
-                const files = res || [];
-                this.fileManagerTextFiles = files.filter(
-                    filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1);
-              },
-              error: (err) => {
-                console.log(err);
-              },
-              cache: false
-            });
-        },
         /**
          * updates app categories object property value
          * @param {string} catID
@@ -579,17 +429,18 @@ export default {
         },
         /**
          * updates app array allStapledFormCatIDs and stapledFormIds of categories object
+         * @param {string} catID id of the form having a staple added or removed
          * @param {string} stapledCatID id of the form being merged/unmerged
          * @param {boolean} removeStaple indicates whether staple is being added or removed
          */
-        updateStapledFormsInfo(stapledCatID = '', removeStaple = false) {
-            const formID = this.currentCategoryQuery.categoryID;
+        updateStapledFormsInfo(catID = '', stapledCatID = '', removeStaple = false) {
+            const formID = catID;
             if(removeStaple === true) {
                 this.allStapledFormCatIDs = this.allStapledFormCatIDs.filter(id => id !== stapledCatID);
                 this.categories[formID].stapledFormIDs = this.categories[formID].stapledFormIDs.filter(id => id !== stapledCatID);
             } else {
                 this.allStapledFormCatIDs = Array.from(new Set([...this.allStapledFormCatIDs, stapledCatID]));
-                this.categories[formID].stapledFormIDs  = [...this.currentCategoryQuery.stapledFormIDs, stapledCatID];
+                this.categories[formID].stapledFormIDs = Array.from(new Set([...this.categories[formID].stapledFormIDs, stapledCatID]));
             }
         },
         /**
@@ -609,61 +460,50 @@ export default {
         },
         /**
          * @param {string} catID of the form to select
-         * @param {number|null} subnodeIndID indicatorID of currently selected form section
+         * @param {number|null} subnodeIndID indicatorID of currently selected form section or indicator
+         * @param {boolean} setFormLoading show loader
          */
-        selectNewCategory(catID = '', subnodeIndID = null, setFormLoading = false) {
+        selectNewCategory(catID = '', setFormLoading = false) {
             this.setDefaultAjaxResponseMessage();
             if (catID !== '') {
                 if (setFormLoading === true) this.appIsLoadingForm = true
-                this.getFormByCategoryID(catID, subnodeIndID);
+                this.getFormByCategoryID(catID);
 
-            } else {  //card browser.
-                this.selectedNodeIndicatorID = null;
+            } else {  //card browser. TODO: move to FE or Browser views
+                console.log('snc called with empty, clearing info')
                 this.focusedFormID = '';
                 this.focusedFormTree = [];
                 this.categories = {};
-                this.workflowRecords = [];
                 this.getCategoryListAll();
                 this.getSecureFormsInfo();
-                this.getWorkflowRecords();
-                this.getFileManagerTextFiles();
             }
         },
-        /**
-         * 
-         * @param {Object} event
-         * @param {Object|null} node of the form section selected in the Form Index
-         */
-        selectNewFormNode(event = {}, node = null) {
-            if (event.target.classList.contains('icon_move') || event.target.classList.contains('sub-menu-chevron')) {
-                return //prevents enter/space activation from move and menu toggle buttons
-            }
-            this.selectedNodeIndicatorID = node?.indicatorID || null;
-            if (node?.indicatorID !== null) {
-                const elsMenu = Array.from(document.querySelectorAll(`li#index_listing_${node?.indicatorID} .sub-menu-chevron.closed`));
-                elsMenu.forEach(el => el.click());
-            }
-        },
-
         /** DIALOG MODAL RELATED */
+        /**
+         * close dialog and reset values
+         */
+        closeFormDialog() {
+            this.showFormDialog = false;
+            this.dialogTitle = '';
+            this.dialogFormContent = '';
+            this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
+            this.formSaveFunction = null;
+            this.dialogData = null;
+        },
         setCustomDialogTitle(htmlContent = '') {
             this.dialogTitle = htmlContent;
         },
         /**
-         * set the component for the dialog modal's main content. Components must be registered to this app
+         * sets the component for the dialog modal's main content. Components must be registered to the view using them
          * @param {string} component name as string, eg 'confirm-delete-dialog'
          */
         setFormDialogComponent(component = '') {
             this.dialogFormContent = component;
         },
-        /**
-         * close dialog and reset title, content and button text values
-         */
-        closeFormDialog() {
-            this.showFormDialog = false;
-            this.setCustomDialogTitle('');
-            this.setFormDialogComponent('');
-            this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
+        setDialogSaveFunction(func = '') {
+            if (typeof func === 'function') {
+                this.formSaveFunction = func;
+            }
         },
         openConfirmDeleteFormDialog() {
             this.setCustomDialogTitle('<h2>Delete this form</h2>');
@@ -722,6 +562,9 @@ export default {
             }).catch(err => console.log('error getting indicator information', err));
         },
         openNewFormDialog(event = {}, mainFormID = '') {
+            this.dialogData = {
+                parentID: mainFormID,
+            };
             const titleHTML = mainFormID === '' ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
             this.setCustomDialogTitle(titleHTML);
             this.setFormDialogComponent('new-form-dialog');
@@ -732,9 +575,13 @@ export default {
             this.setFormDialogComponent('import-form-dialog');
             this.showFormDialog = true;  
         },
-        openFormHistoryDialog() {
+        openFormHistoryDialog(catID = '') {
+            this.dialogData = {
+                historyType: 'form',
+                historyID: catID,
+            };
             this.setCustomDialogTitle(`<h2>Form History</h2>`);
-            this.setFormDialogComponent('form-history-dialog');
+            this.setFormDialogComponent('history-dialog');
             this.showFormDialog = true;
         },
         /**
