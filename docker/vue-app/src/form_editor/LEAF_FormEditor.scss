@@ -582,11 +582,32 @@ div[id^="layoutFormRecords_"] > ul > li  {
     overflow: visible;
 
     .form-page-card {
-        cursor: pointer;
+        position: relative;
         padding: 0.5em;
-        border: 2px outset $BG_Pearl;
-        border-radius: 2px;
-        margin-bottom: 0.5rem;
+        border: 3px solid $BG_Pearl;
+        border-left: 7px solid $BG_Pearl;
+        border-radius: 4px;
+        margin-bottom: 0.75rem;
+    }
+    button.card_toggle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin-left: -6px;
+        padding: 1px 1px 1px 2px;
+        align-items: flex-start;
+        height: 100%;
+        border: 0;
+        border-radius: 4px 0 0 4px;
+        background-color: $BG_Pearl;
+        font-size: 90%;
+        &.closed {
+            font-size: 60%;
+        }
+        &:hover, &:focus, &:active {
+            border: 0;
+            outline: none;
+        }
     }
 
     div.printformblock {
@@ -598,28 +619,14 @@ div[id^="layoutFormRecords_"] > ul > li  {
     div.printResponse {
         position: relative;
         padding: 0;
+        margin-bottom: 1rem;
         min-height: 50px;
         float: none; /* style.css style collision */
         border-radius: 4px;
-        border-left: 6px solid $BG_Pearl;
+        border-left: 7px solid $BG_Pearl;
 
         &:not(.form-header) {
             margin-left: 0.5rem;
-        }
-        button.card_toggle {
-            position: absolute;
-            margin-left: -6px;
-            padding: 1px;
-            align-items: flex-start;
-            height: 100%;
-            border: 0;
-            border-radius: 4px 0 0 4px;
-            background-color: $BG_Pearl;
-            font-size: 85%;
-            &:hover, &:focus, &:active {
-                border: 0;
-                outline: none;
-            }
         }
     }
 
@@ -711,7 +718,6 @@ div[id^="layoutFormRecords_"] > ul > li  {
                 }
                 div.tableinput { /* fixes for grid tables */
                     overflow-x: auto;
-                    max-width: 800px;
                     
                     table {
                         margin: 0;

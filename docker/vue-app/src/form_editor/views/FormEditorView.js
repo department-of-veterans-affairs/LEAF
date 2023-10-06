@@ -413,7 +413,7 @@ export default {
                                 const allPages = Array.from(baseDropArea.querySelectorAll(':scope > li'));
                                 const thisPageIndex = allPages.indexOf(elClosestFormPage);
                                 if(thisPageIndex > -1) {
-                                    this.currentFormPage = thisPageIndex
+                                    this.currentFormPage = thisPageIndex;
                                 }
                             }
 

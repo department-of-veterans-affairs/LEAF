@@ -4,8 +4,12 @@ export default {
     name: 'form-editing-display',
     data() {
         return {
-            subMenuOpen: false
+            //the first card will be open on initial load
+            subMenuOpen: this.selectedNodeIndicatorID === null && this.formPage === 0
         }
+    },
+    created() {
+        console.log('created question display', this.formNode.indicatorID, this.depth, this.formPage, this.subMenuOpen)
     },
     props: {
         depth: Number,
@@ -77,11 +81,22 @@ export default {
                 this.selectNewFormNode(nodeID, formPage);
             }
             this.subMenuOpen = true;
+        },
+        closeCard(nodeID = 0) {
+            if(this.selectedNodeIndicatorID === nodeID) {
+                this.selectNewFormNode(null, 0);
+            }
+            this.subMenuOpen = false;
         }
+
     },
-    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation}"
-            style="margin-bottom: 1rem;" :id="printResponseID">
-            <button v-if="depth===0 && showToolbars" type="button" class="card_toggle" @click="subMenuOpen=false">-</button>
+    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation}" :id="printResponseID">
+            <button v-if="depth===0 && showToolbars" type="button" :id="'card_btn_open_' + formNode.indicatorID"
+                class="card_toggle"
+                @click="closeCard(formNode.indicatorID)"
+                aria-label="close page">-
+            </button>
+
             <!-- EDITING AREA FOR INDICATOR -->
             <div class="form_editing_area"
                 :class="{'conditional': conditionalQuestion, 'form-header': isHeaderLocation}">
@@ -141,9 +156,13 @@ export default {
             </template>
     </div>
 
-    <div v-else tabindex="0" class="form-page-card"
-        @click.stop="openCard(formNode.indicatorID, formPage)"
-        @keydown.enter.prevent.stop="openCard(formNode.indicatorID, formPage)">
-        {{ shortIndicatorNameStripped(formNode?.name || '') }} (page {{formPage + 1}})
+    <div v-else tabindex="0" class="form-page-card">
+        <button type="button" :id="'card_btn_closed_' + formNode.indicatorID"
+            class="card_toggle closed"
+            @click="openCard(formNode.indicatorID, formPage)"
+            aria-label="expand page">+</button>
+        <div>
+            {{ shortIndicatorNameStripped(formNode?.name || '') }} (page {{formPage + 1}})
+        </div>
     </div>`
 }

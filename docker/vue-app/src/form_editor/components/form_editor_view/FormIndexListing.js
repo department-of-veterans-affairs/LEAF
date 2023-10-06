@@ -52,7 +52,16 @@ export default {
         toggleSubMenu(event = {}) {
             if(event?.keyCode === 32) event.preventDefault();
             this.subMenuOpen = !this.subMenuOpen;
-            event.currentTarget.closest('li')?.focus();
+            const elLi = event.currentTarget.closest('li');
+            if(elLi !== null) {
+                elLi.focus();
+                const elLiID = (elLi.id || '').replace('index_listing_', '');
+                const cardIDText = this.subMenuOpen ? 'closed' : 'open';
+                const elBtn = document.getElementById(`card_btn_${cardIDText}_${elLiID}`);
+                if(elBtn !== null) {
+                    elBtn.dispatchEvent(new Event('click'));
+                }
+            }
         }
     },
     computed: {
