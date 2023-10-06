@@ -1951,9 +1951,9 @@ class Form
      *
      * @param array $accessList Map of recordID->int of the current user's access. 1 = has access
      * @param array $records List of records to process
-     * @return boolean
+     * @return array Amended $accessList
      */
-    private function batchUpdateDependencyAccess(array $accessList, array $records)
+    private function batchUpdateDependencyAccess(array $accessList, array $records): array
     {
         // get santized lists for DB query
         $indicatorIDs = [];
