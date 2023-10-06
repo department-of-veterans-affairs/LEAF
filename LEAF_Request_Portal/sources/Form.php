@@ -1825,6 +1825,7 @@ class Form
      * Checks if the current user has access to a particular dependency
      * @param int $dependencyID
      * @param array $details - Associative Array containing dependency-specific details, eg: $details['groupID']
+     *                         Must contain DB reference to records.userID
      * @return boolean
      */
     public function hasDependencyAccess($dependencyID, $details)
@@ -1909,15 +1910,13 @@ class Form
 
                 break;
             case -2: // dependencyID -2 : requestor followup
-                $varsPerson = array(':recordID' => (int)$details['recordID']);
-                $resPerson = $this->db->prepared_query('SELECT userID FROM records
-                                                               WHERE recordID=:recordID', $varsPerson);
-                 if ($resPerson[0]['userID'] == $this->login->getUserID())
+                 if ($details['userID'] == $this->login->getUserID())
                  {
                      return true;
                  }
-                 else{
-                    $empUID = $this->getEmpUID($resPerson[0]['userID']);
+                 else
+                 {
+                    $empUID = $this->getEmpUID($details['userID']);
 
                     return $this->checkIfBackup($empUID);
                  }
@@ -1968,26 +1967,35 @@ class Form
         return $response[0]["empUID"];
     }
 
-    public function checkIfBackup($empUID){
+    /**
+     * checkIfBackup determines if the current user is a backup of the provided $empUID
+     *
+     * @param string $empUID empUID to check
+     * @return boolean
+     */
+    public function checkIfBackup(string|int $empUID): bool
+    {
+        $empUID = (int)$empUID;
 
-        $nexusDB = $this->login->getNexusDB();
-        $vars = array(':empId' => $empUID);
-        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
-
-        if ($empUID != $this->login->getEmpUID())
-        {
-            foreach ($backupIds as $row)
-            {
-                if ($row['backupEmpUID'] == $this->login->getEmpUID())
-                {
-                    return true;
-                }
-            }
-
-            return false;
+        if(isset($this->cache['checkIfBackup'])) {
+            return isset($this->cache['checkIfBackup'][$empUID]);
         }
 
-        return true;
+        $nexusDB = $this->login->getNexusDB();
+
+        $vars = array(':currEmpUID' => $this->login->getEmpUID());
+        $strSQL = 'SELECT empUID FROM relation_employee_backup
+                    WHERE backupEmpUID =:currEmpUID
+                        AND approved=1';
+        $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+
+        $this->cache['checkIfBackup'] = [];
+        foreach ($backupIds as $row)
+        {
+            $this->cache['checkIfBackup'][$row['empUID']] = true;
+        }
+
+        return isset($this->cache['checkEmployeeAccess'][$empUID]);
     }
 
     /**
