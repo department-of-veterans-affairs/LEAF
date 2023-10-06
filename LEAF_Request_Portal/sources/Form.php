@@ -2302,10 +2302,16 @@ class Form
 
     /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
      * specified by $indicatorID_list (string of ID#'s delimited by ',')
+     * 
+     * WARNING: $alreadyCheckedReadAccess can only be set to true if $recordID_list has been
+     *          processed by checkReadAccess().
      *
+     * @param array $recordID_list
+     * @param array $indicatorID_list
+     * @param bool (optional) $alreadyCheckedReadAccess
      * @return array on success | false on malformed input
      */
-    public function getCustomData(array $recordID_list, string|null $indicatorID_list)
+    public function getCustomData(array $recordID_list, string|null $indicatorID_list, bool $alreadyCheckedReadAccess = false)
     {
         if (count($recordID_list) == 0) {
             return $recordID_list;
@@ -2534,7 +2540,7 @@ class Form
             }
         }
 
-        if ($this->isNeedToKnow())
+        if (!$alreadyCheckedReadAccess && $this->isNeedToKnow())
         {
             $out = $this->checkReadAccess($out);
         }
@@ -3589,9 +3595,11 @@ class Form
         }
 
         // check needToKnow mode
+        $alreadyCheckedReadAccess = false;
         if ($this->isNeedToKnow())
         {
             $data = $this->checkReadAccess($data);
+            $alreadyCheckedReadAccess = true;
         }
 
         // check actionable
@@ -3628,7 +3636,7 @@ class Form
                 $indicatorIDs .= $indicatorID . ',';
             }
 
-            return $this->getCustomData($data, $indicatorIDs);
+            return $this->getCustomData($data, $indicatorIDs, $alreadyCheckedReadAccess);
         }
 
         return $data;
