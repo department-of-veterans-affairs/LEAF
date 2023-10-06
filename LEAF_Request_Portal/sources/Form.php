@@ -3763,7 +3763,7 @@ class Form
 
             }
 
-             = [
+            $processQueryCheckVars = [
                 ':url' => $inQuery
             ];
 
