@@ -1965,6 +1965,7 @@ class Form
             }
         }
 
+        // get the list of records related to dependencyID -1 (person designated by requestor)
         if(count($recordIDs) > 0) {
             $indicators = implode(',', $indicatorIDs);
             $records = implode(',', $recordIDs);
@@ -1975,9 +1976,11 @@ class Form
             $res = $this->db->prepared_query($query, []);
 
             foreach($res as $record) {
+                // check if the current user is the designated person
                 if($record['data'] == $this->login->getEmpUID()) {
                     $accessList[$record['recordID']] = 1;
                 }
+                // check if the current user is a backup of the designated person
                 else if($this->checkIfBackup($record['data'])) {
                     $accessList[$record['recordID']] = 1;
                 }
