@@ -3,7 +3,7 @@ import CategoryItem from "./CategoryItem";
 export default {
     name: 'form-browser',
     inject: [
-        'appIsLoadingCategoryList',
+        'appIsLoadingCategories',
         'showCertificationStatus',
         'secureStatusText',
         'secureBtnText',
@@ -59,7 +59,7 @@ export default {
         },
     },
     template:
-    `<template v-if="appIsLoadingCategoryList === false">
+    `<template v-if="appIsLoadingCategories === false">
         <!-- secure form section -->
         <div v-if="showCertificationStatus" id="secure_forms_info" style="padding: 8px; background-color: #a00; margin-bottom:1em;">
             <span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">{{secureStatusText}}</span>

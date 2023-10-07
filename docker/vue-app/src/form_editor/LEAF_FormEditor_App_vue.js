@@ -18,18 +18,13 @@ export default {
             secureStatusText: 'LEAF-Secure Certified',
             secureBtnText: 'View Details',
             secureBtnLink: '',
-            
             showCertificationStatus: false,
             isEditingModal: false,
             orgchartFormats: ['orgchart_group','orgchart_position','orgchart_employee'],
-
-            appIsLoadingCategoryList: true,
-            appIsLoadingForm: false,
+            appIsLoadingCategories: true,
             currIndicatorID: null,         //null or number
             newIndicatorParentID: null,    //null or number
-            categories: {},                //obj with keys for each catID, values an object with 'categories' and 'workflow' tables fields
-            focusedFormID: '',
-            focusedFormTree: [],
+            categories: {},
             allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
             indicatorRecord: {},          //'indicators' table record for a specific indicatorID
             advancedMode: false,
@@ -53,22 +48,17 @@ export default {
             isEditingModal: computed(() => this.isEditingModal),
             categories: computed(() => this.categories),
             allStapledFormCatIDs: computed(() => this.allStapledFormCatIDs),
-            focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
-            focusedFormRecord: computed(() => this.focusedFormRecord),
-            focusedFormTree: computed(() => this.focusedFormTree),
-            appIsLoadingCategoryList: computed(() => this.appIsLoadingCategoryList),
-            appIsLoadingForm: computed(() => this.appIsLoadingForm),
+            appIsLoadingCategories: computed(() => this.appIsLoadingCategories),
             showCertificationStatus: computed(() => this.showCertificationStatus),
             secureStatusText: computed(() => this.secureStatusText),
             secureBtnText: computed(() => this.secureBtnText),
             secureBtnLink: computed(() => this.secureBtnLink),
-            internalFormRecords: computed(() => this.internalFormRecords),
             advancedMode: computed(() => this.advancedMode),
 
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
-            getCategoryListAll: this.getCategoryListAll,
+            getEnabledCategories: this.getEnabledCategories,
             hasDevConsoleAccess: this.hasDevConsoleAccess,
             getSiteSettings: this.getSiteSettings,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
@@ -76,7 +66,6 @@ export default {
             editQuestion: this.editQuestion,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
-            getFormByCategoryID: this.getFormByCategoryID,
             updateCategoriesProperty: this.updateCategoriesProperty,
             updateStapledFormsInfo: this.updateStapledFormsInfo,
             addNewCategory: this.addNewCategory,
@@ -99,7 +88,6 @@ export default {
             /** dialog */
             closeFormDialog: this.closeFormDialog,
             setDialogSaveFunction: this.setDialogSaveFunction,
-            //not sure if title, button text and content setters are needed here
 
             showFormDialog: computed(() => this.showFormDialog),
             dialogTitle: computed(() => this.dialogTitle),
@@ -113,41 +101,8 @@ export default {
         ResponseMessage
     },
     created() {
-        console.log('APP created, initiating category list update');
-        this.getCategoryListAll().then(() => {
-            if(this.$route.name === 'category' && this.$route.query.formID) {
-                console.log('app created at the form editor view and formID exists, getting form from query');
-                this.getFormFromQueryParam();
-            }
-        }).catch(err => console.log('error getting category list', err));
-    },
-    watch: {
-        "$route.query.formID"(newVal = '', oldVal = '') {
-            if(this.$route.name === 'category' && !this.appIsLoadingCategoryList) {
-                console.log('app watcher on route trigged getFormFromQuery')
-                this.getFormFromQueryParam();
-            }
-        }
-    },
-    computed: {
-        /**
-         * @returns {Object} focused form record from categories object
-         */
-        focusedFormRecord() {
-            return this.categories[this.focusedFormID] || {};
-        },
-        /**
-         * @returns {boolean} true once sensitive indicator found
-         */
-        focusedFormIsSensitive() {
-            let isSensitive = false;
-            this.focusedFormTree.forEach(section => {
-                if(!isSensitive) {
-                    isSensitive = this.checkSensitive(section);
-                }
-            });
-            return isSensitive;
-        }
+        console.log('APP created, app is getting categories');
+        this.getEnabledCategories();
     },
     methods: {
         truncateText(str='', maxlength = 40, overflow = '...') {
@@ -229,52 +184,28 @@ export default {
             }
         },
         /**
-         * 
-         * @returns {array} of objects with all fields from categories and workflow tables for enabled forms
+         * @returns {object} main keys are categoryIDs. Values are obj w fields from non-built-in, enabled categories and workflows tables
          */
-        getCategoryListAll() {
-            this.appIsLoadingCategoryList = true;
-            return new Promise((resolve, reject)=> {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}formStack/categoryList/allWithStaples`,
-                    success: (res) => {
-                        console.log('recreating categories');
-                        this.categories = {};
-                        for(let i in res) {
-                            this.categories[res[i].categoryID] = res[i];
-                            res[i].stapledFormIDs.forEach(id => {
-                                if (!this.allStapledFormCatIDs.includes(id)) {
-                                    this.allStapledFormCatIDs.push(id);
-                                }
-                            });
-                        }
-                        this.appIsLoadingCategoryList = false;
-                        resolve(res);
-                    },
-                    error: (err)=> reject(err)
-                });
-            });
-        },
-        getFormFromQueryParam() {
-            const formReg = /^form_[0-9a-f]{5}$/i;
-            if (formReg.test(this.$route.query?.formID || '') === true) {
-                const formID = this.$route.query.formID;
-                if (this.categories[formID] === undefined) {
-                    this.getFormByCategoryID(); //valid formID pattern, but form does not exist.  This will clear out info but also provide a message and link back
-                } else {
-                    //if the form does exist, check that an internal form was not entered (it would need to be explicitly entered to the url, but would cause issues)
-                    const parID = this.categories[formID].parentID;
-                    if (parID === '') {
-                        this.getFormByCategoryID(formID, true);
-                    } else {
-                        this.$router.push({name:'category', query:{formID: parID}});
+        getEnabledCategories() {
+            this.appIsLoadingCategories = true;
+            $.ajax({
+                type: 'GET',
+                url: `${this.APIroot}formStack/categoryList/allWithStaples`,
+                success: (res) => {
+                    console.log('setting up categories');
+                    this.categories = {};
+                    for(let i in res) {
+                        this.categories[res[i].categoryID] = res[i];
+                        res[i].stapledFormIDs.forEach(id => {
+                            if (!this.allStapledFormCatIDs.includes(id)) {
+                                this.allStapledFormCatIDs.push(id);
+                            }
+                        });
                     }
-                }
-
-            } else { //if the value of formID is not a valid catID nav back to browser view
-                this.$router.push({ name:'browser' });
-            }
+                    this.appIsLoadingCategories = false;
+                },
+                error: (err)=> console.log(err)
+            });
         },
         /**
          * @returns {Object} of all records from the portal's settings table.  Followup Leaf Secure check if leafSecure date exists
@@ -379,38 +310,6 @@ export default {
             } else {
                 this.showCertificationStatus = false;
             }
-        },
-        /**
-         * @param {string} catID
-         * @param {boolean} setFormLoading show loader
-         * @returns {array} of objects with information about the form (indicators and structure relations)
-         */
-        getFormByCategoryID(catID = '', setFormLoading = false) {
-            console.log('checking user status and getting form', catID, setFormLoading);
-            return new Promise((resolve, reject)=> {
-                if (catID === '') {
-                    console.log('get form called with empty, clearing info and resolving')
-                    this.focusedFormID = '';
-                    this.focusedFormTree = [];
-                    resolve();
-
-                } else {
-                    console.log('get form called with ID, getting form info')
-                    this.appIsLoadingForm = setFormLoading;
-                    this.setDefaultAjaxResponseMessage();
-                    $.ajax({
-                        type: 'GET',
-                        url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
-                        success: (res)=> {
-                            this.focusedFormID = catID;
-                            this.focusedFormTree = res;
-                            this.appIsLoadingForm = false;
-                            resolve(res)
-                        },
-                        error: (err)=> reject(err)
-                    });
-                }
-            });
         },
         /**
          * 
@@ -601,36 +500,6 @@ export default {
                 this.indicatorRecord = res;
                 this.openIndicatorEditingDialog(indicatorID);
             }).catch(err => console.log('error getting indicator information', err));
-        },
-        checkSensitive(node = {}) {
-            if (parseInt(node.is_sensitive) === 1) {
-                return true;
-
-            } else {
-                let sensitive = false;
-                if (node.child) {
-                    for (let c in node.child) {
-                        sensitive = this.checkSensitive(node.child[c]) || false;
-                        if (sensitive === true) break;
-                    }
-                }
-                return sensitive;
-            }
-        },
-        getNodeSelection(node = {}, indicatorID = 0) {
-            if(parseInt(node.indicatorID) === parseInt(indicatorID)) {
-                return node;
-
-            } else {
-                let nodeSelection = null;
-                if (node.child && Object.keys(node.child).length > 0) {
-                    for (let c in node.child) {
-                        nodeSelection = this.getNodeSelection(node.child[c], indicatorID) || null;
-                        if (nodeSelection !== null) break;
-                    }
-                }
-                return nodeSelection;
-            }
-        },
+        }
     }
 }

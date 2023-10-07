@@ -17,25 +17,25 @@ export default {
     inject: [
         'getSiteSettings',
         'setDefaultAjaxResponseMessage',
-        'getCategoryListAll',
+        'getEnabledCategories',
         'showFormDialog',
         'dialogFormContent',
-        'appIsLoadingCategoryList'
+        'appIsLoadingCategories'
     ],
     beforeRouteEnter(to, from, next) {
         next(vm => {
             console.log('entering form browser');
             vm.setDefaultAjaxResponseMessage();
             vm.getSiteSettings();
-            if(vm.appIsLoadingCategoryList === false) {
-                console.log('browser view initiated category list update')
-                vm.getCategoryListAll();
+            if(vm.appIsLoadingCategories === false) {
+                console.log('browser view initiated categories update')
+                vm.getEnabledCategories();
             }
         });
     },
     template: `<BrowserAndRestoreMenu />
     <section>
-        <div v-if="appIsLoadingCategoryList" class="page_loading">
+        <div v-if="appIsLoadingCategories" class="page_loading">
             Loading... 
             <img src="../images/largespinner.gif" alt="loading..." />
         </div>

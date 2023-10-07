@@ -41,6 +41,9 @@ export default {
             sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
             updateKey: 0,
             currentFormPage: 0,
+            appIsLoadingForm: false,
+            focusedFormID: '',
+            focusedFormTree: [],
             selectedNodeIndicatorID: null,
             fileManagerTextFiles: []
         }
@@ -68,15 +71,11 @@ export default {
         'libsPath',
         'getSiteSettings',
         'setDefaultAjaxResponseMessage',
-        'appIsLoadingCategoryList',
-        'appIsLoadingForm',
+        'appIsLoadingCategories',
         'categories',
-        'getFormByCategoryID',
         'showLastUpdate',
         'newQuestion',
         'editQuestion',
-        'focusedFormRecord',
-        'focusedFormTree',
         'openNewFormDialog',
         'allStapledFormCatIDs',
         'decodeAndStripHTML',
@@ -89,11 +88,16 @@ export default {
         console.log('mounted form editor view');
     },
     beforeRouteEnter(to, from, next) {
+        console.log('entering FE route');
         window.scrollTo(0,0);
         next(vm => {
             vm.getSiteSettings();
             vm.setDefaultAjaxResponseMessage();
             vm.getFileManagerTextFiles();
+            if(!vm.appIsLoadingCategories && vm.$route.query.formID) {
+                console.log('FE router enter getFormFromQuery');
+                vm.getFormFromQueryParam();
+            }
         });
     },
     beforeRouteLeave(to, from) {
@@ -106,8 +110,13 @@ export default {
             selectedNodeIndicatorID: computed(() => this.selectedNodeIndicatorID),
             fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
             internalFormRecords: computed(() => this.internalFormRecords),
+            appIsLoadingForm: computed(() => this.appIsLoadingForm),
+            focusedFormTree: computed(() => this.focusedFormTree),
+            focusedFormRecord: computed(() => this.focusedFormRecord),
+            focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             noForm: computed(() => this.noForm),
 
+            getFormByCategoryID: this.getFormByCategoryID,
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
@@ -130,9 +139,9 @@ export default {
             const queryID = this.$route.query.formID;
             return this.categories[queryID] || {};
         },
-        focusedFormID() {
-            return this.focusedFormRecord?.categoryID || '';
-        },
+        // focusedFormID() {
+        //     return this.focusedFormRecord?.categoryID || '';
+        // },
         mainFormID() {
             return this.focusedFormRecord?.parentID === '' ?
                 this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
@@ -143,6 +152,24 @@ export default {
         },
         noForm() {
             return !this.appIsLoadingForm && this.focusedFormID === '';
+        },
+        /**
+         * @returns {Object} focused form record from categories object
+         */
+        focusedFormRecord() {
+            return this.categories[this.focusedFormID] || {};
+        },
+        /**
+         * @returns {boolean} true once sensitive indicator found
+         */
+        focusedFormIsSensitive() {
+            let isSensitive = false;
+            this.focusedFormTree.forEach(section => {
+                if(!isSensitive) {
+                    isSensitive = this.checkSensitive(section);
+                }
+            });
+            return isSensitive;
         },
         /**
          * @returns {array} categories records that are internal forms of the main form
@@ -208,6 +235,58 @@ export default {
         }
     },
     methods: {
+        getFormFromQueryParam() {
+            const formReg = /^form_[0-9a-f]{5}$/i;
+            if (formReg.test(this.$route.query?.formID || '') === true) {
+                const formID = this.$route.query.formID;
+                if (this.categories[formID] === undefined) {
+                    this.getFormByCategoryID(); //valid formID pattern, but form does not exist.  This will clear out info but also provide a message and link back
+                } else {
+                    //if the form does exist, check that an internal form was not entered (it would need to be explicitly entered to the url, but would cause issues)
+                    const parID = this.categories[formID].parentID;
+                    if (parID === '') {
+                        this.getFormByCategoryID(formID, true);
+                    } else {
+                        this.$router.push({name:'category', query:{formID: parID}});
+                    }
+                }
+
+            } else { //if the value of formID is not a valid catID nav back to browser view
+                this.$router.push({ name:'browser' });
+            }
+        },
+        /**
+         * @param {string} catID
+         * @param {boolean} setFormLoading show loader
+         * @returns {array} of objects with information about the form (indicators and structure relations)
+         */
+        getFormByCategoryID(catID = '', setFormLoading = false) {
+            console.log('checking user status, params:', catID, setFormLoading);
+            return new Promise((resolve, reject)=> {
+                if (catID === '') {
+                    console.log('get form called with empty, clearing info and resolving')
+                    this.focusedFormID = '';
+                    this.focusedFormTree = [];
+                    resolve();
+
+                } else {
+                    console.log(`get form called with ID ${catID}, getting form info`);
+                    this.appIsLoadingForm = setFormLoading;
+                    this.setDefaultAjaxResponseMessage();
+                    $.ajax({
+                        type: 'GET',
+                        url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
+                        success: (res)=> {
+                            this.focusedFormID = catID;
+                            this.focusedFormTree = res;
+                            this.appIsLoadingForm = false;
+                            resolve(res)
+                        },
+                        error: (err)=> reject(err)
+                    });
+                }
+            });
+        },
         getFileManagerTextFiles() {
             $.ajax({
               type: 'GET',
@@ -222,6 +301,21 @@ export default {
               },
               cache: false
             });
+        },
+        checkSensitive(node = {}) {
+            if (parseInt(node.is_sensitive) === 1) {
+                return true;
+
+            } else {
+                let sensitive = false;
+                if (node.child) {
+                    for (let c in node.child) {
+                        sensitive = this.checkSensitive(node.child[c]) || false;
+                        if (sensitive === true) break;
+                    }
+                }
+                return sensitive;
+            }
         },
         forceUpdate() {
             this.updateKey += 1;
@@ -489,6 +583,18 @@ export default {
         }
     },
     watch: {
+        appIsLoadingCategories(newVal, oldVal) {
+            if(oldVal === true && this.$route.query.formID) {
+                console.log('App finished updating categories and formID exists, getting form from query');
+                this.getFormFromQueryParam();
+            }
+        },
+        "$route.query.formID"(newVal = '', oldVal = '') {
+            if(!this.appIsLoadingCategories) {
+                console.log('FE watcher on route trigged getFormFromQuery');
+                this.getFormFromQueryParam();
+            }
+        },
         sortOrParentChanged(newVal, oldVal) {
             if(newVal === true) {
                 this.applySortAndParentID_Updates();
@@ -497,7 +603,7 @@ export default {
     },
     template:`<FormEditorMenu />
     <section id="formEditor_content">
-        <div v-if="appIsLoadingForm || appIsLoadingCategoryList" class="page_loading">
+        <div v-if="appIsLoadingForm || appIsLoadingCategories" class="page_loading">
             Loading... 
             <img src="../images/largespinner.gif" alt="loading..." />
         </div>
@@ -650,7 +756,7 @@ export default {
         <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
-                <component :is="dialogFormContent"></component>
+                <component :is="dialogFormContent" @get-form="getFormByCategoryID"></component>
             </template>
         </leaf-form-dialog>
     </section>`

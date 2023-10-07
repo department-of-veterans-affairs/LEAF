@@ -13,7 +13,6 @@ export default {
         'setDialogSaveFunction',
         'dialogData',
         'addNewCategory',
-        'getFormByCategoryID',
         'closeFormDialog'
 	],
     created() {
@@ -22,6 +21,7 @@ export default {
     mounted() {
         document.getElementById('name').focus();
     },
+    emits: ['get-form'],
     computed: {
         nameCharsRemaining(){
             return Math.max(50 - this.categoryName.length, 0);
@@ -42,7 +42,7 @@ export default {
                     CSRFToken: this.CSRFToken
                 },
                 success: (res)=> {
-                    let newCatID = res;
+                    const newCatID = res;
                     let temp = {};
                     //specified values
                     temp.categoryID = newCatID;
@@ -62,7 +62,7 @@ export default {
                     if(this.newFormParentID === '') { //new main form
                         this.$router.push({name: 'category', query: { formID: newCatID }});
                     } else { //new internal
-                        this.getFormByCategoryID(newCatID)
+                        this.$emit('get-form', newCatID);
                     }
                     this.closeFormDialog();
                 },
