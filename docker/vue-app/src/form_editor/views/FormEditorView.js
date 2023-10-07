@@ -42,7 +42,7 @@ export default {
             updateKey: 0,
             currentFormPage: 0,
             selectedNodeIndicatorID: null,
-            fileManagerTextFiles: [],
+            fileManagerTextFiles: []
         }
     },
     components: {
@@ -66,11 +66,11 @@ export default {
         'APIroot',
         'CSRFToken',
         'libsPath',
+        'getSiteSettings',
         'setDefaultAjaxResponseMessage',
         'appIsLoadingCategoryList',
         'appIsLoadingForm',
         'categories',
-        'selectNewCategory',
         'getFormByCategoryID',
         'showLastUpdate',
         'newQuestion',
@@ -91,12 +91,13 @@ export default {
     beforeRouteEnter(to, from, next) {
         window.scrollTo(0,0);
         next(vm => {
+            vm.getSiteSettings();
             vm.setDefaultAjaxResponseMessage();
             vm.getFileManagerTextFiles();
         });
     },
     beforeRouteLeave(to, from) {
-        this.selectNewCategory(); //this will clear out focussed form info.
+        this.getFormByCategoryID(); //this will clear out focussed form info on app.
     },
     provide() {
         return {
@@ -519,7 +520,7 @@ export default {
                 </li>
                 <li>
                     <button type="button" v-if="mainFormID !== ''"
-                        @click="selectNewCategory(mainFormID)" :title="'to parent form ' + mainFormID" :disabled="subformID === ''">
+                        @click="getFormByCategoryID(mainFormID)" :title="'to parent form ' + mainFormID" :disabled="subformID === ''">
                         <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
                     </button>
                     <span v-if="subformID !== ''" class="header-arrow" role="img" aria="">❯</span>
@@ -540,7 +541,7 @@ export default {
                     <h3>Internal Forms</h3>
                     <ul :id="'internalFormRecords_' + focusedFormID">
                         <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
-                            <button type="button" @click="selectNewCategory(i.categoryID)"
+                            <button type="button" @click="getFormByCategoryID(i.categoryID)"
                                 :class="{selected: i.categoryID === focusedFormID}">
                                 <span role="img" aria="">📃&nbsp;</span>
                                 {{shortFormNameStripped(i.categoryID, 20)}}

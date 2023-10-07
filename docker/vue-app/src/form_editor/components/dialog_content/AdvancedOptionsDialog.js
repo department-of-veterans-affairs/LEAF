@@ -21,7 +21,7 @@ export default {
         'focusedFormRecord',
         'currIndicatorID',
         'indicatorRecord',
-        'selectNewCategory',
+        'getFormByCategoryID',
         'hasDevConsoleAccess',
         'selectedNodeIndicatorID'
     ],
@@ -85,7 +85,7 @@ export default {
                     this.html = htmlValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_html').innerHTML = ', Last saved: ' + time;
-                    this.selectNewCategory(this.formID);
+                    this.getFormByCategoryID(this.formID);
                 },
                 error: (err) => console.log(err)
             });
@@ -103,7 +103,7 @@ export default {
                     this.htmlPrint = htmlPrintValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_htmlPrint').innerHTML =', Last saved: ' + time;
-                    this.selectNewCategory(this.formID);
+                    this.getFormByCategoryID(this.formID);
                 },
                 error: (err) => console.log(err)
             });
@@ -146,7 +146,7 @@ export default {
             Promise.all(advancedOptionsUpdates).then((res)=> {
                 this.closeFormDialog();
                 if (res.length > 0) {
-                    this.selectNewCategory(this.formID);
+                    this.getFormByCategoryID(this.formID);
                 }
             }).catch(err => console.log('an error has occurred', err));
         }

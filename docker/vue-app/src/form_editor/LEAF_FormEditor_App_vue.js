@@ -70,12 +70,12 @@ export default {
             libsPath: this.libsPath,
             getCategoryListAll: this.getCategoryListAll,
             hasDevConsoleAccess: this.hasDevConsoleAccess,
+            getSiteSettings: this.getSiteSettings,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
             newQuestion: this.newQuestion,
             editQuestion: this.editQuestion,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
-            selectNewCategory: this.selectNewCategory,
             getFormByCategoryID: this.getFormByCategoryID,
             updateCategoriesProperty: this.updateCategoriesProperty,
             updateStapledFormsInfo: this.updateStapledFormsInfo,
@@ -120,18 +120,12 @@ export default {
                 this.getFormFromQueryParam();
             }
         }).catch(err => console.log('error getting category list', err));
-        this.getSiteSettings();
     },
     watch: {
         "$route.query.formID"(newVal = '', oldVal = '') {
             if(this.$route.name === 'category' && !this.appIsLoadingCategoryList) {
                 console.log('app watcher on route trigged getFormFromQuery')
                 this.getFormFromQueryParam();
-            }
-        },
-        siteSettings(newVal, oldVal) {
-            if (+newVal?.leafSecure >= 1) {
-                this.getSecureFormsInfo();
             }
         }
     },
@@ -245,6 +239,8 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}formStack/categoryList/allWithStaples`,
                     success: (res) => {
+                        console.log('recreating categories');
+                        this.categories = {};
                         for(let i in res) {
                             this.categories[res[i].categoryID] = res[i];
                             res[i].stapledFormIDs.forEach(id => {
@@ -265,12 +261,12 @@ export default {
             if (formReg.test(this.$route.query?.formID || '') === true) {
                 const formID = this.$route.query.formID;
                 if (this.categories[formID] === undefined) {
-                    this.selectNewCategory(); //valid formID pattern, but form does not exist.  This will clear out info but also provide a message and link back
+                    this.getFormByCategoryID(); //valid formID pattern, but form does not exist.  This will clear out info but also provide a message and link back
                 } else {
                     //if the form does exist, check that an internal form was not entered (it would need to be explicitly entered to the url, but would cause issues)
                     const parID = this.categories[formID].parentID;
                     if (parID === '') {
-                        this.selectNewCategory(formID, true);
+                        this.getFormByCategoryID(formID, true);
                     } else {
                         this.$router.push({name:'category', query:{formID: parID}});
                     }
@@ -281,12 +277,17 @@ export default {
             }
         },
         /**
-         * @returns {Object} of all records from the portal's settings table
+         * @returns {Object} of all records from the portal's settings table.  Followup Leaf Secure check if leafSecure date exists
          */
         getSiteSettings() {
             try {
                 fetch(`${this.APIroot}system/settings`).then(res => {
-                    res.json().then(data => this.siteSettings = data);
+                    res.json().then(data => {
+                        this.siteSettings = data;
+                        if (+data?.leafSecure >= 1) {
+                            this.getSecureFormsInfo();
+                        }
+                    });
                 });
             } catch(error) {
                 console.log('error getting site settings', error);
@@ -330,13 +331,11 @@ export default {
                 this.fetchLEAFSRequests(true)
             ];
 
-            Promise.all(secureCalls)
-            .then((res)=> {
+            Promise.all(secureCalls).then((res)=> {
                 const indicatorList = res[0];
                 const leafSecureRecords = res[1];
                 this.checkLeafSRequestStatus(indicatorList, leafSecureRecords);
             }).catch(err => console.log('an error has occurred', err));
-
         },
         /**
          * checks status of LEAF Secure Certification requests and adds HTML contents based on status
@@ -355,7 +354,6 @@ export default {
                     mostRecentID = i;
                 }
             }
-            this.secureBtnLink = '../index.php?a=printview&recordID=' + mostRecentID;
             const mostRecentTimestamp = new Date(parseInt(mostRecentDate)*1000); // converts epoch secs to ms
             for(let i in indicatorList) {
                 if(new Date(indicatorList[i].timeAdded).getTime() > mostRecentTimestamp.getTime()) {
@@ -376,27 +374,42 @@ export default {
                         this.secureBtnText = 'Check Certification Progress';
                         this.secureBtnLink = '../index.php?a=printview&recordID=' + recordID;
                     }
-                    
                 }).catch(err => console.log('an error has occurred', err));
+
+            } else {
+                this.showCertificationStatus = false;
             }
         },
         /**
-         * @param {string} catID 
+         * @param {string} catID
+         * @param {boolean} setFormLoading show loader
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
-        getFormByCategoryID(catID = '') {
+        getFormByCategoryID(catID = '', setFormLoading = false) {
+            console.log('checking user status and getting form', catID, setFormLoading);
             return new Promise((resolve, reject)=> {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
-                    success: (res)=> {
-                        this.focusedFormID = catID;
-                        this.focusedFormTree = res;
-                        this.appIsLoadingForm = false;
-                        resolve(res)
-                    },
-                    error: (err)=> reject(err)
-                });
+                if (catID === '') {
+                    console.log('get form called with empty, clearing info and resolving')
+                    this.focusedFormID = '';
+                    this.focusedFormTree = [];
+                    resolve();
+
+                } else {
+                    console.log('get form called with ID, getting form info')
+                    this.appIsLoadingForm = setFormLoading;
+                    this.setDefaultAjaxResponseMessage();
+                    $.ajax({
+                        type: 'GET',
+                        url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
+                        success: (res)=> {
+                            this.focusedFormID = catID;
+                            this.focusedFormTree = res;
+                            this.appIsLoadingForm = false;
+                            resolve(res)
+                        },
+                        error: (err)=> reject(err)
+                    });
+                }
             });
         },
         /**
@@ -458,26 +471,7 @@ export default {
         removeCategory(catID = '') {
             delete this.categories[catID];
         },
-        /**
-         * @param {string} catID of the form to select
-         * @param {number|null} subnodeIndID indicatorID of currently selected form section or indicator
-         * @param {boolean} setFormLoading show loader
-         */
-        selectNewCategory(catID = '', setFormLoading = false) {
-            this.setDefaultAjaxResponseMessage();
-            if (catID !== '') {
-                if (setFormLoading === true) this.appIsLoadingForm = true
-                this.getFormByCategoryID(catID);
 
-            } else {  //card browser. TODO: move to FE or Browser views
-                console.log('snc called with empty, clearing info')
-                this.focusedFormID = '';
-                this.focusedFormTree = [];
-                this.categories = {};
-                this.getCategoryListAll();
-                this.getSecureFormsInfo();
-            }
-        },
         /** DIALOG MODAL RELATED */
         /**
          * close dialog and reset values

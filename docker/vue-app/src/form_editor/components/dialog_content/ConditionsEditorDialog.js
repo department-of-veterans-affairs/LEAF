@@ -31,7 +31,7 @@ export default {
         'currIndicatorID',
         'focusedFormRecord',
         'selectedNodeIndicatorID',
-        'selectNewCategory',
+        'getFormByCategoryID',
         'closeFormDialog',
         'truncateText',
         'decodeAndStripHTML',
@@ -171,7 +171,7 @@ export default {
                     },
                     success: (res)=> {
                         if (res !== 'Invalid Token.') {
-                            this.selectNewCategory(this.formID);
+                            this.getFormByCategoryID(this.formID);
                             this.closeFormDialog();
                         } else { console.log('error adding condition', res) }
                     },

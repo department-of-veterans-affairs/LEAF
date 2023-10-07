@@ -13,7 +13,7 @@ export default {
         'setDialogSaveFunction',
         'dialogData',
         'addNewCategory',
-        'selectNewCategory',
+        'getFormByCategoryID',
         'closeFormDialog'
 	],
     created() {
@@ -62,7 +62,7 @@ export default {
                     if(this.newFormParentID === '') { //new main form
                         this.$router.push({name: 'category', query: { formID: newCatID }});
                     } else { //new internal
-                        this.selectNewCategory(newCatID)
+                        this.getFormByCategoryID(newCatID)
                     }
                     this.closeFormDialog();
                 },

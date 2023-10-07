@@ -15,6 +15,7 @@ export default {
         FormBrowser
     },
     inject: [
+        'getSiteSettings',
         'setDefaultAjaxResponseMessage',
         'getCategoryListAll',
         'showFormDialog',
@@ -25,6 +26,7 @@ export default {
         next(vm => {
             console.log('entering form browser');
             vm.setDefaultAjaxResponseMessage();
+            vm.getSiteSettings();
             if(vm.appIsLoadingCategoryList === false) {
                 console.log('browser view initiated category list update')
                 vm.getCategoryListAll();

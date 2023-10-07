@@ -5,7 +5,7 @@ export default {
         'CSRFToken',
         'setDialogSaveFunction',
         'focusedFormRecord',
-        'selectNewCategory',
+        'getFormByCategoryID',
         'removeCategory',
         'closeFormDialog'
     ],
@@ -43,7 +43,7 @@ export default {
                             if(parID === '') { //if a main form is deleted go to browser
                                 this.$router.push({ name: 'browser'});
                             } else { //otherwise focus parent
-                                this.selectNewCategory(parID, true);
+                                this.getFormByCategoryID(parID, true);
                             }
                             this.closeFormDialog();
                         } else {

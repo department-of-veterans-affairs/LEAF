@@ -93,7 +93,7 @@ export default {
         'focusedFormRecord',
         'focusedFormTree',
         'selectedNodeIndicatorID',
-        'selectNewCategory',
+        'getFormByCategoryID',
         'newIndicatorParentID',
         'truncateText',
         'decodeAndStripHTML',
@@ -451,18 +451,17 @@ export default {
 
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 if (res.length > 0) {
-                    this.selectNewCategory(this.formID);
+                    this.getFormByCategoryID(this.formID);
                     //if a new section was created
-                    // TODO: FE view now owns selectedIndID, so passing the indID to selectNew might not matter as the selectedIndID won't reset when the form is updated
-                    // It might still be ideal to update it to a parentID if a child is deleted, or to a new ind if created
+                    //TODO: optimize -
+                    // if a new section is created it should be open.
+                    // if a section is del / arch and it is the ind w focus, reset the focus
+
                     // if (this.newIndicatorID !== null && this.parentID === null) {
-                    //     this.selectNewCategory(this.formID);
+                    //     new indicator with no parent means it's a new page
                     // }
-                    // //other edits
-                    // } else {
-                    //     const nodeID = this.currIndicatorID === this.selectedNodeIndicatorID &&
-                    //         (this.archived === true || this.deleted === true) ? this.parentID : this.selectedNodeIndicatorID;
-                    //     this.selectNewCategory(this.formID, nodeID);
+                    // if (this.currIndicatorID === this.selectedNodeIndicatorID && (this.archived === true || this.deleted === true)) {
+                    //     this does not seem to cause issues, but reset focus to parent might be better
                     // }
                 }
                 this.closeFormDialog();

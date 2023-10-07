@@ -10,8 +10,7 @@ export default {
         'APIroot',
         'CSRFToken',
         'setDialogSaveFunction',
-        'closeFormDialog',
-        'selectNewCategory'
+        'closeFormDialog'
     ],
     created() {
         this.setDialogSaveFunction(this.onSave);
@@ -38,7 +37,7 @@ export default {
                             alert(res);
                         }
                         this.closeFormDialog();
-                        this.selectNewCategory();
+                        this.$router.push({ name: 'browser' }); //TODO: update return val to ID of imported form - more ideal to route to FE view
                     },
                     error: err => console.log('form import error', err),
                 })

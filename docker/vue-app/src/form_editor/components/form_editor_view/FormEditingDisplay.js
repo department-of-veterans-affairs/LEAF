@@ -9,7 +9,7 @@ export default {
         }
     },
     created() {
-        console.log('created question display', this.formNode.indicatorID, this.depth, this.formPage, this.subMenuOpen)
+        //console.log('created question display', this.formNode.indicatorID, this.depth, this.formPage, this.subMenuOpen)
     },
     props: {
         depth: Number,
