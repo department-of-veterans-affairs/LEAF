@@ -30,7 +30,6 @@ export default {
         'setDialogSaveFunction',
         'currIndicatorID',
         'focusedFormRecord',
-        'selectedNodeIndicatorID',
         'getFormByCategoryID',
         'closeFormDialog',
         'truncateText',

@@ -22,8 +22,7 @@ export default {
         'currIndicatorID',
         'indicatorRecord',
         'getFormByCategoryID',
-        'hasDevConsoleAccess',
-        'selectedNodeIndicatorID'
+        'hasDevConsoleAccess'
     ],
     created() {
         this.setDialogSaveFunction(this.onSave);

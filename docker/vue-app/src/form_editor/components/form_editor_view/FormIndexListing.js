@@ -1,23 +1,22 @@
 export default {
     name: 'form-index-listing',
-    data() {
-        return {
-            subMenuOpen: false
-        }
-    },
     props: {
         formPage: Number,
         depth: Number,
         formNode: Object,
         index: Number,
-        parentID: Number
+        parentID: Number,
+        menuOpen: Boolean
     },
     inject: [
         'truncateText',
+        'shortIndicatorNameStripped',
         'clearListItem',
         'addToListTracker',
         'selectNewFormNode',
-        'selectedNodeIndicatorID',
+        'formMenuState',
+        'updateFormMenuState',
+        'focusedIndicatorID',
         'startDrag',
         'onDragEnter',
         'onDragLeave',
@@ -25,17 +24,12 @@ export default {
         'moveListItem'
     ],
     mounted() {
-        //console.log('mounted list item')
-        //each list item is added to the array on parent component (FormEditorView), to track indicatorID, parentID, sort and current index values
+        //add to listTracker array of FormEditorView data, to track indicatorID, parentID, sort and current index values
         this.addToListTracker(this.formNode, this.parentID, this.index);
-        //expands the selected section if it's currently focussed
-        if(this.selectedNodeIndicatorID === this.formNode.indicatorID) {
-            let el = document.getElementById(`index_listing_${this.selectedNodeIndicatorID}`);
-            if (el !== null) {
-                const headingEl = el.closest('li.section_heading');
-                const elsMenu = Array.from(headingEl?.querySelectorAll(`li .sub-menu-chevron.closed`) || []);
-                elsMenu.forEach(el => el.click());
-                el.classList.add('index-selected');
+        if(this.focusedIndicatorID === this.formNode.indicatorID) {
+            const elSelected = document.getElementById(`index_listing_${this.focusedIndicatorID}`);
+            if(elSelected !== null) {
+                elSelected.focus();
             }
         }
     },
@@ -48,20 +42,6 @@ export default {
         },
         indexHoverOff(event = {}){
             event?.currentTarget?.classList.remove('index-selected');
-        },
-        toggleSubMenu(event = {}) {
-            if(event?.keyCode === 32) event.preventDefault();
-            this.subMenuOpen = !this.subMenuOpen;
-            const elLi = event.currentTarget.closest('li');
-            if(elLi !== null) {
-                elLi.focus();
-                const elLiID = (elLi.id || '').replace('index_listing_', '');
-                const cardIDText = this.subMenuOpen ? 'closed' : 'open';
-                const elBtn = document.getElementById(`card_btn_${cardIDText}_${elLiID}`);
-                if(elBtn !== null) {
-                    elBtn.dispatchEvent(new Event('click'));
-                }
-            }
         }
     },
     computed: {
@@ -69,9 +49,13 @@ export default {
             return this.depth === 0 ? this.index + 1 + '.' : '';
         },
         indexDisplay() {
-            //if the indicator has a short label (description), display that, otherwise display the name. Show 'blank' if it has neither
-            let display = this.formNode.description ?  XSSHelpers.stripAllTags(this.formNode.description) : XSSHelpers.stripAllTags(this.formNode.name);
-            return XSSHelpers.decodeHTMLEntities(this.truncateText(display)) || '[ blank ]';
+            //short label (description), otherwise display the name. Show 'blank' if it has neither
+            let display = this.formNode.description || this.formNode.name || '[ blank ]';
+            return this.shortIndicatorNameStripped(display, 38 - this.depth);
+        },
+        menuIconTitle() {
+            const option = this.menuOpen ? 'close' : 'open';
+            return `Click to ${option} this menu.  Ctrl-click to also ${option} all submenus.`;
         },
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
@@ -84,30 +68,31 @@ export default {
         }
     },
     template:`
-        <li tabindex=0 :title="'index item '+ formNode.indicatorID"
+        <li tabindex="0" :title="'index item '+ formNode.indicatorID"
             :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
             @click.stop="selectNewFormNode(formNode.indicatorID, formPage)"
             @keydown.enter.prevent="selectNewFormNode(formNode.indicatorID, formPage)">
             <div>
                 {{headingNumber}}&nbsp;{{indexDisplay}}
-                <div class="icon_move_container">
-                    <div v-show="formNode.indicatorID === selectedNodeIndicatorID" 
-                        tabindex="0" class="icon_move up" role="button" title="move item up"
-                        @click.stop="moveListItem($event, selectedNodeIndicatorID, true)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, selectedNodeIndicatorID, true)">
-                    </div>
-                    <div v-show="formNode.indicatorID === selectedNodeIndicatorID"
-                        tabindex="0" class="icon_move down" role="button" title="move item down"
-                        @click.stop="moveListItem($event, selectedNodeIndicatorID, false)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, selectedNodeIndicatorID, false)">
-                    </div>
+                <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !menuOpen}"
+                    @click.stop.exact="updateFormMenuState(formNode.indicatorID, !menuOpen)"
+                    @click.ctrl.stop.exact="updateFormMenuState(formNode.indicatorID, !menuOpen, true)"
+                    @keydown.stop.enter.space.exact.prevent="updateFormMenuState(formNode.indicatorID, !menuOpen)"
+                    @keydown.ctrl.stop.enter.space.exact.prevent="updateFormMenuState(formNode.indicatorID, !menuOpen, true)"
+                    :title="menuIconTitle">
+                    <span v-show="menuOpen" role="img" aria="">▾</span>
+                    <span v-show="!menuOpen" role="img" aria="">▸</span>
                 </div>
-                <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !subMenuOpen}"
-                    @click.stop="toggleSubMenu($event)"
-                    @keydown.stop.enter.space="toggleSubMenu($event)">
-                    <span v-show="subMenuOpen" role="img" aria="">▾</span>
-                    <span v-show="!subMenuOpen" role="img" aria="">▸</span>
+                <div v-show="formNode.indicatorID === focusedIndicatorID" class="icon_move_container">
+                    <div tabindex="0" class="icon_move up" role="button" title="move item up"
+                        @click.stop="moveListItem($event, formNode.indicatorID, true)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, formNode.indicatorID, true)">
+                    </div>
+                    <div tabindex="0" class="icon_move down" role="button" title="move item down"
+                        @click.stop="moveListItem($event, formNode.indicatorID, false)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, formNode.indicatorID, false)">
+                    </div>
                 </div>
             </div>
             
@@ -120,13 +105,14 @@ export default {
                 @dragleave="onDragLeave">
 
                 <template v-if="formNode.child">
-                    <form-index-listing v-show="subMenuOpen" v-for="(child, k, i) in formNode.child"
+                    <form-index-listing v-show="menuOpen" v-for="(child, k, i) in formNode.child"
                         :id="'index_listing_' + child.indicatorID"
                         :formPage=formPage
                         :depth="depth + 1"
                         :parentID="formNode.indicatorID"
                         :formNode="child"
                         :index="i"
+                        :menuOpen="formMenuState?.[child.indicatorID] !== undefined ? formMenuState[child.indicatorID] : false"
                         :key="'index_list_item_' + child.indicatorID"
                         draggable="true"
                         @dragstart.stop="startDrag"> 

@@ -92,7 +92,8 @@ export default {
         'indicatorRecord',
         'focusedFormRecord',
         'focusedFormTree',
-        'selectedNodeIndicatorID',
+        'selectNewFormNode',
+        'focusedIndicatorID',
         'getFormByCategoryID',
         'newIndicatorParentID',
         'truncateText',
@@ -452,17 +453,9 @@ export default {
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.formID);
-                    //if a new section was created
-                    //TODO: optimize -
-                    // if a new section is created it should be open.
-                    // if a section is del / arch and it is the ind w focus, reset the focus
-
-                    // if (this.newIndicatorID !== null && this.parentID === null) {
-                    //     new indicator with no parent means it's a new page
-                    // }
-                    // if (this.currIndicatorID === this.selectedNodeIndicatorID && (this.archived === true || this.deleted === true)) {
-                    //     this does not seem to cause issues, but reset focus to parent might be better
-                    // }
+                    if (this.currIndicatorID === this.focusedIndicatorID && (this.archived === true || this.deleted === true)) {
+                        this.selectNewFormNode(); //reset the focus if the focused Ind was removed
+                    }
                 }
                 this.closeFormDialog();
             }).catch(err => console.log('an error has occurred', err));

@@ -2,19 +2,11 @@ import FormatPreview from "./FormatPreview";
 
 export default {
     name: 'form-editing-display',
-    data() {
-        return {
-            //the first card will be open on initial load
-            subMenuOpen: this.selectedNodeIndicatorID === null && this.formPage === 0
-        }
-    },
-    created() {
-        //console.log('created question display', this.formNode.indicatorID, this.depth, this.formPage, this.subMenuOpen)
-    },
     props: {
         depth: Number,
         formPage: Number,
-        formNode: Object
+        formNode: Object,
+        menuOpen: Boolean
     },
     components: {
         FormatPreview
@@ -23,8 +15,7 @@ export default {
         'libsPath',
         'newQuestion',
         'shortIndicatorNameStripped',
-        'selectNewFormNode',
-        'selectedNodeIndicatorID',
+        'updateFormMenuState',
         'editQuestion',
         'openAdvancedOptionsDialog',
         'openIfThenDialog',
@@ -36,7 +27,7 @@ export default {
     ],
     computed: {
         showDetails() {
-            return !this.showToolbars || this.subMenuOpen || this.depth > 0;
+            return !this.showToolbars || this.menuOpen || this.depth > 0;
         },
         isHeaderLocation() {
             let ID = parseInt(this.formNode.indicatorID);
@@ -74,27 +65,12 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    methods: {
-        openCard(nodeID = 0, formPage = 0) { 
-            console.log(nodeID, formPage)
-            if(nodeID !== 0 && this.selectedNodeIndicatorID !== nodeID) {
-                this.selectNewFormNode(nodeID, formPage);
-            }
-            this.subMenuOpen = true;
-        },
-        closeCard(nodeID = 0) {
-            if(this.selectedNodeIndicatorID === nodeID) {
-                this.selectNewFormNode(null, 0);
-            }
-            this.subMenuOpen = false;
-        }
-
-    },
     template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation}" :id="printResponseID">
             <button v-if="depth===0 && showToolbars" type="button" :id="'card_btn_open_' + formNode.indicatorID"
-                class="card_toggle"
-                @click="closeCard(formNode.indicatorID)"
-                aria-label="close page">-
+                class="card_toggle" title="collapse page"
+                @click.exact="updateFormMenuState(formNode.indicatorID, false)"
+                @click.ctrl.exact="updateFormMenuState(formNode.indicatorID, false, true)"
+                aria-label="collapse page">-
             </button>
 
             <!-- EDITING AREA FOR INDICATOR -->
@@ -158,8 +134,9 @@ export default {
 
     <div v-else tabindex="0" class="form-page-card">
         <button type="button" :id="'card_btn_closed_' + formNode.indicatorID"
-            class="card_toggle closed"
-            @click="openCard(formNode.indicatorID, formPage)"
+            class="card_toggle closed" title="expand page"
+            @click.exact="updateFormMenuState(formNode.indicatorID, true)"
+            @click.ctrl.exact="updateFormMenuState(formNode.indicatorID, true, true)"
             aria-label="expand page">+</button>
         <div>
             {{ shortIndicatorNameStripped(formNode?.name || '') }} (page {{formPage + 1}})

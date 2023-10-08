@@ -44,7 +44,7 @@ export default {
             appIsLoadingForm: false,
             focusedFormID: '',
             focusedFormTree: [],
-            selectedNodeIndicatorID: null,
+            focusedIndicatorID: null,
             fileManagerTextFiles: []
         }
     },
@@ -73,6 +73,8 @@ export default {
         'setDefaultAjaxResponseMessage',
         'appIsLoadingCategories',
         'categories',
+        'formMenuState',
+        'updateFormMenuState',
         'showLastUpdate',
         'newQuestion',
         'editQuestion',
@@ -95,19 +97,15 @@ export default {
             vm.setDefaultAjaxResponseMessage();
             vm.getFileManagerTextFiles();
             if(!vm.appIsLoadingCategories && vm.$route.query.formID) {
-                console.log('FE router enter getFormFromQuery');
                 vm.getFormFromQueryParam();
             }
         });
-    },
-    beforeRouteLeave(to, from) {
-        this.getFormByCategoryID(); //this will clear out focussed form info on app.
     },
     provide() {
         return {
             listTracker: computed(() => this.listTracker),
             showToolbars: computed(() => this.showToolbars),
-            selectedNodeIndicatorID: computed(() => this.selectedNodeIndicatorID),
+            focusedIndicatorID: computed(() => this.focusedIndicatorID),
             fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
             internalFormRecords: computed(() => this.internalFormRecords),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
@@ -139,9 +137,6 @@ export default {
             const queryID = this.$route.query.formID;
             return this.categories[queryID] || {};
         },
-        // focusedFormID() {
-        //     return this.focusedFormRecord?.categoryID || '';
-        // },
         mainFormID() {
             return this.focusedFormRecord?.parentID === '' ?
                 this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
@@ -261,24 +256,20 @@ export default {
          * @returns {array} of objects with information about the form (indicators and structure relations)
          */
         getFormByCategoryID(catID = '', setFormLoading = false) {
-            console.log('checking user status, params:', catID, setFormLoading);
             return new Promise((resolve, reject)=> {
                 if (catID === '') {
-                    console.log('get form called with empty, clearing info and resolving')
                     this.focusedFormID = '';
                     this.focusedFormTree = [];
                     resolve();
-
                 } else {
-                    console.log(`get form called with ID ${catID}, getting form info`);
                     this.appIsLoadingForm = setFormLoading;
                     this.setDefaultAjaxResponseMessage();
                     $.ajax({
                         type: 'GET',
                         url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                         success: (res)=> {
-                            this.focusedFormID = catID;
-                            this.focusedFormTree = res;
+                            this.focusedFormID = catID || '';
+                            this.focusedFormTree = res || [];
                             this.appIsLoadingForm = false;
                             resolve(res)
                         },
@@ -325,18 +316,9 @@ export default {
          * @param {Number} page base 0 form page 
          */
         selectNewFormNode(nodeID = null, page = 0) {
-            this.selectedNodeIndicatorID = nodeID;
+            this.focusedIndicatorID = nodeID;
             this.currentFormPage = page;
-            console.log('called select new node', nodeID, page)
-            setTimeout(() => {
-                const target = document.getElementById(`index_listing_${nodeID}`);
-                if (target !== null) {
-                    const elsClosedMenu = Array.from(target.querySelectorAll(`.sub-menu-chevron.closed`));
-                    elsClosedMenu.forEach(el => {
-                        el.click()
-                    });
-                }
-            })
+            console.log('update ind and page', nodeID, page);
         },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
@@ -365,7 +347,6 @@ export default {
                 if(parentEl?.id === "base_drop_area" && oldIndex === this.currentFormPage) {
                     this.currentFormPage += spliceLoc;
                 }
-                event?.currentTarget?.focus();
             }
         },
         /**
@@ -464,28 +445,21 @@ export default {
                 event.preventDefault();
                 const baseDropArea = document.querySelector('ul#base_drop_area');
                 const draggedElID = event.dataTransfer.getData('text');
-                const parentEl = event.currentTarget; //drop event is on the parent ul
-
                 const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
+
+                const parentEl = event.currentTarget; //NOTE: drop event is on the parent ul, the li is the el being moved
                 const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
 
                 const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
                 const elLiToMove = document.getElementById(draggedElID);
+
+                let success = false;
                 //if the drop target ul has no items yet, just append
                 if (elsLI.length === 0) {
                     try {
                         parentEl.append(elLiToMove);
                         this.updateListTracker(indID, formParIndID, 0);
-                        this.selectedNodeIndicatorID = indID;
-                        const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
-                        if(elClosestFormPage !== null && baseDropArea !== null) {
-                            const allPages = Array.from(baseDropArea.querySelectorAll(':scope > li'));
-                            const thisPageIndex = allPages.indexOf(elClosestFormPage);
-                            if(thisPageIndex > -1) {
-                                this.currentFormPage = thisPageIndex
-                            }
-                        }
-
+                        success = true;
                     } catch (error) {
                         console.log(error);
                     }
@@ -502,18 +476,23 @@ export default {
                                 const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
                                 this.updateListTracker(indID, formParIndID, i);
                             });
-                            this.selectedNodeIndicatorID = indID;
-                            const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
-                            if(elClosestFormPage !== null && baseDropArea !== null) {
-                                const allPages = Array.from(baseDropArea.querySelectorAll(':scope > li'));
-                                const thisPageIndex = allPages.indexOf(elClosestFormPage);
-                                if(thisPageIndex > -1) {
-                                    this.currentFormPage = thisPageIndex;
-                                }
-                            }
-
+                            success = true;
                         } catch(error) {
                             console.log(error);
+                        }
+                    }
+                }
+                if(success === true) {
+                    this.focusedIndicatorID = indID;
+                    const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
+                    if(elClosestFormPage !== null && baseDropArea !== null) {
+                        const allPages = Array.from(baseDropArea.querySelectorAll(':scope > li'));
+                        const thisPageIndex = allPages.indexOf(elClosestFormPage);
+                        if(thisPageIndex > -1) {
+                            this.currentFormPage = thisPageIndex;
+                        }
+                        if(+formParIndID > 0 && !this.formMenuState[formParIndID]) {
+                            this.updateFormMenuState(formParIndID, true);
                         }
                     }
                 }
@@ -574,9 +553,6 @@ export default {
         shortIndicatorNameStripped(text = '', len = 35) {
             const name = this.decodeAndStripHTML(text);
             return this.truncateText(name, len).trim() || '[ blank ]';
-        },
-        layoutBtnIsDisabled(form) {
-            return form.categoryID === this.focusedFormRecord.categoryID && this.selectedNodeIndicatorID === null
         },
         makePreviewKey(node) {
             return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
@@ -683,9 +659,9 @@ export default {
                                 draggable="false" :class="{selected: form.categoryID === focusedFormID}">
 
                                 <button type="button" @click="getFormByCategoryID(form.categoryID)"
-                                    class="layout-listitem" :disabled="layoutBtnIsDisabled(form)"
+                                    class="layout-listitem" :disabled="form.categoryID === focusedFormID"
                                     :title="'form ' + form.categoryID">
-                                    <span :style="{textDecoration: layoutBtnIsDisabled(form) ? 'none' : 'underline'}">
+                                    <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
                                         {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
                                     </span>
                                     <span v-if="form.formContextType === 'staple'" role="img" aria="">📌</span>
@@ -715,6 +691,7 @@ export default {
                                         :formNode="formSection"
                                         :index=i
                                         :parentID=null
+                                        :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : false"
                                         :key="'index_list_item_' + formSection.indicatorID"
                                         draggable="true"
                                         @dragstart.stop="startDrag">
@@ -739,14 +716,13 @@ export default {
                             :depth="0"
                             :formPage="i"
                             :formNode="formSection"
-                        >
+                            :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : true">
                         </form-editing-display>
                     </div>
                     <button type="button" class="btn-general" style="width: 100%; margin-top: auto;"
                         @click="newQuestion(null)"
                         id="add_new_form_section_2"
-                        title="Add new form section"
-                    >
+                        title="Add new form section">
                         + Add Section
                     </button>
                 </div>

@@ -386,7 +386,7 @@ div#form_content_view {
         ul.form-index-listing-ul {
             margin: 0;
             padding: 0 0 4px 0; /* btm padding needed for drop zones */
-            padding-left: 1em;
+            padding-left: 0.75em;
             display: flex;
             flex-direction: column; 
             min-height: 6px;  /*NOTE: min height needed for drop zones*/
@@ -411,6 +411,7 @@ div#form_content_view {
                 flex-direction: column;
                 margin-left: auto;
                 margin-right: 0.2em;
+                padding-top:0.25em;
     
                 .icon_move {
                     @include flexcenter;
@@ -441,8 +442,8 @@ div#form_content_view {
             }
     
             .sub-menu-chevron {
-                padding: 2px;
-                font-size: 1.2em;
+                padding: 4px 2px 2px 2px;
+                font-size: 1.25em;
                 align-self: center; 
                 font-weight: bold;
                 border-radius: 2px;
@@ -499,11 +500,13 @@ div#form_content_view {
             &:not(#addInternalUse) {
                 background-color: $BG_Pearl;
                 &.selected {
+                    cursor: auto;
                     background-color: $lt_cyan;
                     border: 2px solid $LEAF_CSS_outline;
                 }
             }
             &:hover, &:focus, &:active {
+                border: 2px solid $LEAF_CSS_outline;
                 outline: none !important;
             }
         }
