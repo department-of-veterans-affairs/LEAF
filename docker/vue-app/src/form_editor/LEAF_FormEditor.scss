@@ -381,7 +381,7 @@ div#form_content_view {
             color: black;
         }
         li.section_heading > div, li.subindicator_heading > div {
-            padding-left: 0.25rem;
+            padding-left: 0.5rem;
         } 
         ul.form-index-listing-ul {
             margin: 0;
@@ -586,7 +586,9 @@ div[id^="layoutFormRecords_"] > ul > li  {
 
     .form-page-card {
         position: relative;
-        padding: 0.5em;
+        font-size: 110%;
+        padding: 0.75rem;
+        background-color: $manila;
         border: 3px solid $BG_Pearl;
         border-left: 7px solid $BG_Pearl;
         border-radius: 4px;
@@ -635,7 +637,8 @@ div[id^="layoutFormRecords_"] > ul > li  {
 
     .form_editing_area {
         display: flex;
-        padding: 2px 2px 0.5rem 2px;
+        flex-direction: column;
+        padding-bottom: 1rem;
         background-color: white;
 
         button:not(.choices__button) {
@@ -652,7 +655,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
             background-color: #e1f3f8;
         }
         .indicator-name-preview {
-            padding: 2px;
+            padding: calc(0.75rem + 3px) 0.75rem 0.75rem 0.75rem;
             width: 100%;
             .input-required-sensitive {
                 color: $attention;
@@ -665,16 +668,15 @@ div[id^="layoutFormRecords_"] > ul > li  {
         }
 
         div[id^="form_editing_toolbar_"] {
-            margin-left: 0.25rem;
             padding: 3px;
-            border-radius: 2px;
+            border-radius: 3px;
             display: flex;
             flex-direction:column;
             align-items: stretch;
             align-self: flex-start;
             font-size: 90%;
             color: black;
-            gap: 3px;
+            gap: 2px;
 
             > div {
                 display: flex; 
@@ -684,12 +686,15 @@ div[id^="layoutFormRecords_"] > ul > li  {
                 min-width: 221px;
             }
             button {
+                padding: 1px 6px;
                 font-weight: normal;
             }
         }
         &.form-header {
             background-color: $manila;
             font-weight:  bolder;
+            padding-bottom: 3px;
+            margin-bottom: 1rem;
         }
 
         &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] button {

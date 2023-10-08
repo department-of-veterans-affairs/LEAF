@@ -12,7 +12,7 @@ import ConfirmDeleteDialog from "../components/dialog_content/ConfirmDeleteDialo
 import ConditionsEditorDialog from "../components/dialog_content/ConditionsEditorDialog.js";
 
 import FormEditorMenu from "../components/form_editor_view/FormEditorMenu.js";
-import FormEditingDisplay from '../components/form_editor_view/FormEditingDisplay.js';
+import FormQuestionDisplay from '../components/form_editor_view/FormQuestionDisplay.js';
 import FormIndexListing from '../components/form_editor_view/FormIndexListing.js';
 import EditPropertiesPanel from '../components/form_editor_view/EditPropertiesPanel.js';
 
@@ -61,7 +61,7 @@ export default {
         ConditionsEditorDialog,
 
         FormEditorMenu,
-        FormEditingDisplay,
+        FormQuestionDisplay,
         FormIndexListing,
         EditPropertiesPanel
     },
@@ -561,7 +561,6 @@ export default {
     watch: {
         appIsLoadingCategories(newVal, oldVal) {
             if(oldVal === true && this.$route.query.formID) {
-                console.log('App finished updating categories and formID exists, getting form from query');
                 this.getFormFromQueryParam();
             }
         },
@@ -711,13 +710,13 @@ export default {
                 <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
                     <div class="printformblock">
-                        <form-editing-display v-for="(formSection, i) in focusedFormTree"
+                        <form-question-display v-for="(formSection, i) in focusedFormTree"
                             :key="'editing_display_' + formSection.indicatorID + makePreviewKey(formSection)"
                             :depth="0"
                             :formPage="i"
                             :formNode="formSection"
                             :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : true">
-                        </form-editing-display>
+                        </form-question-display>
                     </div>
                     <button type="button" class="btn-general" style="width: 100%; margin-top: auto;"
                         @click="newQuestion(null)"

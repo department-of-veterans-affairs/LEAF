@@ -1,7 +1,7 @@
 import FormatPreview from "./FormatPreview";
 
 export default {
-    name: 'form-editing-display',
+    name: 'form-question-display',
     props: {
         depth: Number,
         formPage: Number,
@@ -74,61 +74,65 @@ export default {
             </button>
 
             <!-- EDITING AREA FOR INDICATOR -->
-            <div class="form_editing_area"
-                :class="{'conditional': conditionalQuestion, 'form-header': isHeaderLocation}">
-                <div style="width: 100%;">
+            <div class="form_editing_area" :class="{'conditional': conditionalQuestion, 'form-header': isHeaderLocation}">
+                <div style="width: 100%; display:flex; gap: 0.5rem; justify-content: space-between;">
                     <!-- NAME -->
                     <div style="display:flex;">
                         <div v-html="indicatorName" @click="toggleToolbars($event, parseInt(formNode.indicatorID))"
                         class="indicator-name-preview" :id="formNode.indicatorID + '_format_label'"></div>
                     </div>
-                    <!-- FORMAT PREVIEW -->
-                    <div v-if="formNode.format !== ''" class="form_data_entry_preview">
-                        <format-preview :indicator="formNode" :key="'FP_' + formNode.indicatorID"></format-preview>
-                    </div>
-                </div>
-                <!-- TOOLBAR -->
-                <div v-show="showToolbars"
-                    :style="{backgroundColor: required ? '#eec8c8' : '#f2f2f5'}"
-                    :id="'form_editing_toolbar_' + formNode.indicatorID"
-                    :class="{'conditional': conditionalQuestion}">
 
-                    <div style="width:100%;">
-                        <button v-show="showToolbars" type="button"
-                            class="btn-general"
-                            @click="editQuestion(parseInt(formNode.indicatorID))"
-                            :title="'edit indicator ' + formNode.indicatorID">
-                            {{ depth === 0 ? 'Edit Header' : 'Edit' }}
-                        </button>
-                        <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + formNode.indicatorID"
-                            class="btn-general"
-                            @click="openIfThenDialog(parseInt(formNode.indicatorID), formNode.name.trim())" 
-                            :title="'Edit conditions for ' + formNode.indicatorID">
-                            Modify Logic
-                        </button>
-                        <button type="button"
-                            @click="openAdvancedOptionsDialog(parseInt(formNode.indicatorID))"
-                            :title="'Open Advanced Options.' + formNode.has_code ? 'Advanced options are present' : ''"
-                            :class="{'btn-confirm': formNode.has_code, 'btn-general': !formNode.has_code}">
-                            Programmer
+                    <!-- TOOLBAR -->
+                    <div v-show="showToolbars"
+                        :style="{backgroundColor: required ? '#eec8c8' : '#f2f2f5'}"
+                        :id="'form_editing_toolbar_' + formNode.indicatorID"
+                        :class="{'conditional': conditionalQuestion}">
+    
+                        <div style="width:100%;">
+                            <button v-show="showToolbars" type="button"
+                                class="btn-general"
+                                @click="editQuestion(parseInt(formNode.indicatorID))"
+                                :title="'edit indicator ' + formNode.indicatorID">
+                                {{ depth === 0 ? 'Edit Header' : 'Edit' }}
+                            </button>
+                            <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + formNode.indicatorID"
+                                class="btn-general"
+                                @click="openIfThenDialog(parseInt(formNode.indicatorID), formNode.name.trim())" 
+                                :title="'Edit conditions for ' + formNode.indicatorID">
+                                Modify Logic
+                            </button>
+                            <button type="button"
+                                @click="openAdvancedOptionsDialog(parseInt(formNode.indicatorID))"
+                                :title="'Open Advanced Options.' + formNode.has_code ? 'Advanced options are present' : ''"
+                                :class="{'btn-confirm': formNode.has_code, 'btn-general': !formNode.has_code}">
+                                Programmer
+                            </button>
+                        </div>
+                        <button type="button" class="btn-general"
+                            :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
+                            @click="newQuestion(formNode.indicatorID)">
+                            + {{isHeaderLocation ? 'Add question to section' : 'Add sub-question'}}
                         </button>
                     </div>
-                    <button type="button" class="btn-general"
-                        :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
-                        @click="newQuestion(formNode.indicatorID)">
-                        + {{isHeaderLocation ? 'Add question to section' : 'Add sub-question'}}
-                    </button>
+
                 </div>
+
+                <!-- FORMAT PREVIEW -->
+                <div v-if="formNode.format !== ''" class="form_data_entry_preview">
+                    <format-preview :indicator="formNode" :key="'FP_' + formNode.indicatorID"></format-preview>
+                </div>
+
+
             </div>
 
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->
             <template v-if="formNode.child">
-                <form-editing-display v-for="child in formNode.child"
+                <form-question-display v-for="child in formNode.child"
                     :depth="depth + 1"
                     :formPage="formPage"
                     :formNode="child"
                     :key="'FED_' + child.indicatorID + makePreviewKey(child)">
-                </form-editing-display>
+                </form-question-display>
             </template>
     </div>
 
@@ -139,7 +143,7 @@ export default {
             @click.ctrl.exact="updateFormMenuState(formNode.indicatorID, true, true)"
             aria-label="expand page">+</button>
         <div>
-            {{ shortIndicatorNameStripped(formNode?.name || '') }} (page {{formPage + 1}})
+            <b>{{ shortIndicatorNameStripped(formNode.name, 60) }}</b> {{formNode.description ? '(' + formNode.description + ')' : ''}}
         </div>
     </div>`
 }

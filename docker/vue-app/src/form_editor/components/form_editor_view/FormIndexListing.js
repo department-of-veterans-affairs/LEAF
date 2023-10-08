@@ -51,7 +51,7 @@ export default {
         indexDisplay() {
             //short label (description), otherwise display the name. Show 'blank' if it has neither
             let display = this.formNode.description || this.formNode.name || '[ blank ]';
-            return this.shortIndicatorNameStripped(display, 38 - this.depth);
+            return `${this.headingNumber} ${this.shortIndicatorNameStripped(display, 38 - this.depth)}`;
         },
         menuIconTitle() {
             const option = this.menuOpen ? 'close' : 'open';
@@ -73,8 +73,10 @@ export default {
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
             @click.stop="selectNewFormNode(formNode.indicatorID, formPage)"
             @keydown.enter.prevent="selectNewFormNode(formNode.indicatorID, formPage)">
+
             <div>
-                {{headingNumber}}&nbsp;{{indexDisplay}}
+                <span role="img" aria="">☰&nbsp;&nbsp;</span>
+                {{indexDisplay}}
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !menuOpen}"
                     @click.stop.exact="updateFormMenuState(formNode.indicatorID, !menuOpen)"
                     @click.ctrl.stop.exact="updateFormMenuState(formNode.indicatorID, !menuOpen, true)"
