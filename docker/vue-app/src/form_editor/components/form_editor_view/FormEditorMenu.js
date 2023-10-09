@@ -92,11 +92,6 @@ export default {
     template: `<div><nav id="top-menu-nav">
         <!-- FORM EDITOR VIEW MENU -->
         <ul id="page-menu">
-            <li v-if="!allStapledFormCatIDs.includes(mainFormID) && !subformID && focusedFormTree.length > 0">
-                <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
-                    Manage Stapled Forms <span role="img" aria="">📌</span>
-                </button>
-            </li>
             <li v-if="!noForm">
                 <button type="button" @click="openFormHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history">
                     View History<span role="img" aria="">🕗</span>
@@ -110,6 +105,11 @@ export default {
             <li v-if="!noForm">
                 <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form">
                     Delete this form<span role="img" aria="">❌</span>
+                </button>
+            </li>
+            <li v-if="!allStapledFormCatIDs.includes(mainFormID) && !subformID && focusedFormTree.length > 0">
+                <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
+                    Manage Stapled Forms <span role="img" aria="">📌</span>
                 </button>
             </li>
             <li>

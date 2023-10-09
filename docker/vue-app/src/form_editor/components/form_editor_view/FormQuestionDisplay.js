@@ -26,12 +26,14 @@ export default {
         'makePreviewKey'
     ],
     computed: {
+        indicatorID() {
+            return +this.formNode?.indicatorID;
+        },
         showDetails() {
             return !this.showToolbars || this.menuOpen || this.depth > 0;
         },
         isHeaderLocation() {
-            let ID = parseInt(this.formNode.indicatorID);
-            let item = this.listTracker[ID];
+            let item = this.listTracker[this.indicatorID];
             return (item?.parentID === null || item?.newParentID === null);
         },
         sensitiveImg() {
@@ -39,6 +41,9 @@ export default {
                 `<img src="${this.libsPath}dynicons/svg/eye_invisible.svg"
                     style="width: 16px; margin-left: 4px;" alt="" class="sensitive-icon"
                     title="This field is sensitive" />` : '';
+        },
+        hasCode() {
+            return this.formNode?.html || this.formNode?.htmlPrint;
         },
         conditionalQuestion() {
             return !this.isHeaderLocation && 
@@ -56,7 +61,7 @@ export default {
             return `${name}${shortLabel}${contentRequired}${contentSensitive}`;
         },
         printResponseID() {
-            return `xhrIndicator_${this.formNode.indicatorID}_${this.formNode.series}`;
+            return `xhrIndicator_${this.indicatorID}_${this.formNode.series}`;
         },
         required() {
             return parseInt(this.formNode.required) === 1;
@@ -66,10 +71,10 @@ export default {
         }
     },
     template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation}" :id="printResponseID">
-            <button v-if="depth===0 && showToolbars" type="button" :id="'card_btn_open_' + formNode.indicatorID"
+            <button v-if="depth===0 && showToolbars" type="button" :id="'card_btn_open_' + indicatorID"
                 class="card_toggle" title="collapse page"
-                @click.exact="updateFormMenuState(formNode.indicatorID, false)"
-                @click.ctrl.exact="updateFormMenuState(formNode.indicatorID, false, true)"
+                @click.exact="updateFormMenuState(indicatorID, false)"
+                @click.ctrl.exact="updateFormMenuState(indicatorID, false, true)"
                 aria-label="collapse page">-
             </button>
 
@@ -78,39 +83,39 @@ export default {
                 <div style="width: 100%; display:flex; gap: 0.5rem; justify-content: space-between;">
                     <!-- NAME -->
                     <div style="display:flex;">
-                        <div v-html="indicatorName" @click="toggleToolbars($event, parseInt(formNode.indicatorID))"
-                        class="indicator-name-preview" :id="formNode.indicatorID + '_format_label'"></div>
+                        <div v-html="indicatorName" @click="toggleToolbars($event, parseInt(indicatorID))"
+                        class="indicator-name-preview" :id="indicatorID + '_format_label'"></div>
                     </div>
 
                     <!-- TOOLBAR -->
                     <div v-show="showToolbars"
                         :style="{backgroundColor: required ? '#eec8c8' : '#f2f2f5'}"
-                        :id="'form_editing_toolbar_' + formNode.indicatorID"
+                        :id="'form_editing_toolbar_' + indicatorID"
                         :class="{'conditional': conditionalQuestion}">
     
                         <div style="width:100%;">
                             <button v-show="showToolbars" type="button"
                                 class="btn-general"
-                                @click="editQuestion(parseInt(formNode.indicatorID))"
-                                :title="'edit indicator ' + formNode.indicatorID">
+                                @click="editQuestion(parseInt(indicatorID))"
+                                :title="'edit indicator ' + indicatorID">
                                 {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                             </button>
-                            <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + formNode.indicatorID"
+                            <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"
                                 class="btn-general"
-                                @click="openIfThenDialog(parseInt(formNode.indicatorID), formNode.name.trim())" 
-                                :title="'Edit conditions for ' + formNode.indicatorID">
+                                @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())" 
+                                :title="'Edit conditions for ' + indicatorID">
                                 Modify Logic
                             </button>
                             <button type="button"
-                                @click="openAdvancedOptionsDialog(parseInt(formNode.indicatorID))"
-                                :title="'Open Advanced Options.' + formNode.has_code ? 'Advanced options are present' : ''"
-                                :class="{'btn-confirm': formNode.has_code, 'btn-general': !formNode.has_code}">
+                                @click="openAdvancedOptionsDialog(parseInt(indicatorID))"
+                                :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'"
+                                :class="{'btn-confirm': hasCode, 'btn-general': !hasCode}">
                                 Programmer
                             </button>
                         </div>
                         <button type="button" class="btn-general"
                             :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
-                            @click="newQuestion(formNode.indicatorID)">
+                            @click="newQuestion(indicatorID)">
                             + {{isHeaderLocation ? 'Add question to section' : 'Add sub-question'}}
                         </button>
                     </div>
@@ -119,7 +124,7 @@ export default {
 
                 <!-- FORMAT PREVIEW -->
                 <div v-if="formNode.format !== ''" class="form_data_entry_preview">
-                    <format-preview :indicator="formNode" :key="'FP_' + formNode.indicatorID"></format-preview>
+                    <format-preview :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
                 </div>
 
 
@@ -137,10 +142,10 @@ export default {
     </div>
 
     <div v-else tabindex="0" class="form-page-card">
-        <button type="button" :id="'card_btn_closed_' + formNode.indicatorID"
+        <button type="button" :id="'card_btn_closed_' + indicatorID"
             class="card_toggle closed" title="expand page"
-            @click.exact="updateFormMenuState(formNode.indicatorID, true)"
-            @click.ctrl.exact="updateFormMenuState(formNode.indicatorID, true, true)"
+            @click.exact="updateFormMenuState(indicatorID, true)"
+            @click.ctrl.exact="updateFormMenuState(indicatorID, true, true)"
             aria-label="expand page">+</button>
         <div>
             <b>{{ shortIndicatorNameStripped(formNode.name, 60) }}</b> {{formNode.description ? '(' + formNode.description + ')' : ''}}

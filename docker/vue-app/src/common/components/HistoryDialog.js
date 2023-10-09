@@ -2,6 +2,7 @@ export default {
     name: 'history-dialog',
     data() {
         return {
+            requiredDataProperties: ['historyType','historyID'],
             divSaveCancelID: 'leaf-vue-dialog-cancel-save',
             page: 1,
             historyType: this.dialogData.historyType,
@@ -10,8 +11,12 @@ export default {
         }
     },
     inject: [
-        'dialogData'
+        'dialogData',
+        'checkRequiredData',
     ],
+    created() {
+        this.checkRequiredData(this.requiredDataProperties);
+    },
     mounted() {
         document.getElementById(this.divSaveCancelID).style.display = 'none';
         this.getPage();

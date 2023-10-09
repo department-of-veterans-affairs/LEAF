@@ -2,6 +2,7 @@ export default {
     name: 'new-form-dialog',
     data() {
         return {
+            requiredDataProperties: ['parentID'],
             categoryName: '',
             categoryDescription: '',
             newFormParentID: this.dialogData.parentID,
@@ -12,10 +13,12 @@ export default {
         'CSRFToken',
         'setDialogSaveFunction',
         'dialogData',
+        'checkRequiredData',
         'addNewCategory',
         'closeFormDialog'
 	],
     created() {
+        this.checkRequiredData(this.requiredDataProperties);
         this.setDialogSaveFunction(this.onSave);
     },
     mounted() {

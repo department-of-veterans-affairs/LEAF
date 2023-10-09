@@ -19,14 +19,11 @@ export default {
             secureBtnText: 'View Details',
             secureBtnLink: '',
             showCertificationStatus: false,
-            isEditingModal: false,
             orgchartFormats: ['orgchart_group','orgchart_position','orgchart_employee'],
             appIsLoadingCategories: true,
-            currIndicatorID: null,         //null or number
-            newIndicatorParentID: null,    //null or number
+
             categories: {},
             allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
-            indicatorRecord: {},          //'indicators' table record for a specific indicatorID
             advancedMode: false,
             formMenuState: {},
 
@@ -43,10 +40,6 @@ export default {
         return {
             CSRFToken: computed(() => this.CSRFToken),
             siteSettings: computed(() => this.siteSettings),
-            currIndicatorID: computed(() => this.currIndicatorID),
-            newIndicatorParentID: computed(() => this.newIndicatorParentID),
-            indicatorRecord: computed(() => this.indicatorRecord),
-            isEditingModal: computed(() => this.isEditingModal),
             categories: computed(() => this.categories),
             allStapledFormCatIDs: computed(() => this.allStapledFormCatIDs),
             appIsLoadingCategories: computed(() => this.appIsLoadingCategories),
@@ -88,9 +81,10 @@ export default {
             decodeAndStripHTML: this.decodeAndStripHTML,
             showLastUpdate: this.showLastUpdate,
 
-            /** dialog */
+            /** dialog related */
             closeFormDialog: this.closeFormDialog,
             setDialogSaveFunction: this.setDialogSaveFunction,
+            checkRequiredData: this.checkRequiredData,
 
             showFormDialog: computed(() => this.showFormDialog),
             dialogTitle: computed(() => this.dialogTitle),
@@ -411,6 +405,18 @@ export default {
                 this.formSaveFunction = func;
             }
         },
+        checkRequiredData(requiredDataProperties = []) {
+            let notFound = [];
+            const dataKeys = Object.keys(this?.dialogData || {});
+            requiredDataProperties.forEach(keyName => {
+                if (!dataKeys.includes(keyName)) {
+                    notFound.push(keyName);
+                }
+            });
+            if(notFound.length > 0) {
+                console.warn('expected dialogData key was not found', notFound);
+            }
+        },
         openConfirmDeleteFormDialog() {
             this.setCustomDialogTitle('<h2>Delete this form</h2>');
             this.setFormDialogComponent('confirm-delete-dialog');
@@ -431,7 +437,9 @@ export default {
         },
         openIfThenDialog(indicatorID = 0, indicatorName = 'Untitled') {
             const name = this.truncateText(this.decodeAndStripHTML(indicatorName));
-            this.currIndicatorID = indicatorID;
+            this.dialogData = {
+                indicatorID,
+            }
             this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #a00;">${name} (${indicatorID})</span></h2>`);
             this.setFormDialogComponent('conditions-editor-dialog');
             this.showFormDialog = true;
@@ -439,15 +447,15 @@ export default {
         /**
          * Opens the dialog for editing a form question, creating a new form section, or creating a new subquestion
          * @param {number|null} indicatorID 
+         * @param {number|null} parentID
          */
-        openIndicatorEditingDialog(indicatorID = null) {
+        openIndicatorEditingDialog(indicatorID = null, parentID = null) {
             let title = ''
-            if (indicatorID === null) { //new form section
+            if (indicatorID === null && parentID === null) {
                 title = `<h2>Adding new Section</h2>`;
             } else {
-                //If equal, this is editing an existing question.  Otherwise, creating a new subquestion (param is its parentID)
-                title = this.currIndicatorID === parseInt(indicatorID) ? 
-                `<h2>Editing indicator ${indicatorID}</h2>` : `<h2>Adding question to ${indicatorID}</h2>`;
+                title = indicatorID === null ?
+                `<h2>Adding question to ${parentID}</h2>` : `<h2>Editing indicator ${indicatorID}</h2>`;
             }
             this.setCustomDialogTitle(title);
             this.setFormDialogComponent('indicator-editing-dialog');
@@ -458,10 +466,12 @@ export default {
          * @param {number} indicatorID 
          */
         openAdvancedOptionsDialog(indicatorID = 0) {
-            this.indicatorRecord = {};
-            this.currIndicatorID = indicatorID;
             this.getIndicatorByID(indicatorID).then(res => {
-                this.indicatorRecord = res;
+                this.dialogData = {
+                    indicatorID,
+                    html: res[indicatorID]?.html || '',
+                    htmlPrint: res[indicatorID]?.htmlPrint || '',
+                }
                 this.setCustomDialogTitle(`<h2>Advanced Options for indicator ${indicatorID}</h2>`);
                 this.setFormDialogComponent('advanced-options-dialog');
                 this.showFormDialog = true;   
@@ -492,26 +502,29 @@ export default {
         },
         /**
          * add a new section or new subquestion to a form
-         * @param {number|null} parentIndID of the new subquestion.  null for new sections.
+         * @param {number|null} parentID of the new subquestion.  null for new sections.
          */
-        newQuestion(parentIndID = null) {
-            this.currIndicatorID = null;
-            this.newIndicatorParentID = parentIndID !== null ? parseInt(parentIndID) : null;
-            this.isEditingModal = false;
-            this.openIndicatorEditingDialog(parentIndID);
+        newQuestion(parentID = null) {
+            this.dialogData = {
+                indicator: {},
+                indicatorID: null,
+                parentID,
+            }
+            this.openIndicatorEditingDialog(null, parentID);
         },
         /**
          * get information about the indicator and open indicator editing
          * @param {number} indicatorID 
          */
         editQuestion(indicatorID = 0) {
-            this.indicatorRecord = {};
-            this.currIndicatorID = indicatorID;
-            this.newIndicatorParentID = null;
             this.getIndicatorByID(indicatorID).then(res => {
-                this.isEditingModal = true;
-                this.indicatorRecord = res;
-                this.openIndicatorEditingDialog(indicatorID);
+                const parentID = res[indicatorID]?.parentID || null;
+                this.dialogData = {
+                    indicator: { ...res[indicatorID] },
+                    indicatorID,
+                    parentID,
+                }
+                this.openIndicatorEditingDialog(indicatorID, parentID);
             }).catch(err => console.log('error getting indicator information', err));
         }
     }

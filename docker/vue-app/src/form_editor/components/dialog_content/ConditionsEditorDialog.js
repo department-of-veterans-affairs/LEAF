@@ -2,8 +2,7 @@ export default {
     name: 'conditions-editor-dialog',
     data() {
         return {
-            formID: this.focusedFormRecord.categoryID,
-            childIndID: parseInt(this.currIndicatorID),
+            requiredDataProperties: ['indicatorID'],
             indicators: [],
             appIsLoadingIndicators: true,
             parentIndID: 0,
@@ -28,7 +27,8 @@ export default {
         'APIroot',
         'CSRFToken',
         'setDialogSaveFunction',
-        'currIndicatorID',
+        'dialogData',
+        'checkRequiredData',
         'focusedFormRecord',
         'getFormByCategoryID',
         'closeFormDialog',
@@ -38,6 +38,7 @@ export default {
         'initializeOrgSelector'
     ],
     created() {
+        this.checkRequiredData(this.requiredDataProperties);
         this.setDialogSaveFunction(this.onSave);
         this.getFormIndicators();
     },
@@ -361,12 +362,18 @@ export default {
         }
     },
     computed: {
+        formID() {
+            return this.focusedFormRecord.categoryID;
+        },
         showSetup() {
             return  this.showConditionEditor && this.selectedOutcome &&
                 (this.selectedOutcome === 'crosswalk' || this.selectableParents.length > 0);
         },
         noOptions() {
             return !['', 'crosswalk'].includes(this.selectedOutcome) && this.selectableParents.length < 1;
+        },
+        childIndID() {
+            return this.dialogData.indicatorID;
         },
         childIndicator() {
             return this.indicators.find(i => parseInt(i.indicatorID) === this.childIndID);

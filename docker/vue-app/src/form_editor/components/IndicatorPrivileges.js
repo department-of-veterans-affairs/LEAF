@@ -8,10 +8,15 @@ export default {
             statusMessageError: ''
         }
     },
+    props: {
+        indicatorID: {
+            type: Number,
+            required: true
+        }
+    },
     inject: [
         'APIroot',
-        'CSRFToken',
-        'currIndicatorID',
+        'CSRFToken'
     ],
     mounted() {
         /**
@@ -29,7 +34,7 @@ export default {
             }),
             $.ajax({
                 type: 'GET',
-                url: `${this.APIroot}formEditor/indicator/${this.currIndicatorID}/privileges`,
+                url: `${this.APIroot}formEditor/indicator/${this.indicatorID}/privileges`,
                 success: (res) => {
                     this.groupsWithPrivileges = res;
                 },
@@ -60,7 +65,7 @@ export default {
             if (groupID !== 0) {
                 $.ajax({
                     method: 'POST',
-                    url: `${this.APIroot}formEditor/indicator/${this.currIndicatorID}/privileges/remove`,
+                    url: `${this.APIroot}formEditor/indicator/${this.indicatorID}/privileges/remove`,
                     data: {
                         groupID: groupID,
                         CSRFToken: this.CSRFToken
@@ -80,7 +85,7 @@ export default {
             if (this.group !== 0) {
                 $.ajax({
                     method: 'POST',
-                    url: `${this.APIroot}formEditor/indicator/${this.currIndicatorID}/privileges`,
+                    url: `${this.APIroot}formEditor/indicator/${this.indicatorID}/privileges`,
                     data: {
                         groupIDs: [this.group.groupID],
                         CSRFToken: this.CSRFToken

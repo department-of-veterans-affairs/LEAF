@@ -2,14 +2,14 @@ export default {
     name: 'advanced-options-dialog',
     data() {
         return {
+            requiredDataProperties: ['indicatorID','html','htmlPrint'],
             initialFocusElID: '#advanced legend',
             left: '{{',
             right: '}}',
-            formID: this.focusedFormRecord.categoryID,
             codeEditorHtml: {},
             codeEditorHtmlPrint: {},
-            html: this.indicatorRecord[this.currIndicatorID].html === null ? '' : this.indicatorRecord[this.currIndicatorID].html,
-            htmlPrint: this.indicatorRecord[this.currIndicatorID].htmlPrint === null ? '' : this.indicatorRecord[this.currIndicatorID].htmlPrint
+            html: this.dialogData?.html || '',
+            htmlPrint: this.dialogData?.htmlPrint || ''
         }
     },
     inject: [
@@ -17,20 +17,29 @@ export default {
         'libsPath',
         'CSRFToken',
         'setDialogSaveFunction',
+        'dialogData',
+        'checkRequiredData',
         'closeFormDialog',
         'focusedFormRecord',
-        'currIndicatorID',
-        'indicatorRecord',
         'getFormByCategoryID',
         'hasDevConsoleAccess'
     ],
     created() {
         this.setDialogSaveFunction(this.onSave);
+        this.checkRequiredData(this.requiredDataProperties);
     },
     mounted(){
         document.querySelector(this.initialFocusElID)?.focus();
         if(+this.hasDevConsoleAccess === 1) {
             this.setupAdvancedOptions();
+        }
+    },
+    computed: {
+        indicatorID() {
+            return this.dialogData?.indicatorID;
+        },
+        formID() {
+            return this.focusedFormRecord.categoryID;
         }
     },
     methods: {
@@ -75,7 +84,7 @@ export default {
             const htmlValue = this.codeEditorHtml.getValue();
             $.ajax({
                 type: 'POST',
-                url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
+                url: `${this.APIroot}formEditor/${this.indicatorID}/html`,
                 data: {
                     html: htmlValue,
                     CSRFToken: this.CSRFToken
@@ -93,7 +102,7 @@ export default {
             const htmlPrintValue = this.codeEditorHtmlPrint.getValue();
             $.ajax({
                 type: 'POST',
-                url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
+                url: `${this.APIroot}formEditor/${this.indicatorID}/htmlPrint`,
                 data: {
                     htmlPrint: htmlPrintValue,
                     CSRFToken: this.CSRFToken
@@ -117,7 +126,7 @@ export default {
                 advancedOptionsUpdates.push(
                     $.ajax({
                         type: 'POST',
-                        url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
+                        url: `${this.APIroot}formEditor/${this.indicatorID}/html`,
                         data: {
                             html: this.codeEditorHtml.getValue(),
                             CSRFToken: this.CSRFToken
@@ -131,7 +140,7 @@ export default {
                 advancedOptionsUpdates.push(
                     $.ajax({
                         type: 'POST',
-                        url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
+                        url: `${this.APIroot}formEditor/${this.indicatorID}/htmlPrint`,
                         data: {
                             htmlPrint: this.codeEditorHtmlPrint.getValue(),
                             CSRFToken: this.CSRFToken
