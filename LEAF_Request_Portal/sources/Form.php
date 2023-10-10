@@ -2798,7 +2798,14 @@ class Form
         return 1;
     }
 
-    public function query($inQuery)
+    /**
+     * query parses a JSON formatted user query defined in formQuery.js.
+     * 
+     * Returns an array on success, and string/int for malformed queries
+     * 
+     * @return mixed
+     */
+    public function query(string $inQuery): mixed
     {
         $query = json_decode(html_entity_decode(html_entity_decode($inQuery)), true);
         if ($query == null)
@@ -3636,7 +3643,7 @@ class Form
                 $indicatorIDs .= $indicatorID . ',';
             }
 
-            return $this->getCustomData($data, $indicatorIDs, $alreadyCheckedReadAccess);
+            $data = $this->getCustomData($data, $indicatorIDs, $alreadyCheckedReadAccess);
         }
 
         return $data;
