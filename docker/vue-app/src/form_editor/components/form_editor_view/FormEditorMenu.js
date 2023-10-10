@@ -91,7 +91,7 @@ export default {
     },
     template: `<div><nav id="top-menu-nav">
         <!-- FORM EDITOR VIEW MENU -->
-        <ul id="page-menu">
+        <ul>
             <li v-if="!noForm">
                 <button type="button" @click="openFormHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history">
                     View History<span role="img" aria="">🕗</span>

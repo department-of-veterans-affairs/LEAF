@@ -17,6 +17,7 @@ export default {
         'shortIndicatorNameStripped',
         'updateFormMenuState',
         'editQuestion',
+        'hasDevConsoleAccess',
         'openAdvancedOptionsDialog',
         'openIfThenDialog',
         'listTracker',
@@ -78,7 +79,7 @@ export default {
                 aria-label="collapse page">-
             </button>
 
-            <!-- EDITING AREA FOR INDICATOR -->
+            <!-- NOTE: QUESTION EDITING AREA -->
             <div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
                 <div class="name_and_toolbar" :class="{'form-header': isHeaderLocation}">
                     <!-- NAME -->
@@ -104,7 +105,7 @@ export default {
                                 :title="'Edit conditions for ' + indicatorID">
                                 Modify Logic
                             </button>
-                            <button type="button"
+                            <button v-if="hasDevConsoleAccess === 1" type="button"
                                 @click="openAdvancedOptionsDialog(parseInt(indicatorID))"
                                 :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'"
                                 :class="{'btn-confirm': hasCode, 'btn-general': !hasCode}">

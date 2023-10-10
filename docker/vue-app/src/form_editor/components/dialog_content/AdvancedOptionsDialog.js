@@ -159,7 +159,7 @@ export default {
             }).catch(err => console.log('an error has occurred', err));
         }
     },
-    template: `<div v-if="parseInt(hasDevConsoleAccess) === 1" id="advanced_options_dialog_content">
+    template: `<div v-if="hasDevConsoleAccess === 1" id="advanced_options_dialog_content">
             <fieldset id="advanced"><legend tabindex="0">Template Variables and Controls</legend>
                 <table class="table">
                     <tr>

@@ -7,7 +7,7 @@ export default {
     ],
     template: `<div><nav id="top-menu-nav">
         <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
-        <ul id="page-menu">
+        <ul>
             <li v-if="$route.name === 'restore'">
                 <router-link :to="{ name: 'browser' }" class="router-link">
                     Form Browser

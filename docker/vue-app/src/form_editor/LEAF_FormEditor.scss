@@ -1,16 +1,34 @@
 @import '../common/LEAF_Vue_Dialog__Common.scss';
 
-nav#top-menu-nav, ul#form-breadcrumb-menu {
+nav#top-menu-nav {
     width: 100%;
-
+    ul {
+        @include flexcenter;
+        justify-content: flex-start;
+        color: $charcoal;
+        background-color: $lt_cyan;
+        border-bottom: 1px solid $charcoal;
+        position: relative;
+        z-index: 10;
+        margin-bottom: 1rem;
+    }
     li {
         @include flexcenter;
-        width: 200px;
-        min-width: fit-content;
+        position: relative;
+        height: 32px;
+        width: 175px;
         font-size: 14px;
         font-weight: bolder;
-        text-decoration: none;
-
+        &:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            display: block;
+            height: 50%;
+            border-radius: 2px;
+            width: 1px;
+            background-color: black;
+        };
         button, a {
             margin: 0;
             padding: 0;
@@ -22,83 +40,15 @@ nav#top-menu-nav, ul#form-breadcrumb-menu {
             width: 100%;
             height: 100%;
             border: 2px solid transparent;
-        }
-
-        span[role="img"] {
-            margin-left: 0.5rem;
-        }
-    }
-}
-
-ul#page-menu {
-    @include flexcenter;
-    justify-content: flex-start;
-    color: $charcoal;
-    background-color: $lt_cyan;
-    border-bottom: 1px solid $charcoal;
-    position: relative;
-    z-index: 10;
-    margin-bottom: 1rem;
-
-    > li {
-        position: relative;
-        height: 32px;
-
-        &:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            display: block;
-            height: 50%;
-            border-radius: 2px;
-            width: 1px;
-            background-color: black;
-        };
-    }
-    button, a {
-        &:hover, &:focus, &:active {
-            border: 2px solid $LEAF_CSS_outline;
-            outline: none !important;
-            background-color: $base_navy;
-            color: white;
-        }
-    }
-}
-
-ul#form-breadcrumb-menu {
-    margin: 1rem 0 0;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    background-color: transparent;
-    color: black;
-
-    li {
-        width: fit-content;
-        position: relative;
-        margin-right: 0.75rem;
-        h2 {
-            @include flexcenter;
-            margin: 0;
-            font-size: 26px;
-            color: black;
-        }
-        button, a {
-            padding: 0.25rem;
-            border-radius: 3px;
-            text-decoration: underline;
-            outline: none !important;
             &:hover, &:focus, &:active {
-                border: 2px solid $LEAF_CSS_outline !important;
-            }
-            &:disabled {
-                border: 2px solid transparent !important;
-                text-decoration: none;
-                cursor: default;
+                border: 2px solid $LEAF_CSS_outline;
+                outline: none !important;
+                background-color: $base_navy;
+                color: white;
             }
         }
-        span.header-arrow {
-            margin-left: 1rem;
+        span[role="img"] {
+            margin-left: 0.25rem;
         }
     }
 }
@@ -372,11 +322,11 @@ div#form_content_view {
 }
 
 
+
 #form_index_and_editing {
     display: flex;
     gap: 1rem;
 }
-
 
 /* form index */
 #form_index_display {
@@ -457,14 +407,12 @@ div#form_content_view {
             height: 40px;
             border-bottom: 1px solid #d0d0d4;
             padding-bottom: 0.9em;
-    
             .icon_move_container {
                 @include flexcenter;
                 flex-direction: column;
                 margin-left: auto;
                 margin-right: 0.2em;
                 padding-top:0.25em;
-    
                 .icon_move {
                     @include flexcenter;
                     cursor: pointer;
@@ -474,7 +422,6 @@ div#form_content_view {
                     border-radius: 2px;
                     border: 7px solid transparent;
                     margin-left: auto;
-    
                     &.up {
                         margin-bottom: 5px;
                         border-bottom: 12px solid $BG-DarkNavy;
@@ -492,7 +439,6 @@ div#form_content_view {
                     }
                 }
             }
-    
             .sub-menu-chevron {
                 padding: 4px 2px 2px 2px;
                 font-size: 1.25em;
@@ -505,7 +451,6 @@ div#form_content_view {
                 }
             }
         }
-    
         li:first-child {
             margin-top: 0.75rem;
         }
@@ -523,16 +468,16 @@ div#form_content_view {
             background-color: $base_navy;
         }
     }
-
+    hr {
+        margin: 1.25rem auto 0.5rem auto;
+        width: 80%;
+        border: none;
+        border-top: 3px solid #f0f0f0;
+        color: #f0f0f0;
+    }
 }
 
 #form_index_and_editing #internalFormRecordsDisplay {
-    min-width: 220px;
-    padding: 0.75rem;
-    background-color: white;
-    align-self: flex-start;
-    border-radius: 4px;
-    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     h3 {
         margin: 0 0 0.5rem 0;
         height: 28px;
@@ -574,8 +519,9 @@ div#form_content_view {
         justify-content: space-between;
     }
 }
+
 /* lists for main and stapled forms   */
-#form_index_display div[id^="layoutFormRecords_"] button {
+#form_index_display ul[id^="layoutFormRecords_"] button {
     padding: 0.25rem;
     display: flex;
     justify-content: flex-start;
@@ -610,7 +556,7 @@ div#form_content_view {
 }
 
 /* these li will contain the drag-drop zone if selected */
-div[id^="layoutFormRecords_"] > ul > li  {
+ul[id^="layoutFormRecords_"] > li  {
     min-height: 50px;
     margin-bottom: 0.5rem;
     border: 2px solid transparent;
@@ -934,7 +880,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
         nav#top-menu-nav {
             width: 100%;
 
-            ul#page-menu {
+            ul {
                 flex-direction: column;
                 height: fit-content;
 
@@ -957,12 +903,6 @@ div[id^="layoutFormRecords_"] > ul > li  {
                     }
                 }
             }
-        }
-        ul#form-breadcrumb-menu {
-            margin: 1rem 0 0;
-            flex-direction: column;
-            align-items: flex-start;
-            height: auto;
         }
 
         #secure_forms_info {

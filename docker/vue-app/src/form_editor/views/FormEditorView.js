@@ -557,7 +557,6 @@ export default {
         },
         "$route.query.formID"(newVal = '', oldVal = '') {
             if(!this.appIsLoadingCategories) {
-                console.log('FE watcher on route trigged getFormFromQuery');
                 this.getFormFromQueryParam();
             }
         },
@@ -573,7 +572,6 @@ export default {
             Loading... 
             <img src="../images/largespinner.gif" alt="loading..." />
         </div>
-
         <div v-else-if="noForm">
             The form you are looking for ({{ this.$route?.query?.formID }}) was not found.
             <router-link :to="{ name: 'browser' }" class="router-link" style="display: inline-block;">
@@ -582,122 +580,104 @@ export default {
         </div>
 
         <template v-else>
-            <!-- FORM EDITING BREADCRUMBS -->
-            <ul v-if="mainFormID !== ''" id="form-breadcrumb-menu">
-                <li>
-                    <router-link :to="{ name: 'browser'}" title="to Form Browser">
-                        <h2>Form Editor</h2>
-                    </router-link>
-                    <span v-if="mainFormID !== ''" class="header-arrow" role="img" aria="">❯</span>
-                </li>
-                <li>
-                    <button type="button" v-if="mainFormID !== ''"
-                        @click="getFormByCategoryID(mainFormID)" :title="'to parent form ' + mainFormID" :disabled="subformID === ''">
-                        <h2>{{shortFormNameStripped(mainFormID, 50)}}</h2>
-                    </button>
-                    <span v-if="subformID !== ''" class="header-arrow" role="img" aria="">❯</span>
-                </li>
-                <li v-if="subformID !== ''">
-                    <button type="button" :id="'header_' + subformID"
-                        :title="'viewing internal form ' + subformID" disabled>
-                        <h2>{{shortFormNameStripped(subformID, 50)}}</h2>
-                    </button>
-                </li>
-            </ul>
+            <!-- admin home link, browser link, page title -->
+            <h2 id="page_breadcrumbs">
+                <a href="../admin" class="leaf-crumb-link" target="_blank" title="to Admin Home">Admin</a>
+                <i class="fas fa-caret-right leaf-crumb-caret"></i>
+                <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
+                <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Editor
+            </h2>
             <!-- TOP INFO PANEL -->
             <edit-properties-panel :key="'panel_' + focusedFormID"></edit-properties-panel>
 
             <div id="form_index_and_editing">
-                <!-- INTERNAL FORMS -->
-                <div v-if="showToolbars" id="internalFormRecordsDisplay">
-                    <h3>Internal Forms</h3>
-                    <ul :id="'internalFormRecords_' + focusedFormID">
-                        <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
-                            <button type="button" @click="getFormByCategoryID(i.categoryID)"
-                                :class="{selected: i.categoryID === focusedFormID}">
-                                <span role="img" aria="">📃&nbsp;</span>
-                                {{shortFormNameStripped(i.categoryID, 20)}}
-                            </button>
-                        </li>
-                    </ul>
-                    <button v-if="focusedFormRecord?.parentID === ''" type="button" class="btn-general"
-                        id="addInternalUse"
-                        @click="openNewFormDialog(focusedFormRecord.categoryID)"
-                        title="New Internal-Use Form" >
-                        Add Internal-Use&nbsp;<span role="img" aria="">➕</span>
-                    </button>
-                </div>
-
-                <!-- FORM INDEX -->
+                <!-- NOTE: INDEX (main + stapled forms, internals for selected form) -->
                 <div id="form_index_display">
                     <div class="index_info">
                         <h3>{{ indexHeaderText }}</h3>
                         <img v-if="currentFormCollection.length > 1"
                             :src="libsPath + 'dynicons/svg/emblem-notice.svg'"
                             title="Details for the selected form are shown below" alt="" />
-                            <button type="button" v-if="focusedFormTree.length > 0" id="indicator_toolbar_toggle" class="btn-general"
-                                @click.stop="showToolbars=!showToolbars">
-                                {{showToolbars ? 'Preview this form' : 'Edit this form'}}
+                        <button type="button" v-if="focusedFormTree.length > 0" id="indicator_toolbar_toggle" class="btn-general"
+                            @click.stop="showToolbars=!showToolbars">
+                            {{showToolbars ? 'Preview this form' : 'Edit this form'}}
+                        </button>
+                    </div>
+                    <!-- LAYOUTS (including stapled forms) -->
+                    <ul v-if="currentFormCollection.length > 0" :id="'layoutFormRecords_' + $route.query.formID">
+                        <li v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID"
+                            draggable="false" :class="{selected: form.categoryID === focusedFormID}">
+
+                            <button type="button" @click="getFormByCategoryID(form.categoryID)"
+                                class="layout-listitem" :disabled="form.categoryID === focusedFormID"
+                                :title="'form ' + form.categoryID">
+                                <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
+                                    {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
+                                </span>
+                                <span v-if="form.formContextType === 'staple'" role="img" aria="">📌</span>
+                                <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
+                                    (selected)
+                                </em>
+                                <em v-show="form.categoryID === focusedFormRecord.parentID" style="font-weight: normal; text-decoration: none;">
+                                    (parent)
+                                </em>
                             </button>
-                    </div>
 
-                    <!-- FORM LAYOUT (including stapled forms) -->
-                    <div v-if="currentFormCollection.length > 0" :id="'layoutFormRecords_' + $route.query.formID">
-                        <ul>
-                            <li v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID"
-                                draggable="false" :class="{selected: form.categoryID === focusedFormID}">
+                            <!-- DRAG-DROP ZONE -->
+                            <ul v-if="focusedFormTree.length > 0 &&
+                                (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)"
+                                id="base_drop_area" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
+                                class="form-index-listing-ul"
+                                data-effect-allowed="move"
+                                @drop.stop="onDrop"
+                                @dragover.prevent
+                                @dragenter.prevent="onDragEnter"
+                                @dragleave="onDragLeave">
 
-                                <button type="button" @click="getFormByCategoryID(form.categoryID)"
-                                    class="layout-listitem" :disabled="form.categoryID === focusedFormID"
-                                    :title="'form ' + form.categoryID">
-                                    <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
-                                        {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
-                                    </span>
-                                    <span v-if="form.formContextType === 'staple'" role="img" aria="">📌</span>
-                                    <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
-                                        (selected)
-                                    </em>
-                                    <em v-show="form.categoryID === focusedFormRecord.parentID" style="font-weight: normal; text-decoration: none;">
-                                        (parent)
-                                    </em>
-                                </button>
-
-                                <!-- DRAG-DROP ZONE -->
-                                <ul v-if="focusedFormTree.length > 0 &&
-                                    (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)"
-                                    id="base_drop_area" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
-                                    class="form-index-listing-ul"
-                                    data-effect-allowed="move"
-                                    @drop.stop="onDrop"
-                                    @dragover.prevent
-                                    @dragenter.prevent="onDragEnter"
-                                    @dragleave="onDragLeave">
-
-                                    <form-index-listing v-for="(formSection, i) in focusedFormTree"
-                                        :id="'index_listing_' + formSection.indicatorID"
-                                        :formPage=i
-                                        :depth=0
-                                        :formNode="formSection"
-                                        :index=i
-                                        :parentID=null
-                                        :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : false"
-                                        :key="'index_list_item_' + formSection.indicatorID"
-                                        draggable="true"
-                                        @dragstart.stop="startDrag">
-                                    </form-index-listing>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
+                                <form-index-listing v-for="(formSection, i) in focusedFormTree"
+                                    :id="'index_listing_' + formSection.indicatorID"
+                                    :formPage=i
+                                    :depth=0
+                                    :formNode="formSection"
+                                    :index=i
+                                    :parentID=null
+                                    :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : false"
+                                    :key="'index_list_item_' + formSection.indicatorID"
+                                    draggable="true"
+                                    @dragstart.stop="startDrag">
+                                </form-index-listing>
+                            </ul>
+                        </li>
+                    </ul>
                     <button type="button" class="btn-general" style="width: 100%;"
                         @click="newQuestion(null)"
                         id="add_new_form_section_1"
                         title="Add new form section">
                         + Add Section
                     </button>
+                    <hr />
+                    <!-- INTERNAL FORMS -->
+                    <div v-if="showToolbars" id="internalFormRecordsDisplay">
+                        <h3>Internal Forms</h3>
+                        <ul :id="'internalFormRecords_' + focusedFormID">
+                            <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
+                                <button type="button" @click="getFormByCategoryID(i.categoryID)"
+                                    :class="{selected: i.categoryID === focusedFormID}">
+                                    <span role="img" aria="">📃&nbsp;</span>
+                                    {{shortFormNameStripped(i.categoryID, 20)}}
+                                </button>
+                            </li>
+                        </ul>
+                        <button v-if="focusedFormRecord?.parentID === ''" type="button" class="btn-general"
+                            id="addInternalUse"
+                            @click="openNewFormDialog(focusedFormRecord.categoryID)"
+                            title="New Internal-Use Form" >
+                            Add Internal-Use&nbsp;<span role="img" aria="">➕</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- NOTE: FORM EDITING AND ENTRY PREVIEW -->
+                <!-- FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
                     <div class="printformblock">
                         <form-question-display v-for="(formSection, i) in focusedFormTree"
