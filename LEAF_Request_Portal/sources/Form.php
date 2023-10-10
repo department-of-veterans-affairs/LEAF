@@ -2309,9 +2309,9 @@ class Form
      * @param array $recordID_list
      * @param array $indicatorID_list
      * @param bool (optional) $alreadyCheckedReadAccess
-     * @return array on success | false on malformed input
+     * @return array on success | boolean false on malformed input
      */
-    public function getCustomData(array $recordID_list, string|null $indicatorID_list, bool $alreadyCheckedReadAccess = false)
+    public function getCustomData(array $recordID_list, string|null $indicatorID_list, bool $alreadyCheckedReadAccess = false): array|bool
     {
         if (count($recordID_list) == 0) {
             return $recordID_list;
