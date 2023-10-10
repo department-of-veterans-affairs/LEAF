@@ -3096,6 +3096,23 @@ class Form
                     }
                 }
             }
+
+            if ($joinUnfilledDependencies) {
+                $formWorkflow = $this->getFormWorkflow();
+                $unfilledDependencies = $formWorkflow->getRecordsDependencyData($this, $data, true);
+                foreach ($unfilledDependencies as $ud) {
+                    $temp = [];
+                    $temp['description'] = $ud['description'];
+                    if(isset($ud['approverName'])) {
+                        $temp['approverName'] = $ud['approverName'];
+                    }
+                    if(isset($ud['approverUID'])) {
+                        $temp['approverUID'] = $ud['approverUID']; // uniquely identify approvers
+                    }
+                    $data[$ud['recordID']]['unfilledDependencyData'][$ud['dependencyID']] = $temp;
+                }
+            }
+
         }
 
         // check needToKnow mode
@@ -3124,7 +3141,7 @@ class Form
                 }
             }
             if ($countPurged > 0) {
-                header('LEAF-Query: continue');
+                header('LEAF-Query: continue'); // signal frontend there might be more data
             }
         }
 
