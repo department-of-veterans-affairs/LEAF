@@ -2803,6 +2803,7 @@ class Form
      * 
      * Returns an array on success, and string/int for malformed queries
      * 
+     * @param string JSON formatted string of the query
      * @return mixed
      */
     public function query(string $inQuery): mixed
