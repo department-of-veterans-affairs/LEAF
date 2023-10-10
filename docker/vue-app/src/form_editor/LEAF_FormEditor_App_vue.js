@@ -448,14 +448,20 @@ export default {
          * Opens the dialog for editing a form question, creating a new form section, or creating a new subquestion
          * @param {number|null} indicatorID 
          * @param {number|null} parentID
+         * @param {object} indicator 
          */
-        openIndicatorEditingDialog(indicatorID = null, parentID = null) {
+        openIndicatorEditingDialog(indicatorID = null, parentID = null, indicator = {}) {
             let title = ''
             if (indicatorID === null && parentID === null) {
                 title = `<h2>Adding new Section</h2>`;
             } else {
                 title = indicatorID === null ?
                 `<h2>Adding question to ${parentID}</h2>` : `<h2>Editing indicator ${indicatorID}</h2>`;
+            }
+            this.dialogData = {
+                indicatorID,
+                parentID,
+                indicator,
             }
             this.setCustomDialogTitle(title);
             this.setFormDialogComponent('indicator-editing-dialog');
@@ -477,7 +483,7 @@ export default {
                 this.showFormDialog = true;   
             }).catch(err => console.log('error getting indicator information', err));
         },
-        openNewFormDialog(event = {}, mainFormID = '') {
+        openNewFormDialog(mainFormID = '') {
             this.dialogData = {
                 parentID: mainFormID,
             };
@@ -501,16 +507,10 @@ export default {
             this.showFormDialog = true;
         },
         /**
-         * add a new section or new subquestion to a form
          * @param {number|null} parentID of the new subquestion.  null for new sections.
          */
         newQuestion(parentID = null) {
-            this.dialogData = {
-                indicator: {},
-                indicatorID: null,
-                parentID,
-            }
-            this.openIndicatorEditingDialog(null, parentID);
+            this.openIndicatorEditingDialog(null, parentID, {});
         },
         /**
          * get information about the indicator and open indicator editing
@@ -519,12 +519,8 @@ export default {
         editQuestion(indicatorID = 0) {
             this.getIndicatorByID(indicatorID).then(res => {
                 const parentID = res[indicatorID]?.parentID || null;
-                this.dialogData = {
-                    indicator: { ...res[indicatorID] },
-                    indicatorID,
-                    parentID,
-                }
-                this.openIndicatorEditingDialog(indicatorID, parentID);
+                const indicator = res[indicatorID] || {}
+                this.openIndicatorEditingDialog(indicatorID, parentID, indicator);
             }).catch(err => console.log('error getting indicator information', err));
         }
     }

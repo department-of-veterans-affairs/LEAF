@@ -40,10 +40,10 @@ export default {
             showToolbars: true,
             sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
             updateKey: 0,
-            currentFormPage: 0,
             appIsLoadingForm: false,
             focusedFormID: '',
             focusedFormTree: [],
+            currentFormPage: 0,
             focusedIndicatorID: null,
             fileManagerTextFiles: []
         }
@@ -124,7 +124,7 @@ export default {
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
             moveListItem: this.moveListItem,
-            toggleToolbars: this.toggleToolbars,
+            handleNameClick: this.handleNameClick,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey
         }
@@ -402,7 +402,6 @@ export default {
 
         },
         /**
-         * adds initial sort and parentID values to app list tracker
          * @param {number} indID remove a record from the tracker
          */
         clearListItem(indID = 0) {
@@ -511,7 +510,6 @@ export default {
             }
         },
         /**
-         * 
          * @param {Object} event adds the drop zone hilite if target is ul
          */
         onDragEnter(event = {}) {
@@ -519,25 +517,16 @@ export default {
                 event.target.classList.add('entered-drop-zone');
             }
         },
-        toggleToolbars(event = {}, indicatorID = null) {
-            event?.stopPropagation();
-            if (event?.keyCode === 32) event.preventDefault();
-            if (event.currentTarget.classList.contains('indicator-name-preview')) {
-                if (!this.showToolbars) {
-                    const id = event.currentTarget.id;
-                    const initialTop = event.currentTarget.getBoundingClientRect().top;
-                    this.showToolbars = true;
-                    setTimeout(() => {
-                        const finalTop = document.getElementById(id).getBoundingClientRect().top;
-                        window.scrollBy(0, finalTop - initialTop);
-                    });
-                } else {
-                    if(indicatorID) {
-                        this.editQuestion(indicatorID);
-                    }
-                }
+        /**
+         * @param {number} indicatorID changes mode to edit if in preview mode, otherwise opens editor
+         */
+        handleNameClick(indicatorID = null) {
+            if (!this.showToolbars) {
+                this.showToolbars = true;
             } else {
-                this.showToolbars = !this.showToolbars;
+                if(indicatorID) {
+                    this.editQuestion(indicatorID);
+                }
             }
         },
         /**
@@ -631,7 +620,7 @@ export default {
                     </ul>
                     <button v-if="focusedFormRecord?.parentID === ''" type="button" class="btn-general"
                         id="addInternalUse"
-                        @click="openNewFormDialog($event, focusedFormRecord.categoryID)"
+                        @click="openNewFormDialog(focusedFormRecord.categoryID)"
                         title="New Internal-Use Form" >
                         Add Internal-Use&nbsp;<span role="img" aria="">➕</span>
                     </button>
@@ -639,14 +628,13 @@ export default {
 
                 <!-- FORM INDEX -->
                 <div id="form_index_display">
-                    <div style="display:flex; align-items: center; justify-content: space-between; height: 28px; margin-bottom: 0.5rem;">
-                        <h3 style="margin: 0; color: black;">{{ indexHeaderText }}</h3>
+                    <div class="index_info">
+                        <h3>{{ indexHeaderText }}</h3>
                         <img v-if="currentFormCollection.length > 1"
                             :src="libsPath + 'dynicons/svg/emblem-notice.svg'"
-                            style="width: 16px; margin-left: 0.25rem; margin-right:auto;"
                             title="Details for the selected form are shown below" alt="" />
-                            <button type="button" v-if="focusedFormTree.length > 0" id="indicator_toolbar_toggle" class="btn-general" style="width: 133px;"
-                                @click.stop="toggleToolbars($event)">
+                            <button type="button" v-if="focusedFormTree.length > 0" id="indicator_toolbar_toggle" class="btn-general"
+                                @click.stop="showToolbars=!showToolbars">
                                 {{showToolbars ? 'Preview this form' : 'Edit this form'}}
                             </button>
                     </div>

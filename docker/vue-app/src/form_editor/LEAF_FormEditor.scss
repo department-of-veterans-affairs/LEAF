@@ -283,9 +283,9 @@ table[class$="SelectorTable"] th {
         align-self: center;
         border-right: 1px solid $charcoal;
         min-width: 400px;
-
         #categoryName {
             width: 100%;
+            margin-bottom: 1rem;
         }
         textarea {
             width: 100%;
@@ -295,8 +295,13 @@ table[class$="SelectorTable"] th {
             border-radius: 2px;
             resize: none;
         }
-
+        span {
+            margin-left: auto;
+            font-size:80%;
+            align-self:flex-end;
+        }
     }
+
     .form-id {
         position: absolute; 
         right: 0.75rem;
@@ -357,6 +362,27 @@ div#form_content_view {
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+
+    .index_info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 28px;
+        margin-bottom: 0.5rem;
+        h3 {
+            margin: 0;
+            color: black;
+        }
+        img {
+            width: 16px;
+            height: 16px;
+            margin-left: 0.25rem;
+            margin-right: auto;
+        }
+        button {
+            width: 133px;
+        }
+    }
 
     /* Drag-Drop area for focused form */
     ul#base_drop_area {
@@ -620,7 +646,6 @@ div[id^="layoutFormRecords_"] > ul > li  {
         padding-left: 6px;
         margin-left: -6px;
     }
-
     div.printResponse {
         position: relative;
         padding: 0;
@@ -629,46 +654,49 @@ div[id^="layoutFormRecords_"] > ul > li  {
         float: none; /* style.css style collision */
         border-radius: 4px;
         border-left: 7px solid $BG_Pearl;
-
         &:not(.form-header) {
             margin-left: 0.5rem;
         }
     }
+
 
     .form_editing_area {
         display: flex;
         flex-direction: column;
         padding-bottom: 1rem;
         background-color: white;
-
         button:not(.choices__button) {
             border: 1px solid $LtNavy;
             &:hover, &:focus, &:active {
                 border: 1px solid $LEAF_CSS_outline !important;
             }
         }
-
-        div[class*="SelectorBorder"] {
-            background-color: transparent;
-        }
-        tr[class*="Selector"]:hover {
-            background-color: #e1f3f8;
-        }
-        .indicator-name-preview {
-            padding: calc(0.75rem + 3px) 0.75rem 0.75rem 0.75rem;
-            width: 100%;
-            .input-required-sensitive {
-                color: $attention;
-                margin-left: 0.4em;
-            }
-        }
-
         &.conditional {
             background-color: saturate(darken($BG_Pearl, 2%), 15%);
         }
 
+        .name_and_toolbar {
+            padding: 3px 3px 3px 0;
+            width: 100%;
+            min-height: 56px;
+            display:flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+            &.form-header {
+                background-color: $manila;
+                font-weight:  bolder;
+                font-size: 110%;
+            }
+        }
+        .indicator-name-preview {
+            padding: 0.75rem 0 0.75rem 0.75rem;
+            width: 100%;
+            .required-sensitive {
+                color: $attention;
+                margin-left: 0.4em;
+            }
+        }
         div[id^="form_editing_toolbar_"] {
-            padding: 3px;
             border-radius: 3px;
             display: flex;
             flex-direction:column;
@@ -677,7 +705,6 @@ div[id^="layoutFormRecords_"] > ul > li  {
             font-size: 90%;
             color: black;
             gap: 2px;
-
             > div {
                 display: flex; 
                 align-items: center;
@@ -690,57 +717,36 @@ div[id^="layoutFormRecords_"] > ul > li  {
                 font-weight: normal;
             }
         }
-        &.form-header {
-            background-color: $manila;
-            font-weight:  bolder;
-            padding-bottom: 3px;
-            margin-bottom: 1rem;
-        }
 
-        &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] button {
-            font-size: 110%;
-        }
-
-        .form_data_entry_preview {
-            padding: 0.5rem 0.25rem 0 0.75rem;
-
-            .format-preview {
-                position: relative;
-                margin-top: 0.2em;
-
-                /* format specific styling */
-                .text_input_preview {
-                    display: inline-block;
-                    width: 75%;
-                    font-size: 1.3em; 
-                    font-family: monospace;
-                    background-color: white;
-                    border: 1px solid gray;
-                    padding: 0.25em;
-                }
-                .textarea_input_preview {
-                    width: 100%; 
-                    padding: 0.5em; 
-                    font-size: 1.3em; 
-                    font-family: monospace;
-                }
-                div.tableinput { /* fixes for grid tables */
-                    overflow-x: auto;
-                    
-                    table {
-                        margin: 0;
-                        input {
-                            width: 100%;
-                        }
-                        img {
-                            max-width: none;
-                        }
-                    }
-                }
-
-                .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
-                    margin-bottom: 0.5em;
-                }
+        .format_preview {
+            padding: 0.75rem 0 0 0.75rem;
+            /* format specific styling */
+            .text_input_preview {
+                display: inline-block;
+                width: 75%;
+                font-size: 1.3em; 
+                font-family: monospace;
+                background-color: white;
+                border: 1px solid gray;
+                padding: 0.25em;
+            }
+            .textarea_input_preview {
+                width: 100%; 
+                padding: 0.5em; 
+                font-size: 1.3em; 
+                font-family: monospace;
+            }
+            div.tableinput { /* fixes for grid tables */
+                overflow-x: auto;
+            }
+            .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
+                margin-bottom: 0.5em;
+            }
+            div[class*="SelectorBorder"] {
+                background-color: transparent;
+            }
+            tr[class*="Selector"]:hover {
+                background-color: #e1f3f8;
             }
         }
     }
@@ -948,13 +954,11 @@ div[id^="layoutFormRecords_"] > ul > li  {
                 width: 100%;
                 flex: 0 0 100%;
             }
-
             .form_editing_area {
-                &.form-header .indicator-name-preview, 
-                &.form-header div[id^="form_editing_toolbar_"] {
+                .name_and_toolbar.form-header {
                     font-size: 100%;
                 }
-                .format-preview .tableinput {
+                .tableinput {
                     max-width: 400px;
                 }
             }

@@ -206,12 +206,12 @@ export default {
         </span>
         <div id="edit-properties-description">
             <label for="categoryName">Form name
-                <span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formNameCharsRemaining}})</span>
+                <span>({{formNameCharsRemaining}})</span>
             </label>
-            <input id="categoryName" type="text" maxlength="50" v-model="categoryName" style="margin-bottom: 1rem;" @change="updateName"/>
+            <input id="categoryName" type="text" maxlength="50" v-model="categoryName" @change="updateName"/>
             
             <label for="categoryDescription">Form description
-                <span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formDescrCharsRemaining}})</span>
+                <span>({{formDescrCharsRemaining}})</span>
             </label>
             <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3" @change="updateDescription"></textarea>
         </div>

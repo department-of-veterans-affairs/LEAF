@@ -72,7 +72,7 @@ export default {
                     allow_single_deselect: true, 
                     width: '50%'
                 });
-                $(`#${this.inputElID}_chosen input.chosen-search-input`).attr('aria-labelledby', this.labelSelector);
+                document.querySelector(`#${this.inputElID}_chosen input.chosen-search-input`)?.setAttribute('aria-labelledby', this.labelSelector);
                 break;
             case 'multiselect':
                 const elSelect = document.getElementById(this.inputElID);
@@ -91,7 +91,7 @@ export default {
                     });
                     elSelect.choicesjs = choices;
                 }
-                $(`#${this.inputElID} ~ input.choices__input`).attr('aria-labelledby', this.labelSelector);
+                document.querySelector(`#${this.inputElID} ~ input.choices__input`).setAttribute('aria-labelledby', this.labelSelector);
                 break;
             case 'orgchart_group':
             case 'orgchart_position':
@@ -119,7 +119,7 @@ export default {
             $(`#textarea_format_button_${this.indID}`).css('display', 'none');
         }
     },
-    template: `<div class="format-preview">
+    template: `<div class="format_preview">
         <input v-if="baseFormat === 'text'" :id="inputElID" type="text" :value="strippedDefault" class="text_input_preview"/>
         <input v-if="baseFormat === 'number'" :id="inputElID" type="number" :value="strippedDefault" class="text_input_preview"/>
 
@@ -219,6 +219,5 @@ export default {
                 </table>
             </div>
         </template>
-
     </div>`
 }

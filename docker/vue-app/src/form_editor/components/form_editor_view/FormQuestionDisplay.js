@@ -22,7 +22,7 @@ export default {
         'listTracker',
         'allowedConditionChildFormats',
         'showToolbars',
-        'toggleToolbars',
+        'handleNameClick',
         'makePreviewKey'
     ],
     computed: {
@@ -53,8 +53,8 @@ export default {
             return !this.isHeaderLocation && this.allowedConditionChildFormats.includes(this.formNode.format?.toLowerCase());
         },
         indicatorName() {
-            const contentRequired = this.required ? `<span class="input-required-sensitive">*&nbsp;Required</span>` : '';
-            const contentSensitive = this.sensitive ? `<span class="input-required-sensitive">*&nbsp;Sensitive</span>&nbsp;${this.sensitiveImg}` : '';
+            const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
+            const contentSensitive = this.sensitive ? `<span class="required-sensitive">*&nbsp;Sensitive</span>&nbsp;${this.sensitiveImg}` : '';
             const shortLabel = (this.formNode?.description || '') !== '' ? ` (${this.formNode.description})` : '';
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
 
@@ -79,19 +79,17 @@ export default {
             </button>
 
             <!-- EDITING AREA FOR INDICATOR -->
-            <div class="form_editing_area" :class="{'conditional': conditionalQuestion, 'form-header': isHeaderLocation}">
-                <div style="width: 100%; display:flex; gap: 0.5rem; justify-content: space-between;">
+            <div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
+                <div class="name_and_toolbar" :class="{'form-header': isHeaderLocation}">
                     <!-- NAME -->
-                    <div style="display:flex;">
-                        <div v-html="indicatorName" @click="toggleToolbars($event, parseInt(indicatorID))"
-                        class="indicator-name-preview" :id="indicatorID + '_format_label'"></div>
+                    <div v-html="indicatorName" @click.stop.prevent="handleNameClick(parseInt(indicatorID))"
+                        class="indicator-name-preview" :id="indicatorID + '_format_label'">
                     </div>
 
                     <!-- TOOLBAR -->
                     <div v-show="showToolbars"
                         :style="{backgroundColor: required ? '#eec8c8' : '#f2f2f5'}"
-                        :id="'form_editing_toolbar_' + indicatorID"
-                        :class="{'conditional': conditionalQuestion}">
+                        :id="'form_editing_toolbar_' + indicatorID">
     
                         <div style="width:100%;">
                             <button v-show="showToolbars" type="button"
@@ -123,11 +121,7 @@ export default {
                 </div>
 
                 <!-- FORMAT PREVIEW -->
-                <div v-if="formNode.format !== ''" class="form_data_entry_preview">
-                    <format-preview :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
-                </div>
-
-
+                <format-preview v-if="formNode.format !== ''" :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
             </div>
 
             <!-- NOTE: RECURSIVE SUBQUESTIONS -->

@@ -87,6 +87,7 @@ export default {
         'advancedMode',
         'initializeOrgSelector',
         'closeFormDialog',
+        'showLastUpdate',
         'focusedFormRecord',
         'focusedFormTree',
         'selectNewFormNode',
@@ -459,6 +460,7 @@ export default {
                     if (this.indicatorID === this.focusedIndicatorID && (this.archived === true || this.deleted === true)) {
                         this.selectNewFormNode(); //reset the focus if the focused Ind was removed
                     }
+                    this.showLastUpdate('form_properties_last_update');
                 }
                 this.closeFormDialog();
             }).catch(err => console.log('an error has occurred', err));
