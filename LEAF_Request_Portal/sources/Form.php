@@ -2944,7 +2944,7 @@ class Form
         if (!empty($recordIDs)) {
 
             if ($joinCategoryID) {
-                $categorySQL = 'SELECT recordID,categoryName,categoryID
+                $categorySQL = 'SELECT recordID,categoryName,categoryID,destructionAge
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -2955,12 +2955,13 @@ class Form
                 foreach ($res2 as $item) {
                     $data[$item['recordID']]['categoryNames'][] = $item['categoryName'];
                     $data[$item['recordID']]['categoryIDs'][] = $item['categoryID'];
+                    $data[$item['recordID']]['destructionAge'] = $item['destructionAge'];
                 }
             }
 
             if ($joinAllCategoryID) {
 
-                $allCategorySQL = 'SELECT recordID,categoryName,categoryID
+                $allCategorySQL = 'SELECT recordID,categoryName,categoryID,destructionAge
                 FROM category_count
                 LEFT JOIN categories USING (categoryID)
                 WHERE recordID IN (' . $recordIDs . ')
@@ -2970,6 +2971,7 @@ class Form
                 foreach ($res2 as $item) {
                     $data[$item['recordID']]['categoryNamesUnabridged'][] = $item['categoryName'];
                     $data[$item['recordID']]['categoryIDsUnabridged'][] = $item['categoryID'];
+                    $data[$item['recordID']]['destructionAge'] = $item['destructionAge'];
                 }
             }
 
@@ -3103,11 +3105,11 @@ class Form
 
         // check actionable
         if ($filterActionable) {
-            include_once 'FormWorkflow.php';
-            $FormWorkflow = new FormWorkflow($this->db, $this->login, 0);
+            
+            $formWorkflow = $this->getFormWorkflow();
 
-            $actionable = $FormWorkflow->getActionable($this, $data);
-
+            $actionable = $formWorkflow->getActionable($this, $data);
+            
             $actionLookup = [];
             foreach ($actionable as $t) {
                 if (!isset($actionLookup[$t['recordID']])) {
@@ -3809,7 +3811,7 @@ class Form
                     $mainDataExplainSQL = 'EXPLAIN SELECT * FROM records ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
                     return $res = $this->db->prepared_query($mainDataExplainSQL, $vars);
                 } else {
-                    return \Leaf\XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
+                    return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
                 }
             }
 
