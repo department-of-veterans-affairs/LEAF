@@ -342,6 +342,19 @@ function removeMember(groupID, userID) {
     });
 }
 
+/**
+ * removeTempMember: Removes preview placeholder for user that has not been added to group yet.
+ * @param htmlNode table
+ * @param int id
+ */
+function removeTempMember(table, id) {
+    for (let i = 1; i <= table.rows.length; i++) {
+        if (table.rows[i]?.classList?.contains(`id-${id}`)) {
+            table.deleteRow(i);
+        }
+    }
+}
+
 function pruneMember(groupID, userID) {
     $.ajax({
         type: 'POST',
@@ -497,6 +510,7 @@ function getGroupList() {
                                 if (response.status.code == 2) {
                                     let res = response.data;
                                     dialog.clear();
+                                    dialog.setTitle("Edit Group");
                                     let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
                                     dialog.setContent(
                                         '<div class="leaf-float-right"><div><button class="usa-button leaf-btn-small" onclick="viewHistory('+groupID+')">View History</button></div>' + button_deleteGroup + '</div>' +
@@ -531,7 +545,7 @@ function getGroupList() {
                                                     actions += `${addToNexusButton}`;
                                                 }
                                                 actions += '</td>';
-                                                employee_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
+                                                employee_table += `<tr class="id-${res[i].empUID}">${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
                                             } else {
                                                 let pruneMemberButton = '';
                                                 if (res[i].regionallyManaged === false) {
@@ -689,31 +703,94 @@ function getGroupList() {
                                     empSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
                                     empSel.rootPath = '<!--{$orgchartPath}-->/';
                                     empSel.outputStyle = 'micro';
+                                    empSel.selectHandler = () => {
+                                        if(empSel.selection != '') {
+                                            let selectedUser = empSel.selectionData[empSel.selection];
+                                            let selectedUserName = selectedUser.userName;
+                                            // Check if the user does not already exist.
+                                            let idExists = false;
+                                            let table = document.querySelector('#employee_table > table.table-bordered');
+                                            for (let i = 1; i <= table.rows.length; i++) {
+                                                if (table.rows[i]?.classList?.contains(`id-${selectedUser.empUID}`)) {
+                                                    idExists = true;
+                                                }
+                                            }
+                                            if (!idExists) {
+                                                $.ajax({
+                                                    type: 'POST',
+                                                    url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                                    data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                                    success: function(res) {
+                                                        if(!isNaN(res)) {
+                                                            // Add the user to the table.
+                                                            let table = document.querySelector('#employee_table > table.table-bordered');
+                                                            let row = table.insertRow(table.rows.length);
+                                                            row.style.backgroundColor = "#aea";
+                                                            row.classList.add(`id-${selectedUser.empUID}`);
+                                                            row.classList.add(`user-to-add`);
+                                                            
+                                                            let employeeName = row.insertCell(0);
+                                                            employeeName.classList.add("leaf-user-link");
+                                                            employeeName.title = `${selectedUser.empUID} - ${selectedUser.userName}`;
+                                                            employeeName.style.cssText = "font-size: 1em; font-weight: 700;";
+
+                                                            let employeeUserName = row.insertCell(1);
+                                                            employeeUserName.classList.add("leaf-user-link");
+                                                            employeeUserName.title = `${selectedUser.empUID} - ${selectedUser.userName}`;
+                                                            employeeUserName.style.cssText = "font-size: 1em; font-weight: 600;";
+
+                                                            let backups = row.insertCell(2);
+                                                            let isLocal = row.insertCell(3);
+                                                            let isRegional = row.insertCell(4);
+
+                                                            let removeButton = row.insertCell(5);
+                                                            removeButton.style.cssText = "font-size: 0.8em; text-align: center;";
+
+                                                            employeeName.innerHTML = `+ <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${selectedUser.empUID}" target="_blank">${toTitleCase(selectedUser.lastName)}, ${toTitleCase(selectedUser.firstName)}</a>`;
+                                                            employeeUserName.innerHTML = `<a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${selectedUser.empUID}" target="_blank">${selectedUser.userName}</a>`;
+                                                            removeButton.innerHTML = `<button id="removeTempMember_${table.rows.length}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Remove this user from this group">Remove</button>`;
+
+                                                            document.querySelector('#removeTempMember_' + table.rows.length).addEventListener('click', function () {
+                                                                removeTempMember(table, selectedUser.empUID);
+                                                            });
+                                                        }
+                                                    },
+                                                    cache: false
+                                                });
+                                            }
+                                            empSel.selection = '';
+                                            empSel.clearSearch();
+                                        }
+                                    };
                                     empSel.initialize();
                                     // Update on any action
                                     dialog.setCancelHandler(function() {
                                         updateAndGetMembers(groupID);
                                     });
                                     dialog.setSaveHandler(function() {
-                                        if(empSel.selection != '') {
-                                            let selectedUserName = empSel.selectionData[empSel.selection].userName;
-                                            $.ajax({
-                                                type: 'POST',
-                                                url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
-                                                data: {CSRFToken: '<!--{$CSRFToken}-->'},
-                                                success: function(res) {
-                                                    if(!isNaN(res)) {
-                                                        addMember(groupID, selectedUserName);
-                                                        updateAndGetMembers(groupID);
-                                                    }
-                                                    else {
-                                                        alert(res);
-                                                    }
-                                                },
-                                                cache: false
-                                            });
+                                        let table = document.querySelector('#employee_table > table.table-bordered');
+                                        for (let i = 1; i <= table.rows.length; i++) {
+                                            if (table.rows[i]?.classList?.contains(`user-to-add`)) {
+                                                let cells = table.rows[i].getElementsByTagName("td");
+                                                let selectedUserName = cells[1].innerText;
+                                                $.ajax({
+                                                    type: 'POST',
+                                                    url: '<!--{$orgchartPath}-->/api/employee/import/_' + selectedUserName,
+                                                    data: {CSRFToken: '<!--{$CSRFToken}-->'},
+                                                    success: function(res) {
+                                                        if(!isNaN(res)) {
+                                                            addMember(groupID, selectedUserName);
+                                                            updateAndGetMembers(groupID);
+                                                        }
+                                                        else {
+                                                            alert(res);
+                                                        }
+                                                    },
+                                                    cache: false
+                                                });
+                                                dialog.hide();
+                                            }
                                         }
-                                        dialog.hide();
                                     });
                                     //508 fix
                                     setTimeout(function () {
