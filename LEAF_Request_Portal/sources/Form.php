@@ -1955,7 +1955,7 @@ class Form
      */
     private function batchUpdateDependencyAccess(array $accessList, array $records): array
     {
-        // get santized lists for DB query
+        // get sanitized lists for DB query
         $indicatorIDs = [];
         $recordIDs = [];
         foreach($records as $dep) {
