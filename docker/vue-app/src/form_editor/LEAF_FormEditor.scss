@@ -176,6 +176,32 @@ table[class$="SelectorTable"] th {
     color: $charcoal;
 }
 
+
+#advanced_options_dialog_content {
+    min-height: 50px;
+    fieldset {
+        min-width: 700px;
+        padding: 0.5em;
+        margin: 0;
+        table.table {
+            border-collapse: collapse;
+            margin: 0;
+            width: 100%;
+        }
+        > div.save_code {
+            display:flex;
+            justify-content: space-between;
+            align-items: flex-end;
+
+            img {
+                width:16px;
+                height: 16px;
+            }
+        }
+    }
+}
+
+
 #indicator-editing-dialog-content {
     > div {
         margin-bottom: 2rem;
@@ -663,7 +689,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
     .form_editing_area {
         display: flex;
         flex-direction: column;
-        padding-bottom: 1rem;
+        margin-bottom: 1rem;
         background-color: white;
         button:not(.choices__button) {
             border: 1px solid $LtNavy;
@@ -678,7 +704,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
         .name_and_toolbar {
             padding: 3px 3px 3px 0;
             width: 100%;
-            min-height: 56px;
+            min-height: 60px;
             display:flex;
             gap: 0.5rem;
             justify-content: space-between;
@@ -697,6 +723,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
             }
         }
         div[id^="form_editing_toolbar_"] {
+            padding: 3px;
             border-radius: 3px;
             display: flex;
             flex-direction:column;
@@ -719,7 +746,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
         }
 
         .format_preview {
-            padding: 0.75rem 0 0 0.75rem;
+            padding: 0.75rem 0 0.75rem 0.75rem;
             /* format specific styling */
             .text_input_preview {
                 display: inline-block;
@@ -753,17 +780,33 @@ div[id^="layoutFormRecords_"] > ul > li  {
 }
 
 /* ifthen sections */
-#condition_editor_center_panel {
+#condition_editor_dialog_content {
     min-width: 700px;
     max-width: 900px;
     margin: auto;
     background-color: white;
-    #loader_spinner {
-        border: 2px solid black;
-        text-align: center; 
-        font-size: 24px;
-        font-weight: bold;
-        padding: 16px;
+    #ifthen_deletion_dialog {
+        margin-bottom: -0.75rem;
+        .options {
+            display: flex;
+            justify-content:
+            space-between; margin-top: 2rem;
+            button {
+                width: 120px;
+            }
+        }
+    }
+    #savedConditionsLists {
+        padding-bottom: 0.5em;
+        ul {
+            margin-bottom: 1rem;
+        }
+        button.btn_remove_condition {
+            width: 1.75em;
+        }
+    }
+    #outcome_select {
+        max-width: 700px;
     }
     #condition_editor_inputs > div {
         padding: 1rem 0;
@@ -772,15 +815,19 @@ div[id^="layoutFormRecords_"] > ul > li  {
             max-width: 700px;
         }
     }
-    div#if-then-setup {
+    #if-then-setup {
         display: flex;
+        max-width: 700px;
         gap: 0.75rem;
         align-items: center;
         min-height: 60px;
         padding-bottom: 0;
         > select, #parent_choices_wrapper {
-            width: 31%;
+            width: 35%;
             margin: 0;
+        }
+        #operator_select {
+            width: 25%;
         }
         > div.crosswalks {
             display:flex;
@@ -803,9 +850,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
             margin-bottom: 1em;
         }
     }
-    div#savedConditionsLists {
-        padding-bottom: 0.5em;
-    }
+
     li.savedConditionsCard {
         display: flex;
         align-items: center;
@@ -865,8 +910,7 @@ div[id^="layoutFormRecords_"] > ul > li  {
         border: 1px solid black !important;
         background-color: #600;
     }
-    .input-info {
-        padding: 0.4em 0;
+    .ifthen_label {
         font-weight: bolder;
         color: $base_navy;
     }
@@ -964,13 +1008,13 @@ div[id^="layoutFormRecords_"] > ul > li  {
             }
         }
     }
-    #condition_editor_center_panel {
+    #condition_editor_dialog_content {
         width: 100%;
         min-width: 400px;
         border: 0;
         div#if-then-setup {
             flex-direction: column;
-            > select, > h3, #parent_choices_wrapper {
+            > select, > h3, #parent_choices_wrapper, #operator_select {
                 width: 100%;
             }
             .choices__inner {

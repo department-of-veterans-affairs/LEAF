@@ -118,7 +118,7 @@ export default {
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
-            selectNewFormNode: this.selectNewFormNode,
+            focusFormNode: this.focusFormNode,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
@@ -315,10 +315,12 @@ export default {
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          * @param {Number} page base 0 form page 
          */
-        selectNewFormNode(nodeID = null, page = 0) {
+        focusFormNode(nodeID = null, page = 0) {
             this.focusedIndicatorID = nodeID;
             this.currentFormPage = page;
-            console.log('update ind and page', nodeID, page);
+            if(nodeID !== null) {
+                this.updateFormMenuState(nodeID, !this.formMenuState[nodeID], true);
+            }
         },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
@@ -491,7 +493,7 @@ export default {
                             this.currentFormPage = thisPageIndex;
                         }
                         if(+formParIndID > 0 && !this.formMenuState[formParIndID]) {
-                            this.updateFormMenuState(formParIndID, true);
+                            this.updateFormMenuState(formParIndID, true, false);
                         }
                     }
                 }

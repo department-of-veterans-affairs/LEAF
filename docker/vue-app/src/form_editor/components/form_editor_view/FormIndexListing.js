@@ -13,7 +13,7 @@ export default {
         'shortIndicatorNameStripped',
         'clearListItem',
         'addToListTracker',
-        'selectNewFormNode',
+        'focusFormNode',
         'formMenuState',
         'updateFormMenuState',
         'focusedIndicatorID',
@@ -71,8 +71,8 @@ export default {
         <li tabindex="0" :title="'index item '+ formNode.indicatorID"
             :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
-            @click.stop="selectNewFormNode(formNode.indicatorID, formPage)"
-            @keydown.enter.prevent="selectNewFormNode(formNode.indicatorID, formPage)">
+            @click.stop="focusFormNode(formNode.indicatorID, formPage)"
+            @keydown.enter.prevent="focusFormNode(formNode.indicatorID, formPage)">
 
             <div>
                 <span role="img" aria="">☰&nbsp;&nbsp;</span>

@@ -436,7 +436,7 @@ export default {
             this.showFormDialog = true;
         },
         openIfThenDialog(indicatorID = 0, indicatorName = 'Untitled') {
-            const name = this.truncateText(this.decodeAndStripHTML(indicatorName));
+            const name = this.truncateText(this.decodeAndStripHTML(indicatorName), 35);
             this.dialogData = {
                 indicatorID,
             }

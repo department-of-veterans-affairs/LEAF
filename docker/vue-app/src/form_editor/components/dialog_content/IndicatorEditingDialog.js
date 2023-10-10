@@ -90,7 +90,7 @@ export default {
         'showLastUpdate',
         'focusedFormRecord',
         'focusedFormTree',
-        'selectNewFormNode',
+        'focusFormNode',
         'focusedIndicatorID',
         'getFormByCategoryID',
         'truncateText',
@@ -458,7 +458,7 @@ export default {
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.formID);
                     if (this.indicatorID === this.focusedIndicatorID && (this.archived === true || this.deleted === true)) {
-                        this.selectNewFormNode(); //reset the focus if the focused Ind was removed
+                        this.focusFormNode(); //reset the focus if the focused Ind was removed
                     }
                     this.showLastUpdate('form_properties_last_update');
                 }
