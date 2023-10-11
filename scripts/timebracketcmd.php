@@ -188,7 +188,7 @@ class TimeBracketCmd
     private function canIRun(): bool
     {
         // ie run at 7 am every day
-        if (!empty($this->runAtExactTime)) {
+        if (!empty($this->runAtExactTime) || !empty($this->sleepTime)) {
             return TRUE;
         } // only run if we are within the set time frame, ie every 5 minutes between 5 am to 6 am
         elseif ($this->time > $this->startTime && $this->time < $this->endTime) {

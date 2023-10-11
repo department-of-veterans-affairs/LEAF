@@ -5,12 +5,11 @@
 
 $currDir = dirname(__FILE__);
 
-require_once $currDir . '/../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $protocol = 'https';
 $request_uri = str_replace(['/var/www/html/', '/scripts'], '', $currDir);
-$siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
+$siteRoot = "{$protocol}://" . getenv('HTTP_HOST') . '/' . $request_uri . '/';
 
 $login->setBaseDir('../');
 $login->loginUser();
