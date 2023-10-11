@@ -1070,7 +1070,7 @@ class Employee extends Data
                         WHERE phoneticFirstName LIKE :firstName
                         AND phoneticLastName LIKE :lastName
                         AND deleted = 0
-                        ORDER BY phoneticLastName {$this->sortDir}
+                        ORDER BY lastName, phoneticLastName {$this->sortDir}
                         {$this->limit}";
 
             $vars = array(':firstName' => $this->metaphone_query($firstName), ':lastName' => $this->metaphone_query($lastName));

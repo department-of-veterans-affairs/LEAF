@@ -274,7 +274,7 @@ class NationalEmployee extends NationalData
                         AND phoneticLastName LIKE :lastName
                         AND deleted = 0
                         {$domain}
-                        ORDER BY phoneticLastName {$this->sortDir}
+                        ORDER BY lastName, phoneticLastName {$this->sortDir}
                         {$this->limit}";
 
             $result = $this->db->prepared_query($sql, $vars);
