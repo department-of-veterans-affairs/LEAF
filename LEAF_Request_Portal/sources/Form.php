@@ -3836,7 +3836,7 @@ class Form
             $res = $this->db->prepared_query($mainDataSQl, $vars);
 
 
-            $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable',]);
+            $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable','query']);
             $retData = $this->processQueryData($res, $compactedVariables);
         }
 
