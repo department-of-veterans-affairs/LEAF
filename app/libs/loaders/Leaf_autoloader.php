@@ -23,7 +23,7 @@ $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'nationa
 $site = new App\Leaf\Site($file_paths_db, $_SERVER['SCRIPT_FILENAME']);
 
 if ($site->error) {
-    // redirect to 404 not found
+    throw new Exception("Sorry the page you are looking for could not be found, please check the url and try again.");
 } else {
     $my_path = $site->getPortalPath();
     if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $my_path);

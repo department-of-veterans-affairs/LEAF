@@ -65,12 +65,12 @@ class Site
     private function stripLast(): void
     {
         $path_array = explode('/', $this->match);
+        array_shift($path_array);
+        array_pop($path_array);
 
         $path = '';
 
-        // starting with 1 because the first element in the array will be blank
-        // need to subtract 1 from the count because of the blank first element
-        for ($i = 1; $i < count($path_array) - 1; $i++) {
+        for ($i = 0; $i < count($path_array); $i++) {
             $path .= '/' . $path_array[$i];
         }
 
