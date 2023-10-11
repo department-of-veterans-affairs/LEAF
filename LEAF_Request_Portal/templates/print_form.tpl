@@ -1207,7 +1207,7 @@ function doSubmit(recordID) {
                     });
 
                     // find current forms
-                    let query = {terms: [{id: 'recordID', operator: '=', match: '<!--{$recordID|strip_tags}-->'}],joins: ['categoryNameUnabridged']};
+                    let query = {terms: [{id: 'recordID', operator: '=', match: '<!--{$recordID|strip_tags}-->'}],joins: ['categoryNameUnabridged'], limit: 9999};
                     $.ajax({
                         type: 'GET',
                         url: './api/form/query',
