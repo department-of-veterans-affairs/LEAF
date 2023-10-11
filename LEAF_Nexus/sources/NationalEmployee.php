@@ -31,9 +31,9 @@ class NationalEmployee extends NationalData
 
     private $tableName = 'employee';    // Table of employee contact info
 
-    private $limit = 'LIMIT 3';       // Limit number of returned results "TOP 100"
+    private $cache = array();
 
-    private $sortBy = 'lastName';          // Sort by... ?
+    private $limit = 'LIMIT 3';       // Limit number of returned results "TOP 100"
 
     private $sortDir = 'ASC';           // Sort ascending/descending?
 
@@ -155,7 +155,7 @@ class NationalEmployee extends NationalData
         $sql = "SELECT * FROM {$this->tableName}
                 WHERE lastName LIKE :lastName {$domain}"
                 . $disabled_clause .
-                "ORDER BY {$this->sortBy} {$this->sortDir}
+                "ORDER BY lastName {$this->sortDir}
                 {$this->limit}";
 
 
@@ -167,7 +167,7 @@ class NationalEmployee extends NationalData
             $sql = "SELECT * FROM {$this->tableName}
                     WHERE phoneticLastName LIKE :lastName {$domain}"
                     . $disabled_clause .
-                    "ORDER BY {$this->sortBy} {$this->sortDir}
+                    "ORDER BY phoneticLastName {$this->sortDir}
                     {$this->limit}";
 
             if ($vars[':lastName'] != '')
@@ -207,7 +207,7 @@ class NationalEmployee extends NationalData
         $sql = "SELECT * FROM {$this->tableName}
                 WHERE firstName LIKE :firstName {$domain}"
                 . $disabled_clause .
-                "ORDER BY {$this->sortBy} {$this->sortDir}
+                "ORDER BY lastName {$this->sortDir}
                 {$this->limit}";
 
         $result = $this->db->prepared_query($sql, $vars);
@@ -218,7 +218,7 @@ class NationalEmployee extends NationalData
             $sql = "SELECT * FROM {$this->tableName}
                     WHERE phoneticFirstName LIKE :firstName {$domain}"
                     . $disabled_clause .
-                    "ORDER BY {$this->sortBy} {$this->sortDir}
+                    "ORDER BY lastName {$this->sortDir}
                     {$this->limit}";
 
             if ($vars[':firstName'] != '')
@@ -248,7 +248,7 @@ class NationalEmployee extends NationalData
                 AND middleName LIKE :middleName
                 AND deleted = 0
                 {$domain}
-                ORDER BY {$this->sortBy} {$this->sortDir}
+                ORDER BY lastName {$this->sortDir}
                 {$this->limit}";
         }
         else
@@ -260,7 +260,7 @@ class NationalEmployee extends NationalData
                 AND lastName LIKE :lastName
                 AND deleted = 0
                 {$domain}
-                ORDER BY {$this->sortBy} {$this->sortDir}
+                ORDER BY lastName {$this->sortDir}
                 {$this->limit}";
         }
         $result = $this->db->prepared_query($sql, $vars);
@@ -274,7 +274,7 @@ class NationalEmployee extends NationalData
                         AND phoneticLastName LIKE :lastName
                         AND deleted = 0
                         {$domain}
-                        ORDER BY {$this->sortBy} {$this->sortDir}
+                        ORDER BY phoneticLastName {$this->sortDir}
                         {$this->limit}";
 
             $result = $this->db->prepared_query($sql, $vars);
