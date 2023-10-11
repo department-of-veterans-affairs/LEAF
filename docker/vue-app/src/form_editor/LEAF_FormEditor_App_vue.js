@@ -57,8 +57,6 @@ export default {
             hasDevConsoleAccess: this.hasDevConsoleAccess,
             getSiteSettings: this.getSiteSettings,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
-            newQuestion: this.newQuestion,
-            editQuestion: this.editQuestion,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
             updateFormMenuState: this.updateFormMenuState,
@@ -74,6 +72,7 @@ export default {
             openConfirmDeleteFormDialog: this.openConfirmDeleteFormDialog,
             openStapleFormsDialog: this.openStapleFormsDialog,
             openEditCollaboratorsDialog: this.openEditCollaboratorsDialog,
+            openIndicatorEditingDialog: this.openIndicatorEditingDialog,
             openIfThenDialog: this.openIfThenDialog,
             orgchartFormats: this.orgchartFormats,
             initializeOrgSelector: this.initializeOrgSelector,
@@ -98,7 +97,6 @@ export default {
         ResponseMessage
     },
     created() {
-        console.log('APP created, app is getting categories');
         this.getEnabledCategories();
     },
     methods: {
@@ -106,7 +104,6 @@ export default {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
         },
         /**
-         * 
          * @param {string} content 
          * @returns removes encoded chars by passing through div and then strips all tags
          */
@@ -189,7 +186,6 @@ export default {
                 type: 'GET',
                 url: `${this.APIroot}formStack/categoryList/allWithStaples`,
                 success: (res) => {
-                    console.log('setting up categories');
                     this.categories = {};
                     for(let i in res) {
                         this.categories[res[i].categoryID] = res[i];
@@ -309,23 +305,6 @@ export default {
             }
         },
         /**
-         * 
-         * @param {number} indID 
-         * @returns {Object} with property information about the specific indicator
-         */
-        getIndicatorByID(indID = 0) {
-            return new Promise((resolve, reject)=> {
-                $.ajax({
-                    type: 'GET',
-                    url: `${this.APIroot}formEditor/indicator/${indID}`,
-                    success: (res)=> {
-                        resolve(res)
-                    },
-                    error: (err) => reject(err)
-                });
-            });
-        },
-        /**
          * updates app categories object property value
          * @param {string} catID
          * @param {string} keyName
@@ -405,6 +384,10 @@ export default {
                 this.formSaveFunction = func;
             }
         },
+        /**
+         * dialogs using dialogData can use this method on create to check that expected keys are present
+         * @param {Array} requiredDataProperties data property on the dialog component
+         */
         checkRequiredData(requiredDataProperties = []) {
             let notFound = [];
             const dataKeys = Object.keys(this?.dialogData || {});
@@ -445,7 +428,7 @@ export default {
             this.showFormDialog = true;
         },
         /**
-         * Opens the dialog for editing a form question, creating a new form section, or creating a new subquestion
+         * Opens the dialog for editing a question, or creating a new form section or subquestion
          * @param {number|null} indicatorID 
          * @param {number|null} parentID
          * @param {object} indicator 
@@ -468,20 +451,17 @@ export default {
             this.showFormDialog = true;
         },
         /**
-         * get indicator info for indicatorID, and then open advanced options for that indicator
-         * @param {number} indicatorID 
+         * @param {object} indicator
          */
-        openAdvancedOptionsDialog(indicatorID = 0) {
-            this.getIndicatorByID(indicatorID).then(res => {
-                this.dialogData = {
-                    indicatorID,
-                    html: res[indicatorID]?.html || '',
-                    htmlPrint: res[indicatorID]?.htmlPrint || '',
-                }
-                this.setCustomDialogTitle(`<h2>Advanced Options for indicator ${indicatorID}</h2>`);
-                this.setFormDialogComponent('advanced-options-dialog');
-                this.showFormDialog = true;   
-            }).catch(err => console.log('error getting indicator information', err));
+        openAdvancedOptionsDialog(indicator = {}) {
+            this.dialogData = {
+                indicatorID: indicator.indicatorID,
+                html: indicator?.html || '',
+                htmlPrint: indicator?.htmlPrint || '',
+            }
+            this.setCustomDialogTitle(`<h2>Advanced Options for indicator ${indicator.indicatorID}</h2>`);
+            this.setFormDialogComponent('advanced-options-dialog');
+            this.showFormDialog = true;   
         },
         openNewFormDialog(mainFormID = '') {
             this.dialogData = {
@@ -505,23 +485,6 @@ export default {
             this.setCustomDialogTitle(`<h2>Form History</h2>`);
             this.setFormDialogComponent('history-dialog');
             this.showFormDialog = true;
-        },
-        /**
-         * @param {number|null} parentID of the new subquestion.  null for new sections.
-         */
-        newQuestion(parentID = null) {
-            this.openIndicatorEditingDialog(null, parentID, {});
-        },
-        /**
-         * get information about the indicator and open indicator editing
-         * @param {number} indicatorID 
-         */
-        editQuestion(indicatorID = 0) {
-            this.getIndicatorByID(indicatorID).then(res => {
-                const parentID = res[indicatorID]?.parentID || null;
-                const indicator = res[indicatorID] || {}
-                this.openIndicatorEditingDialog(indicatorID, parentID, indicator);
-            }).catch(err => console.log('error getting indicator information', err));
         }
     }
 }

@@ -76,8 +76,8 @@ export default {
         'formMenuState',
         'updateFormMenuState',
         'showLastUpdate',
-        'newQuestion',
-        'editQuestion',
+        'openAdvancedOptionsDialog',
+        'openIndicatorEditingDialog',
         'openNewFormDialog',
         'allStapledFormCatIDs',
         'decodeAndStripHTML',
@@ -86,11 +86,7 @@ export default {
         'showFormDialog',
         'dialogFormContent'
     ],
-    mounted() {
-        console.log('mounted form editor view');
-    },
     beforeRouteEnter(to, from, next) {
-        console.log('entering FE route');
         window.scrollTo(0,0);
         next(vm => {
             vm.getSiteSettings();
@@ -115,6 +111,9 @@ export default {
             noForm: computed(() => this.noForm),
 
             getFormByCategoryID: this.getFormByCategoryID,
+            editAdvancedOptions: this.editAdvancedOptions,
+            newQuestion: this.newQuestion,
+            editQuestion: this.editQuestion,
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
@@ -278,6 +277,23 @@ export default {
                 }
             });
         },
+        /**
+         * @param {number} indicatorID 
+         * @returns {Object} with property information about the specific indicator
+         */
+        getIndicatorByID(indicatorID = 0) {
+            return new Promise((resolve, reject)=> {
+                try {
+                    fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`).then(res => {
+                        res.json().then(data => {
+                            resolve(data[indicatorID]);
+                        });
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        },
         getFileManagerTextFiles() {
             $.ajax({
               type: 'GET',
@@ -285,13 +301,35 @@ export default {
               success: (res) => {
                 const files = res || [];
                 this.fileManagerTextFiles = files.filter(
-                    filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1);
+                    filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1
+                );
               },
               error: (err) => {
                 console.log(err);
               },
               cache: false
             });
+        },
+        editAdvancedOptions(indicatorID = 0) {
+            this.getIndicatorByID(indicatorID).then(indicator => {
+                this.openAdvancedOptionsDialog(indicator);
+            }).catch(err => console.log('error getting indicator information', err));
+        },
+        /**
+         * @param {number|null} parentID of the new subquestion.  null for new sections.
+         */
+        newQuestion(parentID = null) {
+            this.openIndicatorEditingDialog(null, parentID, {});
+        },
+        /**
+         * get information about the indicator and open indicator editing
+         * @param {number} indicatorID 
+         */
+        editQuestion(indicatorID = 0) {
+            this.getIndicatorByID(indicatorID).then(indicator => {
+                const parentID = indicator?.parentID || null;
+                this.openIndicatorEditingDialog(indicatorID, parentID, indicator);
+            }).catch(err => console.log('error getting indicator information', err));
         },
         checkSensitive(node = {}) {
             if (parseInt(node.is_sensitive) === 1) {
@@ -657,9 +695,9 @@ export default {
                     </button>
                     <hr />
                     <!-- INTERNAL FORMS -->
-                    <div v-if="showToolbars" id="internalFormRecordsDisplay">
+                    <div v-if="showToolbars">
                         <h3>Internal Forms</h3>
-                        <ul :id="'internalFormRecords_' + focusedFormID">
+                        <ul v-if="internalFormRecords.length > 0" :id="'internalFormRecords_' + focusedFormID">
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
                                 <button type="button" @click="getFormByCategoryID(i.categoryID)"
                                     :class="{selected: i.categoryID === focusedFormID}">

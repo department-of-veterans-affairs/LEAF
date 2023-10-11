@@ -24,11 +24,9 @@ export default {
     ],
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            console.log('entering form browser');
             vm.setDefaultAjaxResponseMessage();
             vm.getSiteSettings();
             if(vm.appIsLoadingCategories === false) {
-                console.log('browser view initiated categories update')
                 vm.getEnabledCategories();
             }
         });

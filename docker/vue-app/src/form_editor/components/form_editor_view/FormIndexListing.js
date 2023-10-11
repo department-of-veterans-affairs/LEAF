@@ -72,7 +72,7 @@ export default {
             @keydown.enter.prevent="focusFormNode(formNode.indicatorID, formPage)">
 
             <div>
-                <span role="img" aria="" alt="">☰&nbsp;&nbsp;</span>
+                <span role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>
                 {{indexDisplay}}
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !menuOpen}"
                     @click.stop.exact="updateFormMenuState(formNode.indicatorID, !menuOpen)"

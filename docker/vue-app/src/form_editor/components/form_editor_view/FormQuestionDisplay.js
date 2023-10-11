@@ -18,7 +18,7 @@ export default {
         'updateFormMenuState',
         'editQuestion',
         'hasDevConsoleAccess',
-        'openAdvancedOptionsDialog',
+        'editAdvancedOptions',
         'openIfThenDialog',
         'listTracker',
         'allowedConditionChildFormats',
@@ -56,7 +56,7 @@ export default {
         indicatorName() {
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const contentSensitive = this.sensitive ? `<span class="required-sensitive">*&nbsp;Sensitive</span>&nbsp;${this.sensitiveImg}` : '';
-            const shortLabel = (this.formNode?.description || '') !== '' ? ` (${this.formNode.description})` : '';
+            const shortLabel = (this.formNode?.description || '') !== '' && this.showToolbars ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
 
             return `${name}${shortLabel}${contentRequired}${contentSensitive}`;
@@ -71,7 +71,7 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation}" :id="printResponseID">
+    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation, preview: !showToolbars}" :id="printResponseID">
             <button v-if="depth===0 && showToolbars" type="button" :id="'card_btn_open_' + indicatorID"
                 class="card_toggle" title="collapse page"
                 @click.exact="updateFormMenuState(indicatorID, false)"
@@ -81,7 +81,7 @@ export default {
 
             <!-- NOTE: QUESTION EDITING AREA -->
             <div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
-                <div class="name_and_toolbar" :class="{'form-header': isHeaderLocation}">
+                <div class="name_and_toolbar" :class="{'form-header': isHeaderLocation, preview: !showToolbars}">
                     <!-- NAME -->
                     <div v-html="indicatorName" @click.stop.prevent="handleNameClick(parseInt(indicatorID))"
                         class="indicator-name-preview" :id="indicatorID + '_format_label'">
@@ -105,12 +105,12 @@ export default {
                                 :title="'Edit conditions for ' + indicatorID">
                                 Modify Logic
                             </button>
-                            <button v-if="hasDevConsoleAccess === 1" type="button"
-                                @click="openAdvancedOptionsDialog(parseInt(indicatorID))"
-                                :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'"
-                                :class="{'btn-confirm': hasCode, 'btn-general': !hasCode}">
+                            <button v-if="hasDevConsoleAccess === 1" type="button" class="btn-general"
+                                @click="editAdvancedOptions(parseInt(indicatorID))"
+                                :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
                                 Programmer
                             </button>
+                            <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" />
                         </div>
                         <button type="button" class="btn-general"
                             :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
@@ -136,14 +136,16 @@ export default {
             </template>
     </div>
 
-    <div v-else tabindex="0" class="form-page-card">
+    <div v-else class="form-page-card">
         <button type="button" :id="'card_btn_closed_' + indicatorID"
             class="card_toggle closed" title="expand page"
             @click.exact="updateFormMenuState(indicatorID, true)"
             @click.ctrl.exact="updateFormMenuState(indicatorID, true, true)"
             aria-label="expand page">+</button>
         <div>
-            <b>{{ shortIndicatorNameStripped(formNode.name, 60) }}</b> {{formNode.description ? '(' + formNode.description + ')' : ''}}
+            <div class="form_page">{{ formPage + 1 }}</div>
+            <b>{{ shortIndicatorNameStripped(formNode.name, 60) }}</b>
+            <div class="descr" v-if="formNode.description">({{ formNode.description }})</div>
         </div>
     </div>`
 }
