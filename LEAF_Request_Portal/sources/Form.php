@@ -3731,7 +3731,7 @@ class Form
             if (!empty($processQueryCheckRes)) {
 
                 // this will be used throughout the loop
-                $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable',]);
+                $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable','joinUnfilledDependencies','query']);
                 if (!empty($processQueryCheckRes)) {
                     foreach ($processQueryCheckRes as $processQueryCheckRow) {
                         $currentFileName = $directory . $processQueryCheckRow['id'] . '_' . $processQueryCheckRow['userID'] . '.json';
@@ -3836,7 +3836,7 @@ class Form
             $res = $this->db->prepared_query($mainDataSQl, $vars);
 
 
-            $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable','query']);
+            $compactedVariables = compact(['joinCategoryID', 'joinAllCategoryID', 'joinRecordsDependencies', 'joinRecords_Step_Fulfillment', 'joinActionHistory', 'joinRecordResolutionData', 'joinRecordResolutionBy', 'joinInitiatorNames', 'addJoinRecords_Step_Fulfillment_Only', 'filterActionable','joinUnfilledDependencies','query']);
             $retData = $this->processQueryData($res, $compactedVariables);
         }
 
