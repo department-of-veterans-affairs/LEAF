@@ -24,7 +24,7 @@ button.buttonNorm {
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-<script src="{$app_js_path}/LEAF/intervalQueue.js"></script>
+<script src="<!--{$app_js_path}-->/LEAF/intervalQueue.js"></script>
 <script>
 var CSRFToken = '<!--{$CSRFToken}-->';
 
