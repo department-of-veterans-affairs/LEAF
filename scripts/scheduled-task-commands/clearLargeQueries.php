@@ -10,7 +10,7 @@ $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf
 $portals = $db->query("SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal'");
 $dir = '/var/www/html';
 foreach ($portals as $portal) {
-    echo "Orgchart: " . $dir . $portal['site_path'] . '/scripts/clear_large_queries.php' . "\r\n";
+    echo "Portal: " . $dir . $portal['site_path'] . '/scripts/clear_large_queries.php' . "\r\n";
     if (is_file($dir . $portal['site_path'] . '/scripts/clear_large_queries.php')) {
         echo exec('php ' . $dir . $portal['site_path'] . '/scripts/clear_large_queries.php') . "\r\n";
     } else {

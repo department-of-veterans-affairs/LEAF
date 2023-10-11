@@ -2790,21 +2790,24 @@ class Form
      */
     private function isProcessQuery(array $query): bool
     {
+        
         $externalProcessQuery = false;
         if (isset($query['limit']) && is_numeric($query['limit'])) {
 
             // limit is > 10,000 records
             if ($query['limit'] > 10000) {
+               
                 $externalProcessQuery = true;
                 // limit is <= 10,000 records AND more than 10 indicators are requested
-            } else if ($query['limit'] > 1000 && $query['limit'] <= 10000 && (!empty($query['getData']) && count($query['getData']) >= 10)) {
+            } else if ($query['limit'] > 10000 || (!isset($query['limit']) && (!empty($query['getData']) && count($query['getData']) >= 10))) {
+                
                 $externalProcessQuery = true;
             }
         } else {
             // no limit parameter set
             $externalProcessQuery = true;
         }
-
+    
         return $externalProcessQuery;
     }
 
@@ -3114,7 +3117,7 @@ class Form
             }
 
         }
-
+        
         // check needToKnow mode
         if ($this->isNeedToKnow()) {
             $data = $this->checkReadAccess($data);
@@ -3726,7 +3729,7 @@ class Form
 
             $processQueryCheckRes = $this->db->prepared_query($processQueryCheckSQL, $processQueryCheckVars);
 
-
+            
 
             if (!empty($processQueryCheckRes)) {
 
@@ -3745,12 +3748,10 @@ class Form
                         while ($alldata) {
 
                             if (empty($maxlimit)) {
-                                $maxlimit = 100;
-                            } else {
-                                $maxlimit += 100;
+                                $maxlimit = 1000;
                             }
 
-                            if (empty($offset)) {
+                            if (!isset($offset)) {
                                 $offset = 0;
                                 if (isset($query['limitOffset']) && is_numeric($query['limitOffset'])) {
                                     $offset = $query['limitOffset'];
@@ -3759,26 +3760,30 @@ class Form
                                 $offset += $maxlimit;
                             }
 
-                            $limit = " LIMIT  $offset, $maxlimit";
+                            $limit = " LIMIT  $offset,$maxlimit";
                             $mainDataSQl = 'SELECT * FROM records ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
+                            
                             $res = $this->db->prepared_query($mainDataSQl, $vars);
 
                             if (!empty($res)) {
-
+                                
                                 $retData = $this->processQueryData($res, $compactedVariables);
+                                
                                 fwrite($fp, json_encode($retData));
                                 // clean up our data
                                 unset($retData);
-                                unset($res);
+                                
                             }
 
                             // if we are at our limit or no data then we need to close out the file.
-                            if ((!empty($query['limit']) && $maxlimit >= $query['limit']) || empty($res)) {
+                            if ( empty($res)) {
                                 fclose($fp);
                                 // this fixes case where we are plopping json strings together.
                                 exec("sed -i 's/}{/,/g' $currentFileName");
                                 $alldata = false;
                             }
+
+                            unset($res);
                         }
                     }
                 }

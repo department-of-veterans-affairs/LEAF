@@ -2,6 +2,7 @@
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
+error_reporting(E_ALL ^ E_WARNING);
 
 $currDir = dirname(__FILE__);
 
@@ -12,10 +13,10 @@ $request_uri = str_replace(['/var/www/html/', '/scripts'], '', $currDir);
 $siteRoot = "{$protocol}://" . getenv('HTTP_HOST') . '/' . $request_uri . '/';
 
 $login->setBaseDir('../');
-$login->loginUser();
+
 $dir = new Portal\VAMC_Directory;
 
-$form = new Portal\Form($db, $login);
+
 
 // last process time
 $vars = [
@@ -40,6 +41,8 @@ if (!empty($processQueryTotalRes)) {
         // memory check how are we doing on that?
         echo "Memory Usage " . memory_get_usage() . "\r\n";
 
+        $login->loginUser($processQuery['userID']);
+        $form = new Portal\Form($db, $login);
         // do the processing
         $returnedValue = $form->query($processQuery['url'], true);
 
@@ -56,7 +59,7 @@ if (!empty($processQueryTotalRes)) {
             echo "Attempted to send email \r\n";
         }
 
-
+        unset($form);
         // do we have a good run with memory?
         echo "Memory Usage " . memory_get_usage() . "\r\n";
     }

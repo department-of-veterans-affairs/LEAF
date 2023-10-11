@@ -38,6 +38,7 @@ services:
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
             - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
+            - ../scripts:/var/www/scripts
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
             - ../health_checks:/var/www/html/health_checks
             - ../app:/var/www/html/app

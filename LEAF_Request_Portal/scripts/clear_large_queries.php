@@ -2,11 +2,12 @@
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
+error_reporting(E_ALL ^ E_WARNING);
 
 $currDir = dirname(__FILE__);
 
-require_once $currDir . '/../globals.php';
-require_once LIB_PATH . '/loaders/Leaf_autoloader.php';
+
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $protocol = 'https';
 $request_uri = str_replace(['/var/www/html/', '/scripts'], '', $currDir);
@@ -30,7 +31,10 @@ if (!empty($processQueryTotalRes)) {
 
     foreach ($processQueryTotalRes as $processQuery) {
         $currentFileName = $directory . $processQuery['id'] . '_' . $processQuery['userID'] . '.json';
-        unlink($currentFileName);
+        if(is_file($currentFileName)){
+            unlink($currentFileName);
+        }
+        
 
         $vars = [
             ':id' => $processQuery['id']
