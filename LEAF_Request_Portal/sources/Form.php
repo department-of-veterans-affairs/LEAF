@@ -2818,7 +2818,7 @@ class Form
         // we need to look at the launch pad to get the site id, may be something here but I did not see it
         $this->db->query("USE `national_leaf_launchpad`");
         $siteVars = [
-            'portal_path' => '/'.PORTAL_PATH
+            'portal_path' => PORTAL_PATH
         ];
         $siteSql = "SELECT id,site_type,site_path,site_uploads,portal_database,orgchart_path,orgchart_database FROM `sites` WHERE site_path = :portal_path LIMIT 1";
         $siteInfo = $this->db->prepared_query($siteSql, $siteVars);
