@@ -9,7 +9,7 @@ use App\Nexus\Controllers\NationalEmployeeController;
 use Orgchart\Employee;
 use Orgchart\Login;
 
-class NationalEmployeeApi extends RESTfulResponseApi
+class NationalEmployeeRouter extends RESTfulResponse
 {
     public $index = array();
 
@@ -27,7 +27,7 @@ class NationalEmployeeApi extends RESTfulResponseApi
     {
         $employee = $this->employee;
 
-        $this->index['GET'] = new MapApi();
+        $this->index['GET'] = new ApiMap();
         $this->index['GET']->register('national/employee/version', function () {
             return self::API_VERSION;
         });
@@ -70,7 +70,7 @@ class NationalEmployeeApi extends RESTfulResponseApi
     {
         $employee = $this->employee;
 
-        $this->index['POST'] = new MapApi();
+        $this->index['POST'] = new ApiMap();
         $this->index['POST']->register('national/employee/import/email', function() use ($employee) {
             try
             {

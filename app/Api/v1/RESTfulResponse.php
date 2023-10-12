@@ -5,7 +5,7 @@
 
 namespace App\Api\v1;
 
-abstract class RESTfulResponseApi
+abstract class RESTfulResponse
 {
     protected const API_VERSION = 1;
 

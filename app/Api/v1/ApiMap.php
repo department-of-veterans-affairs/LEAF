@@ -5,7 +5,7 @@
 
 namespace App\Api\v1;
 
-class MapApi
+class ApiMap
 {
     private $controllers = array();
 
