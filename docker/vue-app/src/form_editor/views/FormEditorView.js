@@ -74,6 +74,7 @@ export default {
         'appIsLoadingCategories',
         'categories',
         'formMenuState',
+        'checkHeights',
         'updateFormMenuState',
         'showLastUpdate',
         'openAdvancedOptionsDialog',
@@ -96,6 +97,9 @@ export default {
                 vm.getFormFromQueryParam();
             }
         });
+    },
+    mounted(){
+        console.log('fe view mounted');
     },
     provide() {
         return {
@@ -267,9 +271,14 @@ export default {
                         type: 'GET',
                         url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                         success: (res)=> {
+                            const formChanged = this.focusedFormID !== catID;
                             this.focusedFormID = catID || '';
                             this.focusedFormTree = res || [];
                             this.appIsLoadingForm = false;
+                            this.checkHeights(this.focusedIndicatorID); //NOTE: 
+                            if(formChanged) {
+                                window.scrollTo(0,0);
+                            }
                             resolve(res)
                         },
                         error: (err)=> reject(err)
@@ -357,7 +366,7 @@ export default {
             this.focusedIndicatorID = nodeID;
             this.currentFormPage = page;
             if(nodeID !== null) {
-                this.updateFormMenuState(nodeID, !this.formMenuState[nodeID], true);
+                this.updateFormMenuState(nodeID, true, false);
             }
         },
         /**
@@ -725,13 +734,14 @@ export default {
                             :formNode="formSection"
                             :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : true">
                         </form-question-display>
+
+                        <button type="button" class="btn-general" style="width: 100%; margin-top: auto;"
+                            @click="newQuestion(null)"
+                            id="add_new_form_section_2"
+                            title="Add new form section">
+                            + Add Section
+                        </button>
                     </div>
-                    <button type="button" class="btn-general" style="width: 100%; margin-top: auto;"
-                        @click="newQuestion(null)"
-                        id="add_new_form_section_2"
-                        title="Add new form section">
-                        + Add Section
-                    </button>
                 </div>
             </div>
         </template>

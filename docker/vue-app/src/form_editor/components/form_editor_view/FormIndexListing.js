@@ -24,8 +24,9 @@ export default {
         'moveListItem'
     ],
     mounted() {
-        //add to listTracker array of FormEditorView data, to track indicatorID, parentID, sort and current index values
+        //add to listTracker array to track indicatorID, parentID, sort and current index values
         this.addToListTracker(this.formNode, this.parentID, this.index);
+        //maintain focus on an indicator if it has been focused
         if(this.focusedIndicatorID === this.formNode.indicatorID) {
             const elSelected = document.getElementById(`index_listing_${this.focusedIndicatorID}`);
             if(elSelected !== null) {

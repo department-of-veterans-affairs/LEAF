@@ -90,8 +90,6 @@ export default {
         'showLastUpdate',
         'focusedFormRecord',
         'focusedFormTree',
-        'focusFormNode',
-        'focusedIndicatorID',
         'getFormByCategoryID',
         'truncateText',
         'decodeAndStripHTML',
@@ -449,6 +447,7 @@ export default {
                             sort: this.newQuestionSortValue,
                             CSRFToken: this.CSRFToken
                         },
+                        success: (res) => { console.log(res) },
                         error: err => console.log('error posting new question', err)
                     })
                 );
@@ -457,9 +456,6 @@ export default {
             Promise.all(indicatorEditingUpdates).then((res)=> {
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.formID);
-                    if (this.indicatorID === this.focusedIndicatorID && (this.archived === true || this.deleted === true)) {
-                        this.focusFormNode(); //reset the focus if the focused Ind was removed
-                    }
                     this.showLastUpdate('form_properties_last_update');
                 }
                 this.closeFormDialog();

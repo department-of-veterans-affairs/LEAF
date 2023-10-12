@@ -136,7 +136,7 @@ export default {
             </template>
     </div>
 
-    <div v-else class="form-page-card">
+    <div v-else class="form-page-card" :id="'form_card_' + indicatorID">
         <button type="button" :id="'card_btn_closed_' + indicatorID"
             class="card_toggle closed" title="expand page"
             @click.exact="updateFormMenuState(indicatorID, true)"

@@ -554,6 +554,7 @@ table[class$="SelectorTable"] th {
 
 /* form editing and entry preview */
 #form_entry_and_preview {
+    position: relative;
     display:flex;
     flex-direction: column;
     align-self: flex-start;
@@ -563,7 +564,16 @@ table[class$="SelectorTable"] th {
     padding: 0.75rem 0.5rem;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
-    overflow: visible;
+    overflow: hidden;
+    &::before, &::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: '';
+        height: 8px;
+        width: 100%;
+        background: linear-gradient(0deg, #ffffff40, #ffffff 95%);
+    }
 
     .form-page-card {
         position: relative;
@@ -612,6 +622,8 @@ table[class$="SelectorTable"] th {
 
 
     div.printformblock {
+        position: relative;
+        transition: top 0.5s ease;
         break-inside: avoid;
         div.printResponse {
             position: relative;
@@ -671,6 +683,7 @@ table[class$="SelectorTable"] th {
         .indicator-name-preview {
             padding: 0.75rem 0 0.75rem 0.75rem;
             width: 100%;
+            border-top: 2px solid transparent;
             .required-sensitive {
                 color: $attention;
                 margin-left: 0.4em;
