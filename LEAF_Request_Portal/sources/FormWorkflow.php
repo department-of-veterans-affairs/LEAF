@@ -175,7 +175,7 @@ class FormWorkflow
                         AND `disabled`=0";
         $res = $this->db->prepared_query($query, []);
 
-        // create map
+        // create map of recordIDs with "person designated"
         $dRecords = [];
         foreach($res as $record) {
             $dRecords[$record['recordID']]['data'] = $record['data'];
@@ -183,9 +183,10 @@ class FormWorkflow
         }
 
         $dir = $this->getDirectory();
-        // merge approver data
+        // loop through all srcRecords
         foreach($srcRecords as $i => $v) {
-            if($v['dependencyID'] == -1 && isset($dRecords[$v['recordID']])) {
+            // only process "person designated" records
+            if(isset($dRecords[$v['recordID']])) {
                 if($srcRecords[$i]['isActionable'] == 0) {
                     $srcRecords[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$v['recordID']]['data']);
                 }
