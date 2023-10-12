@@ -5,5 +5,5 @@ Request title: <a href="{{$siteRoot}}?a=printview&recordID={{$recordID}}" target
 Request status: {{$lastStatus}}<br /><br />
 Request Link: <a href="{{$siteRoot}}?a=printview&recordID={{$recordID}}" target="_blank">
     {{$siteRoot}}?a=printview&recordID={{$recordID}}</a><br /><br />
-    Number of days outstanding: <b>{{$actualDaysAgo}} days</b> (Threshold: {{$daysSince}} days)
+    {{$reminderBodyText}}
 <br />
