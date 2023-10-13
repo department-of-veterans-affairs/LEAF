@@ -84,7 +84,8 @@ export default {
                 <div class="name_and_toolbar" :class="{'form-header': isHeaderLocation, preview: !showToolbars}">
                     <!-- NAME -->
                     <div v-html="indicatorName" @click.stop.prevent="handleNameClick(parseInt(indicatorID))"
-                        class="indicator-name-preview" :id="indicatorID + '_format_label'">
+                        class="indicator-name-preview" :id="indicatorID + '_format_label'"
+                        :style="{'background-color': conditionalQuestion ? '#eaeaf4' : '#ffffff'}">
                     </div>
 
                     <!-- TOOLBAR -->

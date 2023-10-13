@@ -570,7 +570,7 @@ table[class$="SelectorTable"] th {
         top: 0;
         left: 0;
         content: '';
-        height: 8px;
+        height: 10px;
         width: 100%;
         background: linear-gradient(0deg, #ffffff40, #ffffff 95%);
     }
@@ -623,7 +623,7 @@ table[class$="SelectorTable"] th {
 
     div.printformblock {
         position: relative;
-        transition: top 0.5s ease;
+        transition: top 0.25s ease;
         break-inside: avoid;
         div.printResponse {
             position: relative;
@@ -649,7 +649,6 @@ table[class$="SelectorTable"] th {
             }
         }
     }
-
 
     /* wraps each form question. */
     .form_editing_area {
@@ -683,7 +682,7 @@ table[class$="SelectorTable"] th {
         .indicator-name-preview {
             padding: 0.75rem 0 0.75rem 0.75rem;
             width: 100%;
-            border-top: 2px solid transparent;
+            transition: background-color 1s ease;
             .required-sensitive {
                 color: $attention;
                 margin-left: 0.4em;
@@ -733,14 +732,18 @@ table[class$="SelectorTable"] th {
                 font-size: 1.3em; 
                 font-family: monospace;
             }
-            .choices {
+            div[id*="textarea_format_button_"], .trumbowyg-box, .choices, fieldset {
                 width: 75%;
+            }
+            .trumbowyg-box {
+                margin-left: 0;
             }
             div.tableinput { /* fixes for grid tables */
                 overflow-x: auto;
             }
             .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
                 margin-bottom: 0.5em;
+                width: 75%;
             }
             div[class*="SelectorBorder"] {
                 background-color: transparent;

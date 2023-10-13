@@ -74,7 +74,6 @@ export default {
         'appIsLoadingCategories',
         'categories',
         'formMenuState',
-        'checkHeights',
         'updateFormMenuState',
         'showLastUpdate',
         'openAdvancedOptionsDialog',
@@ -100,6 +99,14 @@ export default {
     },
     mounted(){
         console.log('fe view mounted');
+        window.addEventListener('resize', this.adjustFormPreview);
+    },
+    unmounted() {
+        window.removeEventListener('resize', this.adjustFormPreview);
+    },
+    updated() {
+        console.log('FE view updated')
+        this.adjustFormPreview(this.focusedIndicatorID);
     },
     provide() {
         return {
@@ -143,10 +150,6 @@ export default {
         mainFormID() {
             return this.focusedFormRecord?.parentID === '' ?
                 this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
-        },
-        subformID() {
-            return this.focusedFormRecord?.parentID ?
-                this.focusedFormRecord.categoryID : '';
         },
         noForm() {
             return !this.appIsLoadingForm && this.focusedFormID === '';
@@ -275,7 +278,6 @@ export default {
                             this.focusedFormID = catID || '';
                             this.focusedFormTree = res || [];
                             this.appIsLoadingForm = false;
-                            this.checkHeights(this.focusedIndicatorID); //NOTE: 
                             if(formChanged) {
                                 window.scrollTo(0,0);
                             }
@@ -356,18 +358,59 @@ export default {
             }
         },
         forceUpdate() {
-            this.updateKey += 1;
+            this.updateKey += 1; //needed for some parent or index changes
         },
         /**
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          * @param {Number} page base 0 form page 
          */
-        focusFormNode(nodeID = null, page = 0) {
+        focusFormNode(nodeID = null, page = 0) { //TODO: ? don't get page here, just id
             this.focusedIndicatorID = nodeID;
             this.currentFormPage = page;
             if(nodeID !== null) {
                 this.updateFormMenuState(nodeID, true, false);
             }
+        },
+        /** used to update scrolling and form height. called after component update or screen resize. */
+        adjustFormPreview(nodeID = 0) {
+            setTimeout(() => { //clear stack
+                const pad = 12;
+                const elListItem = document.getElementById(`index_listing_${nodeID}`);
+                const elFormatLabel = document.getElementById(`${nodeID}_format_label`);
+                const elFormCard = document.getElementById(`form_card_${nodeID}`);
+                let elPreview = document.getElementById(`form_entry_and_preview`);
+                let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
+                if(elPreview !== null && elBlock !== null) { //should always have these
+                    const top = +(elBlock.style.top || '').replace('px','');
+                    const height = elBlock.offsetHeight;
+                    let diff = 0;
+                    if(elListItem !== null && elFormatLabel !== null) { //details are open
+                        diff = elListItem.getBoundingClientRect().top - elFormatLabel.getBoundingClientRect().top;
+                    } else if (elListItem !== null && elFormCard !== null) { //details are closed (card view)
+                        diff = elListItem.getBoundingClientRect().top - elFormCard.getBoundingClientRect().top;
+                    } else {
+                        diff = -top + pad; //initial load, changed forms
+                    }
+                    const calcTop = top - pad + diff;
+                    const newTop = calcTop < 0 ? calcTop : 0;
+                    const newEffectiveHeight = (newTop + height + 2*pad).toFixed(0) + 'px';
+                    elBlock.style.top = newTop.toFixed(0) + 'px';
+                    elPreview.style.height = newEffectiveHeight;
+
+                    const elLabel = document.getElementById(`${nodeID}_format_label`);
+                    if(elLabel !== null) {
+                        const curColor = elLabel.style.backgroundColor;
+                        elLabel.style.backgroundColor = '#feffd1';
+                        setTimeout(() => {
+                            elLabel.style.backgroundColor = curColor;
+                        }, 800);
+                    }
+                }
+            });
+        },
+        toggleToolbars() {
+            this.focusFormNode();
+            this.showToolbars = !this.showToolbars;
         },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
@@ -531,17 +574,9 @@ export default {
                     }
                 }
                 if(success === true) {
-                    this.focusedIndicatorID = indID;
                     const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
-                    if(elClosestFormPage !== null && baseDropArea !== null) {
-                        const allPages = Array.from(baseDropArea.querySelectorAll(':scope > li'));
-                        const thisPageIndex = allPages.indexOf(elClosestFormPage);
-                        if(thisPageIndex > -1) {
-                            this.currentFormPage = thisPageIndex;
-                        }
-                        if(+formParIndID > 0 && !this.formMenuState[formParIndID]) {
-                            this.updateFormMenuState(formParIndID, true, false);
-                        }
+                    if(elClosestFormPage !== null && baseDropArea !== null && +formParIndID > 0 && !this.formMenuState[formParIndID]) {
+                        this.updateFormMenuState(formParIndID, true, false);
                     }
                 }
                 if(parentEl.classList.contains('entered-drop-zone')){
@@ -637,7 +672,7 @@ export default {
             <!-- TOP INFO PANEL -->
             <edit-properties-panel :key="'panel_' + focusedFormID"></edit-properties-panel>
 
-            <div id="form_index_and_editing">
+            <div id="form_index_and_editing" :data-focus="focusedIndicatorID">
                 <!-- NOTE: INDEX (main + stapled forms, internals for selected form) -->
                 <div id="form_index_display">
                     <div class="index_info">
@@ -646,7 +681,7 @@ export default {
                             :src="libsPath + 'dynicons/svg/emblem-notice.svg'"
                             title="Details for the selected form are shown below" alt="" />
                         <button type="button" v-if="focusedFormTree.length > 0" id="indicator_toolbar_toggle" class="btn-general"
-                            @click.stop="showToolbars=!showToolbars">
+                            @click.stop="toggleToolbars()">
                             {{showToolbars ? 'Preview this form' : 'Edit this form'}}
                         </button>
                     </div>

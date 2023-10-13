@@ -79,7 +79,6 @@ export default {
             truncateText: this.truncateText,
             decodeAndStripHTML: this.decodeAndStripHTML,
             showLastUpdate: this.showLastUpdate,
-            checkHeights: this.checkHeights,
 
             /** dialog related */
             closeFormDialog: this.closeFormDialog,
@@ -123,15 +122,6 @@ export default {
                 setTimeout(() => {
                     el.style.border = '2px solid transparent';
                 }, 750);
-            }
-        },
-        hiLiteElement(elementID = '') {
-            const el = document.getElementById(elementID);
-            if(el !== null) {
-                el.style.borderTop = '2px solid #20a0f0';
-                setTimeout(() => {
-                    el.style.borderTop = '2px solid transparent';
-                }, 1500);
             }
         },
         /**
@@ -334,48 +324,6 @@ export default {
                     this.formMenuState[id] = menuOpen;
                 });
             }
-            this.checkHeights(indID);
-            
-        },
-        /** used to update scrolling.  called after menu state changes or form changes. app level because the menu state is */
-        checkHeights(nodeID = 0) {
-            setTimeout(() => { //clear stack first
-                const pad = 12;
-                const elListItem = document.getElementById(`index_listing_${nodeID}`);
-                const elFormatLabel = document.getElementById(`${nodeID}_format_label`);
-                const elFormCard = document.getElementById(`form_card_${nodeID}`);
-                let elPreview = document.getElementById(`form_entry_and_preview`);
-                let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
-                if(elPreview !== null && elBlock !== null) { //should always have these
-                    let top = +(elBlock.style.top || '').replace('px','');
-                    let diff = 0;
-                    if(elListItem !== null && elFormatLabel !== null) {
-                        console.log('items open, calc li label diff and align')
-                        diff = elListItem.getBoundingClientRect().top - elFormatLabel.getBoundingClientRect().top;
-
-                        // const newBound = elListItem.getBoundingClientRect().top;
-                        // console.log(window.screenY);
-                        // if(newBound < 0) { //TODO: or > view height
-                        //     const currWinY = window.scrollY;
-                        //     const newWinY = currWinY + newBound;
-                        //     window.scroll(0, newWinY);
-                        // }
-                        
-                    } else if (elListItem !== null && elFormCard !== null) { //if one is missing, menu was closed
-                        diff = elListItem.getBoundingClientRect().top - elFormCard.getBoundingClientRect().top;
-                        console.log('else, items closed, calc li card diff and align', nodeID);
-                    } else {
-                        console.log('D: no list item means, reset top');
-                        diff = -top + pad;
-                    }
-                    elBlock.style.top = (top - pad + diff).toFixed(0) + 'px';
-                    
-                    const effectiveHeight = (elBlock.offsetTop + elBlock.offsetHeight + pad).toFixed(0) + 'px';
-                    console.log('preview height, eff height', elPreview.offsetHeight.toFixed(0) + 'px', effectiveHeight);
-                    elPreview.style.height = effectiveHeight;
-                    this.hiLiteElement(`${nodeID}_format_label`);
-                }
-            });
         },
         /**
          * updates app array allStapledFormCatIDs and stapledFormIds of categories object

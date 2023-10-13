@@ -70,7 +70,7 @@ export default {
             :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
             @click.stop="focusFormNode(formNode.indicatorID, formPage)"
-            @keydown.enter.prevent="focusFormNode(formNode.indicatorID, formPage)">
+            @keydown.enter.space.prevent.stop="focusFormNode(formNode.indicatorID, formPage)">
 
             <div>
                 <span role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>
