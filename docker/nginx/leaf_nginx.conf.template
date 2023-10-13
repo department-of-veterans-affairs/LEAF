@@ -48,7 +48,7 @@ server {
     }
 
     # static files browser caching
-    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+    location ~* \.(jpg|jpeg|png|gif|ico)$ {
         #how long a browser should wait on checking for new cache
         expires 1m;
         #leave these out of the access log, who cares if someone access the leaf logo at 1245 pm
@@ -64,6 +64,24 @@ server {
         #open_file_cache_errors off;
         #the magic sauce to bust a cache
         etag on;
+    }
+
+    # static files browser caching that impact client runtime
+    location ~* \.(css|js)$ {
+        #leave these out of the access log, who cares if someone access the leaf logo at 1245 pm
+        access_log off;
+        add_header Vary Accept-Encoding;
+        #send the whole file
+        #tcp_nodelay off;
+        #If many changes to the file it can cause the file not to load, waiting the 45s between file changes keeps it
+        #from failing. This should not be too much of an issue on live and helps perf
+        #open_file_cache max=3000 inactive=120s;
+        #open_file_cache_valid 45s;
+        #open_file_cache_min_uses 2;
+        #open_file_cache_errors off;
+        #the magic sauce to bust a cache
+        etag on;
+        add_header Cache-Control "max-age=0, must-revalidate";
     }
 
     location ~ /api/v2/(.*?)$ {
