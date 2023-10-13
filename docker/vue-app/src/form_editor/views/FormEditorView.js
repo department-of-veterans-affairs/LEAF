@@ -20,6 +20,7 @@ export default {
     name: 'form-editor-view',
     data()  {
         return {
+            adjustingMenu: false,
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listTracker: {},  //{indID:{parID, newParID, sort, listindex,},}. for tracking parID and sort changes
@@ -43,9 +44,9 @@ export default {
             appIsLoadingForm: false,
             focusedFormID: '',
             focusedFormTree: [],
-            currentFormPage: 0,
             focusedIndicatorID: null,
-            fileManagerTextFiles: []
+            fileManagerTextFiles: [],
+            previewHandler: null
         }
     },
     components: {
@@ -97,12 +98,14 @@ export default {
             }
         });
     },
-    mounted(){
-        console.log('fe view mounted');
-        window.addEventListener('resize', this.adjustFormPreview);
+    mounted() {
+        this.previewHandler = () => {
+            this.adjustFormPreview(0);
+        }
+        window.addEventListener('resize', this.previewHandler);
     },
     unmounted() {
-        window.removeEventListener('resize', this.adjustFormPreview);
+        window.removeEventListener('resize', this.previewHandler);
     },
     updated() {
         console.log('FE view updated')
@@ -128,7 +131,7 @@ export default {
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
             allowedConditionChildFormats: this.allowedConditionChildFormats,
-            focusFormNode: this.focusFormNode,
+            focusIndicator: this.focusIndicator,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
@@ -295,10 +298,13 @@ export default {
         getIndicatorByID(indicatorID = 0) {
             return new Promise((resolve, reject)=> {
                 try {
-                    fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`).then(res => {
-                        res.json().then(data => {
-                            resolve(data[indicatorID]);
-                        });
+                    fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
+                        .then(res => {
+                            res.json()
+                            .then(data => {
+                            resolve(data[indicatorID])
+                            .catch(err => console.log(err));
+                        }).catch(err => console.log(err));
                     });
                 } catch (error) {
                     reject(error);
@@ -306,20 +312,18 @@ export default {
             });
         },
         getFileManagerTextFiles() {
-            $.ajax({
-              type: 'GET',
-              url: `${this.APIroot}system/files`,
-              success: (res) => {
-                const files = res || [];
-                this.fileManagerTextFiles = files.filter(
-                    filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1
-                );
-              },
-              error: (err) => {
-                console.log(err);
-              },
-              cache: false
-            });
+            try {
+                fetch(`${this.APIroot}system/files`).then(res => {
+                    res.json().then(data => {
+                        const files = data || [];
+                        this.fileManagerTextFiles = files.filter(
+                            filename => filename.indexOf('.txt') > -1 || filename.indexOf('.csv') > -1
+                        );
+                    }).catch(err => console.log(err));
+                });
+            } catch (error) {
+               console.log(error);
+            }
         },
         editAdvancedOptions(indicatorID = 0) {
             this.getIndicatorByID(indicatorID).then(indicator => {
@@ -357,22 +361,15 @@ export default {
                 return sensitive;
             }
         },
-        forceUpdate() {
-            this.updateKey += 1; //needed for some parent or index changes
-        },
         /**
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
-         * @param {Number} page base 0 form page 
          */
-        focusFormNode(nodeID = null, page = 0) { //TODO: ? don't get page here, just id
+        focusIndicator(nodeID = null) {
             this.focusedIndicatorID = nodeID;
-            this.currentFormPage = page;
-            if(nodeID !== null) {
-                this.updateFormMenuState(nodeID, true, false);
-            }
         },
         /** used to update scrolling and form height. called after component update or screen resize. */
         adjustFormPreview(nodeID = 0) {
+            console.log('adjusting', nodeID);
             setTimeout(() => { //clear stack
                 const pad = 12;
                 const elListItem = document.getElementById(`index_listing_${nodeID}`);
@@ -380,36 +377,49 @@ export default {
                 const elFormCard = document.getElementById(`form_card_${nodeID}`);
                 let elPreview = document.getElementById(`form_entry_and_preview`);
                 let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
-                if(elPreview !== null && elBlock !== null) { //should always have these
-                    const top = +(elBlock.style.top || '').replace('px','');
+                if(!this.adjustingMenu && elPreview !== null && elBlock !== null) { 
+                    this.adjustingMenu = true;
                     const height = elBlock.offsetHeight;
-                    let diff = 0;
-                    if(elListItem !== null && elFormatLabel !== null) { //details are open
-                        diff = elListItem.getBoundingClientRect().top - elFormatLabel.getBoundingClientRect().top;
-                    } else if (elListItem !== null && elFormCard !== null) { //details are closed (card view)
-                        diff = elListItem.getBoundingClientRect().top - elFormCard.getBoundingClientRect().top;
+                    if (window.innerWidth < 600) { //small screen mode just resize
+                        elBlock.style.top = '0px';
+                        elPreview.style.height = (height + 2*pad) + 'px';
                     } else {
-                        diff = -top + pad; //initial load, changed forms
-                    }
-                    const calcTop = top - pad + diff;
-                    const newTop = calcTop < 0 ? calcTop : 0;
-                    const newEffectiveHeight = (newTop + height + 2*pad).toFixed(0) + 'px';
-                    elBlock.style.top = newTop.toFixed(0) + 'px';
-                    elPreview.style.height = newEffectiveHeight;
+                        const top = +(elBlock.style.top || '').replace('px','');
+                        let diff = 0;
+                        if(elListItem !== null && elFormatLabel !== null) {     //details are open
+                            diff = elListItem.getBoundingClientRect().top - elFormatLabel.getBoundingClientRect().top;
+                            console.log('open diff li - label', diff);
+                        } else if (elListItem !== null && elFormCard !== null) { //details are closed (card view)
+                            diff = elListItem.getBoundingClientRect().top - elFormCard.getBoundingClientRect().top;
+                            console.log('closed diff li - card', diff);
+                        } else {
+                            console.log('else', elListItem, elFormCard)
+                            diff = -top + pad; //there is no list item on initial load, changed forms
+                        }
+                        const calcTop = top - pad + diff;
+                        //if the preview/card is higher than the list item use 0 with elBlock height
+                        const newTop = calcTop < 0 ? calcTop : 0;
+                        const newEffectiveHeight = (newTop + height + 2*pad).toFixed(0) + 'px';
+                        elBlock.style.top = newTop.toFixed(0) + 'px';
+                        elPreview.style.height = newEffectiveHeight;
 
-                    const elLabel = document.getElementById(`${nodeID}_format_label`);
-                    if(elLabel !== null) {
-                        const curColor = elLabel.style.backgroundColor;
-                        elLabel.style.backgroundColor = '#feffd1';
-                        setTimeout(() => {
-                            elLabel.style.backgroundColor = curColor;
-                        }, 800);
+                        let tar = elFormatLabel || elFormCard;
+                        if(tar !== null) {
+                            const curColor = tar.style.backgroundColor;
+                            tar.style.backgroundColor = '#feffd1';
+                            setTimeout(() => {
+                                tar.style.backgroundColor = curColor;
+                            }, 400); //background-color transition is also 1s
+                        }
                     }
+                    setTimeout(() => {
+                        this.adjustingMenu = false;
+                    }, 400);
                 }
             });
         },
         toggleToolbars() {
-            this.focusFormNode();
+            this.focusedIndicatorID = null;
             this.showToolbars = !this.showToolbars;
         },
         /**
@@ -436,9 +446,7 @@ export default {
                     parentEl.appendChild(li);
                     this.listTracker[liIndID].listIndex = i;
                 });
-                if(parentEl?.id === "base_drop_area" && oldIndex === this.currentFormPage) {
-                    this.currentFormPage += spliceLoc;
-                }
+                this.focusIndicatorID = indID;
             }
         },
         /**
@@ -487,7 +495,7 @@ export default {
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.focusedFormID).then(()=> {
                         this.showLastUpdate('form_properties_last_update');
-                        this.forceUpdate();
+                        this.updateKey += 1; //used to force view updates since the formID has not changed
                     }).catch(err => console.log(err));
                 }
             }).catch(err => console.log('an error has occurred', err));
@@ -529,6 +537,8 @@ export default {
                 event.dataTransfer.dropEffect = 'move';
                 event.dataTransfer.effectAllowed = 'move';
                 event.dataTransfer.setData('text/plain', event.target.id);
+                const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
+                this.focusIndicator(+indID);
             }
         },
         onDrop(event = {}) {
@@ -574,6 +584,7 @@ export default {
                     }
                 }
                 if(success === true) {
+                    //open the parent item if it is not open
                     const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
                     if(elClosestFormPage !== null && baseDropArea !== null && +formParIndID > 0 && !this.formMenuState[formParIndID]) {
                         this.updateFormMenuState(formParIndID, true, false);
@@ -605,6 +616,7 @@ export default {
          * @param {number} indicatorID changes mode to edit if in preview mode, otherwise opens editor
          */
         handleNameClick(indicatorID = null) {
+            this.focusIndicatorID = indicatorID;
             if (!this.showToolbars) {
                 this.showToolbars = true;
             } else {
@@ -761,7 +773,7 @@ export default {
 
                 <!-- FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
-                    <div class="printformblock">
+                    <div class="printformblock" :data-update-key="updateKey">
                         <form-question-display v-for="(formSection, i) in focusedFormTree"
                             :key="'editing_display_' + formSection.indicatorID + makePreviewKey(formSection)"
                             :depth="0"

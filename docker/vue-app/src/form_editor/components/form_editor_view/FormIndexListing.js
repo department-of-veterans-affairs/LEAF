@@ -13,7 +13,7 @@ export default {
         'shortIndicatorNameStripped',
         'clearListItem',
         'addToListTracker',
-        'focusFormNode',
+        'focusIndicator',
         'formMenuState',
         'updateFormMenuState',
         'focusedIndicatorID',
@@ -43,6 +43,10 @@ export default {
         },
         indexHoverOff(event = {}){
             event?.currentTarget?.classList.remove('index-selected');
+        },
+        changeMenuState(indID = 0, menuOpen = true, cascade = false) {
+            this.focusIndicator(indID || null);
+            this.updateFormMenuState(indID, menuOpen, cascade);
         }
     },
     computed: {
@@ -69,17 +73,17 @@ export default {
         <li tabindex="0" :title="'index item '+ formNode.indicatorID"
             :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
-            @click.stop="focusFormNode(formNode.indicatorID, formPage)"
-            @keydown.enter.space.prevent.stop="focusFormNode(formNode.indicatorID, formPage)">
+            @click.stop="focusIndicator(formNode.indicatorID)"
+            @keydown.enter.space.prevent.stop="focusIndicator(formNode.indicatorID)">
 
             <div>
                 <span role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>
                 {{indexDisplay}}
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !menuOpen}"
-                    @click.stop.exact="updateFormMenuState(formNode.indicatorID, !menuOpen)"
-                    @click.ctrl.stop.exact="updateFormMenuState(formNode.indicatorID, !menuOpen, true)"
-                    @keydown.stop.enter.space.exact.prevent="updateFormMenuState(formNode.indicatorID, !menuOpen)"
-                    @keydown.ctrl.stop.enter.space.exact.prevent="updateFormMenuState(formNode.indicatorID, !menuOpen, true)"
+                    @click.stop.exact="changeMenuState(formNode.indicatorID, !menuOpen)"
+                    @click.ctrl.stop.exact="changeMenuState(formNode.indicatorID, !menuOpen, true)"
+                    @keydown.stop.enter.space.exact.prevent="changeMenuState(formNode.indicatorID, !menuOpen)"
+                    @keydown.ctrl.stop.enter.space.exact.prevent="changeMenuState(formNode.indicatorID, !menuOpen, true)"
                     :title="menuIconTitle">
                     <span v-show="menuOpen" role="img" aria="">▾</span>
                     <span v-show="!menuOpen" role="img" aria="">▸</span>

@@ -16,6 +16,7 @@ export default {
         'newQuestion',
         'shortIndicatorNameStripped',
         'updateFormMenuState',
+        'focusIndicator',
         'editQuestion',
         'hasDevConsoleAccess',
         'editAdvancedOptions',
@@ -71,11 +72,17 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
+    methods: {
+        changeMenuState(indID = 0, menuOpen = true, cascade = false) {
+            this.focusIndicator(indID || null);
+            this.updateFormMenuState(indID, menuOpen, cascade);
+        }
+    },
     template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation, preview: !showToolbars}" :id="printResponseID">
             <button v-if="depth===0 && showToolbars" type="button" :id="'card_btn_open_' + indicatorID"
                 class="card_toggle" title="collapse page"
-                @click.exact="updateFormMenuState(indicatorID, false)"
-                @click.ctrl.exact="updateFormMenuState(indicatorID, false, true)"
+                @click.exact="changeMenuState(indicatorID, false)"
+                @click.ctrl.exact="changeMenuState(indicatorID, false, true)"
                 aria-label="collapse page">-
             </button>
 
@@ -111,7 +118,7 @@ export default {
                                 :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
                                 Programmer
                             </button>
-                            <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" />
+                            <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" title="advanced options are present" />
                         </div>
                         <button type="button" class="btn-general"
                             :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
@@ -140,8 +147,8 @@ export default {
     <div v-else class="form-page-card" :id="'form_card_' + indicatorID">
         <button type="button" :id="'card_btn_closed_' + indicatorID"
             class="card_toggle closed" title="expand page"
-            @click.exact="updateFormMenuState(indicatorID, true)"
-            @click.ctrl.exact="updateFormMenuState(indicatorID, true, true)"
+            @click.exact="changeMenuState(indicatorID, true)"
+            @click.ctrl.exact="changeMenuState(indicatorID, true, true)"
             aria-label="expand page">+</button>
         <div>
             <div class="form_page">{{ formPage + 1 }}</div>

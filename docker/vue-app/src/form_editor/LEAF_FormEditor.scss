@@ -583,6 +583,8 @@ table[class$="SelectorTable"] th {
         border-right: 3px solid darken($BG_Pearl, 8%);
         border-bottom: 3px solid darken($BG_Pearl, 8%);
         border-radius: 4px;
+        background-color: white;
+        transition: background-color 1s ease;
         margin-bottom: 0.75rem;
         > div {
             display: flex;
@@ -623,7 +625,7 @@ table[class$="SelectorTable"] th {
 
     div.printformblock {
         position: relative;
-        transition: top 0.25s ease;
+        transition: top 0.2s ease;
         break-inside: avoid;
         div.printResponse {
             position: relative;
