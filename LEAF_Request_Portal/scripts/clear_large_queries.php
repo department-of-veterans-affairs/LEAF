@@ -35,7 +35,7 @@ if (!empty($processQueryTotalRes)) {
             unlink($currentFileName);
         }
         
-
+        // do we want to actually delete this? if the query is called again in the future it will trigger the email again.
         $vars = [
             ':id' => $processQuery['id']
         ];

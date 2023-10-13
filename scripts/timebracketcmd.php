@@ -40,15 +40,15 @@ class TimeBracketCmd
     /**
      * Set the sleep time
      *
-     * @param int $sleepTime - time in seconds to sleep minimum of 30 seconds please.
+     * @param int $sleepTime - time in seconds to sleep minimum of 1 seconds please.
      * @throws Exception
      *
      * Created at: 6/22/2022, 8:43:59 AM (America/Chicago)
      */
     public function setSleepTime(int $sleepTime): void
     {
-        if ($sleepTime < 30) {
-            throw new Exception('Sleep Time must be more than 30 Seconds');
+        if ($sleepTime < 1) {
+            throw new Exception('Sleep Time must be more than 1 Second');
         } else {
             $this->sleepTime = $sleepTime;
         }

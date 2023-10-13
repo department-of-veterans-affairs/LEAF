@@ -3168,7 +3168,7 @@ class Form
      * @param bool $processQuery - allows the processing of the query via script
      * @return mixed
      */
-    public function query(string $inQuery, bool $processQuery = false)
+    public function query($inQuery, bool $processQuery = false)
     {
 
         $query = json_decode(html_entity_decode(html_entity_decode($inQuery)), true);
@@ -3729,7 +3729,7 @@ class Form
 
             $processQueryCheckRes = $this->db->prepared_query($processQueryCheckSQL, $processQueryCheckVars);
 
-            
+
 
             if (!empty($processQueryCheckRes)) {
 
