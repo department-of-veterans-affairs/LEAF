@@ -5,7 +5,6 @@ import HistoryDialog from "@/common/components/HistoryDialog.js";
 import IndicatorEditingDialog from "../components/dialog_content/IndicatorEditingDialog.js";
 import AdvancedOptionsDialog from "../components/dialog_content/AdvancedOptionsDialog.js";
 import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
-import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
 import StapleFormDialog from "../components/dialog_content/StapleFormDialog.js";
 import EditCollaboratorsDialog from "../components/dialog_content/EditCollaboratorsDialog.js";
 import ConfirmDeleteDialog from "../components/dialog_content/ConfirmDeleteDialog.js";
@@ -38,12 +37,13 @@ export default {
                 'orgchart_group',
                 'orgchart_position'
             ],
-            showToolbars: true,
+            previewMode: false,
             sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
             updateKey: 0,
             appIsLoadingForm: false,
             focusedFormID: '',
-            focusedFormTree: [],
+            focusedFormTree: [], //detailed structure of the form focused in editing mode.  Always a single form.
+            previewTree: [], //detailed structure of primary form and any staples. Used only for the form preview.
             focusedIndicatorID: null,
             fileManagerTextFiles: [],
             previewHandler: null
@@ -54,7 +54,6 @@ export default {
         IndicatorEditingDialog,
         AdvancedOptionsDialog,
         NewFormDialog,
-        ImportFormDialog,
         HistoryDialog,
         StapleFormDialog,
         EditCollaboratorsDialog,
@@ -88,7 +87,6 @@ export default {
         'dialogFormContent'
     ],
     beforeRouteEnter(to, from, next) {
-        window.scrollTo(0,0);
         next(vm => {
             vm.getSiteSettings();
             vm.setDefaultAjaxResponseMessage();
@@ -102,9 +100,11 @@ export default {
         this.previewHandler = () => {
             this.adjustFormPreview(0);
         }
+        window.addEventListener("scroll", this.onScroll);
         window.addEventListener('resize', this.previewHandler);
     },
-    unmounted() {
+    beforeUnmount() {
+        window.removeEventListener("scroll", this.onScroll);
         window.removeEventListener('resize', this.previewHandler);
     },
     updated() {
@@ -114,12 +114,13 @@ export default {
     provide() {
         return {
             listTracker: computed(() => this.listTracker),
-            showToolbars: computed(() => this.showToolbars),
+            previewMode: computed(() => this.previewMode),
             focusedIndicatorID: computed(() => this.focusedIndicatorID),
             fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
             internalFormRecords: computed(() => this.internalFormRecords),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
             focusedFormTree: computed(() => this.focusedFormTree),
+            previewTree: computed(() => this.previewTree),
             focusedFormRecord: computed(() => this.focusedFormRecord),
             focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             noForm: computed(() => this.noForm),
@@ -144,7 +145,7 @@ export default {
     },
     computed: {
         /**
-         * @returns {Object} current query from categories object
+         * @returns {Object} current query (non-internal form) from categories object.
          */
         currentCategoryQuery() {
             const queryID = this.$route.query.formID;
@@ -202,9 +203,16 @@ export default {
                         'internal' :
                         this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
                         'staple' : 'main form';
-                allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType,});
+                allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType});
             }
             return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
+        },
+        formPreviewIDs() {
+            let ids = []
+            this.currentFormCollection.forEach(form => {
+                ids.push(form.categoryID);
+            });
+            return ids.join();
         },
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
@@ -239,6 +247,21 @@ export default {
         }
     },
     methods: {
+        onScroll() {
+            const elPreview = document.getElementById('form_entry_and_preview');
+            const elIndex = document.getElementById('form_index_display');
+            if(elPreview !== null && elIndex !== null) {
+                const indexBoundTop = Math.round(elIndex.getBoundingClientRect().top);
+                const boundTop = Math.round(elPreview.getBoundingClientRect().top);
+                const currTop = (elPreview.style.top || '0').replace('px', '');
+                if (this.previewMode || this.appIsLoadingForm || (+currTop === 0 && boundTop > 0)) {
+                    elPreview.style.top = 0;
+                } else {
+                    const newTop = Math.round(-indexBoundTop);
+                    elPreview.style.top =  newTop < 0 ? 0 : newTop + 'px';
+                }
+            }
+        },
         getFormFromQueryParam() {
             const formReg = /^form_[0-9a-f]{5}$/i;
             if (formReg.test(this.$route.query?.formID || '') === true) {
@@ -246,7 +269,7 @@ export default {
                 if (this.categories[formID] === undefined) {
                     this.getFormByCategoryID(); //valid formID pattern, but form does not exist.  This will clear out info but also provide a message and link back
                 } else {
-                    //if the form does exist, check that an internal form was not entered (it would need to be explicitly entered to the url, but would cause issues)
+                    //check that it's not an internal form (it would need to be explicitly entered, but would cause issues)
                     const parID = this.categories[formID].parentID;
                     if (parID === '') {
                         this.getFormByCategoryID(formID, true);
@@ -260,36 +283,52 @@ export default {
             }
         },
         /**
+         * Get details for a specific form and update focused form info
          * @param {string} catID
          * @param {boolean} setFormLoading show loader
-         * @returns {array} of objects with information about the form (indicators and structure relations)
          */
         getFormByCategoryID(catID = '', setFormLoading = false) {
-            return new Promise((resolve, reject)=> {
-                if (catID === '') {
-                    this.focusedFormID = '';
-                    this.focusedFormTree = [];
-                    resolve();
-                } else {
-                    this.appIsLoadingForm = setFormLoading;
-                    this.setDefaultAjaxResponseMessage();
-                    $.ajax({
-                        type: 'GET',
-                        url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
-                        success: (res)=> {
-                            const formChanged = this.focusedFormID !== catID;
-                            this.focusedFormID = catID || '';
-                            this.focusedFormTree = res || [];
+            if (catID === '') {
+                this.focusedFormID = '';
+                this.focusedFormTree = [];
+            } else {
+                this.appIsLoadingForm = setFormLoading;
+                this.setDefaultAjaxResponseMessage();
+                $.ajax({
+                    type: 'GET',
+                    url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
+                    success: (res) => {
+                        if(this.focusedFormID === catID) {
+                            this.updateKey += 1;
+                            this.adjustFormPreview(this.focusedIndicatorID, true);
+                        }
+                        this.focusedFormID = catID || '';
+                        this.focusedFormTree = res || [];
+                        this.appIsLoadingForm = false;
+                    },
+                    error: (err)=> console.log(err)
+                });
+            }
+        },
+        /**
+         * Gets detailed information for mult categories.  Used for form preview.
+         */
+        getPreviewTree() {
+            if (this.formPreviewIDs !== '') {
+                this.appIsLoadingForm = true;
+                this.setDefaultAjaxResponseMessage();
+                try {
+                    fetch(`${this.APIroot}form/specified?categoryIDs=${this.formPreviewIDs}`).then(res => {
+                        res.json()
+                        .then(data => {
+                            this.previewTree = data || [];
                             this.appIsLoadingForm = false;
-                            if(formChanged) {
-                                window.scrollTo(0,0);
-                            }
-                            resolve(res)
-                        },
-                        error: (err)=> reject(err)
-                    });
+                        }).catch(err => console.log(err));
+                    }).catch(err => console.log(err));
+                } catch(error) {
+                    console.log(error);
                 }
-            });
+            }
         },
         /**
          * @param {number} indicatorID 
@@ -299,13 +338,12 @@ export default {
             return new Promise((resolve, reject)=> {
                 try {
                     fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
-                        .then(res => {
-                            res.json()
-                            .then(data => {
-                            resolve(data[indicatorID])
-                            .catch(err => console.log(err));
-                        }).catch(err => console.log(err));
-                    });
+                    .then(res => {
+                        res.json()
+                        .then(data => {
+                            resolve(data[indicatorID]);
+                        }).catch(err => reject(err));
+                    }).catch(err => reject(err));
                 } catch (error) {
                     reject(error);
                 }
@@ -368,59 +406,58 @@ export default {
             this.focusedIndicatorID = nodeID;
         },
         /** used to update scrolling and form height. called after component update or screen resize. */
-        adjustFormPreview(nodeID = 0) {
-            console.log('adjusting', nodeID);
-            setTimeout(() => { //clear stack
-                const pad = 12;
-                const elListItem = document.getElementById(`index_listing_${nodeID}`);
-                const elFormatLabel = document.getElementById(`${nodeID}_format_label`);
-                const elFormCard = document.getElementById(`form_card_${nodeID}`);
-                let elPreview = document.getElementById(`form_entry_and_preview`);
-                let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
-                if(!this.adjustingMenu && elPreview !== null && elBlock !== null) { 
-                    this.adjustingMenu = true;
-                    const height = elBlock.offsetHeight;
-                    if (window.innerWidth < 600) { //small screen mode just resize
-                        elBlock.style.top = '0px';
-                        elPreview.style.height = (height + 2*pad) + 'px';
-                    } else {
-                        const top = +(elBlock.style.top || '').replace('px','');
-                        let diff = 0;
-                        if(elListItem !== null && elFormatLabel !== null) {     //details are open
-                            diff = elListItem.getBoundingClientRect().top - elFormatLabel.getBoundingClientRect().top;
-                            console.log('open diff li - label', diff);
-                        } else if (elListItem !== null && elFormCard !== null) { //details are closed (card view)
-                            diff = elListItem.getBoundingClientRect().top - elFormCard.getBoundingClientRect().top;
-                            console.log('closed diff li - card', diff);
+        adjustFormPreview(nodeID = 0, overrideTimer = false) {
+            if(!this.adjustingMenu || overrideTimer) {
+                setTimeout(() => { //clear stack
+                    const pad = 12;
+                    const elListItem = document.getElementById(`index_listing_${nodeID}`);
+                    const elFormatLabel = document.getElementById(`${nodeID}_format_label`);
+                    const elFormCard = document.getElementById(`form_card_${nodeID}`);
+                    let elPreview = document.getElementById(`form_entry_and_preview`);
+                    let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
+                    if(elPreview !== null && elBlock !== null) {
+                        this.adjustingMenu = true;
+                        const height = elBlock.offsetHeight;
+                        if (window.innerWidth < 600) { //small screen mode just resizes
+                            elBlock.style.top = '0px';
+                            elPreview.style.height = (height + 2*pad) + 'px';
                         } else {
-                            console.log('else', elListItem, elFormCard)
-                            diff = -top + pad; //there is no list item on initial load, changed forms
-                        }
-                        const calcTop = top - pad + diff;
-                        //if the preview/card is higher than the list item use 0 with elBlock height
-                        const newTop = calcTop < 0 ? calcTop : 0;
-                        const newEffectiveHeight = (newTop + height + 2*pad).toFixed(0) + 'px';
-                        elBlock.style.top = newTop.toFixed(0) + 'px';
-                        elPreview.style.height = newEffectiveHeight;
+                            const top = +(elBlock.style.top || '').replace('px','');
+                            const scrollTop = elBlock.scrollTop;
+                            let diff = 0;
+                            if(elListItem !== null && elFormatLabel !== null) {     //details are open
+                                diff = elListItem.getBoundingClientRect().top - elFormatLabel.getBoundingClientRect().top;
+                            } else if (elListItem !== null && elFormCard !== null) { //details are closed (card view)
+                                diff = elListItem.getBoundingClientRect().top - elFormCard.getBoundingClientRect().top;
+                            } else {
+                                diff = pad; //there is no list item on initial load, changed forms
+                            }
 
-                        let tar = elFormatLabel || elFormCard;
-                        if(tar !== null) {
-                            const curColor = tar.style.backgroundColor;
-                            tar.style.backgroundColor = '#feffd1';
-                            setTimeout(() => {
-                                tar.style.backgroundColor = curColor;
-                            }, 400); //background-color transition is also 1s
+                            elBlock.scrollTop = Math.round(scrollTop - diff) + pad;
+
+                            let tar = elFormatLabel || elFormCard;
+                            if(tar !== null) {
+                                tar.style.backgroundColor = '#feffd1';
+                                setTimeout(() => {
+                                    tar.style.backgroundColor = tar.classList.contains('conditional') ? '#eaeaf4' : '#ffffff';
+                                }, 500);
+                            }
                         }
+                        setTimeout(() => { //limit calls unless explicitly overridden
+                            this.adjustingMenu = false;
+                        }, 250);
                     }
-                    setTimeout(() => {
-                        this.adjustingMenu = false;
-                    }, 400);
-                }
-            });
+                });
+            }
         },
         toggleToolbars() {
             this.focusedIndicatorID = null;
-            this.showToolbars = !this.showToolbars;
+            this.previewMode = !this.previewMode;
+            if(this.previewMode) {
+                this.getPreviewTree();
+            } else {
+                this.previewTree = [];
+            }
         },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
@@ -429,24 +466,26 @@ export default {
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
         moveListItem(event = {}, indID = 0, moveup = false) {
-            if (event?.keyCode === 32) event.preventDefault();
-            const parentEl = event?.currentTarget?.closest('ul');
-            const elToMove = document.getElementById(`index_listing_${indID}`);
-            const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
-            const newElsLI = oldElsLI.filter(li => li !== elToMove);
-            const listitem = this.listTracker[indID];
-            const condition = moveup === true ? listitem.listIndex > 0 : listitem.listIndex < oldElsLI.length - 1;
-            const spliceLoc = moveup === true ? -1 : 1;
-            if(condition) {
-                const oldIndex = listitem.listIndex;
-                newElsLI.splice(oldIndex + spliceLoc, 0, elToMove);
-                oldElsLI.forEach(li => parentEl.removeChild(li));
-                newElsLI.forEach((li, i) => {
-                    const liIndID = parseInt(li.id.replace('index_listing_', ''));
-                    parentEl.appendChild(li);
-                    this.listTracker[liIndID].listIndex = i;
-                });
-                this.focusIndicatorID = indID;
+            if(!this.previewMode) {
+                if (event?.keyCode === 32) event.preventDefault();
+                const parentEl = event?.currentTarget?.closest('ul');
+                const elToMove = document.getElementById(`index_listing_${indID}`);
+                const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
+                const newElsLI = oldElsLI.filter(li => li !== elToMove);
+                const listitem = this.listTracker[indID];
+                const condition = moveup === true ? listitem.listIndex > 0 : listitem.listIndex < oldElsLI.length - 1;
+                const spliceLoc = moveup === true ? -1 : 1;
+                if(condition) {
+                    const oldIndex = listitem.listIndex;
+                    newElsLI.splice(oldIndex + spliceLoc, 0, elToMove);
+                    oldElsLI.forEach(li => parentEl.removeChild(li));
+                    newElsLI.forEach((li, i) => {
+                        const liIndID = parseInt(li.id.replace('index_listing_', ''));
+                        parentEl.appendChild(li);
+                        this.listTracker[liIndID].listIndex = i;
+                    });
+                    this.focusIndicatorID = indID;
+                }
             }
         },
         /**
@@ -493,10 +532,8 @@ export default {
             const all = updateSort.concat(updateParentID);
             Promise.all(all).then((res)=> {
                 if (res.length > 0) {
-                    this.getFormByCategoryID(this.focusedFormID).then(()=> {
-                        this.showLastUpdate('form_properties_last_update');
-                        this.updateKey += 1; //used to force view updates since the formID has not changed
-                    }).catch(err => console.log(err));
+                    this.getFormByCategoryID(this.focusedFormID);
+                    this.showLastUpdate('form_properties_last_update');
                 }
             }).catch(err => console.log('an error has occurred', err));
 
@@ -533,7 +570,8 @@ export default {
             this.listTracker[indID] = item;
         },
         startDrag(event = {}) {
-            if(event?.dataTransfer) {
+            if(!this.previewMode && event?.dataTransfer) {
+                console.log('here')
                 event.dataTransfer.dropEffect = 'move';
                 event.dataTransfer.effectAllowed = 'move';
                 event.dataTransfer.setData('text/plain', event.target.id);
@@ -544,22 +582,20 @@ export default {
         onDrop(event = {}) {
             if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
                 event.preventDefault();
-                const baseDropArea = document.querySelector('ul#base_drop_area');
                 const draggedElID = event.dataTransfer.getData('text');
-                const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
-
-                const parentEl = event.currentTarget; //NOTE: drop event is on the parent ul, the li is the el being moved
-                const formParIndID = parentEl.id === "base_drop_area" ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
-
-                const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
                 const elLiToMove = document.getElementById(draggedElID);
+                const parentEl = event.currentTarget; //NOTE: drop event is on parent ul, the li is the el being moved
+
+                const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
+                const parIndID = (parentEl.id || '').includes("base_drop_area") ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
+                const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
 
                 let success = false;
                 //if the drop target ul has no items yet, just append
                 if (elsLI.length === 0) {
                     try {
                         parentEl.append(elLiToMove);
-                        this.updateListTracker(indID, formParIndID, 0);
+                        this.updateListTracker(indID, parIndID, 0);
                         success = true;
                     } catch (error) {
                         console.log(error);
@@ -575,7 +611,7 @@ export default {
                             const newElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
                             newElsLI.forEach((li, i) => {
                                 const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
-                                this.updateListTracker(indID, formParIndID, i);
+                                this.updateListTracker(indID, parIndID, i);
                             });
                             success = true;
                         } catch(error) {
@@ -585,9 +621,9 @@ export default {
                 }
                 if(success === true) {
                     //open the parent item if it is not open
-                    const elClosestFormPage = elLiToMove.closest('ul#base_drop_area > li');
-                    if(elClosestFormPage !== null && baseDropArea !== null && +formParIndID > 0 && !this.formMenuState[formParIndID]) {
-                        this.updateFormMenuState(formParIndID, true, false);
+                    const elClosestFormPage = elLiToMove.closest('ul[id^="base_drop_area"] > li');
+                    if(elClosestFormPage !== null && +parIndID > 0 && !this.formMenuState[parIndID]) {
+                        this.updateFormMenuState(parIndID, true, false);
                     }
                 }
                 if(parentEl.classList.contains('entered-drop-zone')){
@@ -617,8 +653,8 @@ export default {
          */
         handleNameClick(indicatorID = null) {
             this.focusIndicatorID = indicatorID;
-            if (!this.showToolbars) {
-                this.showToolbars = true;
+            if (this.previewMode) {
+                this.previewMode = false;
             } else {
                 if(indicatorID) {
                     this.editQuestion(indicatorID);
@@ -658,6 +694,9 @@ export default {
             if(newVal === true) {
                 this.applySortAndParentID_Updates();
             }
+        },
+        focusedFormID(newVal, oldVal) {
+            window.scrollTo(0,0);
         }
     },
     template:`<FormEditorMenu />
@@ -694,7 +733,7 @@ export default {
                             title="Details for the selected form are shown below" alt="" />
                         <button type="button" v-if="focusedFormTree.length > 0" id="indicator_toolbar_toggle" class="btn-general"
                             @click.stop="toggleToolbars()">
-                            {{showToolbars ? 'Preview this form' : 'Edit this form'}}
+                            {{previewMode ? 'Edit this form' : 'Preview this form'}}
                         </button>
                     </div>
                     <!-- LAYOUTS (including stapled forms) -->
@@ -720,10 +759,10 @@ export default {
                             <!-- DRAG-DROP ZONE -->
                             <ul v-if="focusedFormTree.length > 0 &&
                                 (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)"
-                                id="base_drop_area" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
+                                :id="'base_drop_area_' + form.categoryID" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
                                 class="form-index-listing-ul"
                                 data-effect-allowed="move"
-                                @drop.stop="onDrop"
+                                @drop.stop="onDrop($event)"
                                 @dragover.prevent
                                 @dragenter.prevent="onDragEnter"
                                 @dragleave="onDragLeave">
@@ -737,7 +776,8 @@ export default {
                                     :parentID=null
                                     :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : false"
                                     :key="'index_list_item_' + formSection.indicatorID"
-                                    draggable="true"
+                                    :draggable="previewMode ? false : true"
+                                    :style="{cursor: previewMode ? 'auto' : 'grab'}"
                                     @dragstart.stop="startDrag">
                                 </form-index-listing>
                             </ul>
@@ -751,7 +791,7 @@ export default {
                     </button>
                     <hr />
                     <!-- INTERNAL FORMS -->
-                    <div v-if="showToolbars">
+                    <div v-if="!previewMode">
                         <h3>Internal Forms</h3>
                         <ul v-if="internalFormRecords.length > 0" :id="'internalFormRecords_' + focusedFormID">
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
@@ -773,7 +813,7 @@ export default {
 
                 <!-- FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
-                    <div class="printformblock" :data-update-key="updateKey">
+                    <div class="printformblock" :data-update-key="updateKey" :class="{preview: previewMode}">
                         <form-question-display v-for="(formSection, i) in focusedFormTree"
                             :key="'editing_display_' + formSection.indicatorID + makePreviewKey(formSection)"
                             :depth="0"
@@ -781,14 +821,13 @@ export default {
                             :formNode="formSection"
                             :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : true">
                         </form-question-display>
-
-                        <button type="button" class="btn-general" style="width: 100%; margin-top: auto;"
-                            @click="newQuestion(null)"
-                            id="add_new_form_section_2"
-                            title="Add new form section">
-                            + Add Section
-                        </button>
                     </div>
+                    <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%; margin-top: 0.5rem;"
+                        @click="newQuestion(null)"
+                        id="add_new_form_section_2"
+                        title="Add new form section">
+                        + Add Section
+                    </button>
                 </div>
             </div>
         </template>

@@ -81,7 +81,7 @@ export default {
                 type: 'POST',
                 url: `${this.APIroot}formEditor/formName`,
                 data: {
-                    name: this.categoryName,
+                    name: XSSHelpers.stripAllTags(this.categoryName),
                     categoryID: this.formID,
                     CSRFToken: this.CSRFToken
                 },
@@ -97,7 +97,7 @@ export default {
                 type: 'POST',
                 url: `${this.APIroot}formEditor/formDescription`,
                 data: {
-                    description: this.categoryDescription,
+                    description:  XSSHelpers.stripAllTags(this.categoryDescription),
                     categoryID: this.formID,
                     CSRFToken: this.CSRFToken
                 },

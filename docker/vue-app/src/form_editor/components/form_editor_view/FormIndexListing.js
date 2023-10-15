@@ -17,6 +17,7 @@ export default {
         'formMenuState',
         'updateFormMenuState',
         'focusedIndicatorID',
+        'previewMode',
         'startDrag',
         'onDragEnter',
         'onDragLeave',
@@ -77,7 +78,7 @@ export default {
             @keydown.enter.space.prevent.stop="focusIndicator(formNode.indicatorID)">
 
             <div>
-                <span role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>
+                <span v-show="!previewMode" role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>
                 {{indexDisplay}}
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !menuOpen}"
                     @click.stop.exact="changeMenuState(formNode.indicatorID, !menuOpen)"
@@ -88,7 +89,7 @@ export default {
                     <span v-show="menuOpen" role="img" aria="">▾</span>
                     <span v-show="!menuOpen" role="img" aria="">▸</span>
                 </div>
-                <div v-show="formNode.indicatorID === focusedIndicatorID" class="icon_move_container">
+                <div v-show="!previewMode && formNode.indicatorID === focusedIndicatorID" class="icon_move_container">
                     <div tabindex="0" class="icon_move up" role="button" title="move item up"
                         @click.stop="moveListItem($event, formNode.indicatorID, true)"
                         @keydown.enter.space.prevent.stop="moveListItem($event, formNode.indicatorID, true)">
@@ -103,7 +104,7 @@ export default {
             <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
             <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ formNode.indicatorID"
                 data-effect-allowed="move"
-                @drop.stop="onDrop"
+                @drop.stop="onDrop($event)"
                 @dragover.prevent
                 @dragenter.prevent="onDragEnter"
                 @dragleave="onDragLeave">
@@ -118,7 +119,8 @@ export default {
                         :index="i"
                         :menuOpen="formMenuState?.[child.indicatorID] !== undefined ? formMenuState[child.indicatorID] : false"
                         :key="'index_list_item_' + child.indicatorID"
-                        draggable="true"
+                        :draggable="previewMode ? false : true"
+                        :style="{cursor: previewMode ? 'auto' : 'grab'}"
                         @dragstart.stop="startDrag"> 
                     </form-index-listing>
                 </template>

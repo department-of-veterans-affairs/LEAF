@@ -23,7 +23,7 @@ export default {
         'openIfThenDialog',
         'listTracker',
         'allowedConditionChildFormats',
-        'showToolbars',
+        'previewMode',
         'handleNameClick',
         'makePreviewKey'
     ],
@@ -32,7 +32,7 @@ export default {
             return +this.formNode?.indicatorID;
         },
         showDetails() {
-            return !this.showToolbars || this.menuOpen || this.depth > 0;
+            return this.previewMode || this.menuOpen || this.depth > 0;
         },
         isHeaderLocation() {
             let item = this.listTracker[this.indicatorID];
@@ -57,7 +57,7 @@ export default {
         indicatorName() {
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const contentSensitive = this.sensitive ? `<span class="required-sensitive">*&nbsp;Sensitive</span>&nbsp;${this.sensitiveImg}` : '';
-            const shortLabel = (this.formNode?.description || '') !== '' && this.showToolbars ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
+            const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
 
             return `${name}${shortLabel}${contentRequired}${contentSensitive}`;
@@ -78,70 +78,69 @@ export default {
             this.updateFormMenuState(indID, menuOpen, cascade);
         }
     },
-    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation, preview: !showToolbars}" :id="printResponseID">
-            <button v-if="depth===0 && showToolbars" type="button" :id="'card_btn_open_' + indicatorID"
-                class="card_toggle" title="collapse page"
-                @click.exact="changeMenuState(indicatorID, false)"
-                @click.ctrl.exact="changeMenuState(indicatorID, false, true)"
-                aria-label="collapse page">-
-            </button>
+    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation, preview: previewMode}" :id="printResponseID">
+        <button v-if="depth===0 && !previewMode" type="button" :id="'card_btn_open_' + indicatorID"
+            class="card_toggle" title="collapse page"
+            @click.exact="changeMenuState(indicatorID, false)"
+            @click.ctrl.exact="changeMenuState(indicatorID, false, true)"
+            aria-label="collapse page">-
+        </button>
 
-            <!-- NOTE: QUESTION EDITING AREA -->
-            <div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
-                <div class="name_and_toolbar" :class="{'form-header': isHeaderLocation, preview: !showToolbars}">
-                    <!-- NAME -->
-                    <div v-html="indicatorName" @click.stop.prevent="handleNameClick(parseInt(indicatorID))"
-                        class="indicator-name-preview" :id="indicatorID + '_format_label'"
-                        :style="{'background-color': conditionalQuestion ? '#eaeaf4' : '#ffffff'}">
-                    </div>
-
-                    <!-- TOOLBAR -->
-                    <div v-show="showToolbars"
-                        :style="{backgroundColor: required ? '#eec8c8' : '#f2f2f5'}"
-                        :id="'form_editing_toolbar_' + indicatorID">
-    
-                        <div style="width:100%;">
-                            <button v-show="showToolbars" type="button"
-                                class="btn-general"
-                                @click="editQuestion(parseInt(indicatorID))"
-                                :title="'edit indicator ' + indicatorID">
-                                {{ depth === 0 ? 'Edit Header' : 'Edit' }}
-                            </button>
-                            <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"
-                                class="btn-general"
-                                @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())" 
-                                :title="'Edit conditions for ' + indicatorID">
-                                Modify Logic
-                            </button>
-                            <button v-if="hasDevConsoleAccess === 1" type="button" class="btn-general"
-                                @click="editAdvancedOptions(parseInt(indicatorID))"
-                                :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
-                                Programmer
-                            </button>
-                            <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" title="advanced options are present" />
-                        </div>
-                        <button type="button" class="btn-general"
-                            :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
-                            @click="newQuestion(indicatorID)">
-                            + {{isHeaderLocation ? 'Add question to section' : 'Add sub-question'}}
-                        </button>
-                    </div>
-
+        <!-- NOTE: QUESTION EDITING AREA -->
+        <div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
+            <div class="name_and_toolbar" :class="{'form-header': isHeaderLocation, preview: previewMode}">
+                <!-- NAME -->
+                <div v-html="indicatorName" @click.stop.prevent="handleNameClick(parseInt(indicatorID))"
+                    class="indicator-name-preview" :id="indicatorID + '_format_label'"
+                    :class="{'conditional': conditionalQuestion}">
                 </div>
 
-                <!-- FORMAT PREVIEW -->
-                <format-preview v-if="formNode.format !== ''" :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
+                <!-- TOOLBAR -->
+                <div v-show="!previewMode"
+                    :style="{backgroundColor: required ? '#eec8c8' : '#f2f2f5'}"
+                    :id="'form_editing_toolbar_' + indicatorID">
+
+                    <div style="width:100%;">
+                        <button type="button"
+                            class="btn-general"
+                            @click="editQuestion(parseInt(indicatorID))"
+                            :title="'edit indicator ' + indicatorID">
+                            {{ depth === 0 ? 'Edit Header' : 'Edit' }}
+                        </button>
+                        <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"
+                            class="btn-general"
+                            @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())" 
+                            :title="'Edit conditions for ' + indicatorID">
+                            Modify Logic
+                        </button>
+                        <button v-if="hasDevConsoleAccess === 1" type="button" class="btn-general"
+                            @click="editAdvancedOptions(parseInt(indicatorID))"
+                            :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
+                            Programmer
+                        </button>
+                        <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" title="advanced options are present" />
+                    </div>
+                    <button type="button" class="btn-general"
+                        :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
+                        @click="newQuestion(indicatorID)">
+                        + {{isHeaderLocation ? 'Add question to section' : 'Add sub-question'}}
+                    </button>
+                </div>
             </div>
 
-            <!-- NOTE: RECURSIVE SUBQUESTIONS -->
-            <template v-if="formNode.child">
-                <form-question-display v-for="child in formNode.child"
-                    :depth="depth + 1"
-                    :formPage="formPage"
-                    :formNode="child"
-                    :key="'FED_' + child.indicatorID + makePreviewKey(child)">
-                </form-question-display>
-            </template>
+            <!-- FORMAT PREVIEW -->
+            <format-preview v-if="formNode.format !== ''" :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
+        </div>
+
+        <!-- NOTE: RECURSIVE SUBQUESTIONS -->
+        <template v-if="formNode.child">
+            <form-question-display v-for="child in formNode.child"
+                :depth="depth + 1"
+                :formPage="formPage"
+                :formNode="child"
+                :key="'FED_' + child.indicatorID + makePreviewKey(child)">
+            </form-question-display>
+        </template>
     </div>
 
     <div v-else class="form-page-card" :id="'form_card_' + indicatorID">

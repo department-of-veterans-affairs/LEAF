@@ -222,7 +222,7 @@ class Form
 
     /**
      * Retrieves a form based on categoryID
-     * @param int $recordID
+     * @param string $categoryID
      * @param bool $parseTemplate - see getIndicator()
      * @return array
      */
@@ -243,6 +243,27 @@ class Form
         }
 
         return $fullForm;
+    }
+
+    /**
+     * Retrieves a list of form pages based on provided categoryIDs
+     * @param string $categoryIDs of the forms to retrieve
+     * @param bool $parseTemplate - see getIndicator()
+     * @return array
+     */
+    public function getSpecifiedForms($categoryIDs = '', $parseTemplate = true): array
+    {
+        $categories = explode(',', $categoryIDs);
+        $fullFormPages = array();
+        $catReg = "/^form_[0-9a-f]{5}$/i";
+
+        foreach($categories as $catID) {
+            if(preg_match($catReg, $catID)) {
+                $form = $this->getFormByCategory($catID, $parseTemplate);
+                $fullFormPages = array_merge($fullFormPages, $form);
+            }
+        }
+        return $fullFormPages;
     }
 
     /**

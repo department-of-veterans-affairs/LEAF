@@ -36,8 +36,7 @@ export default {
          * @returns {string} form name / description
          */
         categoryName() {
-            return this.categoriesRecord.categoryName === '' ? 
-                'Untitled' : this.decodeAndStripHTML(this.categoriesRecord.categoryName);
+            return this.decodeAndStripHTML((this.categoriesRecord.categoryName || 'Untitled'));
         },
         formDescription() {
             return this.decodeAndStripHTML(this.categoriesRecord.categoryDescription);
@@ -105,6 +104,7 @@ export default {
             </td>
             <td>
                 <input type="number" @change="updateSort($event, catID)"
+                    :id="'form_sort_input_' + catID"
                     :aria-labelledby="availability + '_sort'"
                     :value="categoriesRecord.sort" min="-128" max="127"
                     style="width: 100%; min-width:50px;" />
@@ -115,7 +115,7 @@ export default {
                 <td height="36" class="form-name">
                     <router-link :to="{ name: 'category', query: { formID: form.categoryID }}" class="router-link">
                         <span role="img" aria="">📌&nbsp;</span>
-                        <span style="text-decoration:underline;">{{ categories[form.categoryID].categoryName }}</span>
+                        <span style="text-decoration:underline;">{{ categories[form.categoryID].categoryName || 'Untitled' }}</span>
                     </router-link>
                 </td>
                 <td>{{ categories[form.categoryID].categoryDescription }}</td>
@@ -128,6 +128,7 @@ export default {
                 </td>
                 <td>
                     <input type="number" @change="updateSort($event, form.categoryID)"
+                        :id="'form_sort_input_' + catID + '_' + form.categoryID"
                         :aria-labelledby="availability + '_sort'"
                         :value="categories[form.categoryID].sort" min="-128" max="127"
                         style="width: 100%; min-width:50px;" />

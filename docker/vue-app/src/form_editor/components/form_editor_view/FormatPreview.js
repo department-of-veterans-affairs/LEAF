@@ -12,8 +12,7 @@ export default {
         'libsPath',
         'initializeOrgSelector',
         'orgchartFormats',
-        'decodeAndStripHTML',
-        'showToolbars'
+        'decodeAndStripHTML'
     ],
     computed: {
         baseFormat() {
@@ -192,7 +191,7 @@ export default {
         </template>
 
         <template v-if="baseFormat === 'grid'">
-            <div class="tableinput" :style="{maxWidth: showToolbars ? '600px' : '900px'}">
+            <div class="tableinput">
                 <table class="table" :id="'grid_' + indicator.indicatorID + '_' + indicator.series + '_input'"
                     style="word-wrap: break-word; table-layout: fixed; height: 100%; display: table">
 

@@ -11,6 +11,7 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'decodeAndStripHTML',
         'setDialogSaveFunction',
         'dialogData',
         'checkRequiredData',
@@ -49,8 +50,8 @@ export default {
                     let temp = {};
                     //specified values
                     temp.categoryID = newCatID;
-                    temp.categoryName = this.categoryName;
-                    temp.categoryDescription = this.categoryDescription;
+                    temp.categoryName = XSSHelpers.stripAllTags(this.categoryName);
+                    temp.categoryDescription = XSSHelpers.stripAllTags(this.categoryDescription);
                     temp.parentID = this.newFormParentID;
                     //default values
                     temp.workflowID = 0;
