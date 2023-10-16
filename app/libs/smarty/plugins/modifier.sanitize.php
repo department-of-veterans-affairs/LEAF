@@ -6,7 +6,7 @@
  * @subpackage PluginsModifier
  */
 
-use Leaf\XSSHelpers;
+use App\Leaf\XSSHelpers;
 
 /**
  * Smarty HTML sanitation modifier plugin
@@ -23,8 +23,8 @@ use Leaf\XSSHelpers;
  *
  * @return string
  */
-if(!class_exists('Leaf\XSSHelpers')){
-    include_once __DIR__ . '/../../php-commons/XSSHelpers.php';
+if(!class_exists('App\Leaf\XSSHelpers')){
+    include_once __DIR__ . '/../../../Leaf/XSSHelpers.php';
 }
 
 function smarty_modifier_sanitize($in)

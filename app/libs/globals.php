@@ -19,22 +19,3 @@ if (!defined('APP_LIBS_PATH')) define('APP_LIBS_PATH', getenv('APP_LIBS_PATH'));
 if (!defined('APP_CSS_PATH')) define('APP_CSS_PATH', getenv('APP_CSS_PATH'));
 if (!defined('APP_JS_PATH')) define('APP_JS_PATH', getenv('APP_JS_PATH'));
 if (!defined('LEAF_DOMAIN')) define('LEAF_DOMAIN', getenv('APP_URL_NEXUS'));
-
-preg_match('(\/.+\/)', $_SERVER['SCRIPT_FILENAME'], $match);
-
-$folders = array('admin', 'api', 'auth.cookie', 'auth_domain', 'auth_token', 'dynicons', 'login', 'qrcode', 'scripts', 'utils', 'sources', '..', 'mailer', 'var', 'www', 'html', '');
-
-$path = '';
-
-$path_array = explode('/', $match[0]);
-
-foreach ($path_array as $value) {
-    if (!in_array($value, $folders)) {
-        $path .= '/' . $value;
-    }
-}
-
-$l_path = trim($path, '/');
-
-if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $path);
-if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . $l_path . '/');
