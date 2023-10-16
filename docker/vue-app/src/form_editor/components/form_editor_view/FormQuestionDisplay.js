@@ -34,11 +34,10 @@ export default {
             return +this.formNode?.indicatorID;
         },
         showDetails() {
-            return this.previewMode || this.menuOpen || this.depth > 0;
+            return this.depth > 0 || this.previewMode || this.menuOpen;
         },
-        isHeaderLocation() {
-            let item = this.listTracker[this.indicatorID];
-            return (item?.parentID === null || item?.newParentID === null);
+        isHeader() {
+            return this.depth === 0;
         },
         sensitiveImg() {
             return this.sensitive ? 
@@ -50,20 +49,20 @@ export default {
             return this.formNode?.html || this.formNode?.htmlPrint;
         },
         conditionalQuestion() {
-            return !this.isHeaderLocation && 
+            return !this.isHeader && 
                 this.formNode.conditions !== null && this.formNode.conditions !== '' & this.formNode.conditions !== 'null';
         },
         conditionsAllowed() {
-            return !this.isHeaderLocation && this.allowedConditionChildFormats.includes(this.formNode.format?.toLowerCase());
+            return !this.isHeader && this.allowedConditionChildFormats.includes(this.formNode.format?.toLowerCase());
         },
         indicatorName() {
+            const page = this.depth === 0 ? `<div class="form_page">${this.formPage + 1}</div>`: '';
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const contentSensitive = this.sensitive ? `<span class="required-sensitive">*&nbsp;Sensitive</span>&nbsp;${this.sensitiveImg}` : '';
             const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
             const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria="">&nbsp;📌</span>` : '';
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
-
-            return `${name}${shortLabel}${contentRequired}${contentSensitive}${staple}`;
+            return `${page}${name}${shortLabel}${contentRequired}${contentSensitive}${staple}`;
         },
         printResponseID() {
             return `xhrIndicator_${this.indicatorID}_${this.formNode.series}`;
@@ -81,7 +80,7 @@ export default {
             this.updateFormMenuState(indID, menuOpen, cascade);
         }
     },
-    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeaderLocation, preview: previewMode}" :id="printResponseID">
+    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeader, preview: previewMode}" :id="printResponseID">
         <button v-if="depth===0 && !previewMode" type="button" :id="'card_btn_open_' + indicatorID"
             class="card_toggle" title="collapse page"
             @click.exact="changeMenuState(indicatorID, false)"
@@ -91,7 +90,7 @@ export default {
 
         <!-- NOTE: QUESTION EDITING AREA -->
         <div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
-            <div class="name_and_toolbar" :class="{'form-header': isHeaderLocation, preview: previewMode}">
+            <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
                 <!-- NAME -->
                 <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
                     class="indicator-name-preview" :id="indicatorID + '_format_label'"
@@ -105,6 +104,7 @@ export default {
 
                     <div style="width:100%;">
                         <button type="button"
+                            :id="'edit_indicator_' + indicatorID"
                             class="btn-general"
                             @click="editQuestion(parseInt(indicatorID))"
                             :title="'edit indicator ' + indicatorID">
@@ -124,9 +124,9 @@ export default {
                         <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" title="advanced options are present" />
                     </div>
                     <button type="button" class="btn-general"
-                        :title="isHeaderLocation ? 'Add question to section' : 'Add sub-question'"
+                        :title="isHeader ? 'Add question to section' : 'Add sub-question'"
                         @click="newQuestion(indicatorID)">
-                        + {{isHeaderLocation ? 'Add question to section' : 'Add sub-question'}}
+                        + {{isHeader ? 'Add question to section' : 'Add sub-question'}}
                     </button>
                 </div>
             </div>

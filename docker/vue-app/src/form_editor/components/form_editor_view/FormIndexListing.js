@@ -82,7 +82,9 @@ export default {
             :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
             @click.stop="focusIndicator(indicatorID)"
-            @keydown.enter.space.prevent.stop="focusIndicator(indicatorID)">
+            @click.ctrl.stop.exact="focusIndicator(indicatorID, true)"
+            @keydown.enter.space.prevent.stop="focusIndicator(indicatorID)"
+            @keydown.ctrl.stop.enter.space.exact.prevent="focusIndicator(indicatorID, true)">
 
             <div>
                 <span v-show="!previewMode" role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>

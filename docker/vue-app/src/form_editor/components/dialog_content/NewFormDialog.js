@@ -36,12 +36,14 @@ export default {
     },
     methods: {
         onSave() {
+            const name = XSSHelpers.stripAllTags(this.categoryName);
+            const description = XSSHelpers.stripAllTags(this.categoryDescription);
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/new`,
                 data: {
-                    name: this.categoryName,
-                    description: this.categoryDescription,
+                    name,
+                    description,
                     parentID: this.newFormParentID,
                     CSRFToken: this.CSRFToken
                 },
@@ -50,8 +52,8 @@ export default {
                     let temp = {};
                     //specified values
                     temp.categoryID = newCatID;
-                    temp.categoryName = XSSHelpers.stripAllTags(this.categoryName);
-                    temp.categoryDescription = XSSHelpers.stripAllTags(this.categoryDescription);
+                    temp.categoryName = name;
+                    temp.categoryDescription = description;
                     temp.parentID = this.newFormParentID;
                     //default values
                     temp.workflowID = 0;
@@ -72,7 +74,6 @@ export default {
                 },
                 error: err => {
                     console.log('error posting new form', err);
-                    reject(err);
                 }
             });
         }

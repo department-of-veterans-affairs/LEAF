@@ -277,12 +277,14 @@ table[class$="SelectorTable"] th {
             align-self:flex-end;
         }
     }
-
     .form-id {
         position: absolute; 
         right: 0.75rem;
         bottom: 1px;
         font-size: 0.75rem;
+    }
+    #editFormPermissions:hover, #editFormPermissions:focus,#editFormPermissions:active span {
+        color: white;
     }
     .panel-properties {
         flex-wrap: wrap;
@@ -345,6 +347,11 @@ table[class$="SelectorTable"] th {
         button {
             width: 133px;
         }
+    }
+    .internal_notice {
+        color: $base-navy;
+        padding: 0.5rem;
+        padding-bottom: 0;
     }
     h3 {
         margin: 0;
@@ -566,10 +573,18 @@ table[class$="SelectorTable"] th {
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     overflow: hidden;
-
+    .form_page {
+        display: inline-block;
+        font-weight: bold;
+        color: white;
+        background-color: black;
+        padding: 0.2em 0.5em;
+        border-radius: 3px;
+        margin-right: 0.4rem;
+    }
     .form-page-card {
         position: relative;
-        padding: 0.75rem 0.5rem;
+        padding: 0.75rem;
         border: 3px solid $BG_Pearl;
         border-left: 7px solid $BG_Pearl;
         border-right: 3px solid darken($BG_Pearl, 8%);
@@ -584,13 +599,6 @@ table[class$="SelectorTable"] th {
         > div {
             display: flex;
             align-items: center;
-            .form_page {
-                color: white;
-                background-color: black;
-                padding: 0.2em 0.4em;
-                border-radius: 3px;
-                margin-right: 0.4rem;
-            }
             .descr {
                 margin-left: auto;
             }

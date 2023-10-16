@@ -16,6 +16,9 @@ export default {
             workflowRecords: []
         }
     },
+    props: {
+        hasCollaborators: Boolean
+    },
     created() {
         this.getWorkflowRecords();
     },
@@ -219,8 +222,10 @@ export default {
             <div style="display:flex; justify-content: space-between;">
                 <button type="button" id="editFormPermissions" class="btn-general"
                     style="width: fit-content;"
-                    @click="openEditCollaboratorsDialog">
+                    @click="openEditCollaboratorsDialog"
+                    :title="hasCollaborators ? 'Manage Collaborators (Collaborators present)' : 'Manage Collaborators'">
                     Edit Special Write Access
+                    <span v-if="hasCollaborators" role="img" aria="">&nbsp;🔓︎</span>
                 </button>
                 <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog(focusedFormRecord.categoryID)"
                     style="display: none;">

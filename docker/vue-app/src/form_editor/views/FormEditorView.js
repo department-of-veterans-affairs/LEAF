@@ -45,6 +45,7 @@ export default {
             focusedFormTree: [], //detailed structure of the form focused in editing mode.  Always a single form.
             previewTree: [], //detailed structure of primary form and any staples. Used for primary form (url param) preview.
             focusedIndicatorID: null,
+            hasCollaborators: false,
             fileManagerTextFiles: []
         }
     },
@@ -135,7 +136,8 @@ export default {
             moveListItem: this.moveListItem,
             handleNameClick: this.handleNameClick,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
-            makePreviewKey: this.makePreviewKey
+            makePreviewKey: this.makePreviewKey,
+            checkFormCollaborators: this.checkFormCollaborators
         }
     },
     computed: {
@@ -409,9 +411,15 @@ export default {
         /**
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          */
-        focusIndicator(nodeID = null) {
+        focusIndicator(nodeID = null, focusEdit = false) {
             this.focusedIndicatorID = nodeID;
             this.alignListAndForm(nodeID);
+            if(Number.isInteger(nodeID) && focusEdit === true) {
+                const elEdit = document.getElementById(`edit_indicator_${nodeID}`);
+                if(elEdit !== null) {
+                    elEdit.focus();
+                }
+            }
         },
         /** used to sync position of index list item and form preview question name */
         alignListAndForm(nodeID = 0, overrideTimer = false) {
@@ -684,6 +692,18 @@ export default {
         },
         makePreviewKey(node) {
             return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
+        },
+        checkFormCollaborators() {
+            try {
+                fetch(`${this.APIroot}formEditor/_${this.focusedFormID}/privileges`)
+                .then(res => {
+                    res.json().then(data => 
+                        this.hasCollaborators = data?.length > 0)
+                    .catch(err => console.log(err));
+                }).catch(err => console.log(err));
+            } catch(error) {
+                console.log(error);
+            }
         }
     },
     watch: {
@@ -704,6 +724,9 @@ export default {
         },
         focusedFormID(newVal, oldVal) {
             window.scrollTo(0,0);
+            if(newVal) {
+                this.checkFormCollaborators();
+            }
         }
     },
     template:`<FormEditorMenu />
@@ -728,7 +751,7 @@ export default {
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Editor
             </h2>
             <!-- TOP INFO PANEL -->
-            <edit-properties-panel :key="'panel_' + focusedFormID"></edit-properties-panel>
+            <edit-properties-panel :key="'panel_' + focusedFormID" :hasCollaborators="hasCollaborators"></edit-properties-panel>
 
             <div id="form_index_and_editing" :data-focus="focusedIndicatorID">
                 <!-- NOTE: INDEX (main + stapled forms, internals for selected form) -->
@@ -763,7 +786,7 @@ export default {
                                         (parent)
                                     </em>
                                 </button>
-
+                                <div v-if="form.categoryID === focusedFormRecord.parentID" class="internal_notice">Internal Form</div>
                                 <!-- DRAG-DROP ZONE -->
                                 <ul v-if="focusedFormTree.length > 0 &&
                                     (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)"
@@ -802,14 +825,14 @@ export default {
                     </button>
 
                     <!-- INTERNAL FORMS -->
-                    <div>
+                    <div style="margin-top:1rem;">
                         <h3>Internal Forms</h3>
                         <ul v-if="internalFormRecords.length > 0" :id="'internalFormRecords_' + focusedFormID">
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
                                 <button type="button" @click="getFormByCategoryID(i.categoryID)"
                                     :class="{selected: i.categoryID === focusedFormID}">
                                     <span role="img" aria="">📃&nbsp;</span>
-                                    {{shortFormNameStripped(i.categoryID, 20)}}
+                                    {{shortFormNameStripped(i.categoryID, 35)}}
                                 </button>
                             </li>
                         </ul>
