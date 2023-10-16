@@ -43,10 +43,9 @@ export default {
             appIsLoadingForm: false,
             focusedFormID: '',
             focusedFormTree: [], //detailed structure of the form focused in editing mode.  Always a single form.
-            previewTree: [], //detailed structure of primary form and any staples. Used only for the form preview.
+            previewTree: [], //detailed structure of primary form and any staples. Used for primary form (url param) preview.
             focusedIndicatorID: null,
-            fileManagerTextFiles: [],
-            previewHandler: null
+            fileManagerTextFiles: []
         }
     },
     components: {
@@ -91,25 +90,19 @@ export default {
             vm.getSiteSettings();
             vm.setDefaultAjaxResponseMessage();
             vm.getFileManagerTextFiles();
-            if(!vm.appIsLoadingCategories && vm.$route.query.formID) {
+            if(!vm.appIsLoadingCategories && vm.queryID) {
                 vm.getFormFromQueryParam();
             }
         });
     },
     mounted() {
-        this.previewHandler = () => {
-            this.adjustFormPreview(0);
-        }
         window.addEventListener("scroll", this.onScroll);
-        window.addEventListener('resize', this.previewHandler);
     },
     beforeUnmount() {
         window.removeEventListener("scroll", this.onScroll);
-        window.removeEventListener('resize', this.previewHandler);
     },
     updated() {
         console.log('FE view updated')
-        this.adjustFormPreview(this.focusedIndicatorID);
     },
     provide() {
         return {
@@ -119,6 +112,8 @@ export default {
             fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
             internalFormRecords: computed(() => this.internalFormRecords),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
+            queryID: computed(() => this.queryID),
+            focusedFormID: computed(() => this.focusedFormID),
             focusedFormTree: computed(() => this.focusedFormTree),
             previewTree: computed(() => this.previewTree),
             focusedFormRecord: computed(() => this.focusedFormRecord),
@@ -144,12 +139,14 @@ export default {
         }
     },
     computed: {
+        queryID() {
+            return this.$route.query.formID;
+        },
         /**
          * @returns {Object} current query (non-internal form) from categories object.
          */
         currentCategoryQuery() {
-            const queryID = this.$route.query.formID;
-            return this.categories[queryID] || {};
+            return this.categories[this.queryID] || {};
         },
         mainFormID() {
             return this.focusedFormRecord?.parentID === '' ?
@@ -214,6 +211,12 @@ export default {
             });
             return ids.join();
         },
+        usePreviewTree() {
+            return this.focusedFormRecord.stapledFormIDs.length > 0 && this.previewMode && this.focusedFormID === this.queryID;
+        },
+        fullFormTree() {
+            return this.usePreviewTree ? this.previewTree : this.focusedFormTree;
+        },
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
         },
@@ -248,13 +251,13 @@ export default {
     },
     methods: {
         onScroll() {
-            const elPreview = document.getElementById('form_entry_and_preview');
+            let elPreview = document.getElementById('form_entry_and_preview');
             const elIndex = document.getElementById('form_index_display');
             if(elPreview !== null && elIndex !== null) {
-                const indexBoundTop = Math.round(elIndex.getBoundingClientRect().top);
-                const boundTop = Math.round(elPreview.getBoundingClientRect().top);
+                const indexBoundTop = elIndex.getBoundingClientRect().top;
+                const boundTop = elPreview.getBoundingClientRect().top;
                 const currTop = (elPreview.style.top || '0').replace('px', '');
-                if (this.previewMode || this.appIsLoadingForm || (+currTop === 0 && boundTop > 0)) {
+                if (this.previewMode || this.appIsLoadingForm || window.innerWidth < 600 || (+currTop === 0 && boundTop > 0)) {
                     elPreview.style.top = 0;
                 } else {
                     const newTop = Math.round(-indexBoundTop);
@@ -262,14 +265,18 @@ export default {
                 }
             }
         },
+        /**
+         * get details for the form specified in the url param.
+         */
         getFormFromQueryParam() {
             const formReg = /^form_[0-9a-f]{5}$/i;
-            if (formReg.test(this.$route.query?.formID || '') === true) {
-                const formID = this.$route.query.formID;
+            if (formReg.test(this.queryID || '') === true) {
+                const formID = this.queryID;
                 if (this.categories[formID] === undefined) {
-                    this.getFormByCategoryID(); //valid formID pattern, but form does not exist.  This will clear out info but also provide a message and link back
+                    this.focusedFormID = '';
+                    this.focusedFormTree = [];
                 } else {
-                    //check that it's not an internal form (it would need to be explicitly entered, but would cause issues)
+                    //an internal would need to be explicitly entered, but would cause issues
                     const parID = this.categories[formID].parentID;
                     if (parID === '') {
                         this.getFormByCategoryID(formID, true);
@@ -300,7 +307,6 @@ export default {
                     success: (res) => {
                         if(this.focusedFormID === catID) {
                             this.updateKey += 1;
-                            this.adjustFormPreview(this.focusedIndicatorID, true);
                         }
                         this.focusedFormID = catID || '';
                         this.focusedFormTree = res || [];
@@ -313,8 +319,8 @@ export default {
         /**
          * Gets detailed information for mult categories.  Used for form preview.
          */
-        getPreviewTree() {
-            if (this.formPreviewIDs !== '') {
+        getPreviewTree(primaryID = '') {
+            if (primaryID !== '' && this.formPreviewIDs !== '') {
                 this.appIsLoadingForm = true;
                 this.setDefaultAjaxResponseMessage();
                 try {
@@ -322,6 +328,7 @@ export default {
                         res.json()
                         .then(data => {
                             this.previewTree = data || [];
+                            this.focusedFormID = primaryID;
                             this.appIsLoadingForm = false;
                         }).catch(err => console.log(err));
                     }).catch(err => console.log(err));
@@ -404,9 +411,10 @@ export default {
          */
         focusIndicator(nodeID = null) {
             this.focusedIndicatorID = nodeID;
+            this.alignListAndForm(nodeID);
         },
-        /** used to update scrolling and form height. called after component update or screen resize. */
-        adjustFormPreview(nodeID = 0, overrideTimer = false) {
+        /** used to sync position of index list item and form preview question name */
+        alignListAndForm(nodeID = 0, overrideTimer = false) {
             if(!this.adjustingMenu || overrideTimer) {
                 setTimeout(() => { //clear stack
                     const pad = 12;
@@ -417,12 +425,10 @@ export default {
                     let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
                     if(elPreview !== null && elBlock !== null) {
                         this.adjustingMenu = true;
-                        const height = elBlock.offsetHeight;
+
                         if (window.innerWidth < 600) { //small screen mode just resizes
                             elBlock.style.top = '0px';
-                            elPreview.style.height = (height + 2*pad) + 'px';
                         } else {
-                            const top = +(elBlock.style.top || '').replace('px','');
                             const scrollTop = elBlock.scrollTop;
                             let diff = 0;
                             if(elListItem !== null && elFormatLabel !== null) {     //details are open
@@ -432,7 +438,6 @@ export default {
                             } else {
                                 diff = pad; //there is no list item on initial load, changed forms
                             }
-
                             elBlock.scrollTop = Math.round(scrollTop - diff) + pad;
 
                             let tar = elFormatLabel || elFormCard;
@@ -445,7 +450,7 @@ export default {
                         }
                         setTimeout(() => { //limit calls unless explicitly overridden
                             this.adjustingMenu = false;
-                        }, 250);
+                        }, 200);
                     }
                 });
             }
@@ -453,8 +458,8 @@ export default {
         toggleToolbars() {
             this.focusedIndicatorID = null;
             this.previewMode = !this.previewMode;
-            if(this.previewMode) {
-                this.getPreviewTree();
+            if(this.usePreviewTree) {
+                this.getPreviewTree(this.focusedFormID);
             } else {
                 this.previewTree = [];
             }
@@ -484,7 +489,6 @@ export default {
                         parentEl.appendChild(li);
                         this.listTracker[liIndID].listIndex = i;
                     });
-                    this.focusIndicatorID = indID;
                 }
             }
         },
@@ -571,7 +575,6 @@ export default {
         },
         startDrag(event = {}) {
             if(!this.previewMode && event?.dataTransfer) {
-                console.log('here')
                 event.dataTransfer.dropEffect = 'move';
                 event.dataTransfer.effectAllowed = 'move';
                 event.dataTransfer.setData('text/plain', event.target.id);
@@ -651,10 +654,14 @@ export default {
         /**
          * @param {number} indicatorID changes mode to edit if in preview mode, otherwise opens editor
          */
-        handleNameClick(indicatorID = null) {
+        handleNameClick(categoryID = '', indicatorID = null) {
             this.focusIndicatorID = indicatorID;
             if (this.previewMode) {
                 this.previewMode = false;
+                //previews show staples, so check if the form needs to change to the staple
+                if(categoryID !== this.focusedFormID) {
+                    this.getFormByCategoryID(categoryID, true);
+                }
             } else {
                 if(indicatorID) {
                     this.editQuestion(indicatorID);
@@ -681,17 +688,17 @@ export default {
     },
     watch: {
         appIsLoadingCategories(newVal, oldVal) {
-            if(oldVal === true && this.$route.query.formID) {
+            if(oldVal === true && this.queryID) {
                 this.getFormFromQueryParam();
             }
         },
-        "$route.query.formID"(newVal = '', oldVal = '') {
+        queryID(newVal = '', oldVal = '') {
             if(!this.appIsLoadingCategories) {
                 this.getFormFromQueryParam();
             }
         },
         sortOrParentChanged(newVal, oldVal) {
-            if(newVal === true) {
+            if(newVal === true && !this.previewMode) {
                 this.applySortAndParentID_Updates();
             }
         },
@@ -706,7 +713,7 @@ export default {
             <img src="../images/largespinner.gif" alt="loading..." />
         </div>
         <div v-else-if="noForm">
-            The form you are looking for ({{ this.$route?.query?.formID }}) was not found.
+            The form you are looking for ({{ queryID }}) was not found.
             <router-link :to="{ name: 'browser' }" class="router-link" style="display: inline-block;">
                 Back to&nbsp;<b>Form Browser</b>
             </router-link>
@@ -728,70 +735,74 @@ export default {
                 <div id="form_index_display">
                     <div class="index_info">
                         <h3>{{ indexHeaderText }}</h3>
-                        <img v-if="currentFormCollection.length > 1"
-                            :src="libsPath + 'dynicons/svg/emblem-notice.svg'"
-                            title="Details for the selected form are shown below" alt="" />
                         <button type="button" v-if="focusedFormTree.length > 0" id="indicator_toolbar_toggle" class="btn-general"
                             @click.stop="toggleToolbars()">
                             {{previewMode ? 'Edit this form' : 'Preview this form'}}
                         </button>
                     </div>
                     <!-- LAYOUTS (including stapled forms) -->
-                    <ul v-if="currentFormCollection.length > 0" :id="'layoutFormRecords_' + $route.query.formID">
-                        <li v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID"
-                            draggable="false" :class="{selected: form.categoryID === focusedFormID}">
+                    <ul v-if="currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID">
+                        <template v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID">
+                            <li v-show="!previewMode || (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)" 
+                                draggable="false" :class="{selected: form.categoryID === focusedFormID}">
 
-                            <button type="button" @click="getFormByCategoryID(form.categoryID)"
-                                class="layout-listitem" :disabled="form.categoryID === focusedFormID"
-                                :title="'form ' + form.categoryID">
-                                <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
-                                    {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
-                                </span>
-                                <span v-if="form.formContextType === 'staple'" role="img" aria="">📌</span>
-                                <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
-                                    (selected)
-                                </em>
-                                <em v-show="form.categoryID === focusedFormRecord.parentID" style="font-weight: normal; text-decoration: none;">
-                                    (parent)
-                                </em>
-                            </button>
+                                <button type="button"
+                                    @click="form.stapledFormIDs.length > 0 && previewMode && form.categoryID === queryID ?
+                                        getPreviewTree(form.categoryID) : getFormByCategoryID(form.categoryID)"
+                                    class="layout-listitem"
+                                    :disabled="form.categoryID === focusedFormID"
+                                    :title="'form ' + form.categoryID">
+                                    <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
+                                        {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
+                                    </span>
+                                    <span v-if="form.formContextType === 'staple'" role="img" aria="">📌</span>
+                                    <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
+                                        (selected)
+                                    </em>
+                                    <em v-show="form.categoryID === focusedFormRecord.parentID" style="font-weight: normal; text-decoration: none;">
+                                        (parent)
+                                    </em>
+                                </button>
 
-                            <!-- DRAG-DROP ZONE -->
-                            <ul v-if="focusedFormTree.length > 0 &&
-                                (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)"
-                                :id="'base_drop_area_' + form.categoryID" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
-                                class="form-index-listing-ul"
-                                data-effect-allowed="move"
-                                @drop.stop="onDrop($event)"
-                                @dragover.prevent
-                                @dragenter.prevent="onDragEnter"
-                                @dragleave="onDragLeave">
+                                <!-- DRAG-DROP ZONE -->
+                                <ul v-if="focusedFormTree.length > 0 &&
+                                    (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)"
+                                    :id="'base_drop_area_' + form.categoryID" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
+                                    class="form-index-listing-ul"
+                                    data-effect-allowed="move"
+                                    @drop.stop="onDrop($event)"
+                                    @dragover.prevent
+                                    @dragenter.prevent="onDragEnter"
+                                    @dragleave="onDragLeave">
 
-                                <form-index-listing v-for="(formSection, i) in focusedFormTree"
-                                    :id="'index_listing_' + formSection.indicatorID"
-                                    :formPage=i
-                                    :depth=0
-                                    :formNode="formSection"
-                                    :index=i
-                                    :parentID=null
-                                    :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : false"
-                                    :key="'index_list_item_' + formSection.indicatorID"
-                                    :draggable="previewMode ? false : true"
-                                    :style="{cursor: previewMode ? 'auto' : 'grab'}"
-                                    @dragstart.stop="startDrag">
-                                </form-index-listing>
-                            </ul>
-                        </li>
+                                    <form-index-listing v-for="(formSection, i) in fullFormTree"
+                                        :id="'index_listing_' + formSection.indicatorID"
+                                        :categoryID="formSection.categoryID"
+                                        :formPage=i
+                                        :depth=0
+                                        :indicatorID="formSection.indicatorID"
+                                        :formNode="formSection"
+                                        :index=i
+                                        :parentID=null
+                                        :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : false"
+                                        :key="'index_list_item_' + formSection.indicatorID"
+                                        :draggable="previewMode ? false : true"
+                                        :style="{cursor: previewMode ? 'auto' : 'grab'}"
+                                        @dragstart.stop="startDrag">
+                                    </form-index-listing>
+                                </ul>
+                            </li>
+                        </template>
                     </ul>
-                    <button type="button" class="btn-general" style="width: 100%;"
+                    <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%;"
                         @click="newQuestion(null)"
                         id="add_new_form_section_1"
                         title="Add new form section">
                         + Add Section
                     </button>
-                    <hr />
+
                     <!-- INTERNAL FORMS -->
-                    <div v-if="!previewMode">
+                    <div>
                         <h3>Internal Forms</h3>
                         <ul v-if="internalFormRecords.length > 0" :id="'internalFormRecords_' + focusedFormID">
                             <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
@@ -802,7 +813,7 @@ export default {
                                 </button>
                             </li>
                         </ul>
-                        <button v-if="focusedFormRecord?.parentID === ''" type="button" class="btn-general"
+                        <button v-if="!previewMode && focusedFormRecord?.parentID === ''" type="button" class="btn-general"
                             id="addInternalUse"
                             @click="openNewFormDialog(focusedFormRecord.categoryID)"
                             title="New Internal-Use Form" >
@@ -813,9 +824,11 @@ export default {
 
                 <!-- FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
-                    <div class="printformblock" :data-update-key="updateKey" :class="{preview: previewMode}">
-                        <form-question-display v-for="(formSection, i) in focusedFormTree"
+                    <div class="printformblock" :data-update-key="updateKey"
+                        :class="{preview: previewMode, initial: focusedFormTree.length === 0}">
+                        <form-question-display v-for="(formSection, i) in fullFormTree"
                             :key="'editing_display_' + formSection.indicatorID + makePreviewKey(formSection)"
+                            :categoryID="formSection.categoryID"
                             :depth="0"
                             :formPage="i"
                             :formNode="formSection"

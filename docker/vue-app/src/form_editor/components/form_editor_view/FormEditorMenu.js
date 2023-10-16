@@ -5,7 +5,6 @@ export default {
         'categories',
         'focusedFormRecord',
         'internalFormRecords',
-        'focusedFormTree',
         'allStapledFormCatIDs',
         'siteSettings',
         'noForm',
@@ -92,26 +91,28 @@ export default {
     template: `<div><nav id="top-menu-nav">
         <!-- FORM EDITOR VIEW MENU -->
         <ul>
-            <li v-if="!noForm">
-                <button type="button" @click="openFormHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history">
-                    View History<span role="img" aria="">🕗</span>
-                </button>
-            </li>
-            <li v-if="!noForm">
-                <button type="button" @click="exportForm" title="export form">
-                    Export Form<span role="img" aria="">💾</span>
-                </button>
-            </li>
-            <li v-if="!noForm">
-                <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form">
-                    Delete this form<span role="img" aria="">❌</span>
-                </button>
-            </li>
-            <li v-if="!allStapledFormCatIDs.includes(mainFormID) && !subformID && focusedFormTree.length > 0">
-                <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
-                    Manage Stapled Forms <span role="img" aria="">📌</span>
-                </button>
-            </li>
+            <template v-if="!noForm">
+                <li>
+                    <button type="button" @click="openFormHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history">
+                        View History<span role="img" aria="">🕗</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" @click="exportForm" title="export form">
+                        Export Form<span role="img" aria="">💾</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form">
+                        Delete this form<span role="img" aria="">❌</span>
+                    </button>
+                </li>
+                <li v-if="!allStapledFormCatIDs.includes(mainFormID) && !subformID">
+                    <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
+                        Manage Stapled Forms <span role="img" aria="">📌</span>
+                    </button>
+                </li>
+            </template>
             <li>
                 <router-link :to="{ name: 'restore' }" class="router-link" >
                     Restore Fields<span role="img" aria="">♻️</span>

@@ -1,14 +1,18 @@
 export default {
     name: 'form-index-listing',
     props: {
+        categoryID: String,
         formPage: Number,
         depth: Number,
+        indicatorID: Number,
         formNode: Object,
         index: Number,
         parentID: Number,
         menuOpen: Boolean
     },
     inject: [
+        'queryID',
+        'focusedFormRecord',
         'truncateText',
         'shortIndicatorNameStripped',
         'clearListItem',
@@ -26,7 +30,10 @@ export default {
     ],
     mounted() {
         //add to listTracker array to track indicatorID, parentID, sort and current index values
-        this.addToListTracker(this.formNode, this.parentID, this.index);
+        //only track in edit mode because preview mode includes staples in the primary form list
+        if(!this.previewMode) {
+            this.addToListTracker(this.formNode, this.parentID, this.index);
+        }
         //maintain focus on an indicator if it has been focused
         if(this.focusedIndicatorID === this.formNode.indicatorID) {
             const elSelected = document.getElementById(`index_listing_${this.focusedIndicatorID}`);
@@ -71,38 +78,38 @@ export default {
         }
     },
     template:`
-        <li tabindex="0" :title="'index item '+ formNode.indicatorID"
+        <li tabindex="0" :title="'index item '+ indicatorID"
             :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
-            @click.stop="focusIndicator(formNode.indicatorID)"
-            @keydown.enter.space.prevent.stop="focusIndicator(formNode.indicatorID)">
+            @click.stop="focusIndicator(indicatorID)"
+            @keydown.enter.space.prevent.stop="focusIndicator(indicatorID)">
 
             <div>
                 <span v-show="!previewMode" role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>
                 {{indexDisplay}}
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !menuOpen}"
-                    @click.stop.exact="changeMenuState(formNode.indicatorID, !menuOpen)"
-                    @click.ctrl.stop.exact="changeMenuState(formNode.indicatorID, !menuOpen, true)"
-                    @keydown.stop.enter.space.exact.prevent="changeMenuState(formNode.indicatorID, !menuOpen)"
-                    @keydown.ctrl.stop.enter.space.exact.prevent="changeMenuState(formNode.indicatorID, !menuOpen, true)"
+                    @click.stop.exact="changeMenuState(indicatorID, !menuOpen)"
+                    @click.ctrl.stop.exact="changeMenuState(indicatorID, !menuOpen, true)"
+                    @keydown.stop.enter.space.exact.prevent="changeMenuState(indicatorID, !menuOpen)"
+                    @keydown.ctrl.stop.enter.space.exact.prevent="changeMenuState(indicatorID, !menuOpen, true)"
                     :title="menuIconTitle">
                     <span v-show="menuOpen" role="img" aria="">▾</span>
                     <span v-show="!menuOpen" role="img" aria="">▸</span>
                 </div>
-                <div v-show="!previewMode && formNode.indicatorID === focusedIndicatorID" class="icon_move_container">
+                <div v-show="!previewMode && indicatorID === focusedIndicatorID" class="icon_move_container">
                     <div tabindex="0" class="icon_move up" role="button" title="move item up"
-                        @click.stop="moveListItem($event, formNode.indicatorID, true)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, formNode.indicatorID, true)">
+                        @click.stop="moveListItem($event, indicatorID, true)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">
                     </div>
                     <div tabindex="0" class="icon_move down" role="button" title="move item down"
-                        @click.stop="moveListItem($event, formNode.indicatorID, false)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, formNode.indicatorID, false)">
+                        @click.stop="moveListItem($event, indicatorID, false)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
                     </div>
                 </div>
             </div>
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
-            <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ formNode.indicatorID"
+            <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ indicatorID"
                 data-effect-allowed="move"
                 @drop.stop="onDrop($event)"
                 @dragover.prevent
@@ -112,9 +119,11 @@ export default {
                 <template v-if="formNode.child">
                     <form-index-listing v-show="menuOpen" v-for="(child, k, i) in formNode.child"
                         :id="'index_listing_' + child.indicatorID"
+                        :categoryID="categoryID"
                         :formPage=formPage
                         :depth="depth + 1"
-                        :parentID="formNode.indicatorID"
+                        :parentID="indicatorID"
+                        :indicatorID="child.indicatorID"
                         :formNode="child"
                         :index="i"
                         :menuOpen="formMenuState?.[child.indicatorID] !== undefined ? formMenuState[child.indicatorID] : false"

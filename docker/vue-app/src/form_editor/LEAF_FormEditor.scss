@@ -578,6 +578,9 @@ table[class$="SelectorTable"] th {
         background-color: white;
         transition: background-color 0.75s ease;
         margin-bottom: 0.75rem;
+        &:last-child {
+            margin-bottom: 0;
+        }
         > div {
             display: flex;
             align-items: center;
@@ -615,14 +618,19 @@ table[class$="SelectorTable"] th {
     }
 
     div.printformblock {
-        overflow-y: scroll;
-        height: 600px;
+        overflow-y: auto;
+        height:auto;
+        min-height: 190px;
+        max-height: 85vh;
         position: relative;
         transition: top 0.2s ease;
         break-inside: avoid;
+        &.initial {
+            height: 190px;
+        }
         &.preview {
             height: auto;
-            overflow-y: auto;
+            max-height: none;
         }
         div.printResponse {
             position: relative;
@@ -636,6 +644,9 @@ table[class$="SelectorTable"] th {
                 border-top: 3px solid $BG_Pearl;
                 border-right: 3px solid darken($BG_Pearl, 8%);
                 border-bottom: 3px solid darken($BG_Pearl, 8%);
+                &:last-child {
+                    margin-bottom: 0;
+                }
             }
             &.preview {
                 border: 0;
@@ -645,9 +656,6 @@ table[class$="SelectorTable"] th {
             }
             &.preview.form-header {
                 border-left: 3px solid $BG_Pearl;
-                &:last-child {
-                    margin-bottom: 0;
-                }
             }
         }
     }
@@ -967,13 +975,12 @@ table[class$="SelectorTable"] th {
                 width: 100%;
                 flex: 0 0 100%;
             }
-            .form_editing_area {
-                .name_and_toolbar.form-header {
-                    font-size: 100%;
-                }
-                .tableinput {
-                    max-width: 400px;
-                }
+            .printformblock {
+                height: auto;
+                max-height: none;
+            }
+            .tableinput {
+                max-width: 400px;
             }
         }
     }

@@ -3,6 +3,7 @@ import FormatPreview from "./FormatPreview";
 export default {
     name: 'form-question-display',
     props: {
+        categoryID: String,
         depth: Number,
         formPage: Number,
         formNode: Object,
@@ -16,6 +17,7 @@ export default {
         'newQuestion',
         'shortIndicatorNameStripped',
         'updateFormMenuState',
+        'focusedFormID',
         'focusIndicator',
         'editQuestion',
         'hasDevConsoleAccess',
@@ -58,9 +60,10 @@ export default {
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const contentSensitive = this.sensitive ? `<span class="required-sensitive">*&nbsp;Sensitive</span>&nbsp;${this.sensitiveImg}` : '';
             const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
+            const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria="">&nbsp;📌</span>` : '';
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
 
-            return `${name}${shortLabel}${contentRequired}${contentSensitive}`;
+            return `${name}${shortLabel}${contentRequired}${contentSensitive}${staple}`;
         },
         printResponseID() {
             return `xhrIndicator_${this.indicatorID}_${this.formNode.series}`;
@@ -90,7 +93,7 @@ export default {
         <div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
             <div class="name_and_toolbar" :class="{'form-header': isHeaderLocation, preview: previewMode}">
                 <!-- NAME -->
-                <div v-html="indicatorName" @click.stop.prevent="handleNameClick(parseInt(indicatorID))"
+                <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
                     class="indicator-name-preview" :id="indicatorID + '_format_label'"
                     :class="{'conditional': conditionalQuestion}">
                 </div>
@@ -135,6 +138,7 @@ export default {
         <!-- NOTE: RECURSIVE SUBQUESTIONS -->
         <template v-if="formNode.child">
             <form-question-display v-for="child in formNode.child"
+                :categoryID="categoryID"
                 :depth="depth + 1"
                 :formPage="formPage"
                 :formNode="child"

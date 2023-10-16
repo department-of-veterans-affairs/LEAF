@@ -509,6 +509,7 @@ class Form
         if (!empty($data)) {
             $idx = $data[0]['indicatorID'];
             $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
+            $form[$idx]['categoryID'] = $data[0]['categoryID'];
             $form[$idx]['series'] = $series;
             $form[$idx]['name'] = $data[0]['name'];
             $form[$idx]['description'] = $data[0]['description'];
