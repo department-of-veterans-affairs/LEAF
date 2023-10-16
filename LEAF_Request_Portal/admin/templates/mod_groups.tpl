@@ -786,6 +786,9 @@ function getGroupList() {
                                                             alert(res);
                                                         }
                                                     },
+                                                    fail: function(err) {
+                                                        console.log(err);
+                                                    },
                                                     cache: false
                                                 });
                                                 dialog.hide();
