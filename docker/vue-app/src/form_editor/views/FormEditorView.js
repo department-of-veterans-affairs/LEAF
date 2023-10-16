@@ -22,7 +22,7 @@ export default {
             adjustingMenu: false,
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
-            listTracker: {},  //{indID:{parID, newParID, sort, listindex,},}. for tracking parID and sort changes
+            listTracker: {},
             allowedConditionChildFormats: [
                 'dropdown',
                 'text',
@@ -38,13 +38,13 @@ export default {
                 'orgchart_position'
             ],
             previewMode: false,
-            sortOffset: 128, //number to subtract from listindex when comparing sort value to curr list index, and when posting new sort value
+            sortOffset: 128, //number to subtract from listindex when comparing or updating sort values
             updateKey: 0,
             appIsLoadingForm: false,
-            focusedFormID: '',
-            focusedFormTree: [], //detailed structure of the form focused in editing mode.  Always a single form.
-            previewTree: [], //detailed structure of primary form and any staples. Used for primary form (url param) preview.
-            focusedIndicatorID: null,
+            focusedFormID: '',   //id of specific primary, staple or internal focused form.
+            focusedFormTree: [], //detailed structure of the focused form.  Always a single form.
+            previewTree: [],     //detailed structure of primary form and any staples.  Only used in preview mode, and only if primary has staples.
+            focusedIndicatorID: null, //used for form index focus management.
             hasCollaborators: false,
             fileManagerTextFiles: []
         }
@@ -102,9 +102,6 @@ export default {
     beforeUnmount() {
         window.removeEventListener("scroll", this.onScroll);
     },
-    updated() {
-        console.log('FE view updated')
-    },
     provide() {
         return {
             listTracker: computed(() => this.listTracker),
@@ -144,8 +141,11 @@ export default {
         queryID() {
             return this.$route.query.formID;
         },
+        noForm() {
+            return !this.appIsLoadingForm && this.focusedFormID === '';
+        },
         /**
-         * @returns {Object} current query (non-internal form) from categories object.
+         * @returns {Object} current query from categories object from url query id.
          */
         currentCategoryQuery() {
             return this.categories[this.queryID] || {};
@@ -154,8 +154,17 @@ export default {
             return this.focusedFormRecord?.parentID === '' ?
                 this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
         },
-        noForm() {
-            return !this.appIsLoadingForm && this.focusedFormID === '';
+        /**
+         * @returns {array} of categories records that are internal forms of the main form
+         */
+        internalFormRecords() {
+            let internalFormRecords = [];
+            for(let c in this.categories) {
+                if (this.categories[c].parentID === this.mainFormID && this.mainFormID !== '') {
+                    internalFormRecords.push({...this.categories[c]});
+                }
+            }
+            return internalFormRecords;
         },
         /**
          * @returns {Object} focused form record from categories object
@@ -176,18 +185,6 @@ export default {
             return isSensitive;
         },
         /**
-         * @returns {array} categories records that are internal forms of the main form
-         */
-        internalFormRecords() {
-            let internalFormRecords = [];
-            for(let c in this.categories) {
-                if (this.categories[c].parentID === this.mainFormID && this.mainFormID !== '') {
-                    internalFormRecords.push({...this.categories[c]});
-                }
-            }
-            return internalFormRecords;
-        },
-        /**
          * @returns {array} of categories records for queried form and any staples
          */
         currentFormCollection() {
@@ -206,6 +203,10 @@ export default {
             }
             return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
         },
+        /**
+         * @returns concatenated string of formIDs associated with the current query.
+         * Used to get the form pages for the preview display for a form if it has staples.
+         */
         formPreviewIDs() {
             let ids = []
             this.currentFormCollection.forEach(form => {
@@ -213,12 +214,21 @@ export default {
             });
             return ids.join();
         },
+        /**
+         * @returns boolean.  Whether to use preview tree or focused tree for the form display.
+         */
         usePreviewTree() {
             return this.focusedFormRecord.stapledFormIDs.length > 0 && this.previewMode && this.focusedFormID === this.queryID;
         },
+        /**
+         * @returns tree to display.  shorthand for template iterator.
+         */
         fullFormTree() {
             return this.usePreviewTree ? this.previewTree : this.focusedFormTree;
         },
+        /**
+         * @returns boolean.  used to watch for index or parentID changes.  triggers sorting update if true
+         */
         sortOrParentChanged() {
             return this.sortValuesToUpdate.length > 0 || this.parentIDsToUpdate.length > 0;
         },
@@ -241,6 +251,9 @@ export default {
             }
             return indsToUpdate;
         },
+        /**
+         * @returns string to display at top of form index.
+         */
         indexHeaderText() {
             let text = '';
             if(this.focusedFormRecord.parentID !== '') {
@@ -252,6 +265,9 @@ export default {
         }
     },
     methods: {
+        /**
+         * updates the position of the edit-mode form in large screen displays
+         */
         onScroll() {
             let elPreview = document.getElementById('form_entry_and_preview');
             const elIndex = document.getElementById('form_index_display');
@@ -308,7 +324,7 @@ export default {
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res) => {
                         if(this.focusedFormID === catID) {
-                            this.updateKey += 1;
+                            this.updateKey += 1; //ensures that the form editor view updates if the form ID does not change
                         }
                         this.focusedFormID = catID || '';
                         this.focusedFormTree = res || [];
@@ -319,7 +335,8 @@ export default {
             }
         },
         /**
-         * Gets detailed information for mult categories.  Used for form preview.
+         * @param {string} primaryID form that has staples attached.
+         * Gets detailed information for multiple categories and sets focus ID after success.
          */
         getPreviewTree(primaryID = '') {
             if (primaryID !== '' && this.formPreviewIDs !== '') {
@@ -327,10 +344,13 @@ export default {
                 this.setDefaultAjaxResponseMessage();
                 try {
                     fetch(`${this.APIroot}form/specified?categoryIDs=${this.formPreviewIDs}`).then(res => {
-                        res.json()
-                        .then(data => {
-                            this.previewTree = data || [];
-                            this.focusedFormID = primaryID;
+                        res.json().then(data => {
+                            if(data?.status?.code === 2) {
+                                this.previewTree = data.data || [];
+                                this.focusedFormID = primaryID;
+                            } else {
+                                console.log(data);
+                            }
                             this.appIsLoadingForm = false;
                         }).catch(err => console.log(err));
                     }).catch(err => console.log(err));
@@ -358,6 +378,9 @@ export default {
                 }
             });
         },
+        /**
+         * get text and csv files from file manager.  Used for dropdown loading.
+         */
         getFileManagerTextFiles() {
             try {
                 fetch(`${this.APIroot}system/files`).then(res => {
@@ -372,6 +395,10 @@ export default {
                console.log(error);
             }
         },
+        /**
+         * get indicator details and then open the advanced options (coding) modal
+         * @param {number} indicatorID
+         */
         editAdvancedOptions(indicatorID = 0) {
             this.getIndicatorByID(indicatorID).then(indicator => {
                 this.openAdvancedOptionsDialog(indicator);
@@ -384,7 +411,7 @@ export default {
             this.openIndicatorEditingDialog(null, parentID, {});
         },
         /**
-         * get information about the indicator and open indicator editing
+         * get information about the indicator and open indicator editing modal
          * @param {number} indicatorID 
          */
         editQuestion(indicatorID = 0) {
@@ -393,6 +420,11 @@ export default {
                 this.openIndicatorEditingDialog(indicatorID, parentID, indicator);
             }).catch(err => console.log('error getting indicator information', err));
         },
+        /**
+         * recursively check for questions marked sensistive.  break on true.
+         * @param {object} node form section
+         * @returns boolean
+         */
         checkSensitive(node = {}) {
             if (parseInt(node.is_sensitive) === 1) {
                 return true;
@@ -409,6 +441,7 @@ export default {
             }
         },
         /**
+         * align index and form questions.  Handle optional jump to edit button.
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          */
         focusIndicator(nodeID = null, focusEdit = false) {
@@ -463,6 +496,9 @@ export default {
                 });
             }
         },
+        /**
+         * switch between edit and preview mode
+         */
         toggleToolbars() {
             this.focusedIndicatorID = null;
             this.previewMode = !this.previewMode;
@@ -643,7 +679,6 @@ export default {
             }
         },
         /**
-         * 
          * @param {Object} event removes the drop zone hilite if target is ul
          */
         onDragLeave(event = {}) {
@@ -660,7 +695,7 @@ export default {
             }
         },
         /**
-         * @param {number} indicatorID changes mode to edit if in preview mode, otherwise opens editor
+         * @param {number} indicatorID changes mode to edit if in preview mode, otherwise opens editor. switch forms if needed.
          */
         handleNameClick(categoryID = '', indicatorID = null) {
             this.focusIndicatorID = indicatorID;
@@ -679,7 +714,7 @@ export default {
         /**
          * @param {string} categoryID 
          * @param {number} len 
-         * @returns 
+         * @returns shortened form name
          */
         shortFormNameStripped(catID = '', len = 21) {
             const form = this.categories[catID] || '';
@@ -690,6 +725,10 @@ export default {
             const name = this.decodeAndStripHTML(text);
             return this.truncateText(name, len).trim() || '[ blank ]';
         },
+        /**
+         * @param {object} node form section
+         * @returns string used to key the format preview.
+         */
         makePreviewKey(node) {
             return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
         },
@@ -758,7 +797,7 @@ export default {
                 <div id="form_index_display">
                     <div class="index_info">
                         <h3>{{ indexHeaderText }}</h3>
-                        <button type="button" v-if="focusedFormTree.length > 0" id="indicator_toolbar_toggle" class="btn-general"
+                        <button type="button" id="indicator_toolbar_toggle" class="btn-general"
                             @click.stop="toggleToolbars()">
                             {{previewMode ? 'Edit this form' : 'Preview this form'}}
                         </button>
@@ -786,7 +825,6 @@ export default {
                                         (parent)
                                     </em>
                                 </button>
-                                <div v-if="form.categoryID === focusedFormRecord.parentID" class="internal_notice">Internal Form</div>
                                 <!-- DRAG-DROP ZONE -->
                                 <ul v-if="focusedFormTree.length > 0 &&
                                     (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)"

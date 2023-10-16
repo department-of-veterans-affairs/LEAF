@@ -100,7 +100,7 @@ export default {
         this.getEnabledCategories();
     },
     methods: {
-        truncateText(str='', maxlength = 40, overflow = '...') {
+        truncateText(str = '', maxlength = 40, overflow = '...') {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
         },
         /**
@@ -112,6 +112,9 @@ export default {
             elDiv.innerHTML = content;
             return XSSHelpers.stripAllTags(elDiv.innerText);
         },
+        /**
+         * @param {string} elementID of targetted DOM element.  Briefly display last updated message
+         */
         showLastUpdate(elementID = '') {
             const lastUpdated = new Date().toLocaleString();
             const el = document.getElementById(elementID);
@@ -125,8 +128,7 @@ export default {
             }
         },
         /**
-         * Sends background call to get more immediate feedback during navigation about login or token status,
-         * since the response from the index.php case is only returned on initial load.
+         * Sends background call to get feedback during navigation about login or token status.
          */
         setDefaultAjaxResponseMessage() {
             $.ajax({
@@ -141,6 +143,14 @@ export default {
                 error: (err) => reject(err)
             });
         },
+        /**
+         * Initializes and mounts an orgchart selector widget of the specified type and calls optional callback methods
+         * @param {string} selType type of orgchart selector (employee, group or position)
+         * @param {number|string} indID unique id identifier (used in FE for indicator preview)
+         * @param {string} idPrefix optional additional DOM id identifier
+         * @param {string} initialValue optional initial value for selector
+         * @param {function} selectorCallback optional method to call once orgchart selection is filled
+         */
         initializeOrgSelector(
             selType = 'employee',
             indID = 0,
@@ -218,7 +228,6 @@ export default {
             }
         },
         /**
-         * 
          * @param {boolean} searchResolved 
          * @returns {Object} of LEAF Secure Certification requests
          */
@@ -315,6 +324,12 @@ export default {
                 this.categories[catID][keyName] = keyValue;
             }
         },
+        /**
+         * Update the menu state of the form editor preview
+         * @param {number} indID indicatorID to set state for
+         * @param {boolean} menuOpen open or close the menu
+         * @param {boolean} cascade open or close all submenus
+         */
         updateFormMenuState(indID = 0, menuOpen = true, cascade = false) {
             this.formMenuState[indID] = menuOpen;
             if(cascade === true) {
@@ -326,7 +341,7 @@ export default {
             }
         },
         /**
-         * updates app array allStapledFormCatIDs and stapledFormIds of categories object
+         * updates app array allStapledFormCatIDs (when possible) and stapledFormIds for specified categories object
          * @param {string} catID id of the form having a staple added or removed
          * @param {string} stapledCatID id of the form being merged/unmerged
          * @param {boolean} removeStaple indicates whether staple is being added or removed
@@ -334,7 +349,6 @@ export default {
         updateStapledFormsInfo(catID = '', stapledCatID = '', removeStaple = false) {
             const formID = catID;
             if(removeStaple === true) {
-                this.allStapledFormCatIDs = this.allStapledFormCatIDs.filter(id => id !== stapledCatID);
                 this.categories[formID].stapledFormIDs = this.categories[formID].stapledFormIDs.filter(id => id !== stapledCatID);
             } else {
                 this.allStapledFormCatIDs = Array.from(new Set([...this.allStapledFormCatIDs, stapledCatID]));
@@ -350,7 +364,7 @@ export default {
             this.categories[catID] = record;
         },
         /**
-         * removed an entry from the app's categories object when a form is deleted
+         * removes an entry from the app's categories object when a form is deleted
          * @param {string} catID 
          */
         removeCategory(catID = '') {
@@ -373,20 +387,21 @@ export default {
             this.dialogTitle = htmlContent;
         },
         /**
-         * sets the component for the dialog modal's main content. Components must be registered to the view using them
+         * sets the component for the dialog modal's main content. Components must be registered to the view using them.
          * @param {string} component name as string, eg 'confirm-delete-dialog'
          */
         setFormDialogComponent(component = '') {
             this.dialogFormContent = component;
         },
+        /** used by dialog content component on creation to set the modal save method */
         setDialogSaveFunction(func = '') {
             if (typeof func === 'function') {
                 this.formSaveFunction = func;
             }
         },
         /**
-         * dialogs using dialogData can use this method on create to check that expected keys are present
-         * @param {Array} requiredDataProperties data property on the dialog component
+         * dialogs using dialogData can call this on create to check that expected keys are present
+         * @param {Array} requiredDataProperties of properties to check for.
          */
         checkRequiredData(requiredDataProperties = []) {
             let notFound = [];
@@ -429,9 +444,9 @@ export default {
         },
         /**
          * Opens the dialog for editing a question, or creating a new form section or subquestion
-         * @param {number|null} indicatorID 
-         * @param {number|null} parentID
-         * @param {object} indicator 
+         * @param {number|null} indicatorID null for new questions.  Number for edited questions.
+         * @param {number|null} parentID null for new sections. Number for edited questions or new subquestions.
+         * @param {object} indicator details for edited question.  empty for new questions.
          */
         openIndicatorEditingDialog(indicatorID = null, parentID = null, indicator = {}) {
             let title = ''

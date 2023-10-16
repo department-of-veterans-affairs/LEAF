@@ -447,7 +447,7 @@ export default {
                             sort: this.newQuestionSortValue,
                             CSRFToken: this.CSRFToken
                         },
-                        success: (res) => { console.log(res) },
+                        success: (res) => {},
                         error: err => console.log('error posting new question', err)
                     })
                 );

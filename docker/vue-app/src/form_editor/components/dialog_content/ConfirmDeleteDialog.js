@@ -4,6 +4,7 @@ export default {
         'APIroot',
         'CSRFToken',
         'setDialogSaveFunction',
+        'decodeAndStripHTML',
         'focusedFormRecord',
         'getFormByCategoryID',
         'removeCategory',
@@ -15,13 +16,13 @@ export default {
     computed: {
         /**
          * uses LEAF XSSHelpers.js
-         * @returns {string} category name / description with all tages stripped
+         * @returns {string} category name / description with potential tags stripped
          */
         formName() {
-            return XSSHelpers.stripAllTags(this.focusedFormRecord.categoryName);
+            return XSSHelpers.stripAllTags(this.decodeAndStripHTML(this.focusedFormRecord.categoryName));
         },
         formDescription() {
-            return XSSHelpers.stripAllTags(this.focusedFormRecord.categoryDescription);
+            return XSSHelpers.stripAllTags(this.decodeAndStripHTML(this.focusedFormRecord.categoryDescription));
         },
         currentStapleIDs() {
             return this.focusedFormRecord?.stapledFormIDs || [];
