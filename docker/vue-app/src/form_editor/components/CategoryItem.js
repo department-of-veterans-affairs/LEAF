@@ -17,9 +17,6 @@ export default {
         workflowID() {
             return parseInt(this.categoriesRecord.workflowID);
         },
-        cardLibraryClasses() {  //NOTE:? often null (LIVE).  called when smarty referFormLibraryID != ''
-            return `formPreview formLibraryID_${this.categoriesRecord.formLibraryID}`
-        },
         catID() {
             return this.categoriesRecord.categoryID;
         },
@@ -30,7 +27,7 @@ export default {
             return stapledForms;
         },
         isStapledToOtherForm() {
-            return this.allStapledFormCatIDs.includes(this.categoriesRecord.categoryID);
+            return this.allStapledFormCatIDs.includes(this.catID);
         },
         /**
          * @returns {string} form name / description
@@ -92,7 +89,7 @@ export default {
             <td class="formPreviewDescription">{{ formDescription }}</td>
             <td v-if="availability !== 'supplemental'">{{ workflowDescription }}</td>
             <td v-else>
-                <div v-if="allStapledFormCatIDs.includes(catID)" style="display: flex; justify-content: center;">
+                <div v-if="isStapledToOtherForm" style="display: flex; justify-content: center;">
                     <span role="img" aria="">📑</span>&nbsp;Stapled
                 </div>
             </td>
