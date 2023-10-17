@@ -356,23 +356,21 @@ table[class$="SelectorTable"] th {
         color: black;
     }
     /* lists for main and stapled forms   */
-    ul[id^="layoutFormRecords_"] button {
+    ul[id^="layoutFormRecords_"] button.layout-listitem {
         padding: 0.25rem;
         display: flex;
         justify-content: flex-start;
         width: 100%;
         height: 100%;
-        border: 2px solid transparent;
+        border: 0;
+        background-clip: padding-box;
         overflow: hidden;
-        max-height: 50px;
-        
+        max-height: 46px;
         &:not(:disabled) {
             color: $charcoal;
         }
         &:not(:disabled):hover, &:not(:disabled):focus, &:not(:disabled):active {
             background-color: $lt_cyan;
-            border: 2px solid $LEAF_CSS_outline;
-            outline: none;
         }
         &:disabled:hover, &:disabled:focus, &:disabled:active {
             background-color: $lt_cyan;
@@ -380,23 +378,23 @@ table[class$="SelectorTable"] th {
             outline: none
         }
         &.layout-listitem {
-            min-height: 50px;
+            min-height: 46px;
             border-radius: 0;
-            padding: 0.5rem;
+            padding: 0 0.5rem;
         }
         &.layout-listitem:disabled { /* the currently selected form */
             color: $base_navy;
-            border: 2px solid $LEAF_CSS_outline;
         }
     }
     /* li contain the drag-drop zone of selected form */
     ul[id^="layoutFormRecords_"] > li  {
-        min-height: 50px;
+        min-height: 46px;
         margin-bottom: 0.5rem;
-        border: 2px solid transparent;
+        border: 2px solid #f0f0f0;
+        border-radius: 2px;
         &.selected {
-            border: 2px solid $lt_cyan;
-            button {
+            border: 2px solid $LEAF_CSS_outline;
+            button.layout-listitem {
                 background-color: $lt_cyan;
             }
         }
@@ -405,16 +403,13 @@ table[class$="SelectorTable"] th {
     ul[id^="base_drop_area"] {
         position: relative;
         background-color: white;
-        margin-top: 0.5rem;
-        padding: 0 0 6px 0;
-        border-top: 1px solid #d0d0d4;
+        padding: 1px 0 2px 0; //top and bottom padding needed for drop area
         &.entered-drop-zone, ul.entered-drop-zone {
             background-color: #e8ebf0;
         }
         ul[id^="drop_area_parent_"] {
             position: relative;
         }
-
         li.section_heading {
             font-weight: bolder;
             color: $base_navy;
@@ -428,32 +423,39 @@ table[class$="SelectorTable"] th {
         } 
         ul.form-index-listing-ul {
             margin: 0;
-            padding: 0 0 4px 0; /* btm padding needed for drop zones */
             padding-left: 0.75em;
             display: flex;
-            flex-direction: column; 
-            min-height: 6px;  /*NOTE: min height needed for drop zones*/
+            flex-direction: column;
+            background-clip: content-box;
+            min-height: 8px;  /*NOTE: min height needed for drop zones*/
         }
         li {
             position: relative;
             cursor: grab;
-            margin: 0.2em 0; /* there needs to be a margin to hilite the current drop zone */
+            margin: 1px 0; /* there needs to be a margin to hilite the drop zone.  size doesn't matter */
             border-radius: 2px;
-            outline: none !important;
         }
-        li > div {
+        li > button {
+            font-weight: inherit;
+            cursor: inherit;
+            color: inherit;
             display: flex;
             align-items: center;
-            width: 100%; 
+            justify-content: flex-start;
             height: 40px;
-            border-bottom: 1px solid #d0d0d4;
-            padding-bottom: 0.9em;
+            border: 0;
+            border: 1px solid $BG_Pearl;
+            border-bottom: 1px solid darken($BG_Pearl, 8%);
+            border-right: 1px solid darken($BG_Pearl, 8%);
+            background-color: white;
+            margin: 0 6px;
+            width: calc(100% - 12px);
+            padding: 0 0.25rem;
             .icon_move_container {
                 @include flexcenter;
                 flex-direction: column;
                 margin-left: auto;
-                margin-right: 0.2em;
-                padding-top:0.25em;
+                margin-right: 0.2rem;
                 .icon_move {
                     @include flexcenter;
                     cursor: pointer;
@@ -495,28 +497,30 @@ table[class$="SelectorTable"] th {
         li:first-child {
             margin-top: 0.75rem;
         }
-        li:last-child {
-            margin-bottom: 0;
+    }
+    /* preview mode */
+    ul[id^="layoutFormRecords_"].preview {
+        > li.selected {
+            border: 0;
         }
-        li.index-selected::before, li:focus::before {
-            position: absolute;
-            top: -0.2em;
-            left: -0.5em;
-            content: '';
-            width: 3px;
-            height: calc(100% - 0.6em);
-            border-radius: 60% / 3px;
-            background-color: $base_navy;
+        ul[id^="base_drop_area"] {
+            li {
+                margin: 0;
+                cursor: auto;
+                ul.form-index-listing-ul {
+                    min-height: 0;
+                }
+                button {
+                    width: 100%;
+                    padding: 0 0.5rem;
+                    border: 0;
+                    border-bottom:  1px solid $BG_Pearl;
+                    margin: 1px 0;
+                }
+            }
         }
     }
 
-    hr {
-        margin: 1.25rem auto 0.5rem auto;
-        width: 80%;
-        border: none;
-        border-top: 3px solid #f0f0f0;
-        color: #f0f0f0;
-    }
     /* lists for internal forms */
     ul[id^="internalFormRecords_"] > li  {
         &:not(:last-child) {

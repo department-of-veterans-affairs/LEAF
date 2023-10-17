@@ -78,15 +78,13 @@ export default {
         }
     },
     template:`
-        <li tabindex="0" :title="'index item '+ indicatorID"
+        <li :title="'index item '+ indicatorID + '. Ctrl-click to nav to edit.'"
             :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
-            @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff"
-            @click.stop="focusIndicator(indicatorID)"
-            @click.ctrl.stop.exact="focusIndicator(indicatorID, true)"
-            @keydown.enter.space.prevent.stop="focusIndicator(indicatorID)"
-            @keydown.ctrl.stop.enter.space.exact.prevent="focusIndicator(indicatorID, true)">
+            @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff">
 
-            <div>
+            <button type="button" :id="'btn_index_indicator_' + indicatorID"
+                @click.stop="focusIndicator(indicatorID)"
+                @click.ctrl.stop.exact="focusIndicator(indicatorID, true)">
                 <span v-show="!previewMode" role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>
                 {{indexDisplay}}
                 <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !menuOpen}"
@@ -108,7 +106,7 @@ export default {
                         @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
                     </div>
                 </div>
-            </div>
+            </button>
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
             <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ indicatorID"

@@ -106,8 +106,9 @@ export default {
                         <button type="button"
                             :id="'edit_indicator_' + indicatorID"
                             class="btn-general"
-                            @click="editQuestion(parseInt(indicatorID))"
-                            :title="'edit indicator ' + indicatorID">
+                            @click.exact="editQuestion(parseInt(indicatorID))"
+                            @click.ctrl.stop.exact="focusIndicator(indicatorID, false, true)"
+                            :title="'edit indicator ' + indicatorID + '. Control-click to nav to form index.'">
                             {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
                         <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"

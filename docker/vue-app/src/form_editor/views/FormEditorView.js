@@ -19,7 +19,6 @@ export default {
     name: 'form-editor-view',
     data()  {
         return {
-            adjustingMenu: false,
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listTracker: {},
@@ -441,60 +440,60 @@ export default {
             }
         },
         /**
-         * align index and form questions.  Handle optional jump to edit button.
+         * align index and form questions and optionally handle jump to/from index/edit button.
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          */
-        focusIndicator(nodeID = null, focusEdit = false) {
+        focusIndicator(nodeID = null, focusEdit = false, focusIndex = false) {
             this.focusedIndicatorID = nodeID;
-            this.alignListAndForm(nodeID);
-            if(Number.isInteger(nodeID) && focusEdit === true) {
-                const elEdit = document.getElementById(`edit_indicator_${nodeID}`);
-                if(elEdit !== null) {
-                    elEdit.focus();
+            if(Number.isInteger(nodeID) && (focusEdit === true || focusIndex === true)) {
+                if(focusEdit === true) {
+                    const elEdit = document.getElementById(`edit_indicator_${nodeID}`);
+                    if(elEdit !== null) {
+                        elEdit.focus();
+                    }
+                } else {
+                    const elIndex = document.getElementById(`btn_index_indicator_${nodeID}`);
+                    if(elIndex !== null) {
+                        elIndex.focus();
+                    }
                 }
             }
+            this.alignListAndForm(nodeID);
         },
         /** used to sync position of index list item and form preview question name */
-        alignListAndForm(nodeID = 0, overrideTimer = false) {
-            if(!this.adjustingMenu || overrideTimer) {
-                setTimeout(() => { //clear stack
-                    const pad = 12;
-                    const elListItem = document.getElementById(`index_listing_${nodeID}`);
-                    const elFormatLabel = document.getElementById(`${nodeID}_format_label`);
-                    const elFormCard = document.getElementById(`form_card_${nodeID}`);
-                    let elPreview = document.getElementById(`form_entry_and_preview`);
-                    let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
-                    if(elPreview !== null && elBlock !== null) {
-                        this.adjustingMenu = true;
-
-                        if (window.innerWidth < 600) { //small screen mode just resizes
-                            elBlock.style.top = '0px';
+        alignListAndForm(nodeID = 0) {
+            setTimeout(() => { //clear stack
+                const pad = 12;
+                const elListItem = document.getElementById(`index_listing_${nodeID}`);
+                const elFormatLabel = document.getElementById(`${nodeID}_format_label`);
+                const elFormCard = document.getElementById(`form_card_${nodeID}`);
+                let elPreview = document.getElementById(`form_entry_and_preview`);
+                let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
+                if(elPreview !== null && elBlock !== null) {
+                    if (window.innerWidth < 600) { //small screen mode just resizes
+                        elBlock.style.top = '0px';
+                    } else {
+                        const scrollTop = elBlock.scrollTop;
+                        let diff = 0;
+                        if(elListItem !== null && elFormatLabel !== null) {     //details are open
+                            diff = elListItem.getBoundingClientRect().top - elFormatLabel.getBoundingClientRect().top;
+                        } else if (elListItem !== null && elFormCard !== null) { //details are closed (card view)
+                            diff = elListItem.getBoundingClientRect().top - elFormCard.getBoundingClientRect().top;
                         } else {
-                            const scrollTop = elBlock.scrollTop;
-                            let diff = 0;
-                            if(elListItem !== null && elFormatLabel !== null) {     //details are open
-                                diff = elListItem.getBoundingClientRect().top - elFormatLabel.getBoundingClientRect().top;
-                            } else if (elListItem !== null && elFormCard !== null) { //details are closed (card view)
-                                diff = elListItem.getBoundingClientRect().top - elFormCard.getBoundingClientRect().top;
-                            } else {
-                                diff = pad; //there is no list item on initial load, changed forms
-                            }
-                            elBlock.scrollTop = Math.round(scrollTop - diff) + pad;
-
-                            let tar = elFormatLabel || elFormCard;
-                            if(tar !== null) {
-                                tar.style.backgroundColor = '#feffd1';
-                                setTimeout(() => {
-                                    tar.style.backgroundColor = tar.classList.contains('conditional') ? '#eaeaf4' : '#ffffff';
-                                }, 500);
-                            }
+                            diff = pad; //there is no list item on initial load, changed forms
                         }
-                        setTimeout(() => { //limit calls unless explicitly overridden
-                            this.adjustingMenu = false;
-                        }, 200);
+                        elBlock.scrollTop = Math.round(scrollTop - diff) + pad;
+
+                        let tar = elFormatLabel || elFormCard;
+                        if(tar !== null) {
+                            tar.style.backgroundColor = '#feffd1';
+                            setTimeout(() => {
+                                tar.style.backgroundColor = tar.classList.contains('conditional') ? '#eaeaf4' : '#ffffff';
+                            }, 1000);
+                        }
                     }
-                });
-            }
+                }
+            });
         },
         /**
          * switch between edit and preview mode
@@ -704,6 +703,10 @@ export default {
                 //previews show staples, so check if the form needs to change to the staple
                 if(categoryID !== this.focusedFormID) {
                     this.getFormByCategoryID(categoryID, true);
+                } else {
+                    setTimeout(() => { //clear stack because mode switch changes the index height
+                        this.focusIndicator(indicatorID, false, true);
+                    });
                 }
             } else {
                 if(indicatorID) {
@@ -803,7 +806,7 @@ export default {
                         </button>
                     </div>
                     <!-- LAYOUTS (including stapled forms) -->
-                    <ul v-if="currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID">
+                    <ul v-if="currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID" :class="{preview: previewMode}">
                         <template v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID">
                             <li v-show="!previewMode || (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)" 
                                 draggable="false" :class="{selected: form.categoryID === focusedFormID}">
