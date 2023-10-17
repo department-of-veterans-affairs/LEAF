@@ -755,6 +755,9 @@ function getGroupList() {
                                                             });
                                                         }
                                                     },
+                                                    fail: function(err) {
+                                                        console.log(err);
+                                                    },
                                                     cache: false
                                                 });
                                             }
