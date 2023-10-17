@@ -2353,9 +2353,9 @@ class Form
      * @param array $recordID_list
      * @param array $indicatorID_list
      * @param bool (optional) $alreadyCheckedReadAccess
-     * @return array on success | false on malformed input
+     * @return array on success | boolean false on malformed input
      */
-    public function getCustomData(array $recordID_list, string|null $indicatorID_list, bool $alreadyCheckedReadAccess = false)
+    public function getCustomData(array $recordID_list, string|null $indicatorID_list, bool $alreadyCheckedReadAccess = false): array|bool
     {
         if (count($recordID_list) == 0) {
             return $recordID_list;
@@ -2842,7 +2842,15 @@ class Form
         return 1;
     }
 
-    public function query($inQuery)
+    /**
+     * query parses a JSON formatted user query defined in formQuery.js.
+     * 
+     * Returns an array on success, and string/int for malformed queries
+     * 
+     * @param string JSON formatted string of the query
+     * @return mixed
+     */
+    public function query(string $inQuery): mixed
     {
         $query = json_decode(html_entity_decode(html_entity_decode($inQuery)), true);
         if ($query == null)
@@ -3680,7 +3688,7 @@ class Form
                 $indicatorIDs .= $indicatorID . ',';
             }
 
-            return $this->getCustomData($data, $indicatorIDs, $alreadyCheckedReadAccess);
+            $data = $this->getCustomData($data, $indicatorIDs, $alreadyCheckedReadAccess);
         }
 
         return $data;
