@@ -1990,11 +1990,23 @@ class Form
         return $accessList;
     }
 
-    public function getEmpUID($userName){
+    /**
+     * getEmpUID translates a userName to empUID
+     *
+     * @param string $userName
+     * @return int
+     */
+    public function getEmpUID($userName): int
+    {
+        if(isset($this->cache['getEmpUID_'. $userName])) {
+            return $this->cache['getEmpUID_'. $userName];
+        }
         $nexusDB = $this->login->getNexusDB();
         $vars = array(':userName' => $userName);
-        $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
-        return $response[0]["empUID"];
+        $response = $nexusDB->prepared_query('SELECT empUID FROM employee WHERE userName =:userName', $vars);
+        $this->cache['getEmpUID_'. $userName] = (int)$response[0]["empUID"];
+
+        return $this->cache['getEmpUID_'. $userName];
     }
 
     /**
@@ -2025,7 +2037,7 @@ class Form
             $this->cache['checkIfBackup'][$row['empUID']] = true;
         }
 
-        return isset($this->cache['checkEmployeeAccess'][$empUID]);
+        return isset($this->cache['checkIfBackup'][$empUID]);
     }
 
     /**
@@ -2170,7 +2182,7 @@ class Form
                         }
 
                         // backup of the request initiator
-                        if($temp[$dep['recordID']] == 0 && $this->checkIfBackup($dep['userID'])) {
+                        if($temp[$dep['recordID']] == 0 && $this->checkIfBackup($this->getEmpUID($dep['userID']))) {
                             $temp[$dep['recordID']] = 1;
                         }
 
