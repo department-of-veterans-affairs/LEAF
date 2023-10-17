@@ -89,8 +89,8 @@ div.specialties {
 
 <div id="coaches"></div>
 
-<script src="../libs/jsapi/portal/model/FormQuery.js" type="text/javascript"></script>
-<script src="../libs/jsapi/portal/LEAFPortalAPI.js" type="text/javascript"></script>
+<script src="<!--{$app_js_path}-->/portal/model/FormQuery.js" type="text/javascript"></script>
+<script src="<!--{$app_js_path}-->/portal/LEAFPortalAPI.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 /**

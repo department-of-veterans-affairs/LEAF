@@ -3,6 +3,7 @@
 use App\Leaf\XSSHelpers;
 
 require_once getenv('APP_LIBS_PATH') . '/globals.php';
+require_once getenv('APP_LIBS_PATH') . '/globals_plus.php';
 include_once getenv('APP_PATH') . '/Leaf/XSSHelpers.php';
 require_once getenv('APP_LIBS_PATH') . '/qrcode/qrlib.php';
 $cacheDir = 'cache/';
