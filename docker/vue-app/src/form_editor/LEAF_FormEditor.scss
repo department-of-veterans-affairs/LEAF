@@ -326,8 +326,8 @@ table[class$="SelectorTable"] th {
 #form_index_display {
     position: relative;
     padding: 0.75rem;
-    width: 400px;
-    flex: 0 0 400px;
+    width: 420px;
+    flex: 0 0 420px;
     align-self:flex-start;
     background-color: white;
     border-radius: 4px;
@@ -431,8 +431,7 @@ table[class$="SelectorTable"] th {
         }
         li {
             position: relative;
-            cursor: grab;
-            margin: 1px 0; /* there needs to be a margin to hilite the drop zone.  size doesn't matter */
+            margin: 3px 0; /* there needs to be a margin to hilite the drop zone. */
             border-radius: 2px;
         }
         li > button {

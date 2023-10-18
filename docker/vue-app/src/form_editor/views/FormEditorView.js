@@ -274,7 +274,7 @@ export default {
                 const indexBoundTop = elIndex.getBoundingClientRect().top;
                 const boundTop = elPreview.getBoundingClientRect().top;
                 const currTop = (elPreview.style.top || '0').replace('px', '');
-                if (this.previewMode || this.appIsLoadingForm || window.innerWidth < 600 || (+currTop === 0 && boundTop > 0)) {
+                if (this.previewMode || this.appIsLoadingForm || window.innerWidth <= 600 || (+currTop === 0 && boundTop > 0)) {
                     elPreview.style.top = 0;
                 } else {
                     const newTop = Math.round(-indexBoundTop);
@@ -470,7 +470,7 @@ export default {
                 let elPreview = document.getElementById(`form_entry_and_preview`);
                 let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
                 if(elPreview !== null && elBlock !== null) {
-                    if (window.innerWidth < 600) { //small screen mode just resizes
+                    if (window.innerWidth <= 600) { //small screen just set 0
                         elBlock.style.top = '0px';
                     } else {
                         const scrollTop = elBlock.scrollTop;

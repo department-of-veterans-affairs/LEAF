@@ -61,7 +61,7 @@ export default {
         indexDisplay() {
             //short label (description), otherwise display the name. Show 'blank' if it has neither
             let display = this.formNode.description || this.formNode.name || '[ blank ]';
-            return `${this.shortIndicatorNameStripped(display, 38 - this.depth)}`;
+            return `${this.shortIndicatorNameStripped(display, Math.max(16, 38 - Math.round(1.33*this.depth)))}`;
         },
         menuIconTitle() {
             const option = this.menuOpen ? 'close' : 'open';
