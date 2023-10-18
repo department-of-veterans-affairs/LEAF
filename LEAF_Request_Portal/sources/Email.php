@@ -13,7 +13,6 @@ namespace Portal;
 
 use App\Leaf\XSSHelpers;
 use App\Leaf\Db;
-use Error;
 
 class Email
 {
@@ -618,8 +617,7 @@ class Email
                     break;
             }
 
-            // $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
-            $formattedFields[$field['indicatorID']] = strtolower($field["format"]);
+            $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
         }
 
         return $formattedFields;
@@ -657,12 +655,11 @@ class Email
     private function buildMultiselect(array $data): string
     {
         // filter out non-selected selections
-        // $data = array_filter($data, function($x) { return $x !== "no"; });
+        $data = array_filter($data, function($x) { return $x !== "no"; });
         // comma separate to be readable in email
-        $formattedData = " - " . implode("\n - ", $data);
+        $formattedData = implode(",", $data);
 
-        // return implode(',', $data);
-        return 'test';
+        return $formattedData;
     }
 
     private function buildFileLink(string $data, string $id, string $series): string
