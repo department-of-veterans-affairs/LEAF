@@ -335,7 +335,7 @@ function removeMember(groupID, userID) {
         type: 'POST',
         url: "../api/group/" + groupID + "/members/_" + userID,
         data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-        fail: function(err) {
+        error: function(err) {
             console.log(err);
         },
         cache: false
@@ -360,7 +360,7 @@ function pruneMember(groupID, userID) {
         type: 'POST',
         url: "../api/group/" + groupID + "/members/_" + userID + "/prune",
         data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-        fail: function(err) {
+        error: function(err) {
             console.log(err);
         },
         cache: false
@@ -372,7 +372,7 @@ function reactivateMember(groupID, userID) {
         type: 'POST',
         url: "../api/group/" + groupID + "/members/_" + userID + "/reactivate",
         data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-        fail: function(err) {
+        error: function(err) {
             console.log(err);
         },
         cache: false
@@ -387,7 +387,7 @@ function addNexusMember(groupID, empUID) {
             CSRFToken: '<!--{$CSRFToken}-->',
             empUID: empUID
         },
-        fail: function(err) {
+        error: function(err) {
             console.log(err);
         },
         cache: false
@@ -755,7 +755,7 @@ function getGroupList() {
                                                             });
                                                         }
                                                     },
-                                                    fail: function(err) {
+                                                    error: function(err) {
                                                         console.log(err);
                                                     },
                                                     cache: false
@@ -789,7 +789,7 @@ function getGroupList() {
                                                             alert(res);
                                                         }
                                                     },
-                                                    fail: function(err) {
+                                                    error: function(err) {
                                                         console.log(err);
                                                     },
                                                     cache: false
