@@ -1498,8 +1498,8 @@ class FormWorkflow
                     break;
                 case (str_starts_with($format, "checkboxes") != false):
                 case (str_starts_with($format, "multiselect") != false):
-                    if ($this->isJsonString($data) && is_array(json_decode($data))) {
-                        $data = $this->buildMultiselect(json_decode($data));
+                    if ($this->isJsonString($data) && is_array(unserialize($data))) {
+                        $data = $this->buildMultiselect(unserialize($data));
                     }
                     break;
                 case (str_starts_with($format, "radio") != false):
