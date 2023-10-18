@@ -1,8 +1,16 @@
 <?php
+session_start();
+
+$_SESSION['CSRFToken'] = isset($_SESSION['CSRFToken']) ? $_SESSION['CSRFToken'] : bin2hex(random_bytes(32));
+
 use App\Leaf\Db;
+use App\Leaf\GlobalSession;
 use App\Leaf\Psr4AutoloaderClass;
 use App\Leaf\Setting;
+use App\Leaf\Site;
 use App\Leaf\Logger\DataActionLogger;
+use App\Leaf\Model\GlobalSession as ModelGlobalSession;
+use App\Leaf\Model\Site as ModelSite;
 
 $curr_dir = '/var/www/html';
 $app_dir = '/var/www/html/app';
@@ -14,13 +22,20 @@ require_once $app_dir . '/libs/smarty/bootstrap.php';
 $loader = new Psr4AutoloaderClass;
 $loader->register();
 
+$loader->addNamespace('App\Api\v1', $app_dir . '/Api/v1');
+$loader->addNamespace('App\Api\v1\Routes', $app_dir . '/Api/v1/Routes');
 $loader->addNamespace('App\Leaf', $app_dir . '/Leaf');
 $loader->addNamespace('App\Leaf\Logger', $app_dir . '/Leaf/Logger');
 $loader->addNamespace('App\Leaf\Logger\Formatters', $app_dir . '/Leaf/Logger/Formatters');
+$loader->addNamespace('App\Nexus\Controllers', $app_dir . '/Nexs/Controllers');
+$loader->addNamespace('App\Nexus\Model', $app_dir . '/Nexus/Model');
 
 $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+$modelSite = new ModelSite($file_paths_db);
+$model_global_sessions = new ModelGlobalSession($file_paths_db);
+$global_sessions = new GlobalSession($model_global_sessions);
 
-$site = new App\Leaf\Site($file_paths_db, $_SERVER['SCRIPT_FILENAME']);
+$site = new Site($modelSite, $global_sessions, $_SERVER['SCRIPT_FILENAME'], $_SESSION['CSRFToken']);
 
 if ($site->error) {
     throw new Exception("Sorry the page you are looking for could not be found, please check the url and try again.");
@@ -95,7 +110,7 @@ $oc_settings = $oc_setting_up->getSettings();
 $oc_config = new Orgchart\Config($site_paths, $oc_settings);
 if (!defined('ORGCHART_CONFIG')) define('ORGCHART_CONFIG', $oc_config);
 
-ini_set('session.gc_maxlifetime', 2592000);
+//ini_set('session.gc_maxlifetime', 2592000);
 
 // Sanitize all $_GET input
 if (count($_GET) > 0) {

@@ -1,6 +1,6 @@
 
 <?php
-
+session_start();
 /*
     This file is needed because there are instances where one of the defined global variables is needed but the
     autoloader isn't loaded on that particular page. So this will be loaded on those pages only.
@@ -13,12 +13,23 @@
     I decided it best to put this into a class and have the class deal with it to keep this file clean
 */
 
+use App\Leaf\GlobalSession;
+use App\Leaf\Model\GlobalSession as ModelGlobalSession;
+use App\Leaf\Model\Site as ModelSite;
+use App\Leaf\Site;
+
 require_once getenv('APP_PATH') . '/Leaf/Db.php';
 require_once getenv('APP_PATH') . '/Leaf/Site.php';
+require_once getenv('APP_PATH') . '/Leaf/Model/Site.php';
+require_once getenv('APP_PATH') . '/Leaf/GlobalSession.php';
+require_once getenv('APP_PATH') . '/Leaf/Model/GlobalSession.php';
 
 $file_paths_db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+$modelSite = new ModelSite($file_paths_db);
+$model_global_sessions = new ModelGlobalSession($file_paths_db);
+$global_sessions = new GlobalSession($model_global_sessions);
 
-$site = new App\Leaf\Site($file_paths_db, $_SERVER['SCRIPT_FILENAME']);
+$site = new Site($modelSite, $global_sessions, $_SERVER['SCRIPT_FILENAME'], $_SESSION['CSRFToken']);
 
 if ($site->error) {
     throw new Exception("Sorry the page you are looking for could not be found, please check the url and try again.");

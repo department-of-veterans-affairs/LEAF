@@ -17,7 +17,7 @@ class GlobalSession
     {
         $vars = array(':session' => $csrf);
         $sql = 'SELECT `csrf`, `session`, `established`
-                FROM `sessions`
+                FROM `global_sessions`
                 WHERE `csrf` = :session';
 
         $return_value = $this->db->pdo_select_query($sql, $vars);
@@ -27,13 +27,13 @@ class GlobalSession
 
     public function postSession(string $csrf, string $session): void
     {
-        $vars = array(':session' => $csrf,
+        $vars = array(':csrf' => $csrf,
                     ':variables' => $session);
-        $sql = 'INSERT INTO `sessions`
+        $sql = "INSERT INTO `global_sessions`
                 (`csrf`, `session`)
                 VALUES
                 (:csrf, :variables)
-                ON DUPLICATE KEY UPDATE `session` = :variables';
+                ON DUPLICATE KEY UPDATE `session` = :variables";
 
         $this->db->pdo_insert_query($sql, $vars);
     }

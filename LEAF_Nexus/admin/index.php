@@ -167,6 +167,7 @@ switch ($action) {
         $t_form->assign('APIroot', 'https://' . HTTP_HOST . '/app/api/');
         $t_form->assign('app_css_path', APP_CSS_PATH);
         $t_form->assign('app_js_path', APP_JS_PATH);
+        $t_form->assign('portal_path', PORTAL_PATH);
         $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/workbookhelper.js'));
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));

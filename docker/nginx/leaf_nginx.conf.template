@@ -66,12 +66,12 @@ server {
         etag on;
     }
 
-    location ~ /api/v2/(.*?)$ {
-        set $api_directory /var/www/html/app/Api/v2;
+    location ~ /api/v1/(.*?)$ {
+        set $api_directory /var/www/html/app/Api/v1;
         fastcgi_pass leaf-php-8:9000;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
-        fastcgi_split_path_info ^(.+\/api\/v2\/)(.*)$;
+        fastcgi_split_path_info ^(.+\/api\/v1\/)(.*)$;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $api_directory/index.php;
         fastcgi_param PATH_INFO $fastcgi_path_info;
