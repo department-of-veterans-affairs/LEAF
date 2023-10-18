@@ -1497,10 +1497,10 @@ class FormWorkflow
                     }
                     break;
                 case (str_starts_with($format, "checkboxes") != false):
+                    $data = $this->buildCheckboxes(unserialize($data));
+                    break;
                 case (str_starts_with($format, "multiselect") != false):
-                    if ($this->isJsonString($data) && is_array(unserialize($data))) {
-                        $data = $this->buildMultiselect(unserialize($data));
-                    }
+                    $data = $this->buildMultiselect(unserialize($data));
                     break;
                 case (str_starts_with($format, "radio") != false):
                 case (str_starts_with($format, "checkbox") != false):
@@ -1566,6 +1566,16 @@ class FormWorkflow
     }
 
     private function buildMultiselect(array $data): string
+    {
+        // filter out non-selected selections
+        $data = array_filter($data, function($x) { return $x !== "no"; });
+        // comma separate to be readable in email
+        $formattedData = "- " . implode("\r\n- ", $data);
+
+        return $formattedData;
+    }
+
+    private function buildCheckboxes(array $data): string
     {
         // filter out non-selected selections
         $data = array_filter($data, function($x) { return $x !== "no"; });
