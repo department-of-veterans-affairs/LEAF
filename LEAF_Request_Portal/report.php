@@ -101,9 +101,9 @@ switch ($action) {
                 'js/gridInput.js',
                 'js/lz-string/lz-string.min.js',
                 APP_JS_PATH . '/LEAF/XSSHelpers.js',
-                '../libs/jsapi/nexus/LEAFNexusAPI.js',
-                '../libs/jsapi/portal/LEAFPortalAPI.js',
-                '../libs/jsapi/portal/model/FormQuery.js',
+                APP_JS_PATH . '/nexus/LEAFNexusAPI.js',
+                APP_JS_PATH . '/portal/LEAFPortalAPI.js',
+                APP_JS_PATH . '/portal/model/FormQuery.js',
                 APP_JS_PATH . '/choicesjs/choices.min.js'
             ));
 

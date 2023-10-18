@@ -121,6 +121,7 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('timeZone', $tz);
         $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
+        $t_form->assign('app_libs', APP_LIBS_PATH);
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
@@ -162,7 +163,7 @@ switch ($action) {
 
         $main->assign('javascripts', array(APP_JS_PATH . '/jsPlumb/dom.jsPlumb-min.js',
                                            $site_paths['orgchart_path'] . '/js/groupSelector.js',
-                                           '../../libs/jsapi/portal/LEAFPortalAPI.js',
+                                           APP_JS_PATH . '/portal/LEAFPortalAPI.js',
                                            APP_JS_PATH . '/LEAF/XSSHelpers.js',
         ));
         $main->assign('stylesheets', array('css/mod_workflow.css',
@@ -235,7 +236,7 @@ switch ($action) {
                                             APP_JS_PATH . '/codemirror/mode/htmlmixed/htmlmixed.js',
                                             APP_JS_PATH . '/codemirror/addon/display/fullscreen.js',
                                             APP_JS_PATH . '/LEAF/XSSHelpers.js',
-                                            '../../libs/jsapi/portal/LEAFPortalAPI.js',
+                                            APP_JS_PATH . '/portal/LEAFPortalAPI.js',
                                             APP_JS_PATH . '/choicesjs/choices.min.js',
                                             '../js/gridInput.js',
                                             '../js/formQuery.js',
@@ -536,8 +537,8 @@ switch ($action) {
 
         $main->assign('javascripts', array(
             APP_JS_PATH . '/LEAF/XSSHelpers.js',
-            '../../libs/jsapi/nexus/LEAFNexusAPI.js',
-            '../../libs/jsapi/portal/LEAFPortalAPI.js',
+            APP_JS_PATH . '/nexus/LEAFNexusAPI.js',
+            APP_JS_PATH . '/portal/LEAFPortalAPI.js',
         ));
 
         if ($login->checkGroup(1))
