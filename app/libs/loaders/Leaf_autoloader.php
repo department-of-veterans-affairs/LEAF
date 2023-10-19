@@ -9,7 +9,7 @@ $app_dir = '/var/www/html/app';
 
 require_once $app_dir . '/libs/globals.php';
 require_once $app_dir . '/Leaf/Psr4AutoloaderClass.php';
-require_once $app_dir . '/libs/smarty/bootstrap.php';
+require_once $curr_dir . '/libs/smarty/bootstrap.php';
 
 $loader = new Psr4AutoloaderClass;
 $loader->register();
