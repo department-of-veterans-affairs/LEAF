@@ -3,9 +3,11 @@
 /*
     This file is needed because there are instances where one of the defined global variables is needed but the
     autoloader isn't loaded on that particular page. So this will be loaded on those pages only.
+
     We need to extract the portal url from the SCRIPT_FILENAME so we can get the data from the sites table.
     There are times where there is another folder tacked on to the end of the url, in those cases that folder
     needs to be striped from the url
+
     i.e. /Academy/Demo1/admin
     I decided it best to put this into a class and have the class deal with it to keep this file clean
 */

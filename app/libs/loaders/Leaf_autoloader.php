@@ -80,7 +80,6 @@ if (class_exists('Portal\Config')) {
 /*
     TODO: move this to the Site class
 */
-
 $vars = array(':site_path' => $site_paths['orgchart_path']);
 $sql = 'SELECT site_uploads
         FROM sites

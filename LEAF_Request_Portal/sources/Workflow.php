@@ -691,6 +691,7 @@ class Workflow
                 ':stepData' => json_encode(['AutomatedEmailReminders' => [
                         'AutomateEmailGroup' => $data['AutomatedEmailReminders']['Automate Email Group'],
                         'DaysSelected' => $data['AutomatedEmailReminders']['Days Selected'],
+                        'DateSelected' => $data['AutomatedEmailReminders']['Date Selected'],
                         'AdditionalDaysSelected' => $data['AutomatedEmailReminders']['Additional Days Selected']
                     ]
                 ])
