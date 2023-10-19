@@ -65,6 +65,7 @@ class Site
     private function stripLast(): void
     {
         $path_array = explode('/', $this->match);
+
         array_shift($path_array);
         array_pop($path_array);
 
