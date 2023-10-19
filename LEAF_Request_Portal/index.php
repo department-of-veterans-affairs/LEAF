@@ -172,7 +172,7 @@ switch ($action) {
             'js/formPrint.js',
             'js/jsdiff.js',
             APP_JS_PATH . '/LEAF/XSSHelpers.js',
-            '../libs/jsapi/portal/LEAFPortalAPI.js',
+            APP_JS_PATH . '/portal/LEAFPortalAPI.js',
             APP_JS_PATH . '/es6-promise/es6-promise.min.js',
             APP_JS_PATH . '/es6-promise/es6-promise.auto.min.js',
             APP_JS_PATH . '/jspdf/jspdf.min.js',
@@ -474,7 +474,7 @@ switch ($action) {
                'js/gridInput.js',
                'js/workflow.js',
                'js/lz-string/lz-string.min.js',
-               '../libs/jsapi/portal/LEAFPortalAPI.js',
+               APP_JS_PATH . '/portal/LEAFPortalAPI.js',
                APP_JS_PATH . '/LEAF/XSSHelpers.js',
                APP_JS_PATH . '/choicesjs/choices.min.js'
            ));
