@@ -11,11 +11,11 @@
 
 namespace App\Nexus\Controllers;
 
+use App\Nexus\Model\Indicators;
+
 abstract class NationalDataController
 {
-    protected $db;
-
-    protected $login;
+    protected $indicator;
 
     protected $dataTable = '';
 
@@ -29,12 +29,13 @@ abstract class NationalDataController
 
     protected $dataTableCategoryID = 0;
 
+    protected $workingDataClass;
+
     private $cache = array();
 
-    public function __construct($db, $login)
+    public function __construct(Indicators $indicator)
     {
-        $this->db = $db;
-        $this->login = $login;
+        $this->indicator = $indicator;
         $this->initialize();
     }
 
@@ -80,149 +81,131 @@ abstract class NationalDataController
 
     /**
      * Retrieve all data if no indicatorID is given
+     *
      * @param int $UID
      * @param int $indicatorID
+     *
      * @return array
+     *
+     * Created at: 10/12/2023, 8:09:06 AM (America/New_York)
      */
-    public function getAllData($UID, $indicatorID = 0)
+    public function getAllData(int $UID, int $indicatorID = 0): array
     {
-        $vars = array();
-        $res = array();
-
         $cacheHash = "getAllData_{$UID}_{$indicatorID}";
-        if (isset($this->cache[$cacheHash]))
-        {
-            return $this->cache[$cacheHash];
-        }
 
-        if (!isset($this->cache["getAllData_{$indicatorID}"]))
-        {
-            if ($indicatorID != 0)
-            {
-                $vars = array(':indicatorID' => $indicatorID);
-                $res = $this->db->prepared_query("SELECT * FROM indicators
-                                                    WHERE categoryID={$this->dataTableCategoryID}
-                                                        AND disabled=0
-                                                        AND indicatorID=:indicatorID
-                                                    ORDER BY sort", $vars);
-            }
-            else
-            {
-                $res = $this->db->prepared_query("SELECT * FROM indicators
-                                                    WHERE categoryID={$this->dataTableCategoryID}
-                                                        AND disabled=0
-                                                    ORDER BY sort", $vars);
-            }
-            $this->cache["getAllData_{$indicatorID}"] = $res;
-        }
-        else
-        {
-            $res = $this->cache["getAllData_{$indicatorID}"];
-        }
-
-        $data = array();
-
-        foreach ($res as $item)
-        {
-            $idx = $item['indicatorID'];
-            $data[$idx]['indicatorID'] = $item['indicatorID'];
-            $data[$idx]['name'] = isset($item['name']) ? $item['name'] : '';
-            $data[$idx]['format'] = isset($item['format']) ? $item['format'] : '';
-            if (isset($item['description']))
-            {
-                $data[$idx]['description'] = $item['description'];
-            }
-            if (isset($item['default']))
-            {
-                $data[$idx]['default'] = $item['default'];
-            }
-            if (isset($item['html']))
-            {
-                $data[$idx]['html'] = $item['html'];
-            }
-            $data[$idx]['required'] = $item['required'];
-            if ($item['encrypted'] != 0)
-            {
-                $data[$idx]['encrypted'] = $item['encrypted'];
-            }
-            $data[$idx]['data'] = '';
-            $data[$idx]['isWritable'] = 0; //temp
-            //$data[$idx]['author'] = '';
-            //$data[$idx]['timestamp'] = 0;
-
-            // handle checkboxes/radio buttons
-            $inputType = explode("\n", $item['format']);
-            $numOptions = count($inputType) > 1 ? count($inputType) : 2;
-            if (count($inputType) != 1)
-            {
-                for ($i = 1; $i < $numOptions; $i++)
-                {
-                    $inputType[$i] = isset($inputType[$i]) ? trim($inputType[$i]) : '';
-                    $data[$idx]['options'][] = $inputType[$i];
+        if (!isset($this->cache[$cacheHash])) {
+            if (!isset($this->cache["getAllData_{$indicatorID}"])) {
+                if ($indicatorID != 0) {
+                    $res = $this->indicator->getIndicatorsById($indicatorID, $this->dataTableCategoryID);
+                } else {
+                    $res = $this->indicator->getAllIndicators($this->dataTableCategoryID);
                 }
+
+                $this->cache["getAllData_{$indicatorID}"] = $res['data'];
+            } else {
+                $res = $this->cache["getAllData_{$indicatorID}"];
             }
 
-            $data[$idx]['format'] = trim($inputType[0]);
-        }
+            $data = array();
 
-        if (count($res) > 0)
-        {
-            $indicatorList = '';
-            foreach ($res as $field)
-            {
-                if (is_numeric($field['indicatorID']))
-                {
-                    $indicatorList .= "{$field['indicatorID']},";
+            foreach ($res['data'] as $item) {
+                $idx = $item['indicatorID'];
+                $data[$idx]['indicatorID'] = $item['indicatorID'];
+                $data[$idx]['name'] = isset($item['name']) ? $item['name'] : '';
+                $data[$idx]['format'] = isset($item['format']) ? $item['format'] : '';
+                if (isset($item['description'])) {
+                    $data[$idx]['description'] = $item['description'];
                 }
-            }
-            $indicatorList = trim($indicatorList, ',');
-            $var = array(':id' => $UID);
-            $res2 = $this->db->prepared_query("SELECT data, timestamp, indicatorID FROM {$this->dataTable}
-                									WHERE indicatorID IN ({$indicatorList}) AND {$this->dataTableUID}=:id", $var);
 
-            foreach ($res2 as $resIn)
-            {
-                $idx = $resIn['indicatorID'];
-                $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
-                $data[$idx]['data'] = @unserialize($data[$idx]['data']) === false ? $data[$idx]['data'] : unserialize($data[$idx]['data']);
-                if ($data[$idx]['format'] == 'json')
-                {
-                    $data[$idx]['data'] = html_entity_decode($data[$idx]['data']);
+                if (isset($item['default'])) {
+                    $data[$idx]['default'] = $item['default'];
                 }
-                if ($data[$idx]['format'] == 'fileupload')
-                {
-                    $tmpFileNames = explode("\n", $data[$idx]['data']);
-                    $data[$idx]['data'] = array();
-                    foreach ($tmpFileNames as $tmpFileName)
-                    {
-                        if (trim($tmpFileName) != '')
-                        {
-                            $data[$idx]['data'][] = $tmpFileName;
-                        }
+
+                if (isset($item['html'])) {
+                    $data[$idx]['html'] = $item['html'];
+                }
+
+                $data[$idx]['required'] = $item['required'];
+
+                if ($item['encrypted'] != 0) {
+                    $data[$idx]['encrypted'] = $item['encrypted'];
+                }
+
+                $data[$idx]['data'] = '';
+                $data[$idx]['isWritable'] = 0;
+
+                $inputType = explode("\n", $item['format']);
+                $numOptions = count($inputType) > 1 ? count($inputType) : 2;
+
+                if (count($inputType) != 1) {
+                    for ($i = 1; $i < $numOptions; $i++) {
+                        $inputType[$i] = isset($inputType[$i]) ? trim($inputType[$i]) : '';
+                        $data[$idx]['options'][] = $inputType[$i];
                     }
                 }
-                if (isset($resIn['author']))
-                {
-                    $data[$idx]['author'] = $resIn['author'];
+
+                $data[$idx]['format'] = trim($inputType[0]);
+            }
+
+            if (count($res['data']) > 0) {
+                $indicatorList = '';
+
+                foreach ($res['data'] as $field) {
+                    if (is_numeric($field['indicatorID'])) {
+                        $indicatorList .= "{$field['indicatorID']},";
+                    }
                 }
-                if (isset($resIn['timestamp']))
-                {
-                    $data[$idx]['timestamp'] = $resIn['timestamp'];
+
+                $indicatorList = trim($indicatorList, ',');
+
+                $res2 = $this->workingDataClass->getData($UID, $indicatorList, $this->dataTableUID);
+
+                foreach ($res2['data'] as $resIn) {
+                    $idx = $resIn['indicatorID'];
+                    $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
+                    $data[$idx]['data'] = @unserialize($data[$idx]['data']) === false ? $data[$idx]['data'] : unserialize($data[$idx]['data']);
+
+                    if ($data[$idx]['format'] == 'json') {
+                        $data[$idx]['data'] = html_entity_decode($data[$idx]['data']);
+                    }
+
+                    if ($data[$idx]['format'] == 'fileupload') {
+                        $tmpFileNames = explode("\n", $data[$idx]['data']);
+                        $data[$idx]['data'] = array();
+
+                        foreach ($tmpFileNames as $tmpFileName) {
+                            if (trim($tmpFileName) != '') {
+                                $data[$idx]['data'][] = $tmpFileName;
+                            }
+                        }
+                    }
+
+                    if (isset($resIn['author'])) {
+                        $data[$idx]['author'] = $resIn['author'];
+                    }
+
+                    if (isset($resIn['timestamp'])) {
+                        $data[$idx]['timestamp'] = $resIn['timestamp'];
+                    }
                 }
             }
+
+            $this->cache[$cacheHash] = $data;
         }
 
-        $this->cache[$cacheHash] = $data;
-
-        return $data;
+        return $this->cache[$cacheHash];
     }
 
     /**
      * Clean up html input, allow some tags
+     *
      * @param string $in
+     *
      * @return string
+     *
+     * Created at: 10/12/2023, 8:11:00 AM (America/New_York)
      */
-    public function sanitizeInput($in)
+    public function sanitizeInput(string $in): string
     {
         // strip out uncommon characters
         $in = preg_replace('/^\011[^\040-\176]/', '', $in);
@@ -254,50 +237,32 @@ abstract class NationalDataController
         preg_match_all('/\<(\/)?([A-Za-z]+)(\s.+)?\>/U', $in, $matches, PREG_PATTERN_ORDER);
         $openTags = array();
         $numTags = count($matches[2]);
-        for ($i = 0; $i < $numTags; $i++)
-        {
-            if ($matches[2][$i] != 'br')
-            {
-                //echo "examining: {$matches[1][$i]}{$matches[2][$i]}\n";
-                // proper closure
-                if ($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] > 0)
-                {
+
+        for ($i = 0; $i < $numTags; $i++) {
+            if ($matches[2][$i] != 'br') {
+                if ($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] > 0) {
                     $openTags[$matches[2][$i]]--;
-                // echo "proper\n";
-                }
-                // new open tag
-                else
-                {
-                    if ($matches[1][$i] == '')
-                    {
-                        if (!isset($openTags[$matches[2][$i]]))
-                        {
+                } else {
+                    if ($matches[1][$i] == '') {
+                        if (!isset($openTags[$matches[2][$i]])) {
                             $openTags[$matches[2][$i]] = 0;
                         }
+
                         $openTags[$matches[2][$i]]++;
-                    // echo "open\n";
-                    }
-                    // improper closure
-                    else
-                    {
-                        if ($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] <= 0)
-                        {
+                    } else {
+                        if ($matches[1][$i] == '/' && isset($openTags[$matches[2][$i]]) && $openTags[$matches[2][$i]] <= 0) {
                             $in = '<' . $matches[2][$i] . '>' . $in;
                             $openTags[$matches[2][$i]]--;
-                            // echo "improper\n";
                         }
                     }
                 }
-                // print_r($openTags);
             }
         }
 
-        // close tags
         $tags = array_keys($openTags);
-        foreach ($tags as $tag)
-        {
-            while ($openTags[$tag] > 0)
-            {
+
+        foreach ($tags as $tag) {
+            while ($openTags[$tag] > 0) {
                 $in = $in . '</' . $tag . '>';
                 $openTags[$tag]--;
             }
@@ -306,31 +271,27 @@ abstract class NationalDataController
         return $in;
     }
 
-    public function getFileHash($categoryID, $uid, $indicatorID, $fileName)
+    /**
+     * @param int $categoryID
+     * @param int $uid
+     * @param int $indicatorID
+     * @param string $fileName
+     * @param string $salt
+     *
+     * @return string
+     *
+     * Created at: 10/12/2023, 8:15:41 AM (America/New_York)
+     */
+    public function getFileHash(int $categoryID, int $uid, int $indicatorID, string $fileName, string $salt = ''): string
     {
-        if (!is_numeric($categoryID) || !is_numeric($uid) || !is_numeric($indicatorID))
-        {
-            return '';
-        }
-        $res = $this->db->prepared_query('SELECT * FROM settings WHERE setting="salt"', array());
-        $salt = isset($res[0]['data']) ? $res[0]['data'] : '';
+        $return_value = '';
 
-        $fileName = md5($fileName . $salt);
+        if (is_numeric($categoryID) && is_numeric($uid) && is_numeric($indicatorID)) {
+            $fileName = md5($fileName . $salt);
 
-        return "{$categoryID}_{$uid}_{$indicatorID}_{$fileName}";
-    }
-
-    public function getAllTags($uid)
-    {
-        $vars = array(':UID' => $uid);
-
-        $tags = array();
-        $res = $this->db->prepared_query("SELECT * FROM {$this->dataTagTable} WHERE {$this->dataTableUID} = :UID", $vars);
-        foreach ($res as $tag)
-        {
-            $tags[$tag['tag']] = $tag['tag'];
+            $return_value = "{$categoryID}_{$uid}_{$indicatorID}_{$fileName}";
         }
 
-        return $tags;
+        return $return_value;
     }
 }

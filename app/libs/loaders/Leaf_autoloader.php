@@ -27,7 +27,7 @@ $loader->addNamespace('App\Api\v1\Routes', $app_dir . '/Api/v1/Routes');
 $loader->addNamespace('App\Leaf', $app_dir . '/Leaf');
 $loader->addNamespace('App\Leaf\Logger', $app_dir . '/Leaf/Logger');
 $loader->addNamespace('App\Leaf\Logger\Formatters', $app_dir . '/Leaf/Logger/Formatters');
-$loader->addNamespace('App\Nexus\Controllers', $app_dir . '/Nexs/Controllers');
+$loader->addNamespace('App\Nexus\Controllers', $app_dir . '/Nexus/Controllers');
 $loader->addNamespace('App\Nexus\Model', $app_dir . '/Nexus/Model');
 
 $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
@@ -47,7 +47,6 @@ if ($site->error) {
 }
 
 /** Here down is old loader stuff, will be deprecated once we can verify that they are no longer being used. */
-
 $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
 $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
 $loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');

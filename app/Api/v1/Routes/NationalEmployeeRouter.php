@@ -3,53 +3,59 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-namespace App\Api\v1;
+namespace App\Api\v1\Routes;
 
+use App\Api\v1\ApiMap;
+use App\Api\v1\RESTfulResponse;
 use App\Nexus\Controllers\NationalEmployeeController;
 use Orgchart\Employee;
-use Orgchart\Login;
 
 class NationalEmployeeRouter extends RESTfulResponse
 {
     public $index = array();
 
-    private $employee;
+    protected $employee;
 
-    private $db;
-
-    public function __construct($db, $login)
+    public function __construct(NationalEmployeeController $controller, ApiMap $map, Employee $employee)
     {
-        $this->db = $db;
-        $this->employee = new NationalEmployeeController($db, $login);
+        $this->controller = $controller;
+        $this->map = $map;
+        $this->employee = $employee;
     }
 
-    public function get($act)
+    public function get(array $act): mixed
     {
-        $employee = $this->employee;
+        $employee = $this->controller;
 
-        $this->index['GET'] = new ApiMap();
+        $this->index['GET'] = $this->map;
+
         $this->index['GET']->register('national/employee/version', function () {
             return self::API_VERSION;
         });
 
-        $this->index['GET']->register('national/employee/[digit]', function ($args) use ($employee) {
-            // getSummary does not exist in the NationalEmployee class
-            // return $employee->getSummary($args[0]);
-        });
-
         $this->index['GET']->register('national/employee/search', function () use ($employee) {
-            if (isset($_GET['noLimit']) && $_GET['noLimit'] == 1)
-            {
+            error_log(print_r('hit', true));
+            if (isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
                 $employee->setNoLimit();
             }
-            if (isset($_GET['domain']))
-            {
+
+            if (isset($_GET['domain'])) {
                 $employee->setDomain($_GET['domain']);
             }
+
             if (isset($_GET['includeDisabled'])) {
-                return $employee->search($_GET['q'], $_GET['indicatorID'], $_GET['includeDisabled']);
+                if (isset($_GET['indicatorID'])) {
+                    return $employee->search($_GET['q'], $_GET['indicatorID'], $_GET['includeDisabled']);
+                } else {
+                    return $employee->search($_GET['q'], '', $_GET['includeDisabled']);
+                }
+
             } else {
-                return $employee->search($_GET['q'], $_GET['indicatorID']);
+                if (isset($_GET['indicatorID'])) {
+                    return $employee->search($_GET['q'], $_GET['indicatorID']);
+                } else {
+                    return $employee->search($_GET['q']);
+                }
             }
 
         });
@@ -66,19 +72,17 @@ class NationalEmployeeRouter extends RESTfulResponse
      *
      * Created at: 12/2/2022, 1:43:20 PM (America/New_York)
      */
-    public function post($act)
+    public function post(array $act): mixed
     {
-        $employee = $this->employee;
+        $employee = $this->controller;
+        $localEmp = $this->employee;
 
-        $this->index['POST'] = new ApiMap();
-        $this->index['POST']->register('national/employee/import/email', function() use ($employee) {
+        $this->index['POST'] = $this->map;
+        $this->index['POST']->register('national/employee/import/email', function() use ($employee, $localEmp) {
             try
             {
                 $email = $_POST["email"];
                 $username = $employee->lookupEmail($email);
-
-                $login = new Login($this->db, $this->db);
-                $localEmp = new Employee($this->db, $login);
 
                 $localUID = $localEmp->importFromNational($username[0]["userName"]);
 
@@ -101,5 +105,10 @@ class NationalEmployeeRouter extends RESTfulResponse
         });
 
         return $this->index['POST']->runControl($act['key'], $act['args']);
+    }
+
+    public function delete(array $act): mixed
+    {
+        // this method is not used here
     }
 }

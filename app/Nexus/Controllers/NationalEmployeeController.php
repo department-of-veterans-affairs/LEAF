@@ -11,6 +11,10 @@
 
 namespace App\Nexus\Controllers;
 
+use App\Nexus\Model\Employee;
+use App\Nexus\Model\EmployeeData;
+use App\Nexus\Model\Indicators;
+
 class NationalEmployeeController extends NationalDataController
 {
     public $debug = false;
@@ -27,13 +31,13 @@ class NationalEmployeeController extends NationalDataController
 
     protected $dataTableCategoryID = 1;
 
+    private $cache = array();
+
     private $log = array('<span style="color: red">Debug Log is ON</span>');    // error log for debugging
 
     private $tableName = 'employee';    // Table of employee contact info
 
     private $limit = 'LIMIT 3';       // Limit number of returned results "TOP 100"
-
-    private $sortBy = 'lastName';          // Sort by... ?
 
     private $sortDir = 'ASC';           // Sort ascending/descending?
 
@@ -41,11 +45,18 @@ class NationalEmployeeController extends NationalDataController
 
     private $deepSearch = 10;
 
-    private $cache;
+    private $employee;
 
     // Threshold for deeper search (min # of results
     //     from main search triggers deep search)
     private $domain = '';
+
+    public function __construct(Indicators $indicator, Employee $employee, EmployeeData $employeeData)
+    {
+        parent::__construct($indicator);
+        $this->employee = $employee;
+        $this->workingDataClass = $employeeData;
+    }
 
     public function initialize()
     {
@@ -56,17 +67,26 @@ class NationalEmployeeController extends NationalDataController
         $this->setDataTableCategoryID($this->dataTableCategoryID);
     }
 
-    public function setNoLimit()
+    /**
+     * @return void
+     *
+     * Created at: 10/12/2023, 8:18:56 AM (America/New_York)
+     */
+    public function setNoLimit(): void
     {
         $this->limit = 'LIMIT 100';
     }
 
     /**
      * Clean up all wildcards
+     *
      * @param string $input
+     *
      * @return string
+     *
+     * Created at: 10/12/2023, 8:19:16 AM (America/New_York)
      */
-    public static function cleanWildcards($input)
+    public static function cleanWildcards(string $input): string
     {
         $input = str_replace('%', '*', $input);
         $input = str_replace('?', '*', $input);
@@ -77,64 +97,72 @@ class NationalEmployeeController extends NationalDataController
         return $input;
     }
 
-    public function setDomain($domain)
+    /**
+     * @param string $domain
+     *
+     * @return void
+     *
+     * Created at: 10/12/2023, 8:19:56 AM (America/New_York)
+     */
+    public function setDomain(string $domain): void
     {
-        if ($domain != '')
-        {
+        if ($domain != '') {
             $this->domain = $domain;
         }
     }
 
-    public function lookupLogin($login)
+    /**
+     * @param string $user_name
+     *
+     * @return array
+     *
+     * Created at: 10/12/2023, 9:22:53 AM (America/New_York)
+     */
+    public function lookupLogin(string $user_name): array
     {
-        $cacheHash = "lookupLogin{$login}";
-        if (isset($this->cache[$cacheHash]))
-        {
-            return $this->cache[$cacheHash];
+        $cacheHash = "lookupLogin{$user_name}";
+
+        if (!isset($this->cache[$cacheHash])) {
+            $result = $this->employee->getEmployeeByUserName($user_name);
+
+            if ($result['status']['code'] == 2) {
+                $res_email = $this->workingDataClass->getEmail($result['data'][0]['empUID']);
+
+                if ($res_email['status']['code'] == 2 && !empty($res_email['data'])) {
+                    $result['data'][0] = array_merge($result['data'][0], $res_email['data'][0]);
+                }
+            }
+
+            $this->cache[$cacheHash] = $result['data'];
         }
 
-        $sqlVars = array(':login' => $login);
-	$strSQL = "SELECT * FROM {$this->tableName} WHERE userName = :login AND deleted = 0";
-        $result = $this->db->prepared_query($strSQL, $sqlVars);
-
-	$sqlVars = array(':empUID' => $result[0]['empUID']);
-	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
-        $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
-
-        if(isset($result[0]) && isset($resEmail[0])) {
-            $result[0] = array_merge($result[0], $resEmail[0]);
-        }
-
-        $this->cache[$cacheHash] = $result;
-
-        return $result;
+        return $this->cache[$cacheHash];
     }
 
-    public function lookupEmpUID($empUID)
+    /**
+     * @param int $empUID
+     *
+     * @return [type]
+     *
+     * Created at: 10/12/2023, 9:40:38 AM (America/New_York)
+     */
+    public function lookupEmpUID(int $empUID)
     {
-        if (!is_numeric($empUID))
-        {
-            return array();
-        }
-        if (isset($this->cache["lookupEmpUID_{$empUID}"]))
-        {
-            return $this->cache["lookupEmpUID_{$empUID}"];
-        }
+        if (!isset($this->cache["lookupEmpUID_{$empUID}"])) {
+            $result = $this->employee->getEmployeeByEmpUID($empUID);
 
-        $strSQL = "SELECT * FROM {$this->tableName} WHERE empUID = :empUID AND deleted = 0";
-        $sqlVars = array(':empUID' => $empUID);
-        $result = $this->db->prepared_query($strSQL, $sqlVars);
+            if ($result['status']['code'] == 2) {
+                $res_email = $this->workingDataClass->getEmail($result['data'][0]['empUID']);
 
-	$strSQL = "SELECT data AS email FROM {$this->dataTable} WHERE empUID=:empUID AND indicatorID = 6";
-        $resEmail = $this->db->prepared_query($strSQL, $sqlVars);
+                if ($res_email['status']['code'] == 2 && !empty($res_email['data'])) {
+                    $result['data'][0] = array_merge($result['data'][0], $res_email['data'][0]);
+                }
+            }
 
-        if(isset($result[0]) && isset($resEmail[0])) {
-            $result[0] = array_merge($result[0], $resEmail[0]);
+            $this->cache["lookupEmpUID_{$empUID}"] = $result['data'];
         }
 
-        $this->cache["lookupEmpUID_{$empUID}"] = $result;
-
-        return $result;
+        return $this->cache["lookupEmpUID_{$empUID}"];
     }
 
     /**
@@ -150,43 +178,28 @@ class NationalEmployeeController extends NationalDataController
     public function lookupAllUsersLastName(string $lastName, bool $disabled): array
     {
         $lastName = $this->parseWildcard($lastName);
-        $disabled_clause = $disabled ?  " AND deleted = 0 "  : "";
+        $disabled_clause = $disabled ?  " AND `deleted` = 0 "  : "";
 
         $vars = array(':lastName' => $lastName);
         $domain = $this->addDomain($vars);
-        $sql = "SELECT * FROM {$this->tableName}
-                WHERE lastName LIKE :lastName {$domain}"
-                . $disabled_clause .
-                "ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
 
+        $result = $this->employee->getUsersByLastName($vars, $domain, $disabled_clause, 'lastName', $this->sortDir, $this->limit);
 
-        $result = $this->db->prepared_query($sql, $vars);
+        if (empty($result['data'])) {
+            $vars[':lastName'] = metaphone($lastName);
 
-        if (count($result) == 0){
-            $vars = array(':lastName' => metaphone($lastName));
-            $domain = $this->addDomain($vars);
-            $sql = "SELECT * FROM {$this->tableName}
-                    WHERE phoneticLastName LIKE :lastName {$domain}"
-                    . $disabled_clause .
-                    "ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+            if ($vars[':lastName'] != '') {
+                $phonetic_result = $this->employee->getUsersByPhoneticLastName($vars, $domain, $disabled_clause, 'phoneticLastName', $this->sortDir, $this->limit);
 
-            if ($vars[':lastName'] != '')
-            {
-                $phoneticResult = $this->db->prepared_query($sql, $vars);
-
-                foreach ($phoneticResult as $res)
-                {  // Prune matches
-                    if (levenshtein(strtolower($res['lastName']), trim(strtolower($lastName), '*')) <= $this->maxStringDiff)
-                    {
-                        $result[] = $res;
+                foreach ($phonetic_result as $res) {
+                    if (levenshtein(strtolower($res['lastName']), trim(strtolower($lastName), '*')) <= $this->maxStringDiff) {
+                        $result['data'][] = $res;
                     }
                 }
             }
         }
 
-        return $result;
+        return $result['data'];
     }
 
     /**
@@ -202,140 +215,112 @@ class NationalEmployeeController extends NationalDataController
     public function lookupAllUsersFirstName(string $firstName, bool $disabled): array
     {
         $firstName = $this->parseWildcard($firstName);
-        $disabled_clause = $disabled ?  " AND deleted = 0 "  : "";
+        $disabled_clause = $disabled ?  " AND `deleted` = 0 "  : "";
 
         $vars = array(':firstName' => $firstName);
         $domain = $this->addDomain($vars);
-        $sql = "SELECT * FROM {$this->tableName}
-                WHERE firstName LIKE :firstName {$domain}"
-                . $disabled_clause .
-                "ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
 
-        $result = $this->db->prepared_query($sql, $vars);
+        $result = $this->employee->getUsersByFirstName($vars, $domain, $disabled_clause, 'lastName', $this->sortDir, $this->limit);
 
-        if (count($result) == 0){
-            $vars = array(':firstName' => metaphone($firstName));
-            $domain = $this->addDomain($vars);
-            $sql = "SELECT * FROM {$this->tableName}
-                    WHERE phoneticFirstName LIKE :firstName {$domain}"
-                    . $disabled_clause .
-                    "ORDER BY {$this->sortBy} {$this->sortDir}
-                    {$this->limit}";
+        if (empty($result['data'])) {
+            $vars[':firstName'] = metaphone($firstName);
 
-            if ($vars[':firstName'] != '')
-            {
-                $result = $this->db->prepared_query($sql, $vars);
+            if ($vars[':firstName'] != '') {
+                $result = $this->employee->getUsersByPhoneticFirstName($vars, $domain, $disabled_clause, 'lastName', $this->sortDir, $this->limit);
             }
         }
 
-        return $result;
+        return $result['data'];
     }
 
-    public function lookupName($lastName, $firstName, $middleName = '')
+    /**
+     * @param string $lastName
+     * @param string $firstName
+     * @param string $middleName
+     * @param bool $disabled
+     *
+     * @return array
+     *
+     * Created at: 10/12/2023, 10:50:42 AM (America/New_York)
+     */
+    public function lookupName(string $lastName, string $firstName, string $middleName = '', bool $disabled = false): array
     {
         $firstName = $this->parseWildcard($firstName);
         $lastName = $this->parseWildcard($lastName);
         $middleName = $this->parseWildcard($middleName);
+        $disabled_clause = $disabled ?  " AND `deleted` = 0 "  : "";
 
-        $sql = '';
-        $vars = array();
-        if (strlen($middleName) > 1)
-        {
-            $vars = array(':firstName' => $firstName, ':lastName' => $lastName, ':middleName' => $middleName);
-            $domain = $this->addDomain($vars);
-            $sql = "SELECT * FROM {$this->tableName}
-                WHERE firstName LIKE :firstName
-                AND lastName LIKE :lastName
-                AND middleName LIKE :middleName
-                AND deleted = 0
-                {$domain}
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
-        }
-        else
-        {
-            $vars = array(':firstName' => $firstName, ':lastName' => $lastName);
-            $domain = $this->addDomain($vars);
-            $sql = "SELECT * FROM {$this->tableName}
-                WHERE firstName LIKE :firstName
-                AND lastName LIKE :lastName
-                AND deleted = 0
-                {$domain}
-                ORDER BY {$this->sortBy} {$this->sortDir}
-                {$this->limit}";
-        }
-        $result = $this->db->prepared_query($sql, $vars);
-
-        if (count($result) == 0)
-        {
-            $vars = array(':firstName' => $this->metaphone_query($firstName), ':lastName' => $this->metaphone_query($lastName));
-            $domain = $this->addDomain($vars);
-            $sql = "SELECT * FROM {$this->tableName}
-                        WHERE phoneticFirstName LIKE :firstName
-                        AND phoneticLastName LIKE :lastName
-                        AND deleted = 0
-                        {$domain}
-                        ORDER BY {$this->sortBy} {$this->sortDir}
-                        {$this->limit}";
-
-            $result = $this->db->prepared_query($sql, $vars);
-        }
-
-        return $result;
-    }
-
-    public function lookupEmail($email)
-    {
-        $sql = "SELECT * FROM {$this->dataTable}
-    				LEFT JOIN {$this->tableName} USING (empUID)
-    				WHERE indicatorID = 6
-    					AND data = :email
-    					AND deleted = 0
-    				{$this->limit}";
-
-        $vars = array(':email' => $email);
-
-        return $this->db->prepared_query($sql, $vars);
-    }
-
-    public function lookupPhone($phone)
-    {
-        $sql = "SELECT * FROM {$this->dataTable}
-			    	LEFT JOIN {$this->tableName} USING (empUID)
-			    	WHERE indicatorID = 5
-				    	AND data LIKE :phone
-				    	AND deleted = 0
-				    	{$this->limit}";
-
-        $vars = array(':phone' => $this->parseWildcard('*' . $phone));
-
-        return $this->db->prepared_query($sql, $vars);
-    }
-
-    public function lookupByIndicatorID($indicatorID, $query)
-    {
-        $vars = array(':indicatorID' => $indicatorID,
-                      ':query' => $this->parseWildcard($query),
-        );
-
+        $vars = array(':firstName' => $firstName,
+                    ':lastName' => $lastName,
+                    ':middleName' => $middleName);
         $domain = $this->addDomain($vars);
-        $res = $this->db->prepared_query("SELECT * FROM {$this->dataTable}
-    						LEFT JOIN {$this->tableName} USING ({$this->dataTableUID})
-    						WHERE indicatorID = :indicatorID
-    						AND data LIKE :query
-    						{$domain}", $vars);
 
-        return $res;
+        $result = $this->$this->employee->getUsersByWholeName($vars, $domain, $disabled_clause, 'lastName', $this->sortDir, $this->limit);
+
+        if (empty($result['data'])) {
+            $vars[':firstName'] = $this->metaphone_query($firstName);
+            $vars[':lastName'] = $this->metaphone_query($lastName);
+            unset($vars['middelName']);
+
+            $result = $this->$this->employee->getUsersByWholeName($vars, $domain, 'lastName, phoneticLastName', $this->sortDir, $this->limit);
+        }
+
+        return $result['data'];
+    }
+
+    /**
+     * @param string $email
+     *
+     * @return array
+     *
+     * Created at: 10/12/2023, 11:02:49 AM (America/New_York)
+     */
+    public function lookupEmail(string $email): array
+    {
+        $return_value = $this->workingDataClass->getUsersByIndicator($email, $this->limit, 6);
+
+        return $return_value;
+    }
+
+    /**
+     * @param string $phone
+     *
+     * @return array
+     *
+     * Created at: 10/12/2023, 11:02:59 AM (America/New_York)
+     */
+    public function lookupPhone(string $phone): array
+    {
+        $return_value = $this->workingDataClass->getUsersByIndicator($this->parseWildcard('*' . $phone), $this->limit, 5);
+
+        return $return_value;
+    }
+
+    /**
+     * @param int $indicatorID
+     * @param string $query
+     *
+     * @return array
+     *
+     * Created at: 10/12/2023, 11:03:07 AM (America/New_York)
+     */
+    public function lookupByIndicatorID(int $indicatorID, string $query): array
+    {
+        $return_value = $this->workingDataClass->getUsersByIndicator($this->parseWildcard($query), $this->limit, $indicatorID);
+
+        return $return_value;
     }
 
     /**
      * Runs additional search lookup by AD title to filter on larger sets of employees
      *
-     * @param string $input text of employee name to search
-     * @return list of results from active directory query
+     * @param string $input
+     *
+     * @return array
+     *
+     * Created at: 10/12/2023, 11:04:49 AM (America/New_York)
      */
-    private function searchDeeper($input)
+    private function searchDeeper(string $input): array
     {
         return $this->lookupByIndicatorID(23, $this->parseWildcard($input)); // search AD title
     }
@@ -354,19 +339,21 @@ class NationalEmployeeController extends NationalDataController
     public function search(string $input, $indicatorID = '', bool $includeDisabled = false): array|bool
     {
         $input = html_entity_decode($input, ENT_QUOTES);
-        if (strlen($input) > 3 && $this->limit != 'LIMIT 100')
-        {
+
+        if (strlen($input) > 3 && $this->limit != 'LIMIT 100') {
             $this->limit = 'LIMIT 5';
         }
+
         $searchResult = array();
         $first = '';
         $last = '';
         $middle = '';
         $input = trim($this->cleanWildcards($input));
-        if ($input == '' || $input == '*')
-        {
+
+        if ($input == '' || $input == '*') {
             return array(); // Special case to prevent retrieving entire list in one query
         }
+
         switch ($input) {
             // Format: search by indicatorID
             case $indicatorID != '':
@@ -375,16 +362,15 @@ class NationalEmployeeController extends NationalDataController
                 break;
             // Format: Last, First
             case ($idx = strpos($input, ',')) > 0:
-                if ($this->debug)
-                {
+                if ($this->debug) {
                     $this->log[] = 'Format Detected: Last, First';
                 }
+
                 $last = trim(substr($input, 0, $idx));
                 $first = trim(substr($input, $idx + 1));
                 $midIdx = strpos($first, ' ');
 
-                if ($midIdx > 0)
-                {
+                if ($midIdx > 0) {
                     $this->log[] = 'Detected possible Middle initial';
                     $middle = trim(trim(substr($first, $midIdx + 1)), '.');
                     $first = trim(substr($first, 0, $midIdx + 1));
@@ -395,42 +381,42 @@ class NationalEmployeeController extends NationalDataController
                 break;
             // Format: First Last
             case ($idx = strpos($input, ' ')) > 0 && strpos(strtolower($input), 'username:') === false:
-                if ($this->debug)
-                {
+                if ($this->debug) {
                     $this->log[] = 'Format Detected: First Last';
                 }
+
                 $first = trim(substr($input, 0, $idx));
                 $last = trim(substr($input, $idx + 1));
 
-                if (($midIdx = strpos($last, ' ')) > 0)
-                {
+                if (($midIdx = strpos($last, ' ')) > 0) {
                     $this->log[] = 'Detected possible Middle initial';
                     $middle = trim(trim(substr($last, 0, $midIdx + 1)), '.');
                     $last = trim(substr($last, $midIdx + 1));
                 }
+
                 $res = $this->lookupName($last, $first, $middle);
+
                 // Check if the user reversed the names
-                if (count($res) < $this->deepSearch)
-                {
+                if (count($res) < $this->deepSearch) {
                     $this->log[] = 'Trying Reversed First/Last name';
                     $res = array_merge($res, $this->lookupName($first, $last));
+
                     // Try to look for service
-                    if (count($res) == 0)
-                    {
+                    if (count($res) == 0) {
                         $this->log[] = 'Trying Service search';
                         $input = trim('*' . $input);
-                        //$res = array_merge($res, $this->lookupService($input));
                     }
                 }
+
                 $searchResult = $res;
 
                 break;
             // Format: Email
             case ($idx = strpos($input, '@')) > 0:
-                if ($this->debug)
-                {
+                if ($this->debug) {
                     $this->log[] = 'Format Detected: Email';
                 }
+
                 $searchResult = $this->lookupEmail($input);
 
                 break;
@@ -441,8 +427,7 @@ class NationalEmployeeController extends NationalDataController
             case substr(strtolower($input), 0, 3) === 'cem':
             case substr(strtolower($input), 0, 3) === 'oit':
             case substr(strtolower($input), 0, 9) === 'username:':
-                if ($this->debug)
-                {
+                if ($this->debug) {
                     $this->log[] = 'Format Detected: Loginname';
                 }
                 $input = str_replace('username:', '', strtolower($input));
@@ -461,68 +446,89 @@ class NationalEmployeeController extends NationalDataController
                 break;
             // Format: Last or First
             default:
-                if ($this->debug)
-                {
+                if ($this->debug) {
                     $this->log[] = 'Format Detected: Last OR First';
                 }
+
                 $res = $this->lookupAllUsersLastName($input, $includeDisabled);
+
                 // Check first names if theres few hits for last names
-                if (count($res) < $this->deepSearch)
-                {
+                if (count($res) < $this->deepSearch) {
                     $this->log[] = 'Extra search on first names';
                     $res = array_merge($res, $this->lookupAllUsersFirstName($input, $includeDisabled));
                     // Try to look for service
-                    if (count($res) == 0)
-                    {
+                    if (count($res) == 0) {
                         $this->log[] = 'Trying Service search';
                         $input = trim('*' . $input);
                         //$res = array_merge($res, $this->lookupService($input));
                     }
                 }
+
                 $searchResult = $res;
         }
 
         // append org chart data
         $finalResult = array();
+        $tcount = 0;
 
-        if (count($searchResult) > 0)
-        {
-            foreach ($searchResult as $employee)
-            {
+        if ($searchResult['status']['code'] == 2 && !empty($searchResult['data'])) {
+            foreach ($searchResult['data'] as $employee) {
                 $finalResult[$employee['empUID']] = $employee;
+                $tcount++;
             }
 
-            $tcount = count($searchResult);
-            for ($i = 0; $i < $tcount; $i++)
-            {
-                $currEmpUID = $searchResult[$i]['empUID'];
-                $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult[$i]['empUID']);
+            for ($i = 0; $i < $tcount; $i++) {
+                $currEmpUID = $searchResult['data'][$i]['empUID'];
+                $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult['data'][$i]['empUID']);
             }
         }
 
         return $finalResult;
     }
 
-    // Translates the * wildcard to SQL % wildcard
-    private function parseWildcard($query)
+    /**
+     * Translates the * wildcard to SQL % wildcard
+     *
+     * @param string $query
+     *
+     * @return string
+     *
+     * Created at: 10/12/2023, 11:11:00 AM (America/New_York)
+     */
+    private function parseWildcard(string $query): string
     {
         return str_replace('*', '%', $query . '*');
     }
 
-    private function metaphone_query($in)
+    /**
+     * @param string $in
+     *
+     * @return string
+     *
+     * Created at: 10/12/2023, 11:11:30 AM (America/New_York)
+     */
+    private function metaphone_query(string $in): string
     {
         return metaphone($in) . '%';
     }
 
-    private function addDomain(&$vars)
+    /**
+     * @param array $vars
+     *
+     * @return string
+     *
+     * Created at: 10/12/2023, 11:11:43 AM (America/New_York)
+     */
+    private function addDomain(array &$vars): string
     {
-        if ($this->domain != '')
-        {
+        $return_value = '';
+
+        if ($this->domain != '') {
             $vars[':domain'] = $this->domain;
 
-            return 'AND domain = :domain';
+            $return_value = 'AND domain = :domain';
         }
 
-        return '';
+        return $return_value;
     }
 }

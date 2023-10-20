@@ -27,7 +27,6 @@ class Site
      */
     public function __construct(ModelSite $site, GlobalSession $session, string $path, string $csrf)
     {
-        ini_set('error_log', '/var/www/php-logs/error_log.log');
         $this->modelSite = $site;
 
         $this_session = $session->retrieveSession($csrf);
@@ -37,12 +36,9 @@ class Site
         if ($this_session['status']['code'] == 2 && !empty($this_session['data'])) {
             // There is a stored session, check if it matches the current path
             $session_data = json_decode($this_session['data'][0]['session'], true);
-            error_log(print_r($session_data, true));
-            error_log(print_r($current_path, true));
 
             if ($session_data['path'] == $current_path) {
                 // current path and session path match get data base on session
-                error_log(print_r('session match', true));
                 $this->setVariables($session_data);
             } else {
                 // current path and session path do NOT match, try the supplied path
@@ -51,19 +47,16 @@ class Site
 
                 if ($session_data['path'] == $current_path) {
                     // current path and session path match get data base on session
-                    error_log(print_r('session match', true));
                     $this->setVariables($session_data);
                 } else {
                     // current path and session path do NOT match, try the supplied path
                     // strip supplied path and check against session again
                     $portal_path = $this->checkPath($original_path);
-                    error_log(print_r('no match', true));
                     $this->processPath($portal_path, true, $session, $csrf, $original_path, $session_data);
                 }
             }
         } else {
             // there are no session variables set it up
-            error_log(print_r('no session', true));
             $portal_path = $this->checkPath($original_path);
 
             $this->processPath($portal_path, true, $session, $csrf, $original_path);
@@ -92,18 +85,14 @@ class Site
             // this path works, assign portal and site paths, update the session
             $this->portal_path = $this->match;
             $this->site_paths = $path_result['data'][0];
-            error_log(print_r('portal found', true));
 
             $this->setSession($this_session, $csrf);
         } elseif ($first_try) {
             // the original url does not produce a site, need to extract the end of the url and try again.
-            error_log(print_r('first try failed', true));
             $this->stripLast($path);
             $portal_path = $this->checkPath($path);
             $this->processPath($portal_path, false, $this_session, $csrf, $path, $stored_session);
         } elseif ($stored_session !== null) {
-            error_log(print_r('no match, use session', true));
-            error_log(print_r($stored_session, true));
             $this->setVariables($stored_session);
         } else {
             $this->error = true;

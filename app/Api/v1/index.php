@@ -1,102 +1,61 @@
 <?php
-use App\Leaf\Db;
+
+use App\Api\v1\ApiMap;
+use App\Api\v1\Routes\NationalEmployeeRouter;
+use App\Nexus\Controllers\NationalEmployeeController;
+use App\Nexus\Model\Employee;
+use App\Nexus\Model\EmployeeData;
+use App\Nexus\Model\Indicators;
+use Orgchart\Employee as OrgchartEmployee;
+
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 
-error_reporting(E_ERROR);
+ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
-
-$oc_db = $oc_db;
-$oc_login->setBaseDir('../');
-
-if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
-    $national_db = true;
-} else {
-    $national_db = false;
-}
+$org_db = $oc_db;
 
 $oc_login->loginUser();
-if (!$oc_login->isLogin() || !$oc_login->isInDB())
-{
-    echo 'Your login is not recognized.';
-    exit;
-}
 
+if (!$oc_login->isLogin() || !$oc_login->isInDB()) {
+    throw new Exception('Sorry, your login is not recognized');
+}
 $action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
 $keyIndex = strpos($action, '/');
-$key = null;
-if ($keyIndex === false)
-{
+
+if ($keyIndex === false) {
     $key = $action;
-}
-else
-{
+} else {
     $key = substr($action, 0, $keyIndex);
 }
 
-$controllerMap = new Orgchart\ControllerMap();
+$MapApi = new ApiMap();
+$router_map = new ApiMap();
 
 switch ($key) {
     case 'group':
-        $controllerMap->register('group', function () use ($oc_db, $oc_login, $action) {
-            $groupController = new Orgchart\GroupController($oc_db, $oc_login);
-            $groupController->handler($action);
-        });
-
-        break;
     case 'position':
-        $controllerMap->register('position', function () use ($oc_db, $oc_login, $action) {
-            $positionController = new Orgchart\PositionController($oc_db, $oc_login);
-            $positionController->handler($action);
-        });
-
-        break;
     case 'employee':
-        $controllerMap->register('employee', function () use ($oc_db, $oc_login, $national_db, $action) {
-            $employeeController = new Orgchart\EmployeeController($oc_db, $oc_login, $national_db);
-            $employeeController->handler($action);
-        });
-
-        break;
     case 'indicator':
-        $controllerMap->register('indicator', function () use ($oc_db, $oc_login, $action) {
-            $indicatorController = new Orgchart\IndicatorController($oc_db, $oc_login);
-            $indicatorController->handler($action);
-        });
-
-        break;
     case 'tag':
-         $controllerMap->register('tag', function () use ($oc_db, $oc_login, $action) {
-            $tagController = new Orgchart\TagController($oc_db, $oc_login);
-            $tagController->handler($action);
-         });
-
-           break;
     case 'system':
-        $controllerMap->register('system', function () use ($oc_db, $oc_login, $action) {
-            $systemController = new Orgchart\SystemController($oc_db, $oc_login);
-            $systemController->handler($action);
-        });
-
         break;
     case 'national':
-        $controllerMap->register('national', function () use ($action) {
-            $oc_db_nat = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
-            $oc_login_nat = new Orgchart\Login($oc_db_nat, $oc_db_nat);
+        $MapApi->register($key, function () use ($action, $key, $org_db, $oc_login, $router_map) {
+            $employee = new Employee($org_db);
+            $empolyee_data = new EmployeeData($org_db);
+            $indicators = new Indicators($org_db);
+            $oc_employee = new OrgchartEmployee($org_db, $oc_login);
 
-            $nationalEmployeeController = new Orgchart\NationalEmployeeController($oc_db_nat, $oc_login_nat);
-            $nationalEmployeeController->handler($action);
+            $national_employee_controller = new NationalEmployeeController($indicators, $employee, $empolyee_data);
+            $national_employee_router = new NationalEmployeeRouter($national_employee_controller, $router_map, $oc_employee);
+            $national_employee_router->handler($action);
         });
 
         break;
 
     case 'x':
-        $controllerMap->register('x', function () use ($oc_db, $oc_login, $action) {
-            $experimentalController = new Orgchart\ExperimentalController($oc_db, $oc_login);
-            $experimentalController->handler($action);
-        });
 
         break;
     default:
@@ -105,4 +64,4 @@ switch ($key) {
         break;
 }
 
-$controllerMap->runControl($key);
+$MapApi->runControl($key);
