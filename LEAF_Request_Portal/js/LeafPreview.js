@@ -86,7 +86,7 @@ var LeafPreview = function(domID) {
     function load(recordID, indicatorID, fileID, callback) {
     	$.ajax({
         	type: 'GET',
-            url: LEAF_NEXUS_URL + 'LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
+            url: '/' + LEAF_NEXUS_URL + 'LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
             dataType: 'json',
             xhrFields: {withCredentials: true},
             success: function(res) {
