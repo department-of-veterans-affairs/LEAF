@@ -9,7 +9,7 @@ $app_dir = '/var/www/html/app';
 
 require_once $app_dir . '/libs/globals.php';
 require_once $app_dir . '/Leaf/Psr4AutoloaderClass.php';
-require_once $app_dir . '/libs/smarty/bootstrap.php';
+require_once $curr_dir . '/libs/smarty/bootstrap.php';
 
 $loader = new Psr4AutoloaderClass;
 $loader->register();
@@ -32,7 +32,6 @@ if ($site->error) {
 }
 
 /** Here down is old loader stuff, will be deprecated once we can verify that they are no longer being used. */
-$working_dir = $curr_dir;
 
 $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
 $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
@@ -57,7 +56,6 @@ if (is_dir($working_dir . $site_paths['orgchart_path'])) {
 }
 
 /* This ends the deprecation area
-
     below this point can be refactored once the code above is removed.
     just needs to be cleaned up as much as possible.
 */

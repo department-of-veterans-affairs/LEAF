@@ -29,6 +29,8 @@ LEAF_Request_Nexus/qrcode/cache/tmp*
 LEAF_Request_Portal/sources/DbConfig.php
 libs/dynicons/cache/*.svg
 libs/qrcode/cache/*.png
+app/libs/dynicons/cache/*.svg
+app/libs/qrcode/cache/*.png
 
 LEAF_Nexus/UPLOADS
 LEAF_Request_Portal/UPLOADS

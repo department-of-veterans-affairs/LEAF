@@ -1825,6 +1825,7 @@ class Form
      * Checks if the current user has access to a particular dependency
      * @param int $dependencyID
      * @param array $details - Associative Array containing dependency-specific details, eg: $details['groupID']
+     *                         Must contain DB reference to records.userID
      * @return boolean
      */
     public function hasDependencyAccess($dependencyID, $details)
@@ -1883,41 +1884,24 @@ class Form
                     }
                 }
 
-                //check if the requester has any backups
-                $backupIds = [];
-                if (isset($this->cache['checkReadAccess_relation_employee_backup_' . $empUID])) {
-                    $backupIds = $this->cache['checkReadAccess_relation_employee_backup_' . $empUID];
-                } else {
-                    $nexusDB = $this->login->getNexusDB();
-                    $vars4 = array(':empId' => $empUID);
-                    $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars4);
-                    $this->cache['checkReadAccess_relation_employee_backup_' . $empUID] = $backupIds;
-                }
-
                 if ($empUID == $this->login->getEmpUID())
                 {
                     return true;
                 }
-                    //check and provide access to backups
-                    foreach ($backupIds as $row)
-                    {
-                        if ($row['backupEmpUID'] == $this->login->getEmpUID())
-                        {
-                            return true;
-                        }
-                    }
+
+                if($this->checkIfBackup($empUID)) {
+                    return true;
+                }
 
                 break;
             case -2: // dependencyID -2 : requestor followup
-                $varsPerson = array(':recordID' => (int)$details['recordID']);
-                $resPerson = $this->db->prepared_query('SELECT userID FROM records
-                                                               WHERE recordID=:recordID', $varsPerson);
-                 if ($resPerson[0]['userID'] == $this->login->getUserID())
+                 if ($details['userID'] == $this->login->getUserID())
                  {
                      return true;
                  }
-                 else{
-                    $empUID = $this->getEmpUID($resPerson[0]['userID']);
+                 else
+                 {
+                    $empUID = $this->getEmpUID($details['userID']);
 
                     return $this->checkIfBackup($empUID);
                  }
@@ -1961,33 +1945,99 @@ class Form
         return false;
     }
 
-    public function getEmpUID($userName){
-        $nexusDB = $this->login->getNexusDB();
-        $vars = array(':userName' => $userName);
-        $response = $nexusDB->prepared_query('SELECT * FROM employee WHERE userName =:userName', $vars);
-        return $response[0]["empUID"];
-    }
-
-    public function checkIfBackup($empUID){
-
-        $nexusDB = $this->login->getNexusDB();
-        $vars = array(':empId' => $empUID);
-        $backupIds = $nexusDB->prepared_query('SELECT * FROM relation_employee_backup WHERE empUID =:empId', $vars);
-
-        if ($empUID != $this->login->getEmpUID())
-        {
-            foreach ($backupIds as $row)
-            {
-                if ($row['backupEmpUID'] == $this->login->getEmpUID())
-                {
-                    return true;
-                }
+    /**
+     * batchUpdateDependencyAccess amends $accessList for specific dependencyIDs to optimize
+     * performance related to dynamic assignments, such as "person designated by requestor"
+     *
+     * @param array $accessList Map of recordID->int of the current user's access. 1 = has access
+     * @param array $records List of records to process
+     * @return array Amended $accessList
+     */
+    private function batchUpdateDependencyAccess(array $accessList, array $records): array
+    {
+        // get sanitized lists for DB query
+        $indicatorIDs = [];
+        $recordIDs = [];
+        foreach($records as $dep) {
+            if($accessList[$dep['recordID']] == 0 && $dep['dependencyID'] == -1) {
+                $indicatorIDs[] = (int)$dep['indicatorID_for_assigned_empUID'];
+                $recordIDs[] = (int)$dep['recordID'];
             }
-
-            return false;
         }
 
-        return true;
+        // get the list of records related to dependencyID -1 (person designated by requestor)
+        if(count($recordIDs) > 0) {
+            $indicators = implode(',', $indicatorIDs);
+            $records = implode(',', $recordIDs);
+            $query = "SELECT recordID, `data` FROM `data`
+                        WHERE indicatorID IN ({$indicators})
+                            AND recordID IN ({$records})
+                            AND series=1";
+            $res = $this->db->prepared_query($query, []);
+
+            foreach($res as $record) {
+                // check if the current user is the designated person
+                if($record['data'] == $this->login->getEmpUID()) {
+                    $accessList[$record['recordID']] = 1;
+                }
+                // check if the current user is a backup of the designated person
+                else if($this->checkIfBackup($record['data'])) {
+                    $accessList[$record['recordID']] = 1;
+                }
+            }
+        }
+
+        return $accessList;
+    }
+
+    /**
+     * getEmpUID translates a userName to empUID
+     *
+     * @param string $userName
+     * @return int
+     */
+    public function getEmpUID($userName): int
+    {
+        if(isset($this->cache['getEmpUID_'. $userName])) {
+            return $this->cache['getEmpUID_'. $userName];
+        }
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':userName' => $userName);
+        $response = $nexusDB->prepared_query('SELECT empUID FROM employee WHERE userName =:userName', $vars);
+        $this->cache['getEmpUID_'. $userName] = (int)$response[0]["empUID"];
+
+        return $this->cache['getEmpUID_'. $userName];
+    }
+
+    /**
+     * checkIfBackup determines if the current user is a backup of the provided $empUID
+     *
+     * @param string $empUID empUID to check
+     * @return boolean
+     */
+    public function checkIfBackup(string|int $empUID): bool
+    {
+        $empUID = (int)$empUID;
+
+        if(isset($this->cache['checkIfBackup'])) {
+            return isset($this->cache['checkIfBackup'][$empUID]);
+        }
+
+        $nexusDB = $this->login->getNexusDB();
+
+        $vars = array(':currEmpUID' => $this->login->getEmpUID());
+        $strSQL = 'SELECT empUID FROM relation_employee_backup
+                    WHERE backupEmpUID =:currEmpUID
+                        AND approved=1';
+        $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+
+        $this->cache['checkIfBackup'] = [];
+        foreach ($backupIds as $row)
+        {
+            $this->cache['checkIfBackup'][$row['empUID']] = true;
+        }
+
+        return isset($this->cache['checkIfBackup'][$empUID]);
     }
 
     /**
@@ -2113,6 +2163,7 @@ class Form
             if (count($res) == 0 || $this->login->checkGroup(1)) {
                 $return_value = $records;
             } else {
+                // initialize empty array to map recordID->hasAccess as int. 1 = has access
                 $temp = isset($this->cache['checkReadAccess_tempArray']) ? $this->cache['checkReadAccess_tempArray'] : array();
 
                 // grant access
@@ -2120,20 +2171,19 @@ class Form
                     if (!isset($temp[$dep['recordID']]) || $temp[$dep['recordID']] == 0) {
                         $temp[$dep['recordID']] = 0;
 
-                        $temp[$dep['recordID']] = $this->hasDependencyAccess($dep['dependencyID'], $dep) ? 1 : 0;
+                        // Use optimized path for certain dependencyIDs. See batchUpdateDependencyAccess.
+                        if($dep['dependencyID'] != -1) {
+                            $temp[$dep['recordID']] = $this->hasDependencyAccess($dep['dependencyID'], $dep) ? 1 : 0;
+                        }
 
                         // request initiator
                         if ($dep['userID'] == $this->login->getUserID()) {
                             $temp[$dep['recordID']] = 1;
                         }
 
-                        // grants backups the ability to access records of their backupFor
-                        if($temp[$dep['recordID']] == 0) {
-                            foreach ($this->employee->getBackupsFor($this->login->getEmpUID()) as $emp) {
-                                if ($dep['userID'] == $emp["userName"]) {
-                                    $temp[$dep['recordID']] = 1;
-                                }
-                            }
+                        // backup of the request initiator
+                        if($temp[$dep['recordID']] == 0 && $this->checkIfBackup($this->getEmpUID($dep['userID']))) {
+                            $temp[$dep['recordID']] = 1;
                         }
 
                         // collaborator access
@@ -2142,6 +2192,8 @@ class Form
                         }
                     }
                 }
+
+                $temp = $this->batchUpdateDependencyAccess($temp, $res);
 
                 $this->cache['checkReadAccess_tempArray'] = $temp;
 
@@ -2294,10 +2346,16 @@ class Form
 
     /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
      * specified by $indicatorID_list (string of ID#'s delimited by ',')
+     * 
+     * WARNING: $alreadyCheckedReadAccess can only be set to true if $recordID_list has been
+     *          processed by checkReadAccess().
      *
-     * @return array on success | false on malformed input
+     * @param array $recordID_list
+     * @param array $indicatorID_list
+     * @param bool (optional) $alreadyCheckedReadAccess
+     * @return array on success | boolean false on malformed input
      */
-    public function getCustomData(array $recordID_list, string|null $indicatorID_list)
+    public function getCustomData(array $recordID_list, string|null $indicatorID_list, bool $alreadyCheckedReadAccess = false): array|bool
     {
         if (count($recordID_list) == 0) {
             return $recordID_list;
@@ -2526,7 +2584,7 @@ class Form
             }
         }
 
-        if ($this->isNeedToKnow())
+        if (!$alreadyCheckedReadAccess && $this->isNeedToKnow())
         {
             $out = $this->checkReadAccess($out);
         }
@@ -2784,7 +2842,15 @@ class Form
         return 1;
     }
 
-    public function query($inQuery)
+    /**
+     * query parses a JSON formatted user query defined in formQuery.js.
+     * 
+     * Returns an array on success, and string/int for malformed queries
+     * 
+     * @param string JSON formatted string of the query
+     * @return mixed
+     */
+    public function query(string $inQuery): mixed
     {
         $query = json_decode(html_entity_decode(html_entity_decode($inQuery)), true);
         if ($query == null)
@@ -3581,9 +3647,11 @@ class Form
         }
 
         // check needToKnow mode
+        $alreadyCheckedReadAccess = false;
         if ($this->isNeedToKnow())
         {
             $data = $this->checkReadAccess($data);
+            $alreadyCheckedReadAccess = true;
         }
 
         // check actionable
@@ -3620,7 +3688,7 @@ class Form
                 $indicatorIDs .= $indicatorID . ',';
             }
 
-            return $this->getCustomData($data, $indicatorIDs);
+            $data = $this->getCustomData($data, $indicatorIDs, $alreadyCheckedReadAccess);
         }
 
         return $data;
