@@ -981,6 +981,24 @@ function buildURLComponents(baseURL, update){
     window.history.pushState('', '', url);
 }
 
+function getPortalURL(url = '') {
+    let portalURL = url;
+    if(portalURL.indexOf('/admin/') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/admin/') + 1);
+    } else if(portalURL.indexOf('/?') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/?') + 1);
+    } else if(portalURL.indexOf('/index.php?') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/index.php?') + 1);
+    } else if(portalURL.indexOf('/report.php?') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/report.php?') + 1);
+    } else if(portalURL.indexOf('/api/open/form/query/') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/api/open/form/query/') + 1);
+    } else if(portalURL.indexOf('/open.php?') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/open.php?') + 1);
+    }
+    return portalURL;
+}
+
 async function getSubordinateSites() {
     return $.ajax({
         type: 'GET',
@@ -990,20 +1008,20 @@ async function getSubordinateSites() {
     .then(function(res) {
         let sites = [];
 		try {
+            const siteReg = /^https:\/\/(leaf\.va\.gov|leaf-preprod\.va\.gov|localhost)\//i;
             let data = JSON.parse(res.sitemap_json);
-
             data.buttons.forEach(site => {
-                if(site.target.indexOf('leaf.va.gov') != -1
-                    && site.target.indexOf('?') == -1) {
-                    sites.push(site.target);
+                const url = getPortalURL(site?.target || '');
+                if(siteReg.test(url)
+                    && url.indexOf('?') === -1) {
+                    sites.push(url);
                 }
             });
         }
         catch(e) {
             alert('Error parsing Sitemap, please review the Sitemap Editor');
         }
-
-        return sites;
+        return = Array.from(new Set(sites));
     });
 }
 
