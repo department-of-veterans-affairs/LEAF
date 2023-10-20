@@ -1021,7 +1021,7 @@ async function getSubordinateSites() {
         catch(e) {
             alert('Error parsing Sitemap, please review the Sitemap Editor');
         }
-        return = Array.from(new Set(sites));
+        return Array.from(new Set(sites));
     });
 }
 
