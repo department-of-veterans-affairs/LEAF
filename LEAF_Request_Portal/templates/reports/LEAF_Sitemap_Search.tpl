@@ -1008,7 +1008,7 @@ async function getSubordinateSites() {
     .then(function(res) {
         let sites = [];
 		try {
-            const siteReg = /^https:\/\/(leaf\.va\.gov|leaf-preprod\.va\.gov|localhost)\//i;
+            const siteReg = new RegExp(`^https://${window.location.hostname}/`, "i");
             let data = JSON.parse(res.sitemap_json);
             data.buttons.forEach(site => {
                 const url = getPortalURL(site?.target || '');
