@@ -191,7 +191,7 @@ class NationalEmployeeController extends NationalDataController
             if ($vars[':lastName'] != '') {
                 $phonetic_result = $this->employee->getUsersByPhoneticLastName($vars, $domain, $disabled_clause, 'phoneticLastName', $this->sortDir, $this->limit);
 
-                foreach ($phonetic_result as $res) {
+                foreach ($phonetic_result['data'] as $res) {
                     if (levenshtein(strtolower($res['lastName']), trim(strtolower($lastName), '*')) <= $this->maxStringDiff) {
                         $result['data'][] = $res;
                     }
@@ -471,15 +471,15 @@ class NationalEmployeeController extends NationalDataController
         $finalResult = array();
         $tcount = 0;
 
-        if ($searchResult['status']['code'] == 2 && !empty($searchResult['data'])) {
-            foreach ($searchResult['data'] as $employee) {
+        if (!empty($searchResult)) {
+            foreach ($searchResult as $employee) {
                 $finalResult[$employee['empUID']] = $employee;
                 $tcount++;
             }
 
             for ($i = 0; $i < $tcount; $i++) {
-                $currEmpUID = $searchResult['data'][$i]['empUID'];
-                $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult['data'][$i]['empUID']);
+                $currEmpUID = $searchResult[$i]['empUID'];
+                $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult[$i]['empUID']);
             }
         }
 

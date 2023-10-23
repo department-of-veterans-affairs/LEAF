@@ -105,8 +105,7 @@ var NexusEmployeeAPI = function (baseAPIURL) {
         getByEmailNational = function (parameters, emailAddress) {
             console.log("leaf nexus api js line 111");
             let fetchURL =
-                apiBaseURL +
-                "national/employee/search&q=" +
+                "api/v1/national/employee/search&q=" +
                 emailAddress +
                 "&noLimit=0";
 

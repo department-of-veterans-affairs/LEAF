@@ -103,7 +103,7 @@ abstract class NationalDataController
 
                 $this->cache["getAllData_{$indicatorID}"] = $res['data'];
             } else {
-                $res = $this->cache["getAllData_{$indicatorID}"];
+                $res['data'] = $this->cache["getAllData_{$indicatorID}"];
             }
 
             $data = array();

@@ -224,11 +224,11 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
     if (this.currRequest != null) {
         this.currRequest.abort();
     }
-
-    var apiOption = "v1/national/employee/search";
+    console.log("national employee selector line 227");
+    var apiOption = "api/v1/?a=national/employee/search";
     if (query.substr(0, 1) == "#") {
         // search local directory, since an empUID query implies that the user already exists in the local dir.
-        apiOption = "employee/search";
+        apiOption = "api/?a=employee/search";
     }
     var announceID = this.prefixID;
 
@@ -515,14 +515,14 @@ nationalEmployeeSelector.prototype.search = function () {
                 }
 
                 // search local directory, since an empUID query implies that the user already exists in the local dir.
-                var apiOption = "v1/national/employee/search";
+                var apiOption = "api/v1/?a=national/employee/search";
                 if (this.q.substr(0, 1) == "#") {
-                    apiOption = "employee/search";
+                    apiOption = "./api/?a=employee/search";
                 }
                 var announceID = this.prefixID;
 
                 var ajaxOptions = {
-                    url: this.apiPath + apiOption,
+                    url: apiOption,
                     dataType: "json",
                     data: {
                         q: this.q,

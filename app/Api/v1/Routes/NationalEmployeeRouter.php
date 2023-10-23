@@ -34,7 +34,6 @@ class NationalEmployeeRouter extends RESTfulResponse
         });
 
         $this->index['GET']->register('national/employee/search', function () use ($employee) {
-            error_log(print_r('hit', true));
             if (isset($_GET['noLimit']) && $_GET['noLimit'] == 1) {
                 $employee->setNoLimit();
             }

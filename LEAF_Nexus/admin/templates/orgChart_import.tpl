@@ -441,7 +441,7 @@
         }
 
         function checkUserExistsNational(email){
-
+            console.log("orgchart import line 444");
             return new Promise(function(resolve, reject){
                 $.ajax({
                     type: 'GET',
