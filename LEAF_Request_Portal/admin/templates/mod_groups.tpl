@@ -732,7 +732,7 @@ function getGroupList() {
                                                             let employeeName = row.insertCell(0);
                                                             employeeName.classList.add("leaf-user-link");
                                                             employeeName.title = `${selectedUser.empUID} - ${selectedUser.userName}`;
-                                                            employeeName.style.cssText = "font-size: 1em; font-weight: 700;";
+                                                            employeeName.style.cssText = "font-size: 1em; font-weight: 700; color: #333;";
 
                                                             let employeeUserName = row.insertCell(1);
                                                             employeeUserName.classList.add("leaf-user-link");
