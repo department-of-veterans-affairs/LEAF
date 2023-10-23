@@ -514,15 +514,16 @@ nationalEmployeeSelector.prototype.search = function () {
                     this.currRequest.abort();
                 }
 
+                console.log("national employee selector line 517");
                 // search local directory, since an empUID query implies that the user already exists in the local dir.
                 var apiOption = "api/v1/?a=national/employee/search";
                 if (this.q.substr(0, 1) == "#") {
-                    apiOption = "./api/?a=employee/search";
+                    apiOption = "api/?a=employee/search";
                 }
                 var announceID = this.prefixID;
 
                 var ajaxOptions = {
-                    url: apiOption,
+                    url: this.apiPath + apiOption,
                     dataType: "json",
                     data: {
                         q: this.q,

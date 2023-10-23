@@ -122,6 +122,8 @@ switch ($action) {
         $t_form->assign('timeZone', $tz);
         $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
         $t_form->assign('app_libs', APP_LIBS_PATH);
+        $t_form->assign('app_path', APP_PATH);
+        $t_form->assign('leaf_domain', LEAF_DOMAIN);
 
         $main->assign('useUI', true);
         $main->assign('stylesheets', array('css/mod_groups.css',
@@ -145,6 +147,7 @@ switch ($action) {
 
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('leaf_domain', LEAF_DOMAIN);
 
         $main->assign('stylesheets', array('css/mod_groups.css',
                 $site_paths['orgchart_path'] . '/css/employeeSelector.css',

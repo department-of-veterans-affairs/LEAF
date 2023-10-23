@@ -141,6 +141,7 @@ switch ($action) {
            $main->assign('javascripts', array('../js/dialogController.js', '../js/nationalEmployeeSelector.js'));
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+           $t_form->assign('leaf_domain', LEAF_DOMAIN);
 
            //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
            $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
@@ -240,6 +241,7 @@ switch ($action) {
 
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('userDomain', $oc_login->getDomain());
+        $t_form->assign('leaf_domain', LEAF_DOMAIN);
 
         $memberships = $oc_login->getMembership();
         if (isset($memberships['groupID'][1]))

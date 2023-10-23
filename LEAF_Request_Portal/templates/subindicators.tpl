@@ -1125,7 +1125,7 @@
 
                 function initEmployeeSelector() {
                     let empSel = new nationalEmployeeSelector('empSel_<!--{$indicator.indicatorID}-->');
-                    empSel.apiPath = '<!--{$orgchartPath}-->/api/';
+                    empSel.apiPath = '<!--{$leaf_domain}-->/api/';
                     empSel.rootPath = '<!--{$orgchartPath}-->/';
 
                     empSel.setSelectHandler(function() {
