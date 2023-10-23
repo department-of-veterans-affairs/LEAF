@@ -141,6 +141,7 @@ if (session_id() == '') {
 
 if (class_exists('Portal\Login')) {
     $login = new Portal\Login($oc_db, $db);
+    $oc_login = new Orgchart\Login($oc_db, $oc_db);
 } else if (class_exists('Orgchart\Login')) {
     $login = new Orgchart\Login($oc_db, $db);
     $oc_login = new Orgchart\Login($oc_db, $oc_db);

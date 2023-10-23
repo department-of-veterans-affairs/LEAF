@@ -390,7 +390,7 @@ function initiateModal(serviceID = 0, serviceName = '') {
                 });
 
                 empSel = new nationalEmployeeSelector('employeeSelector');
-                empSel.apiPath = '<!--{$leaf_domain}-->/api/?a=';
+                empSel.apiPath = '<!--{$leaf_domain}-->';
                 empSel.rootPath = '<!--{$orgchartPath}-->/';
                 empSel.outputStyle = 'micro';
                 empSel.initialize();

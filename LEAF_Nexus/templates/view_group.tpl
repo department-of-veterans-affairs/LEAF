@@ -193,7 +193,7 @@ function addEmployeePosition() {
 
     empSel = new nationalEmployeeSelector('employeeSelector');
     empSel.initialize();
-    empSel.apiPath = '<!--{$leaf_domain}-->/api/';
+    empSel.apiPath = '<!--{$leaf_domain}-->api/';
 //    empSel.setDomain('<!--{$userDomain}-->');
     empSel.hideInput();
 

@@ -686,7 +686,7 @@ function getGroupList() {
                                     });
 
                                     empSel = new nationalEmployeeSelector('employeeSelector');
-                                    empSel.apiPath = '<!--{$leaf_domain}-->/api/?a=';
+                                    empSel.apiPath = '<!--{$leaf_domain}-->';
                                     empSel.rootPath = '<!--{$orgchartPath}-->/';
                                     empSel.outputStyle = 'micro';
                                     empSel.initialize();
@@ -755,7 +755,7 @@ function getGroupList() {
                             '<h2 role="heading" tabindex="-1">System Administrators</h2><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Administrator</h3></div><div id="employeeSelector"></div></br><div id="adminSummary"></div><div class="leaf-marginTop-2rem">');
 
                         empSel = new nationalEmployeeSelector('employeeSelector');
-                        empSel.apiPath = '<!--{$leaf_domain}-->/api/?a=';
+                        empSel.apiPath = '<!--{$leaf_domain}-->';
                         empSel.rootPath = '<!--{$orgchartPath}-->/';
                         empSel.outputStyle = 'micro';
                         empSel.initialize();
