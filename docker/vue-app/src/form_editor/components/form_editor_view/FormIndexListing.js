@@ -128,8 +128,7 @@ export default {
                         :index="i"
                         :menuOpen="formMenuState?.[child.indicatorID] !== undefined ? formMenuState[child.indicatorID] : false"
                         :key="'index_list_item_' + child.indicatorID"
-                        :draggable="previewMode ? false : true"
-                        :style="{cursor: previewMode ? 'auto' : 'grab'}"
+                        :draggable="true"
                         @dragstart.stop="startDrag"> 
                     </form-index-listing>
                 </template>

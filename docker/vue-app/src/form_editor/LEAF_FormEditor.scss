@@ -326,16 +326,16 @@ table[class$="SelectorTable"] th {
 #form_index_display {
     position: relative;
     padding: 0.75rem;
-    width: 420px;
-    flex: 0 0 420px;
+    width: 400px;
+    flex: 0 0 400px;
     align-self:flex-start;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     .index_info {
         display: flex;
+        gap: 0.5rem;
         align-items: center;
-        justify-content: space-between;
         height: 28px;
         margin-bottom: 0.5rem;
         img {
@@ -345,7 +345,11 @@ table[class$="SelectorTable"] th {
             margin-right: auto;
         }
         button {
-            width: 133px;
+            width: 110px;
+            justify-self: flex-end;
+        }
+        #indicator_sorting_toggle {
+            margin-left: auto;
         }
     }
     h3 {
@@ -399,6 +403,59 @@ table[class$="SelectorTable"] th {
             }
         }
     }
+
+    /* lists for internal forms */
+    ul[id^="internalFormRecords_"] > li  {
+        &:not(:last-child) {
+            margin-bottom: 0.5rem;
+        }
+        button {
+            padding: 0.25rem;
+            display: flex;
+            justify-content: flex-start;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border: 2px solid transparent;
+            &:not(#addInternalUse) {
+                background-color: $BG_Pearl;
+                &.selected {
+                    cursor: auto;
+                    background-color: $lt_cyan;
+                    border: 2px solid $LEAF_CSS_outline;
+                }
+            }
+            &:hover, &:focus, &:active {
+                border: 2px solid $LEAF_CSS_outline;
+                outline: none !important;
+            }
+        }
+    }
+    #addInternalUse {
+        margin-top: 0.75rem;
+        padding: 2px 0.5rem;
+        width: 100%;
+        border: 2px solid $base-navy;
+        justify-content: space-between;
+    }
+}
+
+
+/* form editing and entry preview */
+#form_entry_and_preview {
+    position: relative;
+    top: 0;
+    display:flex;
+    flex-direction: column;
+    align-self: flex-start;
+    width: 100%;
+    min-width: 420px;
+    background-color: white;
+    padding: 0.75rem 0.5rem;
+    border-radius: 4px;
+    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    overflow: hidden;
+
     /* Drag-Drop area for focused form */
     ul[id^="base_drop_area"] {
         position: relative;
@@ -417,17 +474,19 @@ table[class$="SelectorTable"] th {
         li.subindicator_heading {
             font-weight: normal;
             color: black;
+            border-left: 4px solid $BG_Pearl;
+            padding-left: 0.25rem;
         }
         li.section_heading > div, li.subindicator_heading > div {
             padding-left: 0.5rem;
         } 
         ul.form-index-listing-ul {
             margin: 0;
-            padding-left: 0.75em;
+            margin-left: 0.25em;
             display: flex;
             flex-direction: column;
             background-clip: content-box;
-            min-height: 8px;  /*NOTE: min height needed for drop zones*/
+            min-height: 8px;
         }
         li {
             position: relative;
@@ -436,7 +495,7 @@ table[class$="SelectorTable"] th {
         }
         li > button {
             font-weight: inherit;
-            cursor: inherit;
+            cursor: grab;
             color: inherit;
             display: flex;
             align-items: center;
@@ -495,82 +554,10 @@ table[class$="SelectorTable"] th {
         }
         li:first-child {
             margin-top: 0.75rem;
-        }
-    }
-    /* preview mode */
-    ul[id^="layoutFormRecords_"].preview {
-        > li.selected {
-            border: 0;
-        }
-        ul[id^="base_drop_area"] {
-            li {
-                margin: 0;
-                cursor: auto;
-                ul.form-index-listing-ul {
-                    min-height: 0;
-                }
-                button {
-                    width: 100%;
-                    padding: 0 0.5rem;
-                    border: 0;
-                    border-bottom:  1px solid $BG_Pearl;
-                    margin: 1px 0;
-                }
-            }
+            margin-bottom: 0;
         }
     }
 
-    /* lists for internal forms */
-    ul[id^="internalFormRecords_"] > li  {
-        &:not(:last-child) {
-            margin-bottom: 0.5rem;
-        }
-        button {
-            padding: 0.25rem;
-            display: flex;
-            justify-content: flex-start;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            border: 2px solid transparent;
-            &:not(#addInternalUse) {
-                background-color: $BG_Pearl;
-                &.selected {
-                    cursor: auto;
-                    background-color: $lt_cyan;
-                    border: 2px solid $LEAF_CSS_outline;
-                }
-            }
-            &:hover, &:focus, &:active {
-                border: 2px solid $LEAF_CSS_outline;
-                outline: none !important;
-            }
-        }
-    }
-    #addInternalUse {
-        margin-top: 0.75rem;
-        padding: 2px 0.5rem;
-        width: 100%;
-        border: 2px solid $base-navy;
-        justify-content: space-between;
-    }
-}
-
-
-/* form editing and entry preview */
-#form_entry_and_preview {
-    position: relative;
-    top: 0;
-    display:flex;
-    flex-direction: column;
-    align-self: flex-start;
-    width: 100%;
-    min-width: 420px;
-    background-color: white;
-    padding: 0.75rem 0.5rem;
-    border-radius: 4px;
-    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
-    overflow: hidden;
     .form_page {
         display: inline-block;
         font-weight: bold;

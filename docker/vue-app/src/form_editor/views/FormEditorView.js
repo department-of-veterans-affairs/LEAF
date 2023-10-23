@@ -37,6 +37,7 @@ export default {
                 'orgchart_position'
             ],
             previewMode: false,
+            dragDropMode: false,
             sortOffset: 128, //number to subtract from listindex when comparing or updating sort values
             updateKey: 0,
             appIsLoadingForm: false,
@@ -217,7 +218,7 @@ export default {
          * @returns boolean.  Whether to use preview tree or focused tree for the form display.
          */
         usePreviewTree() {
-            return this.focusedFormRecord.stapledFormIDs.length > 0 && this.previewMode && this.focusedFormID === this.queryID;
+            return this.focusedFormRecord.stapledFormIDs.length > 0 && this.previewMode && !this.dragDropMode && this.focusedFormID === this.queryID;
         },
         /**
          * @returns tree to display.  shorthand for template iterator.
@@ -458,7 +459,7 @@ export default {
                     }
                 }
             }
-            this.alignListAndForm(nodeID);
+            //this.alignListAndForm(nodeID);
         },
         /** used to sync position of index list item and form preview question name */
         alignListAndForm(nodeID = 0) {
@@ -501,6 +502,9 @@ export default {
         toggleToolbars() {
             this.focusedIndicatorID = null;
             this.previewMode = !this.previewMode;
+            if(this.dragDropMode) {
+                this.dragDropMode = false;
+            }
             if(this.usePreviewTree) {
                 this.getPreviewTree(this.focusedFormID);
             } else {
@@ -694,6 +698,7 @@ export default {
             }
         },
         /**
+         * NOTE: Currently unused (moving drag-drop to form). saving in case used again
          * @param {number} indicatorID changes mode to edit if in preview mode, otherwise opens editor. switch forms if needed.
          */
         handleNameClick(categoryID = '', indicatorID = null) {
@@ -745,6 +750,12 @@ export default {
                 }).catch(err => console.log(err));
             } catch(error) {
                 console.log(error);
+            }
+        },
+        setDragDropMode() {
+            this.dragDropMode = !this.dragDropMode;
+            if(this.dragDropMode === true) {
+                this.previewMode = false;
             }
         }
     },
@@ -800,9 +811,13 @@ export default {
                 <div id="form_index_display">
                     <div class="index_info">
                         <h3>{{ indexHeaderText }}</h3>
+                        <button type="button" id="indicator_sorting_toggle" class="btn-general"
+                            @click.stop="setDragDropMode()">
+                            {{dragDropMode ? 'Sorting' : 'Sort Form'}}
+                        </button>
                         <button type="button" id="indicator_toolbar_toggle" class="btn-general"
                             @click.stop="toggleToolbars()">
-                            {{previewMode ? 'Edit this form' : 'Preview this form'}}
+                            {{previewMode ? 'Edit Form' : 'Preview Form'}}
                         </button>
                     </div>
                     <!-- LAYOUTS (including stapled forms) -->
@@ -828,37 +843,11 @@ export default {
                                         (parent)
                                     </em>
                                 </button>
-                                <!-- DRAG-DROP ZONE -->
-                                <ul v-if="focusedFormTree.length > 0 &&
-                                    (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)"
-                                    :id="'base_drop_area_' + form.categoryID" :key="'drop_zone_collection_' + form.categoryID + '_' + updateKey"
-                                    class="form-index-listing-ul"
-                                    data-effect-allowed="move"
-                                    @drop.stop="onDrop($event)"
-                                    @dragover.prevent
-                                    @dragenter.prevent="onDragEnter"
-                                    @dragleave="onDragLeave">
-
-                                    <form-index-listing v-for="(formSection, i) in fullFormTree"
-                                        :id="'index_listing_' + formSection.indicatorID"
-                                        :categoryID="formSection.categoryID"
-                                        :formPage=i
-                                        :depth=0
-                                        :indicatorID="formSection.indicatorID"
-                                        :formNode="formSection"
-                                        :index=i
-                                        :parentID=null
-                                        :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : false"
-                                        :key="'index_list_item_' + formSection.indicatorID"
-                                        :draggable="previewMode ? false : true"
-                                        :style="{cursor: previewMode ? 'auto' : 'grab'}"
-                                        @dragstart.stop="startDrag">
-                                    </form-index-listing>
-                                </ul>
                             </li>
                         </template>
                     </ul>
-                    <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%;"
+                    <!-- TEST: TODO: -->
+                    <button v-if="false" type="button" class="btn-general" style="width: 100%;"
                         @click="newQuestion(null)"
                         id="add_new_form_section_1"
                         title="Add new form section">
@@ -890,14 +879,42 @@ export default {
                 <div id="form_entry_and_preview">
                     <div class="printformblock" :data-update-key="updateKey"
                         :class="{preview: previewMode, initial: focusedFormTree.length === 0}">
-                        <form-question-display v-for="(formSection, i) in fullFormTree"
-                            :key="'editing_display_' + formSection.indicatorID + makePreviewKey(formSection)"
-                            :categoryID="formSection.categoryID"
-                            :depth="0"
-                            :formPage="i"
-                            :formNode="formSection"
-                            :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : true">
-                        </form-question-display>
+
+                        <!-- DRAG-DROP ZONE -->
+                        <ul v-if="dragDropMode"
+                            :id="'base_drop_area_' + focusedFormRecord.categoryID" :key="'drop_zone_collection_' + focusedFormRecord.categoryID + '_' + updateKey"
+                            class="form-index-listing-ul"
+                            data-effect-allowed="move"
+                            @drop.stop="onDrop($event)"
+                            @dragover.prevent
+                            @dragenter.prevent="onDragEnter"
+                            @dragleave="onDragLeave">
+    
+                            <form-index-listing v-for="(formSection, i) in fullFormTree"
+                                :id="'index_listing_' + formSection.indicatorID"
+                                :categoryID="formSection.categoryID"
+                                :formPage=i
+                                :depth=0
+                                :indicatorID="formSection.indicatorID"
+                                :formNode="formSection"
+                                :index=i
+                                :parentID=null
+                                :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : false"
+                                :key="'index_list_item_' + formSection.indicatorID"
+                                :draggable="true"
+                                @dragstart.stop="startDrag">
+                            </form-index-listing>
+                        </ul>
+                        <template v-else>
+                            <form-question-display v-for="(formSection, i) in fullFormTree"
+                                :key="'editing_display_' + formSection.indicatorID + makePreviewKey(formSection)"
+                                :categoryID="formSection.categoryID"
+                                :depth="0"
+                                :formPage="i"
+                                :formNode="formSection"
+                                :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : true">
+                            </form-question-display>
+                        </template>
                     </div>
                     <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%; margin-top: 0.5rem;"
                         @click="newQuestion(null)"
