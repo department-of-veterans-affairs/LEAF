@@ -858,7 +858,7 @@ export default {
                                         Add Internal-Use&nbsp;<span role="img" aria="" alt="">➕</span>
                                     </button>
                                     <!-- staple options if not itself a staple and not an internal form -->
-                                    <button v-if="!allStapledFormCatIDs.includes(form.categoryID) && form.parentID === ''"
+                                    <button v-if="!previewMode && !allStapledFormCatIDs.includes(form.categoryID) && form.parentID === ''"
                                         type="button" class="btn-general"
                                         :id="'addStaple_' + form.categoryID"
                                         @click="openStapleFormsDialog(form.categoryID)" title="Staple other form">
