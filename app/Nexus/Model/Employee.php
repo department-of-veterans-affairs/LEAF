@@ -72,7 +72,7 @@ class Employee
     {
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `lastName` LIKE {$domain}
+                WHERE `lastName` LIKE :lastName {$domain}
                 {$disabled}
                 ORDER BY {$sort} {$direction}
                 {$limit}";
@@ -98,7 +98,7 @@ class Employee
     {
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `lastName` LIKE {$domain}
+                WHERE `lastName` LIKE :lastName {$domain}
                 {$disabled}
                 ORDER BY {$sort} {$direction}
                 {$limit}";
@@ -124,7 +124,7 @@ class Employee
     {
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `firstName` LIKE {$domain}
+                WHERE `firstName` LIKE :firstName {$domain}
                 {$disabled}
                 ORDER BY {$sort} {$direction}
                 {$limit}";
@@ -150,7 +150,7 @@ class Employee
     {
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `firstName` LIKE {$domain}
+                WHERE `firstName` LIKE :firstName {$domain}
                 {$disabled}
                 ORDER BY {$sort} {$direction}
                 {$limit}";
