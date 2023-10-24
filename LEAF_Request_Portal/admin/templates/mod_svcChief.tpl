@@ -155,13 +155,13 @@ function populateMembers(groupID = -1, members = []) {
     $('#members' + groupID).html('');
     let memberCt = -1;
     for (let i in members) {
-        if (members[i].active == 1 && members[i].backupID == '') {
+        if (members[i].active == 1 && (members[i].backupID == '' || members[i].backupID == null)) {
             memberCt++;
         }
     }
     let countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     for (let i in members) {
-        if (members[i].active == 1 && members[i].backupID == '') {
+        if (members[i].active == 1 && (members[i].backupID == '' || members[i].backupID == null)) {
             if ($('#members' + groupID).html('')) {
                 $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>');
             }
@@ -290,7 +290,7 @@ function initiateModal(serviceID = 0, serviceName = '') {
 
                 let counter = 0;
                 for(let i in res) {
-                    if (res[i].backupID == '') {
+                    if (res[i].backupID == '' || res[i].backupID == null) {
                         let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
                         let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
                         let backups = `<td style="font-size: 0.8em">`;
@@ -346,7 +346,7 @@ function initiateModal(serviceID = 0, serviceName = '') {
                 // add functionality to action buttons after table generation
                 counter = 0;
                 for (let i in res) {
-                    if (res[i].backupID == "") {
+                    if (res[i].backupID == "" || res[i].backupID == null) {
                         if (res[i].active === 1) {
                             $('#removeMember_' + counter).on('click', function () {
                                 dialog_confirm.setContent('Are you sure you want to remove this member?');
