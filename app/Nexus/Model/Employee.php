@@ -28,7 +28,7 @@ class Employee
         $vars = array(':user_name' => $user_name);
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `userName` = :login
+                WHERE `userName` = :user_name
                 AND `deleted` = 0";
 
         $return_value = $this->db->pdo_select_query($sql, $vars);
@@ -72,7 +72,7 @@ class Employee
     {
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `lastName` LIKE :lastName {$domain}
+                WHERE `lastName` LIKE {$domain}
                 {$disabled}
                 ORDER BY {$sort} {$direction}
                 {$limit}";
@@ -98,7 +98,7 @@ class Employee
     {
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `lastName` LIKE :lastName {$domain}
+                WHERE `lastName` LIKE {$domain}
                 {$disabled}
                 ORDER BY {$sort} {$direction}
                 {$limit}";
@@ -124,7 +124,7 @@ class Employee
     {
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `firstName` LIKE :firstName {$domain}
+                WHERE `firstName` LIKE {$domain}
                 {$disabled}
                 ORDER BY {$sort} {$direction}
                 {$limit}";
@@ -150,7 +150,7 @@ class Employee
     {
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `firstName` LIKE :firstName {$domain}
+                WHERE `firstName` LIKE {$domain}
                 {$disabled}
                 ORDER BY {$sort} {$direction}
                 {$limit}";
