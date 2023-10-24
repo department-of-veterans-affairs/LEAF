@@ -143,6 +143,8 @@ class FormWorkflow
      * includePersonDesignatedApproverData efficiently merges approver data to $srcRecords, for a
      * given list of $pdRecordList and $pdIndicators.
      * 
+     * When $skipNames is false, $srcRecords is expected to contain dependencyIDs
+     * 
      * WARNING: This function should only be used to support getRecordsDependencyData() and getActionable().
      *          Usage in other areas must be carefully reviewed as this retrieves data without
      *          checking for valid access. The $pdIndicators variable must only contain indicator IDs
@@ -185,7 +187,7 @@ class FormWorkflow
         $dir = $this->getDirectory();
         // loop through all srcRecords
         foreach($srcRecords as $i => $v) {
-            // only process "person designated" records
+            // amend actionable status
             if(isset($dRecords[$v['recordID']])) {
                 if($srcRecords[$i]['isActionable'] == 0) {
                     $srcRecords[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$v['recordID']]['data']);
@@ -194,17 +196,21 @@ class FormWorkflow
                 if($skipNames) {
                     continue;
                 }
-                $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
 
-                if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                    $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $dRecords[$v['recordID']]['name'] . ')';
-                    $srcRecords[$i]['approverName'] = $dRecords[$v['recordID']]['name'];
-                    $srcRecords[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
-                }
-                else {
-                    $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                    $srcRecords[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
-                    $srcRecords[$i]['approverUID'] = $approver[0]['Email'];
+                // Only amend approverName for person designated records
+                if($v['dependencyID'] == -1) {
+                    $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
+                    
+                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $dRecords[$v['recordID']]['name'] . ')';
+                        $srcRecords[$i]['approverName'] = $dRecords[$v['recordID']]['name'];
+                        $srcRecords[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
+                    }
+                    else {
+                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
+                        $srcRecords[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
+                        $srcRecords[$i]['approverUID'] = $approver[0]['Email'];
+                    }
                 }
             }
         }

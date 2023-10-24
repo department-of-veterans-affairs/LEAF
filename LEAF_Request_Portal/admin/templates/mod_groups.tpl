@@ -78,7 +78,7 @@
     </main>
 </div>
 <!--Loading Modal-->
-<!--{include file="../../../libs/smarty/loading_spinner.tpl" title='User Groups'}-->
+<!--{include file="<!--{$app_libs}-->/smarty/loading_spinner.tpl" title='User Groups'}-->
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/import_dialog.tpl"}-->

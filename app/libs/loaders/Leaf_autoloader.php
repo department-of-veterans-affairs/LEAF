@@ -20,46 +20,45 @@ $loader->addNamespace('App\Leaf\Logger\Formatters', $app_dir . '/Leaf/Logger/For
 
 $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-if (substr(PORTAL_PATH, 0, 1) !== '/') {
-    $my_path = '/' . PORTAL_PATH;
+$site = new App\Leaf\Site($file_paths_db, $_SERVER['SCRIPT_FILENAME']);
+
+if ($site->error) {
+    throw new Exception("Sorry the page you are looking for could not be found, please check the url and try again.");
 } else {
-    $my_path = PORTAL_PATH;
+    $my_path = $site->getPortalPath();
+    if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $my_path);
+    if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . trim($my_path) . '/');
+    $site_paths = $site->getSitePath();
 }
-$vars = array(':site_path' => $my_path);
-$sql = 'SELECT `site_path`, `site_uploads`, `portal_database`, `orgchart_path`,
-            `orgchart_database`
-        FROM `sites`
-        WHERE `site_path` = BINARY :site_path';
-//error_log(print_r($vars, true));
-$site_paths = $file_paths_db->pdo_select_query($sql, $vars);
-//error_log(print_r($site_paths, true));
-$site_paths = $site_paths['data'][0];
 
-if (is_dir($curr_dir . '/libs/php-commons')) {
-    //Commenting this out for testing purposes, this will be uncommented before going to prod.
+/** Here down is old loader stuff, will be deprecated once we can verify that they are no longer being used. */
 
-    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
-    $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
-    $loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');
+$loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
+$loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
+$loader->addNamespace('Leaf', $curr_dir . '/libs/logger/formatters');
 
-    $working_dir = $curr_dir;
+$working_dir = $curr_dir;
 
-    if (is_dir($working_dir . $site_paths['site_path'])) {
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path']);
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api');
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api/controllers');
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/sources');
-        $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/scripts/events');
-    }
-
-    if (is_dir($working_dir . $site_paths['orgchart_path'])) {
-
-        $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path']);
-        $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/api');
-        $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/api/controllers');
-        $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/sources');
-    }
+if (is_dir($working_dir . $site_paths['site_path'])) {
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path']);
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api');
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/api/controllers');
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/sources');
+    $loader->addNamespace('Portal', $working_dir . $site_paths['site_path'] . '/scripts/events');
 }
+
+if (is_dir($working_dir . $site_paths['orgchart_path'])) {
+
+    $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path']);
+    $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/api');
+    $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/api/controllers');
+    $loader->addNamespace('Orgchart', $working_dir . $site_paths['orgchart_path'] . '/sources');
+}
+
+/* This ends the deprecation area
+    below this point can be refactored once the code above is removed.
+    just needs to be cleaned up as much as possible.
+*/
 
 if (!empty($site_paths['portal_database'])){
     $db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
@@ -78,6 +77,9 @@ if (class_exists('Portal\Config')) {
     if (!defined('PORTAL_CONFIG')) define('PORTAL_CONFIG', $config);
 }
 
+/*
+    TODO: move this to the Site class
+*/
 $vars = array(':site_path' => $site_paths['orgchart_path']);
 $sql = 'SELECT site_uploads
         FROM sites
