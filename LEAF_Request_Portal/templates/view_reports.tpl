@@ -423,7 +423,7 @@ function loadSearchPrereqs() {
     searchPrereqsLoaded = true;
     $.ajax({
         type: 'GET',
-        url: './api/form/indicator/list?x-filterData=name,indicatorID,categoryID,categoryName,parentCategoryID,parentStaples',
+        url: './api/form/indicator/list?x-filterData=name,indicatorID,categoryID,categoryName,parentCategoryID,parentStaples,isDisabled',
         dataType: 'text json',
         success: function(res) {
             var buffer = '';
