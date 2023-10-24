@@ -796,6 +796,9 @@ function getGroupList() {
                                                 });
                                                 dialog.hide();
                                             }
+                                            else { // if there are no users to save to the group
+                                                dialog.hide();
+                                            }
                                         }
                                     });
                                     //508 fix
