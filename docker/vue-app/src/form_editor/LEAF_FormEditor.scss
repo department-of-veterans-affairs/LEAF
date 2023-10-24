@@ -654,6 +654,11 @@ table[class$="SelectorTable"] th {
             &.preview.form-header {
                 border-left: 3px solid $BG_Pearl;
             }
+            button.new_section_question {
+                width: calc(100% - 1rem);
+                margin: 1rem 0.5rem 0.5rem;
+                border: 2px dashed darken($BG_Pearl, 10%);
+            }
         }
     }
 

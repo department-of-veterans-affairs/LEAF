@@ -578,6 +578,7 @@ export default {
 
             const all = updateSort.concat(updateParentID);
             Promise.all(all).then((res)=> {
+                console.log('sorted:', res);
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.focusedFormID);
                     this.showLastUpdate('form_properties_last_update');
@@ -803,7 +804,7 @@ export default {
             <edit-properties-panel :key="'panel_' + focusedFormID" :hasCollaborators="hasCollaborators"></edit-properties-panel>
 
             <div id="form_index_and_editing" :data-focus="focusedIndicatorID">
-                <!-- NOTE: INDEX (main + stapled forms, internals for selected form) -->
+                <!-- NOTE: INDEX (main + stapled forms, internals) -->
                 <div id="form_index_display">
                     <div class="index_info">
                         <h3>{{ indexHeaderText }}</h3>
@@ -875,7 +876,7 @@ export default {
                     <div class="printformblock" :data-update-key="updateKey"
                         :class="{preview: previewMode || dragDropMode, initial: focusedFormTree.length === 0}">
 
-                        <!-- DRAG-DROP ZONE -->
+                        <!-- SORT MODE DRAG-DROP ZONE -->
                         <ul v-if="dragDropMode"
                             :id="'base_drop_area_' + focusedFormRecord.categoryID"
                             :key="'drop_zone_collection_' + focusedFormRecord.categoryID + '_' + updateKey"

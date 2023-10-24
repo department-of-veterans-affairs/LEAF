@@ -46,7 +46,7 @@ export default {
                     title="This field is sensitive" />` : '';
         },
         hasCode() {
-            return this.formNode?.html || this.formNode?.htmlPrint;
+            return this.formNode?.html !== '' || this.formNode?.htmlPrint !== '';
         },
         conditionalQuestion() {
             return !this.isHeader && 
@@ -124,10 +124,10 @@ export default {
                         </button>
                         <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" title="advanced options are present" />
                     </div>
-                    <button type="button" class="btn-general"
-                        :title="isHeader ? 'Add question to section' : 'Add sub-question'"
+                    <button v-if="!isHeader" type="button" class="btn-general"
+                        title="Add sub-question"
                         @click="newQuestion(indicatorID)">
-                        + {{isHeader ? 'Add question to section' : 'Add sub-question'}}
+                        Add sub-question
                     </button>
                 </div>
             </div>
@@ -146,8 +146,12 @@ export default {
                 :key="'FED_' + child.indicatorID + makePreviewKey(child)">
             </form-question-display>
         </template>
+        <button v-if="depth === 0 && !previewMode" type="button" class="btn-general new_section_question"
+            title="Add Question to Section"
+            @click="newQuestion(formNode.indicatorID)">
+            Add Question to Section
+        </button>
     </div>
-
     <div v-else class="form-page-card" :id="'form_card_' + indicatorID">
         <button type="button" :id="'card_btn_closed_' + indicatorID"
             class="card_toggle closed" title="expand page"
