@@ -4,13 +4,10 @@ export default {
         'APIroot',
         'categories',
         'focusedFormRecord',
-        'internalFormRecords',
-        'allStapledFormCatIDs',
         'siteSettings',
         'noForm',
 
         'openFormHistoryDialog',
-        'openStapleFormsDialog',
         'openConfirmDeleteFormDialog',
     ],
     computed: {
@@ -18,9 +15,17 @@ export default {
             return this.focusedFormRecord?.parentID === '' ?
                 this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
         },
-        subformID() {
-            return this.focusedFormRecord?.parentID ?
-                this.focusedFormRecord.categoryID : '';
+        /**
+         * @returns {array} of categories records that are internal forms of the main form
+         */
+        internalFormRecords() {
+            let internalFormRecords = [];
+            for(let c in this.categories) {
+                if (this.categories[c].parentID === this.mainFormID && this.mainFormID !== '') {
+                    internalFormRecords.push({...this.categories[c]});
+                }
+            }
+            return internalFormRecords;
         }
     },
     methods: {
@@ -105,11 +110,6 @@ export default {
                 <li>
                     <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form">
                         Delete this form<span role="img" aria="">❌</span>
-                    </button>
-                </li>
-                <li v-if="!allStapledFormCatIDs.includes(mainFormID) && !subformID">
-                    <button type="button" @click="openStapleFormsDialog" title="Manage Stapled Forms">
-                        Manage Stapled Forms <span role="img" aria="">📌</span>
                     </button>
                 </li>
             </template>

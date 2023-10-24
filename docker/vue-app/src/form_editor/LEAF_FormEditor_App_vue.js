@@ -421,7 +421,10 @@ export default {
             this.dialogButtonText = {confirm: 'Yes', cancel: 'No'};
             this.showFormDialog = true;
         },
-        openStapleFormsDialog() {
+        openStapleFormsDialog(categoryID = '') {
+            this.dialogData = {
+                mainFormID: categoryID
+            }
             this.setCustomDialogTitle('<h2>Editing Stapled Forms</h2>');
             this.setFormDialogComponent('staple-form-dialog');
             this.dialogButtonText = {confirm: 'Add', cancel: 'Close'};

@@ -79,6 +79,7 @@ export default {
         'openAdvancedOptionsDialog',
         'openIndicatorEditingDialog',
         'openNewFormDialog',
+        'openStapleFormsDialog',
         'allStapledFormCatIDs',
         'decodeAndStripHTML',
         'truncateText',
@@ -108,7 +109,6 @@ export default {
             previewMode: computed(() => this.previewMode),
             focusedIndicatorID: computed(() => this.focusedIndicatorID),
             fileManagerTextFiles: computed(() => this.fileManagerTextFiles),
-            internalFormRecords: computed(() => this.internalFormRecords),
             appIsLoadingForm: computed(() => this.appIsLoadingForm),
             queryID: computed(() => this.queryID),
             focusedFormID: computed(() => this.focusedFormID),
@@ -150,22 +150,6 @@ export default {
         currentCategoryQuery() {
             return this.categories[this.queryID] || {};
         },
-        mainFormID() {
-            return this.focusedFormRecord?.parentID === '' ?
-                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
-        },
-        /**
-         * @returns {array} of categories records that are internal forms of the main form
-         */
-        internalFormRecords() {
-            let internalFormRecords = [];
-            for(let c in this.categories) {
-                if (this.categories[c].parentID === this.mainFormID && this.mainFormID !== '') {
-                    internalFormRecords.push({...this.categories[c]});
-                }
-            }
-            return internalFormRecords;
-        },
         /**
          * @returns {Object} focused form record from categories object
          */
@@ -190,16 +174,28 @@ export default {
         currentFormCollection() {
             let allRecords = [];
             if(Object.keys(this.currentCategoryQuery)?.length > 0) {
+                let mainInternals = [];
+                for(let f in this.categories) {
+                    if(this.categories[f].parentID === this.currentCategoryQuery.categoryID) {
+                        mainInternals.push({...this.categories[f]});
+                    }
+                }
                 const currStapleIDs = this.currentCategoryQuery?.stapledFormIDs || [];
                 currStapleIDs.forEach(id => {
-                    allRecords.push({...this.categories[id], formContextType: 'staple'});
+                    let stapleInternals = [];
+                    for(let fs in this.categories) {
+                        if(this.categories[fs].parentID === id) {
+                            stapleInternals.push({...this.categories[fs]});
+                        }
+                    }
+                    allRecords.push({...this.categories[id], formContextType: 'staple', internalForms: stapleInternals});
                 });
 
                 const focusedFormType = this.currentCategoryQuery.parentID !== '' ?
                         'internal' :
                         this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
                         'staple' : 'main form';
-                allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType});
+                allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType, internalForms: mainInternals});
             }
             return allRecords.sort((eleA, eleB) => eleA.sort - eleB.sort);
         },
@@ -218,7 +214,7 @@ export default {
          * @returns boolean.  Whether to use preview tree or focused tree for the form display.
          */
         usePreviewTree() {
-            return this.focusedFormRecord.stapledFormIDs.length > 0 && this.previewMode && !this.dragDropMode && this.focusedFormID === this.queryID;
+            return this.focusedFormRecord?.stapledFormIDs?.length > 0 && this.previewMode && !this.dragDropMode && this.focusedFormID === this.queryID;
         },
         /**
          * @returns tree to display.  shorthand for template iterator.
@@ -275,7 +271,7 @@ export default {
                 const indexBoundTop = elIndex.getBoundingClientRect().top;
                 const boundTop = elPreview.getBoundingClientRect().top;
                 const currTop = (elPreview.style.top || '0').replace('px', '');
-                if (this.previewMode || this.appIsLoadingForm || window.innerWidth <= 600 || (+currTop === 0 && boundTop > 0)) {
+                if (this.previewMode || this.dragDropMode || this.appIsLoadingForm || window.innerWidth <= 600 || (+currTop === 0 && boundTop > 0)) {
                     elPreview.style.top = 0;
                 } else {
                     const newTop = Math.round(-indexBoundTop);
@@ -823,9 +819,7 @@ export default {
                     <!-- LAYOUTS (including stapled forms) -->
                     <ul v-if="currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID" :class="{preview: previewMode}">
                         <template v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID">
-                            <li v-show="!previewMode || (form.categoryID === focusedFormRecord.categoryID || form.categoryID === focusedFormRecord.parentID)" 
-                                draggable="false" :class="{selected: form.categoryID === focusedFormID}">
-
+                            <li draggable="false" :class="{selected: form.categoryID === focusedFormID}">
                                 <button type="button"
                                     @click="form.stapledFormIDs.length > 0 && previewMode && form.categoryID === queryID ?
                                         getPreviewTree(form.categoryID) : getFormByCategoryID(form.categoryID)"
@@ -835,7 +829,7 @@ export default {
                                     <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
                                         {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
                                     </span>
-                                    <span v-if="form.formContextType === 'staple'" role="img" aria="">📌</span>
+                                    <span v-if="form.formContextType === 'staple'" role="img" aria="" alt="">📌</span>
                                     <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
                                         (selected)
                                     </em>
@@ -843,46 +837,48 @@ export default {
                                         (parent)
                                     </em>
                                 </button>
+                                
+                                <!-- INTERNAL FORMS AND STAPLE OPTIONS -->
+                                <div v-show="!previewMode || form.categoryID === focusedFormID || form.categoryID === focusedFormRecord.parentID" class="internal_forms">
+                                    <b>Internal Forms</b>
+                                    <ul v-if="form.internalForms.length > 0" :id="'internalFormRecords_' + form.categoryID">
+                                        <li v-for="i in form.internalForms" :key="'internal_' + i.categoryID">
+                                            <button type="button" @click="getFormByCategoryID(i.categoryID)"
+                                                :class="{selected: i.categoryID === focusedFormID}">
+                                                <span role="img" aria="" alt="">📃&nbsp;</span>
+                                                {{shortFormNameStripped(i.categoryID, 35)}}
+                                            </button>
+                                        </li>
+                                    </ul>
+                                    <button v-if="!previewMode && form?.parentID === ''"
+                                        type="button" class="btn-general"
+                                        :id="'addInternalUse_' + form.categoryID"
+                                        @click="openNewFormDialog(form.categoryID)"
+                                        title="New Internal-Use Form" >
+                                        Add Internal-Use&nbsp;<span role="img" aria="" alt="">➕</span>
+                                    </button>
+                                    <!-- staple options if not itself a staple and not an internal form -->
+                                    <button v-if="!allStapledFormCatIDs.includes(form.categoryID) && form.parentID === ''"
+                                        type="button" class="btn-general"
+                                        :id="'addStaple_' + form.categoryID"
+                                        @click="openStapleFormsDialog(form.categoryID)" title="Staple other form">
+                                        Staple other form <span role="img" aria="">📌</span>
+                                    </button>
+                                </div>
                             </li>
                         </template>
                     </ul>
-                    <!-- TEST: TODO: -->
-                    <button v-if="false" type="button" class="btn-general" style="width: 100%;"
-                        @click="newQuestion(null)"
-                        id="add_new_form_section_1"
-                        title="Add new form section">
-                        + Add Section
-                    </button>
-
-                    <!-- INTERNAL FORMS -->
-                    <div style="margin-top:1rem;">
-                        <h3>Internal Forms</h3>
-                        <ul v-if="internalFormRecords.length > 0" :id="'internalFormRecords_' + focusedFormID">
-                            <li v-for="i in internalFormRecords" :key="'internal_' + i.categoryID">
-                                <button type="button" @click="getFormByCategoryID(i.categoryID)"
-                                    :class="{selected: i.categoryID === focusedFormID}">
-                                    <span role="img" aria="">📃&nbsp;</span>
-                                    {{shortFormNameStripped(i.categoryID, 35)}}
-                                </button>
-                            </li>
-                        </ul>
-                        <button v-if="!previewMode && focusedFormRecord?.parentID === ''" type="button" class="btn-general"
-                            id="addInternalUse"
-                            @click="openNewFormDialog(focusedFormRecord.categoryID)"
-                            title="New Internal-Use Form" >
-                            Add Internal-Use&nbsp;<span role="img" aria="">➕</span>
-                        </button>
-                    </div>
                 </div>
 
                 <!-- FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
                     <div class="printformblock" :data-update-key="updateKey"
-                        :class="{preview: previewMode, initial: focusedFormTree.length === 0}">
+                        :class="{preview: previewMode || dragDropMode, initial: focusedFormTree.length === 0}">
 
                         <!-- DRAG-DROP ZONE -->
                         <ul v-if="dragDropMode"
-                            :id="'base_drop_area_' + focusedFormRecord.categoryID" :key="'drop_zone_collection_' + focusedFormRecord.categoryID + '_' + updateKey"
+                            :id="'base_drop_area_' + focusedFormRecord.categoryID"
+                            :key="'drop_zone_collection_' + focusedFormRecord.categoryID + '_' + updateKey"
                             class="form-index-listing-ul"
                             data-effect-allowed="move"
                             @drop.stop="onDrop($event)"
@@ -899,7 +895,7 @@ export default {
                                 :formNode="formSection"
                                 :index=i
                                 :parentID=null
-                                :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : false"
+                                :menuOpen="formMenuState?.[formSection.indicatorID] === undefined ? true : formMenuState[formSection.indicatorID]"
                                 :key="'index_list_item_' + formSection.indicatorID"
                                 :draggable="true"
                                 @dragstart.stop="startDrag">
@@ -912,7 +908,7 @@ export default {
                                 :depth="0"
                                 :formPage="i"
                                 :formNode="formSection"
-                                :menuOpen="formMenuState?.[formSection.indicatorID] !== undefined ? formMenuState[formSection.indicatorID] : true">
+                                :menuOpen="formMenuState?.[formSection.indicatorID] === undefined ? true : formMenuState[formSection.indicatorID]">
                             </form-question-display>
                         </template>
                     </div>

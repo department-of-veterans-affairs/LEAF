@@ -126,7 +126,7 @@ export default {
                         :indicatorID="child.indicatorID"
                         :formNode="child"
                         :index="i"
-                        :menuOpen="formMenuState?.[child.indicatorID] !== undefined ? formMenuState[child.indicatorID] : false"
+                        :menuOpen="formMenuState?.[child.indicatorID] === undefined ? true : formMenuState[child.indicatorID]"
                         :key="'index_list_item_' + child.indicatorID"
                         :draggable="true"
                         @dragstart.stop="startDrag"> 
