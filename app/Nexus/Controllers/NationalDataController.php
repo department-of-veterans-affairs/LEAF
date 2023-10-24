@@ -100,7 +100,7 @@ abstract class NationalDataController
                 } else {
                     $res = $this->indicator->getAllIndicators($this->dataTableCategoryID);
                 }
-                error_log(print_r($res, true));
+
                 $this->cache["getAllData_{$indicatorID}"] = $res['data'];
             } else {
                 $res['data'] = $this->cache["getAllData_{$indicatorID}"];
