@@ -476,11 +476,12 @@ class NationalEmployeeController extends NationalDataController
                 $finalResult[$employee['empUID']] = $employee;
                 $tcount++;
             }
-
+            //error_log(print_r($searchResult, true));
             for ($i = 0; $i < $tcount; $i++) {
                 $currEmpUID = $searchResult[$i]['empUID'];
                 $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult[$i]['empUID']);
             }
+            //error_log(print_r($finalResult, true));
         }
 
         return $finalResult;

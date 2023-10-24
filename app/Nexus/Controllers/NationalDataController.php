@@ -94,13 +94,15 @@ abstract class NationalDataController
         $cacheHash = "getAllData_{$UID}_{$indicatorID}";
 
         if (!isset($this->cache[$cacheHash])) {
+            error_log(print_r('no hash', true));
             if (!isset($this->cache["getAllData_{$indicatorID}"])) {
                 if ($indicatorID != 0) {
                     $res = $this->indicator->getIndicatorsById($indicatorID, $this->dataTableCategoryID);
                 } else {
+                    error_log(print_r('indicator id = 0', true));
                     $res = $this->indicator->getAllIndicators($this->dataTableCategoryID);
                 }
-
+                error_log(print_r($res, true));
                 $this->cache["getAllData_{$indicatorID}"] = $res['data'];
             } else {
                 $res['data'] = $this->cache["getAllData_{$indicatorID}"];

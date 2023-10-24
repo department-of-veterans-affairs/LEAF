@@ -57,6 +57,8 @@ class Indicators
                 AND `disabled` = 0
                 ORDER BY `sort`';
         $return_value = $this->db->pdo_select_query($sql, $vars);
+        error_log(print_r($vars, true));
+        error_log(print_r($return_value, true));
 
         return $return_value;
     }

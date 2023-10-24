@@ -532,6 +532,7 @@ nationalEmployeeSelector.prototype.search = function () {
                         includeDisabled: true,
                     },
                     success: function (response) {
+                        console.log(response);
                         t.currRequest = null;
                         t.numResults = 0;
                         t.selection = "";
