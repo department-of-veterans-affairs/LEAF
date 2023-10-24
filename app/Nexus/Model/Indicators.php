@@ -49,7 +49,11 @@ class Indicators
      */
     public function getAllIndicators(int $category): array
     {
-        $vars = array(':categoryID' => $category);
+        $category_id = array('1' => 'employee',
+                            '2' => 'position',
+                            '3' => 'group');
+
+        $vars = array(':categoryID' => $category_id[$category]);
         $sql = 'SELECT `indicatorID`, `name`, `format`, `description`,
                     `default`, `html`, `required`, `encrypted`, `sort`
                 FROM `indicators`
@@ -57,8 +61,6 @@ class Indicators
                 AND `disabled` = 0
                 ORDER BY `sort`';
         $return_value = $this->db->pdo_select_query($sql, $vars);
-        error_log(print_r($vars, true));
-        error_log(print_r($return_value, true));
 
         return $return_value;
     }
