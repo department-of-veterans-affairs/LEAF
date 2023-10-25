@@ -2,12 +2,16 @@ import FormatPreview from "./FormatPreview";
 
 export default {
     name: 'form-question-display',
+    data() {
+        return {
+            dragging: false
+        }
+    },
     props: {
         categoryID: String,
         depth: Number,
         formPage: Number,
-        formNode: Object,
-        menuOpen: Boolean
+        formNode: Object
     },
     components: {
         FormatPreview
@@ -16,9 +20,7 @@ export default {
         'libsPath',
         'newQuestion',
         'shortIndicatorNameStripped',
-        'updateFormMenuState',
         'focusedFormID',
-        'focusIndicator',
         'editQuestion',
         'hasDevConsoleAccess',
         'editAdvancedOptions',
@@ -32,9 +34,6 @@ export default {
     computed: {
         indicatorID() {
             return +this.formNode?.indicatorID;
-        },
-        showDetails() {
-            return this.depth > 0 || this.previewMode || this.menuOpen;
         },
         isHeader() {
             return this.depth === 0;
@@ -60,9 +59,9 @@ export default {
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const contentSensitive = this.sensitive ? `<span class="required-sensitive">*&nbsp;Sensitive</span>&nbsp;${this.sensitiveImg}` : '';
             const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
-            const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria="">&nbsp;📌</span>` : '';
+            const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria="" alt="">📌&nbsp;</span>` : '';
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
-            return `${page}${name}${shortLabel}${contentRequired}${contentSensitive}${staple}`;
+            return `${page}${staple}${name}${shortLabel}${contentRequired}${contentSensitive}`;
         },
         printResponseID() {
             return `xhrIndicator_${this.indicatorID}_${this.formNode.series}`;
@@ -74,20 +73,7 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    methods: {
-        changeMenuState(indID = 0, menuOpen = true, cascade = false) {
-            this.focusIndicator(indID || null);
-            this.updateFormMenuState(indID, menuOpen, cascade);
-        }
-    },
-    template:`<div v-if="showDetails" class="printResponse" :class="{'form-header': isHeader, preview: previewMode}" :id="printResponseID">
-        <button v-if="depth===0 && !previewMode" type="button" :id="'card_btn_open_' + indicatorID"
-            class="card_toggle" title="collapse page"
-            @click.exact="changeMenuState(indicatorID, false)"
-            @click.ctrl.exact="changeMenuState(indicatorID, false, true)"
-            aria-label="collapse page">-
-        </button>
-
+    template:`<div v-if="!dragging" class="printResponse" :class="{'form-header': isHeader, preview: previewMode}" :id="printResponseID">
         <!-- NOTE: QUESTION EDITING AREA -->
         <div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
@@ -107,7 +93,6 @@ export default {
                             :id="'edit_indicator_' + indicatorID"
                             class="btn-general"
                             @click.exact="editQuestion(parseInt(indicatorID))"
-                            @click.ctrl.stop.exact="focusIndicator(indicatorID, false, true)"
                             :title="'edit indicator ' + indicatorID + '. Control-click to nav to form index.'">
                             {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
@@ -153,15 +138,8 @@ export default {
         </button>
     </div>
     <div v-else class="form-page-card" :id="'form_card_' + indicatorID">
-        <button type="button" :id="'card_btn_closed_' + indicatorID"
-            class="card_toggle closed" title="expand page"
-            @click.exact="changeMenuState(indicatorID, true)"
-            @click.ctrl.exact="changeMenuState(indicatorID, true, true)"
-            aria-label="expand page">+</button>
-        <div>
-            <div class="form_page">{{ formPage + 1 }}</div>
-            <b>{{ shortIndicatorNameStripped(formNode.name, 60) }}</b>
-            <div class="descr" v-if="formNode.description">({{ formNode.description }})</div>
-        </div>
+        <div class="form_page">{{ formPage + 1 }}</div>
+        <b>{{ shortIndicatorNameStripped(formNode.name, 60) }}</b>
+        <div class="descr" v-if="formNode.description">({{ formNode.description }})</div>
     </div>`
 }

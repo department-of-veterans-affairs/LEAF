@@ -99,23 +99,23 @@ export default {
             <template v-if="!noForm">
                 <li>
                     <button type="button" @click="openFormHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history">
-                        View History<span role="img" aria="">🕗</span>
+                        <span role="img" aria="" alt="">🕗&nbsp;</span>View History
                     </button>
                 </li>
                 <li>
                     <button type="button" @click="exportForm" title="export form">
-                        Export Form<span role="img" aria="">💾</span>
+                        <span role="img" aria="" alt="">💾&nbsp;</span>Export Form
                     </button>
                 </li>
                 <li>
                     <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form">
-                        Delete this form<span role="img" aria="">❌</span>
+                        <span role="img" aria="" alt="">❌&nbsp;</span>Delete this form
                     </button>
                 </li>
             </template>
             <li>
                 <router-link :to="{ name: 'restore' }" class="router-link" >
-                    Restore Fields<span role="img" aria="">♻️</span>
+                    <span role="img" aria="" alt="">♻️&nbsp;</span>Restore Fields
                 </router-link>
             </li>
         </ul>

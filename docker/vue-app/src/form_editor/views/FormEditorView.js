@@ -44,7 +44,7 @@ export default {
             focusedFormID: '',   //id of specific primary, staple or internal focused form.
             focusedFormTree: [], //detailed structure of the focused form.  Always a single form.
             previewTree: [],     //detailed structure of primary form and any staples.  Only used in preview mode, and only if primary has staples.
-            focusedIndicatorID: null, //used for form index focus management.
+            focusedIndicatorID: null, //used for form focus management.
             hasCollaborators: false,
             fileManagerTextFiles: []
         }
@@ -73,8 +73,6 @@ export default {
         'setDefaultAjaxResponseMessage',
         'appIsLoadingCategories',
         'categories',
-        'formMenuState',
-        'updateFormMenuState',
         'showLastUpdate',
         'openAdvancedOptionsDialog',
         'openIndicatorEditingDialog',
@@ -262,20 +260,20 @@ export default {
     },
     methods: {
         /**
-         * updates the position of the edit-mode form in large screen displays
+         * updates the position of the form options area in large screen displays
          */
         onScroll() {
-            let elPreview = document.getElementById('form_entry_and_preview');
-            const elIndex = document.getElementById('form_index_display');
+            const elPreview = document.getElementById('form_entry_and_preview');
+            let elIndex = document.getElementById('form_index_display');
             if(elPreview !== null && elIndex !== null) {
                 const indexBoundTop = elIndex.getBoundingClientRect().top;
-                const boundTop = elPreview.getBoundingClientRect().top;
-                const currTop = (elPreview.style.top || '0').replace('px', '');
-                if (this.previewMode || this.dragDropMode || this.appIsLoadingForm || window.innerWidth <= 600 || (+currTop === 0 && boundTop > 0)) {
-                    elPreview.style.top = 0;
+                const previewBoundTop = elPreview.getBoundingClientRect().top;
+                const currTop = (elIndex.style.top || '0').replace('px', '');
+                if (this.appIsLoadingForm || window.innerWidth <= 600 || (+currTop === 0 && indexBoundTop > 0)) {
+                    elIndex.style.top = 0; //was preview
                 } else {
-                    const newTop = Math.round(-indexBoundTop);
-                    elPreview.style.top =  newTop < 0 ? 0 : newTop + 'px';
+                    const newTop = Math.round(-previewBoundTop);
+                    elIndex.style.top =  newTop < 0 ? 0 : newTop + 'px';
                 }
             }
         },
@@ -412,6 +410,7 @@ export default {
          */
         editQuestion(indicatorID = 0) {
             this.getIndicatorByID(indicatorID).then(indicator => {
+                this.focusedIndicatorID = indicatorID;
                 const parentID = indicator?.parentID || null;
                 this.openIndicatorEditingDialog(indicatorID, parentID, indicator);
             }).catch(err => console.log('error getting indicator information', err));
@@ -437,60 +436,10 @@ export default {
             }
         },
         /**
-         * align index and form questions and optionally handle jump to/from index/edit button.
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          */
-        focusIndicator(nodeID = null, focusEdit = false, focusIndex = false) {
+        focusIndicator(nodeID = null) {
             this.focusedIndicatorID = nodeID;
-            if(Number.isInteger(nodeID) && (focusEdit === true || focusIndex === true)) {
-                if(focusEdit === true) {
-                    const elEdit = document.getElementById(`edit_indicator_${nodeID}`);
-                    if(elEdit !== null) {
-                        elEdit.focus();
-                    }
-                } else {
-                    const elIndex = document.getElementById(`btn_index_indicator_${nodeID}`);
-                    if(elIndex !== null) {
-                        elIndex.focus();
-                    }
-                }
-            }
-            //this.alignListAndForm(nodeID);
-        },
-        /** used to sync position of index list item and form preview question name */
-        alignListAndForm(nodeID = 0) {
-            setTimeout(() => { //clear stack
-                const pad = 12;
-                const elListItem = document.getElementById(`index_listing_${nodeID}`);
-                const elFormatLabel = document.getElementById(`${nodeID}_format_label`);
-                const elFormCard = document.getElementById(`form_card_${nodeID}`);
-                let elPreview = document.getElementById(`form_entry_and_preview`);
-                let elBlock = document.querySelector(`#form_entry_and_preview .printformblock`);
-                if(elPreview !== null && elBlock !== null) {
-                    if (window.innerWidth <= 600) { //small screen just set 0
-                        elBlock.style.top = '0px';
-                    } else {
-                        const scrollTop = elBlock.scrollTop;
-                        let diff = 0;
-                        if(elListItem !== null && elFormatLabel !== null) {     //details are open
-                            diff = elListItem.getBoundingClientRect().top - elFormatLabel.getBoundingClientRect().top;
-                        } else if (elListItem !== null && elFormCard !== null) { //details are closed (card view)
-                            diff = elListItem.getBoundingClientRect().top - elFormCard.getBoundingClientRect().top;
-                        } else {
-                            diff = pad; //there is no list item on initial load, changed forms
-                        }
-                        elBlock.scrollTop = Math.round(scrollTop - diff) + pad;
-
-                        let tar = elFormatLabel || elFormCard;
-                        if(tar !== null) {
-                            tar.style.backgroundColor = '#feffd1';
-                            setTimeout(() => {
-                                tar.style.backgroundColor = tar.classList.contains('conditional') ? '#eaeaf4' : '#ffffff';
-                            }, 1000);
-                        }
-                    }
-                }
-            });
         },
         /**
          * switch between edit and preview mode
@@ -578,7 +527,6 @@ export default {
 
             const all = updateSort.concat(updateParentID);
             Promise.all(all).then((res)=> {
-                console.log('sorted:', res);
                 if (res.length > 0) {
                     this.getFormByCategoryID(this.focusedFormID);
                     this.showLastUpdate('form_properties_last_update');
@@ -637,13 +585,11 @@ export default {
                 const parIndID = (parentEl.id || '').includes("base_drop_area") ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
                 const elsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
 
-                let success = false;
                 //if the drop target ul has no items yet, just append
                 if (elsLI.length === 0) {
                     try {
                         parentEl.append(elLiToMove);
                         this.updateListTracker(indID, parIndID, 0);
-                        success = true;
                     } catch (error) {
                         console.log(error);
                     }
@@ -660,17 +606,9 @@ export default {
                                 const indID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
                                 this.updateListTracker(indID, parIndID, i);
                             });
-                            success = true;
                         } catch(error) {
                             console.log(error);
                         }
-                    }
-                }
-                if(success === true) {
-                    //open the parent item if it is not open
-                    const elClosestFormPage = elLiToMove.closest('ul[id^="base_drop_area"] > li');
-                    if(elClosestFormPage !== null && +parIndID > 0 && !this.formMenuState[parIndID]) {
-                        this.updateFormMenuState(parIndID, true, false);
                     }
                 }
                 if(parentEl.classList.contains('entered-drop-zone')){
@@ -699,21 +637,16 @@ export default {
          * @param {number} indicatorID changes mode to edit if in preview mode, otherwise opens editor. switch forms if needed.
          */
         handleNameClick(categoryID = '', indicatorID = null) {
-            this.focusIndicatorID = indicatorID;
+            this.focusedIndicatorID = indicatorID;
             if (this.previewMode) {
                 this.previewMode = false;
                 //previews show staples, so check if the form needs to change to the staple
                 if(categoryID !== this.focusedFormID) {
                     this.getFormByCategoryID(categoryID, true);
-                } else {
-                    setTimeout(() => { //clear stack because mode switch changes the index height
-                        this.focusIndicator(indicatorID, false, true);
-                    });
                 }
+    
             } else {
-                if(indicatorID) {
-                    this.editQuestion(indicatorID);
-                }
+                this.editQuestion(indicatorID);
             }
         },
         /**
@@ -827,10 +760,11 @@ export default {
                                     class="layout-listitem"
                                     :disabled="form.categoryID === focusedFormID"
                                     :title="'form ' + form.categoryID">
+                                    <span v-if="form.formContextType === 'staple'" role="img" aria="" alt="">📌&nbsp;</span>
+                                    <span v-if="form.formContextType === 'main form'" role="img" aria="" alt="">📂&nbsp;</span>
                                     <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
                                         {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
                                     </span>
-                                    <span v-if="form.formContextType === 'staple'" role="img" aria="" alt="">📌</span>
                                     <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
                                         (selected)
                                     </em>
@@ -841,7 +775,6 @@ export default {
                                 
                                 <!-- INTERNAL FORMS AND STAPLE OPTIONS -->
                                 <div v-show="!previewMode || form.categoryID === focusedFormID || form.categoryID === focusedFormRecord.parentID" class="internal_forms">
-                                    <b>Internal Forms</b>
                                     <ul v-if="form.internalForms.length > 0" :id="'internalFormRecords_' + form.categoryID">
                                         <li v-for="i in form.internalForms" :key="'internal_' + i.categoryID">
                                             <button type="button" @click="getFormByCategoryID(i.categoryID)"
@@ -851,20 +784,23 @@ export default {
                                             </button>
                                         </li>
                                     </ul>
-                                    <button v-if="!previewMode && form?.parentID === ''"
-                                        type="button" class="btn-general"
-                                        :id="'addInternalUse_' + form.categoryID"
-                                        @click="openNewFormDialog(form.categoryID)"
-                                        title="New Internal-Use Form" >
-                                        Add Internal-Use&nbsp;<span role="img" aria="" alt="">➕</span>
-                                    </button>
-                                    <!-- staple options if not itself a staple and not an internal form -->
-                                    <button v-if="!previewMode && !allStapledFormCatIDs.includes(form.categoryID) && form.parentID === ''"
-                                        type="button" class="btn-general"
-                                        :id="'addStaple_' + form.categoryID"
-                                        @click="openStapleFormsDialog(form.categoryID)" title="Staple other form">
-                                        Staple other form <span role="img" aria="">📌</span>
-                                    </button>
+                                    <template v-if="form.categoryID===focusedFormID">
+                                        <button v-if="!previewMode && form?.parentID === ''"
+                                            type="button" class="btn-general"
+                                            :id="'addInternalUse_' + form.categoryID"
+                                            @click="openNewFormDialog(form.categoryID)"
+                                            title="New Internal-Use Form" >
+                                            <span role="img" aria="" alt="">➕&nbsp;</span>
+                                            Add Internal-Use
+                                        </button>
+                                        <!-- staple options if not itself a staple and not an internal form -->
+                                        <button v-if="!previewMode && !allStapledFormCatIDs.includes(form.categoryID) && form.parentID === ''"
+                                            type="button" class="btn-general"
+                                            :id="'addStaple_' + form.categoryID"
+                                            @click="openStapleFormsDialog(form.categoryID)" title="Staple other form">
+                                            <span role="img" aria="">📌&nbsp;</span>Staple other form 
+                                        </button>
+                                    </template>
                                 </div>
                             </li>
                         </template>
@@ -874,7 +810,7 @@ export default {
                 <!-- FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
                     <div class="printformblock" :data-update-key="updateKey"
-                        :class="{preview: previewMode || dragDropMode, initial: focusedFormTree.length === 0}">
+                        :class="{initial: focusedFormTree.length === 0}">
 
                         <!-- SORT MODE DRAG-DROP ZONE -->
                         <ul v-if="dragDropMode"
@@ -896,7 +832,6 @@ export default {
                                 :formNode="formSection"
                                 :index=i
                                 :parentID=null
-                                :menuOpen="formMenuState?.[formSection.indicatorID] === undefined ? true : formMenuState[formSection.indicatorID]"
                                 :key="'index_list_item_' + formSection.indicatorID"
                                 :draggable="true"
                                 @dragstart.stop="startDrag">
@@ -908,12 +843,11 @@ export default {
                                 :categoryID="formSection.categoryID"
                                 :depth="0"
                                 :formPage="i"
-                                :formNode="formSection"
-                                :menuOpen="formMenuState?.[formSection.indicatorID] === undefined ? true : formMenuState[formSection.indicatorID]">
+                                :formNode="formSection">
                             </form-question-display>
                         </template>
                     </div>
-                    <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%; margin-top: 0.5rem;"
+                    <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%; margin-top: 0.75rem;"
                         @click="newQuestion(null)"
                         id="add_new_form_section_2"
                         title="Add new form section">

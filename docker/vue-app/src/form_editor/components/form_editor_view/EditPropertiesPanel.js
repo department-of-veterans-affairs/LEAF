@@ -224,8 +224,8 @@ export default {
                     style="width: fit-content;"
                     @click="openEditCollaboratorsDialog"
                     :title="hasCollaborators ? 'Manage Collaborators (Collaborators present)' : 'Manage Collaborators'">
+                    <span v-if="hasCollaborators" role="img" aria="">🔓︎&nbsp;</span>
                     Edit Special Write Access
-                    <span v-if="hasCollaborators" role="img" aria="">&nbsp;🔓︎</span>
                 </button>
                 <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog(focusedFormRecord.categoryID)"
                     style="display: none;">

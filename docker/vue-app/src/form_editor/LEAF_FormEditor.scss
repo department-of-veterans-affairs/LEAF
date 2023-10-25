@@ -332,6 +332,8 @@ table[class$="SelectorTable"] th {
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    max-height: 90vh;
+    overflow-y: auto;
     .index_info {
         display: flex;
         gap: 0.5rem;
@@ -405,9 +407,11 @@ table[class$="SelectorTable"] th {
     /* lists for internal forms */
     div.internal_forms {
         padding: 0.75rem;
+        padding-top: 0;
     }
     ul[id^="internalFormRecords_"] {
-        margin-top: 0.25rem;
+        border-left: 4px solid $BG_Pearl;
+        padding-top: 0.5rem;
         > li  {
             &:not(:last-child) {
                 margin-bottom: 0.5rem;
@@ -420,6 +424,7 @@ table[class$="SelectorTable"] th {
                 height: 100%;
                 overflow: hidden;
                 border: 2px solid transparent;
+                border-radius: 2px;
                 &:not(#addInternalUse) {
                     background-color: $BG_Pearl;
                     &.selected {
@@ -438,9 +443,9 @@ table[class$="SelectorTable"] th {
     button[id^="addInternalUse_"], button[id^="addStaple_"] {
         margin-top: 0.75rem;
         width: 100%;
-        padding: 2px 0.5rem;
+        padding: 2px 0.25rem;
         border: 2px solid $base-navy;
-        justify-content: space-between;
+        justify-content: flex-start;
     }
 }
 
@@ -455,9 +460,9 @@ table[class$="SelectorTable"] th {
     width: 100%;
     min-width: 420px;
     background-color: white;
-    padding: 0.75rem 0.5rem;
+    padding: 0;
+    background-color: #dcdee0;
     border-radius: 4px;
-    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     overflow: hidden;
 
     /* Drag-Drop area for focused form */
@@ -593,26 +598,6 @@ table[class$="SelectorTable"] th {
             }
         }
     }
-    button.card_toggle {
-        position: absolute;
-        top: 0;
-        left: 0;
-        margin-left: -6px;
-        padding: 0 1px;
-        align-items: flex-start;
-        height: 100%;
-        border: 0;
-        border-radius: 3px 0 0 3px;
-        background-color: $BG_Pearl;
-        font-size: 90%;
-        &.closed {
-            font-size: 60%;
-        }
-        &:hover, &:focus, &:active {
-            border: 0;
-            outline: none;
-        }
-    }
 
     div.printformblock {
         overflow-y: auto;
@@ -622,12 +607,10 @@ table[class$="SelectorTable"] th {
         position: relative;
         transition: top 0.2s ease;
         break-inside: avoid;
+        height: auto;
+        max-height: none;
         &.initial {
             height: 190px;
-        }
-        &.preview {
-            height: auto;
-            max-height: none;
         }
         div.printResponse {
             position: relative;
@@ -637,10 +620,13 @@ table[class$="SelectorTable"] th {
             float: none; /* style.css style collision */
             border-radius: 4px;
             border-left: 8px solid $BG_Pearl;
+            background-color: white;
             &.form-header, &.preview.form-header {
-                border-top: 3px solid $BG_Pearl;
-                border-right: 3px solid darken($BG_Pearl, 8%);
-                border-bottom: 3px solid darken($BG_Pearl, 8%);
+                border: 0;
+                padding-bottom: 0.25rem;
+                border-radius: 4px;
+                overflow: hidden;
+                box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
                 &:last-child {
                     margin-bottom: 0;
                 }
@@ -651,13 +637,10 @@ table[class$="SelectorTable"] th {
             &:not(.form-header):not(.preview) {
                 margin-left: 0.5rem;
             }
-            &.preview.form-header {
-                border-left: 3px solid $BG_Pearl;
-            }
             button.new_section_question {
                 width: calc(100% - 1rem);
                 margin: 1rem 0.5rem 0.5rem;
-                border: 2px dashed darken($BG_Pearl, 10%);
+                border: 2px dashed darken($BG_Pearl, 15%);
             }
         }
     }
@@ -694,7 +677,6 @@ table[class$="SelectorTable"] th {
         .indicator-name-preview {
             padding: 0.75rem 0 0.75rem 0.75rem;
             width: 100%;
-            transition: background-color 0.75s ease;
             background-color: white;
             &.conditional {
                 background-color: saturate(darken($BG_Pearl, 2%), 15%);
@@ -976,10 +958,6 @@ table[class$="SelectorTable"] th {
             #form_index_display {
                 width: 100%;
                 flex: 0 0 100%;
-            }
-            .printformblock {
-                height: auto;
-                max-height: none;
             }
             .tableinput {
                 max-width: 400px;

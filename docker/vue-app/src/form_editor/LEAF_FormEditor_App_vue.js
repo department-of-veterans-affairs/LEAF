@@ -25,7 +25,6 @@ export default {
             categories: {},
             allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
             advancedMode: false,
-            formMenuState: {},
 
             /* modal properties */
             dialogTitle: '',
@@ -48,7 +47,6 @@ export default {
             secureBtnText: computed(() => this.secureBtnText),
             secureBtnLink: computed(() => this.secureBtnLink),
             advancedMode: computed(() => this.advancedMode),
-            formMenuState: computed(() => this.formMenuState),
 
             //static values
             APIroot: this.APIroot,
@@ -59,7 +57,6 @@ export default {
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
             editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
-            updateFormMenuState: this.updateFormMenuState,
             updateCategoriesProperty: this.updateCategoriesProperty,
             updateStapledFormsInfo: this.updateStapledFormsInfo,
             addNewCategory: this.addNewCategory,
@@ -322,22 +319,6 @@ export default {
         updateCategoriesProperty(catID = '', keyName = '', keyValue = '') {
             if(this.categories[catID][keyName] !== undefined) {
                 this.categories[catID][keyName] = keyValue;
-            }
-        },
-        /**
-         * Update the menu state of the form editor preview
-         * @param {number} indID indicatorID to set state for
-         * @param {boolean} menuOpen open or close the menu
-         * @param {boolean} cascade open or close all submenus
-         */
-        updateFormMenuState(indID = 0, menuOpen = true, cascade = false) {
-            this.formMenuState[indID] = menuOpen;
-            if(cascade === true) {
-                const allChildren = Array.from(document.querySelectorAll(`#index_listing_${indID} li`));
-                allChildren.forEach(c => {
-                    const id = c.id.replace('index_listing_', '');
-                    this.formMenuState[id] = menuOpen;
-                });
             }
         },
         /**

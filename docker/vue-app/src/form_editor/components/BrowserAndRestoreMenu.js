@@ -15,20 +15,20 @@ export default {
             </li>
             <li>
                 <button type="button" id="createFormButton" @click="openNewFormDialog()">
-                    Create Form<span role="img" aria="">📄</span>
+                    <span role="img" aria="">📄&nbsp;</span>Create Form
                 </button>
             </li>
             <li>
-                <a href="./?a=formLibrary" class="router-link">LEAF Library<span role="img" aria="">📘</span></a>
+                <a href="./?a=formLibrary" class="router-link"><span role="img" aria="">📘&nbsp;</span>LEAF Library</a>
             </li>
             <li>
                 <button type="button" @click="openImportFormDialog">
-                    Import Form<span role="img" aria="">📦</span>
+                    <span role="img" aria="">📦&nbsp;</span>Import Form
                 </button>
             </li>
             <li v-if="$route.name === 'browser'">
                 <router-link :to="{ name: 'restore' }" class="router-link" >
-                    Restore Fields<span role="img" aria="">♻️</span>
+                    <span role="img" aria="">♻️&nbsp;</span>Restore Fields
                 </router-link>
             </li>
         </ul>
