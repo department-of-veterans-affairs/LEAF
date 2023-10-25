@@ -200,12 +200,6 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 
         $nationalEmpUIDs[] = (int) $orgEmployee['empUID'];
 
-        $weekOld = $orgEmployee['lastUpdated'] + 604800;
-
-        if(time() > $weekOld){
-            $orgEmployee['deleted'] = time();
-        }
-
         $localEmployeeArray[] = [
             'empUID' => (empty($localEmpArray[$orgEmployee['userName']]) ? null : $localEmpArray[$orgEmployee['userName']]),
             'userName' => $orgEmployee['userName'],
@@ -219,7 +213,6 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
             'lastUpdated' => $orgEmployee['lastUpdated']
         ];
     }
-
 
     $localDeletedEmployees = array_diff(array_column($localEmpUIDs, 'userName'), array_column($orgEmployeeRes, 'userName'));
     $deletedEmployeesSql = "UPDATE employee SET deleted=UNIX_TIMESTAMP(NOW()) WHERE userName IN (" . implode(",", array_fill(1, count($localDeletedEmployees), '?')) . ")";
