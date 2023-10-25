@@ -339,7 +339,7 @@ export default {
                 this.appIsLoadingForm = true;
                 this.setDefaultAjaxResponseMessage();
                 try {
-                    fetch(`${this.APIroot}form/specified?categoryIDs=${this.formPreviewIDs}`).then(res => {
+                    fetch(`${this.APIroot}form/specified?childkeys=nonnumeric&categoryIDs=${this.formPreviewIDs}`).then(res => {
                         res.json().then(data => {
                             if(data?.status?.code === 2) {
                                 this.previewTree = data.data || [];
