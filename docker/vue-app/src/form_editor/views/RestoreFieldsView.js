@@ -28,7 +28,6 @@ export default {
      * get all disabled or archived indicators for indID > 0 and update app disabledFields (array)
      */
     created() {
-        console.log('restore route created')
         $.ajax({
             type: 'GET',
             url: `${this.APIroot}form/indicator/list/disabled`,

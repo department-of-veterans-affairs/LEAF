@@ -86,8 +86,9 @@ export default {
                 @click.stop="focusIndicator(indicatorID)"
                 @click.ctrl.stop.exact="focusIndicator(indicatorID, true)">
                 <span v-show="!previewMode" role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>
+                <span v-show="previewMode">{{ formPage + 1}}.&nbsp;</span>
                 {{indexDisplay}}
-                <div v-if="formNode.child" tabindex="0" class="sub-menu-chevron" :class="{closed: !menuOpen}"
+                <div v-if="formNode.child && !previewMode" tabindex="0" class="sub-menu-chevron" :class="{closed: !menuOpen}"
                     @click.stop.exact="changeMenuState(indicatorID, !menuOpen)"
                     @click.ctrl.stop.exact="changeMenuState(indicatorID, !menuOpen, true)"
                     @keydown.stop.enter.space.exact.prevent="changeMenuState(indicatorID, !menuOpen)"
@@ -109,7 +110,7 @@ export default {
             </button>
             
             <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
-            <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ indicatorID"
+            <ul v-if="!previewMode" class="form-index-listing-ul" :id="'drop_area_parent_'+ indicatorID"
                 data-effect-allowed="move"
                 @drop.stop="onDrop($event)"
                 @dragover.prevent
@@ -129,7 +130,6 @@ export default {
                         :menuOpen="formMenuState?.[child.indicatorID] !== undefined ? formMenuState[child.indicatorID] : false"
                         :key="'index_list_item_' + child.indicatorID"
                         :draggable="previewMode ? false : true"
-                        :style="{cursor: previewMode ? 'auto' : 'grab'}"
                         @dragstart.stop="startDrag"> 
                     </form-index-listing>
                 </template>

@@ -46,7 +46,7 @@ export default {
                     title="This field is sensitive" />` : '';
         },
         hasCode() {
-            return this.formNode?.html || this.formNode?.htmlPrint;
+            return this.formNode?.html !== '' || this.formNode?.htmlPrint !== '';
         },
         conditionalQuestion() {
             return !this.isHeader && 

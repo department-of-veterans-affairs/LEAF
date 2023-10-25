@@ -326,8 +326,8 @@ table[class$="SelectorTable"] th {
 #form_index_display {
     position: relative;
     padding: 0.75rem;
-    width: 420px;
-    flex: 0 0 420px;
+    width: 400px;
+    flex: 0 0 400px;
     align-self:flex-start;
     background-color: white;
     border-radius: 4px;
@@ -357,15 +357,15 @@ table[class$="SelectorTable"] th {
     }
     /* lists for main and stapled forms   */
     ul[id^="layoutFormRecords_"] button.layout-listitem {
-        padding: 0.25rem;
+        padding: 0.25rem 0.5rem;
         display: flex;
         justify-content: flex-start;
         width: 100%;
-        height: 100%;
+        height: 46px;
         border: 0;
         background-clip: padding-box;
         overflow: hidden;
-        max-height: 46px;
+
         &:not(:disabled) {
             color: $charcoal;
         }
@@ -377,11 +377,6 @@ table[class$="SelectorTable"] th {
             cursor: default;
             outline: none
         }
-        &.layout-listitem {
-            min-height: 46px;
-            border-radius: 0;
-            padding: 0 0.5rem;
-        }
         &.layout-listitem:disabled { /* the currently selected form */
             color: $base_navy;
         }
@@ -389,9 +384,11 @@ table[class$="SelectorTable"] th {
     /* li contain the drag-drop zone of selected form */
     ul[id^="layoutFormRecords_"] > li  {
         min-height: 46px;
-        margin-bottom: 0.5rem;
         border: 2px solid #f0f0f0;
         border-radius: 2px;
+        &:not(:last-child) {
+            margin-bottom: 0.5rem;
+        }
         &.selected {
             border: 2px solid $LEAF_CSS_outline;
             button.layout-listitem {
@@ -417,13 +414,13 @@ table[class$="SelectorTable"] th {
         li.subindicator_heading {
             font-weight: normal;
             color: black;
+            border-left: 4px solid $BG_Pearl;
         }
         li.section_heading > div, li.subindicator_heading > div {
             padding-left: 0.5rem;
         } 
         ul.form-index-listing-ul {
-            margin: 0;
-            padding-left: 0.75em;
+            margin: 0 0 0 0.5rem;
             display: flex;
             flex-direction: column;
             background-clip: content-box;
@@ -431,12 +428,12 @@ table[class$="SelectorTable"] th {
         }
         li {
             position: relative;
-            margin: 3px 0; /* there needs to be a margin to hilite the drop zone. */
+            margin: 2px 0; /* there needs to be a margin to hilite the drop zone. */
             border-radius: 2px;
         }
         li > button {
             font-weight: inherit;
-            cursor: inherit;
+            cursor: grab;
             color: inherit;
             display: flex;
             align-items: center;
@@ -447,8 +444,8 @@ table[class$="SelectorTable"] th {
             border-bottom: 1px solid darken($BG_Pearl, 8%);
             border-right: 1px solid darken($BG_Pearl, 8%);
             background-color: white;
-            margin: 0 6px;
-            width: calc(100% - 12px);
+            margin: 0 0.5rem;
+            width: calc(100% - 1rem);
             padding: 0 0.25rem;
             .icon_move_container {
                 @include flexcenter;
@@ -501,6 +498,7 @@ table[class$="SelectorTable"] th {
     ul[id^="layoutFormRecords_"].preview {
         > li.selected {
             border: 0;
+            margin: 0;
         }
         ul[id^="base_drop_area"] {
             li {
@@ -510,18 +508,28 @@ table[class$="SelectorTable"] th {
                     min-height: 0;
                 }
                 button {
+                    cursor: auto;
                     width: 100%;
                     padding: 0 0.5rem;
                     border: 0;
                     border-bottom:  1px solid $BG_Pearl;
-                    margin: 1px 0;
+                    margin: 2px 0;
                 }
             }
         }
     }
 
+    #add_new_form_section_1 {
+        border: 2px dashed darken($BG_Pearl, 15%);
+        height: 40px;
+    }
+
     /* lists for internal forms */
+    div.internal_forms {
+        padding: 0.75rem;
+    }
     ul[id^="internalFormRecords_"] > li  {
+        margin-top: 2px;
         &:not(:last-child) {
             margin-bottom: 0.5rem;
         }
@@ -547,7 +555,7 @@ table[class$="SelectorTable"] th {
             }
         }
     }
-    #addInternalUse {
+    button[id^="addInternalUse_"], button[id^="addStaple_"] {
         margin-top: 0.75rem;
         padding: 2px 0.5rem;
         width: 100%;
@@ -584,7 +592,7 @@ table[class$="SelectorTable"] th {
         position: relative;
         padding: 0.75rem;
         border: 3px solid $BG_Pearl;
-        border-left: 7px solid $BG_Pearl;
+        border-left: 8px solid $BG_Pearl;
         border-right: 3px solid darken($BG_Pearl, 8%);
         border-bottom: 3px solid darken($BG_Pearl, 8%);
         border-radius: 4px;
@@ -607,11 +615,11 @@ table[class$="SelectorTable"] th {
         top: 0;
         left: 0;
         margin-left: -6px;
-        padding: 1px 1px 1px 2px;
+        padding: 0 1px;
         align-items: flex-start;
         height: 100%;
         border: 0;
-        border-radius: 4px 0 0 4px;
+        border-radius: 3px 0 0 3px;
         background-color: $BG_Pearl;
         font-size: 90%;
         &.closed {
@@ -645,7 +653,7 @@ table[class$="SelectorTable"] th {
             min-height: 50px;
             float: none; /* style.css style collision */
             border-radius: 4px;
-            border-left: 7px solid $BG_Pearl;
+            border-left: 8px solid $BG_Pearl;
             &.form-header, &.preview.form-header {
                 border-top: 3px solid $BG_Pearl;
                 border-right: 3px solid darken($BG_Pearl, 8%);
