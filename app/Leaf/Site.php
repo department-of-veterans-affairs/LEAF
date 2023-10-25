@@ -27,7 +27,6 @@ class Site
      */
     public function __construct(ModelSite $site, GlobalSession $session, string $path, string $csrf)
     {
-        ini_set('error_log', '/var/www/php-logs/error_log.log');
         $this->modelSite = $site;
 
         $this_session = $session->retrieveSession($csrf);
@@ -37,12 +36,9 @@ class Site
         if ($this_session['status']['code'] == 2 && !empty($this_session['data'])) {
             // There is a stored session, check if it matches the current path
             $session_data = json_decode($this_session['data'][0]['session'], true);
-            error_log(print_r($session_data, true));
-            error_log(print_r($current_path, true));
 
             if ($session_data['path'] == $current_path) {
                 // current path and session path match get data base on session
-                error_log(print_r('session match', true));
                 $this->setVariables($session_data);
             } else {
                 // current path and session path do NOT match, try the supplied path
@@ -51,65 +47,94 @@ class Site
 
                 if ($session_data['path'] == $current_path) {
                     // current path and session path match get data base on session
-                    error_log(print_r('session match', true));
                     $this->setVariables($session_data);
                 } else {
                     // current path and session path do NOT match, try the supplied path
                     // strip supplied path and check against session again
                     $portal_path = $this->checkPath($original_path);
-                    error_log(print_r('no match', true));
                     $this->processPath($portal_path, true, $session, $csrf, $original_path, $session_data);
                 }
             }
         } else {
             // there are no session variables set it up
-            error_log(print_r('no session', true));
             $portal_path = $this->checkPath($original_path);
 
             $this->processPath($portal_path, true, $session, $csrf, $original_path);
         }
     }
 
+    /**
+     * @return string
+     *
+     * Created at: 10/25/2023, 8:54:59 AM (America/New_York)
+     */
     public function getPortalPath(): string
     {
         return $this->portal_path;
     }
 
+    /**
+     * @return array
+     *
+     * Created at: 10/25/2023, 8:55:06 AM (America/New_York)
+     */
     public function getSitePath(): array
     {
         return $this->site_paths;
     }
 
+    /**
+     * @param array $current_session
+     *
+     * @return void
+     *
+     * Created at: 10/25/2023, 8:55:13 AM (America/New_York)
+     */
     private function setVariables(array $current_session): void
     {
         $this->portal_path = $current_session['path'];
         $this->site_paths = $current_session['site_data'];
     }
 
+    /**
+     * @param array $path_result
+     * @param bool $first_try
+     * @param GlobalSession $this_session
+     * @param string $csrf
+     * @param string $path
+     * @param array|null $stored_session
+     *
+     * @return void
+     *
+     * Created at: 10/25/2023, 8:55:21 AM (America/New_York)
+     */
     private function processPath(array $path_result, bool $first_try, GlobalSession $this_session, string $csrf, string $path, ?array $stored_session = null): void
     {
         if ($path_result['status']['code'] == 2 && !empty($path_result['data'])) {
             // this path works, assign portal and site paths, update the session
             $this->portal_path = $this->match;
             $this->site_paths = $path_result['data'][0];
-            error_log(print_r('portal found', true));
 
             $this->setSession($this_session, $csrf);
         } elseif ($first_try) {
             // the original url does not produce a site, need to extract the end of the url and try again.
-            error_log(print_r('first try failed', true));
             $this->stripLast($path);
             $portal_path = $this->checkPath($path);
             $this->processPath($portal_path, false, $this_session, $csrf, $path, $stored_session);
         } elseif ($stored_session !== null) {
-            error_log(print_r('no match, use session', true));
-            error_log(print_r($stored_session, true));
             $this->setVariables($stored_session);
         } else {
             $this->error = true;
         }
     }
 
+    /**
+     * @param string $path
+     *
+     * @return void
+     *
+     * Created at: 10/25/2023, 8:55:31 AM (America/New_York)
+     */
     private function stripLast(string &$path): void
     {
         $path_array = explode('/', $path);
@@ -123,6 +148,13 @@ class Site
         }
     }
 
+    /**
+     * @param string $path
+     *
+     * @return array
+     *
+     * Created at: 10/25/2023, 8:55:39 AM (America/New_York)
+     */
     private function checkPath(string $path): array
     {
         $return_value = $this->modelSite->getSiteData($path);
@@ -130,6 +162,13 @@ class Site
         return $return_value;
     }
 
+    /**
+     * @param string $path
+     *
+     * @return string
+     *
+     * Created at: 10/25/2023, 8:55:46 AM (America/New_York)
+     */
     private function parsePath(string $path): string
     {
         preg_match('(\/.+\/)', $path, $match);
@@ -140,6 +179,14 @@ class Site
         return $this->match;
     }
 
+    /**
+     * @param GlobalSession $session
+     * @param string $csrf
+     *
+     * @return void
+     *
+     * Created at: 10/25/2023, 8:55:55 AM (America/New_York)
+     */
     private function setSession(GlobalSession $session, string $csrf): void
     {
         $data = array('path' => $this->match,

@@ -21,6 +21,13 @@ class Site
         $this->db = $db;
     }
 
+    /**
+     * @param string $path
+     *
+     * @return array
+     *
+     * Created at: 10/25/2023, 8:54:27 AM (America/New_York)
+     */
     public function getSiteData(string $path): array
     {
         $vars = array(':site_path' => $path);
