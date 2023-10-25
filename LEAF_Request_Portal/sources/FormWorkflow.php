@@ -388,7 +388,7 @@ class FormWorkflow
             if ($res[$i]['isActionable']) {
                 switch($res[$i]['dependencyID']) {
                     case -1: // dependencyID -1 is for a person designated by the requestor
-                        $personDesignatedRecords[$res[$i]['recordID']] = 1;
+                        $personDesignatedRecords[$res[$i]['recordID']][$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                         $personDesignatedIndicators[$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                         break;
                     case -2: // dependencyID -2 is for requestor followup
