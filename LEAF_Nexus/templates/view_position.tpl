@@ -167,6 +167,7 @@ function addEmployee() {
 
     empSel = new nationalEmployeeSelector('employeeSelector');
     empSel.initialize();
+    empSel.apiPath = '<!--{$leaf_domain}-->api/';
 //    empSel.setDomain('<!--{$userDomain}-->');
     empSel.clearSearch();
 

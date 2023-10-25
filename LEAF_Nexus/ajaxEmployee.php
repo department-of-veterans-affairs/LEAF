@@ -70,6 +70,7 @@ switch ($action) {
         $t_form->assign('UID', $uid);
         $t_form->assign('categoryID', $employee->getDataTableCategoryID());
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('leaf_domain', LEAF_DOMAIN);
         $t_form->display('ajaxForm.tpl');
 
         break;

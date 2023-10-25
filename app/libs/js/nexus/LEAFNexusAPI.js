@@ -2,18 +2,16 @@
  * API for LEAF Nexux
  */
 var LEAFNexusAPI = function () {
-    var baseURL = './api/?a=',
+    var baseURL = "./api/?a=",
         Employee = NexusEmployeeAPI(baseURL),
         Groups = NexusGroupsAPI(baseURL),
         Positions = NexusPositionsAPI(baseURL),
-
         /**
          * Get the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=")
          */
         getBaseURL = function () {
             return baseURL;
         },
-
         /**
          * Set the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=")
          */
@@ -23,7 +21,6 @@ var LEAFNexusAPI = function () {
             Groups.setBaseAPIURL(baseURL);
             Positions.setBaseAPIURL(baseURL);
         },
-
         setCSRFToken = function (token) {
             csrfToken = token;
             Employee.setCSRFToken(csrfToken);
@@ -37,91 +34,91 @@ var LEAFNexusAPI = function () {
         setCSRFToken: setCSRFToken,
         Employee: Employee,
         Groups: Groups,
-        Positions: Positions
+        Positions: Positions,
     };
 };
 
 var NexusEmployeeAPI = function (baseAPIURL) {
     var apiBaseURL = baseAPIURL,
-        apiURL = baseAPIURL + 'employee',
-
+        apiURL = baseAPIURL + "employee",
         // used for POST requests
-        csrfToken = '',
-
+        csrfToken = "",
         /**
          * Get the URL for the LEAF Portal Signatures API
          */
-        getAPIURL = function () { return apiURL; },
-
+        getAPIURL = function () {
+            return apiURL;
+        },
         /**
          * Get the base URL for the LEAF Portal API
-         * 
+         *
          * @return string   the base LEAF Portal API URL used in this Forms API
          */
-        getBaseAPIURL = function () { return apiBaseURL; },
-
+        getBaseAPIURL = function () {
+            return apiBaseURL;
+        },
         /**
          * Set the base URL for the LEAF Portal API
-         * 
+         *
          * @param baseAPIURL string the base URL for the Portal API
          */
         setBaseAPIURL = function (baseAPIURL) {
             apiBaseURL = baseAPIURL;
-            apiURL = baseAPIURL + 'employee';
+            apiURL = baseAPIURL + "employee";
         },
-
         /**
          * Set the CSRFToken for POST requests
          */
-        setCSRFToken = function (token) { csrfToken = token; },
-
+        setCSRFToken = function (token) {
+            csrfToken = token;
+        },
         getByEmail = function (emailAddress, onSuccess, onFail) {
-            let fetchURL = apiURL + '/search&q=' + emailAddress + '&noLimit=0';
+            let fetchURL = apiURL + "/search&q=" + emailAddress + "&noLimit=0";
 
             $.ajax({
-                method: 'GET',
+                method: "GET",
                 url: fetchURL,
                 dataType: "json",
-                cache: false
+                cache: false,
             })
                 .done(onSuccess)
                 .fail(onFail);
-                // .always(function () {});
+            // .always(function () {});
         },
         importFromNationalByEmail = function (parameters, email) {
-            var fetchURL = apiBaseURL + 'national/employee/import/email';
+            var fetchURL = apiBaseURL + "v1/national/employee/import/email";
             var postData = {};
-            postData['CSRFToken'] = csrfToken;
-            postData['email'] = email;
+            postData["CSRFToken"] = csrfToken;
+            postData["email"] = email;
 
             $.ajax({
-                method: 'POST',
+                method: "POST",
                 url: fetchURL,
                 data: postData,
                 dataType: "json",
                 async: parameters.async,
-                cache: false
-            })
-            .done(parameters.onSuccess)
-            .fail(parameters.onFail);
-        },
-        
-
-        getByEmailNational = function (parameters, emailAddress) {
-            let fetchURL = apiBaseURL + 'national/employee/search&q=' + emailAddress + '&noLimit=0';
-
-            $.ajax({
-                method: 'GET',
-                url: fetchURL,
-                dataType: "json",
-                async: parameters.async,
-                cache: false
+                cache: false,
             })
                 .done(parameters.onSuccess)
                 .fail(parameters.onFail);
-                // .always(function () {});
         },
-        
+        getByEmailNational = function (parameters, emailAddress) {
+            let fetchURL =
+                "api/v1/national/employee/search&q=" +
+                emailAddress +
+                "&noLimit=0";
+
+            $.ajax({
+                method: "GET",
+                url: fetchURL,
+                dataType: "json",
+                async: parameters.async,
+                cache: false,
+            })
+                .done(parameters.onSuccess)
+                .fail(parameters.onFail);
+            // .always(function () {});
+        },
         /**
          * Import a user from the National Orgchart into the local Nexus
          *
@@ -131,21 +128,21 @@ var NexusEmployeeAPI = function (baseAPIURL) {
          * @param parameters.onFail       function(error)     callback when query fails
          * @param parameters.async       boolean     determines synchronicity
          */
-        importFromNational = function(parameters, userName) {
-            var fetchURL = apiURL + '/import/_' + userName;
+        importFromNational = function (parameters, userName) {
+            var fetchURL = apiURL + "/import/_" + userName;
             var postData = {};
-            postData['CSRFToken'] = csrfToken;
+            postData["CSRFToken"] = csrfToken;
 
             $.ajax({
-                method: 'POST',
+                method: "POST",
                 url: fetchURL,
                 data: postData,
-                dataType: 'json',
-                async: parameters.async
+                dataType: "json",
+                async: parameters.async,
             })
                 .done(parameters.onSuccess)
                 .fail(parameters.onFail);
-                // .always(function() {});
+            // .always(function() {});
         };
 
     return {
@@ -162,32 +159,29 @@ var NexusEmployeeAPI = function (baseAPIURL) {
 
 /**
  * API for working the Nexus Groups
- * 
- * @param baseAPIURL    string  the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=") 
+ *
+ * @param baseAPIURL    string  the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=")
  */
 var NexusGroupsAPI = function (baseAPIURL) {
     var apiBaseURL = baseAPIURL,
-        apiURL = apiBaseURL + 'group',
-
+        apiURL = apiBaseURL + "group",
         // used for POST requests
-        csrfToken = '',
-
+        csrfToken = "",
         /**
          * Get the URL for the LEAF Nexus Groups API
          */
         getAPIURL = function () {
             return apiURL;
         },
-
         /**
          * Get the base URL for the LEAF Nexus API
          */
         getBaseAPIURL = function () {
             return apiBaseURL;
         },
-
-        setCSRFToken = function (token) { csrfToken = token; },
-
+        setCSRFToken = function (token) {
+            csrfToken = token;
+        },
         /**
          * Set the base URL for the LEAF Portal API
          *
@@ -195,9 +189,8 @@ var NexusGroupsAPI = function (baseAPIURL) {
          */
         setBaseAPIURL = function (baseAPIURL) {
             apiBaseURL = baseAPIURL;
-            apiURL = baseAPIURL + 'group';
+            apiURL = baseAPIURL + "group";
         },
-
         /**
          * Search for groups based on name.
          *
@@ -209,31 +202,37 @@ var NexusGroupsAPI = function (baseAPIURL) {
          * @param parameters.async       boolean     determines synchronicity
          */
         searchGroups = function (parameters, group) {
-            let fetchURL = apiBaseURL + 'group/search&q=' + group + '&noLimit=0';
+            let fetchURL =
+                apiBaseURL + "group/search&q=" + group + "&noLimit=0";
 
             $.ajax({
-                method: 'GET',
+                method: "GET",
                 url: fetchURL,
                 dataType: "json",
                 async: parameters.async,
-                cache: false
+                cache: false,
             })
                 .done(parameters.onSuccess)
                 .fail(parameters.onFail);
             // .always(function () {});
         },
-
         /**
          * Get all employees associated with a group with their extended
-         * Employee info (data and positions). 
-         * 
+         * Employee info (data and positions).
+         *
          * @param groupID      int                 The groupID to search
          * @param limit        int                 the number of users to return
          * @param offset       int                 the number of users to offset in the query
-         * @param onSuccess    function(employees)   the callback containing all fetched users 
+         * @param onSuccess    function(employees)   the callback containing all fetched users
          * @param onFail       function(error)     callback when query fails
          */
-        listGroupEmployeesDetailed = function (groupID, limit, offset, onSuccess, onFail) {
+        listGroupEmployeesDetailed = function (
+            groupID,
+            limit,
+            offset,
+            onSuccess,
+            onFail
+        ) {
             var fetchURL = this.apiURL + "/" + groupID + "/employees/detailed";
             if (limit !== -1) {
                 fetchURL += "&limit=" + limit;
@@ -248,10 +247,10 @@ var NexusGroupsAPI = function (baseAPIURL) {
             }
 
             $.ajax({
-                method: 'GET',
+                method: "GET",
                 url: fetchURL,
-                dataType: 'json',
-                cache: false
+                dataType: "json",
+                cache: false,
             })
                 .done(function (msg) {
                     onSuccess(msg);
@@ -268,38 +267,35 @@ var NexusGroupsAPI = function (baseAPIURL) {
         setBaseAPIURL: setBaseAPIURL,
         setCSRFToken: setCSRFToken,
         searchGroups: searchGroups,
-        listGroupEmployeesDetailed: listGroupEmployeesDetailed
+        listGroupEmployeesDetailed: listGroupEmployeesDetailed,
     };
 };
 
 /**
  * API for working the Nexus Positions
- * 
- * @param baseAPIURL    string  the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=") 
+ *
+ * @param baseAPIURL    string  the base URL for the LEAF Nexus API (e.g. "/LEAF_Nexus/api/?a=")
  */
 var NexusPositionsAPI = function (baseAPIURL) {
     var apiBaseURL = baseAPIURL,
-        apiURL = apiBaseURL + 'position',
-
+        apiURL = apiBaseURL + "position",
         // used for POST requests
-        csrfToken = '',
-
+        csrfToken = "",
         /**
          * Get the URL for the LEAF Nexus Positions API
          */
         getAPIURL = function () {
             return apiURL;
         },
-
         /**
          * Get the base URL for the LEAF Nexus API
          */
         getBaseAPIURL = function () {
             return apiBaseURL;
         },
-
-        setCSRFToken = function (token) { csrfToken = token; },
-
+        setCSRFToken = function (token) {
+            csrfToken = token;
+        },
         /**
          * Set the base URL for the LEAF Portal API
          *
@@ -307,9 +303,8 @@ var NexusPositionsAPI = function (baseAPIURL) {
          */
         setBaseAPIURL = function (baseAPIURL) {
             apiBaseURL = baseAPIURL;
-            apiURL = baseAPIURL + 'position';
+            apiURL = baseAPIURL + "position";
         },
-
         /**
          * Search for Positions based on name.
          *
@@ -320,14 +315,15 @@ var NexusPositionsAPI = function (baseAPIURL) {
          * @param parameters.async       boolean                determines synchronicity
          */
         searchPositions = function (parameters, position) {
-            let fetchURL = apiBaseURL + 'position/search&q=' + position + '&noLimit=0';
+            let fetchURL =
+                apiBaseURL + "position/search&q=" + position + "&noLimit=0";
 
             $.ajax({
-                method: 'GET',
+                method: "GET",
                 url: fetchURL,
                 dataType: "json",
                 async: parameters.async,
-                cache: false
+                cache: false,
             })
                 .done(parameters.onSuccess)
                 .fail(parameters.onFail);

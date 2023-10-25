@@ -252,7 +252,7 @@
                                                 getEmployeePositionData(fullSupervisorInfo.empUID).then(function(result){
 
                                                     supervisorPositions = result;
-                                                    var positionSupervisors = getPositionSupervisors(positionResponse.supervisor);
+                                                    var positionSupervisors = getPositionSupervisors(positionResponse.employeeList);
 
                                                     if(supervisorPositions){
                                                         var positions = supervisorPositions;
@@ -445,7 +445,7 @@
             return new Promise(function(resolve, reject){
                 $.ajax({
                     type: 'GET',
-                    url: '../api/national/employee/search?q=' + email + '&noLimit=0',
+                    url: '../api/v1/national/employee/search?q=' + email + '&noLimit=0',
                     dataType: 'json',
                     success: function(response) {
                         if (response != null){

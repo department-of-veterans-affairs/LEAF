@@ -122,6 +122,7 @@ switch ($action) {
         $t_form->assign('UID', (int)$_GET['groupID']);
         $t_form->assign('categoryID', $group->getDataTableCategoryID());
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('leaf_domain', LEAF_DOMAIN);
 
         $t_form->display('ajaxForm.tpl');
 

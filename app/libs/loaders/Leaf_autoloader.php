@@ -27,7 +27,7 @@ $loader->addNamespace('App\Api\v1\Routes', $app_dir . '/Api/v1/Routes');
 $loader->addNamespace('App\Leaf', $app_dir . '/Leaf');
 $loader->addNamespace('App\Leaf\Logger', $app_dir . '/Leaf/Logger');
 $loader->addNamespace('App\Leaf\Logger\Formatters', $app_dir . '/Leaf/Logger/Formatters');
-$loader->addNamespace('App\Nexus\Controllers', $app_dir . '/Nexs/Controllers');
+$loader->addNamespace('App\Nexus\Controllers', $app_dir . '/Nexus/Controllers');
 $loader->addNamespace('App\Nexus\Model', $app_dir . '/Nexus/Model');
 
 $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
@@ -142,6 +142,7 @@ if (session_id() == '') {
 
 if (class_exists('Portal\Login')) {
     $login = new Portal\Login($oc_db, $db);
+    $oc_login = new Orgchart\Login($oc_db, $oc_db);
 } else if (class_exists('Orgchart\Login')) {
     $login = new Orgchart\Login($oc_db, $db);
     $oc_login = new Orgchart\Login($oc_db, $oc_db);

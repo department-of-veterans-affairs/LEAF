@@ -28,7 +28,7 @@ class Employee
         $vars = array(':user_name' => $user_name);
         $sql = "SELECT *
                 FROM `employee`
-                WHERE `userName` = :login
+                WHERE `userName` = :user_name
                 AND `deleted` = 0";
 
         $return_value = $this->db->pdo_select_query($sql, $vars);

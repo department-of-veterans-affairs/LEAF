@@ -61,6 +61,7 @@ switch ($action) {
         $t_form->assign('UID', (int)$_GET['pID']);
         $t_form->assign('categoryID', $position->getDataTableCategoryID());
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+        $t_form->assign('leaf_domain', LEAF_DOMAIN);
 
         $t_form->display('ajaxForm.tpl');
 

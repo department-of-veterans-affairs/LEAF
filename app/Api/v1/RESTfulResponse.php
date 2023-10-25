@@ -9,35 +9,42 @@ abstract class RESTfulResponse
 {
     protected const API_VERSION = 1;
 
+    protected $controller;
+
+    protected $map;
+
     /**
      * Returns result for HTTP GET requests
+     *
      * @param array $actionList
+     *
      * @return mixed
+     *
+     * Created at: 10/25/2023, 12:39:35 PM (America/New_York)
      */
-    public function get($actionList)
-    {
-        return 'Method not implemented';
-    }
+    abstract public function get(array $actionList): mixed;
 
     /**
      * Returns result for HTTP POST requests
+     *
      * @param array $actionList
+     *
      * @return mixed
+     *
+     * Created at: 10/25/2023, 10:24:51 AM (America/New_York)
      */
-    public function post($actionList)
-    {
-        return 'Method not implemented';
-    }
+    abstract public function post(array $actionList): mixed;
 
     /**
      * Returns result for HTTP DELETE requests
+     *
      * @param array $actionList
+     *
      * @return mixed
+     *
+     * Created at: 10/25/2023, 10:24:59 AM (America/New_York)
      */
-    public function delete($actionList)
-    {
-        return 'Method not implemented';
-    }
+    abstract public function delete(array $actionList): mixed;
 
     /**
      *
@@ -56,26 +63,25 @@ abstract class RESTfulResponse
 
                 break;
             case 'POST':
-                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken'])
-                {
+                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
                     $this->output($this->post($action));
-                }
-                else
-                {
+                } else {
                     $this->output('Invalid Token.');
                 }
 
                 break;
             case 'DELETE':
                 $DELETE_vars = [];
-                parse_str(file_get_contents('php://input', false, null, 0, 8192), $DELETE_vars); // only parse the first 8192 characters (arbitrary limit)
+                // only parse the first 8192 characters (arbitrary limit)
+                parse_str(file_get_contents('php://input', false, null, 0, 8192), $DELETE_vars);
 
-                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken'] // Deprecation warning: The _GET implementation should be removed in favor of $DELETE_vars
-                    || $DELETE_vars['CSRFToken'] == $_SESSION['CSRFToken']) {
+                // Deprecation warning: The _GET implementation should be removed in favor of $DELETE_vars
+                /* if ($_GET['CSRFToken'] == $_SESSION['CSRFToken']
+                    || $DELETE_vars['CSRFToken'] == $_SESSION['CSRFToken']
+                ) { */
+                if ($DELETE_vars['CSRFToken'] == $_SESSION['CSRFToken']) {
                     $this->output($this->delete($action));
-                }
-                else
-                {
+                } else {
                     $this->output('Invalid Token.');
                 }
 
@@ -102,21 +108,22 @@ abstract class RESTfulResponse
     {
         //header('Access-Control-Allow-Origin: *');
         $format = isset($_GET['format']) ? $_GET['format'] : '';
+
         switch ($format) {
             case 'json':
             default:
                 header('Content-type: application/json');
                 $jsonOut = json_encode($out);
 
-                if ($_SERVER['REQUEST_METHOD'] === 'GET')
-                {
+                if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     $etag = '"' . md5($jsonOut) . '"';
                     header_remove('Pragma');
                     header_remove('Cache-Control');
                     header_remove('Expires');
+
                     if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
-                           && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
-                    {
+                        && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag
+                    ) {
                         header("ETag: {$etag}", true, 304);
                         header('Cache-Control: must-revalidate, private');
                         exit;
@@ -140,30 +147,27 @@ abstract class RESTfulResponse
             case 'json-js-assoc':
                 header('Content-type: application/json');
                 $out2 = array();
-                foreach ($out as $item)
-                {
+
+                foreach ($out as $item) {
                     $out2[] = $item;
                 }
+
                 echo json_encode($out2);
 
                 break;
             case 'jsonp':
                 $callBackName = '';
-                if (isset($_GET['callback']))
-                {
+
+                if (isset($_GET['callback'])) {
                     $callBackName = htmlentities($_GET['callback']);
-                }
-                else
-                {
-                    if (isset($_GET['jsonpCallback']))
-                    {
+                } else {
+                    if (isset($_GET['jsonpCallback'])) {
                         $callBackName = htmlentities($_GET['jsonpCallback']);
-                    }
-                    else
-                    {
+                    } else {
                         $callBackName = 'jsonpCallback';
                     }
                 }
+
                 echo "{$callBackName}(" . json_encode($out) . ')';
 
                 break;
@@ -176,8 +180,7 @@ abstract class RESTfulResponse
                 break;
             case 'csv':
                 //if $out is not an array, create one with the appropriate structure, preserving the original value of $out
-                if (!is_array($out))
-                {
+                if (!is_array($out)) {
                     $out = array(
                                 'column' => array('error'),
                                 'row' => array('error' => $out),
@@ -190,32 +193,30 @@ abstract class RESTfulResponse
                 header('Content-type: text/csv');
                 header('Content-Disposition: attachment; filename="Exported_' . time() . '.csv"');
                 $header = '';
-                foreach ($columns as $column)
-                {
+
+                foreach ($columns as $column) {
                     $header .= '"' . $column . '",';
                 }
+
                 $header = trim($header, ',');
                 echo "{$header}\r\n";
-                foreach ($out as $line)
-                {
-                    foreach ($columns as $column)
-                    {
-                        if (is_array($line[$column]))
-                        {
+
+                foreach ($out as $line) {
+                    foreach ($columns as $column) {
+                        if (is_array($line[$column])) {
                             echo '"';
-                            foreach ($line[$column] as $tItem)
-                            {
+
+                            foreach ($line[$column] as $tItem) {
                                 echo $tItem . ' ';
                             }
                             echo '",';
-                        }
-                        else
-                        {
+                        } else {
                             $temp = strip_tags($line[$column]);
                             $temp = str_replace('"', '""', $temp);
                             echo '"' . $temp . '",';
                         }
                     }
+
                     echo "\r\n";
                 }
 
@@ -242,26 +243,21 @@ abstract class RESTfulResponse
 
         $key = '';
         $args = array();
-        foreach ($actionList as $type)
-        {
-            if (is_numeric($type))
-            {
+
+        foreach ($actionList as $type) {
+            if (is_numeric($type)) {
                 $key .= '[digit]/';
                 $args[] = $type;
-            }
-            else
-            {
-                if (substr($type, 0, 1) == '_')
-                {
+            } else {
+                if (substr($type, 0, 1) == '_') {
                     $key .= '[text]/';
                     $args[] = substr($type, 1);
-                }
-                else
-                {
+                } else {
                     $key .= "{$type}/";
                 }
             }
         }
+
         $key = rtrim($key, '/');
 
         $action = array();
@@ -285,25 +281,20 @@ abstract class RESTfulResponse
      */
     private function buildXML($out, $xml)
     {
-        if (is_array($out))
-        {
+        if (is_array($out)) {
             $keys = array_keys($out);
-            foreach ($keys as $key)
-            {
+
+            foreach ($keys as $key) {
                 $tkey = is_numeric($key) ? "id_{$key}" : $key;
-                if (is_array($out[$key]))
-                {
+
+                if (is_array($out[$key])) {
                     $subXML = $xml->addChild($tkey);
                     $this->buildXML($out[$key], $subXML);
-                }
-                else
-                {
+                } else {
                     $xml->addChild($tkey, $out[$key]);
                 }
             }
-        }
-        else
-        {
+        } else {
             $xml->addChild('text', $out);
         }
     }

@@ -77,6 +77,7 @@ switch ($action) {
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
                 $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
+                $t_form->assign('leaf_domain', LEAF_DOMAIN);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
             }

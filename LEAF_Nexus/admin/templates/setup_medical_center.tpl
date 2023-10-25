@@ -275,7 +275,7 @@ function createGroup() {
 	});
 
 	var empSel = new nationalEmployeeSelector('employee');
-	empSel.apiPath = '../api/';
+	empSel.apiPath = '<!--{$leaf_domain}-->api/';
 	empSel.rootPath = '../';
 	empSel.initialize();
 
@@ -477,7 +477,7 @@ function createService(parentGroupID) {
     });
 
     var empSel = new nationalEmployeeSelector('employee');
-    empSel.apiPath = '../api/';
+    empSel.apiPath = '<!--{$leaf_domain}-->api/';
     empSel.rootPath = '../';
     empSel.initialize();
 

@@ -49,7 +49,11 @@ class Indicators
      */
     public function getAllIndicators(int $category): array
     {
-        $vars = array(':categoryID' => $category);
+         $category_id = array('1' => 'employee',
+                            '2' => 'position',
+                            '3' => 'group');
+
+        $vars = array(':categoryID' => $category_id[$category]);
         $sql = 'SELECT `indicatorID`, `name`, `format`, `description`,
                     `default`, `html`, `required`, `encrypted`, `sort`
                 FROM `indicators`

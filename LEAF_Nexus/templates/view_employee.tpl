@@ -205,6 +205,7 @@ function assignBackup() {
     dialog.show(); // need to show early because of ie6
 
     empSel = new nationalEmployeeSelector('employeeSelector');
+    empSel.apiPath = '<!--{$leaf_domain}-->api/';
     empSel.initialize();
     empSel.clearSearch();
 
