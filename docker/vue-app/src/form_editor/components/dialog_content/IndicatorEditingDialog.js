@@ -196,7 +196,7 @@ export default {
          */
         newQuestionSortValue() {
             const offset = 128;
-            const nonSectionSelector = `#xhrIndicator_${this.parentID}_1 > div.printResponse`;
+            const nonSectionSelector = `#drop_area_parent_${this.parentID} > li`;
             const sortVal = (this.parentID === null) ?
                 this.focusedFormTree.length - offset:                                       //new form sections/pages
                 Array.from(document.querySelectorAll(nonSectionSelector)).length - offset   //new questions in existing sections

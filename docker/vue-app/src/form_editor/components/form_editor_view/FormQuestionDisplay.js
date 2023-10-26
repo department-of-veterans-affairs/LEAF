@@ -62,9 +62,6 @@ export default {
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
             return `${page}${staple}${name}${shortLabel}${contentRequired}${contentSensitive}`;
         },
-        printResponseID() {
-            return `xhrIndicator_${this.indicatorID}_${this.formNode.series}`;
-        },
         required() {
             return parseInt(this.formNode.required) === 1;
         },

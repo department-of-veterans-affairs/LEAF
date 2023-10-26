@@ -324,7 +324,7 @@ table[class$="SelectorTable"] th {
 }
 
 #form_index_display {
-    margin-top: 0.5rem; //matches drag-drop spacer in form area
+    margin-top: 0.5rem; //matches drag-drop spacer for top of form area
     position: relative;
     padding: 0.75rem;
     width: 400px;
@@ -345,9 +345,6 @@ table[class$="SelectorTable"] th {
             width: 134px;
             justify-self: flex-end;
         }
-        #indicator_sorting_toggle {
-            margin-left: auto;
-        }
     }
     h3 {
         margin: 0;
@@ -356,36 +353,17 @@ table[class$="SelectorTable"] th {
         align-items: center;
         color: black;
     }
-    /* lists for main and stapled forms   */
-    ul[id^="layoutFormRecords_"] button.layout-listitem {
-        padding: 0.25rem;
-        display: flex;
-        justify-content: flex-start;
-        width: 100%;
-        height: 46px;
-        border: 0;
-        background-clip: padding-box;
-        overflow: hidden;
-        border-radius: 0;
-        padding: 0 0.5rem;
-        &:not(:disabled) {
-            color: $charcoal;
-        }
-        &:not(:disabled):hover, &:not(:disabled):focus, &:not(:disabled):active {
-            background-color: $lt_cyan;
-        }
-        &:disabled:hover, &:disabled:focus, &:disabled:active {
-            background-color: $lt_cyan;
-            cursor: default;
-            outline: none
-        }
-        &.layout-listitem:disabled { /* the currently selected form */
-            color: $base_navy;
+
+    /* form menu list preview */
+    ul li.form_menu_preview {
+        padding: 0.5rem 0;
+        &:not(:last-child) {
+            border-bottom: 1px solid $BG_Pearl;
         }
     }
 
-    /* form list and items */
-    ul[id^="layoutFormRecords_"] > li  {
+    /* lists for main and stapled forms  */
+    ul[id^="layoutFormRecords_"] > li {
         min-height: 46px;
         border: 2px solid #f0f0f0;
         border-radius: 2px;
@@ -398,13 +376,27 @@ table[class$="SelectorTable"] th {
                 background-color: $lt_cyan;
             }
         }
-    }
-
-    /* form menu list preview */
-    ul li.form_menu_preview {
-        padding: 0.5rem 0;
-        &:not(:last-child) {
-            border-bottom: 1px solid $BG_Pearl;
+        button.layout-listitem {
+            padding: 0.25rem;
+            display: flex;
+            justify-content: flex-start;
+            width: 100%;
+            height: 46px;
+            border: 0;
+            background-clip: padding-box;
+            overflow: hidden;
+            border-radius: 0;
+            padding: 0 0.5rem;
+            color: $charcoal;
+            
+            &:hover, &:focus, &:active {
+                background-color: $lt_cyan;
+            }
+        }
+        /* button for the selected form */
+        &.selected button.layout-listitem {
+            color: $base_navy;
+            cursor: default;
         }
     }
 
@@ -428,7 +420,7 @@ table[class$="SelectorTable"] th {
                 height: 100%;
                 overflow: hidden;
                 border: 2px solid transparent;
-                border-radius: 2px;
+                border-radius: 1px;
                 &:not(#addInternalUse) {
                     background-color: $BG_Pearl;
                     &.selected {
@@ -463,17 +455,16 @@ table[class$="SelectorTable"] th {
     align-self: flex-start;
     width: 100%;
     min-width: 420px;
-    background-color: white;
     padding: 0;
-    background-color: #dcdee0;
+    background-color: transparent;
     border-radius: 4px;
 
     /* Drag-Drop area for focused form */
     ul[id^="base_drop_area"] {
         position: relative;
-        padding: 1px 0 2px 0; //top and bottom padding needed for drop area
+        padding: 1px 0; //top and bottom padding needed for drop area visibility
         &.entered-drop-zone, ul.entered-drop-zone {
-            background-color: #d3d6dc;
+            background-color: rgba(0,0,25,0.15);
         }
         ul[id^="drop_area_parent_"] {
             position: relative;
@@ -566,6 +557,9 @@ table[class$="SelectorTable"] th {
             background-color: white;
             &.form-header, &.preview.form-header {
                 border: 0;
+                > .form_editing_area {
+                    border-radius: 4px;
+                }
             }
             &.preview {
                 border: 0;
@@ -588,7 +582,6 @@ table[class$="SelectorTable"] th {
         flex-direction: column;
         margin-bottom: 0.25rem;
         background-color: white;
-        border-radius: 4px;
         padding: 3px;
         &.conditional {
             background-color: saturate(darken($BG_Pearl, 2%), 15%);
@@ -597,7 +590,7 @@ table[class$="SelectorTable"] th {
         .name_and_toolbar {
             width: 100%;
             display:flex;
-            gap: 0.5rem;
+            gap: 0.25rem;
             justify-content: space-between;
             &.form-header {
                 font-weight:  bolder;

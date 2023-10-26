@@ -47,22 +47,14 @@ export default {
         }
     },
     computed: {
-        indexDisplay() {
-            //short label (description), otherwise display the name. Show 'blank' if it has neither
-            let display = this.formNode.description || this.formNode.name || '[ blank ]';
-            return `${this.shortIndicatorNameStripped(display, Math.max(16, 38 - Math.round(1.33*this.depth)))}`;
+        suffix() {
+            return `${this.formNode.indicatorID}_${this.formNode.series}`;
         },
         printResponseID() {
             return `xhrIndicator_${this.suffix}`;
         },
-        suffix() {
-            return `${this.formNode.indicatorID}_${this.formNode.series}`;
-        },
         required() {
             return parseInt(this.formNode.required) === 1;
-        },
-        isEmpty() {
-            return this.formNode.isEmpty === true;
         }
     },
     template:`<li :title="'index item '+ indicatorID" :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
