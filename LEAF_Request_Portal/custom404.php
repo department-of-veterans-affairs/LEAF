@@ -110,7 +110,7 @@
     document.getElementById("requestedUrl").textContent = requestedUrl;
 
     // Define the homepage URL dynamically
-    var homepageURL = "/LEAF_Request_Portal/"; // Change this to your actual homepage URL
+    var homepageURL = "/"; 
 
     // JavaScript to set the address for the button
     var buttonHomepage = document.getElementById("button_homepage_404");
