@@ -228,7 +228,7 @@ table[class$="SelectorTable"] th {
     padding: 0;
     position: relative;
     display: flex;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.75rem;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
@@ -324,6 +324,7 @@ table[class$="SelectorTable"] th {
 }
 
 #form_index_display {
+    margin-top: 0.5rem; //matches drag-drop spacer in form area
     position: relative;
     padding: 0.75rem;
     width: 400px;
@@ -340,14 +341,8 @@ table[class$="SelectorTable"] th {
         align-items: center;
         height: 28px;
         margin-bottom: 0.5rem;
-        img {
-            width: 16px;
-            height: 16px;
-            margin-left: 0.25rem;
-            margin-right: auto;
-        }
         button {
-            width: 110px;
+            width: 134px;
             justify-self: flex-end;
         }
         #indicator_sorting_toggle {
@@ -372,7 +367,7 @@ table[class$="SelectorTable"] th {
         background-clip: padding-box;
         overflow: hidden;
         border-radius: 0;
-        padding: 0 0.75rem;
+        padding: 0 0.5rem;
         &:not(:disabled) {
             color: $charcoal;
         }
@@ -389,6 +384,7 @@ table[class$="SelectorTable"] th {
         }
     }
 
+    /* form list and items */
     ul[id^="layoutFormRecords_"] > li  {
         min-height: 46px;
         border: 2px solid #f0f0f0;
@@ -401,6 +397,14 @@ table[class$="SelectorTable"] th {
             button.layout-listitem {
                 background-color: $lt_cyan;
             }
+        }
+    }
+
+    /* form menu list preview */
+    ul li.form_menu_preview {
+        padding: 0.5rem 0;
+        &:not(:last-child) {
+            border-bottom: 1px solid $BG_Pearl;
         }
     }
 
@@ -450,7 +454,7 @@ table[class$="SelectorTable"] th {
 }
 
 
-/* form editing and entry preview */
+/* form editing and entry */
 #form_entry_and_preview {
     position: relative;
     top: 0;
@@ -463,35 +467,19 @@ table[class$="SelectorTable"] th {
     padding: 0;
     background-color: #dcdee0;
     border-radius: 4px;
-    overflow: hidden;
 
     /* Drag-Drop area for focused form */
     ul[id^="base_drop_area"] {
         position: relative;
-        background-color: white;
         padding: 1px 0 2px 0; //top and bottom padding needed for drop area
         &.entered-drop-zone, ul.entered-drop-zone {
-            background-color: #e8ebf0;
+            background-color: #d3d6dc;
         }
         ul[id^="drop_area_parent_"] {
             position: relative;
         }
-        li.section_heading {
-            font-weight: bolder;
-            color: $base_navy;
-        }
-        li.subindicator_heading {
-            font-weight: normal;
-            color: black;
-            border-left: 4px solid $BG_Pearl;
-            padding-left: 0.25rem;
-        }
-        li.section_heading > div, li.subindicator_heading > div {
-            padding-left: 0.5rem;
-        } 
         ul.form-index-listing-ul {
             margin: 0;
-            margin-left: 0.25em;
             display: flex;
             flex-direction: column;
             background-clip: content-box;
@@ -499,30 +487,19 @@ table[class$="SelectorTable"] th {
         }
         li {
             position: relative;
-            margin: 3px 0; /* there needs to be a margin to hilite the drop zone. */
-            border-radius: 2px;
-        }
-        li > button {
-            font-weight: inherit;
-            cursor: grab;
-            color: inherit;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            height: 40px;
-            border: 0;
-            border: 1px solid $BG_Pearl;
-            border-bottom: 1px solid darken($BG_Pearl, 8%);
-            border-right: 1px solid darken($BG_Pearl, 8%);
-            background-color: white;
-            margin: 0 6px;
-            width: calc(100% - 12px);
-            padding: 0 0.25rem;
+            margin: 0.5rem 0; /* there needs to be a margin to hilite the drop zone. */
+        
             .icon_move_container {
                 @include flexcenter;
                 flex-direction: column;
-                margin-left: auto;
-                margin-right: 0.2rem;
+                align-self: flex-start;
+                gap: 2px;
+                button.drag_handle {
+                    padding: 0.25rem 0.4rem;
+                    line-height: 1.2;
+                    cursor:grab;
+                    border: 1px outset gray;
+                }
                 .icon_move {
                     @include flexcenter;
                     cursor: pointer;
@@ -530,43 +507,37 @@ table[class$="SelectorTable"] th {
                     height: 0;
                     background-color: transparent;
                     border-radius: 2px;
-                    border: 7px solid transparent;
-                    margin-left: auto;
+                    border: 6px solid transparent;
                     &.up {
-                        margin-bottom: 5px;
-                        border-bottom: 12px solid $BG-DarkNavy;
+                        border-bottom: 10px solid $BG-DarkNavy;
+                        border-top: 2px;
                         &:hover, &:focus, &:active {
                             outline: none !important;
-                            border-bottom: 12px solid $USWDS_Cyan;
+                            border-bottom: 10px solid $USWDS_Cyan;
                         }
                     }
                     &.down {
-                        border-top: 12px solid $BG-DarkNavy;
+                        border-top: 10px solid $BG-DarkNavy;
+                        border-bottom: 2px;
                         &:hover, &:focus, &:active {
                             outline: none !important;
-                            border-top: 12px solid $USWDS_Cyan;
+                            border-top: 10px solid $USWDS_Cyan;
                         }
                     }
                 }
             }
-            .sub-menu-chevron {
-                padding: 4px 2px 2px 2px;
-                font-size: 1.25em;
-                align-self: center; 
-                font-weight: bold;
-                border-radius: 2px;
-                cursor: pointer;
-                &:hover, &:focus, &:active {
-                    color: $USWDS_Cyan;
-                }
-            }
         }
-        li:first-child {
-            margin-top: 0.75rem;
-            margin-bottom: 0;
+        > li {
+            background-color: white;
+            padding-bottom: 0.25rem;
+            border-radius: 4px;
+            box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+            margin-bottom: 1.25rem;
         }
     }
 
+
+    /* page number display */
     .form_page {
         display: inline-block;
         font-weight: bold;
@@ -576,46 +547,18 @@ table[class$="SelectorTable"] th {
         border-radius: 3px;
         margin-right: 0.4rem;
     }
-    .form-page-card {
-        position: relative;
-        padding: 0.75rem;
-        border: 3px solid $BG_Pearl;
-        border-left: 8px solid $BG_Pearl;
-        border-right: 3px solid darken($BG_Pearl, 8%);
-        border-bottom: 3px solid darken($BG_Pearl, 8%);
-        border-radius: 4px;
-        background-color: white;
-        transition: background-color 0.75s ease;
-        margin-bottom: 0.75rem;
-        &:last-child {
-            margin-bottom: 0;
-        }
-        > div {
-            display: flex;
-            align-items: center;
-            .descr {
-                margin-left: auto;
-            }
-        }
-    }
 
     div.printformblock {
-        overflow-y: auto;
         height:auto;
-        min-height: 190px;
-        max-height: 85vh;
+        min-height: 100px;
         position: relative;
-        transition: top 0.2s ease;
         break-inside: avoid;
         height: auto;
         max-height: none;
-        &.initial {
-            height: 190px;
-        }
+
         div.printResponse {
             position: relative;
             padding: 0;
-            margin-bottom: 1rem;
             min-height: 50px;
             float: none; /* style.css style collision */
             border-radius: 4px;
@@ -623,13 +566,6 @@ table[class$="SelectorTable"] th {
             background-color: white;
             &.form-header, &.preview.form-header {
                 border: 0;
-                padding-bottom: 0.25rem;
-                border-radius: 4px;
-                overflow: hidden;
-                box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
-                &:last-child {
-                    margin-bottom: 0;
-                }
             }
             &.preview {
                 border: 0;
@@ -637,20 +573,23 @@ table[class$="SelectorTable"] th {
             &:not(.form-header):not(.preview) {
                 margin-left: 0.5rem;
             }
-            button.new_section_question {
-                width: calc(100% - 1rem);
-                margin: 1rem 0.5rem 0.5rem;
-                border: 2px dashed darken($BG_Pearl, 15%);
-            }
         }
     }
 
+    button.new_section_question {
+        width: calc(100% - 1rem);
+        margin: 0.5rem 0.5rem 0.25rem;
+        border: 2px dashed darken($BG_Pearl, 15%);
+    }
+    
     /* wraps each form question. */
     .form_editing_area {
         display: flex;
         flex-direction: column;
-        margin-bottom: 1rem;
+        margin-bottom: 0.25rem;
         background-color: white;
+        border-radius: 4px;
+        padding: 3px;
         &.conditional {
             background-color: saturate(darken($BG_Pearl, 2%), 15%);
         }
@@ -675,7 +614,7 @@ table[class$="SelectorTable"] th {
             }
         }
         .indicator-name-preview {
-            padding: 0.75rem 0 0.75rem 0.75rem;
+            padding: 0.5rem 0 0.75rem 0.5rem;
             width: 100%;
             background-color: white;
             &.conditional {
@@ -714,7 +653,7 @@ table[class$="SelectorTable"] th {
         }
         /* 2nd section of editing_area (format preview) */
         .format_preview {
-            padding: 0 0 0.75rem 0.75rem;
+            padding: 0 0 0.75rem 0.5rem;
             .text_input_preview {
                 display: inline-block;
                 width: 75%;

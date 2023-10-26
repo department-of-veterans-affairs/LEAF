@@ -37,7 +37,6 @@ export default {
                 'orgchart_position'
             ],
             previewMode: false,
-            dragDropMode: false,
             sortOffset: 128, //number to subtract from listindex when comparing or updating sort values
             updateKey: 0,
             appIsLoadingForm: false,
@@ -212,13 +211,16 @@ export default {
          * @returns boolean.  Whether to use preview tree or focused tree for the form display.
          */
         usePreviewTree() {
-            return this.focusedFormRecord?.stapledFormIDs?.length > 0 && this.previewMode && !this.dragDropMode && this.focusedFormID === this.queryID;
+            return this.focusedFormRecord?.stapledFormIDs?.length > 0 && this.previewMode && this.focusedFormID === this.queryID;
         },
         /**
          * @returns tree to display.  shorthand for template iterator.
          */
         fullFormTree() {
             return this.usePreviewTree ? this.previewTree : this.focusedFormTree;
+        },
+        firstEditModeIndicator() {
+            return this.focusedFormTree?.[0]?.indicatorID || 0
         },
         /**
          * @returns boolean.  used to watch for index or parentID changes.  triggers sorting update if true
@@ -272,9 +274,15 @@ export default {
                 if (this.appIsLoadingForm || window.innerWidth <= 600 || (+currTop === 0 && indexBoundTop > 0)) {
                     elIndex.style.top = 0; //was preview
                 } else {
-                    const newTop = Math.round(-previewBoundTop);
+                    const newTop = Math.round(-previewBoundTop - 8); //margin spacer
                     elIndex.style.top =  newTop < 0 ? 0 : newTop + 'px';
                 }
+            }
+        },
+        focusFirstIndicator() {
+            const elEdit = document.getElementById(`edit_indicator_${this.firstEditModeIndicator}`);
+            if(elEdit !== null) {
+                elEdit.focus();
             }
         },
         /**
@@ -447,9 +455,6 @@ export default {
         toggleToolbars() {
             this.focusedIndicatorID = null;
             this.previewMode = !this.previewMode;
-            if(this.dragDropMode) {
-                this.dragDropMode = false;
-            }
             if(this.usePreviewTree) {
                 this.getPreviewTree(this.focusedFormID);
             } else {
@@ -576,10 +581,12 @@ export default {
         },
         onDrop(event = {}) {
             if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
+                const parentEl = event.currentTarget; //NOTE: drop event is on parent ul, the li is the el being moved
+                if(parentEl.nodeName !== 'UL') return;
+
                 event.preventDefault();
                 const draggedElID = event.dataTransfer.getData('text');
                 const elLiToMove = document.getElementById(draggedElID);
-                const parentEl = event.currentTarget; //NOTE: drop event is on parent ul, the li is the el being moved
 
                 const indID = parseInt(draggedElID.replace(this.dragLI_Prefix, ''));
                 const parIndID = (parentEl.id || '').includes("base_drop_area") ? null : parseInt(parentEl.id.replace(this.dragUL_Prefix, ''));
@@ -633,8 +640,7 @@ export default {
             }
         },
         /**
-         * NOTE: Currently unused (moving drag-drop to form). saving in case used again
-         * @param {number} indicatorID changes mode to edit if in preview mode, otherwise opens editor. switch forms if needed.
+         * @param {number} indicatorID focuses the indicator and changes mode to edit if in preview mode.
          */
         handleNameClick(categoryID = '', indicatorID = null) {
             this.focusedIndicatorID = indicatorID;
@@ -644,9 +650,6 @@ export default {
                 if(categoryID !== this.focusedFormID) {
                     this.getFormByCategoryID(categoryID, true);
                 }
-    
-            } else {
-                this.editQuestion(indicatorID);
             }
         },
         /**
@@ -681,12 +684,6 @@ export default {
             } catch(error) {
                 console.log(error);
             }
-        },
-        setDragDropMode() {
-            this.dragDropMode = !this.dragDropMode;
-            if(this.dragDropMode === true) {
-                this.previewMode = false;
-            }
         }
     },
     watch: {
@@ -709,6 +706,12 @@ export default {
             window.scrollTo(0,0);
             if(newVal) {
                 this.checkFormCollaborators();
+                setTimeout(() => {
+                    const elFormBtn = document.querySelector(`#layoutFormRecords_${this.queryID} li.selected button`);
+                    if(elFormBtn !== null) {
+                        elFormBtn.focus();
+                    }
+                });
             }
         }
     },
@@ -741,29 +744,26 @@ export default {
                 <div id="form_index_display">
                     <div class="index_info">
                         <h3>{{ indexHeaderText }}</h3>
-                        <button type="button" id="indicator_sorting_toggle" class="btn-general"
-                            @click.stop="setDragDropMode()">
-                            {{dragDropMode ? 'Sorting' : 'Sort Form'}}
-                        </button>
                         <button type="button" id="indicator_toolbar_toggle" class="btn-general"
+                            style="margin-left:auto;"
                             @click.stop="toggleToolbars()">
-                            {{previewMode ? 'Edit Form' : 'Preview Form'}}
+                            {{previewMode ? 'Edit this Form' : 'Preview this Form'}}
                         </button>
                     </div>
-                    <!-- LAYOUTS (including stapled forms) -->
-                    <ul v-if="currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID" :class="{preview: previewMode}">
+                    <!-- LAYOUTS (FORMS AND INTERNAL/STAPLE OPTIONS ). -->
+                    <ul v-if="!previewMode && currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID" :class="{preview: previewMode}">
                         <template v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID">
-                            <li draggable="false" :class="{selected: form.categoryID === focusedFormID}">
+                            <li :class="{selected: form.categoryID === focusedFormID}">
                                 <button type="button"
                                     @click="form.stapledFormIDs.length > 0 && previewMode && form.categoryID === queryID ?
                                         getPreviewTree(form.categoryID) : getFormByCategoryID(form.categoryID)"
+                                    @click.ctrl.exact="focusFirstIndicator"
                                     class="layout-listitem"
-                                    :disabled="form.categoryID === focusedFormID"
                                     :title="'form ' + form.categoryID">
                                     <span v-if="form.formContextType === 'staple'" role="img" aria="" alt="">📌&nbsp;</span>
                                     <span v-if="form.formContextType === 'main form'" role="img" aria="" alt="">📂&nbsp;</span>
                                     <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
-                                        {{shortFormNameStripped(form.categoryID, 38)}}&nbsp;
+                                        {{shortFormNameStripped(form.categoryID, 36)}}&nbsp;
                                     </span>
                                     <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
                                         (selected)
@@ -772,7 +772,6 @@ export default {
                                         (parent)
                                     </em>
                                 </button>
-                                
                                 <!-- INTERNAL FORMS AND STAPLE OPTIONS -->
                                 <div v-show="!previewMode || form.categoryID === focusedFormID || form.categoryID === focusedFormRecord.parentID" class="internal_forms">
                                     <ul v-if="form.internalForms.length > 0" :id="'internalFormRecords_' + form.categoryID">
@@ -798,22 +797,30 @@ export default {
                                             type="button" class="btn-general"
                                             :id="'addStaple_' + form.categoryID"
                                             @click="openStapleFormsDialog(form.categoryID)" title="Staple other form">
-                                            <span role="img" aria="">📌&nbsp;</span>Staple other form 
+                                            <span role="img" aria="" alt="">📌&nbsp;</span>Staple other form 
                                         </button>
                                     </template>
                                 </div>
                             </li>
                         </template>
                     </ul>
+                    <!-- FORM MENU PREVIEW -->
+                    <ul v-if="previewMode && fullFormTree.length > 0">
+                        <li v-for="(page, i) in fullFormTree" :key="'preview_' + page.indicatorID + '_' + page.categoryID"
+                            class="form_menu_preview">
+                            {{ i + 1}}.
+                            <span v-if="page.categoryID !== focusedFormID" role="img" aria="" alt="">📌</span>
+                            {{ shortIndicatorNameStripped(page.description || page.name) }}
+                        </li>
+                    </ul>
                 </div>
 
                 <!-- FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
-                    <div class="printformblock" :data-update-key="updateKey"
-                        :class="{initial: focusedFormTree.length === 0}">
+                    <div class="printformblock" :data-update-key="updateKey">
 
-                        <!-- SORT MODE DRAG-DROP ZONE -->
-                        <ul v-if="dragDropMode"
+                        <!-- FORM DISPLAY WITH DRAG-DROP ZONE -->
+                        <ul v-if="focusedFormTree.length > 0"
                             :id="'base_drop_area_' + focusedFormRecord.categoryID"
                             :key="'drop_zone_collection_' + focusedFormRecord.categoryID + '_' + updateKey"
                             class="form-index-listing-ul"
@@ -833,21 +840,12 @@ export default {
                                 :index=i
                                 :parentID=null
                                 :key="'index_list_item_' + formSection.indicatorID"
-                                :draggable="true"
+                                :draggable="!previewMode"
                                 @dragstart.stop="startDrag">
                             </form-index-listing>
                         </ul>
-                        <template v-else>
-                            <form-question-display v-for="(formSection, i) in fullFormTree"
-                                :key="'editing_display_' + formSection.indicatorID + makePreviewKey(formSection)"
-                                :categoryID="formSection.categoryID"
-                                :depth="0"
-                                :formPage="i"
-                                :formNode="formSection">
-                            </form-question-display>
-                        </template>
                     </div>
-                    <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%; margin-top: 0.75rem;"
+                    <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%;"
                         @click="newQuestion(null)"
                         id="add_new_form_section_2"
                         title="Add new form section">

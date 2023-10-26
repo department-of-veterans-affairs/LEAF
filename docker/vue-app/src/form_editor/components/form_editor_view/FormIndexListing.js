@@ -1,3 +1,5 @@
+import FormQuestionDisplay from './FormQuestionDisplay.js';
+
 export default {
     name: 'form-index-listing',
     props: {
@@ -9,18 +11,22 @@ export default {
         index: Number,
         parentID: Number
     },
+    components: {
+        FormQuestionDisplay
+    },
     inject: [
         'shortIndicatorNameStripped',
         'clearListItem',
         'addToListTracker',
-        'focusIndicator',
         'focusedIndicatorID',
         'previewMode',
         'startDrag',
         'onDragEnter',
         'onDragLeave',
         'onDrop',
-        'moveListItem'
+        'moveListItem',
+        'makePreviewKey',
+        'newQuestion',
     ],
     mounted() {
         //add to listTracker array to track indicatorID, parentID, sort and current index values
@@ -46,6 +52,9 @@ export default {
             let display = this.formNode.description || this.formNode.name || '[ blank ]';
             return `${this.shortIndicatorNameStripped(display, Math.max(16, 38 - Math.round(1.33*this.depth)))}`;
         },
+        printResponseID() {
+            return `xhrIndicator_${this.suffix}`;
+        },
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
         },
@@ -56,28 +65,19 @@ export default {
             return this.formNode.isEmpty === true;
         }
     },
-    template:`
-        <li :title="'index item '+ indicatorID + '. Ctrl-click to nav to edit.'"
-            :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
+    template:`<li :title="'index item '+ indicatorID" :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff">
-
-            <button type="button" :id="'btn_index_indicator_' + indicatorID"
-                @click.stop="focusIndicator(indicatorID)">
-                <span v-show="!previewMode" role="img" aria="" alt="" style="opacity:0.3">☰&nbsp;&nbsp;</span>
-                {{indexDisplay}}
-                <div v-show="!previewMode && indicatorID === focusedIndicatorID" class="icon_move_container">
-                    <div tabindex="0" class="icon_move up" role="button" title="move item up"
-                        @click.stop="moveListItem($event, indicatorID, true)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">
-                    </div>
-                    <div tabindex="0" class="icon_move down" role="button" title="move item down"
-                        @click.stop="moveListItem($event, indicatorID, false)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
-                    </div>
-                </div>
-            </button>
+        <div class="printResponse" :class="{'form-header': depth === 0, preview: previewMode}" :id="printResponseID">
+            <form-question-display
+                :key="'editing_display_' + formNode.indicatorID + makePreviewKey(formNode)"
+                :categoryID="categoryID"
+                :depth="depth"
+                :formPage="formPage"
+                :index="index"
+                :formNode="formNode">
+            </form-question-display>
             
-            <!-- NOTE: RECURSIVE SUBQUESTIONS. ul for each for drop zones -->
+            <!-- NOTE: ul for drop zones -->
             <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ indicatorID"
                 data-effect-allowed="move"
                 @drop.stop="onDrop($event)"
@@ -96,10 +96,16 @@ export default {
                         :formNode="child"
                         :index="i"
                         :key="'index_list_item_' + child.indicatorID"
-                        :draggable="true"
-                        @dragstart.stop="startDrag"> 
+                        :draggable="!previewMode"
+                        @dragstart.stop.capture="startDrag"> 
                     </form-index-listing>
                 </template>
             </ul>
-        </li>`
+            <button v-if="depth === 0 && !previewMode" type="button" class="btn-general new_section_question"
+                title="Add Question to Section"
+                @click="newQuestion(formNode.indicatorID)">
+                Add Question to Section
+            </button>
+        </div>
+    </li>`
 }

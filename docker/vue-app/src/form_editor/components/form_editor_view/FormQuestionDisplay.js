@@ -2,15 +2,11 @@ import FormatPreview from "./FormatPreview";
 
 export default {
     name: 'form-question-display',
-    data() {
-        return {
-            dragging: false
-        }
-    },
     props: {
         categoryID: String,
         depth: Number,
         formPage: Number,
+        index: Number,
         formNode: Object
     },
     components: {
@@ -21,6 +17,8 @@ export default {
         'newQuestion',
         'shortIndicatorNameStripped',
         'focusedFormID',
+        'focusIndicator',
+        'focusedIndicatorID',
         'editQuestion',
         'hasDevConsoleAccess',
         'editAdvancedOptions',
@@ -29,7 +27,8 @@ export default {
         'allowedConditionChildFormats',
         'previewMode',
         'handleNameClick',
-        'makePreviewKey'
+        'makePreviewKey',
+        'moveListItem'
     ],
     computed: {
         indicatorID() {
@@ -73,9 +72,7 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    template:`<div v-if="!dragging" class="printResponse" :class="{'form-header': isHeader, preview: previewMode}" :id="printResponseID">
-        <!-- NOTE: QUESTION EDITING AREA -->
-        <div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
+    template:`<div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
                 <!-- NAME -->
                 <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
@@ -93,7 +90,7 @@ export default {
                             :id="'edit_indicator_' + indicatorID"
                             class="btn-general"
                             @click.exact="editQuestion(parseInt(indicatorID))"
-                            :title="'edit indicator ' + indicatorID + '. Control-click to nav to form index.'">
+                            :title="'edit indicator ' + indicatorID">
                             {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
                         <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"
@@ -115,31 +112,22 @@ export default {
                         Add sub-question
                     </button>
                 </div>
+                <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
+                <div v-show="!previewMode" class="icon_move_container">
+                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move up" role="button" title="move item up"
+                        @click.stop="moveListItem($event, indicatorID, true)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">
+                    </div>
+                    <button type="button" title="Drag to move question, or click for up and down options"
+                        class="drag_handle" @click="focusIndicator(indicatorID)"><span role="img" aria="" alt="" style="opacity:0.3">☰</span></button>
+                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move down" role="button" title="move item down"
+                        @click.stop="moveListItem($event, indicatorID, false)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
+                    </div>
+                </div>
             </div>
 
             <!-- FORMAT PREVIEW -->
             <format-preview v-if="formNode.format !== ''" :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
-        </div>
-
-        <!-- NOTE: RECURSIVE SUBQUESTIONS -->
-        <template v-if="formNode.child">
-            <form-question-display v-for="child in formNode.child"
-                :categoryID="categoryID"
-                :depth="depth + 1"
-                :formPage="formPage"
-                :formNode="child"
-                :key="'FED_' + child.indicatorID + makePreviewKey(child)">
-            </form-question-display>
-        </template>
-        <button v-if="depth === 0 && !previewMode" type="button" class="btn-general new_section_question"
-            title="Add Question to Section"
-            @click="newQuestion(formNode.indicatorID)">
-            Add Question to Section
-        </button>
-    </div>
-    <div v-else class="form-page-card" :id="'form_card_' + indicatorID">
-        <div class="form_page">{{ formPage + 1 }}</div>
-        <b>{{ shortIndicatorNameStripped(formNode.name, 60) }}</b>
-        <div class="descr" v-if="formNode.description">({{ formNode.description }})</div>
-    </div>`
+        </div>`
 }
