@@ -940,7 +940,6 @@ var LeafFormSearch = function (containerID) {
                             callback();
                         }
                     },
-                    cache: false,
                 });
                 break;
             case "data":

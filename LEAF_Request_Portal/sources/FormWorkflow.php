@@ -151,12 +151,12 @@ class FormWorkflow
      *          that are related to a "person designated" field AND workflow that utilizes the "person 
      *          designated" feature.
      * @param array $srcRecords list of records
-     * @param array $pdRecords list of record IDs that utilize "person designated"
+     * @param array $pdRecordsMap map of record IDs => indicatorID that utilize "person designated"
      * @param array $pdIndicator list of indicator IDs mapped to "person designated" fields
      * @param bool $skipNames set true to exclude employee lookups
      * @return array Amended records
      */
-    private function includePersonDesignatedData(array $srcRecords, array $pdRecords, array $pdIndicators, bool $skipNames = false): array
+    private function includePersonDesignatedData(array $srcRecords, array $pdRecordsMap, array $pdIndicators, bool $skipNames = false): array
     {
         // sanitize for use in query
         $pdIndicators = array_map(function($x) {
@@ -164,15 +164,17 @@ class FormWorkflow
                         }, $pdIndicators);
         $pdIndicators = implode(',', $pdIndicators);
 
-        $pdRecords = array_map(function($x) {
+        $pdRecordIDs = array_keys($pdRecordsMap);
+        $pdRecordIDs = array_map(function($x) {
                         return (int)$x;
-                    }, $pdRecords);
-        $pdRecords = implode(',', $pdRecords);
+                    }, $pdRecordIDs);
 
-        $query = "SELECT recordID, `data`, `name` FROM `data`
+        $pdRecordIDs = implode(',', $pdRecordIDs);
+
+        $query = "SELECT recordID, `data`, `name`, indicatorID FROM `data`
                     LEFT JOIN indicators USING (indicatorID)
                     WHERE indicatorID IN ({$pdIndicators}) 
-                        AND recordID IN ({$pdRecords})
+                        AND recordID IN ({$pdRecordIDs})
                         AND series=1
                         AND `disabled`=0";
         $res = $this->db->prepared_query($query, []);
@@ -180,8 +182,10 @@ class FormWorkflow
         // create map of recordIDs with "person designated"
         $dRecords = [];
         foreach($res as $record) {
-            $dRecords[$record['recordID']]['data'] = $record['data'];
-            $dRecords[$record['recordID']]['name'] = $record['name'];
+            if(isset($pdRecordsMap[$record['recordID']][$record['indicatorID']])) {
+                $dRecords[$record['recordID']]['data'] = $record['data'];
+                $dRecords[$record['recordID']]['name'] = $record['name'];
+            }
         }
 
         $dir = $this->getDirectory();
@@ -254,7 +258,7 @@ class FormWorkflow
             $res = $this->db->prepared_query($strSQL, []);
         }
 
-        $personDesignatedRecords = []; // map of records using "person designated"
+        $personDesignatedRecords = []; // map of records using "person designated" => associated indicatorID
         $personDesignatedIndicators = []; // map of indicators using "person designated"
         foreach ($res as $depRecord) {
             $depRecordID = $depRecord['recordID'];
@@ -279,7 +283,7 @@ class FormWorkflow
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
-                    $personDesignatedRecords[$depRecord['recordID']] = 1;
+                    $personDesignatedRecords[$depRecord['recordID']][$depRecord['indicatorID_for_assigned_empUID']] = 1;
                     $personDesignatedIndicators[$depRecord['indicatorID_for_assigned_empUID']] = 1;
                     break;
 
@@ -318,7 +322,7 @@ class FormWorkflow
         }
 
         if(count($personDesignatedRecords) > 0) {
-            $records = $this->includePersonDesignatedData($records, array_keys($personDesignatedRecords), array_keys($personDesignatedIndicators), true);
+            $records = $this->includePersonDesignatedData($records, $personDesignatedRecords, array_keys($personDesignatedIndicators), true);
         }
 
         return $records;
@@ -384,7 +388,7 @@ class FormWorkflow
             if ($res[$i]['isActionable']) {
                 switch($res[$i]['dependencyID']) {
                     case -1: // dependencyID -1 is for a person designated by the requestor
-                        $personDesignatedRecords[$res[$i]['recordID']] = 1;
+                        $personDesignatedRecords[$res[$i]['recordID']][$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                         $personDesignatedIndicators[$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                         break;
                     case -2: // dependencyID -2 is for requestor followup
@@ -429,7 +433,7 @@ class FormWorkflow
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
-                    $personDesignatedRecords[$res[$i]['recordID']] = 1;
+                    $personDesignatedRecords[$res[$i]['recordID']][$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                     $personDesignatedIndicators[$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                     break;
 
@@ -486,7 +490,7 @@ class FormWorkflow
         }
 
         if(count($personDesignatedRecords) > 0) {
-            $res = $this->includePersonDesignatedData($res, array_keys($personDesignatedRecords), array_keys($personDesignatedIndicators));
+            $res = $this->includePersonDesignatedData($res, $personDesignatedRecords, array_keys($personDesignatedIndicators));
         }
 
         return $res;

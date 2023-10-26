@@ -29,7 +29,7 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <div id="showSinglePage" role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->&masquerade=nonAdmin'" title="View full form"><img src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form"  /> Show single page</div>
+            <div id="showSinglePage" role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View full form"><img src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form"  /> Show single page</div>
             <br /><br />
             <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
         </div>
@@ -85,7 +85,7 @@ function getNext() {
     	if(<!--{$isIframe}-->) {
     		iframeURL = '&iframe=1';
     	}
-        window.location.href="index.php?a=printview&recordID=<!--{$recordID}-->&masquerade=nonAdmin" + iframeURL;
+        window.location.href="index.php?a=printview&recordID=<!--{$recordID}-->" + iframeURL;
     }
 
     return true;
