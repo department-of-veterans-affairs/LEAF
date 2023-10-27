@@ -327,8 +327,8 @@ table[class$="SelectorTable"] th {
     margin-top: 0.5rem; //matches drag-drop spacer for top of form area
     position: relative;
     padding: 0.75rem;
-    width: 400px;
-    flex: 0 0 400px;
+    width: 360px;
+    flex: 0 0 360px;
     align-self:flex-start;
     background-color: white;
     border-radius: 4px;
@@ -388,6 +388,7 @@ table[class$="SelectorTable"] th {
             border-radius: 0;
             padding: 0 0.5rem;
             color: $charcoal;
+            background-color: $BG_Pearl;
             
             &:hover, &:focus, &:active {
                 background-color: $lt_cyan;
@@ -407,7 +408,7 @@ table[class$="SelectorTable"] th {
     }
     ul[id^="internalFormRecords_"] {
         border-left: 4px solid $BG_Pearl;
-        padding-top: 0.5rem;
+        padding-top: 0.6rem;
         > li  {
             &:not(:last-child) {
                 margin-bottom: 0.5rem;

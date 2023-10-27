@@ -763,7 +763,7 @@ export default {
                                     <span v-if="form.formContextType === 'staple'" role="img" aria="" alt="">📌&nbsp;</span>
                                     <span v-if="form.formContextType === 'main form'" role="img" aria="" alt="">📂&nbsp;</span>
                                     <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
-                                        {{shortFormNameStripped(form.categoryID, 36)}}&nbsp;
+                                        {{shortFormNameStripped(form.categoryID, 30)}}&nbsp;
                                     </span>
                                     <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
                                         (selected)
@@ -779,7 +779,7 @@ export default {
                                             <button type="button" @click="getFormByCategoryID(i.categoryID)"
                                                 :class="{selected: i.categoryID === focusedFormID}">
                                                 <span role="img" aria="" alt="">📃&nbsp;</span>
-                                                {{shortFormNameStripped(i.categoryID, 35)}}
+                                                {{shortFormNameStripped(i.categoryID, 30)}}
                                             </button>
                                         </li>
                                     </ul>
