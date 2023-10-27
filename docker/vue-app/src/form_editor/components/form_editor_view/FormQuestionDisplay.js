@@ -71,10 +71,22 @@ export default {
     },
     template:`<div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
+                <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
+                <div v-show="!previewMode" class="icon_move_container">
+                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move up" role="button" title="move item up"
+                        @click.stop="moveListItem($event, indicatorID, true)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">
+                    </div>
+                    <button type="button" title="Drag to move question, or click for up and down options"
+                        class="drag_handle" @click="focusIndicator(indicatorID)"><span role="img" aria="" alt="" style="opacity:0.4">☰</span></button>
+                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move down" role="button" title="move item down"
+                        @click.stop="moveListItem($event, indicatorID, false)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
+                    </div>
+                </div>
                 <!-- NAME -->
                 <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
-                    class="indicator-name-preview" :id="indicatorID + '_format_label'"
-                    :class="{'conditional': conditionalQuestion}">
+                    class="indicator-name-preview" :id="indicatorID + '_format_label'">
                 </div>
 
                 <!-- TOOLBAR -->
@@ -106,21 +118,8 @@ export default {
                     <button v-if="!isHeader" type="button" class="btn-general"
                         title="Add sub-question"
                         @click="newQuestion(indicatorID)">
-                        Add sub-question
+                        + Add sub-question
                     </button>
-                </div>
-                <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
-                <div v-show="!previewMode" class="icon_move_container">
-                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move up" role="button" title="move item up"
-                        @click.stop="moveListItem($event, indicatorID, true)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">
-                    </div>
-                    <button type="button" title="Drag to move question, or click for up and down options"
-                        class="drag_handle" @click="focusIndicator(indicatorID)"><span role="img" aria="" alt="" style="opacity:0.3">☰</span></button>
-                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move down" role="button" title="move item down"
-                        @click.stop="moveListItem($event, indicatorID, false)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
-                    </div>
                 </div>
             </div>
 

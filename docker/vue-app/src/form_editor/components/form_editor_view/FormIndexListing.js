@@ -96,7 +96,7 @@ export default {
             <button v-if="depth === 0 && !previewMode" type="button" class="btn-general new_section_question"
                 title="Add Question to Section"
                 @click="newQuestion(formNode.indicatorID)">
-                Add Question to Section
+                + Add Question to Section
             </button>
         </div>
     </li>`

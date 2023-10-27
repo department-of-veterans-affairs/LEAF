@@ -845,12 +845,13 @@ export default {
                             </form-index-listing>
                         </ul>
                     </div>
-                    <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%;"
-                        @click="newQuestion(null)"
-                        id="add_new_form_section_2"
-                        title="Add new form section">
-                        + Add Section
-                    </button>
+                    <div id="blank_section_preview">
+                        <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%;"
+                            @click="newQuestion(null)"
+                            title="Add new form section">
+                            + Add Section
+                        </button>
+                    </div>
                 </div>
             </div>
         </template>
