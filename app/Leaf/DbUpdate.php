@@ -17,6 +17,8 @@ class DbUpdate
 
     private $portal_path;
 
+    private $portal;
+
     private $EOL;
 
     private $message = '';
@@ -25,7 +27,9 @@ class DbUpdate
 
     private $folder = '/var/www/db/db_upgrade/';
 
-    private $prefix = '/Update_RMC_DB_';
+    private $prefix;
+
+    private $multiple = false;
 
     /**
      * @param Db $db
@@ -45,7 +49,14 @@ class DbUpdate
         $this->db = $db;
         $this->setting = $setting;
         $this->folder .= $portal;
+        $this->portal = $portal;
         $this->portal_path = $portal_path;
+
+        if ($portal == 'portal') {
+            $this->prefix = 'Update_RMC_DB_';
+        } else {
+            $this->prefix = 'Update_OC_DB_';
+        }
 
         $this->setEOL();
         $this->getUpdateList();
@@ -53,6 +64,11 @@ class DbUpdate
         $this->initilize();
     }
 
+    /**
+     * @return void
+     *
+     * Created at: 10/27/2023, 2:48:24 PM (America/New_York)
+     */
     public function initilize(): void
     {
         $settings = $this->setting->getSettings();
@@ -60,18 +76,23 @@ class DbUpdate
         $this->current_version = $settings['dbversion'];
     }
 
-    public function run()
+    /**
+     * @return void
+     *
+     * Created at: 10/27/2023, 2:48:45 PM (America/New_York)
+     */
+    public function run(): void
     {
         $this->message .= 'Current Database Version: ' . $this->current_version . $this->EOL . $this->EOL;
 
         if (isset($this->update_list[$this->current_version])) {
             $this->message .= 'Update found: ' . $this->update_list[$this->current_version] . $this->EOL;
 
-            $update = file_get_contents($this->folder . $this->update_list[$this->current_version]);
+            $update = file_get_contents($this->folder . '/' . $this->update_list[$this->current_version]);
 
             $this->message .= 'Processing update for ' . $this->portal_path . ' ...' . $this->EOL;
 
-            $this->db->prepared_query($update, array());
+            $this->db->pdo_select_query($update, array());
 
             $this->message .= ' ... Complete' . $this->EOL;
 
@@ -79,24 +100,38 @@ class DbUpdate
 
             $settings = $this->setting->getSettings();
 
-            if ($settings['dbVersion'] == $this->current_version) {
-                $this->message .= 'Portal Db Update failed.' . $this->EOL . $this->EOL;
+            if ($settings['dbversion'] == $this->current_version) {
+                $this->message .= ucwords($this->portal) . ' Db Update failed.' . $this->EOL . $this->EOL;
             } else {
-                $this->message .= 'Database updated to: '. $settings['dbVersion'] . $this->EOL . $this->EOL;
+                $this->message .= 'Database updated to: '. $settings['dbversion'] . $this->EOL . $this->EOL;
                 $this->initilize();
                 $this->run();
             }
         }
 
-        $this->message .= 'Complete';
+        if (!$this->multiple) {
+            $this->message .= 'Complete';
+            $this->multiple = true;
+        }
+
     }
 
-    public function getMessage()
+    /**
+     * @return string
+     *
+     * Created at: 10/27/2023, 2:49:06 PM (America/New_York)
+     */
+    public function getMessage(): string
     {
         return $this->message;
     }
 
-    private function setEOL()
+    /**
+     * @return void
+     *
+     * Created at: 10/27/2023, 2:49:35 PM (America/New_York)
+     */
+    private function setEOL(): void
     {
         if (php_sapi_name() == 'cli') {
             $this->EOL = "\r\n";
@@ -105,12 +140,18 @@ class DbUpdate
         }
     }
 
-    private function getUpdateList()
+    /**
+     * @return void
+     *
+     * Created at: 10/27/2023, 2:49:43 PM (America/New_York)
+     */
+    private function getUpdateList(): void
     {
+        error_log(print_r($this->folder, true));
         $updates = scandir($this->folder);
-
+        error_log(print_r($updates, true));
         foreach ($updates as $update) {
-            $version = substr($update, strlen($this->prefix . $this->current_version) - strlen($this->current_version));
+            $version = str_replace($this->prefix, '', $update);
             $index = strpos($version, '-');
             $old_version = substr($version, 0, $index);
 
@@ -118,5 +159,6 @@ class DbUpdate
                 $this->update_list[$old_version] = $update;
             }
         }
+        error_log(print_r($this->update_list, true));
     }
 }
