@@ -1,27 +1,27 @@
 <div id="sideBar" style="float: left; width: 180px">
-    <div id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size: 120%; display: none"
+    <div id="btn_createStep" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="createStep();" style="font-size: 120%; display: none"
         role="button" tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
     Workflows: <br />
     <div id="workflowList"></div>
     <br />
-    <div id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();" style="font-size: 120%" role="button"
+    <div id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size: 120%" role="button"
         tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
     <br />
-    <div id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size: 120%; display: none"
+    <div id="btn_deleteWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="deleteWorkflow();" style="font-size: 120%; display: none"
         role="button" tabindex="0"><img src="../dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete
         workflow</div><br />
-    <div id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size: 120%; display: none"
+    <div id="btn_listActionType" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="listActionType();" style="font-size: 120%; display: none"
         role="button" tabindex="0">Edit Actions</div><br />
-    <div id="btn_listEvents" class="buttonNorm" onclick="listEvents();" style="font-size: 120%; display: none"
+    <div id="btn_listEvents" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="listEvents();" style="font-size: 120%; display: none"
         role="button" tabindex="0">Edit Events</div><br />
-    <div id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size: 120%; display: none;"
+    <div id="btn_viewHistory" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="viewHistory();" style="font-size: 120%; display: none;"
         role="button" tabindex="0"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View
         History</div><br />
-    <div id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();" style="font-size: 120%; display: none;"
+    <div id="btn_renameWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="renameWorkflow();" style="font-size: 120%; display: none;"
         role="button" tabindex="0"><img src="../dynicons/?img=accessories-text-editor.svg&amp;w=32"
             alt="Rename Workflow" /> Rename
         Workflow</div>
-    <div id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" style="font-size: 100%; display: none; margin-top: 10px;"
+    <div id="btn_duplicateWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="duplicateWorkflow();" style="font-size: 100%; display: none; margin-top: 10px;"
         role="button" tabindex="0"><img src="../dynicons/?img=edit-copy.svg&amp;w=32"
             alt="Duplicate Workflow" /> Duplicate
         Workflow</div>
@@ -38,12 +38,6 @@
 <script type="text/javascript">
     var CSRFToken = '<!--{$CSRFToken}-->';
 
-    //508
-    $("#btn_newWorkflow").on('keypress', function(event) {
-        if (event.keyCode == 13) {
-            newWorkflow();
-        }
-    });
     function isJSON(input = '') {
         try {
             JSON.parse(input);
@@ -51,6 +45,12 @@
             return false;
         }
         return true;
+    }
+    /* mediate keydown listeners on this page for enter key */
+    function onKeyPressClick(event) {
+        if(event.keyCode === 13) {
+            $(event.target).trigger('click');
+        }
     }
 
     function newWorkflow() {
@@ -956,8 +956,7 @@
 
                 buffer += '</select></div>';
                 buffer +=
-                    '<br /><br /><br /><br /><div>If a requirement does not exist: <span tabindex=0 class="buttonNorm" onkeydown="if (event.which === 13) { newDependency(' +
-                    stepID + '); }" onclick="newDependency(' + stepID +
+                    '<br /><br /><br /><br /><div>If a requirement does not exist: <span tabindex=0 class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newDependency(' + stepID +
                     ')">Create a new requirement</span></div>';
                 $('#dependencyList').html(buffer);
                 $('#dependencyID').chosen({disable_search_threshold: 5});
@@ -1344,7 +1343,7 @@
 
                 buffer += '</select>';
                 buffer +=
-                    '<br />- OR -<br /><br /><span class="buttonNorm" onclick="newAction();">Create a new Action Type</span>';
+                    '<br />- OR -<br /><br /><span class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="newAction();">Create a new Action Type</span>';
 
                 dialog.indicateIdle();
                 dialog.setContent(buffer);
@@ -1435,15 +1434,15 @@
             for (let i in res) {
                 output += '<li><b title="' + res[i].eventID + '">' + res[i].eventType + ' - ' + res[i]
                     .eventDescription +
-                    '</b> <img src="../dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent(' +
+                    '</b> <img tabindex=0 onkeydown="onKeyPressClick(event)" src="../dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent(' +
                     currentWorkflow + ', ' + stepID + ', \'' + params.action + '\', \'' + res[i]
                     .eventID + '\')" alt="Remove Action" title="Remove Action" /></li>';
             }
-            output += '<li style="padding-top: 8px"><span class="buttonNorm" id="event_' +
-                currentWorkflow + '_' + stepID + '_' + params.action + '">Add Event</span>';
+            output += '<li style="padding-top: 8px"><span tabindex=0 class="buttonNorm" id="event_' +
+                currentWorkflow + '_' + stepID + '_' + params.action + '" onkeydown="onKeyPressClick(event)">Add Event</span>';
             output += '</ul></div>';
             output +=
-                '<hr /><div style="padding: 4px"><span class="buttonNorm" onclick="removeAction(' +
+                '<hr /><div style="padding: 4px"><span class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="removeAction(' +
                 currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
                 '\')">Remove Action</span></div>';
             $('#stepInfo_' + stepID).html(output);
@@ -1667,21 +1666,21 @@
                     url: '../api/workflow/step/' + stepID + '/dependencies',
                     success: function(res) {
                         var control_removeStep =
-                            '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" onclick="removeStep(' +
+                            '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="removeStep(' +
                             stepID + ')" alt="Remove" />';
                         let output = '<h2>stepID: #' + stepID + ' ' + control_removeStep +
                             '</h2><br />Step: <b>' + steps[stepID].stepTitle +
-                            '</b> <img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" onclick="editStep(' +
+                            '</b> <img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editStep(' +
                             stepID + ')" alt="Edit Step" /><br />';
 
                         output += '<br /><br /><div>Requirements:<ul>';
                         var tDeps = {};
                         for (let i in res) {
                             control_editDependency =
-                                '<img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" onclick="editRequirement(' +
+                                '<img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editRequirement(' +
                                 res[i].dependencyID + ')" alt="Edit Requirement" />';
                             control_unlinkDependency =
-                                '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" onclick="unlinkDependency(' +
+                                '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="unlinkDependency(' +
                                 stepID + ', ' + res[i].dependencyID + ')" alt="Remove" />';
                             if (res[i].dependencyID == 1) { // special case for service chief and quadrad
                                 output += '<li><b style="color: green">' + res[i].description + '</b> ' +
@@ -1705,7 +1704,7 @@
                                     control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
                                     indicatorWarning + '<li>indicatorID: ' + res[i]
                                     .indicatorID_for_assigned_empUID +
-                                    '<br /><div class="buttonNorm" onclick="setDynamicApprover(' + res[i]
+                                    '<br /><div class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="setDynamicApprover(' + res[i]
                                     .stepID + ')">Set Data Field</div></li></ul></li>';
                             } else if (res[i].dependencyID == -2) { // dependencyID -2 : requestor followup
                                 output += '<li><b style="color: green">' + res[i].description + '</b> ' +
@@ -1722,17 +1721,17 @@
                                     control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
                                     indicatorWarning + '<li>indicatorID: ' + res[i]
                                     .indicatorID_for_assigned_groupID +
-                                    '<br /><div class="buttonNorm" onclick="setDynamicGroupApprover(' + res[
+                                    '<br /><div class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="setDynamicGroupApprover(' + res[
                                         i].stepID + ')">Set Data Field</div></li></ul></li>';
                             } else {
                                 if (tDeps[res[i].dependencyID] == undefined) { //
                                     tDeps[res[i].dependencyID] = 1;
                                     output += '<li style="padding-bottom: 8px"><b title="depID: ' + res[i]
-                                        .dependencyID + '" onclick="dependencyGrantAccess(' + res[i]
+                                        .dependencyID + '" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess(' + res[i]
                                         .dependencyID + ')">' + res[i].description + '</b> ' +
                                         control_editDependency + ' ' + control_unlinkDependency +
                                         '<ul id="step_' + stepID + '_dep' + res[i].dependencyID +
-                                        '"><li style="padding-top: 8px"><span class="buttonNorm" onclick="dependencyGrantAccess(' +
+                                        '"><li style="padding-top: 8px"><span tabindex=0 onkeydown="onKeyPressClick(event)" class="buttonNorm" onclick="dependencyGrantAccess(' +
                                         res[i].dependencyID + ')"><img src="../dynicons/?img=list-add.svg&w=16" alt="Add" /> Add Group</span></li>\
                                 </ul></li>';
                                 }
@@ -1772,11 +1771,10 @@
                             }
                         }
                         output +=
-                            '<hr /><div style="padding: 4px; display:flex;"><span tabindex=0 class="buttonNorm" onkeydown="if (event.which == 13) { linkDependencyDialog(' +
-                            stepID + '); }" onclick="linkDependencyDialog(' + stepID +
+                            '<hr /><div style="padding: 4px; display:flex;"><span tabindex=0 class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="linkDependencyDialog(' + stepID +
                             ')">Add Requirement</span>';
                         output +=
-                            '<span class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog(' +
+                            '<span tabindex=0 class="buttonNorm" style="margin-left: auto;" onkeydown="onKeyPressClick(event)" onclick="addEmailReminderDialog(' +
                             stepID + ')">Email Reminder</span></div>';
 
                         $('#stepInfo_' + stepID).html(output);
@@ -1792,7 +1790,7 @@
                                 $('#step_' + stepID + '_dep' + res[i].dependencyID).prepend(
                                     '<li><span style="white-space: nowrap"><b title="groupID: ' + res[i]
                                     .groupID + '">' + res[i].name +
-                                    '</b> <img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" onclick="dependencyRevokeAccess(' +
+                                    '</b> <img tabindex=0 onkeydown="onKeyPressClick(event)" style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" onclick="dependencyRevokeAccess(' +
                                     res[i].dependencyID + ', ' + res[i].groupID +
                                     ')" alt="Remove" /></span></li>');
                                 counter++;
@@ -1968,19 +1966,6 @@
         $('#btn_viewHistory').css('display', 'block');
         $('#btn_renameWorkflow').css('display', 'block');
         $('#btn_duplicateWorkflow').css('display', 'block');
-
-        //508
-        $('#btn_createStep').on('keypress', function(event) {
-            if (event.keyCode == 13) {
-                createStep();
-            }
-        });
-
-        $('#btn_deleteWorkflow').on('keypress', function(event) {
-            if (event.keyCode == 13) {
-                deleteWorkflow();
-            }
-        });
 
         currentWorkflow = workflowID;
         jsPlumb.reset();

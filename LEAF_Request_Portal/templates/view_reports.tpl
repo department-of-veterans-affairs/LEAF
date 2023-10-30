@@ -939,10 +939,7 @@ function showJSONendpoint() {
 
  function changeTitle(form_data, current_title) {
     dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="' + current_title + '" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
-  //ie11 fix
-  setTimeout(function () {
     dialog.show();
-  }, 0);
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',

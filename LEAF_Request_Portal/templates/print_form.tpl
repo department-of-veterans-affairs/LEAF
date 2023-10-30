@@ -309,10 +309,7 @@ function doSubmit(recordID) {
     }
 
     function getForm(indicatorID, series) {
-        //ie11 fix
-        setTimeout(function() {
-            form.dialog().show();
-        }, 0);
+        form.dialog().show();
         form.setPostModifyCallback(function() {
             getIndicator(indicatorID, series);
             updateProgress();
@@ -326,10 +323,7 @@ function doSubmit(recordID) {
             'Modifications made to this field:<table class="agenda" style="background-color: white"><thead><tr><th>Date/Author</th><th>Data</th></tr></thead><tbody id="history_' +
             indicatorID + '"></tbody></table>');
         dialog_message.indicateBusy();
-        //ie11 fix
-        setTimeout(function() {
-            dialog_message.show();
-        }, 0);
+        dialog_message.show();
 
         $.ajax({
             type: 'GET',

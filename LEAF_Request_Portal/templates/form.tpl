@@ -125,7 +125,7 @@ function updateProgress(focusNext=false) {
                 $('#progressLabel').text(response + '%');
             }
             else {
-                savechange = '<div tabindex="0" class="buttonNorm" onkeypress="if(event.keyCode === 13){ manualSaveChange(); }" onclick="manualSaveChange();"><div id="save_indicator"><img src="dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
+                savechange = '<div tabindex="0" class="buttonNorm" onkeydown="if(event.keyCode === 13){ manualSaveChange(); }" onclick="manualSaveChange();"><div id="save_indicator"><img src="dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
                 $('#progressControl').html(savechange);
             }
             window.scrollTo(0,0);
@@ -236,7 +236,7 @@ $(function() {
                 else {
                     description = formStructure[i].desc;
                 }
-                buffer += '<div tabindex="0" id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');" onkeypress="onKeyPressClick(event)">' + counter + '. ' + description + '</div>';
+                buffer += '<div tabindex="0" id="q'+ i +'" class="buttonNorm question" style="border: 0px" onclick="currFormPosition='+i+';treeClick('+ formStructure[i].indicatorID +', '+ formStructure[i].series +');" onkeydown="onKeyPressClick(event)">' + counter + '. ' + description + '</div>';
                 counter++;
             }
             $('#navtree').html(buffer);
