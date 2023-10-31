@@ -2081,7 +2081,7 @@
             type: 'GET',
             url: '../api/workflow',
             success: function(res) {
-                let output = '<select id="workflows" style="width: 100%">';
+                let output = '<select tabindex=0 id="workflows" style="width: 100%">';
                 var count = 0;
                 var firstWorkflowID = 0;
                 let firstWorkflowDescription = '';
