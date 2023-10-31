@@ -227,6 +227,7 @@ function doSubmit(recordID) {
                 $('#submitContent').hide('blind', 500);
                 $('#comments').css({'display': "block"});
                 $('#notes').css({'display': "block"});
+                workflow.setExtraParams('masquerade=nonAdmin');
                 workflow.getWorkflow(recordID);
             } else {
                 let errors = '';
