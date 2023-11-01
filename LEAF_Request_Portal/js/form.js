@@ -782,7 +782,9 @@ var LeafForm = function (containerID) {
                   if ($("textarea", this).length) {
                     cellArr.push($(this).find("textarea").val());
                   } else if ($("select", this).length) {
-                    cellArr.push($("option:selected", this).val());
+                    const val = $("select", this).val();
+                    //multiselect selections will be in an array
+                    cellArr.push(Array.isArray(val) ? val.join() : val);
                   } else if ($("input", this).length) {
                     cellArr.push($("input", this).val());
                   }

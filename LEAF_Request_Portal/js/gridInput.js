@@ -24,16 +24,21 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     }
     return gridInfo;
   }
-  function makeDropdown(options, selected, headerName = "") {
-    let dropdownElement = `<select aria-label="${headerName}" role="dropdown" style="width:100%; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;">`;
-    dropdownElement += `<option value="">Select an option</option>`;
-    for (let i = 0; i < options.length; i++) {
-      const optVal = options[i].replaceAll('\"', '&quot;');
-      const attrSelected = selected === options[i] ? 'selected' : '';
-      dropdownElement += `<option value="${optVal}" ${attrSelected}>${options[i]}</option>`;
-    }
-    dropdownElement += "</select>";
-    return dropdownElement;
+  function appendOptions(elSelect = {}, arrOptions = [], selectedValues = []) {
+    setTimeout(() => {
+      if((elSelect?.nodeName || '').toLowerCase() === 'select') {
+        arrOptions.forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt;
+          option.innerText = opt;
+          const isSelected = selectedValues.length > 0 && selectedValues.some(o => o === opt);
+          if(isSelected) {
+            option.setAttribute('selected', 'selected');
+          }
+          elSelect.appendChild(option);
+        });
+      }
+    });
   }
   function upArrows(row, toggle) {
     if (toggle) {
@@ -60,7 +65,6 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
         ? values.cells.length
         : 0;
     var columns = gridParameters.length;
-    var element = "";
     var columnOrder = [];
 
     //fix for report builder
@@ -71,7 +75,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
 
     //finds and displays column names
     //gives each cell in table head unique ID from form editor
-    for (var i = 0; i < columns; i++) {
+    for (let i = 0; i < columns; i++) {
       $(gridHeadElement).append(
         '<td><div style="width: 100px;" id="' +
           gridParameters[i].id +
@@ -87,211 +91,88 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       '<td style="width: 17px;">&nbsp;</td><td style="width: 17px;">&nbsp;</td>'
     );
 
-    //populates table
+    //populate table rows
     for (let i = 0; i < rows; i++) {
       const selectedRowValues = values?.cells[i] || [];
       $(gridBodyElement).append("<tr></tr>");
-      //generates row layout
+      //add td elements to each row
       for (let j = 0; j < columns; j++) {
-        switch (gridParameters[j].type) {
+        const name = gridParameters[j].name;
+        const val = selectedRowValues[j] || '';
+        const type = (gridParameters[j]?.type || '').toLowerCase();
+        switch (type) {
           case "dropdown":
-            element = makeDropdown(
-              gridParameters[j].options,
-              selectedRowValues[j] || null,
-              gridParameters[j].name
-            );
-            break;
           case "dropdown_file":
-            const filename = gridParameters[j].file;
-            const hasHeader = gridParameters[j].hasHeader;
-            const loadedOptions = fileOptions[filename]?.options || [];
-            const firstRow =  fileOptions[filename]?.firstRow || '';
-            const options = hasHeader ?
-              loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
-            element = makeDropdown(
-              options,
-              selectedRowValues[j] || null,
-              gridParameters[j].name
+            const isMultiple = +gridParameters[j].multiselect === 1;
+            const selectedValues = isMultiple ? val.split(',') : [ val ];
+            $(gridBodyElement + " > tr:last").append(
+              `<td aria-label="${name}">
+                <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width:100%;">
+                  <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
+                </select>
+              </td>`
             );
+            let options = [];
+            if(type === 'dropdown_file') {
+              const filename = gridParameters[j].file;
+              const hasHeader = gridParameters[j].hasHeader;
+              const loadedOptions = fileOptions[filename]?.options || [];
+              const firstRow =  fileOptions[filename]?.firstRow || '';
+              options = hasHeader ?
+                loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
+            } else {
+              options = gridParameters[j].options || []
+            }
+            let elSelect = document.querySelector(gridBodyElement + " > tr:last-child td:last-child select");
+            appendOptions(elSelect, options, selectedValues);
             break;
           case "textarea":
-            element = `<textarea style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;" aria-label="${gridParameters[j].name}"></textarea>`;
+            $(gridBodyElement + " > tr:last").append(
+              `<td><textarea aria-label="${name}" style="overflow-y:auto; resize: none; width: fill-available; height: 50px; box-sizing:border-box;">${val}
+                </textarea></td>`
+            );
             break;
           case "text":
-            element = `<input value="" aria-label="${gridParameters[j].name}"/>`;
+            $(gridBodyElement + " > tr:last").append(
+              `<td><input aria-label="${name}" value="${val}" /></td>`
+            );
             break;
           case "date":
-            element = `<input data-type="grid-date" value="" aria-label="${gridParameters[j].name}" />`;
+            $(gridBodyElement + " > tr:last").append(
+              `<td><input aria-label=" ${name}" data-type="grid-date" value="${val}" /></td>`
+            );
+            $('input[data-type="grid-date"]').datepicker();
             break;
           default:
             break;
         }
-        $(gridBodyElement + " > tr:eq(" + i + ")").append(
-          `<td aria-label="${gridParameters[j].name}">${element}</td>`
-        );
-        $('input[data-type="grid-date"]').datepicker();
       }
 
-      //assigns pre-existing values to cells based on its column
-      //if its column has been deleted, the value is not assigned
-      for (var j = 0; j < values.columns.length; j++) {
-        if (columnOrder.indexOf(values.columns[j]) !== -1) {
-          var value =
-            values.cells === undefined ||
-            values.cells[i] === undefined ||
-            values.cells[i][j] === undefined ||
-            columnOrder.indexOf(values.columns[j]) === -1
-              ? ""
-              : values.cells[i][j];
-          var newCoordinates =
-            gridBodyElement +
-            " > tr:eq(" +
-            i +
-            ") > td:eq(" +
-            columnOrder.indexOf(values.columns[j]) +
-            ")";
-          switch ($(newCoordinates).children().first().prop("tagName")) {
-            case "SELECT":
-              $(newCoordinates + " > select").val(value);
-              break;
-            case "TEXTAREA":
-              $(newCoordinates + " > textarea").val(value);
-              break;
-            case "INPUT":
-              $(newCoordinates + " > input").val(value);
-              break;
-            default:
-              break;
-          }
-        }
-      }
-
-      //arrow logic:
-      //if there is only one row, arrows are not necessary
-      if (rows === 1) {
-        $(gridBodyElement + " > tr:eq(" + i + ")").append(
-          '<td><img role="button" tabindex="0" onkeydown="gridInput_' +
-            indicatorID +
-            "_" +
-            series +
-            '.triggerClick(event);" onclick="gridInput_' +
-            indicatorID +
-            "_" +
-            series +
-            '.deleteRow(event)" src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></td><td><img role="button" tabindex="0" onkeydown="gridInput_' +
-            indicatorID +
-            "_" +
-            series +
-            '.triggerClick(event);" onclick="gridInput_' +
-            indicatorID +
-            "_" +
-            series +
-            '.moveUp(event)" src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="display: none; cursor: pointer" /></br></br><img role="button" tabindex="0" onkeydown="gridInput_' +
-            indicatorID +
-            "_" +
-            series +
-            '.triggerClick(event);" onclick="gridInput_' +
-            indicatorID +
-            "_" +
-            series +
-            '.moveDown(event)" src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="display: none; cursor: pointer" /></td>'
-        );
-      } else {
-        switch (i) {
-          case 0:
-            //first row only needs down arrow
-            $(gridBodyElement + " > tr:eq(" + i + ")").append(
-              '<td><img role="button" tabindex="0" onkeydown="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.triggerClick(event);" onclick="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.deleteRow(event)" src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></td><td><img role="button" tabindex="0" onkeydown="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.triggerClick(event);" onclick="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.moveUp(event)" src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="display: none; cursor: pointer" /></br></br><img role="button" tabindex="0" onkeydown="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.triggerClick(event);" onclick="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.moveDown(event)" src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="cursor: pointer" /></td>'
-            );
-            break;
-          case rows - 1:
-            //last row only needs up arrow
-            $(gridBodyElement + " > tr:eq(" + i + ")").append(
-              '<td><img role="button" tabindex="0" onkeydown="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.triggerClick(event);" onclick="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.deleteRow(event)" src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></td><td><img role="button" tabindex="0" onkeydown="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.triggerClick(event);" onclick="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.moveUp(event)" src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="cursor: pointer" /></br></br><img role="button" tabindex="0" onkeydown="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.triggerClick(event);" onclick="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.moveDown(event)" src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="display: none; cursor: pointer" /></td>'
-            );
-            break;
-          default:
-            //everything else needs both
-            $(gridBodyElement + " > tr:eq(" + i + ")").append(
-              '<td><img role="button" tabindex="0" onkeydown="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.triggerClick(event);" onclick="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.deleteRow(event)" src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></td><td><img role="button" tabindex="0" onkeydown="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.triggerClick(event);" onclick="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.moveUp(event)" src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="cursor: pointer" /></br></br><img role="button" tabindex="0" onkeydown="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.triggerClick(event);" onclick="gridInput_' +
-                indicatorID +
-                "_" +
-                series +
-                '.moveDown(event)" src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="cursor: pointer" /></td>'
-            );
-            break;
-        }
-      }
+      //arrow logic: if there is only one row, arrows are not necessary.  1st row only needs down, last row only needs up.
+      const showUpArrow = rows !== 1 && i !== 0;
+      const showDownArrow = rows !== 1 && i !== rows - 1;
+      $(`${gridBodyElement} > tr:eq(${i})`).append(
+        `<td>
+          <img role="button" tabindex="0"
+          onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
+          onclick="gridInput_${indicatorID}_${series}.deleteRow(event)"
+          src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" />
+        </td>
+        <td>
+          <img role="button" tabindex="0"
+          onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
+          onclick="gridInput_${indicatorID}_${series}.moveUp(event)"
+          src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="display: ${showUpArrow ? 'inline' : 'none'}; cursor: pointer" />
+          </br></br>
+          <img role="button" tabindex="0"
+          onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
+          onclick="gridInput_${indicatorID}_${series}.moveDown(event)"
+          src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="display: ${showDownArrow ? 'inline' : 'none'}; cursor: pointer" />
+        </td>`
+      );
     }
   }
+
   function loadFilemanagerFile(fileName, iID) {
     return new Promise((resolve, reject)=> {
       const xhttpInds = new XMLHttpRequest();
@@ -357,66 +238,58 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     });
   }
   function addRow() {
-    var gridBodyElement =
-      "#grid_" + indicatorID + "_" + series + "_input > tbody";
+    const gridBodyElement = `#grid_${indicatorID}_${series}_input > tbody`;
     //makes down arrow in last row visible
     $(gridBodyElement + " > tr:last > td:last")
       .find('[title="Move line down"]')
       .css("display", "inline");
+
     $(gridBodyElement).append("<tr></tr>");
     for (let i = 0; i < gridParameters.length; i++) {
-      switch (gridParameters[i].type) {
+      const name = gridParameters[i].name;
+      const type = (gridParameters[i]?.type || '').toLowerCase();
+      switch (type) {
         case "dropdown":
-          $(gridBodyElement + " > tr:last").append(
-            '<td aria-label="' +
-              gridParameters[i].name +
-              '">' +
-              makeDropdown(
-                gridParameters[i].options || [],
-                null,
-                gridParameters[i].name
-              ) +
-              "</td>"
-          );
-          break;
         case "dropdown_file":
-          const filename = gridParameters[i].file;
-          const hasHeader = gridParameters[i].hasHeader;
-          const loadedOptions = fileOptions[filename]?.options || [];
-          const firstRow =  fileOptions[filename]?.firstRow || '';
-          const options = hasHeader ?
-            loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
+          const isMultiple = +gridParameters[i].multiselect === 1;
+          //add initial select element and first option
           $(gridBodyElement + " > tr:last").append(
-            '<td aria-label="' +
-            gridParameters[i].name +
-            '">' +
-            makeDropdown(
-              options,
-              null,
-              gridParameters[i].name
-            ) +
-            "</td>"
+            `<td aria-label="${name}">
+              <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width:100%;">
+                <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
+              </select>
+            </td>`
           );
+          //options need to be appended afterwards, or multiselect items won't display correctly
+          let options = [];
+          if(gridParameters[i].type === 'dropdown_file') {
+            const filename = gridParameters[i].file;
+            const hasHeader = gridParameters[i].hasHeader;
+            const loadedOptions = fileOptions[filename]?.options || [];
+            const firstRow =  fileOptions[filename]?.firstRow || '';
+            options = hasHeader ?
+              loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
+          } else {
+            options = gridParameters[i].options || []
+          }
+          let elSelect = document.querySelector(gridBodyElement + " > tr:last-child td:last-child select");
+          appendOptions(elSelect, options, []);
           break;
         case "textarea":
           $(gridBodyElement + " > tr:last").append(
-            '<td><textarea aria-label="' +
-              gridParameters[i].name +
-              '" style="overflow-y:auto; overflow-x:hidden; resize: none; width:100%; height: 50px; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; width: -webkit-fill-available; width: -moz-available; width: fill-available;"></textarea></td>'
+            `<td><textarea aria-label="${name}" style="overflow-y:auto; resize: none; width: fill-available; height: 50px; box-sizing:border-box;">
+              </textarea>
+            </td>`
           );
           break;
         case "text":
           $(gridBodyElement + " > tr:last").append(
-            '<td><input aria-label="' +
-              gridParameters[i].name +
-              '" value="" /></td>'
+            `<td><input aria-label="${name}" value="" /></td>`
           );
           break;
         case "date":
           $(gridBodyElement + " > tr:last").append(
-            '<td><input aria-label="' +
-              gridParameters[i].name +
-              '" data-type="grid-date" value="" /></td>'
+            `<td><input aria-label="${name}" data-type="grid-date" value="" /></td>`
           );
           $('input[data-type="grid-date"]').datepicker();
           break;
@@ -424,70 +297,30 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
           break;
       }
     }
-    if ($(gridBodyElement).children().length === 1) {
-      $(gridBodyElement + " > tr:last").append(
-        '<td><img role="button" tabindex="0" onkeydown="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.triggerClick(event);" onclick="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.deleteRow(event)" src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></td><td><img role="button" tabindex="0" onkeydown="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.triggerClick(event);" onclick="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.moveUp(event)" src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="cursor: pointer; display: none;" /></br></br><img role="button" tabindex="0" onkeydown="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.triggerClick(event);" onclick="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.moveDown(event)" style="display: none" src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="cursor: pointer" /></td>'
-      );
-    } else {
-      $(gridBodyElement + " > tr:last").append(
-        '<td><img role="button" tabindex="0" onkeydown="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.triggerClick(event);" onclick="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.deleteRow(event)" src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" /></td><td><img role="button" tabindex="0" onkeydown="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.triggerClick(event);" onclick="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.moveUp(event)" src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="cursor: pointer" /></br></br><img role="button" tabindex="0" onkeydown="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.triggerClick(event);" onclick="gridInput_' +
-          indicatorID +
-          "_" +
-          series +
-          '.moveDown(event)" style="display: none" src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="cursor: pointer" /></td>'
-      );
-    }
+    const numRows = $(gridBodyElement).children().length;
+    $(gridBodyElement + " > tr:last").append(
+      `<td>
+        <img role="button" tabindex="0"
+        onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
+        onclick="gridInput_${indicatorID}_${series}.deleteRow(event)"
+        src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" />
+      </td>
+      <td>
+        <img role="button" tabindex="0"
+        onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
+        onclick="gridInput_${indicatorID}_${series}.moveUp(event)"
+        src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="display: ${numRows > 1 ? 'inline' : 'none'}; cursor: pointer" />
+        </br></br>
+        <img role="button" tabindex="0"
+        onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
+        onclick="gridInput_${indicatorID}_${series}.moveDown(event)"
+        src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="display:none; cursor: pointer" />
+      </td>`
+    );
+
     $("#tableStatus").attr(
       "aria-label",
-      "Row number " +
-        $(gridBodyElement).children().length +
-        " added, " +
-        $(gridBodyElement).children().length +
-        " total."
+      `Row number ${numRows} added, ${numRows} total.`
     );
   }
   // click function for 508 compliance

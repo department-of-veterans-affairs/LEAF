@@ -905,6 +905,11 @@ function setFormatElementValue() {
                         properties.file = $(this).find('select[id^="dropdown_file_select"]').val();
                         properties.hasHeader = Boolean(+$(this).find('select[id^="dropdown_file_header_select"]').val());
                     }
+                    const elMultiCheckbox = this.querySelector('input[id^="grid_multiselect_checkbox_"]');
+                    if(elMultiCheckbox !== null) {
+                        properties.multiselect = elMultiCheckbox?.checked === true ? 1 : 0;
+                    }
+
                 } else {
                     properties.type = 'textarea';
                 }
@@ -1065,7 +1070,13 @@ function makeGrid(columns) {
                 }
                 $(gridBodyElement + ' > div:eq(' + i + ')').css('padding-bottom', '11px');
                 if($(gridBodyElement + ' > div:eq(' + i + ') > span.dropdown').length === 0){
-                    $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
+                    $(gridBodyElement + ' > div:eq(' + i + ')').append(`<span class="dropdown">
+                        <div>One option per line</div>
+                        <textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">${options}</textarea>
+                        <label for="grid_multiselect_checkbox_${id}" style="display:block;">Allow Multiple
+                            <input type="checkbox" id="grid_multiselect_checkbox_${id}" ${+gridJSON[i]?.multiselect === 1 ? 'checked' : ''} />
+                        </label>
+                    </span>`);
                 }
             }
             if(gridJSON[i].type.toString() === 'dropdown_file') {
@@ -1087,6 +1098,9 @@ function makeGrid(columns) {
                                 <option value="0" ${hasHeader === false ? 'selected': ''}>No</option>
                                 <option value="1" ${hasHeader === true ? 'selected': ''}>Yes</option>
                             </select>
+                            <label for="grid_multiselect_checkbox_${i}" style="display:block;">Allow Multiple
+                                <input type="checkbox" id="grid_multiselect_checkbox_${i}" ${+gridJSON[i]?.multiselect === 1 ? 'checked' : ''} />
+                            </label>
                         </div>`
                     );
                 }
@@ -1105,7 +1119,6 @@ function toggleDropDown(type, cell, columnNumber) {
     elJQDropDown = $(cell).parent().find('span.dropdown');
     elJQDropDownFile = $(cell).parent().find('div.dropdown_file');
     let ariaStatus = '';
-
     switch(type) {
         case 'dropdown':
             if(elJQDropDownFile.length === 1) {
@@ -1117,6 +1130,9 @@ function toggleDropDown(type, cell, columnNumber) {
                 `<span class="dropdown">
                     <div>One option per line</div>
                     <textarea aria-label="Dropdown options, one option per line" value="" style="width: 153px; resize:none"></textarea>
+                    <label for="grid_multiselect_checkbox_${columnNumber}" style="display:block;">Allow Multiple
+                        <input type="checkbox" id="grid_multiselect_checkbox_${columnNumber}" />
+                    </label>
                 </span>`
             );
             $('#tableStatus').attr('aria-label', ariaStatus);
@@ -1139,6 +1155,9 @@ function toggleDropDown(type, cell, columnNumber) {
                         <option value="0">No</option>
                         <option value="1">Yes</option>
                     </select>
+                    <label for="grid_multiselect_checkbox_${columnNumber}" style="display:block;">Allow Multiple
+                        <input type="checkbox" id="grid_multiselect_checkbox_${columnNumber}" />
+                    </label>
                 </div>`
             );
             ariaStatus += 'Source file select added.';
@@ -1696,31 +1715,6 @@ function gridDropdown(dropDownOptions){
         return dropDownOptions;
     }
     let uniqueNames = dropDownOptions.split("\n");
-    let returnArray = [];
-    uniqueNames = uniqueNames.filter(function(elem, index, self) {
-        return index == self.indexOf(elem);
-    });
-
-    $.each(uniqueNames, function(i, el){
-        if(el === "no") {
-            uniqueNames[i] = "No";
-        }
-        returnArray.push(uniqueNames[i]);
-    });
-
-    return returnArray;
-}
-
-/**
- * Purpose: Create Array for Multi-Select Options
- * @param multiSelectOptions
- * @returns {[]|*}
- */
-function gridMultiselect(multiSelectOptions){
-    if(multiSelectOptions == null || multiSelectOptions.length === 0){
-        return multiSelectOptions;
-    }
-    let uniqueNames = multiSelectOptions.split("\n");
     let returnArray = [];
     uniqueNames = uniqueNames.filter(function(elem, index, self) {
         return index == self.indexOf(elem);
