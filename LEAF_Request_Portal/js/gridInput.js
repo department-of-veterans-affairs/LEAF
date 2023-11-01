@@ -40,70 +40,91 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       }
     });
   }
+
   function upArrows(row, toggle) {
-    if (toggle) {
-      row.find('[title="Move line up"]').css("display", "inline");
-    } else {
-      row.find('[title="Move line up"]').css("display", "none");
-    }
+    row.find('[title="Move line up"]').css("display", `${toggle ? 'inline' : 'none'}`);
   }
   function downArrows(row, toggle) {
-    if (toggle) {
-      row.find('[title="Move line down"]').css("display", "inline");
-    } else {
-      row.find('[title="Move line down"]').css("display", "none");
-    }
+    row.find('[title="Move line down"]').css("display", `${toggle ? 'inline' : 'none'}`);
   }
+
+  function makeControlColumnTemplate(indicatorID = 0, series = 1, showUpArrow = false, showDownArrow = false) {
+    return `
+      <td>
+      <img role="button" tabindex="0"
+      onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
+      onclick="gridInput_${indicatorID}_${series}.deleteRow(event)"
+      src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" />
+    </td>
+    <td>
+      <img role="button" tabindex="0"
+      onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
+      onclick="gridInput_${indicatorID}_${series}.moveUp(event)"
+      src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="display: ${showUpArrow ? 'inline' : 'none'}; cursor: pointer" />
+      </br></br>
+      <img role="button" tabindex="0"
+      onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
+      onclick="gridInput_${indicatorID}_${series}.moveDown(event)"
+      src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="display: ${showDownArrow ? 'inline' : 'none'}; cursor: pointer" />
+    </td>`;
+  }
+  /**
+   * Grid columns can be moved, added or deleted.  This method is used when displaying cells that could have saved values.
+   * A cell id from the indicator's grid parameters is searched for in the data field's columns array.
+   * If found, the corresponding value of the data field's cells array is returned.
+   * @param {string} cellID identifying the table column
+   * @param {object} data saved data field value
+   * @returns string
+   */
+  function getDataValueByCellID(cellID = '', dataColumnIDs = [], dataRowValues = []) {
+    let val = '';
+    if (dataColumnIDs.includes(cellID)) {
+      const index = dataColumnIDs.indexOf(cellID);
+      val = dataRowValues[index];
+    }
+    return val;
+  }
+
+  /* data entry display (form view and data entry modals) */
   function printTableInput(values) {
     values = decodeCellHTMLEntities(values, true);
-    var gridBodyElement =
-      "#grid_" + indicatorID + "_" + series + "_input > tbody";
-    var gridHeadElement =
-      "#grid_" + indicatorID + "_" + series + "_input > thead";
-    var rows =
-      values.cells !== undefined && values.cells.length > 0
-        ? values.cells.length
-        : 0;
-    var columns = gridParameters.length;
-    var columnOrder = [];
+    const gridBodyElement =`#grid_${indicatorID}_${series}_input > tbody`;
+    const gridHeadElement = `#grid_${indicatorID}_${series}_input > thead`;
 
-    //fix for report builder
-    //prevents duplicate table from being created on edit
+    const numRows = values.cells !== undefined && values.cells?.length > 0 ?
+      values.cells.length : 0;
+    const numCols = gridParameters.length;
+
+    //fix for report builder to prevent duplicate tables from being created on edit
     if ($(gridHeadElement + " > td:last").html() !== undefined) {
       return 0;
     }
 
-    //finds and displays column names
-    //gives each cell in table head unique ID from form editor
-    for (let i = 0; i < columns; i++) {
+    //column names/table headers, with unique ID from form editor
+    for (let i = 0; i < numCols; i++) {
       $(gridHeadElement).append(
-        '<td><div style="width: 100px;" id="' +
-          gridParameters[i].id +
-          '">' +
-          gridParameters[i].name +
-          "</div></td>"
+        `<td><div style="width: 100px;" id="${gridParameters[i].id}">${gridParameters[i].name}</div></td>`
       );
-      columnOrder.push(gridParameters[i].id);
     }
-
     //columns for row manipulation
     $(gridHeadElement).append(
       '<td style="width: 17px;">&nbsp;</td><td style="width: 17px;">&nbsp;</td>'
     );
 
     //populate table rows
-    for (let i = 0; i < rows; i++) {
-      const selectedRowValues = values?.cells[i] || [];
+    for (let i = 0; i < numRows; i++) {
+      const selectedRowDataValues = values?.cells[i] || [];
       $(gridBodyElement).append("<tr></tr>");
       //add td elements to each row
-      for (let j = 0; j < columns; j++) {
+      for (let j = 0; j < numCols; j++) {
         const name = gridParameters[j].name;
-        const val = selectedRowValues[j] || '';
+        const val = getDataValueByCellID(gridParameters[j].id, values.columns, selectedRowDataValues);
+
         const type = (gridParameters[j]?.type || '').toLowerCase();
         switch (type) {
           case "dropdown":
           case "dropdown_file":
-            const isMultiple = +gridParameters[j].multiselect === 1;
+            const isMultiple = +gridParameters[j].multiselect === 1;  //TODO: NOTE:  //waiting on implementation, set to false
             const selectedValues = isMultiple ? val.split(',') : [ val ];
             $(gridBodyElement + " > tr:last").append(
               `<td aria-label="${name}">
@@ -149,26 +170,10 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       }
 
       //arrow logic: if there is only one row, arrows are not necessary.  1st row only needs down, last row only needs up.
-      const showUpArrow = rows !== 1 && i !== 0;
-      const showDownArrow = rows !== 1 && i !== rows - 1;
+      const showUpArrow = numRows !== 1 && i !== 0;
+      const showDownArrow = numRows !== 1 && i !== numRows - 1;
       $(`${gridBodyElement} > tr:eq(${i})`).append(
-        `<td>
-          <img role="button" tabindex="0"
-          onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
-          onclick="gridInput_${indicatorID}_${series}.deleteRow(event)"
-          src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" />
-        </td>
-        <td>
-          <img role="button" tabindex="0"
-          onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
-          onclick="gridInput_${indicatorID}_${series}.moveUp(event)"
-          src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="display: ${showUpArrow ? 'inline' : 'none'}; cursor: pointer" />
-          </br></br>
-          <img role="button" tabindex="0"
-          onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
-          onclick="gridInput_${indicatorID}_${series}.moveDown(event)"
-          src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="display: ${showDownArrow ? 'inline' : 'none'}; cursor: pointer" />
-        </td>`
+        makeControlColumnTemplate(indicatorID, series, showUpArrow, showDownArrow)
       );
     }
   }
@@ -299,23 +304,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     }
     const numRows = $(gridBodyElement).children().length;
     $(gridBodyElement + " > tr:last").append(
-      `<td>
-        <img role="button" tabindex="0"
-        onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
-        onclick="gridInput_${indicatorID}_${series}.deleteRow(event)"
-        src="dynicons/?img=process-stop.svg&w=16" title="Delete line" alt="Delete line" style="cursor: pointer" />
-      </td>
-      <td>
-        <img role="button" tabindex="0"
-        onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
-        onclick="gridInput_${indicatorID}_${series}.moveUp(event)"
-        src="dynicons/?img=go-up.svg&w=16" title="Move line up" alt="Move line up" style="display: ${numRows > 1 ? 'inline' : 'none'}; cursor: pointer" />
-        </br></br>
-        <img role="button" tabindex="0"
-        onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
-        onclick="gridInput_${indicatorID}_${series}.moveDown(event)"
-        src="dynicons/?img=go-down.svg&w=16" title="Move line down" alt="Move line down" style="display:none; cursor: pointer" />
-      </td>`
+      makeControlColumnTemplate(indicatorID, series, numRows > 1 , false)
     );
 
     $("#tableStatus").attr(
@@ -442,67 +431,35 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
         $(event.target).closest("tbody").children().length
     );
   }
+  /* form entry review page / print view before submit */
   function printTableOutput(values) {
     values = decodeCellHTMLEntities(values);
-    var gridBodyElement =
-      "#grid_" +
-      indicatorID +
-      "_" +
-      series +
-      "_" +
-      recordID +
-      "_output > tbody";
-    var gridHeadElement =
-      "#grid_" +
-      indicatorID +
-      "_" +
-      series +
-      "_" +
-      recordID +
-      "_output > thead";
-    var rows = values.cells === undefined ? 0 : values.cells.length;
-    var columns = gridParameters.length;
-    var columnOrder = [];
+    const gridBodyElement =`#grid_${indicatorID}_${series}_${recordID}_output > tbody`;
+    const gridHeadElement = `#grid_${indicatorID}_${series}_${recordID}_output > thead`;
 
-    //finds and displays column names
-    for (var i = 0; i < columns; i++) {
+    const numRows = values.cells === undefined ? 0 : values.cells.length;
+    const numCols = gridParameters.length;
+
+    //display the current column names
+    for (let i = 0; i < numCols; i++) {
       $(gridHeadElement).append(
-        '<td style="width:100px">' + gridParameters[i].name + "</td>"
+        `<td style="width:100px">${gridParameters[i].name}</td>`
       );
-      columnOrder.push(gridParameters[i].id);
     }
-
-    //populates table
-    for (var i = 0; i < rows; i++) {
+    //populate table
+    for (let i = 0; i < numRows; i++) {
       $(gridBodyElement).append("<tr></tr>");
-
-      //generates row layout
-      for (var j = 0; j < columns; j++) {
-        $(gridBodyElement + " > tr:eq(" + i + ")").append(
-          '<td style="width:100px"></td>'
+      //rows
+      for (let j = 0; j < numCols; j++) {
+        const selectedRowDataValues = values?.cells[i] || [];
+        const val = getDataValueByCellID(gridParameters[j].id, values.columns, selectedRowDataValues);
+        $(gridBodyElement + " > tr:last").append(
+          `<td style="width:100px">${val}</td>`
         );
-      }
-
-      //assigns pre-existing values to cells based on its column
-      //if its column has been deleted, the value is not assigned
-      for (var j = 0; j < values.columns.length; j++) {
-        if (columnOrder.indexOf(values.columns[j]) !== -1) {
-          var value =
-            values.cells[i] === undefined || values.cells[i][j] === undefined
-              ? ""
-              : values.cells[i][j];
-          $(
-            gridBodyElement +
-              " > tr:eq(" +
-              i +
-              ") > td:eq(" +
-              columnOrder.indexOf(values.columns[j]) +
-              ")"
-          ).html(value);
-        }
       }
     }
   }
+  /* old Form Editor view indicator display preview */
   function printTablePreview() {
     let previewElement = "#grid" + indicatorID + "_" + series;
 
