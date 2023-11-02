@@ -3298,10 +3298,8 @@ class Form
                                 $dataTermSql = $dataTerm;
                             }
                             // catch default data
-                            if ((isset($tResTypeHint[0]['default'])
+                            if (isset($tResTypeHint[0]['default'])
                                     && $tResTypeHint[0]['default'] == $vars[':data' . $count])
-                                || $q['operator'] == 'NOT LIKE'
-                                || $q['operator'] == 'NOT MATCH')
                             {
                                 $conditions .= "{$gate}({$dataTermSql} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
                             }
