@@ -2881,6 +2881,7 @@ class Form
         $joinSearchAllData = false;
         $joinSearchOrgchartEmployeeData = false;
         $filterActionable = false;
+        $usingFulltextIndex = false;
         $vars = array();
         $conditions = '';
         $joins = '';
@@ -2931,12 +2932,15 @@ class Form
                     break;
                 case 'MATCH ALL': // Only usable when a fulltext index exists AND logic has been implemented
                     $operator = 'MATCH ALL';
+                    $usingFulltextIndex = true;
                     break;
                 case 'NOT MATCH': // Only usable when a fulltext index exists AND logic has been implemented
                     $operator = 'NOT MATCH';
+                    $usingFulltextIndex = true;
                     break;
                 case 'MATCH': // Only usable when a fulltext index exists AND logic has been implemented
                     $operator = 'MATCH';
+                    $usingFulltextIndex = true;
                     break;
                 case 'RIGHT JOIN':
                     break;
@@ -3441,6 +3445,11 @@ class Form
                 default:
                     break;
             }
+        }
+        
+        // avoid extra sort when using fulltext index
+        if($usingFulltextIndex) {
+            $sort = '';
         }
 
         // join tables for queries on data fields without filtering by indicatorID
