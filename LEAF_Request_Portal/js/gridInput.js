@@ -69,11 +69,12 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     </td>`;
   }
   /**
-   * Grid columns can be moved, added or deleted.  This method is used when displaying cells that could have saved values.
-   * A cell id from the indicator's grid parameters is searched for in the data field's columns array.
-   * If found, the corresponding value of the data field's cells array is returned.
-   * @param {string} cellID identifying the table column
-   * @param {object} data saved data field value
+   * This method is used when displaying cells that could have saved values because cell positions can change.
+   * The cell id from the indicator format grid parameters element is searched for in the data field's 'columns' array.
+   * If found, the corresponding value of the data field's cells array is returned. Otherwise, an empty string is returned.
+   * @param {string} cellID identifying the current table column being rendered.
+   * @param {array} dataColumnIDs array of cell IDs saved in the data field.
+   * @param {array} dataRowValues array of cell data saved in the data field.
    * @returns string
    */
   function getDataValueByCellID(cellID = '', dataColumnIDs = [], dataRowValues = []) {
@@ -91,15 +92,14 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     const gridBodyElement =`#grid_${indicatorID}_${series}_input > tbody`;
     const gridHeadElement = `#grid_${indicatorID}_${series}_input > thead`;
 
-    const numRows = values.cells !== undefined && values.cells?.length > 0 ?
-      values.cells.length : 0;
     const numCols = gridParameters.length;
+    const dataColumnIDs = values?.columns || [];
+    const numRows = values?.cells?.length || 0;
 
     //fix for report builder to prevent duplicate tables from being created on edit
     if ($(gridHeadElement + " > td:last").html() !== undefined) {
       return 0;
     }
-
     //column names/table headers, with unique ID from form editor
     for (let i = 0; i < numCols; i++) {
       $(gridHeadElement).append(
@@ -110,69 +110,18 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     $(gridHeadElement).append(
       '<td style="width: 17px;">&nbsp;</td><td style="width: 17px;">&nbsp;</td>'
     );
-
-    //populate table rows
+    //table rows
     for (let i = 0; i < numRows; i++) {
       const selectedRowDataValues = values?.cells[i] || [];
       $(gridBodyElement).append("<tr></tr>");
-      //add td elements to each row
+      //td elements for each row
       for (let j = 0; j < numCols; j++) {
-        const name = gridParameters[j].name;
-        const val = getDataValueByCellID(gridParameters[j].id, values.columns, selectedRowDataValues);
-
-        const type = (gridParameters[j]?.type || '').toLowerCase();
-        switch (type) {
-          case "dropdown":
-          case "dropdown_file":
-            const isMultiple = +gridParameters[j].multiselect === 1;  //TODO: NOTE:  //waiting on implementation, set to false
-            const selectedValues = isMultiple ? val.split(',') : [ val ];
-            $(gridBodyElement + " > tr:last").append(
-              `<td aria-label="${name}">
-                <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width:100%;">
-                  <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
-                </select>
-              </td>`
-            );
-            let options = [];
-            if(type === 'dropdown_file') {
-              const filename = gridParameters[j].file;
-              const hasHeader = gridParameters[j].hasHeader;
-              const loadedOptions = fileOptions[filename]?.options || [];
-              const firstRow =  fileOptions[filename]?.firstRow || '';
-              options = hasHeader ?
-                loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
-            } else {
-              options = gridParameters[j].options || []
-            }
-            let elSelect = document.querySelector(gridBodyElement + " > tr:last-child td:last-child select");
-            appendOptions(elSelect, options, selectedValues);
-            break;
-          case "textarea":
-            $(gridBodyElement + " > tr:last").append(
-              `<td><textarea aria-label="${name}" style="overflow-y:auto; resize: none; width: fill-available; height: 50px; box-sizing:border-box;">${val}
-                </textarea></td>`
-            );
-            break;
-          case "text":
-            $(gridBodyElement + " > tr:last").append(
-              `<td><input aria-label="${name}" value="${val}" /></td>`
-            );
-            break;
-          case "date":
-            $(gridBodyElement + " > tr:last").append(
-              `<td><input aria-label=" ${name}" data-type="grid-date" value="${val}" /></td>`
-            );
-            $('input[data-type="grid-date"]').datepicker();
-            break;
-          default:
-            break;
-        }
+        addTableData(gridBodyElement, gridParameters[j], dataColumnIDs, selectedRowDataValues);
       }
-
-      //arrow logic: if there is only one row, arrows are not necessary.  1st row only needs down, last row only needs up.
+      //arrow logic (existing rows): if there is only one row, arrows are not necessary.  1st row only needs down, last row only needs up.
       const showUpArrow = numRows !== 1 && i !== 0;
       const showDownArrow = numRows !== 1 && i !== numRows - 1;
-      $(`${gridBodyElement} > tr:eq(${i})`).append(
+      $(gridBodyElement + " > tr:last").append(
         makeControlColumnTemplate(indicatorID, series, showUpArrow, showDownArrow)
       );
     }
@@ -242,6 +191,58 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       }
     });
   }
+
+  function addTableData(gridBodyElement = '', gridParameters = [], dataColumnIDs = [], selectedRowDataValues = []) {
+    const id = gridParameters.id;
+    const name = gridParameters.name;
+    const val = getDataValueByCellID(id, dataColumnIDs, selectedRowDataValues);
+
+    const type = (gridParameters?.type || '').toLowerCase();
+    switch (type) {
+      case "dropdown":
+      case "dropdown_file":
+        const isMultiple = false;  //TODO: waiting on implementation, set to false for now. +gridParameters.multiselect === 1
+        const selectedValues = isMultiple ? val.split(',') : [ val ];
+        $(gridBodyElement + " > tr:last").append(
+          `<td aria-label="${name}">
+            <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width:100%;">
+              <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
+            </select>
+          </td>`
+        );
+        let options = [];
+        if(type === 'dropdown_file') {
+          const filename = gridParameters.file;
+          const hasHeader = gridParameters.hasHeader;
+          const loadedOptions = fileOptions[filename]?.options || [];
+          const firstRow =  fileOptions[filename]?.firstRow || '';
+          options = hasHeader ?
+            loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
+        } else {
+          options = gridParameters.options || [];
+        }
+        let elSelect = document.querySelector(gridBodyElement + " > tr:last-child td:last-child select");
+        appendOptions(elSelect, options, selectedValues);
+        break;
+      case "textarea":
+        $(gridBodyElement + " > tr:last").append(
+          `<td>
+            <textarea aria-label="${name}" style="overflow-y:auto; resize: none; width: fill-available; height: 50px; box-sizing:border-box;">${val}</textarea>
+          </td>`
+        );
+        break;
+      case "text":
+        $(gridBodyElement + " > tr:last").append(`<td><input aria-label="${name}" value="${val}" /></td>`);
+        break;
+      case "date":
+        $(gridBodyElement + " > tr:last").append(`<td><input aria-label=" ${name}" data-type="grid-date" value="${val}" /></td>`);
+        $('input[data-type="grid-date"]').datepicker();
+        break;
+      default:
+        break;
+    }
+  }
+
   function addRow() {
     const gridBodyElement = `#grid_${indicatorID}_${series}_input > tbody`;
     //makes down arrow in last row visible
@@ -251,66 +252,14 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
 
     $(gridBodyElement).append("<tr></tr>");
     for (let i = 0; i < gridParameters.length; i++) {
-      const name = gridParameters[i].name;
-      const type = (gridParameters[i]?.type || '').toLowerCase();
-      switch (type) {
-        case "dropdown":
-        case "dropdown_file":
-          const isMultiple = +gridParameters[i].multiselect === 1;
-          //add initial select element and first option
-          $(gridBodyElement + " > tr:last").append(
-            `<td aria-label="${name}">
-              <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width:100%;">
-                <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
-              </select>
-            </td>`
-          );
-          //options need to be appended afterwards, or multiselect items won't display correctly
-          let options = [];
-          if(gridParameters[i].type === 'dropdown_file') {
-            const filename = gridParameters[i].file;
-            const hasHeader = gridParameters[i].hasHeader;
-            const loadedOptions = fileOptions[filename]?.options || [];
-            const firstRow =  fileOptions[filename]?.firstRow || '';
-            options = hasHeader ?
-              loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
-          } else {
-            options = gridParameters[i].options || []
-          }
-          let elSelect = document.querySelector(gridBodyElement + " > tr:last-child td:last-child select");
-          appendOptions(elSelect, options, []);
-          break;
-        case "textarea":
-          $(gridBodyElement + " > tr:last").append(
-            `<td><textarea aria-label="${name}" style="overflow-y:auto; resize: none; width: fill-available; height: 50px; box-sizing:border-box;">
-              </textarea>
-            </td>`
-          );
-          break;
-        case "text":
-          $(gridBodyElement + " > tr:last").append(
-            `<td><input aria-label="${name}" value="" /></td>`
-          );
-          break;
-        case "date":
-          $(gridBodyElement + " > tr:last").append(
-            `<td><input aria-label="${name}" data-type="grid-date" value="" /></td>`
-          );
-          $('input[data-type="grid-date"]').datepicker();
-          break;
-        default:
-          break;
-      }
+      addTableData(gridBodyElement, gridParameters[i]);
     }
+
     const numRows = $(gridBodyElement).children().length;
     $(gridBodyElement + " > tr:last").append(
       makeControlColumnTemplate(indicatorID, series, numRows > 1 , false)
     );
-
-    $("#tableStatus").attr(
-      "aria-label",
-      `Row number ${numRows} added, ${numRows} total.`
-    );
+    $("#tableStatus").attr("aria-label", `Row number ${numRows} added, ${numRows} total.`);
   }
   // click function for 508 compliance
   function triggerClick(event) {
@@ -350,7 +299,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
         break;
     }
     if (focus !== undefined) {
-      //ie11 fix
+      //clear stack
       setTimeout(function () {
         focus.focus();
       }, 0);
@@ -358,11 +307,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
 
     $("#tableStatus").attr(
       "aria-label",
-      "Row " +
-        rowDeleted +
-        " removed, " +
-        $(tbody).children().length +
-        " total."
+      `Row ${rowDeleted} removed, ${$(tbody).children().length} total.`
     );
   }
 
@@ -437,25 +382,21 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     const gridBodyElement =`#grid_${indicatorID}_${series}_${recordID}_output > tbody`;
     const gridHeadElement = `#grid_${indicatorID}_${series}_${recordID}_output > thead`;
 
-    const numRows = values.cells === undefined ? 0 : values.cells.length;
     const numCols = gridParameters.length;
-
     //display the current column names
     for (let i = 0; i < numCols; i++) {
-      $(gridHeadElement).append(
-        `<td style="width:100px">${gridParameters[i].name}</td>`
-      );
+      $(gridHeadElement).append(`<td style="width:100px">${gridParameters[i].name}</td>`);
     }
     //populate table
+    const dataColumnIDs = values?.columns || [];
+    const numRows = values?.cells?.length || 0;
     for (let i = 0; i < numRows; i++) {
       $(gridBodyElement).append("<tr></tr>");
-      //rows
+      //row td elements for each column
       for (let j = 0; j < numCols; j++) {
         const selectedRowDataValues = values?.cells[i] || [];
-        const val = getDataValueByCellID(gridParameters[j].id, values.columns, selectedRowDataValues);
-        $(gridBodyElement + " > tr:last").append(
-          `<td style="width:100px">${val}</td>`
-        );
+        const val = getDataValueByCellID(gridParameters[j].id, dataColumnIDs, selectedRowDataValues);
+        $(gridBodyElement + " > tr:last").append(`<td style="width:100px">${val}</td>`);
       }
     }
   }
@@ -465,15 +406,11 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
 
     for (let i = 0; i < gridParameters.length; i++) {
       $(previewElement).append(
-        '<div style="padding: 10px; vertical-align: top; display: inline-block; flex: 1; order: ' +
-          (i + 1) +
-          '"><b>Column #' +
-          (i + 1) +
-          "</b></br>Title:" +
-          gridParameters[i].name +
-          "</br>Type:" +
-          gridParameters[i].type +
-          "</br></div>"
+        `<div style="padding: 10px; vertical-align: top; display: inline-block; flex: 1; order: ${i + 1};">
+          <b>Column #${i + 1}</b></br>
+          Title:${gridParameters[i].name}</br>
+          Type:${gridParameters[i].type}</br>
+        </div>`
       );
       if (gridParameters[i].type === "dropdown") {
         $(previewElement + "> div:eq(" + i + ")").append(
