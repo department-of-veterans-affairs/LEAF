@@ -1037,12 +1037,10 @@ var LeafFormSearch = function (containerID) {
                                             widgetID +
                                             '" class="chosen" aria-label="condition" style="width: 120px">\
                                         <option value="MATCH ALL">CONTAINS</option>\
-                                        <option value="NOT MATCH">DOES NOT CONTAIN</option>\
                                         <option value="MATCH">CONTAINS EITHER</option>\
 					            		<option value="=">=</option>\
 										<option value="!=">!=</option>\
 										<option value="LIKE">HAS FRAGMENT</option>\
-                                        <option value="NOT LIKE">DOES NOT HAVE FRAGMENT</option>\
 					            	</select>'
                                     );
                                     $(

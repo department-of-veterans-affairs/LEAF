@@ -3517,6 +3517,10 @@ class Form
         $recordIDs = trim($recordIDs, ',');
         $recordIDs = $recordIDs ?: 0;
 
+        if(count($res) > count(array_keys($data))) {
+            header('LEAF-Query: continue'); // signal frontend there might be more data
+        }
+
         // These all require the recordIDs to be set
         if (!empty($recordIDs))
         {
