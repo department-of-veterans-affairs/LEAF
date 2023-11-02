@@ -2859,7 +2859,7 @@ class Form
             }
         }
 
-        return implode($words);
+        return implode(' ', $words);
     }
 
     /**
@@ -2932,8 +2932,11 @@ class Form
                 case 'MATCH ALL': // Only usable when a fulltext index exists AND logic has been implemented
                     $operator = 'MATCH ALL';
                     break;
-                case 'MATCH ANY': // Only usable when a fulltext index exists AND logic has been implemented
-                    $operator = 'MATCH ANY';
+                case 'NOT MATCH': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'NOT MATCH';
+                    break;
+                case 'MATCH': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'MATCH';
                     break;
                 case 'RIGHT JOIN':
                     break;
@@ -3268,14 +3271,18 @@ class Form
 
                                 break;
                             default:
-                                if($joinSearchAllData && $operator == 'MATCH ALL') {
-                                    $dataTerm = "MATCH ({$dataTerm})";
-                                    $operator = 'AGAINST';
-                                    $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                if($operator == 'MATCH ALL') {
                                     $vars[":data{$count}"] = $this->parseBooleanQuery($vars[":data{$count}"]);
                                 }
-                                if($joinSearchAllData && $operator == 'MATCH ANY') {
-                                    $dataTerm = "MATCH ({$dataTerm})";
+
+                                if(strpos($operator, 'MATCH') !== false) {
+                                    if($operator == 'NOT MATCH') {
+                                        $dataTerm = "NOT MATCH ({$dataTerm})";
+                                    }
+                                    else {
+                                        $dataTerm = "MATCH ({$dataTerm})";
+                                    }
+
                                     $operator = 'AGAINST';
                                     $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
                                 }
@@ -3283,8 +3290,9 @@ class Form
                         }
 
                             // catch default data
-                            if (isset($tResTypeHint[0]['default'])
-                            && $tResTypeHint[0]['default'] == $vars[':data' . $count])
+                            if ((isset($tResTypeHint[0]['default'])
+                                    && $tResTypeHint[0]['default'] == $vars[':data' . $count])
+                                || $operator == 'NOT LIKE')
                             {
                                 $conditions .= "{$gate}({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
                             }

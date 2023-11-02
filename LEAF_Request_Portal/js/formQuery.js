@@ -223,6 +223,13 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
+   * encodeReadableURI provides minimal character URI encoding, prioritizing readible URLs
+   */
+  function encodeReadableURI(url) {
+      return url.replace('+', '%2b');
+  }
+
+  /**
    * Execute search query in chunks
    * @param {number} limitOffset Used in subsequent recursive calls to track current offset
    * @returns Promise resolving to query response
@@ -244,7 +251,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     const urlParamJSONP = useJSONP ? "&format=jsonp" : "";
     return $.ajax({
       type: "GET",
-      url: `${rootURL}api/form/query?q=${queryUrl + extraParams + urlParamJSONP}`,
+      url: `${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`,
       dataType: dataType,
       error: (err) => console.log(err)
     }).then((res, resStatus, resJqXHR) => {
@@ -288,7 +295,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     const urlParamJSONP = useJSONP ? "&format=jsonp" : "";
     return $.ajax({
       type: "GET",
-      url: `${rootURL}api/form/query?q=${queryUrl + extraParams + urlParamJSONP}`,
+      url: `${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`,
       dataType: dataType,
       success: successCallback,
       error: (err) => console.log(err)

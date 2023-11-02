@@ -634,6 +634,9 @@ var LeafFormSearch = function (containerID) {
      */
     function renderSingleSelectInputType(widgetID, options) {
         switch ($("#" + prefixID + "widgetCod_" + widgetID).val()) {
+            case "MATCH ALL":
+            case "NOT MATCH":
+            case "MATCH":
             case "LIKE":
             case "NOT LIKE":
                 $("#" + prefixID + "widgetMatch_" + widgetID).html(
@@ -1016,10 +1019,12 @@ var LeafFormSearch = function (containerID) {
                                             widgetID +
                                             '" class="chosen" aria-label="condition" style="width: 120px">\
                                         <option value="MATCH ALL">CONTAINS</option>\
-										<option value="LIKE">CONTAINS FRAGMENT</option>\
-										<option value="NOT LIKE">DOES NOT CONTAIN</option>\
+                                        <option value="NOT MATCH">DOES NOT CONTAIN</option>\
+                                        <option value="MATCH">CONTAINS EITHER</option>\
 					            		<option value="=">=</option>\
 										<option value="!=">!=</option>\
+										<option value="LIKE">HAS FRAGMENT</option>\
+                                        <option value="NOT LIKE">DOES NOT HAVE FRAGMENT</option>\
 					            	</select>'
                                     );
                                     $(
@@ -1284,12 +1289,15 @@ var LeafFormSearch = function (containerID) {
                                                         '" class="chosen" aria-label="condition" style="width: 120px">\
                                                     <option value="=">IS</option>\
                                                     <option value="!=">IS NOT</option>\
-													<option value="LIKE">CONTAINS</option>\
-													<option value="NOT LIKE">DOES NOT CONTAIN</option>\
+                                                    <option value="MATCH ALL">CONTAINS</option>\
+                                                    <option value="NOT MATCH">DOES NOT CONTAIN</option>\
+                                                    <option value="MATCH">CONTAINS EITHER</option>\
 								            		<option value=">">></option>\
 								            		<option value=">=">>=</option>\
 								            		<option value="<"><</option>\
 								            		<option value="<="><=</option>\
+                                                    <option value="LIKE">HAS FRAGMENT</option>\
+                                                    <option value="NOT LIKE">DOES NOT HAVE FRAGMENT</option>\
 								            	</select>'
                                                 );
                                                 var resOptions =
@@ -1347,10 +1355,13 @@ var LeafFormSearch = function (containerID) {
                                                         "widgetCod_" +
                                                         widgetID +
                                                         '" class="chosen" aria-label="condition" style="width: 120px">\
-													<option value="LIKE">CONTAINS</option>\
-													<option value="NOT LIKE">DOES NOT CONTAIN</option>\
-								            		<option value="=">=</option>\
-													<option value="!=">!=</option>\
+                                                        <option value="MATCH ALL">CONTAINS</option>\
+                                                        <option value="NOT MATCH">DOES NOT CONTAIN</option>\
+                                                        <option value="MATCH">CONTAINS EITHER</option>\
+                                                        <option value="=">=</option>\
+                                                        <option value="!=">!=</option>\
+                                                        <option value="LIKE">HAS FRAGMENT</option>\
+                                                        <option value="NOT LIKE">DOES NOT HAVE FRAGMENT</option>\
 								            	</select>'
                                                 );
                                                 $(
