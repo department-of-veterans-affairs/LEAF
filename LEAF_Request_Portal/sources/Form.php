@@ -3261,48 +3261,53 @@ class Form
                             {
                                 $dataTerm = 'lj_data.data';
                             }
+                            $dataTermSql = '';
 
                             $dataMatch = ":data{$count}";
                             switch ($tResTypeHint[0]['format']) {
-                            case 'number':
-                            case 'currency':
-                                $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";
+                                case 'number':
+                                case 'currency':
+                                    $dataTermSql = "CAST({$dataTerm} as DECIMAL(21,5))";
 
-                                break;
-                            case 'date':
-                                $dataTerm = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
-                                $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
+                                    break;
+                                case 'date':
+                                    $dataTermSql = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
+                                    $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
 
-                                break;
-                            default:
-                                if($operator == 'MATCH ALL') {
-                                    $vars[":data{$count}"] = $this->parseBooleanQuery($vars[":data{$count}"]);
-                                }
-
-                                if(strpos($operator, 'MATCH') !== false) {
-                                    if($operator == 'NOT MATCH') {
-                                        $dataTerm = "NOT MATCH ({$dataTerm})";
-                                    }
-                                    else {
-                                        $dataTerm = "MATCH ({$dataTerm})";
+                                    break;
+                                default:
+                                    if($operator == 'MATCH ALL') {
+                                        $vars[":data{$count}"] = $this->parseBooleanQuery($vars[":data{$count}"]);
                                     }
 
-                                    $operator = 'AGAINST';
-                                    $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
-                                }
-                                break;
-                        }
+                                    if(strpos($operator, 'MATCH') !== false) {
+                                        if($operator == 'NOT MATCH') {
+                                            $dataTermSql = "NOT MATCH ({$dataTerm})";
+                                        }
+                                        else {
+                                            $dataTermSql = "MATCH ({$dataTerm})";
+                                        }
 
+                                        $operator = 'AGAINST';
+                                        $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                    }
+                                    break;
+                            }
+
+                            if($dataTermSql == '') {
+                                $dataTermSql = $dataTerm;
+                            }
                             // catch default data
                             if ((isset($tResTypeHint[0]['default'])
                                     && $tResTypeHint[0]['default'] == $vars[':data' . $count])
-                                || $operator == 'NOT LIKE')
+                                || $q['operator'] == 'NOT LIKE'
+                                || $q['operator'] == 'NOT MATCH')
                             {
-                                $conditions .= "{$gate}({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
+                                $conditions .= "{$gate}({$dataTermSql} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
                             }
                             else
                             {
-                                $conditions .= "{$gate}{$dataTerm} {$operator} $dataMatch";
+                                $conditions .= "{$gate}{$dataTermSql} {$operator} $dataMatch";
                             }
                         }
                     }
