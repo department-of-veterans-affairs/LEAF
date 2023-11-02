@@ -271,7 +271,14 @@ var LeafFormSearch = function (containerID) {
                                 $(
                                     "#" + prefixID + "widgetCod_" + widgetID
                                 ).trigger("chosen:updated");
-                                $("#" + prefixID + "widgetMat_" + widgetID).val(match);
+
+                                if(operator.indexOf('MATCH') == -1) {
+                                    $("#" + prefixID + "widgetMat_" + widgetID).val(match.replace(/\*/g, ""));
+                                }
+                                else {
+                                    $("#" + prefixID + "widgetMat_" + widgetID).val(match);
+                                }
+
                                 $(
                                     "#" + prefixID + "widgetMat_" + widgetID
                                 ).trigger("chosen:updated");
