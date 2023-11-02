@@ -271,9 +271,7 @@ var LeafFormSearch = function (containerID) {
                                 $(
                                     "#" + prefixID + "widgetCod_" + widgetID
                                 ).trigger("chosen:updated");
-                                $("#" + prefixID + "widgetMat_" + widgetID).val(
-                                    match.replace(/\*/g, "")
-                                );
+                                $("#" + prefixID + "widgetMat_" + widgetID).val(match);
                                 $(
                                     "#" + prefixID + "widgetMat_" + widgetID
                                 ).trigger("chosen:updated");
@@ -290,7 +288,7 @@ var LeafFormSearch = function (containerID) {
                     renderWidget(i);
                 }
                 $("#" + prefixID + "widgetCod_" + i).val(advSearch[i].operator);
-                if (typeof advSearch[i].match == "string") {
+                if (typeof advSearch[i].match == "string" && advSearch[i].operator.indexOf('MATCH') == -1) {
                     $("#" + prefixID + "widgetMat_" + i).val(
                         advSearch[i].match.replace(/\*/g, "")
                     );
@@ -1010,7 +1008,8 @@ var LeafFormSearch = function (containerID) {
                                             "widgetCod_" +
                                             widgetID +
                                             '" class="chosen" aria-label="condition" style="width: 120px">\
-										<option value="LIKE">CONTAINS</option>\
+                                        <option value="MATCH ALL">CONTAINS</option>\
+										<option value="LIKE">CONTAINS FRAGMENT</option>\
 										<option value="NOT LIKE">DOES NOT CONTAIN</option>\
 					            		<option value="=">=</option>\
 										<option value="!=">!=</option>\
@@ -1366,6 +1365,7 @@ var LeafFormSearch = function (containerID) {
                                 }
                             }
                         );
+                        $("#" + prefixID + "widgetIndicator_" + widgetID).trigger("chosen:updated"); // trigger render on first load
                         $(
                             "#" +
                                 prefixID +

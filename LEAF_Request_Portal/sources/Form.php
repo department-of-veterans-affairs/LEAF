@@ -2843,6 +2843,26 @@ class Form
     }
 
     /**
+     * parseBooleanQuery transforms a user's query to add implied "+" prefixes when
+     * a "MATCH ALL" condition is selected.
+     * 
+     * @param $query
+     * @return string Transformed query
+     */
+    private function parseBooleanQuery(string $query): string
+    {
+        $words = explode(' ', $query);
+        foreach($words as $k => $word) {
+            $firstChar = substr($word, 0, 1);
+            if($firstChar != '+' && $firstChar != '-') {
+                $words[$k] = '+' . $words[$k];
+            }
+        }
+
+        return implode($words);
+    }
+
+    /**
      * query parses a JSON formatted user query defined in formQuery.js.
      * 
      * Returns an array on success, and string/int for malformed queries
@@ -2908,6 +2928,12 @@ class Form
                         $q['match'] = '%' . $q['match'] . '%';
                     }
 
+                    break;
+                case 'MATCH ALL': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'MATCH ALL';
+                    break;
+                case 'MATCH ANY': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'MATCH ANY';
                     break;
                 case 'RIGHT JOIN':
                     break;
@@ -3242,6 +3268,17 @@ class Form
 
                                 break;
                             default:
+                                if($joinSearchAllData && $operator == 'MATCH ALL') {
+                                    $dataTerm = "MATCH ({$dataTerm})";
+                                    $operator = 'AGAINST';
+                                    $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                    $vars[":data{$count}"] = $this->parseBooleanQuery($vars[":data{$count}"]);
+                                }
+                                if($joinSearchAllData && $operator == 'MATCH ANY') {
+                                    $dataTerm = "MATCH ({$dataTerm})";
+                                    $operator = 'AGAINST';
+                                    $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                }
                                 break;
                         }
 
