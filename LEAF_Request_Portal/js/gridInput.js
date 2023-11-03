@@ -24,6 +24,11 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     }
     return gridInfo;
   }
+  /**
+   * @param {Object} elSelect DOM element
+   * @param {Array} arrOptions options to add
+   * @param {Array} selectedValues selected value(s) (if present)
+   */
   function appendOptions(elSelect = {}, arrOptions = [], selectedValues = []) {
     setTimeout(() => {
       if((elSelect?.nodeName || '').toLowerCase() === 'select') {
@@ -47,10 +52,9 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
   function downArrows(row, toggle) {
     row.find('[title="Move line down"]').css("display", `${toggle ? 'inline' : 'none'}`);
   }
-
+  /** adds remove row icon and up/down arrow row controls */
   function makeControlColumnTemplate(indicatorID = 0, series = 1, showUpArrow = false, showDownArrow = false) {
-    return `
-      <td>
+    return `<td>
       <img role="button" tabindex="0"
       onkeydown="gridInput_${indicatorID}_${series}.triggerClick(event);"
       onclick="gridInput_${indicatorID}_${series}.deleteRow(event)"
@@ -69,8 +73,8 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     </td>`;
   }
   /**
-   * This method is used when displaying cells that could have saved values because cell positions can change.
-   * The cell id from the indicator format grid parameters element is searched for in the data field's 'columns' array.
+   * Used when displaying cells that could have saved values because cell positions can change.
+   * The cell id of an element from the indicators.format array is searched for in the data field's 'columns' array.
    * If found, the corresponding value of the data field's cells array is returned. Otherwise, an empty string is returned.
    * @param {string} cellID identifying the current table column being rendered.
    * @param {array} dataColumnIDs array of cell IDs saved in the data field.
@@ -210,7 +214,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
         const selectedValues = isMultiple ? val.split(',') : [ val ];
         $(gridBodySelector + " > tr:last").append(
           `<td aria-label="${name}">
-            <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width:100%;">
+            <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width: fill-available;">
               <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
             </select>
           </td>`
