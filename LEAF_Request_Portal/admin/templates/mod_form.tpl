@@ -1065,7 +1065,12 @@ function makeGrid(columns) {
                 }
                 $(gridBodyElement + ' > div:eq(' + i + ')').css('padding-bottom', '11px');
                 if($(gridBodyElement + ' > div:eq(' + i + ') > span.dropdown').length === 0){
-                    $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
+                    $(gridBodyElement + ' > div:eq(' + i + ')').append(
+                        `<span class="dropdown">
+                            <div>One option per line</div>
+                            <textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">${options}</textarea>
+                        </span>`
+                    );
                 }
             }
             if(gridJSON[i].type.toString() === 'dropdown_file') {
@@ -1696,31 +1701,6 @@ function gridDropdown(dropDownOptions){
         return dropDownOptions;
     }
     let uniqueNames = dropDownOptions.split("\n");
-    let returnArray = [];
-    uniqueNames = uniqueNames.filter(function(elem, index, self) {
-        return index == self.indexOf(elem);
-    });
-
-    $.each(uniqueNames, function(i, el){
-        if(el === "no") {
-            uniqueNames[i] = "No";
-        }
-        returnArray.push(uniqueNames[i]);
-    });
-
-    return returnArray;
-}
-
-/**
- * Purpose: Create Array for Multi-Select Options
- * @param multiSelectOptions
- * @returns {[]|*}
- */
-function gridMultiselect(multiSelectOptions){
-    if(multiSelectOptions == null || multiSelectOptions.length === 0){
-        return multiSelectOptions;
-    }
-    let uniqueNames = multiSelectOptions.split("\n");
     let returnArray = [];
     uniqueNames = uniqueNames.filter(function(elem, index, self) {
         return index == self.indexOf(elem);
