@@ -118,7 +118,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       for (let j = 0; j < numCols; j++) {
         addTableData(gridBodyElement, gridParameters[j], dataColumnIDs, selectedRowDataValues);
       }
-      //arrow logic (existing rows): if there is only one row, arrows are not necessary.  1st row only needs down, last row only needs up.
+      //arrow controls: no arrows if there is only one row. 1st row only needs down, last row only needs up.
       const showUpArrow = numRows !== 1 && i !== 0;
       const showDownArrow = numRows !== 1 && i !== numRows - 1;
       $(gridBodyElement + " > tr:last").append(
@@ -127,7 +127,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     }
   }
 
-  function loadFilemanagerFile(fileName, iID) {
+  function loadFilemanagerFile(fileName = '', iID = '') {
     return new Promise((resolve, reject)=> {
       const xhttpInds = new XMLHttpRequest();
       xhttpInds.onreadystatechange = () => {
@@ -191,19 +191,24 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       }
     });
   }
+  /**
+   * @param {String} gridBodySelector targetting table body
+   * @param {Object} cellParameters information about the current cell
+   * @param {Array} dataColumnIDs list of column ids from data field (if there are saved values)
+   * @param {Array} selectedRowDataValues list of data from data field (if there are saved values)
+   */
+  function addTableData(gridBodySelector = '', cellParameters = {}, dataColumnIDs = [], selectedRowDataValues = []) {
+    const colID = cellParameters.id;
+    const name = cellParameters.name;
+    const val = getDataValueByCellID(colID, dataColumnIDs, selectedRowDataValues);
 
-  function addTableData(gridBodyElement = '', gridParameters = [], dataColumnIDs = [], selectedRowDataValues = []) {
-    const id = gridParameters.id;
-    const name = gridParameters.name;
-    const val = getDataValueByCellID(id, dataColumnIDs, selectedRowDataValues);
-
-    const type = (gridParameters?.type || '').toLowerCase();
+    const type = (cellParameters?.type || '').toLowerCase();
     switch (type) {
       case "dropdown":
       case "dropdown_file":
-        const isMultiple = false;  //TODO: waiting on implementation, set to false for now. +gridParameters.multiselect === 1
+        const isMultiple = false;  //TODO: waiting on implementation, set to false for now.
         const selectedValues = isMultiple ? val.split(',') : [ val ];
-        $(gridBodyElement + " > tr:last").append(
+        $(gridBodySelector + " > tr:last").append(
           `<td aria-label="${name}">
             <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width:100%;">
               <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
@@ -212,30 +217,30 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
         );
         let options = [];
         if(type === 'dropdown_file') {
-          const filename = gridParameters.file;
-          const hasHeader = gridParameters.hasHeader;
+          const filename = cellParameters.file;
+          const hasHeader = cellParameters.hasHeader;
           const loadedOptions = fileOptions[filename]?.options || [];
           const firstRow =  fileOptions[filename]?.firstRow || '';
           options = hasHeader ?
             loadedOptions.filter(o => o !== firstRow && o !== '') : loadedOptions.filter(o => o !== '');
         } else {
-          options = gridParameters.options || [];
+          options = cellParameters.options || [];
         }
-        let elSelect = document.querySelector(gridBodyElement + " > tr:last-child td:last-child select");
+        let elSelect = document.querySelector(gridBodySelector + " > tr:last-child td:last-child select");
         appendOptions(elSelect, options, selectedValues);
         break;
       case "textarea":
-        $(gridBodyElement + " > tr:last").append(
+        $(gridBodySelector + " > tr:last").append(
           `<td>
             <textarea aria-label="${name}" style="overflow-y:auto; resize: none; width: fill-available; height: 50px; box-sizing:border-box;">${val}</textarea>
           </td>`
         );
         break;
       case "text":
-        $(gridBodyElement + " > tr:last").append(`<td><input aria-label="${name}" value="${val}" /></td>`);
+        $(gridBodySelector + " > tr:last").append(`<td><input aria-label="${name}" value="${val}" /></td>`);
         break;
       case "date":
-        $(gridBodyElement + " > tr:last").append(`<td><input aria-label=" ${name}" data-type="grid-date" value="${val}" /></td>`);
+        $(gridBodySelector + " > tr:last").append(`<td><input aria-label=" ${name}" data-type="grid-date" value="${val}" /></td>`);
         $('input[data-type="grid-date"]').datepicker();
         break;
       default:
@@ -261,23 +266,24 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     );
     $("#tableStatus").attr("aria-label", `Row number ${numRows} added, ${numRows} total.`);
   }
-  // click function for 508 compliance
+
   function triggerClick(event) {
     if (event.keyCode === 13) {
       $(event.target).trigger("click");
     }
   }
   function deleteRow(event) {
-    var row = $(event.target).closest("tr");
-    var tbody = $(event.target).closest("tbody");
-    var rowDeleted = parseInt($(row).index()) + 1;
-    var focus;
-    switch (tbody.find("tr").length) {
+    let row = $(event.target).closest("tr");
+    const rowDeleted = parseInt($(row).index()) + 1;
+    const tbody = $(event.target).closest("tbody");
+
+    let focus = row.next().find('[title="Delete line"]');
+    const currLength = tbody.find("tr").length;
+    switch(currLength) {
       case 1:
         row.remove();
-        setTimeout(function () {
-          $("#addRowBtn").focus();
-        }, 0);
+        focus = $("#addRowBtn_" + indicatorID);
+        break;
       case 2:
         row.remove();
         focus = tbody.find('[title="Delete line"]');
@@ -285,7 +291,6 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
         downArrows(tbody.find("tr"), false);
         break;
       default:
-        focus = row.next().find('[title="Delete line"]');
         if (row.find('[title="Move line down"]').css("display") === "none") {
           downArrows(row.prev(), false);
           upArrows(row.prev(), true);
@@ -298,11 +303,11 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
         row.remove();
         break;
     }
-    if (focus !== undefined) {
+    if (focus?.length === 1) {
       //clear stack
       setTimeout(function () {
         focus.focus();
-      }, 0);
+      });
     }
 
     $("#tableStatus").attr(
@@ -312,12 +317,11 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
   }
 
   function moveDown(event) {
-    var row = $(event.target).closest("tr");
-    var nextRowBottom =
-      row.next().find('[title="Move line down"]').css("display") === "none";
-    var rowTop = row.find('[title="Move line up"]').css("display") === "none";
-    var focus;
+    let row = $(event.target).closest("tr");
+    const nextRowBottom = row.next().find('[title="Move line down"]').css("display") === "none";
+    const rowTop = row.find('[title="Move line up"]').css("display") === "none";
     upArrows(row, true);
+
     if (nextRowBottom) {
       downArrows(row, false);
       downArrows(row.next(), true);
@@ -326,31 +330,24 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       upArrows(row.next(), false);
     }
     row.insertAfter(row.next());
-    if (nextRowBottom) {
-      focus = row.find('td:last > img[title="Move line up"]');
-    } else {
-      focus = row.find('td:last > img[title="Move line down"]');
-    }
-    //ie11 fix
+
+    const focus = row.find(`td:last > img[title="Move line ${nextRowBottom ? 'up' : 'down'}"]`);
     setTimeout(function () {
       focus.focus();
-    }, 0);
+    });
+
     $("#tableStatus").attr(
       "aria-label",
-      "Moved down to row " +
-        (parseInt($(row).index()) + 1) +
-        " of " +
-        $(event.target).closest("tbody").children().length
+      `Moved down to row ${(parseInt($(row).index()) + 1)} of ` +
+      $(event.target).closest("tbody").children().length
     );
   }
   function moveUp(event) {
-    var row = $(event.target).closest("tr");
-    var prevRowTop =
-      row.prev().find('[title="Move line up"]').css("display") === "none";
-    var rowBottom =
-      row.find('[title="Move line down"]').css("display") === "none";
-    var focus;
+    let row = $(event.target).closest("tr");
+    const prevRowTop = row.prev().find('[title="Move line up"]').css("display") === "none";
+    const rowBottom = row.find('[title="Move line down"]').css("display") === "none";
     downArrows(row, true);
+
     if (prevRowTop) {
       upArrows(row, false);
       upArrows(row.prev(), true);
@@ -359,21 +356,16 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       downArrows(row.prev(), false);
     }
     row.insertBefore(row.prev());
-    if (prevRowTop) {
-      focus = row.find('td:last > img[title="Move line down"]');
-    } else {
-      focus = row.find('td:last > img[title="Move line up"]');
-    }
-    //ie11 fix
+
+    const focus = row.find(`td:last > img[title="Move line ${prevRowTop ? 'down' : 'up'}"]`);
     setTimeout(function () {
       focus.focus();
-    }, 0);
+    });
+
     $("#tableStatus").attr(
       "aria-label",
-      "Moved up to row " +
-        (parseInt($(row).index()) + 1) +
-        " of " +
-        $(event.target).closest("tbody").children().length
+      `Moved up to row ${(parseInt($(row).index()) + 1)} of ` +
+      $(event.target).closest("tbody").children().length
     );
   }
   /* form entry review page / print view before submit */
@@ -391,19 +383,19 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     const dataColumnIDs = values?.columns || [];
     const numRows = values?.cells?.length || 0;
     for (let i = 0; i < numRows; i++) {
+      const selectedRowDataValues = values?.cells[i] || [];
       $(gridBodyElement).append("<tr></tr>");
       //row td elements for each column
       for (let j = 0; j < numCols; j++) {
-        const selectedRowDataValues = values?.cells[i] || [];
-        const val = getDataValueByCellID(gridParameters[j].id, dataColumnIDs, selectedRowDataValues);
+        const colID = gridParameters[j].id
+        const val = getDataValueByCellID(colID, dataColumnIDs, selectedRowDataValues);
         $(gridBodyElement + " > tr:last").append(`<td style="width:100px">${val}</td>`);
       }
     }
   }
-  /* old Form Editor view indicator display preview */
+  /* admin Form Editor view indicator display preview */
   function printTablePreview() {
-    let previewElement = "#grid" + indicatorID + "_" + series;
-
+    const previewElement = `#grid${indicatorID}_${series}`;
     for (let i = 0; i < gridParameters.length; i++) {
       $(previewElement).append(
         `<div style="padding: 10px; vertical-align: top; display: inline-block; flex: 1; order: ${i + 1};">
