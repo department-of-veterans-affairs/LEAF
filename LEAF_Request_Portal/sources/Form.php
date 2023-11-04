@@ -1947,7 +1947,7 @@ class Form
 
     /**
      * batchUpdateDependencyAccess amends $accessList for specific dependencyIDs to optimize
-     * performance related to dynamic assignments, such as "person designated by requestor"
+     * performance related to dynamic assignments, such as "person/group designated by requestor"
      *
      * @param array $accessList Map of recordID->int of the current user's access. 1 = has access
      * @param array $records List of records to process
@@ -1956,19 +1956,26 @@ class Form
     private function batchUpdateDependencyAccess(array $accessList, array $records): array
     {
         // get sanitized lists for DB query
-        $indicatorIDs = [];
-        $recordIDs = [];
+        $indicatorIDs_pd = [];
+        $recordIDs_pd = [];
+        $indicatorIDs_gd = [];
+        $recordIDs_gd = [];
         foreach($records as $dep) {
             if($accessList[$dep['recordID']] == 0 && $dep['dependencyID'] == -1) {
-                $indicatorIDs[] = (int)$dep['indicatorID_for_assigned_empUID'];
-                $recordIDs[] = (int)$dep['recordID'];
+                $indicatorIDs_pd[] = (int)$dep['indicatorID_for_assigned_empUID'];
+                $recordIDs_pd[] = (int)$dep['recordID'];
+            }
+
+            if($accessList[$dep['recordID']] == 0 && $dep['dependencyID'] == -3) {
+                $indicatorIDs_gd[] = (int)$dep['indicatorID_for_assigned_groupID'];
+                $recordIDs_gd[] = (int)$dep['recordID'];
             }
         }
 
         // get the list of records related to dependencyID -1 (person designated by requestor)
-        if(count($recordIDs) > 0) {
-            $indicators = implode(',', $indicatorIDs);
-            $records = implode(',', $recordIDs);
+        if(count($recordIDs_pd) > 0) {
+            $indicators = implode(',', array_unique($indicatorIDs_pd));
+            $records = implode(',', $recordIDs_pd);
             $query = "SELECT recordID, `data` FROM `data`
                         WHERE indicatorID IN ({$indicators})
                             AND recordID IN ({$records})
@@ -1982,6 +1989,24 @@ class Form
                 }
                 // check if the current user is a backup of the designated person
                 else if($this->checkIfBackup($record['data'])) {
+                    $accessList[$record['recordID']] = 1;
+                }
+            }
+        }
+
+        // get the list of records related to dependencyID -3 (group designated by requestor)
+        if(count($recordIDs_gd) > 0) {
+            $indicators = implode(',', array_unique($indicatorIDs_gd));
+            $records = implode(',', $recordIDs_gd);
+            $query = "SELECT recordID, `data` FROM `data`
+                        WHERE indicatorID IN ({$indicators})
+                            AND recordID IN ({$records})
+                            AND series=1";
+            $res = $this->db->prepared_query($query, []);
+
+            foreach($res as $record) {
+                // check if the current users is a member of the designated group
+                if($this->login->checkGroup($record['data'])) {
                     $accessList[$record['recordID']] = 1;
                 }
             }
@@ -2172,7 +2197,9 @@ class Form
                         $temp[$dep['recordID']] = 0;
 
                         // Use optimized path for certain dependencyIDs. See batchUpdateDependencyAccess.
-                        if($dep['dependencyID'] != -1) {
+                        if($dep['dependencyID'] != -1 // person designated by requestor
+                            && $dep['dependencyID'] != -3) // group designated by requestor
+                        {
                             $temp[$dep['recordID']] = $this->hasDependencyAccess($dep['dependencyID'], $dep) ? 1 : 0;
                         }
 
