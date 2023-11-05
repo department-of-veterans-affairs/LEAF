@@ -1023,7 +1023,10 @@ var LeafFormSearch = function (containerID) {
                                         widgetID
                                 ).val();
 
-                                // set default conditions for "any data field"
+                                /* Set default conditions for "any data field"
+                                 * Negative conditions are excluded because more extensive postprocessing
+                                 * is needed for logically valid results
+                                 */
                                 if (iID == ALL_DATA_FIELDS) {
                                     $(
                                         "#" +
@@ -1039,7 +1042,6 @@ var LeafFormSearch = function (containerID) {
                                         <option value="MATCH ALL">CONTAINS</option>\
                                         <option value="MATCH">CONTAINS EITHER</option>\
 					            		<option value="=">=</option>\
-										<option value="!=">!=</option>\
 										<option value="LIKE">HAS FRAGMENT</option>\
 					            	</select>'
                                     );
