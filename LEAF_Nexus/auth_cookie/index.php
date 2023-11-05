@@ -19,14 +19,21 @@ $protocol = 'https://';
 if (isset($_COOKIE['REMOTE_USER']))
 {
     $redirect = '';
-    if (isset($_GET['r']))
-    {
-        $redirect = $protocol . HTTP_HOST . base64_decode($_GET['r']);
-    }
-    else
-    {
+
+    if (isset($_GET['r'])) {
+        $encodedRedirect = $_GET['r'];
+        $decodedRedirect = base64_decode($encodedRedirect);
+    
+        if ($decodedRedirect !== false) {
+            $parsedRedirect = parse_url($decodedRedirect);
+    
+            if ($parsedRedirect !== false) {
+                $redirect = $protocol . HTTP_HOST . $parsedRedirect['path'];
+            }
+        }
+    } else {
         $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
-    }
+    }    
 
     $user = decryptUser($_COOKIE['REMOTE_USER']);
 

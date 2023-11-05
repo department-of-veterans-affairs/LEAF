@@ -21,10 +21,20 @@ if (isset($_SERVER['REMOTE_USER']))
 //        $protocol = 'https://';
 //    }
     $redirect = '';
-    if (isset($_GET['r']))
-    {
-        $redirect = $protocol . HTTP_HOST . base64_decode($_GET['r']);
-    }
+    if (isset($_GET['r'])) {
+        // Validate and sanitize the input
+        $encodedRedirect = $_GET['r'];
+        $decodedRedirect = base64_decode($encodedRedirect);
+    
+        if ($decodedRedirect !== false) {
+            // Validate the decoded URL
+            $parsedRedirect = parse_url($decodedRedirect);
+    
+            if ($parsedRedirect !== false) {
+                $redirect = $protocol . HTTP_HOST . $parsedRedirect['path'];
+            }
+        }
+    }    
     else
     {
         $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';

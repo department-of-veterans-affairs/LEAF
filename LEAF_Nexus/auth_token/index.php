@@ -21,15 +21,22 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
 //    {
 //        $protocol = 'https://';
 //    }
-    $redirect = '';
-    if (isset($_GET['r']))
-    {
-        $redirect = $protocol . substr(HTTP_HOST, 0, -4) . base64_decode($_GET['r']);
+$redirect = '';
+
+if (isset($_GET['r'])) {
+    $encodedRedirect = $_GET['r'];
+    $decodedRedirect = base64_decode($encodedRedirect);
+
+    if ($decodedRedirect !== false) {
+        $parsedRedirect = parse_url($decodedRedirect);
+
+        if ($parsedRedirect !== false) {
+            $redirect = $protocol . substr(HTTP_HOST, 0, -4) . $parsedRedirect['path'];
+        }
     }
-    else
-    {
-        $redirect = $protocol . substr(HTTP_HOST, 0, -4) . dirname($_SERVER['PHP_SELF']) . '/../';
-    }
+} else {
+    $redirect = $protocol . substr(HTTP_HOST, 0, -4) . dirname($_SERVER['PHP_SELF']) . '/../';
+}
 
     $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
     $res = $oc_db->prepared_query('SELECT * FROM employee_data
