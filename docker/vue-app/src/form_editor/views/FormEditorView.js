@@ -455,6 +455,7 @@ export default {
         toggleToolbars() {
             this.focusedIndicatorID = null;
             this.previewMode = !this.previewMode;
+            this.updateKey += 1;
             if(this.usePreviewTree) {
                 this.getPreviewTree(this.focusedFormID);
             } else {
@@ -649,6 +650,8 @@ export default {
                 //previews show staples, so check if the form needs to change to the staple
                 if(categoryID !== this.focusedFormID) {
                     this.getFormByCategoryID(categoryID, true);
+                } else {
+                    this.updateKey += 1;
                 }
             }
         },
@@ -845,8 +848,8 @@ export default {
                             </form-index-listing>
                         </ul>
                     </div>
-                    <div id="blank_section_preview">
-                        <button v-if="!previewMode" type="button" class="btn-general" style="width: 100%;"
+                    <div v-if="!previewMode" id="blank_section_preview">
+                        <button type="button" class="btn-general"
                             @click="newQuestion(null)"
                             title="Add new form section">
                             + Add Section

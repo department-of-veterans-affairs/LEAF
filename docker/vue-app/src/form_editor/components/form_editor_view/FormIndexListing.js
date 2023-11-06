@@ -57,7 +57,7 @@ export default {
             return parseInt(this.formNode.required) === 1;
         }
     },
-    template:`<li :title="'index item '+ indicatorID" :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
+    template:`<li :title="'indicatorID: '+ indicatorID" :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
             @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff">
         <div class="printResponse" :class="{'form-header': depth === 0, preview: previewMode}" :id="printResponseID">
             <form-question-display
@@ -89,15 +89,15 @@ export default {
                         :index="i"
                         :key="'index_list_item_' + child.indicatorID"
                         :draggable="!previewMode"
-                        @dragstart.stop.capture="startDrag"> 
+                        @dragstart.stop="startDrag"> 
                     </form-index-listing>
                 </template>
             </ul>
-            <button v-if="depth === 0 && !previewMode" type="button" class="btn-general new_section_question"
-                title="Add Question to Section"
-                @click="newQuestion(formNode.indicatorID)">
-                + Add Question to Section
-            </button>
         </div>
+        <button v-if="depth === 0 && !previewMode" type="button" class="btn-general new_section_question"
+            title="Add Question to Section"
+            @click="newQuestion(formNode.indicatorID)">
+            + Add Question to Section
+        </button>
     </li>`
 }
