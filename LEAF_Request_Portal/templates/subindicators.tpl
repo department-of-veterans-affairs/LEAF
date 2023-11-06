@@ -74,7 +74,7 @@
                     gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.checkForFileOptions()
                     .finally(() => {
                         gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.input(<!--{$indicator.value|json_encode}-->);
-                        if (typeof (<!--{$indicator.value|json_encode}-->.cells) === "undefined") {
+                        if (<!--{$indicator.value|json_encode}--> == null || typeof <!--{$indicator.value|json_encode}-->.cells === "undefined") {
                             gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow();
                         }
                     }).catch(err => {

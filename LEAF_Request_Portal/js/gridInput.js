@@ -24,27 +24,6 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     }
     return gridInfo;
   }
-  /**
-   * @param {Object} elSelect DOM element
-   * @param {Array} arrOptions options to add
-   * @param {Array} selectedValues selected value(s) (if present)
-   */
-  function appendOptions(elSelect = {}, arrOptions = [], selectedValues = []) {
-    setTimeout(() => {
-      if((elSelect?.nodeName || '').toLowerCase() === 'select') {
-        arrOptions.forEach(opt => {
-          const option = document.createElement('option');
-          option.value = opt;
-          option.innerText = opt;
-          const isSelected = selectedValues.length > 0 && selectedValues.some(o => o === opt);
-          if(isSelected) {
-            option.setAttribute('selected', 'selected');
-          }
-          elSelect.appendChild(option);
-        });
-      }
-    });
-  }
 
   function upArrows(row, toggle) {
     row.find('[title="Move line up"]').css("display", `${toggle ? 'inline' : 'none'}`);
@@ -210,15 +189,9 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
     switch (type) {
       case "dropdown":
       case "dropdown_file":
-        const isMultiple = false;  //TODO: waiting on implementation, set to false for now.
+        const isMultiple = false;  //NOTE: not implemented, set to false for now.
         const selectedValues = isMultiple ? val.split(',') : [ val ];
-        $(gridBodySelector + " > tr:last").append(
-          `<td aria-label="${name}">
-            <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width: fill-available;">
-              <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
-            </select>
-          </td>`
-        );
+
         let options = [];
         if(type === 'dropdown_file') {
           const filename = cellParameters.file;
@@ -230,8 +203,20 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
         } else {
           options = cellParameters.options || [];
         }
-        let elSelect = document.querySelector(gridBodySelector + " > tr:last-child td:last-child select");
-        appendOptions(elSelect, options, selectedValues);
+        const optTemplate = options.map(o => {
+          const attrSelected = selectedValues.some(v => v === o) ? " selected" : "";
+          const optVal = o.replaceAll('\"', '&quot;');
+          return `<option value="${optVal}"${attrSelected}>${o}</option>`;
+        }).join('');
+
+        $(gridBodySelector + " > tr:last").append(
+          `<td aria-label="${name}">
+            <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width: fill-available;">
+              <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
+              ${optTemplate}
+            </select>
+          </td>`
+        );
         break;
       case "textarea":
         $(gridBodySelector + " > tr:last").append(
@@ -241,7 +226,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
         );
         break;
       case "text":
-        $(gridBodySelector + " > tr:last").append(`<td><input aria-label="${name}" value="${val}" /></td>`);
+        $(gridBodySelector + " > tr:last").append(`<td><input aria-label="${name}" value="${val.replaceAll('\"', '&quot;')}" /></td>`);
         break;
       case "date":
         $(gridBodySelector + " > tr:last").append(`<td><input aria-label=" ${name}" data-type="grid-date" value="${val}" /></td>`);
