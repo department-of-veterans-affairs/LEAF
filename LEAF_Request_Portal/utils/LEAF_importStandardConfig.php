@@ -5,16 +5,17 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $debug = false;
 
-$res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-
 // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //$protocol = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
 $protocol = 'https://';
 $siteRootURL = $protocol . HTTP_HOST;
-$relativePath = trim(str_replace($siteRootURL, '', $res['national_linkedPrimary']));
-$tempFolder = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'files/temp/';
 
-if($res['siteType'] != 'national_subordinate') {
+$relativePath = trim(str_replace($siteRootURL, '', $settings['national_linkedPrimary']));
+$tempFolder = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'files/temp/';
+$copy_custom_templates = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'templates/email/custom_override/';
+$paste_custom_templates = getenv('APP_LIB_PATH') . '../' . PORTAL_PATH . '/templates/email/custom_override/';
+
+if($settings['siteType'] != 'national_subordinate') {
     echo "ERROR: This is not a national subordinate site.";
     exit();
 }
@@ -47,6 +48,8 @@ $db->query("delete FROM `categories`;");
 $db->query("delete FROM `actions`;");
 $db->query("delete FROM `records_dependencies` WHERE dependencyID=0;"); // delete invalid items -- TODO: figure out how these invalid items got written
 $db->query("TRUNCATE TABLE `step_modules`;");
+$db->query("TRUNCATE TABLE `email_templates`;");
+$db->query("TRUNCATE TABLE `events`;");
 
 
 function importTable($db, $tempFolder, $table) {
@@ -65,7 +68,6 @@ function importTable($db, $tempFolder, $table) {
             break;
         default:
             exit();
-            break;
     }
 
     $resFields = $db->query("DESCRIBE {$table}");
@@ -99,6 +101,11 @@ importTable($db, $tempFolder, 'workflow_steps');
 importTable($db, $tempFolder, 'step_dependencies');
 importTable($db, $tempFolder, 'workflow_routes');
 importTable($db, $tempFolder, 'step_modules');
+
+// remove files from templates/email/custom_override on subordinate
+passthru('rm -rf ' . $paste_custom_templates . '*');
+// copy templates/email/custom_override from primary to subordinate
+passthru('cp -r ' . $copy_custom_templates . '* ' . $paste_custom_templates);
 
 $db->query("ALTER TABLE `records_dependencies` ADD CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
 $db->query("ALTER TABLE `dependency_privs` ADD CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
