@@ -76,6 +76,7 @@ export default {
                 :title="'drag to move question (' + indicatorID + ')'"
                 class="drag_question_button" @click="focusIndicator(indicatorID)">
                     <div class="icon_move_container">
+                        <span role="img" aria="" alt="" class="icon_drag">∷</span>
                         <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move up" role="button" title="move item up"
                             @click.stop="moveListItem($event, indicatorID, true)"
                             @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">

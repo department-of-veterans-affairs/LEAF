@@ -38,14 +38,6 @@ export default {
     beforeUnmount() {
         this.clearListItem(this.formNode.indicatorID);
     },
-    methods: {
-        indexHover(event = {}) {
-            event?.currentTarget?.classList.add('index-selected');
-        },
-        indexHoverOff(event = {}){
-            event?.currentTarget?.classList.remove('index-selected');
-        }
-    },
     computed: {
         suffix() {
             return `${this.formNode.indicatorID}_${this.formNode.series}`;
@@ -57,8 +49,7 @@ export default {
             return parseInt(this.formNode.required) === 1;
         }
     },
-    template:`<li :title="'indicatorID: '+ indicatorID" :class="depth === 0 ? 'section_heading' : 'subindicator_heading'"
-            @mouseover.stop="indexHover" @mouseout.stop="indexHoverOff">
+    template:`<li :title="'indicatorID: '+ indicatorID" :class="depth === 0 ? 'section_heading' : 'subindicator_heading'">
         <div class="printResponse" :class="{'form-header': depth === 0, preview: previewMode}" :id="printResponseID">
             <form-question-display
                 :key="'editing_display_' + formNode.indicatorID + makePreviewKey(formNode)"

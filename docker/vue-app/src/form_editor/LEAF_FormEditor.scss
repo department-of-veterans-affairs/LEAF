@@ -410,7 +410,7 @@ table[class$="SelectorTable"] th {
         border-left: 4px solid $BG_Pearl;
         padding-top: 0.6rem;
         &:not(:last-child) {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
         }
         
         > li  {
@@ -495,7 +495,7 @@ table[class$="SelectorTable"] th {
             }
 
             button.drag_question_button {
-                cursor: grab;
+                cursor: move;
                 position: absolute;
                 padding: 0;
                 border: 1px solid $BG_Pearl;
@@ -505,14 +505,14 @@ table[class$="SelectorTable"] th {
                 left: -1rem;
                 top: 0;
                 .icon_move_container {
-                    position: relative;
                     @include flexcenter;
                     align-self: flex-start;
-                    margin-top: 1.25rem;
                     flex-direction: column;
-
+                    gap: 0.5rem;
+                    .icon_drag {
+                        opacity: 0.4;
+                    }
                     .icon_move {
-                        position: absolute;
                         @include flexcenter;
                         cursor: pointer;
                         width: 0;
@@ -521,7 +521,7 @@ table[class$="SelectorTable"] th {
                         border-radius: 2px;
                         border: 6px solid transparent;
                         &.up {
-                            top: -12px;
+                            margin-top: 0.25rem;
                             border-bottom: 10px solid $BG-DarkNavy;
                             border-top: 2px;
                             &:hover, &:focus, &:active {
@@ -530,7 +530,6 @@ table[class$="SelectorTable"] th {
                             }
                         }
                         &.down {
-                            top: calc(100% + 3px);
                             border-top: 10px solid $BG-DarkNavy;
                             border-bottom: 2px;
                             &:hover, &:focus, &:active {

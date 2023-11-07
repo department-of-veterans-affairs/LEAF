@@ -644,9 +644,9 @@ export default {
          * @param {number} indicatorID focuses the indicator and changes mode to edit if in preview mode.
          */
         handleNameClick(categoryID = '', indicatorID = null) {
-            this.focusedIndicatorID = indicatorID;
             if (this.previewMode) {
                 this.previewMode = false;
+                this.focusedIndicatorID = indicatorID;
                 //previews show staples, so check if the form needs to change to the staple
                 if(categoryID !== this.focusedFormID) {
                     this.getFormByCategoryID(categoryID, true);
