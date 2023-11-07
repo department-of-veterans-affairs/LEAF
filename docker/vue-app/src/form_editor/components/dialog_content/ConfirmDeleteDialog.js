@@ -3,21 +3,26 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
+        'decodeAndStripHTML',
         'focusedFormRecord',
-        'selectNewCategory',
+        'getFormByCategoryID',
         'removeCategory',
         'closeFormDialog'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     computed: {
         /**
          * uses LEAF XSSHelpers.js
-         * @returns {string} category name / description with all tages stripped
+         * @returns {string} category name / description with potential tags stripped
          */
         formName() {
-            return XSSHelpers.stripAllTags(this.focusedFormRecord.categoryName);
+            return XSSHelpers.stripAllTags(this.decodeAndStripHTML(this.focusedFormRecord.categoryName));
         },
         formDescription() {
-            return XSSHelpers.stripAllTags(this.focusedFormRecord.categoryDescription);
+            return XSSHelpers.stripAllTags(this.decodeAndStripHTML(this.focusedFormRecord.categoryDescription));
         },
         currentStapleIDs() {
             return this.focusedFormRecord?.stapledFormIDs || [];
@@ -33,11 +38,14 @@ export default {
                     type: 'DELETE',
                     url: `${this.APIroot}formStack/_${delID}?` + $.param({CSRFToken:this.CSRFToken}),
                     success: (res) => {
-                        //res for successful deletion had initially been true and is now '1'.  +res will cover 1, '1', and true
+                        //+res will cover 1, '1', and true
                         if(+res === 1) {
-                            //if a subform is deleted, re-focus its parent, otherwise go to browser
-                            this.selectNewCategory(parID, null, true);
                             this.removeCategory(delID);
+                            if(parID === '') { //if a main form is deleted go to browser
+                                this.$router.push({ name: 'browser'});
+                            } else { //otherwise focus parent
+                                this.getFormByCategoryID(parID, true);
+                            }
                             this.closeFormDialog();
                         } else {
                             alert(res);

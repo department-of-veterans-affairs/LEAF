@@ -2,32 +2,44 @@ export default {
     name: 'advanced-options-dialog',
     data() {
         return {
+            requiredDataProperties: ['indicatorID','html','htmlPrint'],
             initialFocusElID: '#advanced legend',
             left: '{{',
             right: '}}',
-            formID: this.focusedFormRecord.categoryID,
             codeEditorHtml: {},
             codeEditorHtmlPrint: {},
-            html: this.indicatorRecord[this.currIndicatorID].html === null ? '' : this.indicatorRecord[this.currIndicatorID].html,
-            htmlPrint: this.indicatorRecord[this.currIndicatorID].htmlPrint === null ? '' : this.indicatorRecord[this.currIndicatorID].htmlPrint
+            html: this.dialogData?.html || '',
+            htmlPrint: this.dialogData?.htmlPrint || ''
         }
     },
     inject: [
         'APIroot',
         'libsPath',
         'CSRFToken',
+        'setDialogSaveFunction',
+        'dialogData',
+        'checkRequiredData',
         'closeFormDialog',
         'focusedFormRecord',
-        'currIndicatorID',
-        'indicatorRecord',
-        'selectNewCategory',
-        'hasDevConsoleAccess',
-        'selectedNodeIndicatorID'
+        'getFormByCategoryID',
+        'hasDevConsoleAccess'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+        this.checkRequiredData(this.requiredDataProperties);
+    },
     mounted(){
         document.querySelector(this.initialFocusElID)?.focus();
-        if(parseInt(this.hasDevConsoleAccess) === 1) {
+        if(+this.hasDevConsoleAccess === 1) {
             this.setupAdvancedOptions();
+        }
+    },
+    computed: {
+        indicatorID() {
+            return this.dialogData?.indicatorID;
+        },
+        formID() {
+            return this.focusedFormRecord.categoryID;
         }
     },
     methods: {
@@ -72,7 +84,7 @@ export default {
             const htmlValue = this.codeEditorHtml.getValue();
             $.ajax({
                 type: 'POST',
-                url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
+                url: `${this.APIroot}formEditor/${this.indicatorID}/html`,
                 data: {
                     html: htmlValue,
                     CSRFToken: this.CSRFToken
@@ -81,7 +93,7 @@ export default {
                     this.html = htmlValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_html').innerHTML = ', Last saved: ' + time;
-                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
+                    this.getFormByCategoryID(this.formID);
                 },
                 error: (err) => console.log(err)
             });
@@ -90,7 +102,7 @@ export default {
             const htmlPrintValue = this.codeEditorHtmlPrint.getValue();
             $.ajax({
                 type: 'POST',
-                url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
+                url: `${this.APIroot}formEditor/${this.indicatorID}/htmlPrint`,
                 data: {
                     htmlPrint: htmlPrintValue,
                     CSRFToken: this.CSRFToken
@@ -99,7 +111,7 @@ export default {
                     this.htmlPrint = htmlPrintValue;
                     const time = new Date().toLocaleTimeString();
                     document.getElementById('codeSaveStatus_htmlPrint').innerHTML =', Last saved: ' + time;
-                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
+                    this.getFormByCategoryID(this.formID);
                 },
                 error: (err) => console.log(err)
             });
@@ -114,7 +126,7 @@ export default {
                 advancedOptionsUpdates.push(
                     $.ajax({
                         type: 'POST',
-                        url: `${this.APIroot}formEditor/${this.currIndicatorID}/html`,
+                        url: `${this.APIroot}formEditor/${this.indicatorID}/html`,
                         data: {
                             html: this.codeEditorHtml.getValue(),
                             CSRFToken: this.CSRFToken
@@ -128,7 +140,7 @@ export default {
                 advancedOptionsUpdates.push(
                     $.ajax({
                         type: 'POST',
-                        url: `${this.APIroot}formEditor/${this.currIndicatorID}/htmlPrint`,
+                        url: `${this.APIroot}formEditor/${this.indicatorID}/htmlPrint`,
                         data: {
                             htmlPrint: this.codeEditorHtmlPrint.getValue(),
                             CSRFToken: this.CSRFToken
@@ -142,14 +154,14 @@ export default {
             Promise.all(advancedOptionsUpdates).then((res)=> {
                 this.closeFormDialog();
                 if (res.length > 0) {
-                    this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
+                    this.getFormByCategoryID(this.formID);
                 }
             }).catch(err => console.log('an error has occurred', err));
         }
     },
-    template: `<div v-if="parseInt(hasDevConsoleAccess) === 1">
-            <fieldset id="advanced" style="min-width: 700px; padding: 0.5em; margin:0"><legend tabindex="0">Template Variables and Controls</legend>
-                <table class="table" style="border-collapse: collapse; margin: 0; width: 100%;">
+    template: `<div v-if="hasDevConsoleAccess === 1" id="advanced_options_dialog_content">
+            <fieldset id="advanced"><legend tabindex="0">Template Variables and Controls</legend>
+                <table class="table">
                     <tr>
                         <td><b>{{ left }} iID {{ right }}</b></td>
                         <td>The indicatorID # of the current data field.</td>
@@ -169,25 +181,27 @@ export default {
                         <td>Escape Full Screen mode</td>
                     </tr>
                 </table><br />
-                <div style="display:flex; justify-content: space-between; align-items: flex-end;">
+                <div class="save_code">
                     html (for pages where the user can edit data): 
                     <button type="button" id="btn_codeSave_html" class="btn-general" @click="saveCodeHTML" title="Save Code">
-                        <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" style="width:16px" alt="" />
+                        <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" alt="" />
                         &nbsp;Save Code<span id="codeSaveStatus_html"></span>
                     </button>
                 </div>
                 <textarea id="html">{{html}}</textarea><br />
-                <div style="display:flex; justify-content: space-between; align-items: flex-end;">
+                <div class="save_code">
                     htmlPrint (for pages where the user can only read data): 
                     <button  type="button" id="btn_codeSave_htmlPrint" class="btn-general" @click="saveCodeHTMLPrint" title="Save Code">
-                        <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" style="width:16px" alt="" />
+                        <img id="saveIndicator" :src="libsPath + 'dynicons/svg/media-floppy.svg'" alt="" />
                         &nbsp;Save Code<span id="codeSaveStatus_htmlPrint"></span>
                     </button>
                 </div>
                 <textarea id="htmlPrint">{{htmlPrint}}</textarea>
             </fieldset>
         </div>
-        <div v-else style="height:50px; margin: 1em 0;">
-            Notice: Please go to <b>Admin Panel → LEAF Programmer</b> to ensure continued access to this area.
+        <div v-else id="advanced_options_dialog_content">
+            <b>Notice:</b><br/>
+            <p>Please go to <a href="../report.php?a=LEAF_start_leaf_dev_console_request" target="_blank">LEAF Programmer</a>
+            to ensure continued access to this area.</p>
         </div>`
 }

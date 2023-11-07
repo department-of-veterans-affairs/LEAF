@@ -222,7 +222,7 @@ class Form
 
     /**
      * Retrieves a form based on categoryID
-     * @param int $recordID
+     * @param string $categoryID
      * @param bool $parseTemplate - see getIndicator()
      * @return array
      */
@@ -243,6 +243,30 @@ class Form
         }
 
         return $fullForm;
+    }
+
+    /**
+     * Retrieves a list of form pages based on provided categoryIDs
+     * @param string $categoryIDs of the forms to retrieve
+     * @param bool $parseTemplate - see getIndicator()
+     * @return array
+     */
+    public function getSpecifiedForms($categoryIDs = '', $parseTemplate = true): array
+    {
+        $categories = explode(',', $categoryIDs);
+        $fullFormPages = array();
+        $catReg = "/^form_[0-9a-f]{5}$/i";
+
+        foreach($categories as $catID) {
+            if(preg_match($catReg, $catID)) {
+                $form = $this->getFormByCategory($catID, $parseTemplate);
+                $fullFormPages = array_merge($fullFormPages, $form);
+            }
+        }
+        $return_value['status']['code'] = 2;
+        $return_value['status']['message'] = "Success";
+        $return_value['data'] = $fullFormPages;
+        return $return_value;
     }
 
     /**
@@ -488,6 +512,7 @@ class Form
         if (!empty($data)) {
             $idx = $data[0]['indicatorID'];
             $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
+            $form[$idx]['categoryID'] = $data[0]['categoryID'];
             $form[$idx]['series'] = $series;
             $form[$idx]['name'] = $data[0]['name'];
             $form[$idx]['description'] = $data[0]['description'];
