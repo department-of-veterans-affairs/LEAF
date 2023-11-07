@@ -31,6 +31,9 @@ services:
                 - BUILD_UID=${BUILD_UID}
                 - SMTP_HOST=leaf-smtp
                 - MAIL_HUB=leaf-smtp
+        #depends_on:
+        #  leaf-mysql:
+        #    condition: service_healthy
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
@@ -43,6 +46,7 @@ services:
             - ../app:/var/www/html/app
             - ../libs:/var/www/html/libs # temp step.  Will shift to below later
             - ../docker/mysql/db:/var/www/db
+            - ./php/dev:/var/www/html/dev
             # - leaf-lib:/var/www/html/libs
             # - ../test:/var/www/html/test
             # - ../test_server:/var/www/html/test_server
@@ -66,7 +70,7 @@ services:
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
-            #      - ./nginx/src:/var/www/html
+            - ./nginx/src:/var/www/html
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
         volumes_from:
             - leaf-php-8
@@ -150,10 +154,32 @@ services:
             - ./env_files/mysql_local.env
             - ./env_files/secrets.env
         restart: "always"
+        #healthcheck:
+        #  test: "mysqladmin ping -h localhost -u $${MYSQL_USER} -p$${MYSQL_PASSWORD}"
+        #  start_interval: 1s
+        #  timeout: 1s
+        #  retries: 5
         networks:
             - leaf-sql
         volumes:
             - leaf-mysql-data:/var/lib/mysql
+
+    leaf-api-test-helper:
+        image: golang
+        container_name: leaf-api-test-helper
+        volumes:
+          - "../x-test/api-test-helper/:/app"
+          - "../x-test/API-tests/:/API-tests"
+        ports:
+          - "8000:8000"
+        env_file:
+            - ./env_files/mysql_local.env
+            - ./env_files/secrets.env
+        networks:
+          - leaf
+          - leaf-sql
+        working_dir: /app
+        entrypoint: go run .
 
 volumes:
     leaf-php-data:
