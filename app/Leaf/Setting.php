@@ -9,6 +9,8 @@ use App\Leaf\Db;
 
 class Setting
 {
+    protected $db;
+
     protected $settings;
 
     /**
@@ -18,11 +20,18 @@ class Setting
      */
     public function __construct(Db $db)
     {
+        $this->db = $db;
+
+        $this->initilize();
+    }
+
+    public function initilize(): void
+    {
         $vars = array();
         $sql = 'SELECT `setting`, `data`
                 FROM `settings`';
 
-        $this->parseSettings($db->prepared_query($sql, $vars));
+        $this->parseSettings($this->db->prepared_query($sql, $vars));
     }
 
     /**
