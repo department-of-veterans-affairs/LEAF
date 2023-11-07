@@ -34,6 +34,15 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
     $('#' + this.btnCancelID).on('click', function() {
     	t.hide();
     });
+    $('button.ui-dialog-titlebar-close').on('click', function() {
+        t.hide();
+    });
+    const preventCloseOnEnter = (e) => {
+        if(e?.keyCode === 13 && (e?.target?.nodeName || '').toLowerCase() === "input" && e?.target?.type !== 'color') {
+            e.preventDefault();
+        }
+    }
+    $(`#${t.contentID}`).on('keydown', preventCloseOnEnter);
 }
 
 dialogController.prototype.clearDialog = function() {
@@ -52,12 +61,14 @@ dialogController.prototype.hide = function() {
 };
 
 dialogController.prototype.show = function() {
-	if($('#' + this.contentID).html() == '') {
-		$('#' + this.indicatorID).css('visibility', 'visible');
-	}
-	$('#' + this.containerID).dialog('open');
-	$('#' + this.containerID).css('visibility', 'visible');
-	$('input:visible:first, select:visible:first').focus();
+    //Stack clear for some events.  This helps ensure modal content is mounted before trying to set styles.
+    setTimeout(() => {
+        if($('#' + this.contentID).html() == '') {
+            $('#' + this.loadIndicatorID).css('visibility', 'visible');
+        }
+        $('#' + this.containerID).dialog('open');
+        $('#' + this.containerID).css('visibility', 'visible');
+    });
 };
 
 dialogController.prototype.setContent = function(content) {

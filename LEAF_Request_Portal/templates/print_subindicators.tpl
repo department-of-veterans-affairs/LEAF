@@ -36,7 +36,7 @@
             <!--{/if}-->
             <div style="float: right">
             <!--{if $date < $indicator.timestamp && $date > 0}-->
-                <img src="dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeypress="if (event.keyCode==13){ getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }"/>&nbsp;
+                <img src="dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeydown="if (event.keyCode==13){ getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }"/>&nbsp;
             <!--{/if}-->
             <!--{if $indicator.isWritable == 0}-->
                 <img src="dynicons/?img=emblem-readonly.svg&amp;w=16" alt="Read-only" title="Read-only" tabindex="0" role="button" />
@@ -63,7 +63,7 @@
                 <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.name|sanitizeRichtext|strip_tags|indent:$depth:""}--></span>
             <!--{/if}-->
             <!--{if $date < $indicator.timestamp && $date > 0}-->
-                &nbsp;<img src="dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeypress="if (event.keyCode==13){ getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }"/>
+                &nbsp;<img src="dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeydown="if (event.keyCode==13){ getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }"/>
             <!--{/if}-->
         <!--{/if}-->
             </div>
