@@ -1,5 +1,7 @@
-# FROM pelentan/leaf-app-base:2.0 as base
-FROM pelentan/leaf-base-fpm as base
+FROM php:8.2-fpm as base
+
+RUN docker-php-ext-install pdo pdo_mysql
+
 COPY docker/php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Stuff that might need to get into the base image
