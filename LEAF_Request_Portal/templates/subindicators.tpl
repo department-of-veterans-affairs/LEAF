@@ -704,119 +704,108 @@
                 <!--{$indicator.html}-->
 
         <!--{/if}-->
-        <!--{if $indicator.format == 'fileupload' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-            <fieldset>
-                <legend>File Attachment(s)</legend>
-                <span class="text">
-                <!--{if $indicator.value[0] != ''}-->
-                <!--{assign "counter" 0}-->
-                <!--{foreach from=$indicator.value item=file}-->
-                <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" style="background-color: #b7c5ff; padding: 4px"><img src="dynicons/?img=mail-attachment.svg&amp;w=16" /> <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
-                    <span style="float: right; padding: 4px">
-                    [ <button type="button" class="link" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">Delete</button> ]
-                    </span>
-                </div>
-                <script>
-                    function deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->() {
-                    	dialog_confirm.setTitle('Delete File?');
-                    	dialog_confirm.setContent('Are you sure you want to delete:<br /><br /><b><!--{$file}--></b>');
-                    	dialog_confirm.setSaveHandler(function() {
-                    	    $.ajax({
-                    	        type: 'POST',
-                    	        url: "ajaxIndex.php?a=deleteattachment&recordID=<!--{$recordID|strip_tags}-->&indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&series=<!--{$indicator.series|strip_tags}-->",
-                    	        data: {recordID: <!--{$recordID|strip_tags}-->,
-                    	               indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,
-                    	               series: <!--{$indicator.series|strip_tags}-->,
-                    	               file: '<!--{$file}-->',
-                    	               CSRFToken: '<!--{$CSRFToken}-->'},
-                    	        success: function(response) {
-                    	            $('#file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->').css('display', 'none');
-                    	            dialog_confirm.hide();
-                    	        }
-                    	    });
-                    	});
-                    	dialog_confirm.show();
-                    }
-                </script>
-                <!--{assign "counter" $counter+1}-->
-                <!--{/foreach}-->
-                <!-- TODO: whenever we can drop support for old browsers IE9, use modern method -->
-                <iframe id="fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;recordID=<!--{$recordID|strip_tags}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->" frameborder="0" width="500px"></iframe>
-                <br />
-                <button type="button" id="fileAdditional" class="buttonNorm" onclick="$('#fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').css('display', 'inline'); $('#fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').css('visibility', 'visible'); $('#fileAdditional').css('visibility', 'hidden')"><img src="dynicons/?img=document-open.svg&amp;w=32" /> Attach Additional File</button>
-                <!--{else}-->
-                    <iframe src="ajaxIframe.php?a=getuploadprompt&amp;recordID=<!--{$recordID|strip_tags}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->" frameborder="0" width="480px" height="100px"></iframe><br />
-                <!--{/if}-->
-                </span>
-            </fieldset>
-            <!--{if $indicator.required == 1}-->
-            <script>
-                formRequired["id<!--{$indicator.indicatorID}-->"] = {
-                    setRequired: function() {
-                        var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
-                        var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
-                        var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
+        <!--{if ($indicator.format == 'fileupload' || $indicator.format == 'image') && ($indicator.isMasked == 0 || $indicator.value == '')}-->
 
-                        return oldFiles.length === 0 && newFiles.length === 0;
-                    },
-                    setSubmitError: function() {
-                        $([document.documentElement, document.body]).animate({
-                            scrollTop: $('#<!--{$indicator.indicatorID|strip_tags}-->_required').offset().top
-                        }, 700).clearQueue();
-                    },
-                    setRequiredError: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').addClass('input-required-error');
-                    },
-                    setRequiredOk: function() {
-                        $('#<!--{$indicator.indicatorID|strip_tags}-->_required').removeClass('input-required-error');
-                    }
-                };
-            </script>
-            <!--{/if}-->
-        <!--{/if}-->
-        <!--{if $indicator.format == 'image' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <fieldset>
-                <legend>Image Attachment(s)</legend>
+                <legend><!--{if $indicator.format == 'fileupload'}-->File<!--{else}-->Image<!--{/if}--> Attachment(s)</legend>
                 <span class="text">
-                <!--{if $indicator.value[0] != ''}-->
                 <!--{assign "counter" 0}-->
-                <!--{foreach from=$indicator.value item=file}-->
-                <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" style="background-color: #b7c5ff; padding: 4px"><img src="dynicons/?img=mail-attachment.svg&amp;w=16" /> <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
-                    <span style="float: right; padding: 4px">
-                    [ <button type="button" class="link" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">Delete</button> ]
-                    </span>
-                </div>
-                <script>
-                    function deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->() {
-                        dialog_confirm.setTitle('Delete File?');
-                        dialog_confirm.setContent('Are you sure you want to delete:<br /><br /><b><!--{$file}--></b>');
-                        dialog_confirm.setSaveHandler(function() {
-                            $.ajax({
-                                type: 'POST',
-                                url: "ajaxIndex.php?a=deleteattachment&recordID=<!--{$recordID|strip_tags}-->&indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&series=<!--{$indicator.series|strip_tags}-->",
-                                data: {recordID: <!--{$recordID|strip_tags}-->,
-                                       indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,
-                                       series: <!--{$indicator.series|strip_tags}-->,
-                                       file: '<!--{$file}-->',
-                                       CSRFToken: '<!--{$CSRFToken}-->'},
-                                success: function(response) {
-                                    $('#file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->').css('display', 'none');
-                                    dialog_confirm.hide();
+                <!--{if $indicator.value[0] != ''}-->
+                    <!--{foreach from=$indicator.value item=file}-->
+                        <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" 
+                        style="background-color: #d7e5ff; padding: 4px; display: flex; align-items: center" >
+                            <img src="dynicons/?img=mail-attachment.svg&amp;w=16" alt="" /> 
+                            <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
+                            <span style="display: inline-block; margin-left: auto; padding: 4px">[ 
+                                <button type="button" class="link" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">
+                                    Delete
+                                </button> ]
+                            </span>
+                        </div>
+                        <script>
+                            function addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(indicatorID = 0, series = 1, indFormat = '') {
+                                const inputEl = document.getElementById(`${indicatorID}`);
+                                if (inputEl?.files !== null && inputEl.files.length > 0) {
+                                    const fileName = XSSHelpers.stripAllTags(inputEl.files[0].name);
+                                    const statusEl = document.getElementById(`file${indicatorID}_status`);
+                                    statusEl.style.display = 'block';
+
+                                    let formData = new FormData();
+                                    formData.append(`${indicatorID}`, inputEl?.files[0]);
+                                    formData.append('CSRFToken', CSRFToken);
+                                    formData.append('indicatorID', indicatorID);
+                                    formData.append('series', series);
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: `./api/form/${recordID}`,
+                                        data: formData,
+                                        success: (res) => {
+                                            if(parseInt(res) === 1) {
+                                                const msg = `File ${fileName} has been attached\r\n`;
+                                                statusEl.innerText = statusEl.classList.contains('status_error') ?
+                                                    msg : statusEl.innerText + msg;
+                                                statusEl.classList.remove('status_error');
+                                            } else {
+                                                const msg = indFormat.toLowerCase() === 'fileupload' ? 'Please ensure the file you are uploading is either a PDF, Word Document or similar format' :
+                                                                                                    'Please ensure the file you are uploading is a photo. &nbsp;Supported image formats are JPG, PNG';
+                                                statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span><br/>${msg}`;
+                                                statusEl.classList.add('status_error');
+                                            }
+                                        },
+                                        error: (err) => {
+                                            if (err?.status === 413) {
+                                                statusEl.innerHTML = '<span style="color:#d00;">File upload error:</span><br/>The file upload is too large.  The maximum upload size is <!--{$max_filesize|strip_tags}-->B';
+                                            } else {
+                                                statusEl.innerHTML = `${err?.responseText ? err?.responseText : ''}`;
+                                            }
+                                            statusEl.classList.add('status_error');
+                                        },
+                                        processData: false,
+                                        contentType: false
+                                    });
                                 }
-                            });
-                        });
-                        dialog_confirm.show();
-                    }
-                </script>
-                <!--{assign "counter" $counter+1}-->
-                <!--{/foreach}-->
-                <!-- TODO: whenever we can drop support for old browsers IE9, use modern method -->
-                <iframe id="fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getimageuploadprompt&amp;recordID=<!--{$recordID|strip_tags}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->" frameborder="0" width="500px"></iframe>
-                <br />
-                <button type="button" id="fileAdditional" class="buttonNorm" onclick="$('#fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').css('display', 'inline'); $('#fileIframe_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').css('visibility', 'visible'); $('#fileAdditional').css('visibility', 'hidden')"><img src="dynicons/?img=document-open.svg&amp;w=32" /> Attach Additional File</button>
-                <!--{else}-->
-                    <iframe src="ajaxIframe.php?a=getimageuploadprompt&amp;recordID=<!--{$recordID|strip_tags}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->" frameborder="0" width="480px" height="100px"></iframe><br />
-                <!--{/if}-->
+                            }
+                            function deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->() {
+                                dialog_confirm.setTitle('Delete File?');
+                                dialog_confirm.setContent('Are you sure you want to delete:<br /><br /><b><!--{$file}--></b>');
+                                dialog_confirm.setSaveHandler(function() {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: "ajaxIndex.php?a=deleteattachment&recordID=<!--{$recordID|strip_tags}-->&indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&series=<!--{$indicator.series|strip_tags}-->",
+                                        data: {
+                                            recordID: <!--{$recordID|strip_tags}-->,
+                                            indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,
+                                            series: <!--{$indicator.series|strip_tags}-->,
+                                            file: '<!--{$file}-->',
+                                            CSRFToken: '<!--{$CSRFToken}-->'
+                                        },
+                                        success: function(response) {
+                                            $('#file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->').css('display', 'none');
+                                            dialog_confirm.hide();
+                                        },
+                                        error: function(err) {
+                                            console.log(err);
+                                        }
+                                    });
+                                });
+                                dialog_confirm.show();
+                            } 
+                        </script>
+                        <!--{assign "counter" $counter+1}-->
+                    <!--{/foreach}-->
+                <!--{/if}-->  
+                    <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select <!--{if $counter > 0}-->additional <!--{/if}-->File to attach: 
+                        <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file" 
+                            onchange="addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->,'<!--{$indicator.format|strip_tags}-->')" 
+                                    <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
+                    </div>
+                    <div tabindex="0" id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem; line-height:1.6;">
+                        <img src="images/indicator.gif" alt="loading..." /> Attaching file...
+                    </div>
+                    <div style="font-family: verdana; font-size: 10px">
+                        <br />Maximum attachment size is <b><!--{$max_filesize|strip_tags}-->B.</b>
+                    </div>
                 </span>
             </fieldset>
             <!--{if $indicator.required == 1}-->
