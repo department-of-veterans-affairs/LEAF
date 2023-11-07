@@ -10,7 +10,7 @@ $debug = false;
 $protocol = 'https://';
 $siteRootURL = $protocol . HTTP_HOST;
 
-$relativePath = trim(str_replace($siteRootURL, '', $settings['national_linkedPrimary']));
+$relativePath = trim(str_replace($siteRootURL, '', LEAF_SETTINGS['national_linkedPrimary']));
 $tempFolder = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'files/temp/';
 $copy_custom_templates = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'templates/email/custom_override/';
 $paste_custom_templates = getenv('APP_LIB_PATH') . '../' . PORTAL_PATH . '/templates/email/custom_override/';
@@ -48,8 +48,6 @@ $db->query("delete FROM `categories`;");
 $db->query("delete FROM `actions`;");
 $db->query("delete FROM `records_dependencies` WHERE dependencyID=0;"); // delete invalid items -- TODO: figure out how these invalid items got written
 $db->query("TRUNCATE TABLE `step_modules`;");
-$db->query("TRUNCATE TABLE `email_templates`;");
-$db->query("TRUNCATE TABLE `events`;");
 
 
 function importTable($db, $tempFolder, $table) {
@@ -102,12 +100,41 @@ importTable($db, $tempFolder, 'step_dependencies');
 importTable($db, $tempFolder, 'workflow_routes');
 importTable($db, $tempFolder, 'step_modules');
 
-// remove files from templates/email/custom_override on subordinate
-passthru('rm -rf ' . $paste_custom_templates . '*');
-// copy templates/email/custom_override from primary to subordinate
-passthru('cp -r ' . $copy_custom_templates . '* ' . $paste_custom_templates);
+if (is_dir($paste_custom_templates) && is_dir($copy_custom_templates)) {
+    // remove files from templates/email/custom_override on subordinate
+    $files = glob($paste_custom_templates . '*');
+
+    // Deleting all the files in the list
+    foreach ($files as $file) {
+        if(is_file($file)) {
+            // Delete the given file
+            unlink($file);
+        }
+    }
+
+    // copy templates/email/custom_override from primary to subordinate
+    copyDirectory($copy_custom_templates, $paste_custom_templates);
+}
 
 $db->query("ALTER TABLE `records_dependencies` ADD CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
 $db->query("ALTER TABLE `dependency_privs` ADD CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
 $db->query("ALTER TABLE `category_count` ADD CONSTRAINT `category_count_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories`(`categoryID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
 $db->query("ALTER TABLE `category_privs` ADD CONSTRAINT `category_privs_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories`(`categoryID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
+
+function copyDirectory($source, $destination) {
+    $files = scandir($source);
+
+    foreach ($files as $file) {
+        if ($file !== '.' && $file !== '..') {
+            // not sure if the / is needed here
+            $sourceFile = $source . '/' . $file;
+            $destinationFile = $destination . '/' . $file;
+
+            if (is_dir($sourceFile)) {
+                copyDirectory($sourceFile, $destinationFile);
+            } else {
+                copy($sourceFile, $destinationFile);
+            }
+        }
+    }
+}
