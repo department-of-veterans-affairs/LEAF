@@ -11,7 +11,7 @@ import (
 func main() {
 	log.Println("Starting LEAF api-test-helper...")
 	http.HandleFunc("/", handleIndex)
-	http.HandleFunc("/api/v1/run-test", handleRunTest)
+	http.HandleFunc("/api/v1/test", handleRunTest)
 
 	http.ListenAndServe(":8000", nil)
 }
