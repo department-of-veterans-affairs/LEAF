@@ -3,6 +3,7 @@ FROM php:8.2-fpm as base
 RUN docker-php-ext-install pdo pdo_mysql
 
 COPY docker/php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY docker/php/conf.d/* /usr/local/etc/php/conf.d/
 
 # Stuff that might need to get into the base image
 WORKDIR /var/www/php-logs
