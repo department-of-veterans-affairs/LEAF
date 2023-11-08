@@ -705,7 +705,60 @@
 
         <!--{/if}-->
         <!--{if ($indicator.format == 'fileupload' || $indicator.format == 'image') && ($indicator.isMasked == 0 || $indicator.value == '')}-->
+            <script>
+                function addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(indicatorID = 0, series = 1, indFormat = '') {
+                    const inputEl = document.getElementById(`${indicatorID}`);
+                    if (inputEl?.files !== null && inputEl.files.length > 0) {
+                        const fileName = XSSHelpers.stripAllTags(inputEl.files[0].name);
+                        let statusEl = document.getElementById(`file${indicatorID}_status`);
+                        let loaderEl = document.getElementById(`loading_indicator_${indicatorID}`);
+                        if(loaderEl !== null && statusEl !== null) {
+                            loaderEl.style.display = 'block';
 
+                            let formData = new FormData();
+                            formData.append(`${indicatorID}`, inputEl?.files[0]);
+                            formData.append('CSRFToken', CSRFToken);
+                            formData.append('indicatorID', indicatorID);
+                            formData.append('series', series);
+                            $.ajax({
+                                type: 'POST',
+                                url: `./api/form/${recordID}`,
+                                data: formData,
+                                success: (res) => {
+                                    loaderEl.style.display = 'none';
+                                    statusEl.style.display = 'block';
+                                    if(+res === 1) {
+                                        const msg = `File ${fileName} has been attached\r\n`;
+                                        if(statusEl.classList.contains('status_error')) {
+                                            statusEl.classList.remove('status_error');
+                                            statusEl.innerText = msg;
+                                        } else {
+                                            statusEl.innerText = statusEl.innerText + msg;
+                                        }
+
+                                    } else {
+                                        const msg = indFormat.toLowerCase() === 'fileupload' ?
+                                            'Please ensure the file you are uploading is either a PDF, Word Document or similar format' :
+                                            'Please ensure the file you are uploading is a photo. &nbsp;Supported image formats are JPG, PNG';
+                                        statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span><br/>${msg}`;
+                                        statusEl.classList.add('status_error');
+                                    }
+                                },
+                                error: (err) => {
+                                    if (+err?.status === 413) {
+                                        statusEl.innerHTML = '<span style="color:#d00;">File upload error:</span><br/>The file is too large.  The maximum upload size is <!--{$max_filesize|strip_tags}-->B';
+                                    } else {
+                                        statusEl.innerHTML = `${err?.responseText ? err?.responseText : ''}`;
+                                    }
+                                    statusEl.classList.add('status_error');
+                                },
+                                processData: false,
+                                contentType: false
+                            });
+                        }
+                    }
+                }
+            </script>
             <fieldset>
                 <legend><!--{if $indicator.format == 'fileupload'}-->File<!--{else}-->Image<!--{/if}--> Attachment(s)</legend>
                 <span class="text">
@@ -713,7 +766,7 @@
                 <!--{if $indicator.value[0] != ''}-->
                     <!--{foreach from=$indicator.value item=file}-->
                         <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" 
-                        style="background-color: #d7e5ff; padding: 4px; display: flex; align-items: center" >
+                            style="background-color: #d7e5ff; padding: 4px; display: flex; align-items: center" >
                             <img src="dynicons/?img=mail-attachment.svg&amp;w=16" alt="" /> 
                             <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
                             <span style="display: inline-block; margin-left: auto; padding: 4px">[ 
@@ -723,49 +776,6 @@
                             </span>
                         </div>
                         <script>
-                            function addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(indicatorID = 0, series = 1, indFormat = '') {
-                                const inputEl = document.getElementById(`${indicatorID}`);
-                                if (inputEl?.files !== null && inputEl.files.length > 0) {
-                                    const fileName = XSSHelpers.stripAllTags(inputEl.files[0].name);
-                                    const statusEl = document.getElementById(`file${indicatorID}_status`);
-                                    statusEl.style.display = 'block';
-
-                                    let formData = new FormData();
-                                    formData.append(`${indicatorID}`, inputEl?.files[0]);
-                                    formData.append('CSRFToken', CSRFToken);
-                                    formData.append('indicatorID', indicatorID);
-                                    formData.append('series', series);
-
-                                    $.ajax({
-                                        type: 'POST',
-                                        url: `./api/form/${recordID}`,
-                                        data: formData,
-                                        success: (res) => {
-                                            if(parseInt(res) === 1) {
-                                                const msg = `File ${fileName} has been attached\r\n`;
-                                                statusEl.innerText = statusEl.classList.contains('status_error') ?
-                                                    msg : statusEl.innerText + msg;
-                                                statusEl.classList.remove('status_error');
-                                            } else {
-                                                const msg = indFormat.toLowerCase() === 'fileupload' ? 'Please ensure the file you are uploading is either a PDF, Word Document or similar format' :
-                                                                                                    'Please ensure the file you are uploading is a photo. &nbsp;Supported image formats are JPG, PNG';
-                                                statusEl.innerHTML = `<span style="color:#d00;">File upload error:</span><br/>${msg}`;
-                                                statusEl.classList.add('status_error');
-                                            }
-                                        },
-                                        error: (err) => {
-                                            if (err?.status === 413) {
-                                                statusEl.innerHTML = '<span style="color:#d00;">File upload error:</span><br/>The file upload is too large.  The maximum upload size is <!--{$max_filesize|strip_tags}-->B';
-                                            } else {
-                                                statusEl.innerHTML = `${err?.responseText ? err?.responseText : ''}`;
-                                            }
-                                            statusEl.classList.add('status_error');
-                                        },
-                                        processData: false,
-                                        contentType: false
-                                    });
-                                }
-                            }
                             function deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->() {
                                 dialog_confirm.setTitle('Delete File?');
                                 dialog_confirm.setContent('Are you sure you want to delete:<br /><br /><b><!--{$file}--></b>');
@@ -797,12 +807,10 @@
                 <!--{/if}-->  
                     <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select <!--{if $counter > 0}-->additional <!--{/if}-->File to attach: 
                         <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file" 
-                            onchange="addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->,'<!--{$indicator.format|strip_tags}-->')" 
-                                    <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
+                            onchange="addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->,'<!--{$indicator.format|strip_tags}-->')" <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
                     </div>
-                    <div tabindex="0" id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem; line-height:1.6;">
-                        <img src="images/indicator.gif" alt="loading..." /> Attaching file...
-                    </div>
+                    <div id="loading_indicator_<!--{$indicator.indicatorID|strip_tags}-->" style="display:none;"><img src="images/indicator.gif" alt="loading..." /> Attaching file...</div>
+                    <div tabindex="0" id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem; line-height:1.6;"></div>
                     <div style="font-family: verdana; font-size: 10px">
                         <br />Maximum attachment size is <b><!--{$max_filesize|strip_tags}-->B.</b>
                     </div>
