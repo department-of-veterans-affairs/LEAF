@@ -133,7 +133,15 @@ function copyDirectory($source, $destination) {
             if (is_dir($sourceFile)) {
                 copyDirectory($sourceFile, $destinationFile);
             } else {
-                copy($sourceFile, $destinationFile);
+                if (is_dir($destinationFile)) {
+                    copy($sourceFile, $destinationFile);
+                } else {
+                    // theoretically this should never be hit. All portals should have the same dir structure
+                    // thereby making this mute, but jsut in case.
+                    mkdir($destinationFile);
+                    copy($sourceFile, $destinationFile);
+                }
+
             }
         }
     }
