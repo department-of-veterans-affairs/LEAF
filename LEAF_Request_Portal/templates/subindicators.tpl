@@ -806,7 +806,8 @@
                     <!--{/foreach}-->
                 <!--{/if}-->  
                     <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select <!--{if $counter > 0}-->additional <!--{/if}-->File to attach: 
-                        <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file" 
+                        <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file"
+                            aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->"
                             onchange="addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->,'<!--{$indicator.format|strip_tags}-->')" <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
                     </div>
                     <div id="loading_indicator_<!--{$indicator.indicatorID|strip_tags}-->" style="display:none;"><img src="images/indicator.gif" alt="loading..." /> Attaching file...</div>
