@@ -20,6 +20,8 @@ if (isset($_COOKIE['REMOTE_USER']))
 {
     $redirect = '';
 
+    $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
+
     if (isset($_GET['r'])) {
         $encodedRedirect = $_GET['r'];
         $decodedRedirect = base64_decode($encodedRedirect);
@@ -28,12 +30,12 @@ if (isset($_COOKIE['REMOTE_USER']))
             $parsedRedirect = parse_url($decodedRedirect);
     
             if ($parsedRedirect !== false) {
-                $redirect = $protocol . HTTP_HOST . $parsedRedirect['path'];
+                $query = isset($parsedRedirect['query']) ? '?' . $parsedRedirect['query'] : '';
+                $fragment = isset($parsedRedirect['fragment']) ? '#' . $parsedRedirect['fragment'] : '';
+                $redirect = $protocol . HTTP_HOST . $parsedRedirect['path'] . $query . $fragment;
             }
         }
-    } else {
-        $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
-    }    
+    }      
 
     $user = decryptUser($_COOKIE['REMOTE_USER']);
 
