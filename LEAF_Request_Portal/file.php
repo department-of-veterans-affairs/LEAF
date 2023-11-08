@@ -14,7 +14,8 @@ $form = new Portal\Form($db, $login);
 $data = $form->getIndicator(
     XSSHelpers::xscrub($_GET['id']),
     XSSHelpers::xscrub($_GET['series']),
-    XSSHelpers::xscrub($_GET['form'])
+    XSSHelpers::xscrub($_GET['form']),
+    false // don't need to parse the template for file downloads
 );
 
 if (isset($data[$_GET['id']]['value'])){
@@ -42,8 +43,11 @@ $filename = $uploadDir . Portal\Form::getFileHash($_GET['form'], $_GET['id'], $_
 
 if (file_exists($filename))
 {
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="' . addslashes($value[$_GET['file']]) . '"');
+    $mimetype = mime_content_type($filename) ?: "application/octet-stream";
+    header('Content-Type: '. $mimetype);
+    if(!isset($_GET['inline'])) {
+        header('Content-Disposition: attachment; filename="' . addslashes($value[$_GET['file']]) . '"');
+    }
     header('Content-Length: ' . filesize($filename));
     header('Cache-Control: maxage=1'); //In seconds
     header('Pragma: public');
