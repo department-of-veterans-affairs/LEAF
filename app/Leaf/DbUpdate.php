@@ -147,9 +147,8 @@ class DbUpdate
      */
     private function getUpdateList(): void
     {
-        error_log(print_r($this->folder, true));
         $updates = scandir($this->folder);
-        error_log(print_r($updates, true));
+
         foreach ($updates as $update) {
             $version = str_replace($this->prefix, '', $update);
             $index = strpos($version, '-');
@@ -159,6 +158,5 @@ class DbUpdate
                 $this->update_list[$old_version] = $update;
             }
         }
-        error_log(print_r($this->update_list, true));
     }
 }
