@@ -512,14 +512,11 @@ function doSubmit(recordID) {
     }
 
     function handlePrintConditionalIndicators(formPrintConditions = {}) {
-        const allowedChildFormats = ['dropdown', 'text', 'multiselect', 'radio', 'checkboxes', '', 'fileupload',
-            'image', 'textarea', 'orgchart_employee', 'orgchart_group', 'orgchart_position'
-        ];
         const multiChoiceFormats = ['multiselect', 'checkboxes'];
 
         for (let c in formPrintConditions) {
             const childFormat = formPrintConditions[c].format; //current format of the controlled question
-            const childFormatIsEnabled = allowedChildFormats.some(f => f === childFormat);
+            const childFormatIsEnabled = childFormat !== 'raw_data';
             const conditions = formPrintConditions[c].conditions;
 
             let comparison = false;
