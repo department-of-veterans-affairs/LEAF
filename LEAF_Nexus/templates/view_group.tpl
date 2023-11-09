@@ -37,7 +37,7 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1 role="heading" tabindex="0">Options</h1>
         <!--{if array_search('service', $tags) !== false}-->
-        <div onkeypress="triggerClickViewOrgchart(event)" role="button" id="view_orgchart"><a id="view_orgchart_link" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
+        <div onkeydown="triggerClickViewOrgchart(event)" role="button" id="view_orgchart"><a id="view_orgchart_link" href="?a=navigator&amp;rootID=<!--{$groupLeader|sanitize}-->"></a><img src="dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="View Org Chart" title="View Org Chart" /> View in Org Chart</div>
         <br />
         <!--{/if}-->
         <button class="options" onclick="editGroupName()" style="width: 100%"><img src="dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Group Name</button>
@@ -51,7 +51,7 @@
     <div class="toolbar_tags"><h1 role="heading" tabindex="0">Tags</h1>
         <div class="tags">
             <!--{foreach $tags as $tag}-->
-            <button class="buttonNorm" style="width: 100%" aria-label="<!--{$tag}-->. Click to delete tag" tabindex="0" onkeypress="triggerClick(event, this.id)" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></button>
+            <button class="buttonNorm" style="width: 100%" aria-label="<!--{$tag}-->. Click to delete tag" tabindex="0" onkeydown="triggerClick(event, this.id)" onclick="confirmDeleteTag('<!--{$tag}-->')"><!--{$tag}--></button>
             <!--{/foreach}-->
             <!--{if $groupPrivileges[$groupID].write == 1}-->
             <br /><br />

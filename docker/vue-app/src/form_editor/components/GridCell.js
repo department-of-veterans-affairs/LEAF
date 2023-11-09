@@ -1,10 +1,13 @@
 export default {
+    name: 'grid-cell',
     data() {
         return {
             name: this.cell?.name || 'No title',
             id: this.cell?.id || this.makeColumnID(),
             gridType: this.cell?.type || 'text',
             textareaDropOptions: this.cell?.options ? this.cell.options.join('\n') : [],
+            file: this.cell?.file || "",
+            hasHeader: this.cell?.hasHeader || false
         }
     },
     props: {
@@ -14,7 +17,8 @@ export default {
     inject: [
         'libsPath',
         'gridJSON',
-        'updateGridJSON'
+        'updateGridJSON',
+        'fileManagerTextFiles'
     ],
     mounted() {
         /**
@@ -138,15 +142,28 @@ export default {
             <option value="text">Single line input</option>
             <option value="date">Date</option>
             <option value="dropdown">Drop Down</option>
+            <option value="dropdown_file">Dropdown From File</option>
             <option value="textarea">Multi-line text</option>
         </select>
-        <span v-if="gridType === 'dropdown'" class="dropdown">
+        <div v-show="gridType === 'dropdown'">
             <label for="'gridcell_options_' + id">One option per line</label>
             <textarea :id="'gridcell_options_' + id" 
                 v-model="textareaDropOptions"
                 aria-label="Dropdown options, one option per line"
                 style="width: 100%; height: 60px; resize:vertical">
             </textarea>
-        </span>
+        </div>
+        <div v-show="gridType === 'dropdown_file'">
+            <label :for="'dropdown_file_select_' + id">File (csv or txt format)</label>
+            <select :id="'dropdown_file_select_' + id" v-model="file">
+                <option value="">Select a File</option>
+                <option v-for="f in fileManagerTextFiles" :key="'file_' + f" :value="f">{{f}}</option>
+            </select>
+            <label :for="'dropdown_file_header_select_' + id">Does file contain headers</label>
+            <select :id="'dropdown_file_header_select_' + id" v-model="hasHeader">
+                <option :value="false">No</option>
+                <option :value="true">Yes</option>
+            </select>
+        </div>
     </div>`
 }

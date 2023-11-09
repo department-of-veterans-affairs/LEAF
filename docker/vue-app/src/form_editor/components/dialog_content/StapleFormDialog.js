@@ -2,19 +2,27 @@ export default {
     name: 'staple-form-dialog',
     data() {
         return {
+            requiredDataProperties: ['mainFormID'],
+            mainFormID: this.dialogData?.mainFormID || '',
             catIDtoStaple: '',
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
         'truncateText',
         'decodeAndStripHTML',
         'categories',
-        'focusedFormRecord',
+        'dialogData',
+        'checkRequiredData',
         'closeFormDialog',
         'updateStapledFormsInfo'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+        this.checkRequiredData(this.requiredDataProperties);
+    },
     mounted() {
         if (this.isSubform) {
             this.closeFormDialog();
@@ -26,13 +34,10 @@ export default {
     },
     computed: {
         isSubform () {
-            return this.focusedFormRecord?.parentID !== '';
-        },
-        formID () {
-            return this.focusedFormRecord?.categoryID || '';
+            return this.categories[this.mainFormID]?.parentID !== '';
         },
         currentStapleIDs() {
-            return this.categories[this.formID]?.stapledFormIDs || [];
+            return this.categories[this.mainFormID]?.stapledFormIDs || [];
         },
         mergeableForms() {
             let mergeable = [];
@@ -41,7 +46,7 @@ export default {
                 const catID = this.categories[c].categoryID;
                 const parID = this.categories[c].parentID;
                 const isNotAlreadyMerged = this.currentStapleIDs.every(id => id !== catID)
-                if (WF_ID === 0 && parID === '' && catID !== this.formID && isNotAlreadyMerged) {
+                if (WF_ID === 0 && parID === '' && catID !== this.mainFormID && isNotAlreadyMerged) {
                     mergeable.push({...this.categories[c]});
                 }
             }
@@ -52,9 +57,9 @@ export default {
         unmergeForm(stapledCatID = '') {
             $.ajax({
                 type: 'DELETE',
-                url: `${this.APIroot}formEditor/_${this.formID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
+                url: `${this.APIroot}formEditor/_${this.mainFormID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
                 success: res => {
-                    this.updateStapledFormsInfo(stapledCatID, true);
+                    this.updateStapledFormsInfo(this.mainFormID, stapledCatID, true);
                 },
                 error: err => console.log(err)
             });
@@ -63,7 +68,7 @@ export default {
             if(this.catIDtoStaple !== '') {
                 $.ajax({
                     type: 'POST',
-                    url: `${this.APIroot}formEditor/_${this.formID}/stapled`,
+                    url: `${this.APIroot}formEditor/_${this.mainFormID}/stapled`,
                     data: {
                         CSRFToken: this.CSRFToken,
                         stapledCategoryID: this.catIDtoStaple
@@ -72,7 +77,7 @@ export default {
                         if(+res !== 1) {
                             alert(res);
                         } else {
-                            this.updateStapledFormsInfo(this.catIDtoStaple);
+                            this.updateStapledFormsInfo(this.mainFormID, this.catIDtoStaple);
                             this.catIDtoStaple = '';
                         }
                     },
