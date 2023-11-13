@@ -33,9 +33,13 @@ function iterator($filename)
     $dir = new DirectoryIterator($filename);
 
     foreach ($dir as $file) {
-        if ($file->isDot()) continue;
-        if ($file->isDir()) iterator($file->getRealPath());
-        getLineWithString($file->getRealPath());
+        if ($file->isDot()) {
+            continue;
+        } elseif ($file->isDir()) {
+            iterator($file->getRealPath());
+        } else {
+            getLineWithString($file->getRealPath());
+        }
     }
 }
 
