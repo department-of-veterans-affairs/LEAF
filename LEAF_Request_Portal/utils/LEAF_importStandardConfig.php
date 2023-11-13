@@ -15,7 +15,7 @@ $tempFolder = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'files/temp/';
 $copy_custom_templates = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'templates/email/custom_override/';
 $paste_custom_templates = getenv('APP_LIB_PATH') . '../' . PORTAL_PATH . '/templates/email/custom_override/';
 
-if($settings['siteType'] != 'national_subordinate') {
+if(LEAF_SETTINGS['siteType'] != 'national_subordinate') {
     echo "ERROR: This is not a national subordinate site.";
     exit();
 }
@@ -36,6 +36,8 @@ $db->query("TRUNCATE TABLE `workflow_routes`;");
 $db->query("TRUNCATE TABLE `step_dependencies`;");
 $db->query("delete from `workflow_steps`;");
 $db->query("delete FROM `workflows`;");
+$db->query("delete FROM `events`;");
+$db->query("TRUNCATE TABLE `email_templates`;");
 $db->query("TRUNCATE TABLE `route_events`;");
 $db->query("TRUNCATE TABLE `indicators`;");
 $db->query("ALTER TABLE records_dependencies DROP FOREIGN KEY fk_records_dependencyID;");
@@ -63,6 +65,8 @@ function importTable($db, $tempFolder, $table) {
         case 'step_dependencies':
         case 'workflow_routes':
         case 'step_modules':
+        case 'events':
+        case 'email_templates':
             break;
         default:
             exit();
@@ -93,12 +97,14 @@ importTable($db, $tempFolder, 'categories');
 importTable($db, $tempFolder, 'category_staples');
 importTable($db, $tempFolder, 'dependencies');
 importTable($db, $tempFolder, 'indicators');
+importTable($db, $tempFolder, 'events');
 importTable($db, $tempFolder, 'route_events');
 importTable($db, $tempFolder, 'workflows');
 importTable($db, $tempFolder, 'workflow_steps');
 importTable($db, $tempFolder, 'step_dependencies');
 importTable($db, $tempFolder, 'workflow_routes');
 importTable($db, $tempFolder, 'step_modules');
+importTable($db, $tempFolder, 'email_templates');
 
 if (is_dir($paste_custom_templates) && is_dir($copy_custom_templates)) {
     // remove files from templates/email/custom_override on subordinate
@@ -133,15 +139,7 @@ function copyDirectory($source, $destination) {
             if (is_dir($sourceFile)) {
                 copyDirectory($sourceFile, $destinationFile);
             } else {
-                if (is_dir($destinationFile)) {
-                    copy($sourceFile, $destinationFile);
-                } else {
-                    // theoretically this should never be hit. All portals should have the same dir structure
-                    // thereby making this mute, but jsut in case.
-                    mkdir($destinationFile);
-                    copy($sourceFile, $destinationFile);
-                }
-
+                copy($sourceFile, $destinationFile);
             }
         }
     }
