@@ -23,7 +23,7 @@ func TestFormQuery_HomepageQuery(t *testing.T) {
 
 	// get first key
 	var key int
-	for k, _ := range res {
+	for k := range res {
 		key = k
 		break
 	}
@@ -72,7 +72,7 @@ func TestFormQuery_NonadminQueryActionable(t *testing.T) {
 	}
 
 	if _, exists := res[532]; exists {
-		t.Errorf("Record 532 should not be actionable because tester is a member of the designated group")
+		t.Errorf("Record 532 should not be actionable because tester is not a member of the designated group")
 	}
 }
 
