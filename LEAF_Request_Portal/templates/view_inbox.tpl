@@ -17,7 +17,7 @@ The following is a list of requests that are pending your action:
 <!--{if count($errors) == 0}-->
 <!--{foreach from=$inbox item=dep}-->
 <br /><br />
-<table onKeypress="toggleDepVisibilityKeypress(event, '<!--{$dep.dependencyID|strip_tags}-->', '<!--{$CSRFToken}-->')" tabindex="0" id="depTitle_<!--{$dep.dependencyID}-->" class="agenda" style="width: 100%; margin: 0px auto">
+<table onkeydown="toggleDepVisibilityKeypress(event, '<!--{$dep.dependencyID|strip_tags}-->', '<!--{$CSRFToken}-->')" tabindex="0" id="depTitle_<!--{$dep.dependencyID}-->" class="agenda" style="width: 100%; margin: 0px auto">
     <div aria-live="assertive" id="depTitle_<!--{$dep.dependencyID}-->_announce"></div>
     <tr style="background-color: <!--{$dep.dependencyBgColor|strip_tags}-->; cursor: pointer"  onclick="toggleDepVisibility('<!--{$dep.dependencyID|strip_tags}-->', '<!--{$CSRFToken}-->')">
       <th colspan="3">

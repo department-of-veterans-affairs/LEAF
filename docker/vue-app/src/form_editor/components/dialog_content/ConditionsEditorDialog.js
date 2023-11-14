@@ -2,8 +2,7 @@ export default {
     name: 'conditions-editor-dialog',
     data() {
         return {
-            formID: this.focusedFormRecord.categoryID,
-            childIndID: parseInt(this.currIndicatorID),
+            requiredDataProperties: ['indicatorID'],
             indicators: [],
             appIsLoadingIndicators: true,
             parentIndID: 0,
@@ -16,7 +15,6 @@ export default {
             selectedConditionJSON: '',
             enabledParentFormats: ['dropdown', 'multiselect', 'radio', 'checkboxes'],
             multiOptionFormats: ['multiselect', 'checkboxes'],
-            orgchartFormats: ["orgchart_employee","orgchart_group","orgchart_position"],
             orgchartSelectData: {},
             crosswalkFile: '',
             crosswalkHasHeader: false,
@@ -27,10 +25,12 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'currIndicatorID',
+        'setDialogSaveFunction',
+        'dialogData',
+        'checkRequiredData',
+        'orgchartFormats',
         'focusedFormRecord',
-        'selectedNodeIndicatorID',
-        'selectNewCategory',
+        'getFormByCategoryID',
         'closeFormDialog',
         'truncateText',
         'decodeAndStripHTML',
@@ -38,6 +38,8 @@ export default {
         'initializeOrgSelector'
     ],
     created() {
+        this.checkRequiredData(this.requiredDataProperties);
+        this.setDialogSaveFunction(this.onSave);
         this.getFormIndicators();
     },
     mounted() {
@@ -169,7 +171,7 @@ export default {
                     },
                     success: (res)=> {
                         if (res !== 'Invalid Token.') {
-                            this.selectNewCategory(this.formID, this.selectedNodeIndicatorID);
+                            this.getFormByCategoryID(this.formID);
                             this.closeFormDialog();
                         } else { console.log('error adding condition', res) }
                     },
@@ -360,12 +362,18 @@ export default {
         }
     },
     computed: {
+        formID() {
+            return this.focusedFormRecord.categoryID;
+        },
         showSetup() {
             return  this.showConditionEditor && this.selectedOutcome &&
                 (this.selectedOutcome === 'crosswalk' || this.selectableParents.length > 0);
         },
         noOptions() {
             return !['', 'crosswalk'].includes(this.selectedOutcome) && this.selectableParents.length < 1;
+        },
+        childIndID() {
+            return this.dialogData.indicatorID;
         },
         childIndicator() {
             return this.indicators.find(i => parseInt(i.indicatorID) === this.childIndID);
@@ -570,21 +578,21 @@ export default {
             }
         }
     },
-    template: `<div id="condition_editor_center_panel">
+    template: `<div id="condition_editor_dialog_content">
             <!-- LOADING SPINNER -->
-            <div v-if="appIsLoadingIndicators" id="loader_spinner">
+            <div v-if="appIsLoadingIndicators" class="page_loading">
                 Loading... <img src="../images/largespinner.gif" alt="loading..." />
             </div>
             <div v-else id="condition_editor_inputs">
                 <!-- NOTE: DELETION DIALOG -->
-                <div v-if="showRemoveModal" style="margin-bottom: -0.75rem;">
+                <div v-if="showRemoveModal" id="ifthen_deletion_dialog">
                     <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 2rem">
-                        <button type="button" class="btn_remove_condition" style="width: 120px;"
+                    <div class="options">
+                        <button type="button" class="btn_remove_condition"
                             @click="removeCondition({confirmDelete: true, condition: {}})">
                             Delete
                         </button>
-                        <button type="button" class="btn-general" style="width: 120px;" @click="showRemoveModal=false">
+                        <button type="button" class="btn-general" @click="showRemoveModal=false">
                             Cancel
                         </button>
                     </div>
@@ -595,7 +603,7 @@ export default {
                         <template v-for="typeVal, typeKey in conditionTypes" :key="typeVal">
                             <template v-if="typeVal.length > 0">
                                 <p><b>{{ listHeaderText(typeKey) }}</b></p>
-                                <ul style="margin-bottom: 1rem;">
+                                <ul>
                                     <li v-for="c in typeVal" :key="c" class="savedConditionsCard">
                                         <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
                                             :class="{selectedConditionEdit: JSON.stringify(c) === selectedConditionJSON, isOrphan: isOrphan(c)}">
@@ -612,7 +620,7 @@ export default {
                                             </template>
                                             <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived, deleted or is on another page.</div>
                                         </button>
-                                        <button type="button" style="width: 1.75em;" class="btn_remove_condition"
+                                        <button type="button" class="btn_remove_condition"
                                             @click="removeCondition({confirmDelete: false, condition: c})">X
                                         </button>
                                     </li>
@@ -623,9 +631,9 @@ export default {
                     <button type="button" @click="newCondition" class="btn-confirm new">+ New Condition</button>
                     <!-- NOTE: OUTCOME SELECTION and PREFILL AREAS -->
                     <div v-if="showConditionEditor" id="outcome-editor">
-                        <span class="input-info">Select an outcome</span>
-                        <select title="select outcome" @change="updateSelectedOutcome($event.target.value)">
-                            <option v-if="conditions.selectedOutcome === ''" value="" selected>Select an outcome</option> 
+                        <label class="ifthen_label" for="outcome_select">Select an outcome</label>
+                        <select title="select outcome" id="outcome_select" @change="updateSelectedOutcome($event.target.value)">
+                            <option v-if="conditions.selectedOutcome === ''" value="" selected>Select an outcome</option>
                             <option value="show" :selected="conditions.selectedOutcome === 'show'">Hide this question except ...</option>
                             <option value="hide" :selected="conditions.selectedOutcome === 'hide'">Show this question except ...</option>
                             <option v-if="!noPrefillFormats.includes(childFormat)" 
@@ -636,9 +644,9 @@ export default {
                             </option>
                         </select>
                         <template v-if="!noOptions && conditions.selectedOutcome === 'pre-fill'">
-                            <span class="input-info">Enter a pre-fill value</span>
+                            <label class="ifthen_label" id="prefill_value_entry">Enter a pre-fill value</label>
                             <select v-if="childFormat==='dropdown' || childFormat==='radio'"
-                                id="child_prefill_entry_single"
+                                id="child_prefill_entry_single" aria-labelledby="prefill_value_entry"
                                 @change="updateSelectedOptionValue($event.target, 'child')">
                                 <option v-if="conditions.selectedChildValue === ''" value="" selected>Select a value</option>
                                 <option v-for="val in selectedChildValueOptions" 
@@ -653,13 +661,13 @@ export default {
                                 <select v-if="childFormat === 'multiselect' || childFormat === 'checkboxes'"
                                     placeholder="select some options"
                                     multiple="true"
-                                    id="child_prefill_entry_multi"
+                                    id="child_prefill_entry_multi" aria-labelledby="prefill_value_entry"
                                     style="display: none;"
                                     @change="updateSelectedOptionValue($event.target, 'child')">
                                 </select>
                             </div>
                             <input v-if="childFormat==='text' || childFormat==='textarea'" 
-                                id="child_prefill_entry_text"
+                                id="child_prefill_entry_text" aria-labelledby="prefill_value_entry"
                                 @change="updateSelectedOptionValue($event.target, 'child')"
                                 :value="decodeAndStripHTML(conditions.selectedChildValue)" />
                             <div v-if="orgchartFormats.includes(childFormat)" :id="'ifthen_child_orgSel_' + conditions.childIndID"
@@ -671,7 +679,7 @@ export default {
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
                             <h3 style="margin: 0;">IF</h3>
                             <!-- NOTE: PARENT CONTROLLER SELECTION -->
-                            <select title="select an indicator" @change="updateSelectedParentIndicator(parseInt($event.target.value))">
+                            <select title="select an indicator" id="controller_select" @change="updateSelectedParentIndicator(parseInt($event.target.value))">
                                 <option v-if="!conditions.parentIndID" :value="0" selected>Select an Indicator</option>
                                 <option v-for="i in selectableParents" :key="'parent_' + i.indicatorID"
                                 :title="i.name"
@@ -680,7 +688,7 @@ export default {
                                 </option>
                             </select>
                             <!-- NOTE: OPERATOR SELECTION -->
-                            <select v-model="selectedOperator">
+                            <select v-model="selectedOperator" id="operator_select">
                                 <option v-if="conditions.selectedOp === ''" value="" selected>Select a condition</option>
                                 <option v-for="o in selectedParentOperators" :key="o.val" :value="o.val" >
                                 {{ o.text }}

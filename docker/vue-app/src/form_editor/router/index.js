@@ -1,11 +1,13 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-const FormEditorView = () => import(/* webpackPrefetch: true, webpackChunkName:"form-editor-view" */"../views/FormEditorView");
+const FormBrowserView = () => import(/* webpackChunkName:"form-browser-view" */"../views/FormBrowserView");
+const FormEditorView = () => import(/* webpackChunkName:"form-editor-view" */"../views/FormEditorView");
 const RestoreFieldsView = () => import(/* webpackChunkName:"restore-fields-view" */"../views/RestoreFieldsView");
 
 const routes = [
     {
         path: '/',
-        redirect: { name: 'category' }
+        name: 'browser',
+        component: FormBrowserView
     },
     {
         path: '/forms',

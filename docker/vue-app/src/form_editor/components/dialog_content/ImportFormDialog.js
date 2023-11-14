@@ -9,9 +9,12 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'closeFormDialog',
-        'selectNewCategory'
+        'setDialogSaveFunction',
+        'closeFormDialog'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     mounted() {
         document.getElementById(this.initialFocusElID).focus();
     },
@@ -34,7 +37,7 @@ export default {
                             alert(res);
                         }
                         this.closeFormDialog();
-                        this.selectNewCategory();
+                        this.$router.push({ name: 'browser' }); //TODO: update return val to ID of imported form - more ideal to route to FE view
                     },
                     error: err => console.log('form import error', err),
                 })
@@ -51,8 +54,8 @@ export default {
         }
     },
     template: `
-            <div id="file_control" style="margin-bottom: 1em;">
-                <p>Select LEAF Form Packet to import:</p>
+            <div id="file_control" style="margin: 1em 0; min-height: 50px;">
+                <label for="formPacket">Select LEAF Form Packet to import:</label>
                 <input id="formPacket" name="formPacket" type="file" @change="attachForm"/>
             </div>`
 }

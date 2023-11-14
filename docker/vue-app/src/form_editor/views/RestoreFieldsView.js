@@ -1,3 +1,8 @@
+import LeafFormDialog from "@/common/components/LeafFormDialog.js";
+import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
+import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
+import BrowserAndRestoreMenu from "../components/BrowserAndRestoreMenu.js";
+
 export default {
     name: 'restore-fields-view',
     data() {
@@ -5,16 +10,24 @@ export default {
             disabledFields: null
         }
     },
+    components: {
+        LeafFormDialog,
+        NewFormDialog,
+        ImportFormDialog,
+        BrowserAndRestoreMenu
+    },
     inject: [
         'APIroot',
         'CSRFToken',
-        'selectNewCategory',
-        'setDefaultAjaxResponseMessage'
+        'setDefaultAjaxResponseMessage',
+
+        'showFormDialog',
+        'dialogFormContent'
     ],
     /**
      * get all disabled or archived indicators for indID > 0 and update app disabledFields (array)
      */
-    beforeMount() { 
+    created() {
         $.ajax({
             type: 'GET',
             url: `${this.APIroot}form/indicator/list/disabled`,
@@ -27,7 +40,6 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            vm.selectNewCategory(); //update during more signif refactor of restorefields view - for now this prevents menu issues
             vm.setDefaultAjaxResponseMessage();
         });
     },
@@ -52,36 +64,46 @@ export default {
             });
         },
     },
-    template: `<div>
-            <h3 style="margin: 0;">List of disabled fields available for recovery</h3>
+    template: `<BrowserAndRestoreMenu />
+        <section>
+            <h3>List of disabled fields available for recovery</h3>
             <div>Deleted fields and associated data will be not display in the Report Builder</div>
-            <div>
-                <table v-if="disabledFields !== null" class="usa-table leaf-whitespace-normal">
-                    <thead>
-                        <tr>
-                            <th>indicatorID</th>
-                            <th>Form</th>
-                            <th>Field Name</th>
-                            <th>Input Format</th>
-                            <th>Status</th>
-                            <th>Restore</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fields">
-                        <tr v-for="f in disabledFields" key="f.indicatorID">
-                            <td>{{ f.indicatorID }}</td>
-                            <td>{{ f.categoryName }}</td>
-                            <td>{{ f.name }}</td>
-                            <td>{{ f.format }}</td>
-                            <td>{{ f.disabled }}</td>
-                            <td><button class="btn-general" 
-                                @click="restoreField(parseInt(f.indicatorID))">
-                                Restore this field</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <p v-else>Loading ...</p>
+
+            <div v-if="disabledFields === null" class="page_loading">
+                Loading...
+                <img src="../images/largespinner.gif" alt="loading..." />
             </div>
-        </div>`
+            <table v-else class="usa-table leaf-whitespace-normal">
+                <thead>
+                    <tr>
+                        <th>indicatorID</th>
+                        <th>Form</th>
+                        <th>Field Name</th>
+                        <th>Input Format</th>
+                        <th>Status</th>
+                        <th>Restore</th>
+                    </tr>
+                </thead>
+                <tbody id="fields">
+                    <tr v-for="f in disabledFields" key="f.indicatorID">
+                        <td>{{ f.indicatorID }}</td>
+                        <td>{{ f.categoryName }}</td>
+                        <td>{{ f.name }}</td>
+                        <td>{{ f.format }}</td>
+                        <td>{{ f.disabled }}</td>
+                        <td><button class="btn-general"
+                            @click="restoreField(parseInt(f.indicatorID))">
+                            Restore this field</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- DIALOGS -->
+            <leaf-form-dialog v-if="showFormDialog">
+                <template #dialog-content-slot>
+                    <component :is="dialogFormContent"></component>
+                </template>
+            </leaf-form-dialog>
+        </section>`
 }

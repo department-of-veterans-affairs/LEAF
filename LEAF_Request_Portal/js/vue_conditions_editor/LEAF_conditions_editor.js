@@ -85,6 +85,7 @@ const ConditionsEditor = Vue.createApp({
     clearSelections(resetAll = false) {
       //cleared when either the form or child indicator changes
       if (resetAll) {
+        this.childIndID = 0;
         this.vueData.indicatorID = 0;
         this.showConditionEditor = false;
       }
@@ -750,6 +751,16 @@ const ConditionsEditor = Vue.createApp({
         prefill: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "pre-fill"),
         crosswalk: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "crosswalk"),
       };
+    }
+  },
+  watch: {
+    childIndID(newVal, oldVal) {
+      setTimeout(() => {
+        const elNew = document.querySelector('#condition_editor_inputs .btnNewCondition');
+        if(+newVal > 0 && elNew !== null) {
+          elNew.focus();
+        }
+      });
     }
   },
   template: `<div id="condition_editor_content" :style="{display: vueData.indicatorID===0 ? 'none' : 'block'}">
