@@ -889,10 +889,7 @@ function getGroupList() {
                                 }(res[i].userName));
                                 counter++;
                             }
-
-                            setTimeout(function () {
-                                dialog.show();
-                            }, 0);
+                            dialog.show();
                         } else {
                             displayDialogOk(response.status['message']);
                         }
@@ -959,10 +956,7 @@ function getGroupList() {
 
                                 dialog.hide();
                             });
-
-                            setTimeout(function () {
-                                dialog.show();
-                            }, 0);
+                            dialog.show();
                         } else {
                             displayDialogOk(response.status['message']);
                         }

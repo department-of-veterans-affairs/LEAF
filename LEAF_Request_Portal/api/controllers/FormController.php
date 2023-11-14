@@ -179,6 +179,11 @@ class FormController extends RESTfulResponse
             return $form->getFormByCategory($args[0]);
         });
 
+        $this->index['GET']->register('form/specified', function ($args) use ($form) {
+            $categoryIDs = XSSHelpers::xscrub($_GET['categoryIDs']);
+            return $form->getSpecifiedForms($categoryIDs, true);
+        });
+
         $this->index['GET']->register('form/[text]/flat', function ($args) use ($form) {
             $out = array();
             $data = $form->getFormByCategory($args[0]);

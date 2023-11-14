@@ -1,4 +1,10 @@
 export default {
+    name: 'format-preview',
+    data() {
+        return {
+            indID: this.indicator.indicatorID
+        }
+    },
     props: {
         indicator: Object
     },
@@ -9,11 +15,11 @@ export default {
         'decodeAndStripHTML'
     ],
     computed: {
-        truncatedOptions() {
-            return this.indicator.options?.slice(0, 6) || [];
-        },
         baseFormat() {
             return this.indicator.format?.toLowerCase()?.trim() || '';
+        },
+        truncatedOptions() {
+            return this.indicator.options?.slice(0, 6) || [];
         },
         defaultValue() {
             return this.indicator?.default || '';
@@ -22,16 +28,16 @@ export default {
             return this.decodeAndStripHTML(this.defaultValue || '');
         },
         inputElID() {
-            return `input_preview_${this.indicator.indicatorID}`;
+            return `input_preview_${this.indID}`;
         },
         selType() {
             return this.baseFormat.slice(this.baseFormat.indexOf('_') + 1);
         },
         labelSelector() {
-            return this.indicator.indicatorID + '_format_label';
+            return this.indID + '_format_label';
         },
         printResponseID() {
-            return `xhrIndicator_${this.indicator.indicatorID}_${this.indicator.series}`;
+            return `xhrIndicator_${this.indID}_${this.indicator.series}`;
         },
         gridOptions() {
             //NOTE: uses LEAF global XSSHelpers
@@ -46,7 +52,7 @@ export default {
         }
     },
     mounted() {
-        switch(this.baseFormat.toLowerCase()) {
+        switch(this.baseFormat) {
             case 'raw_data':
                 break;
             case 'date': 
@@ -54,7 +60,7 @@ export default {
                     autoHide: true,
                     showAnim: "slideDown",
                     onSelect: ()=> {
-                        $('#' + this.indicator.indicatorID + '_focusfix').focus();
+                        $('#' + this.indID + '_focusfix').focus();
                     }
                 });
                 document.getElementById(this.inputElID)?.setAttribute('aria-labelledby', this.labelSelector);
@@ -65,7 +71,7 @@ export default {
                     allow_single_deselect: true, 
                     width: '50%'
                 });
-                $(`#${this.inputElID}_chosen input.chosen-search-input`).attr('aria-labelledby', this.labelSelector);
+                document.querySelector(`#${this.inputElID}_chosen input.chosen-search-input`)?.setAttribute('aria-labelledby', this.labelSelector);
                 break;
             case 'multiselect':
                 const elSelect = document.getElementById(this.inputElID);
@@ -84,12 +90,12 @@ export default {
                     });
                     elSelect.choicesjs = choices;
                 }
-                $(`#${this.inputElID} ~ input.choices__input`).attr('aria-labelledby', this.labelSelector);
+                document.querySelector(`#${this.inputElID} ~ input.choices__input`).setAttribute('aria-labelledby', this.labelSelector);
                 break;
             case 'orgchart_group':
             case 'orgchart_position':
             case 'orgchart_employee':
-                this.initializeOrgSelector(this.selType, this.indicator.indicatorID, '', this.indicator?.default || '');
+                this.initializeOrgSelector(this.selType, this.indID, '', this.indicator?.default || '');
                 break;
             case 'checkbox':
                 document.getElementById(this.inputElID + '_check0')?.setAttribute('aria-labelledby', this.labelSelector);
@@ -109,16 +115,20 @@ export default {
             $('#' + this.inputElID).trumbowyg({
                 btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
             });
-            $(`#textarea_format_button_${this.indicator.indicatorID}`).css('display', 'none');
-        },
+            $(`#textarea_format_button_${this.indID}`).css('display', 'none');
+        }
     },
-    template: `<div class="format-preview">
+    template: `<div class="format_preview">
         <input v-if="baseFormat === 'text'" :id="inputElID" type="text" :value="strippedDefault" class="text_input_preview"/>
         <input v-if="baseFormat === 'number'" :id="inputElID" type="number" :value="strippedDefault" class="text_input_preview"/>
 
         <template v-if="baseFormat === 'currency'">
             $&nbsp;<input :id="inputElID" type="number" :value="strippedDefault"
             min="0.00" step="0.01" class="text_input_preview"/>
+        </template>
+
+        <template v-if="baseFormat === 'raw_data'">
+            Custom Widget
         </template>
 
         <template v-if="baseFormat === 'textarea'">
@@ -187,17 +197,20 @@ export default {
 
                     <thead :id="'gridTableHead_' + indicator.indicatorID">
                         <tr>
-                            <td v-for="o in gridOptions" :key="'grid_head_' + o.name">{{ o.name }}</td>
+                            <td v-for="o in gridOptions" :key="'grid_head_' + o.id">{{ o.name }}</td>
                         </tr>
                     </thead>
                     <tbody :id="'gridTableBody_' + indicator.indicatorID">
                         <tr>
-                            <td v-for="o in gridOptions" style="min-width: 150px;" :key="'grid_body_' + o.name">
+                            <td v-for="o in gridOptions" style="min-width: 150px;" :key="'grid_body_' + o.id">
                                 <input v-if="o.type === 'text'" style="width: 100%;" :aria-label="o.name" />
                                 <textarea v-if="o.type === 'textarea'" rows="3" style="resize:none; width: 100%;" :aria-label="o.name"></textarea>
                                 <input type="date" v-if="o.type === 'date'" style="width: 100%;" :aria-label="o.name" />
                                 <select v-if="o.type === 'dropdown'" style="width: 100%;" :aria-label="o.name">
                                     <option v-for="option in o.options" :key="'grid_drop_' + option">{{option}}</option>
+                                </select>
+                                <select v-if="o.type === 'dropdown_file'" style="width: 100%;" :aria-label="o.name">
+                                    <option value="">Dropdown from File</option>
                                 </select>
                             </td>
                         </tr>
@@ -205,6 +218,5 @@ export default {
                 </table>
             </div>
         </template>
-
     </div>`
 }

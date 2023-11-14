@@ -11,10 +11,15 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
+        'setDialogSaveFunction',
         'categories',
         'focusedFormRecord',
+        'checkFormCollaborators',
         'closeFormDialog'
     ],
+    created() {
+        this.setDialogSaveFunction(this.onSave);
+    },
     mounted() {
         const loadCalls = [
             $.ajax({
@@ -40,6 +45,9 @@ export default {
             const elSelect = document.getElementById('selectFormCollaborators');
             if(elSelect !== null) elSelect.focus();
         }).catch(err => console.log('an error has occurred', err));
+    },
+    beforeUnmount() {
+        this.checkFormCollaborators();
     },
     computed: {
         availableGroups() {
