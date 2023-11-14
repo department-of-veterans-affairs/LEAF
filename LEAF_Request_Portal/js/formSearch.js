@@ -1477,7 +1477,7 @@ var LeafFormSearch = function (containerID) {
             widgetCounter,
             function (e) {
                 renderWidget(e.data);
-                checkDateStatus(e);
+                checkDateStatus();
                 chosenOptions();
             }
         );
