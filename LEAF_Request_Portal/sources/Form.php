@@ -3533,7 +3533,7 @@ class Form
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {
-                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ":", ";", "="], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ";"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
                 $debugVars = [];
                 foreach($vars as $key => $value) {
                     if(strpos($key, ':data') !== false
