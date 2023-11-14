@@ -4056,12 +4056,15 @@ class Form
         }
         $indicatorList = trim($indicatorList, ',');
 
-        $res = $this->db->query(
-            'SELECT indicatorID, name, format
-                FROM indicators
-                WHERE indicatorID IN ('. $indicatorList .')'
-            );
-        return $res;
+        $return = [];
+        if($indicatorList != '') {
+            $return = $this->db->query(
+                'SELECT indicatorID, name, format
+                    FROM indicators
+                    WHERE indicatorID IN ('. $indicatorList .')'
+                );
+        }
+        return $return;
     }
 
     /**
