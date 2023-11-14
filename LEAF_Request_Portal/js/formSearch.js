@@ -51,10 +51,6 @@ var LeafFormSearch = function (containerID) {
                 'advancedOptionsClose" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer; background-image:url(' +
                 rootURL +
                 'dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
-		        <div id="unsubmitted_results_notice" style="display:none;color:#b00; margin-bottom:0.25rem;">\
-                    <div>This search could return unsubmitted requests.</div>\
-                    <div>Consider including an AND \'ON AND AFTER\' or AND \'Current Status IS\' filter.</div>\
-                </div>\
                 <div style="width: 550px">Find items where...</div>\
 		        <table id="' +
                 prefixID +
@@ -66,6 +62,9 @@ var LeafFormSearch = function (containerID) {
                 prefixID +
                 'orTerm" style="float: left">Or...</button>\
 		        <br /><br />\
+                <div id="unsubmitted_results_notice" style="display:none;color:#b00; margin:0.5rem 2px;">\
+                    <div>Results can include unsubmitted requests.  Consider including \'Current Status IS Submitted\'.</div>\
+                </div>\
 		        <button id="' +
                 prefixID +
                 'advancedSearchApply" class="buttonNorm" style="text-align: center; width: 100%">Apply Filters</button>\
