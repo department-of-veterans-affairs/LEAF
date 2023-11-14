@@ -63,7 +63,7 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
         success: function (response) {
           dialog.setContent(response);
           $("input:visible:first, select:visible:first").focus();
-          $("input:visible:first, select:visible:first").keypress(function (
+          $("input:visible:first, select:visible:first").on("keydown", function (
             event
           ) {
             if (event.which == 13) {
@@ -100,11 +100,13 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
         success: function (response) {
           dialog.setContent(response);
           $("input:visible:first, select:visible:first").focus();
-          $("input:visible:first, select:visible:first").keypress(function (
+          $("input:visible:first, select:visible:first").on("keydown", function (
             event
           ) {
             if (event.which == 13) {
-              $("#" + dialog.btnSaveID).trigger("click");
+              setTimeout(() => { //timeout needed for ind 2 chosen dropdown
+                $("#" + dialog.btnSaveID).trigger("click");
+              }, 100);
             }
           });
         },
@@ -137,7 +139,7 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
         success: function (response) {
           dialog.setContent(response);
           $("input:visible:first, select:visible:first").focus();
-          $("input:visible:first, select:visible:first").keypress(function (
+          $("input:visible:first, select:visible:first").on("keydown", function (
             event
           ) {
             if (event.which == 13) {
