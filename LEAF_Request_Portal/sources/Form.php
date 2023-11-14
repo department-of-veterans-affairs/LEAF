@@ -2895,6 +2895,26 @@ class Form
     }
 
     /**
+     * parseBooleanQuery transforms a user's query to add implied "+" prefixes when
+     * a "MATCH ALL" condition is selected.
+     * 
+     * @param $query
+     * @return string Transformed query
+     */
+    private function parseBooleanQuery(string $query): string
+    {
+        $words = explode(' ', $query);
+        foreach($words as $k => $word) {
+            $firstChar = substr($word, 0, 1);
+            if($firstChar != '+' && $firstChar != '-') {
+                $words[$k] = '+' . $words[$k];
+            }
+        }
+
+        return implode(' ', $words);
+    }
+
+    /**
      * query parses a JSON formatted user query defined in formQuery.js.
      * 
      * Returns an array on success, and string/int for malformed queries
@@ -2913,6 +2933,7 @@ class Form
         $joinSearchAllData = false;
         $joinSearchOrgchartEmployeeData = false;
         $filterActionable = false;
+        $usingFulltextIndex = false;
         $vars = array();
         $conditions = '';
         $joins = '';
@@ -2960,6 +2981,18 @@ class Form
                         $q['match'] = '%' . $q['match'] . '%';
                     }
 
+                    break;
+                case 'MATCH ALL': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'MATCH ALL';
+                    $usingFulltextIndex = true;
+                    break;
+                case 'NOT MATCH': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'NOT MATCH';
+                    $usingFulltextIndex = true;
+                    break;
+                case 'MATCH': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'MATCH';
+                    $usingFulltextIndex = true;
                     break;
                 case 'RIGHT JOIN':
                     break;
@@ -3280,32 +3313,51 @@ class Form
                             {
                                 $dataTerm = 'lj_data.data';
                             }
+                            $dataTermSql = '';
 
                             $dataMatch = ":data{$count}";
                             switch ($tResTypeHint[0]['format']) {
-                            case 'number':
-                            case 'currency':
-                                $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";
+                                case 'number':
+                                case 'currency':
+                                    $dataTermSql = "CAST({$dataTerm} as DECIMAL(21,5))";
 
-                                break;
-                            case 'date':
-                                $dataTerm = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
-                                $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
+                                    break;
+                                case 'date':
+                                    $dataTermSql = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
+                                    $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
 
-                                break;
-                            default:
-                                break;
-                        }
+                                    break;
+                                default:
+                                    if($operator == 'MATCH ALL') {
+                                        $vars[":data{$count}"] = $this->parseBooleanQuery($vars[":data{$count}"]);
+                                    }
 
+                                    if(strpos($operator, 'MATCH') !== false) {
+                                        if($operator == 'NOT MATCH') {
+                                            $dataTermSql = "NOT MATCH ({$dataTerm})";
+                                        }
+                                        else {
+                                            $dataTermSql = "MATCH ({$dataTerm})";
+                                        }
+
+                                        $operator = 'AGAINST';
+                                        $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                    }
+                                    break;
+                            }
+
+                            if($dataTermSql == '') {
+                                $dataTermSql = $dataTerm;
+                            }
                             // catch default data
                             if (isset($tResTypeHint[0]['default'])
-                            && $tResTypeHint[0]['default'] == $vars[':data' . $count])
+                                    && $tResTypeHint[0]['default'] == $vars[':data' . $count])
                             {
-                                $conditions .= "{$gate}({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
+                                $conditions .= "{$gate}({$dataTermSql} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
                             }
                             else
                             {
-                                $conditions .= "{$gate}{$dataTerm} {$operator} $dataMatch";
+                                $conditions .= "{$gate}{$dataTermSql} {$operator} $dataMatch";
                             }
                         }
                     }
@@ -3449,6 +3501,11 @@ class Form
                     break;
             }
         }
+        
+        // avoid extra sort when using fulltext index
+        if($usingFulltextIndex) {
+            $sort = '';
+        }
 
         // join tables for queries on data fields without filtering by indicatorID
         if ($joinSearchAllData
@@ -3511,6 +3568,10 @@ class Form
         }
         $recordIDs = trim($recordIDs, ',');
         $recordIDs = $recordIDs ?: 0;
+
+        if(count($res) > count(array_keys($data))) {
+            header('LEAF-Query: continue'); // signal frontend there might be more data
+        }
 
         // These all require the recordIDs to be set
         if (!empty($recordIDs))
