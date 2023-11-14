@@ -27,7 +27,7 @@
 
 .CodeMirror,
 .cm-s-default {
-    height: auto !important;
+    height: 85vh !important;
     border-radius: 0 0 0 5px;
 }
 
@@ -69,7 +69,7 @@
 
 .CodeMirror-merge,
 .CodeMirror-merge .CodeMirror {
-    height: 60vh !important;
+    height: 85vh !important;
 }
 
 .CodeMirror-merge-2pane .CodeMirror-merge-pane {
@@ -450,7 +450,6 @@
 
 .CodeMirror-scroll {
     margin-right: 0;
-    height: 60vh;
     min-height: 563px;
 }
 
