@@ -604,36 +604,33 @@ class Workflow
      * @param string $fontColor
      * @return int|string The newly created stepID
      */
-    public function createStep($stepTitle, $bgColor, $fontColor)
+    public function createStep($stepTitle, $bgColor, $fontColor, $subordinate = false)
     {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required.';
+        if (!$this->login->checkGroup(1)) {
+            $return_value = 'Admin access required.';
+        } elseif($subordinate) {
+            $return_value = 'To make changes, please contact the administrator for the Nationally Standardized Primary site.';
+        } else {
+            $vars = array(':workflowID' => $this->workflowID,
+                ':stepTitle' => $stepTitle,
+                ':jsSrc' => '',
+            );
+            $res = $this->db->prepared_query('INSERT INTO workflow_steps (workflowID, stepTitle, jsSrc)
+                                                VALUES (:workflowID, :stepTitle, :jsSrc)', $vars);
+
+            $stepId = $this->db->getLastInsertID();
+
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::WORKFLOW_STEP, [
+                new LogItem("workflow_steps", "stepID",  $stepId),
+                new LogItem("workflow_steps", "stepTitle",  $stepTitle),
+                new LogItem("workflow_steps", "jsSrc",  "", "empty"),
+                new LogItem("workflow_steps", "workflowID",  $this->workflowID)
+            ]);
+
+            $return_value = $stepId;
         }
 
-        // Don't allow changes to standardized components
-        if($this->workflowID < 0) {
-            return 'Restricted command.';
-        }
-
-        $vars = array(':workflowID' => $this->workflowID,
-            ':stepTitle' => $stepTitle,
-            ':jsSrc' => '',
-        );
-        $res = $this->db->prepared_query('INSERT INTO workflow_steps (workflowID, stepTitle, jsSrc)
-                                            VALUES (:workflowID, :stepTitle, :jsSrc)', $vars);
-
-        $stepId = $this->db->getLastInsertID();
-
-        $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::WORKFLOW_STEP, [
-            new LogItem("workflow_steps", "stepID",  $stepId),
-            new LogItem("workflow_steps", "stepTitle",  $stepTitle),
-            new LogItem("workflow_steps", "jsSrc",  "", "empty"),
-            new LogItem("workflow_steps", "workflowID",  $this->workflowID)
-        ]);
-
-
-        return $stepId;
+        return $return_value;
     }
 
     /**
@@ -1177,25 +1174,28 @@ class Workflow
         return $this->workflowID;
     }
 
-    public function newWorkflow($description)
+    public function newWorkflow($description, $subordinate = false)
     {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required.';
+        if (!$this->login->checkGroup(1)) {
+            $return_value = 'Admin access required.';
+        } else if ($subordinate) {
+            $return_value = 'To make changes, please contact the administrator for the Nationally Standardized Primary site.';
+        } else {
+            $vars = array(':description' => $description,
+            );
+            $res = $this->db->prepared_query('INSERT INTO workflows (description)
+                                                VALUES (:description)', $vars);
+
+            $workflowID = $this->db->getLastInsertID();
+
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::WORKFLOW, [
+                new LogItem("workflows", "workflowID",  $workflowID)
+            ]);
+
+            $return_value = $workflowID;
         }
 
-        $vars = array(':description' => $description,
-        );
-        $res = $this->db->prepared_query('INSERT INTO workflows (description)
-    										VALUES (:description)', $vars);
-
-        $workflowID = $this->db->getLastInsertID();
-
-        $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::WORKFLOW, [
-            new LogItem("workflows", "workflowID",  $workflowID)
-        ]);
-
-        return $workflowID;
+        return $return_value;
     }
 
     public function setDynamicApprover($stepID, $indicatorID)

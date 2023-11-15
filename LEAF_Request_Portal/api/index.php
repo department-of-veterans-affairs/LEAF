@@ -17,6 +17,7 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 $login->setBaseDir('../');
 
 $p_db = $db;
+$subordinate = $settings['siteType'];
 
 $action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
 $keyIndex = strpos($action, '/');
@@ -70,8 +71,8 @@ if ($login->checkGroup(1))
         echo $controller->handler($action);
     });
 
-    $controllerMap->register('formEditor', function () use ($p_db, $login, $action) {
-        $formEditorController = new Portal\FormEditorController($p_db, $login);
+    $controllerMap->register('formEditor', function () use ($p_db, $login, $action, $subordinate) {
+        $formEditorController = new Portal\FormEditorController($p_db, $login, $subordinate);
         echo $formEditorController->handler($action);
     });
 
@@ -110,8 +111,8 @@ $controllerMap->register('formWorkflow', function () use ($p_db, $login, $action
     echo $formWorkflowController->handler($action);
 });
 
-$controllerMap->register('workflow', function () use ($p_db, $login, $action) {
-    $workflowController = new Portal\WorkflowController($p_db, $login);
+$controllerMap->register('workflow', function () use ($p_db, $login, $action, $subordinate) {
+    $workflowController = new Portal\WorkflowController($p_db, $login, $subordinate);
     echo $workflowController->handler($action);
 });
 

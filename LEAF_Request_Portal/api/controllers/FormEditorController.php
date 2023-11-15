@@ -19,11 +19,14 @@ class FormEditorController extends RESTfulResponse
 
     private $login;
 
-    public function __construct($db, $login)
+    private $subordinate;
+
+    public function __construct($db, $login, $subordinate = false)
     {
         $this->form = new Form($db, $login);
         $this->formEditor = new FormEditor($db, $login);
         $this->login = $login;
+        $this->subordinate = $subordinate;
     }
 
     public function get($act)
@@ -69,6 +72,7 @@ class FormEditorController extends RESTfulResponse
     public function post($act)
     {
         $formEditor = $this->formEditor;
+        $subordinate = $this->subordinate;
 
         //        $this->verifyAdminReferrer();
         // The above line was commented out when I
@@ -88,7 +92,7 @@ class FormEditorController extends RESTfulResponse
             $this->index['POST']->register('formEditor', function ($args) {
             });
 
-            $this->index['POST']->register('formEditor/newIndicator', function ($args) use ($formEditor) {
+            $this->index['POST']->register('formEditor/newIndicator', function ($args) use ($formEditor, $subordinate) {
                 $package = array();
                 $package['name'] = XSSHelpers::sanitizeHTML($_POST['name']);
                 $package['format'] = strip_tags($_POST['format']);
@@ -103,7 +107,7 @@ class FormEditorController extends RESTfulResponse
                 $package['is_sensitive'] = $_POST['is_sensitive'];
                 $package['sort'] = (int)$_POST['sort'];
 
-                return $formEditor->addIndicator($package);
+                return $formEditor->addIndicator($package, $subordinate);
             });
 
             $this->index['POST']->register('formEditor/sort/batch', function ($args) use ($formEditor) {
@@ -173,11 +177,15 @@ class FormEditorController extends RESTfulResponse
                 return $formEditor->setCondition((int)$args[0], $_POST['conditions']);
             });
 
-            $this->index['POST']->register('formEditor/new', function ($args) use ($formEditor) {
+            $this->index['POST']->register('formEditor/new', function ($args) use ($formEditor, $subordinate) {
                 return $formEditor->createForm(
                     XSSHelpers::sanitizeHTML($_POST['name']),
                     XSSHelpers::sanitizeHTML($_POST['description']),
-                    XSSHelpers::sanitizeHTML($_POST['parentID'])
+                    XSSHelpers::sanitizeHTML($_POST['parentID']),
+                    null,
+                    null,
+                    0,
+                    $subordinate
                 );
             });
 

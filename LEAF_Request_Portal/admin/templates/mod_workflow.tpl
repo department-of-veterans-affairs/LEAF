@@ -54,45 +54,53 @@
     }
 
     function newWorkflow() {
-        $('.workflowStepInfo').css('display', 'none');
+        if ($('#subordinate_site_warning').length) {
+            alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+        } else {
+            $('.workflowStepInfo').css('display', 'none');
 
-        dialog.setTitle('Create new workflow');
-        dialog.setContent('<br /><label for="description">Workflow Title:</label> <input type="text" id="description"/>');
-        dialog.setSaveHandler(function() {
-            let workflowID;
+            dialog.setTitle('Create new workflow');
+            dialog.setContent('<br /><label for="description">Workflow Title:</label> <input type="text" id="description"/>');
+            dialog.setSaveHandler(function() {
+                let workflowID;
 
-            postWorkflow(function(workflow_id) {
-                loadWorkflowList(workflow_id);
-                dialog.hide();
+                postWorkflow(function(workflow_id) {
+                    loadWorkflowList(workflow_id);
+                    dialog.hide();
+                });
             });
-        });
-        dialog.show();
+            dialog.show();
+        }
     }
 
     function deleteWorkflow() {
-        $('.workflowStepInfo').css('display', 'none');
-        if (currentWorkflow == 0) {
-            return;
-        }
+        if ($('#subordinate_site_warning').length) {
+            alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+        } else {
+            $('.workflowStepInfo').css('display', 'none');
+            if (currentWorkflow == 0) {
+                return;
+            }
 
-        dialog_confirm.setTitle('Confirmation required');
-        dialog_confirm.setContent('Are you sure you want to delete this workflow?');
-        dialog_confirm.setSaveHandler(function() {
-            $.ajax({
-                type: 'DELETE',
-                url: `../api/workflow/${currentWorkflow}?` + $.param({ 'CSRFToken': CSRFToken }),
-                success: (res) => {
-                    if (res != true) {
-                        alert("Prerequisite action needed:\n\n" + res);
-                        dialog_confirm.hide();
-                    } else {
-                        window.location.reload();
-                    }
-                },
-                error: (err) => console.log(err),
+            dialog_confirm.setTitle('Confirmation required');
+            dialog_confirm.setContent('Are you sure you want to delete this workflow?');
+            dialog_confirm.setSaveHandler(function() {
+                $.ajax({
+                    type: 'DELETE',
+                    url: `../api/workflow/${currentWorkflow}?` + $.param({ 'CSRFToken': CSRFToken }),
+                    success: (res) => {
+                        if (res != true) {
+                            alert("Prerequisite action needed:\n\n" + res);
+                            dialog_confirm.hide();
+                        } else {
+                            window.location.reload();
+                        }
+                    },
+                    error: (err) => console.log(err),
+                });
             });
-        });
-        dialog_confirm.show();
+            dialog_confirm.show();
+        }
     }
 
     function unlinkEvent(workflowID, stepID, actionType, eventID) {
@@ -166,31 +174,35 @@
      * Purpose: List all Custom Events
      */
     function listEvents() {
-        $('.workflowStepInfo').css('display', 'none');
-        dialog.hide();
-        $("#button_save").hide();
-        dialog.setTitle('List of Events');
-        dialog.show();
-        $.ajax({
-            type: 'GET',
-            url: '../api/workflow/customEvents',
-            cache: false
-        }).done(function(res) {
-            dialog.indicateIdle();
-            dialog.setContent(listEventsContent(res));
+        if ($('#subordinate_site_warning').length) {
+            alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+        } else {
+            $('.workflowStepInfo').css('display', 'none');
+            dialog.hide();
+            $("#button_save").hide();
+            dialog.setTitle('List of Events');
+            dialog.show();
+            $.ajax({
+                type: 'GET',
+                url: '../api/workflow/customEvents',
+                cache: false
+            }).done(function(res) {
+                dialog.indicateIdle();
+                dialog.setContent(listEventsContent(res));
 
-            $("#create-event").click(function() {
-                $("#button_save").show();
-                newEvent(res);
+                $("#create-event").click(function() {
+                    $("#button_save").show();
+                    newEvent(res);
+                });
+            }).fail(function(error) {
+                alert(error);
             });
-        }).fail(function(error) {
-            alert(error);
-        });
-        //shows the save button for other dialogs
-        $('div#xhrDialog').on('dialogclose', function() {
-            $("#button_save").show();
-            $('div#xhrDialog').off();
-        });
+            //shows the save button for other dialogs
+            $('div#xhrDialog').on('dialogclose', function() {
+                $("#button_save").show();
+                $('div#xhrDialog').off();
+            });
+        }
     }
 
     /**
@@ -971,27 +983,31 @@
     }
 
     function createStep() {
-        $('.workflowStepInfo').css('display', 'none');
-        if (currentWorkflow == 0) {
-            return;
-        }
+        if ($('#subordinate_site_warning').length) {
+            alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+        } else {
+            $('.workflowStepInfo').css('display', 'none');
+            if (currentWorkflow == 0) {
+                return;
+            }
 
-        dialog.setTitle('Create new Step');
-        dialog.setContent(
-            '<br /><label for="stepTitle">Step Title:</label> <input type="text" id="stepTitle"></input><br /><br />Example: "Service Chief"'
-        );
-        dialog.setSaveHandler(function() {
-            addStep(currentWorkflow, $('#stepTitle').val(), function(stepID) {
-                if (isNaN(stepID)) {
-                    console.log(stepID);
-                } else {
-                    loadWorkflow(currentWorkflow);
-                }
+            dialog.setTitle('Create new Step');
+            dialog.setContent(
+                '<br /><label for="stepTitle">Step Title:</label> <input type="text" id="stepTitle"></input><br /><br />Example: "Service Chief"'
+            );
+            dialog.setSaveHandler(function() {
+                addStep(currentWorkflow, $('#stepTitle').val(), function(stepID) {
+                    if (isNaN(stepID)) {
+                        console.log(stepID);
+                    } else {
+                        loadWorkflow(currentWorkflow);
+                    }
 
-                dialog.hide();
+                    dialog.hide();
+                });
             });
-        });
-        dialog.show();
+            dialog.show();
+        }
     }
 
     function setInitialStep(stepID) {
@@ -1021,61 +1037,65 @@
 
     //list all action type to edit/delete
     function listActionType() {
-        $('.workflowStepInfo').css('display', 'none');
-        dialog.hide();
-        $("#button_save").hide();
-        dialog.setTitle('List of Actions');
-        dialog.show();
-        $.ajax({
-            type: 'GET',
-            url: '../api/workflow/userActions',
-            success: function(res) {
-                let buffer = `<table id="actions" class="table" border="1">
-                    <caption><h2>List of Actions</h2></caption>
-                    <thead>
-                        <th scope="col">Action</th>
-                        <th scope="col">Action (Past Tense)</th>
-                        <th scope="col">Button Order</th>
-                        <th scope="col"></th>
-                    </thead>`;
+        if ($('#subordinate_site_warning').length) {
+            alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+        } else {
+            $('.workflowStepInfo').css('display', 'none');
+            dialog.hide();
+            $("#button_save").hide();
+            dialog.setTitle('List of Actions');
+            dialog.show();
+            $.ajax({
+                type: 'GET',
+                url: '../api/workflow/userActions',
+                success: function(res) {
+                    let buffer = `<table id="actions" class="table" border="1">
+                        <caption><h2>List of Actions</h2></caption>
+                        <thead>
+                            <th scope="col">Action</th>
+                            <th scope="col">Action (Past Tense)</th>
+                            <th scope="col">Button Order</th>
+                            <th scope="col"></th>
+                        </thead>`;
 
-                for (let i in res) {
-                    buffer += `<tr>
-                        <td width="300px" id="${res[i].actionType}">${res[i].actionText}</td>
-                        <td width="300px" id="${res[i].actionTextPasttense}">${res[i].actionTextPasttense}</td>
-                        <td width="100px">${res[i]?.sort || 0}</td>
-                        <td width="150px" id="editor_${res[i].actionType}">
-                            <button type="button" class="buttonNorm" onclick="editActionType('${res[i].actionType}')"
-                                style="background: #22b;color: #fff; padding: 2px 4px;">
-                                Edit
-                            </button>
-                            <button type="button" class="buttonNorm" onclick="deleteActionType('${res[i].actionType}')"
-                                style="background: #c00;color: #fff;margin-left: 10px; padding: 2px 4px;">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>`;
-                }
+                    for (let i in res) {
+                        buffer += `<tr>
+                            <td width="300px" id="${res[i].actionType}">${res[i].actionText}</td>
+                            <td width="300px" id="${res[i].actionTextPasttense}">${res[i].actionTextPasttense}</td>
+                            <td width="100px">${res[i]?.sort || 0}</td>
+                            <td width="150px" id="editor_${res[i].actionType}">
+                                <button type="button" class="buttonNorm" onclick="editActionType('${res[i].actionType}')"
+                                    style="background: #22b;color: #fff; padding: 2px 4px;">
+                                    Edit
+                                </button>
+                                <button type="button" class="buttonNorm" onclick="deleteActionType('${res[i].actionType}')"
+                                    style="background: #c00;color: #fff;margin-left: 10px; padding: 2px 4px;">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>`;
+                    }
 
-                buffer += `</table><br /><br />
-                    <span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>`;
+                    buffer += `</table><br /><br />
+                        <span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>`;
 
-                dialog.indicateIdle();
-                dialog.setContent(buffer);
+                    dialog.indicateIdle();
+                    dialog.setContent(buffer);
 
-                $("#create-action-type").click(function() {
-                    $("#button_save").show();
-                    newAction();
-                });
-            },
-            error: (err) => console.log(err),
-            cache: false
-        });
-        //shows the save button for other dialogs
-        $('div#xhrDialog').on('dialogclose', function(event) {
-            $("#button_save").show();
-            $('div#xhrDialog').off();
-        });
+                    $("#create-action-type").click(function() {
+                        $("#button_save").show();
+                        newAction();
+                    });
+                },
+                error: (err) => console.log(err),
+                cache: false
+            });
+            //shows the save button for other dialogs
+            $('div#xhrDialog').on('dialogclose', function(event) {
+                $("#button_save").show();
+                $('div#xhrDialog').off();
+            });
+        }
     }
 
     /**
@@ -1959,13 +1979,24 @@
     var currentWorkflow = 0;
 
     function loadWorkflow(workflowID) {
-        $('#btn_createStep').css('display', 'block');
-        $('#btn_deleteWorkflow').css('display', 'block');
-        $('#btn_listActionType').css('display', 'block');
-        $('#btn_listEvents').css('display', 'block');
-        $('#btn_viewHistory').css('display', 'block');
-        $('#btn_renameWorkflow').css('display', 'block');
-        $('#btn_duplicateWorkflow').css('display', 'block');
+        if ($('#subordinate_site_warning').length) {
+            $('#btn_createStep').css('display', 'none');
+            $('#btn_deleteWorkflow').css('display', 'none');
+            $('#btn_newWorkflow').css('display', 'none');
+            $('#btn_listActionType').css('display', 'none');
+            $('#btn_listEvents').css('display', 'none');
+            $('#btn_viewHistory').css('display', 'none');
+            $('#btn_renameWorkflow').css('display', 'none');
+            $('#btn_duplicateWorkflow').css('display', 'none');
+        } else {
+            $('#btn_createStep').css('display', 'block');
+            $('#btn_deleteWorkflow').css('display', 'block');
+            $('#btn_listActionType').css('display', 'block');
+            $('#btn_listEvents').css('display', 'block');
+            $('#btn_viewHistory').css('display', 'block');
+            $('#btn_renameWorkflow').css('display', 'block');
+            $('#btn_duplicateWorkflow').css('display', 'block');
+        }
 
         currentWorkflow = workflowID;
         jsPlumb.reset();
@@ -2141,34 +2172,38 @@
     }
 
     function renameWorkflow() {
-        $('.workflowStepInfo').css('display', 'none');
-        dialog.setContent(
-            '<input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
-            '" tabindex="0">' +
-            '</input>');
-        dialog.setTitle('Rename Workflow');
-        dialog.setSaveHandler(function() {
-            $.ajax({
-                type: 'POST',
-                url: '../api/workflow/' + currentWorkflow,
-                data: {
-                    description: $('#workflow_rename').val(),
-                    CSRFToken: CSRFToken
-                },
-                success: function(res) {
-                    if (res != currentWorkflow) {
-                        alert("Prerequisite action needed:\n\n" + res);
-                        dialog.hide();
-                    } else {
-                        loadWorkflowList(res);
-                        workflowDescription = $('#workflow_rename').val();
-                        dialog.hide();
-                    }
-                },
-                error: (err) => console.log(err),
+        if ($('#subordinate_site_warning').length) {
+            alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+        } else {
+            $('.workflowStepInfo').css('display', 'none');
+            dialog.setContent(
+                '<input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
+                '" tabindex="0">' +
+                '</input>');
+            dialog.setTitle('Rename Workflow');
+            dialog.setSaveHandler(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '../api/workflow/' + currentWorkflow,
+                    data: {
+                        description: $('#workflow_rename').val(),
+                        CSRFToken: CSRFToken
+                    },
+                    success: function(res) {
+                        if (res != currentWorkflow) {
+                            alert("Prerequisite action needed:\n\n" + res);
+                            dialog.hide();
+                        } else {
+                            loadWorkflowList(res);
+                            workflowDescription = $('#workflow_rename').val();
+                            dialog.hide();
+                        }
+                    },
+                    error: (err) => console.log(err),
+                });
             });
-        });
-        dialog.show();
+            dialog.show();
+        }
     }
 
     /**
@@ -2177,85 +2212,89 @@
      * Created at: 7/26/2023, 1:08:10 PM (America/New_York)
      */
     function duplicateWorkflow() {
-        $('.workflowStepInfo').css('display', 'none');
+        if ($('#subordinate_site_warning').length) {
+            alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+        } else {
+            $('.workflowStepInfo').css('display', 'none');
 
-        dialog.setTitle('Duplicate current workflow');
-        dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
-        dialog.setSaveHandler(function() {
-            let old_steps = {};
-            let workflowID;
-            let title = $('#description').val();
+            dialog.setTitle('Duplicate current workflow');
+            dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
+            dialog.setSaveHandler(function() {
+                let old_steps = {};
+                let workflowID;
+                let title = $('#description').val();
 
-            postWorkflow(function(workflow_id) {
-                workflowID = workflow_id;
-                dialog.hide();
-            });
-
-            workflows[workflowID] = workflows[currentWorkflow];
-            workflows[workflowID]['workflowID'] = parseInt(workflowID);
-            workflows[workflowID]['description'] = title;
-            old_steps[-1] = -1;
-
-            for(let i in steps) {
-                // add step, if successful update that step
-                addStep(workflowID, steps[i].stepTitle, function(stepID) {
-
-                    if (isNaN(stepID)) {
-                        console.log(stepID);
-                    } else {
-                        old_steps[steps[i].stepID] = stepID;
-                        updatePosition(workflowID, stepID, steps[i].posX, steps[i].posY);
-
-                        updateTitle(steps[i].stepTitle, stepID, function(res) {
-                            // Alls well that ends well.
-                        });
-
-                        if (steps[i].stepData != null) {
-                            let auto = JSON.parse(steps[i].stepData);
-
-                            let seriesData = {
-                                AutomatedEmailReminders: {
-                                    'Automate Email Group': auto.AutomatedEmailReminders.AutomateEmailGroup,
-                                    'Days Selected': auto.AutomatedEmailReminders.DaysSelected,
-                                    'Date Selected': auto.AutomatedEmailReminders?.DateSelected || '',
-                                    'Additional Days Selected': auto.AutomatedEmailReminders.AdditionalDaysSelected,
-                                }
-                            };
-
-                            updateStepData(seriesData, stepID, function (res) {
-                                // Alls well that ends well.
-                            });
-                        }
-
-                        updateApprover(steps[i].indicatorID_for_assigned_empUID, stepID, function (res) {
-                            // Alls well that ends well.
-                        });
-
-                        updateGroupApprover(steps[i].indicatorID_for_assigned_groupID, stepID, function (res) {
-                            // Alls well that ends well.
-                        });
-
-                        // set requireDigitalSignature
-                        // this endpoint does not exist in this file at this time.
-
-                        updateDependencies(steps[i].stepID, old_steps);
-                    }
+                postWorkflow(function(workflow_id) {
+                    workflowID = workflow_id;
+                    dialog.hide();
                 });
 
+                workflows[workflowID] = workflows[currentWorkflow];
+                workflows[workflowID]['workflowID'] = parseInt(workflowID);
+                workflows[workflowID]['description'] = title;
+                old_steps[-1] = -1;
 
-            }
+                for(let i in steps) {
+                    // add step, if successful update that step
+                    addStep(workflowID, steps[i].stepTitle, function(stepID) {
 
-            workflows[workflowID]['initialStepID'] = parseInt(old_steps[workflows[currentWorkflow].initialStepID]);
+                        if (isNaN(stepID)) {
+                            console.log(stepID);
+                        } else {
+                            old_steps[steps[i].stepID] = stepID;
+                            updatePosition(workflowID, stepID, steps[i].posX, steps[i].posY);
 
-            updateInitialStep(workflowID, workflows[workflowID]['initialStepID'], function () {
-                // nothing to do here
+                            updateTitle(steps[i].stepTitle, stepID, function(res) {
+                                // Alls well that ends well.
+                            });
+
+                            if (steps[i].stepData != null) {
+                                let auto = JSON.parse(steps[i].stepData);
+
+                                let seriesData = {
+                                    AutomatedEmailReminders: {
+                                        'Automate Email Group': auto.AutomatedEmailReminders.AutomateEmailGroup,
+                                        'Days Selected': auto.AutomatedEmailReminders.DaysSelected,
+                                        'Date Selected': auto.AutomatedEmailReminders?.DateSelected || '',
+                                        'Additional Days Selected': auto.AutomatedEmailReminders.AdditionalDaysSelected,
+                                    }
+                                };
+
+                                updateStepData(seriesData, stepID, function (res) {
+                                    // Alls well that ends well.
+                                });
+                            }
+
+                            updateApprover(steps[i].indicatorID_for_assigned_empUID, stepID, function (res) {
+                                // Alls well that ends well.
+                            });
+
+                            updateGroupApprover(steps[i].indicatorID_for_assigned_groupID, stepID, function (res) {
+                                // Alls well that ends well.
+                            });
+
+                            // set requireDigitalSignature
+                            // this endpoint does not exist in this file at this time.
+
+                            updateDependencies(steps[i].stepID, old_steps);
+                        }
+                    });
+
+
+                }
+
+                workflows[workflowID]['initialStepID'] = parseInt(old_steps[workflows[currentWorkflow].initialStepID]);
+
+                updateInitialStep(workflowID, workflows[workflowID]['initialStepID'], function () {
+                    // nothing to do here
+                });
+
+                updateRoutes(workflowID, old_steps);
+                updateRouteEvents(currentWorkflow, workflowID, old_steps);
+                loadWorkflowList(workflowID);
             });
-
-            updateRoutes(workflowID, old_steps);
-            updateRouteEvents(currentWorkflow, workflowID, old_steps);
-            loadWorkflowList(workflowID);
-        });
-        dialog.show();
+            dialog.show();
+        }
     }
 
     /**
@@ -3004,6 +3043,15 @@
                     warnContent +=
                         `Please contact your process POC if modifications need to be made.</span></div>`;
                     $('#bodyarea').prepend(warnContent);
+
+                    $('#btn_createStep').css('display', 'none');
+                    $('#btn_deleteWorkflow').css('display', 'none');
+                    $('#btn_newWorkflow').css('display', 'none');
+                    $('#btn_listActionType').css('display', 'none');
+                    $('#btn_listEvents').css('display', 'none');
+                    $('#btn_viewHistory').css('display', 'none');
+                    $('#btn_renameWorkflow').css('display', 'none');
+                    $('#btn_duplicateWorkflow').css('display', 'none');
                 }
             },
             error: err => console.log(err),

@@ -15,9 +15,12 @@ class WorkflowController extends RESTfulResponse
 
     private $workflow;
 
-    public function __construct($db, $login)
+    private $subordinate;
+
+    public function __construct($db, $login, $subordinate = false)
     {
         $this->workflow = new Workflow($db, $login);
+        $this->subordinate = $subordinate;
     }
 
     public function get($act)
@@ -142,6 +145,7 @@ class WorkflowController extends RESTfulResponse
     public function post($act)
     {
         $workflow = $this->workflow;
+        $subordinate = $this->subordinate;
 
         $this->verifyAdminReferrer();
 
@@ -161,8 +165,8 @@ class WorkflowController extends RESTfulResponse
             }
         });
 
-        $this->index['POST']->register('workflow/new', function ($args) use ($workflow) {
-            return $workflow->newWorkflow(XSSHelpers::xscrub($_POST['description']));
+        $this->index['POST']->register('workflow/new', function ($args) use ($workflow, $subordinate) {
+            return $workflow->newWorkflow(XSSHelpers::xscrub($_POST['description']), $subordinate);
         });
 
         $this->index['POST']->register('workflow/events', function ($args) use ($workflow) {
@@ -184,10 +188,10 @@ class WorkflowController extends RESTfulResponse
             return $workflow->createAction((int)$_POST['stepID'], (int)$_POST['nextStepID'], XSSHelpers::xscrub($_POST['action']));
         });
 
-        $this->index['POST']->register('workflow/[digit]/step', function ($args) use ($workflow) {
+        $this->index['POST']->register('workflow/[digit]/step', function ($args) use ($workflow, $subordinate) {
             $workflow->setWorkflowID((int)$args[0]);
 
-            return $workflow->createStep(XSSHelpers::xscrub($_POST['stepTitle']), XSSHelpers::xscrub($_POST['stepBgColor']), XSSHelpers::xscrub($_POST['stepFontColor']));
+            return $workflow->createStep(XSSHelpers::xscrub($_POST['stepTitle']), XSSHelpers::xscrub($_POST['stepBgColor']), XSSHelpers::xscrub($_POST['stepFontColor']), $subordinate);
         });
 
         $this->index['POST']->register('workflow/[digit]/initialStep', function ($args) use ($workflow) {

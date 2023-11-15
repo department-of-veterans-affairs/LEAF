@@ -2009,10 +2009,10 @@ function selectForm(categoryID) {
  */
 function showFormBrowser() {
     window.location = '#';
-    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeydown="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
-    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
+    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="formLibrary" onclick="formLibrary();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="importForm" onclick="importForm();" role="button"><img src="../dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="restoreFields" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
         url: '../api/formStack/categoryList/all',
@@ -2197,6 +2197,11 @@ function fetchFormSecureInfo() {
             warnContent += `<span>Do not make modifications! &nbsp;Synchronization problems will occur. &nbsp;`;
             warnContent += `Please contact your process POC if modifications need to be made.</span></div>`;
             $('#bodyarea').prepend(warnContent);
+
+            $('#createFormButton').css('display', 'none');
+            $('#formLibrary').css('display', 'none');
+            $('#importForm').css('display', 'none');
+            $('#restoreFields').css('display', 'none');
         }
         renderSecureFormsInfo(res)
     });
@@ -2225,74 +2230,85 @@ function fetchDropdownFiles() {
  * @param parentID
  */
 function createForm(parentID) {
-    if(parentID == undefined) {
-        parentID = '';
-        dialog.setTitle('New Form');
-    }
-    else {
-        dialog.setTitle('New Internal-Use Form');
-    }
-    dialog.setContent('<table>\
-                            <tr>\
-                                <td>Form Label</td>\
-                                <td><input tabindex="0" id="name" type="text" maxlength="50"></input></td>\
-                            </tr>\
-                            <tr>\
-                                <td>Form Description</td>\
-                                <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
-                            </tr>\
-                        </table>');
+    if ($('#subordinate_site_warning').length) {
+        alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+    } else {
+        if(parentID == undefined) {
+            parentID = '';
+            dialog.setTitle('New Form');
+        } else {
+            dialog.setTitle('New Internal-Use Form');
+        }
+        dialog.setContent('<table>\
+                                <tr>\
+                                    <td>Form Label</td>\
+                                    <td><input tabindex="0" id="name" type="text" maxlength="50"></input></td>\
+                                </tr>\
+                                <tr>\
+                                    <td>Form Description</td>\
+                                    <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
+                                </tr>\
+                            </table>');
 
-    dialog.show();
+        dialog.show();
 
-    dialog.setSaveHandler(function() {
-        let categoryName = $('#name').val();
-        let categoryDescription = $('#description').val();
-        $.ajax({
-            type: 'POST',
-            url: '../api/formEditor/new',
-            data: {name: $('#name').val(),
-                    description: $('#description').val(),
-                    parentID: parentID,
-                    CSRFToken: '<!--{$CSRFToken}-->'},
-            success: function(res) {
-                dialog.hide();
-                currCategoryID = res;
-                categories[res] = {};
-                categories[res].categoryID = res;
-                categories[res].categoryName = categoryName;
-                categories[res].categoryDescription = categoryDescription;
-                categories[res].workflowID = 0;
-                categories[res].parentID = '';
-                categories[res].needToKnow = 0;
-                categories[res].visible = 1;
-                categories[res].sort = 0;
-                if(parentID != '') {
-                    categories[res].parentID = parentID;
-                    buildMenu(parentID);
-                    // hightlight the newly created form in the menu
-                    $('#menu>div').removeClass('buttonNormSelected');
-                    $('#' + res).addClass('buttonNormSelected');
+        dialog.setSaveHandler(function() {
+            let categoryName = $('#name').val();
+            let categoryDescription = $('#description').val();
+            $.ajax({
+                type: 'POST',
+                url: '../api/formEditor/new',
+                data: {name: $('#name').val(),
+                        description: $('#description').val(),
+                        parentID: parentID,
+                        CSRFToken: '<!--{$CSRFToken}-->'},
+                success: function(res) {
+                    dialog.hide();
+                    currCategoryID = res;
+                    categories[res] = {};
+                    categories[res].categoryID = res;
+                    categories[res].categoryName = categoryName;
+                    categories[res].categoryDescription = categoryDescription;
+                    categories[res].workflowID = 0;
+                    categories[res].parentID = '';
+                    categories[res].needToKnow = 0;
+                    categories[res].visible = 1;
+                    categories[res].sort = 0;
+                    if(parentID != '') {
+                        categories[res].parentID = parentID;
+                        buildMenu(parentID);
+                        // hightlight the newly created form in the menu
+                        $('#menu>div').removeClass('buttonNormSelected');
+                        $('#' + res).addClass('buttonNormSelected');
+                    }
+                    buildMenu(res);
+                    openContent('ajaxIndex.php?a=printview&categoryID='+ res);
                 }
-                buildMenu(res);
-                openContent('ajaxIndex.php?a=printview&categoryID='+ res);
-            }
+            });
         });
-    });
+    }
 }
 
 /**
  * Purpose: Import Form
  */
 function importForm() {
-	window.location.href = './?a=importForm';
+    if ($('#subordinate_site_warning').length) {
+        alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+    } else {
+	    window.location.href = './?a=importForm';
+    }
 }
 
 /**
  * Purpose: Import Form from Library
  */
 function formLibrary() {
-    window.location.href = './?a=formLibrary';
+    if ($('#subordinate_site_warning').length) {
+        alert('To make changes, please contact the administrator for the Nationally Standardized Primary site.');
+    } else {
+        window.location.href = './?a=formLibrary';
+    }
 }
 
 

@@ -44,63 +44,66 @@ class FormEditor
      * @param bool $overwriteExisting - If true, matching IDs will be overwritten
      * @return number
      */
-    function addIndicator($package, $overwriteExisting = false) {
-    	$package['parentID'] = $package['parentID'] == '' ? null : $package['parentID'];
+    function addIndicator($package, $overwriteExisting = false, $subordinate = false) {
+        if ($subordinate) {
+            $return_value = 'To make changes, please contact the administrator for the Nationally Standardized Primary site.';
+        } else {
+            $package['parentID'] = $package['parentID'] == '' ? null : $package['parentID'];
 
-        // update category to reflect modification
-        $vars = array(':categoryID' => $package['categoryID'],
-            ':time' => time());
-        $this->db->prepared_query('UPDATE categories SET lastModified=:time WHERE categoryID=:categoryID', $vars);
+            // update category to reflect modification
+            $vars = array(':categoryID' => $package['categoryID'],
+                ':time' => time());
+            $this->db->prepared_query('UPDATE categories SET lastModified=:time WHERE categoryID=:categoryID', $vars);
 
-        if(!$overwriteExisting)
-        {
-    	    $vars = array(':name' => $package['name'],
-    	        ':format' => $package['format'],
-    	        ':description' => $package['description'],
-    	        ':default' => $package['default'],
-    	        ':parentID' => $package['parentID'],
-    	        ':categoryID' => $package['categoryID'],
-    	        ':html' => $package['html'],
-    	        ':htmlPrint' => $package['htmlPrint'],
-                ':conditions' => $package['conditions'],
-    	        ':required' => $package['required'],
-                ':is_sensitive' => $package['is_sensitive'] ?? 0,
-    	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
+            if (!$overwriteExisting) {
+                $vars = array(':name' => $package['name'],
+                    ':format' => $package['format'],
+                    ':description' => $package['description'],
+                    ':default' => $package['default'],
+                    ':parentID' => $package['parentID'],
+                    ':categoryID' => $package['categoryID'],
+                    ':html' => $package['html'],
+                    ':htmlPrint' => $package['htmlPrint'],
+                    ':conditions' => $package['conditions'],
+                    ':required' => $package['required'],
+                    ':is_sensitive' => $package['is_sensitive'] ?? 0,
+                    ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, conditions, required, is_sensitive, sort, timeAdded, disabled)
-                                            VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)', $vars);
-    	}
-        else
-        {
-    	    $vars = array(':indicatorID' => $package['indicatorID'],
-    	        ':name' => $package['name'],
-    	        ':format' => $package['format'],
-    	        ':description' => $package['description'],
-    	        ':default' => $package['default'],
-    	        ':parentID' => $package['parentID'],
-    	        ':categoryID' => $package['categoryID'],
-    	        ':html' => $package['html'],
-    	        ':htmlPrint' => $package['htmlPrint'],
-                ':conditions' => $package['conditions'],
-    	        ':required' => $package['required'],
-    	        ':is_sensitive' => $package['is_sensitive'] ?? 0,
-    	        ':sort' => isset($package['sort']) ? $package['sort'] : 1);
+                $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, conditions, required, is_sensitive, sort, timeAdded, disabled)
+                                                VALUES (null, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)', $vars);
+            } else {
+                $vars = array(':indicatorID' => $package['indicatorID'],
+                    ':name' => $package['name'],
+                    ':format' => $package['format'],
+                    ':description' => $package['description'],
+                    ':default' => $package['default'],
+                    ':parentID' => $package['parentID'],
+                    ':categoryID' => $package['categoryID'],
+                    ':html' => $package['html'],
+                    ':htmlPrint' => $package['htmlPrint'],
+                    ':conditions' => $package['conditions'],
+                    ':required' => $package['required'],
+                    ':is_sensitive' => $package['is_sensitive'] ?? 0,
+                    ':sort' => isset($package['sort']) ? $package['sort'] : 1);
 
-    	    $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, conditions, required, is_sensitive, sort, timeAdded, disabled)
-            								VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
-                                            ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, conditions=:conditions, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
+                $this->db->prepared_query('INSERT INTO indicators (indicatorID, name, format, description, `default`, parentID, categoryID, html, htmlPrint, conditions, required, is_sensitive, sort, timeAdded, disabled)
+                                                VALUES (:indicatorID, :name, :format, :description, :default, :parentID, :categoryID, :html, :htmlPrint, :conditions, :required, :is_sensitive, :sort, CURRENT_TIMESTAMP, 0)
+                                                ON DUPLICATE KEY UPDATE name=:name, format=:format, description=:description, `default`=:default, parentID=:parentID, categoryID=:categoryID, html=:html, htmlPrint=:htmlPrint, conditions=:conditions, required=:required, is_sensitive=:is_sensitive, sort=:sort', $vars);
+            }
+
+            $newIndicatorID = $this->db->getLastInsertID();
+
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::INDICATOR, [
+                new LogItem("indicators", "indicatorID", $newIndicatorID),
+                new LogItem("indicators", "categoryID", $package['categoryID']),
+                new LogItem("indicators", "name", $package['name']),
+                new LogItem("indicators", "is_sensitive", $package['is_sensitive'] ?? 0)
+            ]);
+
+            $return_value = $newIndicatorID;
         }
 
-        $newIndicatorID = $this->db->getLastInsertID();
-
-        $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::INDICATOR, [
-            new LogItem("indicators", "indicatorID", $newIndicatorID),
-            new LogItem("indicators", "categoryID", $package['categoryID']),
-            new LogItem("indicators", "name", $package['name']),
-            new LogItem("indicators", "is_sensitive", $package['is_sensitive'] ?? 0)
-        ]);
-
-        return $newIndicatorID;
+        return $return_value;
     }
 
     public function setName($indicatorID, $name)
@@ -401,49 +404,55 @@ class FormEditor
      * @param string $workflowID
      * @return string
      */
-    public function createForm($name, $description, $parentID = '', $formLibraryID = null, $categoryID = null, $workflowID = 0)
+    public function createForm($name, $description, $parentID = '', $formLibraryID = null, $categoryID = null, $workflowID = 0, $subordinate = false)
     {
-        $name = trim($name);
-        if ($categoryID == null)
-        {
-            $categoryID = 'form_' . substr(sha1($name . random_int(1, 9999999)), 0, 5);
+        if ($subordinate) {
+            $return_value = 'To make changes, please contact the administrator for the Nationally Standardized Primary site.';
+        } else {
+            $name = trim($name);
+
+            if ($categoryID == null) {
+                $categoryID = 'form_' . substr(sha1($name . random_int(1, 9999999)), 0, 5);
+            }
+
+            if ($workflowID == null) {
+                $workflowID = 0;
+            }
+
+            $vars = array(':name' => $name,
+                        ':description' => $description,
+                        ':parentID' => $parentID,
+                        ':categoryID' => $categoryID,
+                        ':workflowID' => $workflowID,
+                        ':formLibraryID' => $formLibraryID,
+                        ':lastModified' => time()
+            );
+            $this->db->prepared_query('INSERT INTO categories (categoryID, parentID, categoryName, categoryDescription, workflowID, formLibraryID, lastModified)
+                                            VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID, :lastModified)
+                                            ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, lastModified=:lastModified, disabled=0', $vars);
+
+            $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::FORM, [
+                new LogItem("categories", "categoryID", $categoryID),
+                new LogItem("categories", "parentID", $parentID),
+                new LogItem("categories", "categoryName", $name),
+                new LogItem("categories", "categoryDescription", $description),
+                new LogItem("categories", "workflowID", $workflowID),
+                new LogItem("categories", "formLibraryID", $formLibraryID)
+            ]);
+
+            // need to know enabled by default if leaf secure is active
+            $res = $this->db->query('SELECT * FROM settings WHERE setting="leafSecure" AND data>=1');
+            if (count($res) > 0) {
+                $vars = array(':categoryID' => $categoryID);
+                $this->db->prepared_query('UPDATE categories
+                                            SET needToKnow=1
+                                            WHERE categoryID=:categoryID', $vars);
+            }
+
+            $return_value = $categoryID;
         }
-        if ($workflowID == null)
-        {
-            $workflowID = 0;
-        }
 
-        $vars = array(':name' => $name,
-                      ':description' => $description,
-                      ':parentID' => $parentID,
-                      ':categoryID' => $categoryID,
-                      ':workflowID' => $workflowID,
-                      ':formLibraryID' => $formLibraryID,
-                      ':lastModified' => time()
-        );
-        $this->db->prepared_query('INSERT INTO categories (categoryID, parentID, categoryName, categoryDescription, workflowID, formLibraryID, lastModified)
-    									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID, :lastModified)
-                                        ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, lastModified=:lastModified, disabled=0', $vars);
-
-        $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::FORM, [
-            new LogItem("categories", "categoryID", $categoryID),
-            new LogItem("categories", "parentID", $parentID),
-            new LogItem("categories", "categoryName", $name),
-            new LogItem("categories", "categoryDescription", $description),
-            new LogItem("categories", "workflowID", $workflowID),
-            new LogItem("categories", "formLibraryID", $formLibraryID)
-        ]);
-
-        // need to know enabled by default if leaf secure is active
-        $res = $this->db->query('SELECT * FROM settings WHERE setting="leafSecure" AND data>=1');
-        if(count($res) > 0) {
-            $vars = array(':categoryID' => $categoryID);
-            $this->db->prepared_query('UPDATE categories
-                                        SET needToKnow=1
-                                        WHERE categoryID=:categoryID', $vars);
-        }
-
-        return $categoryID;
+        return $return_value;
     }
 
     public function setFormName($categoryID, $input)
