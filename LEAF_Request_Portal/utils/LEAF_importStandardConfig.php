@@ -127,7 +127,8 @@ $db->query("ALTER TABLE `dependency_privs` ADD CONSTRAINT `fk_privs_dependencyID
 $db->query("ALTER TABLE `category_count` ADD CONSTRAINT `category_count_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories`(`categoryID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
 $db->query("ALTER TABLE `category_privs` ADD CONSTRAINT `category_privs_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories`(`categoryID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
 
-function copyDirectory($source, $destination) {
+function copyDirectory(string $source, string $destination): void
+{
     $files = scandir($source);
 
     foreach ($files as $file) {
