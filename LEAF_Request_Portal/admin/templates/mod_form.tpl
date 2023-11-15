@@ -10,12 +10,10 @@
 
 <script>
 const orgchartPath = '<!--{$orgchartPath}-->';
-let vueData = {
-    indicatorID: 0,
-    updateIndicatorList: false
-}
-function updateVueData(indicatorID) {
-    vueData.indicatorID = parseInt(indicatorID);
+let ifThenIndicatorID = 0; //used by conditions editor app.  set to specific indicatorID when the app is used, and reset to 0 when closed
+/* update ifThen indicator ID and dispatch a click event to a hidden button on the conditions editor app to update the childID */
+function updateVueData(indicatorID = 0) {
+    ifThenIndicatorID = parseInt(indicatorID);
     document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 }
 
@@ -335,8 +333,7 @@ function openContent(url) {
         dataType: 'text',  // IE9 issue
         success: function(res) {
             $('#formEditor_form').empty().html(res);
-            vueData.indicatorID = 0;
-            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
+            updateVueData(0);
         },
         error: function(res) {
             $('#formEditor_form').empty().html(res);
@@ -958,8 +955,6 @@ function newQuestion(parentIndicatorID = null) {
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 if(res != null) {
-                    vueData.updateIndicatorList = true;
-                    document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
                     if($('#sort').val() != '') {
                         $.ajax({
                             type: 'POST',
@@ -1665,8 +1660,6 @@ function getForm(indicatorID, series) {
         }
 
     	$.when.apply(undefined, calls).then(function() {
-            vueData.updateIndicatorList = true;
-            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
    	    	openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
    	    	dialog.hide();
    	     });
