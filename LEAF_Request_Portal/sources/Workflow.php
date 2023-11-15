@@ -452,7 +452,7 @@ class Workflow
      */
     public function getCustomEvents()
     {
-        $strSQL = "SELECT * FROM events WHERE eventID LIKE 'CustomEvent_%'";
+        $strSQL = "SELECT eventID, eventDescription, eventType, eventData FROM events WHERE eventID LIKE 'CustomEvent_%'";
 
         $res = $this->db->query($strSQL);
 
