@@ -301,20 +301,20 @@ const ConditionsEditor = Vue.createApp({
       const formID = currCategoryID || '';
       this.currFormIndicators = this.indicators.filter(i => i.categoryID === formID);
       this.currFormIndicators.forEach(i => {
-          //update tooltips for current form
-          const tooltip = typeof i.conditions === 'string' && i.conditions.startsWith('[') ?
-              'Edit conditions (conditions present)' : 'Edit conditions';
+        //update tooltips for current form
+        const tooltip = typeof i.conditions === 'string' && i.conditions.startsWith('[') ?
+            'Edit conditions (conditions present)' : 'Edit conditions';
 
-          let elIcon = document.getElementById(`edit_conditions_${i.indicatorID}`);
-          if(elIcon !== null) {
-            elIcon.title = tooltip;
-          }
-          //add header info to assist filtering
-          if (i.parentIndicatorID !== null) {
-            this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
-          } else {
-            i.headerIndicatorID = parseInt(i.indicatorID);
-          }
+        let elIcon = document.getElementById(`edit_conditions_${i.indicatorID}`);
+        if(elIcon !== null) {
+          elIcon.title = tooltip;
+        }
+        //add header info to assist filtering
+        if (i.parentIndicatorID !== null) {
+          this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
+        } else {
+          i.headerIndicatorID = parseInt(i.indicatorID);
+        }
       });
     },
     forceUpdate() {
