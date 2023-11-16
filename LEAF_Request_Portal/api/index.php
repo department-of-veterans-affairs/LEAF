@@ -17,7 +17,7 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 $login->setBaseDir('../');
 
 $p_db = $db;
-$subordinate = $settings['siteType'];
+$subordinate = $settings['siteType'] == 'national_subordinate' ? true : false;
 
 $action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
 $keyIndex = strpos($action, '/');
