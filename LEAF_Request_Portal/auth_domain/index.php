@@ -1,4 +1,5 @@
 <?php
+
 use App\Leaf\Db;
 /*
  * As a work of the United States government, this project is in the public domain within the United States.
@@ -10,34 +11,37 @@ use App\Leaf\Db;
 
 */
 
+
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-if (isset($_SERVER['REMOTE_USER']))
-{
+$protocol = 'https://';
+
+if (isset($_SERVER['REMOTE_USER'])) {
     // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
-    $protocol = 'https://';
-//    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-//    {
-//        $protocol = 'https://';
-//    }
+    // $protocol = 'https://';
+    //    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+    //    {
+    //        $protocol = 'https://';
+    //    }
     $redirect = '';
+    $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
     if (isset($_GET['r'])) {
         // Validate and sanitize the input
         $encodedRedirect = $_GET['r'];
         $decodedRedirect = base64_decode($encodedRedirect);
-    
+
         if ($decodedRedirect !== false) {
             // Validate the decoded URL
             $parsedRedirect = parse_url($decodedRedirect);
-    
+
             if ($parsedRedirect !== false) {
-                $redirect = $protocol . HTTP_HOST . $parsedRedirect['path'];
+                $query = isset($parsedRedirect['query']) ? '?' . $parsedRedirect['query'] : '';
+                $fragment = isset($parsedRedirect['fragment']) ? '#' . $parsedRedirect['fragment'] : '';
+                $redirect = $protocol . HTTP_HOST . $parsedRedirect['path'] . $query . $fragment;
+            } else {
+                $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
             }
         }
-    }    
-    else
-    {
-        $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
     }
 
     list($domain, $user) = explode('\\\\', $_SERVER['REMOTE_USER']);
@@ -48,15 +52,12 @@ if (isset($_SERVER['REMOTE_USER']))
     										WHERE userName=:userName
 												AND deleted=0', $vars);
 
-    if (count($res) > 0)
-    {
+    if (count($res) > 0) {
         $_SESSION['userID'] = $user;
         session_write_close();
         header('Location: ' . $redirect);
         exit();
-    }
-    else
-    {
+    } else {
         // try searching through national database
         $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
         $vars = array(':userName' => $user);
@@ -66,34 +67,35 @@ if (isset($_SERVER['REMOTE_USER']))
     											AND indicatorID = 6
 												AND deleted=0', $vars);
         // add user to local DB
-        if (count($res) > 0)
-        {
-            $vars = array(':firstName' => $res[0]['firstName'],
-                    ':lastName' => $res[0]['lastName'],
-                    ':middleName' => $res[0]['middleName'],
-                    ':userName' => $res[0]['userName'],
-                    ':phoFirstName' => $res[0]['phoneticFirstName'],
-                    ':phoLastName' => $res[0]['phoneticLastName'],
-                    ':domain' => $res[0]['domain'],
-                    ':lastUpdated' => time(),
-                    ':new_empUUID' => $res[0]['new_empUUID'] );
+        if (count($res) > 0) {
+            $vars = array(
+                ':firstName' => $res[0]['firstName'],
+                ':lastName' => $res[0]['lastName'],
+                ':middleName' => $res[0]['middleName'],
+                ':userName' => $res[0]['userName'],
+                ':phoFirstName' => $res[0]['phoneticFirstName'],
+                ':phoLastName' => $res[0]['phoneticLastName'],
+                ':domain' => $res[0]['domain'],
+                ':lastUpdated' => time(),
+                ':new_empUUID' => $res[0]['new_empUUID']
+            );
             $oc_db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
     								ON DUPLICATE KEY UPDATE deleted=0', $vars);
             $empUID = $oc_db->getLastInsertID();
 
-            if ($empUID == 0)
-            {
+            if ($empUID == 0) {
                 $vars = array(':userName' => $res[0]['userName']);
                 $empUID = $oc_db->prepared_query('SELECT empUID FROM employee
                                                             WHERE userName=:userName', $vars)[0]['empUID'];
             }
 
-            $vars = array(':empUID' => $empUID,
-                    ':indicatorID' => 6,
-                    ':data' => $res[0]['data'],
-                    ':author' => 'viaLogin',
-                    ':timestamp' => time(),
+            $vars = array(
+                ':empUID' => $empUID,
+                ':indicatorID' => 6,
+                ':data' => $res[0]['data'],
+                ':author' => 'viaLogin',
+                ':timestamp' => time(),
             );
             $oc_db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
 											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
@@ -104,17 +106,13 @@ if (isset($_SERVER['REMOTE_USER']))
             session_write_close();
             header('Location: ' . $redirect);
             exit();
-        }
-        else
-        {
+        } else {
             header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
 
             echo 'Unable to log in: User not found in global database.  Redirecting back to PIV login screen.';
         }
     }
-}
-else
-{
+} else {
     header('Refresh: 4;URL=' . $login->parseURL(dirname($_SERVER['PHP_SELF'])) . '/..' . '/login/index.php');
 
     echo 'Unable to log in: Domain logon issue.  Redirecting back to PIV login screen.';

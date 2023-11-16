@@ -12,23 +12,33 @@ use App\Leaf\Db;
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-if (isset($_SERVER['REMOTE_USER']))
-{
     // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //    $protocol = 'http://';
-    $protocol = 'https://';
-//    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-//    {
-//        $protocol = 'https://';
-//    }
+
+$protocol = 'https://';
+
+if (isset($_SERVER['REMOTE_USER'])){
+
     $redirect = '';
-    if (isset($_GET['r']))
-    {
-        $redirect = $protocol . HTTP_HOST . base64_decode($_GET['r']);
-    }
-    else
-    {
-        $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
+
+    $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
+
+    if (isset($_GET['r'])) {
+        $encodedRedirect = $_GET['r'];
+        $decodedRedirect = base64_decode($encodedRedirect);
+
+        if ($decodedRedirect !== false) {
+            $parsedRedirect = parse_url($decodedRedirect);
+
+            // Check if parse_url() returns false
+            if ($parsedRedirect !== false) {
+                $query = isset($parsedRedirect['query']) ? '?' . $parsedRedirect['query'] : '';
+                $fragment = isset($parsedRedirect['fragment']) ? '#' . $parsedRedirect['fragment'] : '';
+                $redirect = $protocol . HTTP_HOST . $parsedRedirect['path'] . $query . $fragment;
+            } else {
+                $redirect = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../';
+            }
+        }
     }
 
     list($domain, $user) = explode('\\\\', $_SERVER['REMOTE_USER']);
