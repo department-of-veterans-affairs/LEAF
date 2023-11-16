@@ -682,7 +682,6 @@
             type: 'GET',
             url: `../api/applet/_${file}`,
             success: function(res) {
-                currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
 
                 // Check if codeEditor is already defined and has a setValue method
@@ -691,6 +690,7 @@
                 } else {
                     console.error('codeEditor is not properly initialized.');
                 }
+                currentFileContent = codeEditor.getValue();
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').css('display', 'block');
