@@ -50,7 +50,9 @@ CREATE TABLE `action_history` (
 INSERT INTO `action_history` (`actionID`, `recordID`, `userID`, `stepID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`) VALUES
 (1,	958,	'tester',	0,	0,	'changeInitiator',	8,	1699055105,	'Initiator changed to Ollie Flatley'),
 (2,	530,	'tester',	0,	0,	'changeInitiator',	8,	1699056198,	'Initiator changed to Alysa Dare'),
-(3,	530,	'tester',	0,	0,	'move',	8,	1699056206,	'Moved to Requestor Followup step');
+(3,	530,	'tester',	0,	0,	'move',	8,	1699056206,	'Moved to Requestor Followup step'),
+(4,	7,	'tester',	0,	0,	'move',	8,	1700253479,	'Moved to Requestor Followup step'),
+(5,	7,	'tester',	3,	-2,	'sendback',	8,	1700253822,	'');
 
 DROP TABLE IF EXISTS `action_types`;
 CREATE TABLE `action_types` (
@@ -1143,7 +1145,7 @@ INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `u
 (5,	-2,	1,	'test',	1692288077,	'tester'),
 (5,	-1,	1,	'25',	1692288075,	'tester'),
 (6,	2,	1,	'a:3:{s:5:\"cells\";a:2:{i:0;a:3:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";}i:1;a:3:{i:0;s:1:\"a\";i:1;s:1:\"b\";i:2;s:1:\"c\";}}s:5:\"names\";a:4:{i:0;s:5:\"Col 1\";i:1;s:5:\"Col 2\";i:2;s:5:\"Col 3\";i:3;s:2:\" \";}s:7:\"columns\";a:3:{i:0;s:8:\"col_7664\";i:1;s:8:\"col_15d5\";i:2;s:8:\"col_c80a\";}}',	1693263167,	'tester'),
-(7,	3,	1,	'70827',	1694021464,	'tester'),
+(7,	3,	1,	'12345',	1700253733,	'tester'),
 (7,	4,	1,	'80675',	1694021464,	'tester'),
 (7,	5,	1,	'44839',	1694021464,	'tester'),
 (7,	8,	1,	'114',	1695331172,	'tester'),
@@ -3641,7 +3643,7 @@ INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `u
 (504,	5,	1,	'41465',	1694021485,	'tester'),
 (504,	8,	1,	'300',	1695331226,	'tester'),
 (504,	10,	1,	'60',	1695339088,	'tester'),
-(505,	3,	1,	'12345',	1699056153,	'tester'),
+(505,	3,	1,	'12345',	1700253733,	'tester'),
 (505,	4,	1,	'',	1697328866,	'tester'),
 (505,	5,	1,	'87079',	1697328866,	'tester'),
 (505,	6,	1,	'',	1697328866,	'tester'),
@@ -5455,6 +5457,8 @@ CREATE TABLE `data_action_log` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+INSERT INTO `data_action_log` (`empUID`, `id`, `action`, `userID`, `timestamp`, `userDisplay`) VALUES
+(NULL,	1,	'add-workflow_route',	1,	'2023-11-17 20:43:38',	'tester tester');
 
 DROP TABLE IF EXISTS `data_cache`;
 CREATE TABLE `data_cache` (
@@ -5490,7 +5494,8 @@ CREATE TABLE `data_history` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `data_history` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `userID`) VALUES
-(530,	9,	1,	'205',	1699056186,	'tester');
+(530,	9,	1,	'205',	1699056186,	'tester'),
+(7,	3,	1,	'12345',	1700253733,	'tester');
 
 DROP TABLE IF EXISTS `data_log_items`;
 CREATE TABLE `data_log_items` (
@@ -5503,6 +5508,11 @@ CREATE TABLE `data_log_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `data_log_items` (`data_action_log_fk`, `tableName`, `column`, `value`, `displayValue`) VALUES
+(1,	'workflow_routes',	'actionType',	'sendback',	NULL),
+(1,	'workflow_routes',	'displayConditional',	'{\"required\":false}',	NULL),
+(1,	'workflow_routes',	'nextStepID',	'0',	NULL),
+(1,	'workflow_routes',	'stepID',	'3',	NULL),
+(1,	'workflow_routes',	'workflowID',	'1',	NULL),
 (2,	'categories',	'categoryID',	'form_548f8',	NULL),
 (2,	'categories',	'needToKnow',	'1',	NULL),
 (3,	'indicators',	'categoryID',	'form_548f8',	NULL),
@@ -6085,7 +6095,8 @@ INSERT INTO `email_tracker` (`id`, `recordID`, `userID`, `timestamp`, `recipient
 (2,	508,	NULL,	1697554097,	'Recipient(s): Tracy.O\'Hane0@fake-email.com, tester.tester@fake-email.com, Rhona.Goodwin@fake-email.com',	'Subject: RETURNED Test backup of initiator (#508) to AS - Service'),
 (3,	502,	NULL,	1697554890,	'Recipient(s): Linsey.Hackett@fake-email.com, tester.tester@fake-email.com, Rhona.Goodwin@fake-email.com',	'Subject: RETURNED This is a test of the mass import (#502) to AS - Service'),
 (4,	501,	NULL,	1698274750,	'Recipient(s): tester.tester@fake-email.com, Rhona.Goodwin@fake-email.com',	'Subject: RETURNED This is a test of the mass import (#501) to '),
-(5,	500,	NULL,	1698275281,	'Recipient(s): tester.tester@fake-email.com, Rhona.Goodwin@fake-email.com',	'Subject: RETURNED This is a test of the mass import (#500) to ');
+(5,	500,	NULL,	1698275281,	'Recipient(s): tester.tester@fake-email.com, Rhona.Goodwin@fake-email.com',	'Subject: RETURNED This is a test of the mass import (#500) to '),
+(6,	7,	NULL,	1700253822,	'Recipient(s): tester.tester@fake-email.com, Rhona.Goodwin@fake-email.com',	'Subject: RETURNED Requestor followup - Different Username ca... (#7) to ');
 
 DROP TABLE IF EXISTS `events`;
 CREATE TABLE `events` (
@@ -6258,7 +6269,7 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (4,	1692287968,	0,	'tester',	'LEAF Secure Certification',	0,	NULL,	0,	1692287993,	1,	1),
 (5,	1692288069,	0,	'tester',	'LEAF Secure Certification',	0,	'Submitted',	1692288081,	0,	0,	1),
 (6,	1693258385,	0,	'tester',	'untitled',	0,	NULL,	0,	0,	1,	1),
-(7,	1694021464,	0,	'tester',	'Available for test case',	0,	'Approved',	1694021485,	0,	0,	1),
+(7,	1694021464,	0,	'tESTER',	'Requestor followup - Different Username case sensitivity',	0,	'Re-opened for editing',	0,	0,	1,	1),
 (8,	1694021464,	0,	'tester',	'Available for test case',	0,	'Approved',	1694021485,	0,	0,	1),
 (9,	1694021464,	0,	'tester',	'Available for test case',	0,	'Approved',	1694021485,	0,	0,	1),
 (10,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
@@ -7229,10 +7240,10 @@ INSERT INTO `records_dependencies` (`recordID`, `dependencyID`, `filled`, `time`
 (3,	5,	1,	1692287490),
 (5,	5,	1,	1692288081),
 (7,	-3,	0,	NULL),
-(7,	-2,	0,	1694021485),
+(7,	-2,	0,	1700253822),
 (7,	-1,	0,	NULL),
-(7,	5,	1,	1694021485),
-(7,	9,	1,	1694130214),
+(7,	5,	0,	1694021485),
+(7,	9,	0,	1694130214),
 (8,	-3,	0,	NULL),
 (8,	-2,	1,	1694126654),
 (8,	-1,	1,	1694126647),
@@ -12001,6 +12012,7 @@ CREATE TABLE `records_step_fulfillment` (
 
 INSERT INTO `records_step_fulfillment` (`recordID`, `stepID`, `fulfillmentTime`) VALUES
 (3,	-3,	1692287493),
+(7,	3,	1700253822),
 (8,	1,	1694126647),
 (8,	2,	1694126651),
 (8,	3,	1694126654),
@@ -12025,7 +12037,6 @@ CREATE TABLE `records_workflow_state` (
 
 INSERT INTO `records_workflow_state` (`recordID`, `stepID`, `blockingStepID`, `lastNotified`, `initialNotificationSent`) VALUES
 (5,	-3,	0,	'2023-08-17 16:01:21',	0),
-(7,	1,	0,	'2023-09-06 17:31:25',	0),
 (8,	4,	0,	'2023-09-07 22:45:09',	0),
 (9,	1,	0,	'2023-09-06 17:31:25',	0),
 (10,	1,	0,	'2023-09-06 17:31:25',	0),
@@ -13339,6 +13350,7 @@ INSERT INTO `workflow_routes` (`workflowID`, `stepID`, `nextStepID`, `actionType
 (1,	2,	2,	'Note',	''),
 (1,	3,	4,	'approve',	''),
 (1,	3,	3,	'Note',	''),
+(1,	3,	0,	'sendback',	'{\"required\":false}'),
 (1,	4,	0,	'approve',	''),
 (2,	5,	0,	'approve',	''),
 (2,	5,	0,	'sendback',	'{\"required\":false}'),
