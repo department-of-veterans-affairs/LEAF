@@ -47,6 +47,21 @@ func TestForm_NonadminCannotEditData(t *testing.T) {
 	}
 }
 
+func TestForm_RequestFollowupAllowCaseInsensitiveUserID(t *testing.T) {
+	postData := url.Values{}
+	postData.Set("CSRFToken", csrfToken)
+	postData.Set("3", "12345")
+
+	res, _ := client.PostForm(rootURL+`api/form/7?masquerade=nonAdmin`, postData)
+	bodyBytes, _ := io.ReadAll(res.Body)
+	got := string(bodyBytes)
+	want := `"1"`
+
+	if !cmp.Equal(got, want) {
+		t.Errorf("Non-admin got = %v, want = %v", got, want)
+	}
+}
+
 func TestForm_WorkflowIndicatorAssigned(t *testing.T) {
 	got, res := httpGet(rootURL + "api/form/508/workflow/indicator/assigned")
 
