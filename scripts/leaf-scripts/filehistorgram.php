@@ -1,12 +1,11 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-require_once 'globals.php';
-require_once LIB_PATH . '/php-commons/Db.php';
+
+require_once getenv('APP_LIBS_PATH') . '/globals.php';
+require_once getenv('APP_LIBS_PATH') . '../Leaf/Db.php';
 
 $startTime = microtime(true);
 
-$db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+$db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
 $portals = $db->query("SELECT * FROM `sites` WHERE `site_type` = 'portal'");
 $directory = '/var/www/html';
