@@ -104,9 +104,13 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
             event
           ) {
             if (event.which == 13) {
-              setTimeout(() => { //timeout needed for ind 2 chosen dropdown
+              let elChosenDrop = null;
+              if(event.target.classList.contains('chosen-search-input')) {
+                elChosenDrop = document.querySelector('.chosen-with-drop');
+              }
+              if(elChosenDrop === null) { //if a chosen dropdown box is still open, the first enter will just close it.
                 $("#" + dialog.btnSaveID).trigger("click");
-              }, 100);
+              }
             }
           });
         },
