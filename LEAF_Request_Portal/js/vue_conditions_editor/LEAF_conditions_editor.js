@@ -2,7 +2,6 @@ const ConditionsEditor = Vue.createApp({
   data() {
     return {
       orgchartPath: orgchartPath,
-      vueData: vueData, //{indicatorID: number || 0, updateIndicatorList: false}
       childIndID: 0,
       parentIndID: 0,
       windowTop: 0,
@@ -39,7 +38,7 @@ const ConditionsEditor = Vue.createApp({
   },
   methods: {
     onScroll() {
-      if (this.vueData.indicatorID !== 0) return;
+      if (this.childIndID !== 0) return;
       this.windowTop = window.top.scrollY;
     },
     getAllIndicators() {
@@ -49,7 +48,7 @@ const ConditionsEditor = Vue.createApp({
         url: "../api/form/indicator/list/unabridged",
         success: (res) => {
           this.indicators = res.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
-          this.vueData.updateIndicatorList = false;
+          this.updateCurrFormIndicators();
         },
         error: (err) => {
           console.log(err);
@@ -86,7 +85,7 @@ const ConditionsEditor = Vue.createApp({
       //cleared when either the form or child indicator changes
       if (resetAll) {
         this.childIndID = 0;
-        this.vueData.indicatorID = 0;
+        ifThenIndicatorID = 0;
         this.showConditionEditor = false;
       }
       this.parentIndID = 0;
@@ -148,7 +147,6 @@ const ConditionsEditor = Vue.createApp({
       }
     },
     selectNewChildIndicator() {
-      this.childIndID = parseInt(this.vueData.indicatorID);
       this.clearSelections();
       if (this.childIndID !== 0) {
         this.dragElement(
@@ -219,10 +217,6 @@ const ConditionsEditor = Vue.createApp({
                   indToUpdate.conditions = newJSON;
                   this.showRemoveModal = false;
                   this.clearSelections(true);
-                  const formID = currCategoryID || null;  //global from mod_form.tpl
-                  if (formID !== null) {
-                    this.updateCurrFormIndicators(formID);
-                  }
                 } else { console.log('error adding condition', res) }
             },
             error:(err) => console.log(err)
@@ -302,36 +296,34 @@ const ConditionsEditor = Vue.createApp({
         document.onmousemove = null;
       }
     },
-    updateCurrFormIndicators(formID = '') {
-        this.currFormIndicators = this.indicators.filter(i => i.categoryID === formID);
-        this.currFormIndicators.forEach(i => {
-            //update tooltips for current form
-            const tooltip = typeof i.conditions === 'string' && i.conditions.startsWith('[') ?
-                'Edit conditions (conditions present)' : 'Edit conditions';
+    /** uses variable from mod_form.tpl */
+    updateCurrFormIndicators() {
+      const formID = currCategoryID || '';
+      this.currFormIndicators = this.indicators.filter(i => i.categoryID === formID);
+      this.currFormIndicators.forEach(i => {
+        //update tooltips for current form
+        const tooltip = typeof i.conditions === 'string' && i.conditions.startsWith('[') ?
+            'Edit conditions (conditions present)' : 'Edit conditions';
 
-            let elIcon = document.getElementById(`edit_conditions_${i.indicatorID}`);
-            if(elIcon !== null) {
-              elIcon.title = tooltip;
-            }
-            //add header info to assist filtering
-            if (i.parentIndicatorID !== null) {
-              this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
-            } else {
-              i.headerIndicatorID = parseInt(i.indicatorID);
-            }
-        });
+        let elIcon = document.getElementById(`edit_conditions_${i.indicatorID}`);
+        if(elIcon !== null) {
+          elIcon.title = tooltip;
+        }
+        //add header info to assist filtering
+        if (i.parentIndicatorID !== null) {
+          this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
+        } else {
+          i.headerIndicatorID = parseInt(i.indicatorID);
+        }
+      });
     },
     forceUpdate() {
-      this.$forceUpdate(); //needed for some events
-      if (this.vueData.updateIndicatorList === true) {
-        this.getAllIndicators();
-      } else {
-        this.selectNewChildIndicator();
-        const formID = currCategoryID || null;  //global from mod_form.tpl
-        if (formID !== null && this.childIndID === 0) { //if new form is selected
-          this.updateCurrFormIndicators(formID)
+      this.childIndID = ifThenIndicatorID;
+      if (this.childIndID === 0) {
+            this.getAllIndicators();
+        } else {
+            this.selectNewChildIndicator();
         }
-      }
     },
     truncateText(text = "", maxTextLength = 40) {
       return text?.length > maxTextLength
@@ -763,7 +755,7 @@ const ConditionsEditor = Vue.createApp({
       });
     }
   },
-  template: `<div id="condition_editor_content" :style="{display: vueData.indicatorID===0 ? 'none' : 'block'}">
+  template: `<div id="condition_editor_content" :style="{display: childIndID===0 ? 'none' : 'block'}">
         <div id="condition_editor_center_panel" :style="{top: windowTop > 0 ? 15+windowTop+'px' : '15px'}">
 
             <!-- NOTE: MAIN EDITOR TEMPLATE -->
