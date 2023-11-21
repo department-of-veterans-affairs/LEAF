@@ -27,6 +27,7 @@
         <main id="codeArea" class="main-content">
             <div id="codeContainer" class="leaf-code-container">
                 <h2 id="emailTemplateHeader">Default Email Template</h2>
+                <div id="emailNotificationInfo" style="padding: 2px 2px 0 2px; font-size:90%;"></div>
                 <div id="emailLists">
                     <fieldset>
                         <legend>Email To and CC</legend>
@@ -664,7 +665,6 @@
         } else if (templateFile !== null) {
             loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
         } else {
-            console.log('else');
             loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
         }
     }
@@ -907,6 +907,7 @@
                     $('.modifiedTemplate').hide();
                 }
                 getFileHistory(file);
+                addCustomEventInfo(currentFile);
             },
             cache: false
         });
@@ -1188,6 +1189,61 @@
             },
             cache: false
         });
+    }
+    /* adds information about which users or groups are notified for custom email events */
+    function addCustomEventInfo() {
+        if(typeof currentFile === 'string') {
+            try {
+                fetch(`../api/workflow/customEvents`)
+                .then(res => res.json()
+                .then(data => {
+                    const events = Array.isArray(data) ? data : [];
+                    const sliceEnd = -('_body.tpl'.length);
+                    const currentEvent = events.find(ev => ev?.eventID === currentFile.slice(0, sliceEnd)) || null;
+                    let elInfo = document.getElementById('emailNotificationInfo');
+                    if(currentEvent !== null && currentEvent.eventData !== '' && elInfo !== null) {
+                        try {
+                            const eventData = JSON.parse(currentEvent?.eventData || '{}');
+                            const { NotifyRequestor, NotifyNext, NotifyGroup } = eventData;
+                            const reqText = NotifyRequestor === 'true' ? 'Notifies Requestor' : '';
+                            const nextText = NotifyNext === 'true' ? 'Notifies Next Approver' : '';
+                            let arrNotices = [ reqText, nextText ];
+                            arrNotices = arrNotices.filter(n => n !== '');
+
+                            if (+NotifyGroup > 0) {
+                                try {
+                                    fetch('../api/group/list')
+                                    .then(res => res.json()
+                                    .then(data => {
+                                        const groups = data;
+                                        const groupName = groups.find(g => +NotifyGroup === g.groupID)?.name || '';
+                                        const groupText = +NotifyGroup > 0 && groupName !== '' ? `Notifies Group \'${groupName}\'` : '';
+                                        if(groupText !== '') {
+                                            arrNotices.push(groupText);
+                                        }
+                                        elInfo.innerText = arrNotices.join(' | ');
+                                    }).catch(err => console.log(err))
+                                    ).catch(err => console.log(err));
+                                } catch (err) {
+                                    console.log(err);
+                                }
+                            } else {
+                                elInfo.innerText = arrNotices.join(' | ');
+                            }
+                        } catch (err) {
+                            console.log(err);
+                        }
+
+                    } else {
+                        elInfo.innerText = '';
+                    }
+                }).catch(err => console.log(err))
+                ).catch(err => console.log(err));
+
+            } catch (err) {
+                console.log(err);
+            }
+        }
     }
     // loads components when the document loads
     $(document).ready(function() {
