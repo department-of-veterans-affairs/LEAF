@@ -1705,7 +1705,7 @@ class Form
 
         // give the requestor access if the record explictly gives them write access
         if ($resRecords[0]['isWritableUser'] == 1 &&
-            ($this->login->getUserID() == $resRecords[0]['userID'] || $this->checkIfBackup($this->getEmpUID($resRecords[0]['userID'])))
+            (strtolower($this->login->getUserID()) == strtolower($resRecords[0]['userID']) || $this->checkIfBackup($this->getEmpUID($resRecords[0]['userID'])))
         )
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
@@ -1915,7 +1915,7 @@ class Form
 
                 break;
             case -2: // dependencyID -2 : requestor followup
-                 if ($details['userID'] == $this->login->getUserID())
+                 if (strtolower($details['userID']) == strtolower($this->login->getUserID()))
                  {
                      return true;
                  }
@@ -2224,7 +2224,7 @@ class Form
                         }
 
                         // request initiator
-                        if ($dep['userID'] == $this->login->getUserID()) {
+                        if (strtolower($dep['userID']) == strtolower($this->login->getUserID())) {
                             $temp[$dep['recordID']] = 1;
                         }
 
