@@ -1204,7 +1204,7 @@ class Form
                     $filenameParts = explode('.', $_FILES[$indicator]['name']);
                     $fileExtension = array_pop($filenameParts);
                     $fileExtension = strtolower($fileExtension);
-                    if (in_array($fileExtension, $fileExtensionWhitelist))
+                    if (in_array($fileExtension, $fileExtensionWhitelist) && $_FILES[$indicator]['error'] === UPLOAD_ERR_OK)
                     {
                         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
                         if (!is_dir($uploadDir))
