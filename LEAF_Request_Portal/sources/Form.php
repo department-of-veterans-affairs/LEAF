@@ -627,21 +627,16 @@ class Form
             }
 
             if($parseTemplate) {
-                /* putting this here to see what this value is
-                    the error is Array to string conversion and it gives the
-                    location, so I checked the database that it is pulling this
-                    from and I don't see any arrays in their data
-                */
-                if (is_array($data[0]['html'])) {
-                    error_log(print_r($data[0]['html'], true));
+                if($data[0]['html'] != null) {
+                    $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                            [$idx, $recordID, $form[$idx]['value']],
+                                            $data[0]['html']);
                 }
-
-                $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                                                [$idx, $recordID, $form[$idx]['value']],
-                                                $data[0]['html']);
-                $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                if($data[0]['htmlPrint'] != null) {
+                    $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
                                                 [$idx, $recordID, $form[$idx]['value']],
                                                 $data[0]['htmlPrint']);
+                }
             }
 
             $form[$idx]['format'] = trim($inputType[0]);
@@ -1972,7 +1967,7 @@ class Form
 
     /**
      * batchUpdateDependencyAccess amends $accessList for specific dependencyIDs to optimize
-     * performance related to dynamic assignments, such as "person designated by requestor"
+     * performance related to dynamic assignments, such as "person/group designated by requestor"
      *
      * @param array $accessList Map of recordID->int of the current user's access. 1 = has access
      * @param array $records List of records to process
@@ -1981,19 +1976,26 @@ class Form
     private function batchUpdateDependencyAccess(array $accessList, array $records): array
     {
         // get sanitized lists for DB query
-        $indicatorIDs = [];
-        $recordIDs = [];
+        $indicatorIDs_pd = [];
+        $recordIDs_pd = [];
+        $indicatorIDs_gd = [];
+        $recordIDs_gd = [];
         foreach($records as $dep) {
             if($accessList[$dep['recordID']] == 0 && $dep['dependencyID'] == -1) {
-                $indicatorIDs[] = (int)$dep['indicatorID_for_assigned_empUID'];
-                $recordIDs[] = (int)$dep['recordID'];
+                $indicatorIDs_pd[] = (int)$dep['indicatorID_for_assigned_empUID'];
+                $recordIDs_pd[] = (int)$dep['recordID'];
+            }
+
+            if($accessList[$dep['recordID']] == 0 && $dep['dependencyID'] == -3) {
+                $indicatorIDs_gd[] = (int)$dep['indicatorID_for_assigned_groupID'];
+                $recordIDs_gd[] = (int)$dep['recordID'];
             }
         }
 
         // get the list of records related to dependencyID -1 (person designated by requestor)
-        if(count($recordIDs) > 0) {
-            $indicators = implode(',', $indicatorIDs);
-            $records = implode(',', $recordIDs);
+        if(count($recordIDs_pd) > 0) {
+            $indicators = implode(',', array_unique($indicatorIDs_pd));
+            $records = implode(',', $recordIDs_pd);
             $query = "SELECT recordID, `data` FROM `data`
                         WHERE indicatorID IN ({$indicators})
                             AND recordID IN ({$records})
@@ -2007,6 +2009,24 @@ class Form
                 }
                 // check if the current user is a backup of the designated person
                 else if($this->checkIfBackup($record['data'])) {
+                    $accessList[$record['recordID']] = 1;
+                }
+            }
+        }
+
+        // get the list of records related to dependencyID -3 (group designated by requestor)
+        if(count($recordIDs_gd) > 0) {
+            $indicators = implode(',', array_unique($indicatorIDs_gd));
+            $records = implode(',', $recordIDs_gd);
+            $query = "SELECT recordID, `data` FROM `data`
+                        WHERE indicatorID IN ({$indicators})
+                            AND recordID IN ({$records})
+                            AND series=1";
+            $res = $this->db->prepared_query($query, []);
+
+            foreach($res as $record) {
+                // check if the current users is a member of the designated group
+                if($this->login->checkGroup($record['data'])) {
                     $accessList[$record['recordID']] = 1;
                 }
             }
@@ -2197,7 +2217,9 @@ class Form
                         $temp[$dep['recordID']] = 0;
 
                         // Use optimized path for certain dependencyIDs. See batchUpdateDependencyAccess.
-                        if($dep['dependencyID'] != -1) {
+                        if($dep['dependencyID'] != -1 // person designated by requestor
+                            && $dep['dependencyID'] != -3) // group designated by requestor
+                        {
                             $temp[$dep['recordID']] = $this->hasDependencyAccess($dep['dependencyID'], $dep) ? 1 : 0;
                         }
 
@@ -2868,6 +2890,26 @@ class Form
     }
 
     /**
+     * parseBooleanQuery transforms a user's query to add implied "+" prefixes when
+     * a "MATCH ALL" condition is selected.
+     * 
+     * @param $query
+     * @return string Transformed query
+     */
+    private function parseBooleanQuery(string $query): string
+    {
+        $words = explode(' ', $query);
+        foreach($words as $k => $word) {
+            $firstChar = substr($word, 0, 1);
+            if($firstChar != '+' && $firstChar != '-') {
+                $words[$k] = '+' . $words[$k];
+            }
+        }
+
+        return implode(' ', $words);
+    }
+
+    /**
      * query parses a JSON formatted user query defined in formQuery.js.
      * 
      * Returns an array on success, and string/int for malformed queries
@@ -2886,6 +2928,7 @@ class Form
         $joinSearchAllData = false;
         $joinSearchOrgchartEmployeeData = false;
         $filterActionable = false;
+        $usingFulltextIndex = false;
         $vars = array();
         $conditions = '';
         $joins = '';
@@ -2933,6 +2976,18 @@ class Form
                         $q['match'] = '%' . $q['match'] . '%';
                     }
 
+                    break;
+                case 'MATCH ALL': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'MATCH ALL';
+                    $usingFulltextIndex = true;
+                    break;
+                case 'NOT MATCH': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'NOT MATCH';
+                    $usingFulltextIndex = true;
+                    break;
+                case 'MATCH': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'MATCH';
+                    $usingFulltextIndex = true;
                     break;
                 case 'RIGHT JOIN':
                     break;
@@ -3253,32 +3308,51 @@ class Form
                             {
                                 $dataTerm = 'lj_data.data';
                             }
+                            $dataTermSql = '';
 
                             $dataMatch = ":data{$count}";
                             switch ($tResTypeHint[0]['format']) {
-                            case 'number':
-                            case 'currency':
-                                $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";
+                                case 'number':
+                                case 'currency':
+                                    $dataTermSql = "CAST({$dataTerm} as DECIMAL(21,5))";
 
-                                break;
-                            case 'date':
-                                $dataTerm = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
-                                $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
+                                    break;
+                                case 'date':
+                                    $dataTermSql = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
+                                    $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
 
-                                break;
-                            default:
-                                break;
-                        }
+                                    break;
+                                default:
+                                    if($operator == 'MATCH ALL') {
+                                        $vars[":data{$count}"] = $this->parseBooleanQuery($vars[":data{$count}"]);
+                                    }
 
+                                    if(strpos($operator, 'MATCH') !== false) {
+                                        if($operator == 'NOT MATCH') {
+                                            $dataTermSql = "NOT MATCH ({$dataTerm})";
+                                        }
+                                        else {
+                                            $dataTermSql = "MATCH ({$dataTerm})";
+                                        }
+
+                                        $operator = 'AGAINST';
+                                        $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                    }
+                                    break;
+                            }
+
+                            if($dataTermSql == '') {
+                                $dataTermSql = $dataTerm;
+                            }
                             // catch default data
                             if (isset($tResTypeHint[0]['default'])
-                            && $tResTypeHint[0]['default'] == $vars[':data' . $count])
+                                    && $tResTypeHint[0]['default'] == $vars[':data' . $count])
                             {
-                                $conditions .= "{$gate}({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
+                                $conditions .= "{$gate}({$dataTermSql} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
                             }
                             else
                             {
-                                $conditions .= "{$gate}{$dataTerm} {$operator} $dataMatch";
+                                $conditions .= "{$gate}{$dataTermSql} {$operator} $dataMatch";
                             }
                         }
                     }
@@ -3422,6 +3496,11 @@ class Form
                     break;
             }
         }
+        
+        // avoid extra sort when using fulltext index
+        if($usingFulltextIndex) {
+            $sort = '';
+        }
 
         // join tables for queries on data fields without filtering by indicatorID
         if ($joinSearchAllData
@@ -3449,7 +3528,7 @@ class Form
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {
-                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ":", ";", "="], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ";"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
                 $debugVars = [];
                 foreach($vars as $key => $value) {
                     if(strpos($key, ':data') !== false
@@ -3484,6 +3563,10 @@ class Form
         }
         $recordIDs = trim($recordIDs, ',');
         $recordIDs = $recordIDs ?: 0;
+
+        if(count($res) > count(array_keys($data))) {
+            header('LEAF-Query: continue'); // signal frontend there might be more data
+        }
 
         // These all require the recordIDs to be set
         if (!empty($recordIDs))
@@ -3968,12 +4051,15 @@ class Form
         }
         $indicatorList = trim($indicatorList, ',');
 
-        $res = $this->db->query(
-            'SELECT indicatorID, name, format
-                FROM indicators
-                WHERE indicatorID IN ('. $indicatorList .')'
-            );
-        return $res;
+        $return = [];
+        if($indicatorList != '') {
+            $return = $this->db->query(
+                'SELECT indicatorID, name, format
+                    FROM indicators
+                    WHERE indicatorID IN ('. $indicatorList .')'
+                );
+        }
+        return $return;
     }
 
     /**
