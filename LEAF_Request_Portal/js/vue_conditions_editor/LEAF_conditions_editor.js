@@ -23,7 +23,7 @@ const ConditionsEditor = Vue.createApp({
       crosswalkFile: '',
       crosswalkHasHeader: false,
       level2IndID: null,
-      noPrefillFormats: ['', 'fileupload', 'image']
+      noPrefillFormats: ['', 'fileupload', 'image', 'grid', 'date', 'number', 'checkbox', 'currency']
     };
   },
   created() {
