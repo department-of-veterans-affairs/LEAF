@@ -9,14 +9,12 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $debug = false;
 
-$res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-
-if($res['siteType'] != 'national_primary') {
+if(LEAF_SETTINGS['siteType'] != 'national_primary') {
     exit();
 }
 
 if ($debug) {
-    $db->enableDebug();
+    DB->enableDebug();
 }
 echo "Running Package Builder...<br />\n";
 array_map('unlink', glob($tempFolder . '*.sql'));
@@ -43,14 +41,14 @@ function exportTable($db, $tempFolder, $table) {
     file_put_contents("{$tempFolder}{$table}.sql", serialize($res));
 }
 
-exportTable($db, $tempFolder, 'actions');
-exportTable($db, $tempFolder, 'categories');
-exportTable($db, $tempFolder, 'category_staples');
-exportTable($db, $tempFolder, 'dependencies');
-exportTable($db, $tempFolder, 'indicators');
-exportTable($db, $tempFolder, 'route_events');
-exportTable($db, $tempFolder, 'workflows');
-exportTable($db, $tempFolder, 'workflow_steps');
-exportTable($db, $tempFolder, 'step_dependencies');
-exportTable($db, $tempFolder, 'workflow_routes');
-exportTable($db, $tempFolder, 'step_modules');
+exportTable(DB, $tempFolder, 'actions');
+exportTable(DB, $tempFolder, 'categories');
+exportTable(DB, $tempFolder, 'category_staples');
+exportTable(DB, $tempFolder, 'dependencies');
+exportTable(DB, $tempFolder, 'indicators');
+exportTable(DB, $tempFolder, 'route_events');
+exportTable(DB, $tempFolder, 'workflows');
+exportTable(DB, $tempFolder, 'workflow_steps');
+exportTable(DB, $tempFolder, 'step_dependencies');
+exportTable(DB, $tempFolder, 'workflow_routes');
+exportTable(DB, $tempFolder, 'step_modules');

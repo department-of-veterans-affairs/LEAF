@@ -49,19 +49,18 @@ $main->assign('hideFooter', false);
 $main->assign('useUI', false);
 $main->assign('userID', $login->getUserID());
 
-//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-
-if (isset($settings['timeZone'])) {
-    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
+if (isset(LEAF_SETTINGS['timeZone'])) {
+    date_default_timezone_set(XSSHelpers::xscrub(LEAF_SETTINGS['timeZone']));
 }
+
+$form = new Portal\Form(DB, $login);
 
 switch ($action) {
     case 'newform':
         $main->assign('useLiteUI', true);
         $main->assign('javascripts', array('js/titleValidator.js'));
 
-        $form = new Portal\Form($db, $login);
-        $stack = new Portal\FormStack($db, $login);
+        $stack = new Portal\FormStack(DB, $login);
 
         $t_menu->assign('action', XSSHelpers::xscrub($action));
         $o_login = $t_login->fetch('login.tpl');
@@ -113,7 +112,6 @@ switch ($action) {
                 APP_JS_PATH . '/choicesjs/choices.min.js'));
 
         $recordIDToView = (int)$_GET['recordID'];
-        $form = new Portal\Form($db, $login);
         // prevent view if form is submitted
         // defines who can edit the form
         if ($form->hasWriteAccess($recordIDToView) || $login->checkGroup(1))
@@ -156,7 +154,7 @@ switch ($action) {
         }
         $o_login = $t_login->fetch('login.tpl');
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
+        $requestLabel = LEAF_SETTINGS['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML(LEAF_SETTINGS['requestLabel']);
         $tabText = $requestLabel . ' #' . $recordIDToView;
 
         break;
@@ -182,8 +180,6 @@ switch ($action) {
         ));
 
         $recordIDToPrint = (int)$_GET['recordID'];
-
-        $form = new Portal\Form($db, $login);
 
         $t_menu->assign('recordID', $recordIDToPrint);
         $t_menu->assign('action', XSSHelpers::xscrub($action));
@@ -224,7 +220,7 @@ switch ($action) {
         }
 
         // get workflow status and check permissions
-        $formWorkflow = new Portal\FormWorkflow($db, $login, $recordIDToPrint);
+        $formWorkflow = new Portal\FormWorkflow(DB, $login, $recordIDToPrint);
         $t_form->assign('workflow', $formWorkflow->isActive());
         $t_form->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
         $t_form->assign('app_js_path', APP_JS_PATH);
@@ -257,7 +253,7 @@ switch ($action) {
                 break;
         }
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
+        $requestLabel = LEAF_SETTINGS['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML(LEAF_SETTINGS['requestLabel']);
         $tabText = $requestLabel . ' #' . $recordIDToPrint;
 
         break;
@@ -274,7 +270,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $inbox = new Portal\Inbox($db, $login);
+        $inbox = new Portal\Inbox(DB, $login);
 
         $inboxItems = $inbox->getInbox();
 
@@ -311,8 +307,7 @@ switch ($action) {
 
         break;
     case 'status':
-        $form = new Portal\Form($db, $login);
-        $view = new Portal\View($db, $login);
+        $view = new Portal\View(DB, $login);
 
         $recordIDForStatus = (int)$_GET['recordID'];
 
@@ -360,7 +355,7 @@ switch ($action) {
 
            break;
     case 'bookmarks':
-        $view = new Portal\View($db, $login);
+        $view = new Portal\View(DB, $login);
         $bookmarks = $view->buildViewBookmarks($login->getUserID());
 
         $t_form = new Smarty;
@@ -378,7 +373,6 @@ switch ($action) {
 
         break;
     case 'tag_cloud':
-        $form = new Portal\Form($db, $login);
         $tags = $form->getUniqueTags();
         $count = 0;
         $tempTags = array();
@@ -400,7 +394,6 @@ switch ($action) {
 
         break;
     case 'gettagmembers':
-        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -420,8 +413,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $rev = $db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
+        $t_form->assign('dbversion', XSSHelpers::xscrub(LEAF_SETTINGS['dbversion']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -447,13 +439,12 @@ switch ($action) {
         break;
 
     case 'sitemap':
-        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $t_form->assign('sitemap', $settings['sitemap_json']['buttons']);
-        $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+        $t_form->assign('sitemap', LEAF_SETTINGS['sitemap_json']['buttons']);
+        $t_form->assign('city', LEAF_SETTINGS['subHeading']);
         $t_form->assign('css_path', 'https://' . HTTP_HOST . '/app/libs/css');
         $main->assign('body', $t_form->fetch('sitemap.tpl'));
 
@@ -510,11 +501,11 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
-        $main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
+        $main->assign('title', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['heading']));
+        $main->assign('city', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['subHeading']));
         $main->assign('logout', true);
-        $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
-        $main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
+        $main->assign('leafSecure', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['leafSecure']));
+        $main->assign('revision', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['version']));
 
         $main->assign('body', $t_form->fetch(customTemplate('view_logout.tpl')));
         $main->display(customTemplate('main.tpl'));
@@ -543,13 +534,13 @@ switch ($action) {
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-        $inbox = new Portal\Inbox($db, $login);
+        $inbox = new Portal\Inbox(DB, $login);
         //$t_form->assign('inbox_status', $inbox->getInboxStatus()); // see Inbox.php -> getInboxStatus()
 
         $t_form->assign('inbox_status', 1);
-        if (isset($settings['homepage_enabled']) && $settings['homepage_enabled'] == 1) {
-            $t_form->assign('homeDesignJSON', json_encode($settings['homepage_design_json']));
-            $t_form->assign('searchDesignJSON', json_encode($settings['search_design_json']));
+        if (isset(LEAF_SETTINGS['homepage_enabled']) && LEAF_SETTINGS['homepage_enabled'] == 1) {
+            $t_form->assign('homeDesignJSON', json_encode(LEAF_SETTINGS['homepage_design_json']));
+            $t_form->assign('searchDesignJSON', json_encode(LEAF_SETTINGS['search_design_json']));
             $t_form->assign('tpl_search', 'nocode_templates/view_search.tpl');
             $main->assign('body', $t_form->fetch('./templates/nocode_templates/view_homepage.tpl'));
         } else {
@@ -567,7 +558,7 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', XSSHelpers::xscrub($action));
@@ -577,9 +568,9 @@ $o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $main->assign('tabText', XSSHelpers::sanitizeHTML($tabText));
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
-$main->assign('revision', XSSHelpers::sanitizeHTML($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['subHeading']));
+$main->assign('revision', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['version']));
 
 if (!isset($_GET['iframe'])) {
     $main->display(customTemplate('main.tpl'));

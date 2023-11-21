@@ -110,12 +110,11 @@ switch ($action) {
 
            $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
-           //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('timeZone', $settings['timeZone']);
-           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+           $t_form->assign('timeZone', LEAF_SETTINGS['timeZone']);
+           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['heading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['subheading']));
 
-           $tagObj = new Orgchart\Tag($db, $oc_login);
+           $tagObj = new Orgchart\Tag(DB, $oc_login);
            $t_form->assign('serviceParent', $tagObj->getParent('service'));
 
            $memberships = $oc_login->getMembership();
@@ -142,9 +141,8 @@ switch ($action) {
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-           //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
+           $t_form->assign('heading', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['heading']));
+           $t_form->assign('subheading', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['subheading']));
 
            $memberships = $oc_login->getMembership();
            if (isset($memberships['groupID'][1]))
@@ -263,10 +261,9 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['subheading']));
+$main->assign('revision', XSSHelpers::xscrub(LEAF_SETTINGS['version']));
 
 if (!isset($_GET['iframe']))
 {

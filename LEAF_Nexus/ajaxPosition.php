@@ -18,7 +18,7 @@ if ($oc_login)
 {
 }
 
-$position = new Orgchart\Position($oc_db, $oc_login);
+$position = new Orgchart\Position(OC_DB, $oc_login);
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 

@@ -46,15 +46,15 @@ foreach ($queue as $file)
         $res = null;
         switch ($categoryID) {
             case 1:
-                $type = new Orgchart\Employee($db, $login);
+                $type = new Orgchart\Employee(OC_DB, $login);
 
                 break;
             case 2:
-                $type = new Orgchart\Position($db, $login);
+                $type = new Orgchart\Position(OC_DB, $login);
 
                 break;
             case 3:
-                $type = new Orgchart\Group($db, $login);
+                $type = new Orgchart\Group(OC_DB, $login);
 
                 break;
             default:

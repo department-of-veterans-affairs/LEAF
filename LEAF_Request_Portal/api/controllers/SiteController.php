@@ -33,7 +33,7 @@ class SiteController extends RESTfulResponse
 		});
 
 		$this->index['GET']->register('site/settings/sitemap_json', function() use ($site){
-			return $site->getSitemapJSON();
+			return LEAF_SETTINGS['sitemap_json'];
 		});
 
 		return $this->index['GET']->runControl($act['key'], $act['args']);

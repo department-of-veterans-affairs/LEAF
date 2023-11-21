@@ -48,7 +48,7 @@ function customTemplate($tpl)
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-function hasDevConsoleAccess($login, $oc_db)
+function hasDevConsoleAccess($login)
 {
     // automatically allow coaches
     $db_national = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
@@ -67,7 +67,7 @@ function hasDevConsoleAccess($login, $oc_db)
     }
 
     $vars = array(':empUID' => $login->getEmpUID());
-    $res = $oc_db->prepared_query('SELECT data FROM employee_data
+    $res = OC_DB->prepared_query('SELECT data FROM employee_data
                                             WHERE empUID=:empUID
                                                 AND indicatorID=27
                                                 AND data="Yes"
@@ -84,8 +84,6 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 { // issue with dijit tabcontainer and ie6
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 10 or higher.');
 }
-
-//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
 $main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo" />');
 
@@ -114,13 +112,12 @@ switch ($action) {
                                            $site_paths['orgchart_path'] . '/js/groupSelector.js',
         ));
 
-        //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-        $tz = isset($settings['timeZone']) ? $settings['timeZone'] : null;
+        $tz = isset(LEAF_SETTINGS['timeZone']) ? LEAF_SETTINGS['timeZone'] : null;
 
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('timeZone', $tz);
-        $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
+        $t_form->assign('orgchartImportTag', LEAF_SETTINGS['orgchartImportTags'][0]);
         $t_form->assign('app_libs', APP_LIBS_PATH);
 
         $main->assign('useUI', true);
@@ -170,7 +167,7 @@ switch ($action) {
                                            $site_paths['orgchart_path'] . '/css/groupSelector.css',
         ));
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
-        $t_form->assign('orgchartImportTags', $settings['orgchartImportTags'][0]);
+        $t_form->assign('orgchartImportTags', LEAF_SETTINGS['orgchartImportTags'][0]);
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
         $main->assign('body', $t_form->fetch('mod_workflow.tpl'));
@@ -215,7 +212,7 @@ switch ($action) {
         $t_form->assign('libsPath', LEAF_DOMAIN.'app/libs/');
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
-        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login));
 
         $main->assign('body', $t_form->fetch('form_editor_vue.tpl'));
 
@@ -258,13 +255,13 @@ switch ($action) {
         $t_form->assign('APIroot', '../api/');
         $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
         $t_form->assign('referFormLibraryID', (int)$_GET['referFormLibraryID']);
-        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login, $oc_db));
+        $t_form->assign('hasDevConsoleAccess', hasDevConsoleAccess($login));
         $t_form->assign('app_js_path', APP_JS_PATH);
 
         if (isset($_GET['form']))
         {
             $vars = array(':categoryID' => XSSHelpers::xscrub($_GET['form']));
-            $res = $db->prepared_query('SELECT * FROM categories WHERE categoryID=:categoryID', $vars);
+            $res = DB->prepared_query('SELECT * FROM categories WHERE categoryID=:categoryID', $vars);
             if (count($res) > 0)
             {
                 $t_form->assign('form', XSSHelpers::xscrub($res[0]['categoryID']));
@@ -279,7 +276,7 @@ switch ($action) {
     case 'mod_templates':
     case 'mod_templates_reports':
     case 'mod_templates_email':
-            if(!hasDevConsoleAccess($login, $oc_db)) {
+            if(!hasDevConsoleAccess($login)) {
                header('Location: ../report.php?a=LEAF_start_leaf_dev_console_request');
             }
 
@@ -457,7 +454,7 @@ switch ($action) {
 
         $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
 
-        $t_form->assign('importTags', $settings['orgchartImportTags'][0]);
+        $t_form->assign('importTags', LEAF_SETTINGS['orgchartImportTags'][0]);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
         $main->assign('body', $t_form->fetch(customTemplate('mod_system.tpl')));
 
@@ -472,7 +469,7 @@ switch ($action) {
             $main->assign('useUI', true);
             //   		$t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('importTags', $settings['orgchartImportTags'][0]);
+            $t_form->assign('importTags', LEAF_SETTINGS['orgchartImportTags'][0]);
             //   		$main->assign('stylesheets', array('css/mod_groups.css'));
             $main->assign('body', $t_form->fetch(customTemplate('mod_file_manager.tpl')));
 
@@ -593,7 +590,7 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-            $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
+            $t_form->assign('siteType', XSSHelpers::xscrub(LEAF_SETTINGS['siteType']));
 
             $main->assign('javascripts', array(APP_JS_PATH . '/jquery/jquery.min.js',
                                            APP_JS_PATH . '/jquery/jquery-ui.custom.min.js',
@@ -616,20 +613,20 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
 $t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
-$t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
+$t_menu->assign('siteType', XSSHelpers::xscrub(LEAF_SETTINGS['siteType']));
 $o_menu = $t_menu->fetch('menu.tpl');
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['subHeading']));
+$main->assign('revision', XSSHelpers::xscrub(LEAF_SETTINGS['version']));
 
 if (!isset($_GET['iframe']))
 {

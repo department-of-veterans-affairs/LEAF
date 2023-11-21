@@ -18,8 +18,6 @@ class Config
 
     public static $ERM_Sites; // HTTP Path to orgchart with no trailing slash
 
-    public $oc_db;
-
     public $dbName;
 
     public function __construct(array $site_paths, array $oc_settings)

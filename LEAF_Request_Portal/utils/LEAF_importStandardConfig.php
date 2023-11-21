@@ -29,27 +29,27 @@ echo "Running Importer on {$site_paths['portal_database']}...<br />\n";
 
 if ($debug)
 {
-    $db->enableDebug();
+    DB->enableDebug();
 }
 
-$db->query("TRUNCATE TABLE `workflow_routes`;");
-$db->query("TRUNCATE TABLE `step_dependencies`;");
-$db->query("delete from `workflow_steps`;");
-$db->query("delete FROM `workflows`;");
-$db->query("delete FROM `events`;");
-$db->query("TRUNCATE TABLE `email_templates`;");
-$db->query("TRUNCATE TABLE `route_events`;");
-$db->query("TRUNCATE TABLE `indicators`;");
-$db->query("ALTER TABLE records_dependencies DROP FOREIGN KEY fk_records_dependencyID;");
-$db->query("ALTER TABLE dependency_privs DROP FOREIGN KEY fk_privs_dependencyID;");
-$db->query("delete FROM `dependencies`;");
-$db->query("ALTER TABLE category_count DROP FOREIGN KEY category_count_ibfk_1;");
-$db->query("ALTER TABLE category_privs DROP FOREIGN KEY category_privs_ibfk_2;");
-$db->query("TRUNCATE TABLE `category_staples`;");
-$db->query("delete FROM `categories`;");
-$db->query("delete FROM `actions`;");
-$db->query("delete FROM `records_dependencies` WHERE dependencyID=0;"); // delete invalid items -- TODO: figure out how these invalid items got written
-$db->query("TRUNCATE TABLE `step_modules`;");
+DB->query("TRUNCATE TABLE `workflow_routes`;");
+DB->query("TRUNCATE TABLE `step_dependencies`;");
+DB->query("delete from `workflow_steps`;");
+DB->query("delete FROM `workflows`;");
+DB->query("delete FROM `events`;");
+DB->query("TRUNCATE TABLE `email_templates`;");
+DB->query("TRUNCATE TABLE `route_events`;");
+DB->query("TRUNCATE TABLE `indicators`;");
+DB->query("ALTER TABLE records_dependencies DROP FOREIGN KEY fk_records_dependencyID;");
+DB->query("ALTER TABLE dependency_privs DROP FOREIGN KEY fk_privs_dependencyID;");
+DB->query("delete FROM `dependencies`;");
+DB->query("ALTER TABLE category_count DROP FOREIGN KEY category_count_ibfk_1;");
+DB->query("ALTER TABLE category_privs DROP FOREIGN KEY category_privs_ibfk_2;");
+DB->query("TRUNCATE TABLE `category_staples`;");
+DB->query("delete FROM `categories`;");
+DB->query("delete FROM `actions`;");
+DB->query("delete FROM `records_dependencies` WHERE dependencyID=0;"); // delete invalid items -- TODO: figure out how these invalid items got written
+DB->query("TRUNCATE TABLE `step_modules`;");
 
 
 function importTable($db, $tempFolder, $table) {
@@ -92,19 +92,19 @@ function importTable($db, $tempFolder, $table) {
     }
 }
 
-importTable($db, $tempFolder, 'actions');
-importTable($db, $tempFolder, 'categories');
-importTable($db, $tempFolder, 'category_staples');
-importTable($db, $tempFolder, 'dependencies');
-importTable($db, $tempFolder, 'indicators');
-importTable($db, $tempFolder, 'events');
-importTable($db, $tempFolder, 'route_events');
-importTable($db, $tempFolder, 'workflows');
-importTable($db, $tempFolder, 'workflow_steps');
-importTable($db, $tempFolder, 'step_dependencies');
-importTable($db, $tempFolder, 'workflow_routes');
-importTable($db, $tempFolder, 'step_modules');
-importTable($db, $tempFolder, 'email_templates');
+importTable(DB, $tempFolder, 'actions');
+importTable(DB, $tempFolder, 'categories');
+importTable(DB, $tempFolder, 'category_staples');
+importTable(DB, $tempFolder, 'dependencies');
+importTable(DB, $tempFolder, 'indicators');
+importTable(DB, $tempFolder, 'events');
+importTable(DB, $tempFolder, 'route_events');
+importTable(DB, $tempFolder, 'workflows');
+importTable(DB, $tempFolder, 'workflow_steps');
+importTable(DB, $tempFolder, 'step_dependencies');
+importTable(DB, $tempFolder, 'workflow_routes');
+importTable(DB, $tempFolder, 'step_modules');
+importTable(DB, $tempFolder, 'email_templates');
 
 if (is_dir($paste_custom_templates) && is_dir($copy_custom_templates)) {
     // remove files from templates/email/custom_override on subordinate
@@ -122,10 +122,10 @@ if (is_dir($paste_custom_templates) && is_dir($copy_custom_templates)) {
     copyDirectory($copy_custom_templates, $paste_custom_templates);
 }
 
-$db->query("ALTER TABLE `records_dependencies` ADD CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
-$db->query("ALTER TABLE `dependency_privs` ADD CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
-$db->query("ALTER TABLE `category_count` ADD CONSTRAINT `category_count_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories`(`categoryID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
-$db->query("ALTER TABLE `category_privs` ADD CONSTRAINT `category_privs_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories`(`categoryID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
+DB->query("ALTER TABLE `records_dependencies` ADD CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
+DB->query("ALTER TABLE `dependency_privs` ADD CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies`(`dependencyID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
+DB->query("ALTER TABLE `category_count` ADD CONSTRAINT `category_count_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories`(`categoryID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
+DB->query("ALTER TABLE `category_privs` ADD CONSTRAINT `category_privs_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories`(`categoryID`) ON DELETE RESTRICT ON UPDATE RESTRICT;");
 
 function copyDirectory(string $source, string $destination): void
 {

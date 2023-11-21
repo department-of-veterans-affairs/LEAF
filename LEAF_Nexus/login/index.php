@@ -11,10 +11,6 @@ setcookie('PHPSESSID', '', time() - 3600, '/', null, $https, true);
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$settings['heading'] = XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']);
-$settings['subHeading'] = XSSHelpers::sanitizeHTMLRich($settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
-
 function getBaseDir()
 {
     $dir = dirname($_SERVER['PHP_SELF']);
@@ -43,8 +39,8 @@ $authURL = $protocol . AUTH_URL . '/auth_token/index.php?r=' . base64_encode(get
 <div id="header">
     <div>
       <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
-      <span id="headerLabel"><?php echo htmlentities($settings['subHeading']); ?></span>
-      <span id="headerDescription"><?php echo htmlentities($settings['heading']); ?></span>
+      <span id="headerLabel"><?php echo htmlentities(LEAF_SETTINGS['subHeading']); ?></span>
+      <span id="headerDescription"><?php echo htmlentities(LEAF_SETTINGS['heading']); ?></span>
     </div>
     <span id="headerTab">Secure Login</span>
     <span id="headerTabImg"><img src="../images/tab.png" alt="tab" /></span>

@@ -20,7 +20,7 @@ switch ($action) {
     case 'lastaction':
         if (!isset($_GET['recordID']))
         {
-            $res = $db->prepared_query('SELECT time FROM action_history
+            $res = DB->prepared_query('SELECT time FROM action_history
         							ORDER BY time DESC
         							LIMIT 1', array());
             echo isset($res[0]['time']) ? $res[0]['time'] : 0;
@@ -28,7 +28,7 @@ switch ($action) {
         else
         {
             $vars = array('recordID' => $_GET['recordID']);
-            $res = $db->prepared_query('SELECT time FROM action_history
+            $res = DB->prepared_query('SELECT time FROM action_history
                     						WHERE recordID = :recordID
                 							ORDER BY time DESC
                 							LIMIT 1', $vars);

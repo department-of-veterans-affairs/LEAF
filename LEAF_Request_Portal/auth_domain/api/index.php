@@ -12,6 +12,8 @@ error_reporting(E_ERROR);
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
+$db = DB;
+
 $login->setBaseDir('../');
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';

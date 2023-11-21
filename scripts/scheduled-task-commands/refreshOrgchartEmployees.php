@@ -1,7 +1,7 @@
 <?php
 // this file will need to be added, Pete's destruction ticket has it already.
-require_once 'globals.php';
-require_once LIB_PATH . '/php-commons/Db.php';
+require_once getenv('APP_LIBS_PATH') . '/globals.php';
+require_once getenv('APP_LIBS_PATH') . '../Leaf/Db.php';
 
 $startTime = microtime(true);
 

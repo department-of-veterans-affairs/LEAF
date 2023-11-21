@@ -61,19 +61,19 @@ if (is_dir($working_dir . $site_paths['orgchart_path'])) {
 */
 
 if (!empty($site_paths['portal_database'])){
-    $db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']);
+    if (!defined('DB')) define('DB', new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['portal_database']));
 } else {
-    $db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
+    if (!defined('DB')) define('DB', new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']));
 }
 
-$oc_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']);
+if (!defined('OC_DB')) define('OC_DB', new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $site_paths['orgchart_database']));
 
 // get the settings for this portal
-$setting_up = new Setting($db);
-$settings = $setting_up->getSettings();
+$setting_up = new Setting(DB);
+if (!defined('LEAF_SETTINGS')) define('LEAF_SETTINGS', $setting_up->getSettings());
 
 if (class_exists('Portal\Config')) {
-    $config = new Portal\Config($site_paths, $settings);
+    $config = new Portal\Config($site_paths, LEAF_SETTINGS);
     if (!defined('PORTAL_CONFIG')) define('PORTAL_CONFIG', $config);
 }
 
@@ -87,10 +87,10 @@ $sql = 'SELECT site_uploads
 
 $oc_site_paths = $file_paths_db->prepared_query($sql, $vars)[0];
 
-$oc_setting_up = new Setting($oc_db);
-$oc_settings = $oc_setting_up->getSettings();
+$oc_setting_up = new Setting(OC_DB);
+if (!defined('OC_SETTINGS')) define('OC_SETTINGS', $oc_setting_up->getSettings());
 
-$oc_config = new Orgchart\Config($site_paths, $oc_settings);
+$oc_config = new Orgchart\Config($site_paths, OC_SETTINGS);
 if (!defined('ORGCHART_CONFIG')) define('ORGCHART_CONFIG', $oc_config);
 
 ini_set('session.gc_maxlifetime', 2592000);
@@ -126,24 +126,20 @@ if (session_id() == '') {
 }
 
 if (class_exists('Portal\Login')) {
-    $login = new Portal\Login($oc_db, $db);
+    $login = new Portal\Login(OC_DB, DB);
 } else if (class_exists('Orgchart\Login')) {
-    $login = new Orgchart\Login($oc_db, $db);
-    $oc_login = new Orgchart\Login($oc_db, $oc_db);
+    $login = new Orgchart\Login(OC_DB, DB);
+    $oc_login = new Orgchart\Login(OC_DB, OC_DB);
 } else {
     error_log(print_r($loader, true));
     exit;
 }
-$data_action_logger = new DataActionLogger($db, $login);
 
 if (!defined('S_LIB_PATH')) define('S_LIB_PATH', 'https://' . getenv('APP_HTTP_HOST') . '/libs');
 if (!defined('ABSOLUTE_ORG_PATH')) define('ABSOLUTE_ORG_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['orgchart_path']);
 if (!defined('ABSOLUTE_PORT_PATH')) define('ABSOLUTE_PORT_PATH', 'https://' . getenv('APP_HTTP_HOST') . $site_paths['site_path']);
 if (!defined('DOMAIN_PATH')) define('DOMAIN_PATH', 'https://' . getenv('APP_HTTP_HOST'));
 if (!defined('ORGCHART_DB')) define('ORGCHART_DB', $site_paths['orgchart_database']);
-if (!defined('OC_DB')) define('OC_DB', $oc_db);
-if (!defined('LEAF_SETTINGS')) define('LEAF_SETTINGS', $settings);
-if (!defined('OC_SETTINGS')) define('OC_SETTINGS', $oc_settings);
 
 if (!empty($site_paths['portal_database'])) {
     if (!defined('PORTAL_DB')) define('PORTAL_DB', $site_paths['portal_database']);

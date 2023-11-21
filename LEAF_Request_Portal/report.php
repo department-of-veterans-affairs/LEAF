@@ -56,11 +56,9 @@ $main->assign('app_js_path', APP_JS_PATH);
 
 $main->assign('useUI', false);
 
-//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-
-foreach (array_keys($settings) as $key)
+foreach (array_keys(LEAF_SETTINGS) as $key)
 {
-    $settings[$key] = XSSHelpers::sanitizeHTMLRich($settings[$key]);
+    LEAF_SETTINGS[$key] = XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS[$key]);
 }
 
 switch ($action) {
@@ -68,7 +66,7 @@ switch ($action) {
         $main->assign('useUI', true);
         $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js'));
 
-        $form = new Portal\Form($db, $login);
+        $form = new Portal\Form(DB, $login);
         $o_login = $t_login->fetch('login.tpl');
 
         $currentEmployee = $form->employee->lookupLogin($login->getUserID());
@@ -107,7 +105,7 @@ switch ($action) {
                 APP_JS_PATH . '/choicesjs/choices.min.js'
             ));
 
-            $form = new Portal\Form($db, $login);
+            $form = new Portal\Form(DB, $login);
             $o_login = $t_login->fetch('login.tpl');
 
             $t_form = new Smarty;
@@ -119,9 +117,9 @@ switch ($action) {
             $t_form->assign('empMembership', $login->getMembership());
             $t_form->assign('currUserActualName', XSSHelpers::xscrub($login->getName()));
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
-            $t_form->assign('systemSettings', $settings);
+            $t_form->assign('systemSettings', LEAF_SETTINGS);
             $t_form->assign('LEAF_NEXUS_URL', LEAF_NEXUS_URL);
-            $t_form->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
+            $t_form->assign('city', LEAF_SETTINGS['subHeading']);
             $t_form->assign('app_css_path', APP_CSS_PATH);
             $t_form->assign('app_js_path', APP_JS_PATH);
 
@@ -136,7 +134,7 @@ switch ($action) {
         break;
 }
 
-$main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
+$main->assign('leafSecure', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $main->assign('empMembership', $login->getMembership());
 $t_menu->assign('action', $action);
@@ -147,9 +145,9 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : $settings['heading']);
-$main->assign('city', $settings['subHeading'] == '' ? $config->city : $settings['subHeading']);
-$main->assign('revision', $settings['version']);
+$main->assign('title', LEAF_SETTINGS['heading']);
+$main->assign('city', LEAF_SETTINGS['subHeading']);
+$main->assign('revision', LEAF_SETTINGS['version']);
 
 if (!isset($_GET['iframe']))
 {

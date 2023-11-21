@@ -14,13 +14,13 @@ $oc_login->loginUser();
 
 $memberships = $oc_login->getMembership();
 
-$position = new Orgchart\Position($oc_db, $oc_login);
-$tag = new Orgchart\Tag($oc_db, $oc_login);
+$position = new Orgchart\Position(OC_DB, $oc_login);
+$tag = new Orgchart\Tag(OC_DB, $oc_login);
 
 // check for cached result
 /* if(!isset($_GET['cache'])
     && $_GET['cache'] == 0) {
-    $cache = $oc_db->query_kv('SELECT * FROM cache WHERE cacheID="jsonExport_PDL.php" OR cacheID="lastModified"', 'cacheID', array('data', 'cacheTime'));
+    $cache = OC_DB->query_kv('SELECT * FROM cache WHERE cacheID="jsonExport_PDL.php" OR cacheID="lastModified"', 'cacheID', array('data', 'cacheTime'));
     if (isset($cache['jsonExport_PDL.php'])
         && isset($cache['lastModified'])
         && $cache['jsonExport_PDL.php']['cacheTime'] > $cache['lastModified']['data']
@@ -38,7 +38,7 @@ $tag = new Orgchart\Tag($oc_db, $oc_login);
 
 header('Content-type: application/json');
 
-$res = $oc_db->prepared_query('SELECT * FROM positions', array());
+$res = OC_DB->prepared_query('SELECT * FROM positions', array());
 
 $jsonOut = array();
 $iteration = 0;
@@ -197,7 +197,7 @@ foreach($jsonOut as $item) {
 }
 $empUID_list = implode(',', $uniqueEmps);
 $vars = [];
-$empEmails = $oc_db->query_kv("SELECT * FROM employee_data
+$empEmails = OC_DB->query_kv("SELECT * FROM employee_data
             WHERE indicatorID = 6 AND empUID IN ({$empUID_list})", 'empUID', 'data', $vars);
 foreach($jsonOut as $key => $item) {
     if($item['employeeUID'] != '') {
@@ -216,7 +216,7 @@ $result = json_encode($jsonOut);
 $vars = array(':cacheID' => 'jsonExport_PDL.php',
               ':data' => $result,
               ':cacheTime' => time(), );
-$res = $oc_db->prepared_query('INSERT INTO cache (cacheID, data, cacheTime)
+$res = OC_DB->prepared_query('INSERT INTO cache (cacheID, data, cacheTime)
    								VALUES (:cacheID, :data, :cacheTime)
    								ON DUPLICATE KEY UPDATE data=:data, cacheTime=:cacheTime', $vars);
 

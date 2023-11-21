@@ -50,7 +50,7 @@ if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
  */
 function updateUserInfo(string $userName, int $empUID)
 {
-    global $db, $globalDB, $oc_db;
+    global $globalDB;
 
     $vars = array(':userName' => htmlspecialchars_decode($userName, ENT_QUOTES)); //for users with apostrophe in name
 
@@ -88,7 +88,7 @@ function updateUserInfo(string $userName, int $empUID)
             ':userName' => $userName,
             ':deleted' => time()
         );
-	    $oc_db->prepared_query($sql3, $vars);
+	    OC_DB->prepared_query($sql3, $vars);
     }
 
     if (count($res) > 0) {
@@ -105,7 +105,7 @@ function updateUserInfo(string $userName, int $empUID)
         );
 
 		// sets local employee table
-		$oc_db->prepared_query($sql2, $vars);
+		OC_DB->prepared_query($sql2, $vars);
 
         // sets local employee_data table
         updateEmployeeData($res[0]['empUID'], $empUID);
@@ -123,18 +123,18 @@ function updateUserInfo(string $userName, int $empUID)
                 SET deleted=:deleted
                 WHERE userName=:userName";
 
-            $db->prepared_query($sql4, $vars);
+            DB->prepared_query($sql4, $vars);
         }
     }
 }
 
 function updateLocalOrgchartBatch()
 {
-    global $oc_db, $globalDB;
+    global $globalDB;
 
     // replace the separate function for getting employee
     $localEmployeeSql = "SELECT userName FROM employee";
-    $localEmployees = $oc_db->query($localEmployeeSql);
+    $localEmployees = OC_DB->query($localEmployeeSql);
 
     if (count($localEmployees) == 0) {
         return;
@@ -161,7 +161,7 @@ function updateLocalOrgchartBatch()
 function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 {
 
-    global $oc_db, $globalDB;
+    global $globalDB;
 
     if (empty($localEmployeeUsernames)) {
         return FALSE;
@@ -185,7 +185,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 
     // get local empuids
     $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
-    $localEmpUIDs = $oc_db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
+    $localEmpUIDs = OC_DB->prepared_query($localEmployeeSql,$localEmployeeUsernames);
 
     $localEmpArray = [];
     foreach ($localEmpUIDs as $localUsername) {
@@ -218,10 +218,10 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     $deletedEmployeesSql = "UPDATE employee SET deleted=UNIX_TIMESTAMP(NOW()) WHERE userName IN (" . implode(",", array_fill(1, count($localDeletedEmployees), '?')) . ")";
 
     if (!empty($localDeletedEmployees)) {
-        $oc_db->prepared_query($deletedEmployeesSql,array_values($localDeletedEmployees));
+        OC_DB->prepared_query($deletedEmployeesSql,array_values($localDeletedEmployees));
     }
 
-    $oc_db->insert_batch('employee',$localEmployeeArray,['lastName','firstName','middleName','phoneticFirstName','phoneticLastName','domain','deleted','lastUpdated']);
+    OC_DB->insert_batch('employee',$localEmployeeArray,['lastName','firstName','middleName','phoneticFirstName','phoneticLastName','domain','deleted','lastUpdated']);
 
     // STEP 2: Get employee_data updated
     // get the employee data, we will need to get the employee ids first
@@ -255,7 +255,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         ];
     }
 
-    $oc_db->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
+    OC_DB->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
 
 
 }
@@ -267,7 +267,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 */
 function updateEmployeeData($nationalEmpUID, $localEmpUID)
 {
-    global $oc_db, $globalDB;
+    global $globalDB;
 
     $sql = "SELECT empUID, indicatorID, data, author, timestamp
             FROM employee_data
@@ -301,7 +301,7 @@ function updateEmployeeData($nationalEmpUID, $localEmpUID)
                 ':timestamp' => time()
             );
 
-            $oc_db->prepared_query($sql2, $vars);
+            OC_DB->prepared_query($sql2, $vars);
         }
     }
 }

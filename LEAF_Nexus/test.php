@@ -7,6 +7,6 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $login->loginUser();
 
-$emp = new Orgchart\Employee($oc_db, $oc_login);
+$emp = new Orgchart\Employee(OC_DB, $oc_login);
 
 print_r($emp->search('gao'));

@@ -21,11 +21,11 @@ $res = $db_national->prepared_query('SELECT * FROM relation_group_employee WHERE
 if(count($res) > 0) {
     $vars = array(':groupID' => 1,
                   ':userID' => $userID);
-    $db->prepared_query('INSERT INTO users (userID, groupID, backupID) VALUES (:userID, :groupID, "")', $vars);
+    DB->prepared_query('INSERT INTO users (userID, groupID, backupID) VALUES (:userID, :groupID, "")', $vars);
 
     $vars = array(':groupID' => 1,
                   ':empUID' => $login->getEmpUID());
-    $oc_db->prepared_query('INSERT INTO relation_group_employee (empUID, groupID) VALUES (:empUID, :groupID)', $vars);
+    OC_DB->prepared_query('INSERT INTO relation_group_employee (empUID, groupID) VALUES (:empUID, :groupID)', $vars);
 
     echo "Added {$userID} to Portal and Nexus admin lists";
 }

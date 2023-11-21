@@ -56,8 +56,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
+        $t_form->assign('dbversion', XSSHelpers::xscrub(OC_SETTINGS['dbversion']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -110,10 +109,9 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-//$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', XSSHelpers::scrubNewLinesFromURL($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['subheading']));
+$main->assign('revision', XSSHelpers::scrubNewLinesFromURL(LEAF_SETTINGS['version']));
 
 if (!isset($_GET['iframe']))
 {

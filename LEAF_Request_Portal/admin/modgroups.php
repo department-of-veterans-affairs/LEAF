@@ -9,7 +9,7 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $dir = new Portal\VAMC_Directory();
 
-$groups = $db->prepared_query('SELECT * FROM `groups` ORDER BY name ASC', array());
+$groups = DB->prepared_query('SELECT * FROM `groups` ORDER BY name ASC', array());
 echo 'Access Groups:';
 echo '<ul>';
 foreach ($groups as $group)
@@ -17,7 +17,7 @@ foreach ($groups as $group)
     echo '<li>' . XSSHelpers::xscrub($group['name']) . ' (groupID#: ' . XSSHelpers::xscrub($group['groupID']) . ')';
 
     $vars = array('groupID' => $group['groupID']);
-    $users = $db->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $vars);
+    $users = DB->prepared_query('SELECT * FROM users WHERE groupID=:groupID ORDER BY userID', $vars);
     echo '<ul>';
     foreach ($users as $user)
     {

@@ -14,11 +14,8 @@ error_reporting(E_ERROR);
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $oc_login->loginUser();
-if ($oc_login)
-{
-}
 
-$group = new Orgchart\Group($oc_db, $oc_login);
+$group = new Orgchart\Group(OC_DB, $oc_login);
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
@@ -81,7 +78,7 @@ switch ($action) {
 
         break;
     case 'listPositionData':
-        $employee = new Orgchart\Employee($oc_db, $oc_login);
+        $employee = new Orgchart\Employee(OC_DB, $oc_login);
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';

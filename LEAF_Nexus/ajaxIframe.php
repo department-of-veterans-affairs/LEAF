@@ -122,7 +122,7 @@ switch ($action) {
 
         break;
     case 'view_position_permissions':
-        $position = new Orgchart\Position($oc_db, $oc_login);
+        $position = new Orgchart\Position(OC_DB, $oc_login);
 
         $t_iframe = new Smarty;
         $t_iframe->left_delimiter = '<!--{';
@@ -181,7 +181,6 @@ $main->assign('tabText', $tabText);
 $main->assign('title', $config->title);
 $main->assign('city', $config->city);
 
-$rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='version'", array());
-$main->assign('revision', XSSHelpers::xscrub($rev[0]['data']));
+$main->assign('revision', XSSHelpers::xscrub(OC_SETTINGS['version']));
 
 $main->display('main_iframe.tpl');

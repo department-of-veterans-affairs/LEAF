@@ -19,17 +19,12 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $oc_login->loginUser();
 
-if ($oc_login)
-{
-}
-
-$employee = new Orgchart\Employee($oc_db, $oc_login);
+$employee = new Orgchart\Employee(OC_DB, $oc_login);
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 $uid = isset($_GET['empUID']) && is_numeric($_GET['empUID']) ? $_GET['empUID'] : 0;
 $indicatorID = isset($_GET['indicatorID']) && is_numeric($_GET['indicatorID']) ? $_GET['indicatorID'] : 0;
-
 
 switch ($action) {
     case 'getForm':

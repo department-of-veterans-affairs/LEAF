@@ -10,14 +10,14 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 $login->setBaseDir('../');
 $login->loginUser();
 
-$employee = new Orgchart\Employee($oc_db, $login);
-$group = new Orgchart\Group($oc_db, $login);
-$position = new Orgchart\Position($oc_db, $login);
-$tag = new Orgchart\Tag($oc_db, $login);
+$employee = new Orgchart\Employee(OC_DB, $login);
+$group = new Orgchart\Group(OC_DB, $login);
+$position = new Orgchart\Position(OC_DB, $login);
+$tag = new Orgchart\Tag(OC_DB, $login);
 
-$group_portal = new Portal\Group($db, $login);
-$service_portal = new Portal\Service($db, $login);
-$system_portal = new Portal\System($db, $login);
+$group_portal = new Portal\Group(DB, $login);
+$service_portal = new Portal\Service(DB, $login);
+$system_portal = new Portal\System(DB, $login);
 $syncing = $system_portal->syncSystem($group);
 
 echo $syncing;
