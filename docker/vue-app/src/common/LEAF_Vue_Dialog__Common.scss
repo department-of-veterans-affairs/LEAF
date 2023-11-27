@@ -34,6 +34,14 @@ body { /* fixes header not extending entire width */
 [v-cloak] {
     display: none;
 }
+.page_loading {
+    border: 2px solid black;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 1rem;
+    background-color: white;
+}
 input[type="color"] {
     cursor: pointer;
 }
@@ -43,12 +51,16 @@ input[type="color"] {
     main {
         margin: 0;
         > section {
-            margin: 0rem 1rem 1rem 1rem;
+            margin: auto;
+            padding: 0 0.5em;
+            max-width: 1800px;
         }
     }
 }
 #vue-formeditor-app *, #site-designer-app *, #leaf_dialog_content * {
     box-sizing: border-box;
+}
+#vue-formeditor-app label, #site-designer-app label, #leaf_dialog_content label {
     font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
 }
 #vue-formeditor-app button:not(.choices__button,[class*="trumbowyg"]),
@@ -75,7 +87,9 @@ button.btn-general, button.btn-confirm {
         border: 2px solid black !important;
     }
     &.disabled {
-        cursor: auto !important;
+        cursor: not-allowed !important;
+        background-color: #c9c9c9;
+        color: #454545;
         &:active {
             border: 2px solid $base_navy !important;
         }
@@ -164,7 +178,8 @@ td a.router-link {
     
         h2 {
             color: inherit;
-            margin: 0;
+            font-size: 22px;
+            margin: 0 1.5rem 0 0;
         }
     } 
     #leaf-vue-dialog-close {

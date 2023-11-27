@@ -1,4 +1,5 @@
 export default {
+    name: 'edit-properties-panel',
     data() {
         return {
             categoryName: this.decodeAndStripHTML(this.focusedFormRecord?.categoryName || 'Untitled'),
@@ -10,13 +11,21 @@ export default {
             formID: this.focusedFormRecord?.categoryID || '',
             formParentID: this.focusedFormRecord?.parentID || '',
             destructionAgeYears: this.focusedFormRecord?.destructionAge > 0 ?  this.focusedFormRecord?.destructionAge / 365 : null,
-            lastUpdated: ''
+            
+            workflowsLoading: true,
+            workflowRecords: []
         }
+    },
+    props: {
+        hasCollaborators: Boolean
+    },
+    created() {
+        this.getWorkflowRecords();
     },
     inject: [
         'APIroot',
         'CSRFToken',
-        'workflowRecords',
+        'appIsLoadingForm',
         'allStapledFormCatIDs',
         'focusedFormRecord',
         'focusedFormIsSensitive',
@@ -28,6 +37,9 @@ export default {
         'decodeAndStripHTML',
 	],
     computed: {
+        loading() {
+            return this.appIsLoadingForm || this.workflowsLoading;
+        },
         workflowDescription() {
             let returnValue = '';
             if (this.workflowID !== 0) {
@@ -53,19 +65,32 @@ export default {
         },
     },
     methods: {
+        /**
+         * @returns {array} of objects with all fields from the workflows table
+         */
+        getWorkflowRecords() {
+            $.ajax({
+                type: 'GET',
+                url: `${this.APIroot}workflow`,
+                success: (res) => {
+                    this.workflowRecords = res || [];
+                    this.workflowsLoading = false;
+                },
+                error: (err) => console.log(err)
+            });
+        },
         updateName() {
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/formName`,
                 data: {
-                    name: this.categoryName,
+                    name: XSSHelpers.stripAllTags(this.categoryName),
                     categoryID: this.formID,
                     CSRFToken: this.CSRFToken
                 },
                 success: () => {  //except for WF and desctuctionAge, these give back an empty array
                     this.updateCategoriesProperty(this.formID, 'categoryName', this.categoryName);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err =>  console.log('name post err', err)
             })
@@ -75,14 +100,13 @@ export default {
                 type: 'POST',
                 url: `${this.APIroot}formEditor/formDescription`,
                 data: {
-                    description: this.categoryDescription,
+                    description:  XSSHelpers.stripAllTags(this.categoryDescription),
                     categoryID: this.formID,
                     CSRFToken: this.CSRFToken
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'categoryDescription', this.categoryDescription);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('form description post err', err)
             })
@@ -102,8 +126,7 @@ export default {
                     } else {
                         this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
                         this.updateCategoriesProperty(this.formID, 'workflowDescription', this.workflowDescription);
-                        this.lastUpdated = new Date().toLocaleString();
-                        this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                        this.showLastUpdate('form_properties_last_update');
                     }
                 },
                 error: err => console.log('workflow post err', err)
@@ -120,8 +143,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'visible', this.visible);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('visibility post err', err)
             })
@@ -137,8 +159,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('ntk post err', err)
             })
@@ -154,8 +175,7 @@ export default {
                 },
                 success: () => {
                     this.updateCategoriesProperty(this.formID, 'type', this.type);
-                    this.lastUpdated = new Date().toLocaleString();
-                    this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                    this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('type post err', err)
             })
@@ -174,8 +194,8 @@ export default {
                         if (+res?.status?.code === 2 && +res.data === +this.destructionAgeYears * 365) { //+null will become 0
                             const newVal = res?.data > 0 ? +res.data : null;
                             this.updateCategoriesProperty(this.formID, 'destructionAge', newVal);
-                            this.lastUpdated = new Date().toLocaleString();
-                            this.showLastUpdate('form_properties_last_update', `last modified: ${this.lastUpdated}`);
+                            this.showLastUpdate('form_properties_last_update');
+
                         }
                     },
                     error: err => console.log('destruction age post err', err)
@@ -189,24 +209,26 @@ export default {
         </span>
         <div id="edit-properties-description">
             <label for="categoryName">Form name
-                <span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formNameCharsRemaining}})</span>
+                <span>({{formNameCharsRemaining}})</span>
             </label>
-            <input id="categoryName" type="text" maxlength="50" v-model="categoryName" style="margin-bottom: 1rem;" @change="updateName"/>
+            <input id="categoryName" type="text" maxlength="50" v-model="categoryName" @change="updateName"/>
             
             <label for="categoryDescription">Form description
-                <span style="margin-left:auto; font-size:80%; align-self:flex-end;">({{formDescrCharsRemaining}})</span>
+                <span>({{formDescrCharsRemaining}})</span>
             </label>
             <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3" @change="updateDescription"></textarea>
         </div>
-        <div id="edit-properties-other-properties">
+        <div v-if="!loading" id="edit-properties-other-properties">
             <div style="display:flex; justify-content: space-between;">
                 <button type="button" id="editFormPermissions" class="btn-general"
                     style="width: fit-content;"
-                    @click="openEditCollaboratorsDialog">
+                    @click="openEditCollaboratorsDialog"
+                    :title="hasCollaborators ? 'Manage Collaborators (Collaborators present)' : 'Manage Collaborators'">
+                    <span v-if="hasCollaborators" role="img" aria="">🔓︎&nbsp;</span>
                     Edit Special Write Access
                 </button>
-                <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog"
-                    :style="{display: lastUpdated==='' ? 'none' : 'flex'}">
+                <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog(focusedFormRecord.categoryID)"
+                    style="display: none;">
                 </button>
             </div>
             <template v-if="!isSubForm">
@@ -231,7 +253,7 @@ export default {
                             </template>
                         </select></label>
                     </template>
-                    <div v-if="workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
+                    <div v-if="!workflowsLoading && workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
                     <label for="availability" title="When hidden, users will not be able to select this form">Availability
                         <select id="availability" title="Select Availability" v-model.number="visible" @change="updateAvailability">

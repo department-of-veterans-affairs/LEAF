@@ -1,23 +1,34 @@
 @import '../common/LEAF_Vue_Dialog__Common.scss';
 
-nav#form-editor-nav {
+nav#top-menu-nav {
     width: 100%;
-
-    h2 {
+    ul {
         @include flexcenter;
-        margin: 0;
-        font-size: 26px;
-        color: black;
+        justify-content: flex-start;
+        color: $charcoal;
+        background-color: $lt_cyan;
+        border-bottom: 1px solid $charcoal;
+        position: relative;
+        z-index: 10;
+        margin-bottom: 1rem;
     }
-
-    ul li {
+    li {
         @include flexcenter;
-        width: 200px;
-        min-width: fit-content;
+        position: relative;
+        height: 32px;
+        width: 175px;
         font-size: 14px;
         font-weight: bolder;
-        text-decoration: none;
-
+        &:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            display: block;
+            height: 50%;
+            border-radius: 2px;
+            width: 1px;
+            background-color: black;
+        };
         button, a {
             margin: 0;
             padding: 0;
@@ -29,42 +40,6 @@ nav#form-editor-nav {
             width: 100%;
             height: 100%;
             border: 2px solid transparent;
-        }
-
-        span[role="img"] {
-            margin-left: 0.5rem;
-        }
-        span.header-arrow {
-            margin-left: 1rem;
-        }
-    }
-    
-    ul#form-editor-menu {
-        @include flexcenter;
-        justify-content: flex-start;
-        color: $charcoal;
-        background-color: $lt_cyan;
-        border-bottom: 1px solid $charcoal;
-        position: relative;
-        z-index: 10;
-        margin-bottom: 1rem;
-
-        > li {
-            position: relative;
-            height: 32px;
-
-            &:not(:last-child)::after {
-                content: '';
-                position: absolute;
-                right: 0;
-                display: block;
-                height: 50%;
-                border-radius: 2px;
-                width: 1px;
-                background-color: black;
-            }; 
-        }
-        button, a {
             &:hover, &:focus, &:active {
                 border: 2px solid $LEAF_CSS_outline;
                 outline: none !important;
@@ -72,34 +47,8 @@ nav#form-editor-nav {
                 color: white;
             }
         }
-    }
-
-    ul#form-breadcrumb-menu {
-        margin: 1rem 1rem 0 1rem;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        background-color: transparent;
-        color: black;
-
-        li {
-            width: fit-content;
-            position: relative;
-            margin-right: 1rem;
-            button, a {
-                padding: 0.25rem;
-                border-radius: 3px;
-                text-decoration: underline;
-                outline: none !important;
-                &:hover, &:focus, &:active {
-                    border: 2px solid $LEAF_CSS_outline !important;
-                }
-                &:disabled {
-                    border: 2px solid transparent !important;
-                    text-decoration: none;
-                    cursor: default;
-                }
-            }
+        span[role="img"] {
+            margin-left: 0.25rem;
         }
     }
 }
@@ -177,6 +126,32 @@ table[class$="SelectorTable"] th {
     color: $charcoal;
 }
 
+
+#advanced_options_dialog_content {
+    min-height: 50px;
+    fieldset {
+        min-width: 700px;
+        padding: 0.5em;
+        margin: 0;
+        table.table {
+            border-collapse: collapse;
+            margin: 0;
+            width: 100%;
+        }
+        > div.save_code {
+            display:flex;
+            justify-content: space-between;
+            align-items: flex-end;
+
+            img {
+                width:16px;
+                height: 16px;
+            }
+        }
+    }
+}
+
+
 #indicator-editing-dialog-content {
     > div {
         margin-bottom: 2rem;
@@ -253,7 +228,7 @@ table[class$="SelectorTable"] th {
     padding: 0;
     position: relative;
     display: flex;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.75rem;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
@@ -284,9 +259,9 @@ table[class$="SelectorTable"] th {
         align-self: center;
         border-right: 1px solid $charcoal;
         min-width: 400px;
-
         #categoryName {
             width: 100%;
+            margin-bottom: 1rem;
         }
         textarea {
             width: 100%;
@@ -296,7 +271,11 @@ table[class$="SelectorTable"] th {
             border-radius: 2px;
             resize: none;
         }
-
+        span {
+            margin-left: auto;
+            font-size:80%;
+            align-self:flex-end;
+        }
     }
     .form-id {
         position: absolute; 
@@ -304,13 +283,15 @@ table[class$="SelectorTable"] th {
         bottom: 1px;
         font-size: 0.75rem;
     }
+    #editFormPermissions:hover, #editFormPermissions:focus,#editFormPermissions:active span {
+        color: white;
+    }
     .panel-properties {
         flex-wrap: wrap;
         gap: 0.5rem 1rem;
         display: flex;
         margin-top: 1rem;
         height: 100%;
-
         input, select {
             margin-left: 3px;
         }
@@ -319,12 +300,11 @@ table[class$="SelectorTable"] th {
         }
     }
 }
-#form_properties_last_update, #form_index_last_update {
-    opacity: 0;
+#form_properties_last_update {
     color: $base_navy;
     font-size: 90%;
     background-color: transparent;
-    border: 0;
+    border: 2px solid transparent;
 }
 
 /* Form History modal */
@@ -335,378 +315,441 @@ table[class$="SelectorTable"] th {
     width: 135px;
 }
 
-div#form_content_view {
-    margin: 0 auto; 
-    display:flex; 
-    flex-direction: column; 
-    width: 100%;
-}
+
 
 
 #form_index_and_editing {
-    display: flex; 
+    display: flex;
+    gap: 1rem;
 }
 
-
-/* form index */
 #form_index_display {
+    margin-top: 0.5rem; //matches drag-drop spacer for top of form area
     position: relative;
-    margin: 0;
     padding: 0.75rem;
-    width: 420px;
-    flex: 0 0 420px;
+    width: 360px;
+    flex: 0 0 360px;
     align-self:flex-start;
-    margin-right: 1.25rem;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+    max-height: 90vh;
+    overflow-y: auto;
+    .index_info {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        height: 28px;
+        margin-bottom: 0.5rem;
+        button {
+            width: 134px;
+            justify-self: flex-end;
+        }
+    }
+    h3 {
+        margin: 0;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        color: black;
+    }
 
-    /* Drag-Drop area for focused form */
-    ul#base_drop_area {
-        background-color: white;
-        margin-top: 0.5rem;
-        padding: 0 0 6px 0;
-        border: 3px solid $BG_Pearl;
-        border-radius: 3px;
-        &.entered-drop-zone, ul.entered-drop-zone {
-            background-color: #e8ebf0;
-        }
-
-        li.section_heading {
-            font-weight: bolder;
-            color: $base_navy;
-        }
-        li.subindicator_heading {
-            font-weight: normal;
-            color: black;
-        }
-        li.section_heading > div, li.subindicator_heading > div {
-            padding-left: 0.25rem;
-        } 
-        ul.form-index-listing-ul {
-            margin: 0;
-            padding: 0 0 4px 0; /* btm padding needed for drop zones */
-            padding-left: 1em;
-            display: flex;
-            flex-direction: column; 
-            min-height: 6px;  /*NOTE: min height needed for drop zones*/
-        }
-        li {
-            position: relative;
-            cursor: grab;
-            margin: 0.2em 0; /* there needs to be a margin to hilite the current drop zone */
-            border-radius: 2px;
-            outline: none !important;
-        }
-        li > div {
-            display: flex;
-            align-items: center;
-            width: 100%; 
-            height: 40px;
-            border-bottom: 1px solid #d0d0d4;
-            padding-bottom: 0.9em;
-    
-            .icon_move_container {
-                @include flexcenter;
-                flex-direction: column;
-                margin-left: auto;
-                margin-right: 0.2em;
-    
-                .icon_move {
-                    @include flexcenter;
-                    cursor: pointer;
-                    width: 0;
-                    height: 0;
-                    background-color: transparent;
-                    border-radius: 2px;
-                    border: 7px solid transparent;
-                    margin-left: auto;
-    
-                    &.up {
-                        margin-bottom: 5px;
-                        border-bottom: 12px solid $BG-DarkNavy;
-                        &:hover, &:focus, &:active {
-                            outline: none !important;
-                            border-bottom: 12px solid $USWDS_Cyan;
-                        }
-                    }
-                    &.down {
-                        border-top: 12px solid $BG-DarkNavy;
-                        &:hover, &:focus, &:active {
-                            outline: none !important;
-                            border-top: 12px solid $USWDS_Cyan;
-                        }
-                    }
-                }
-            }
-    
-            .sub-menu-chevron {
-                padding: 2px;
-                font-size: 1.2em;
-                align-self: center; 
-                font-weight: bold;
-                border-radius: 2px;
-                cursor: pointer;
-                &:hover, &:focus, &:active {
-                    color: $USWDS_Cyan;
-                }
-            }
-        }
-    
-        li:first-child {
-            margin-top: 0.75rem;
-        }
-        li:last-child {
-            margin-bottom: 0;
-        }
-        li.index-selected::before, li:focus::before {
-            position: absolute;
-            top: -0.2em;
-            left: -0.5em;
-            content: '';
-            width: 3px;
-            height: calc(100% - 0.6em);
-            border-radius: 60% / 3px;
-            background-color: $base_navy;
+    /* form menu list preview */
+    ul li.form_menu_preview {
+        padding: 0.5rem 0;
+        &:not(:last-child) {
+            border-bottom: 1px solid $BG_Pearl;
         }
     }
 
-
-    /* Layout and Internal Forms areas */
-    div[id^="internalFormRecords_"], div[id^="layoutFormRecords_"] {
-        button {
+    /* lists for main and stapled forms  */
+    ul[id^="layoutFormRecords_"] > li {
+        min-height: 46px;
+        border: 2px solid #f0f0f0;
+        border-radius: 2px;
+        &:not(:last-child) {
+            margin-bottom: 1rem;
+        }
+        &.selected {
+            border: 2px solid $LEAF_CSS_outline;
+            button.layout-listitem {
+                background-color: $lt_cyan;
+            }
+        }
+        button.layout-listitem {
             padding: 0.25rem;
             display: flex;
             justify-content: flex-start;
             width: 100%;
-            height: 100%;
-            background-color: inherit;
-            border: 2px solid transparent;
+            height: 46px;
+            border: 0;
+            background-clip: padding-box;
             overflow: hidden;
-            max-height: 50px;
-    
-            &:not(:disabled):not(#addInternalUse) {
-                color: $charcoal;
-            }
-    
-            &:not(:disabled):hover, &:not(:disabled):focus, &:not(:disabled):active {
+            border-radius: 0;
+            padding: 0 0.5rem;
+            color: $charcoal;
+            background-color: $BG_Pearl;
+            
+            &:hover, &:focus, &:active {
                 background-color: $lt_cyan;
-                border: 2px solid $LEAF_CSS_outline !important;
-                outline: none;
             }
-            &:disabled:hover, &:disabled:focus, &:disabled:active {
-                cursor: default;
-                background-color: inherit;
-                outline: none;
+        }
+        /* button for the selected form */
+        &.selected button.layout-listitem {
+            color: $base_navy;
+            cursor: default;
+        }
+    }
+
+    /* lists for internal forms */
+    div.internal_forms {
+        padding: 0.75rem;
+        padding-top: 0;
+    }
+    ul[id^="internalFormRecords_"] {
+        border-left: 4px solid $BG_Pearl;
+        padding-top: 0.6rem;
+        &:not(:last-child) {
+            margin-bottom: 1.5rem;
+        }
+        
+        > li  {
+            &:not(:last-child) {
+                margin-bottom: 0.5rem;
             }
-            &.layout-listitem {
-                min-height: 50px;
-                border-radius: 0;
-                padding: 0.5rem;
-            }
-            &.layout-listitem:disabled {
-                color: $base_navy;
-                border: 2px solid $LEAF_CSS_outline !important;
+            button {
+                padding: 0.25rem;
+                display: flex;
+                justify-content: flex-start;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                border: 2px solid transparent;
+                border-radius: 1px;
+                &:not(#addInternalUse) {
+                    background-color: $BG_Pearl;
+                    &.selected {
+                        cursor: auto;
+                        background-color: $lt_cyan;
+                        border: 2px solid $LEAF_CSS_outline;
+                    }
+                }
+                &:hover, &:focus, &:active {
+                    border: 2px solid $LEAF_CSS_outline;
+                    outline: none !important;
+                }
             }
         }
     }
-    div[id^="layoutFormRecords_"] > ul > li {
-        margin-bottom: 0.5rem;
-        background-color: $lt_cyan;
-        min-height: 50px;
+    button[id^="addInternalUse_"], button[id^="addStaple_"] {
+        height: 2rem;
+        width: 100%;
+        padding: 2px 0.25rem;
+        border: 2px solid $base-navy;
+        justify-content: flex-start;
     }
-    div[id^="internalFormRecords_"] button span.internal {
-        text-decoration: underline;
-        font-weight: normal;
-        color: $base_navy;
+    button[id^="addStaple_"] {
+        margin-top: 1rem;
     }
 }
 
 
-/* form editing and entry preview */
+/* form editing and entry */
 #form_entry_and_preview {
+    position: relative;
+    top: 0;
     display:flex;
     flex-direction: column;
     align-self: flex-start;
     width: 100%;
     min-width: 420px;
-    background-color: white;
-    padding: 0.75rem;
+    padding: 0;
+    background-color: transparent;
     border-radius: 4px;
-    box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
-    overflow: visible;
 
-    .form-section-header {
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 0.75rem;
-
-        #indicator_toolbar_toggle {
-            width: 160px;
+    /* Drag-Drop area for focused form */
+    ul[id^="base_drop_area"] {
+        position: relative;
+        padding: 1px 0; //top and bottom padding needed for drop area visibility
+        &.entered-drop-zone, ul.entered-drop-zone {
+            background-color: rgba(0,0,25,0.15);
         }
+        ul[id^="drop_area_parent_"] {
+            position: relative;
+        }
+        ul.form-index-listing-ul {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            background-clip: content-box;
+            min-height: 8px;
+        }
+        li {
+            position: relative;
+            margin: 0.375rem 0;
+            &:first-child {
+                margin-top: 0.5rem;
+            }
+            &:last-child {
+                margin-bottom: 0.5rem;
+            }
+
+            button.drag_question_button {
+                cursor: move;
+                position: absolute;
+                padding: 0;
+                border: 1px solid $BG_Pearl;
+                border-radius: 4px 0 0 4px;
+                width: 1rem;
+                height: 100%;
+                left: -1rem;
+                top: 0;
+                .icon_move_container {
+                    @include flexcenter;
+                    align-self: flex-start;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                    .icon_drag {
+                        opacity: 0.4;
+                    }
+                    .icon_move {
+                        @include flexcenter;
+                        cursor: pointer;
+                        width: 0;
+                        height: 0;
+                        background-color: transparent;
+                        border-radius: 2px;
+                        border: 6px solid transparent;
+                        &.up {
+                            margin-top: 0.25rem;
+                            border-bottom: 10px solid $BG-DarkNavy;
+                            border-top: 2px;
+                            &:hover, &:focus, &:active {
+                                outline: none !important;
+                                border-bottom: 10px solid $USWDS_Cyan;
+                            }
+                        }
+                        &.down {
+                            border-top: 10px solid $BG-DarkNavy;
+                            border-bottom: 2px;
+                            &:hover, &:focus, &:active {
+                                outline: none !important;
+                                border-top: 10px solid $USWDS_Cyan;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        > li {
+            background-color: white;
+            padding-bottom: 0.25rem;
+            border-radius: 4px;
+            box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+            margin-bottom: 1.25rem;
+        }
+    }
+
+
+    /* page number display */
+    .form_page {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        color: white;
+        background-color: black;
+        height: 28px;
+        padding: 0.2em 9px;
+        border-radius: 3px;
+        margin-right: 0.4rem;
     }
 
     div.printformblock {
-        page-break-inside: avoid;
-    }
+        height:auto;
+        min-height: 100px;
+        position: relative;
+        break-inside: avoid;
+        height: auto;
+        max-height: none;
 
-    div.printResponse {
-        padding: 0;
-        min-height: 50px;
-        float: none; /* style.css style collision */
-        border-radius: 4px;
-        border-left: 6px solid $BG_Pearl;
-
-        &:not(.form-header) {
-            margin-left: 0.5rem;
-        }
-    }
-
-    .form_editing_area {
-        padding: 2px 2px 0.5rem 2px;
-        background-color: white;
-
-        button {
-            padding: 2px 0.4rem;
-            border: 1px solid transparent;
-            &:hover, &:focus, &:active {
-                border: 1px solid $LEAF_CSS_outline !important;
-            }
-        }
-        button.icon {
+        div.printResponse {
+            position: relative;
             padding: 0;
-            background-color: transparent;
-            border-radius: 2px;
-            align-self: flex-start;
-
-            img {
-                display: block;
+            min-height: 50px;
+            float: none; /* style.css style collision */
+            border-radius: 4px;
+            border-left: 1rem solid transparent;
+            background-color: white;
+            &.form-header, &.preview.form-header {
+                > .form_editing_area {
+                    border-radius: 4px;
+                }
+            }
+            &.preview {
+                border: 0;
+            }
+            &:not(.form-header):not(.preview) {
+                margin-left: 0.5rem;
             }
         }
-        button.add-subquestion {
-            width: -moz-fit-content; /*firefox prior to nov 2021*/
-            width: fit-content;
-            background-color: $lt_cyan;
-            color: #1b1b1b;
-            font-weight: normal;
-            border: 1px solid #88a;
-            border-radius: 2px;
-            &:hover, &:focus, &:active {
-                color: white;
-                background-color: $base_navy;
-            }
-        }
+    }
 
-        div[class*="SelectorBorder"] {
-            background-color: transparent;
+    #blank_section_preview {
+        margin-top: 0.5rem;
+        background-color: white;
+        border-radius: 4px;
+        padding: 0.75rem;
+        box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+        button {
+            border: 2px dashed darken($BG_Pearl, 15%);
+            width: 100%;
+            height: 2rem;
         }
-        tr[class*="Selector"]:hover {
-            background-color: #e1f3f8;
+    }
+    button.new_section_question {
+        height: 2rem;
+        width: calc(100% - 1.5rem);
+        margin: 0.75rem 0.75rem 0.5rem;
+        border: 2px dashed darken($BG_Pearl, 15%);
+    }
+    
+    /* wraps each form question. */
+    .form_editing_area {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0.25rem;
+        background-color: white;
+        padding: 2px;
+        &.conditional {
+            background-color: saturate(darken($BG_Pearl, 2%), 15%);
+        }
+        /* 1st section (name and toolbar) of editing_area */
+        .name_and_toolbar {
+            width: 100%;
+            display:flex;
+            &.form-header {
+                font-weight:  bolder;
+                .indicator-name-preview {
+                    padding: 0.5rem 0.25rem 0.75rem 0.375rem;
+                }
+            }
+            &:not(.preview) {
+                min-height: 60px;
+            }
+            button {
+                border: 1px solid $LtNavy;
+                &:hover, &:focus, &:active {
+                    border: 1px solid $LEAF_CSS_outline !important;
+                    outline: 1px solid $LEAF_CSS_outline;
+                }
+            }
         }
         .indicator-name-preview {
-            padding: 2px;
+            padding: 0.25rem 0.25rem 0.75rem 0.5rem;
             width: 100%;
-            .input-required-sensitive {
+            .required-sensitive {
                 color: $attention;
                 margin-left: 0.4em;
             }
         }
-
-        &.conditional {
-            background-color: saturate(darken($BG_Pearl, 2%), 15%);
-        }
-
         div[id^="form_editing_toolbar_"] {
-            margin-left: 0.25rem;
-            padding: 0.25rem;
-            border-radius: 2px;
+            padding: 3px;
+            border-radius: 3px;
             display: flex;
             flex-direction:column;
-            align-items: flex-end;
+            align-items: stretch;
             align-self: flex-start;
             font-size: 90%;
             color: black;
-            gap: 4px;
-
+            gap: 2px;
             > div {
                 display: flex; 
                 align-items: center;
-                /*align-self: stretch;*/
+                gap: 3px;
+                min-width: 242px;
             }
-            span.sensitive-icon {
-                display:flex; 
-                align-items: center; 
-                margin-left: 0.4rem;
+            button {
+                padding: 1px 6px;
+                font-weight: normal;
             }
-
+            img {
+                margin-left:auto;
+                width:16px;
+                height:16px;
+            }
         }
-        &.form-header {
-            background-color: $manila;
-            font-weight:  bolder;
-        }
-
-        &.form-header .indicator-name-preview, &.form-header div[id^="form_editing_toolbar_"] button {
-            font-size: 110%;
-        }
-
-        .form_data_entry_preview {
-            padding: 0.5rem 0.25rem 0 0.75rem;
-
-            .format-preview {
-                position: relative;
-                margin-top: 0.2em;
-
-                /* format specific styling */
-                .text_input_preview {
-                    display: inline-block;
-                    width: 50%;
-                    font-size: 1.3em; 
-                    font-family: monospace;
-                    background-color: white;
-                    border: 1px solid gray;
-                    padding: 0.25em;
-                }
-                .textarea_input_preview {
-                    width: 100%; 
-                    padding: 0.5em; 
-                    font-size: 1.3em; 
-                    font-family: monospace;
-                }
-                div.tableinput { /* fixes for grid tables */
-                    overflow-x: auto;
-                    max-width: 900px;
-                    
-                    table {
-                        margin: 0;
-                        input {
-                            width: 100%;
-                        }
-                        img {
-                            max-width: none;
-                        }
-                    }
-                }
-
-                .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
-                    margin-bottom: 0.5em;
-                }
+        /* 2nd section of editing_area (format preview) */
+        .format_preview {
+            padding: 0 0 0.75rem 0.5rem;
+            .text_input_preview {
+                display: inline-block;
+                width: 75%;
+                font-size: 1.3em; 
+                font-family: monospace;
+                background-color: white;
+                border: 1px solid gray;
+                padding: 0.25em;
+            }
+            .textarea_input_preview {
+                width: 75%; 
+                padding: 0.5em; 
+                font-size: 1.3em; 
+                font-family: monospace;
+            }
+            div[id*="textarea_format_button_"], .trumbowyg-box, .choices, fieldset {
+                width: 75%;
+            }
+            .trumbowyg-box {
+                margin-left: 0;
+            }
+            div.tableinput { /* fixes for grid tables */
+                overflow-x: auto;
+                max-width: 900px;
+            }
+            .employeeSelectorInput, .groupSelectorInput, .positionSelectorInput {
+                margin-bottom: 0.5em;
+                width: 75%;
+            }
+            div[class*="SelectorBorder"] {
+                background-color: transparent;
+            }
+            tr[class*="Selector"]:hover {
+                background-color: #e1f3f8;
             }
         }
     }
 }
 
-/* ifthen sections */
-#condition_editor_center_panel {
-    min-width: 600px;
+
+/* ifthen dialog */
+#condition_editor_dialog_content {
+    min-width: 700px;
     max-width: 900px;
     margin: auto;
     background-color: white;
-    #loader_spinner {
-        border: 2px solid black;
-        text-align: center; 
-        font-size: 24px;
-        font-weight: bold;
-        padding: 16px;
+    #ifthen_deletion_dialog {
+        margin-bottom: -0.75rem;
+        .options {
+            display: flex;
+            justify-content:
+            space-between; margin-top: 2rem;
+            button {
+                width: 120px;
+            }
+        }
+    }
+    #savedConditionsLists {
+        padding-bottom: 0.5em;
+        ul {
+            margin-bottom: 1rem;
+        }
+        button.btn_remove_condition {
+            width: 1.75em;
+        }
+    }
+    #outcome_select {
+        max-width: 700px;
     }
     #condition_editor_inputs > div {
         padding: 1rem 0;
@@ -715,14 +758,19 @@ div#form_content_view {
             max-width: 700px;
         }
     }
-    div#if-then-setup {
+    #if-then-setup {
         display: flex;
-        gap: 0 1rem;
+        max-width: 700px;
+        gap: 0.75rem;
         align-items: center;
+        min-height: 60px;
         padding-bottom: 0;
         > select, #parent_choices_wrapper {
-            width: 30%;
+            width: 35%;
             margin: 0;
+        }
+        #operator_select {
+            width: 25%;
         }
         > div.crosswalks {
             display:flex;
@@ -745,9 +793,7 @@ div#form_content_view {
             margin-bottom: 1em;
         }
     }
-    div#savedConditionsLists {
-        padding-bottom: 0.5em;
-    }
+
     li.savedConditionsCard {
         display: flex;
         align-items: center;
@@ -807,34 +853,30 @@ div#form_content_view {
         border: 1px solid black !important;
         background-color: #600;
     }
-    .input-info {
-        padding: 0.4em 0;
+    .ifthen_label {
         font-weight: bolder;
         color: $base_navy;
     }
 }
 
-@media only screen and (max-width: 576px) {
+@media only screen and (max-width: 600px) {
     #leaf_dialog_content {
         min-width: 400px;
     }
     #vue-formeditor-app {
         min-width: 400px;
-    
         > div {
             flex-direction: column;
         }
-
-        main section {
+        main > section {
             margin: 0;
+            padding: 0;
         }
-        nav#form-editor-nav {
+        nav#top-menu-nav {
             width: 100%;
-
-            ul#form-editor-menu {
+            ul {
                 flex-direction: column;
                 height: fit-content;
-
                 li {
                     width: 100%;
                     height:fit-content;
@@ -854,25 +896,15 @@ div#form_content_view {
                     }
                 }
             }
-            
-            ul#form-breadcrumb-menu {
-                margin: 1rem 0 0;
-                flex-direction: column;
-                align-items: flex-start;
-                height: auto;
-            }
         }
-
         #secure_forms_info {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
         }
-        div#form_content_view {
-            margin: 0;
-        }
         #edit-properties-panel {
             flex-direction: column;
+            border-radius: 0;
             > div {
                 width: 100%;
             }
@@ -881,31 +913,36 @@ div#form_content_view {
                 border-bottom: 1px solid $charcoal;
             }
         }
-
+        #internalFormRecordsDisplay {
+            min-width: 100%;
+        }
         #form_index_and_editing {
             flex-direction: column;
-        
+            gap: 1.25rem;
+            > div {
+                border-radius: 0;
+            }
             #form_index_display {
                 width: 100%;
-                margin: 0;
-                margin-bottom: 1rem;
                 flex: 0 0 100%;
             }
-
-            .form_editing_area {
-                &.form-header .indicator-name-preview, 
-                &.form-header div[id^="form_editing_toolbar_"] {
-                    font-size: 100%;
-                }
-                .format-preview .tableinput {
-                    max-width: 400px;
-                }
+            .tableinput {
+                max-width: 400px;
             }
         }
     }
-    #condition_editor_center_panel {
+    #condition_editor_dialog_content {
         width: 100%;
         min-width: 400px;
         border: 0;
+        div#if-then-setup {
+            flex-direction: column;
+            > select, > h3, #parent_choices_wrapper, #operator_select {
+                width: 100%;
+            }
+            .choices__inner {
+                max-width: 100%;
+            }
+        }
     }
 }

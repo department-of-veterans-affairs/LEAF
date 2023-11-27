@@ -885,17 +885,17 @@
             type: 'GET',
             url: '../api/emailTemplates/_' + file,
             success: function(res) {
-                currentFileContent = res.file;
-                currentSubjectContent = res.subjectFile;
                 currentEmailToContent = res.emailToFile;
                 currentEmailCcContent = res.emailCcFile;
                 $('#codeContainer').fadeIn();
 
                 // Assuming you have initialized the codeEditor and subjectEditor objects correctly
-                codeEditor.setValue(currentFileContent);
-                if (subjectEditor && currentSubjectContent !== null) {
-                    subjectEditor.setValue(currentSubjectContent);
+                codeEditor.setValue(res.file);
+                if (subjectEditor && res.subjectFile !== null) {
+                    subjectEditor.setValue(res.subjectFile);
+                    currentSubjectContent = subjectEditor.getValue();
                 }
+                currentFileContent = codeEditor.getValue();
 
                 $("#emailToCode").val(currentEmailToContent);
                 $("#emailCcCode").val(currentEmailCcContent);
