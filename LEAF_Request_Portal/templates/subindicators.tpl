@@ -766,13 +766,15 @@
                 <!--{if $indicator.value[0] != ''}-->
                     <!--{foreach from=$indicator.value item=file}-->
                         <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" 
-                            style="background-color: #d7e5ff; padding: 4px; display: flex; align-items: center" >
+                            style="background-color:<!--{if $counter % 2 == 1}-->#e4f2ff<!--{else}-->#d7e5ff<!--{/if}-->; padding: 4px; display: flex; align-items: center" >
                             <img src="dynicons/?img=mail-attachment.svg&amp;w=16" alt="" /> 
                             <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
-                            <span style="display: inline-block; margin-left: auto; padding: 4px">[ 
-                                <button type="button" class="link" onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">
+                            <span style="display: inline-block; margin-left: auto; padding: 4px">
+                                <button type="button" class="link"
+                                    title="delete file <!--{$file|sanitize}-->"
+                                    onclick="deleteFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->();">
                                     Delete
-                                </button> ]
+                                </button>
                             </span>
                         </div>
                         <script>
