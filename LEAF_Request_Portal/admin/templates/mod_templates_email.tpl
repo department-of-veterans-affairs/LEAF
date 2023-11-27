@@ -27,7 +27,7 @@
         <main id="codeArea" class="main-content">
             <div id="codeContainer" class="leaf-code-container">
                 <h2 id="emailTemplateHeader">Default Email Template</h2>
-                <div id="emailNotificationInfo" style="padding: 2px 2px 0 2px; font-size:90%;"></div>
+                <div id="emailNotificationInfo" style="display: none; padding-top: 3px; gap: 0.25rem; flex-wrap:wrap; font-size:90%;"></div>
                 <div id="emailLists">
                     <fieldset>
                         <legend>Email To and CC</legend>
@@ -1193,6 +1193,7 @@
     /* adds information about which users or groups are notified for custom email events */
     function addCustomEventInfo() {
         if(typeof currentFile === 'string') {
+            const bubbleAttrs = `class="bg-yellow-5v" style="border-radius: 12px / 50%; padding: 0.375rem 0.625rem 0.25rem;"`
             try {
                 fetch(`../api/workflow/customEvents`)
                 .then(res => res.json()
@@ -1205,8 +1206,8 @@
                         try {
                             const eventData = JSON.parse(currentEvent?.eventData || '{}');
                             const { NotifyRequestor, NotifyNext, NotifyGroup } = eventData;
-                            const reqText = NotifyRequestor === 'true' ? 'Notifies Requestor' : '';
-                            const nextText = NotifyNext === 'true' ? 'Notifies Next Approver' : '';
+                            const reqText = NotifyRequestor === 'true' ? `<div ${bubbleAttrs}>Notifies Requestor</div>` : '';
+                            const nextText = NotifyNext === 'true' ? `<div ${bubbleAttrs}>Notifies Next Approver</div>` : '';
                             let arrNotices = [ reqText, nextText ];
                             arrNotices = arrNotices.filter(n => n !== '');
 
@@ -1217,25 +1218,28 @@
                                     .then(data => {
                                         const groups = data;
                                         const groupName = groups.find(g => +NotifyGroup === g.groupID)?.name || '';
-                                        const groupText = +NotifyGroup > 0 && groupName !== '' ? `Notifies Group \'${groupName}\'` : '';
+                                        const groupText = +NotifyGroup > 0 && groupName !== '' ? `<div ${bubbleAttrs}>Notifies Group \'${groupName}\'</div>` : '';
                                         if(groupText !== '') {
                                             arrNotices.push(groupText);
                                         }
-                                        elInfo.innerText = arrNotices.join(' | ');
+                                        elInfo.innerHTML = arrNotices.join('');
+                                        elInfo.style.display = arrNotices.length > 0 ? 'flex' : 'none';
                                     }).catch(err => console.log(err))
                                     ).catch(err => console.log(err));
                                 } catch (err) {
                                     console.log(err);
                                 }
                             } else {
-                                elInfo.innerText = arrNotices.join(' | ');
+                                elInfo.innerHTML = arrNotices.join('');
+                                elInfo.style.display = arrNotices.length > 0 ? 'flex' : 'none';
                             }
                         } catch (err) {
                             console.log(err);
                         }
 
                     } else {
-                        elInfo.innerText = '';
+                        elInfo.innerHTML = '';
+                        elInfo.style.display = 'none';
                     }
                 }).catch(err => console.log(err))
                 ).catch(err => console.log(err));
