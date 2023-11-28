@@ -3001,7 +3001,7 @@ class Form
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
                 case 'recordID':
-                    $conditions .= "{$gate}recordID {$operator} :recordID{$count}";
+                    $conditions .= "{$gate}records.recordID {$operator} :recordID{$count}";
 
                     break;
                 case 'recordIDs':
@@ -3017,7 +3017,7 @@ class Form
                     }
                     $validRecordIDs = trim($validRecordIDs, ',');
 
-                    $conditions .= "{$gate}recordID IN ({$validRecordIDs})";
+                    $conditions .= "{$gate}records.recordID IN ({$validRecordIDs})";
 
                     unset($vars[":recordIDs{$count}"]);
 
