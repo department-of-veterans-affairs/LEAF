@@ -281,10 +281,12 @@ class FormWorkflow
                         }, $groupIDs);
     
             $groupIDs = implode(',', $groupIDs);
-            $res = $this->db->prepared_query("SELECT groupID, name FROM `groups`
-                                                WHERE groupID IN ({$groupIDs})", []);
-            foreach($res as $group) {
-                $groupNames[$group['groupID']] = $group['name'];
+            if($groupIDs != "") {
+                $res = $this->db->prepared_query("SELECT groupID, name FROM `groups`
+                                                   WHERE groupID IN ({$groupIDs})", []);
+                foreach($res as $group) {
+                    $groupNames[$group['groupID']] = $group['name'];
+                }
             }
         }
 
