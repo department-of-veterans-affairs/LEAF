@@ -119,7 +119,7 @@
             <ul style="list-style: none">
             <!--{foreach from=$indicator.value item=option}-->
                     <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" />
-                    <!--{if $indicator.value[$idx] != 'no'}-->
+                    <!--{if $indicator.value[$idx] != 'no' && $indicator.value[$idx] !== ''}-->
                         <li><img class="print" src="dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
                         <!--{$option|sanitize}--></li>
                     <!--{/if}-->
