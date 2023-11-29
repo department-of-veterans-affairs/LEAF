@@ -224,12 +224,22 @@ export default {
         getOperatorText(condition = {}) {
             const parFormat = condition.parentFormat.toLowerCase();
             let text = condition.selectedOp;
-            switch(text) {
+
+            const op = condition.selectedOp;
+            switch(op) {
                 case '==':
                     text = this.multiOptionFormats.includes(parFormat) ? 'includes' : 'is';
                     break;
                 case '!=':
                     text = this.multiOptionFormats.includes(parFormat) ? 'does not include' : 'is not';
+                    break;
+                case 'gt':
+                case 'gte':
+                case 'lt':
+                case 'lte':
+                    const glText = op.includes('g') ? 'greater than' : 'less than';
+                    const orEq = op.includes('e') ? ' or equal to' : '';
+                    text = `is ${glText}${orEq}`;
                     break;
                 default:
                     break;
@@ -434,6 +444,14 @@ export default {
                         {val:"!=", text: "is not"}
                     ];
                     break;
+            }
+            if (this.selectedParentValueOptions.some(opt => Number.isFinite(+opt))) {
+                operators = operators.concat([
+                  {val:"gt", text: "is greater than"},
+                  {val:"gte", text: "is greater or equal to"},
+                  {val:"lt", text: "is less than"},
+                  {val:"lte", text: "is less or equal to"},
+                ]);
             }
             return operators;
         },

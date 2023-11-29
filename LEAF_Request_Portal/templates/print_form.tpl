@@ -561,20 +561,26 @@ function doSubmit(recordID) {
                             case 'lte':
                             case 'gt':
                             case 'gte':
-                                const arrNumVals = val.map(v => +v);
-                                const arrNumComp = compVal.map(v => +v);
+                                const arrNumVals = val
+                                    .filter(v => !isNaN(v))
+                                    .map(v => +v);
+                                const arrNumComp = compVal
+                                    .filter(v => !isNaN(v))
+                                    .map(v => +v);
                                 const orEq = op.includes('e');
                                 const gtr = op.includes('g');
-                                for (let i = 0; i < arrNumVals.length; i++) {
-                                    const currVal = arrNumVals[i];
-                                    if(gtr === true) {
-                                        //unlikely to be set up with more than one comp val, but checking just in case
-                                        comparison = orEq === true ? currVal >= Math.max(...arrNumComp) : currVal > Math.max(...arrNumComp);
-                                    } else {
-                                        comparison = orEq === true ? currVal <= Math.min(...arrNumComp) : currVal < Math.min(...arrNumComp);
-                                    }
-                                    if(comparison === true) {
-                                        break;
+                                if(arrNumComp.length > 0) {
+                                    for (let i = 0; i < arrNumVals.length; i++) {
+                                        const currVal = arrNumVals[i];
+                                        if(gtr === true) {
+                                            //unlikely to be set up with more than one comp val, but checking just in case
+                                            comparison = orEq === true ? currVal >= Math.max(...arrNumComp) : currVal > Math.max(...arrNumComp);
+                                        } else {
+                                            comparison = orEq === true ? currVal <= Math.min(...arrNumComp) : currVal < Math.min(...arrNumComp);
+                                        }
+                                        if(comparison === true) {
+                                            break;
+                                        }
                                     }
                                 }
                                 break;

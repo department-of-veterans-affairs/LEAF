@@ -1618,29 +1618,30 @@ class Form
                                             $arrNumVals = array();
                                             $arrNumComp = array();
                                             foreach($currentParentDataValue as $v) {
-                                                $val = $v ?? '';
-                                                if($val !== '') {
-                                                    $arrNumVals[] = (float) $val;
+                                                if(is_numeric($v)) {
+                                                    $arrNumVals[] = (float) $v;
                                                 }
                                             }
                                             foreach($conditionParentValue as $cval) {
-                                                $val = $cval ?? '';
-                                                if($val !== '') {
+                                                if(is_numeric($cval)) {
                                                     $arrNumComp[] = (float) $cval;
                                                 }
                                             }
                                             $orEq = str_contains($operator, 'e');
                                             $gtr = str_contains($operator, 'g');
-                                            $len = count(array_values($arrNumVals));
-                                            for ($i = 0; $i < $len; $i++) {
-                                                $currVal = $arrNumVals[$i];
-                                                if($gtr === true) {
-                                                    $conditionMet = $orEq === true ? $currVal >= max($arrNumComp) : $currVal > max($arrNumComp);
-                                                } else {
-                                                    $conditionMet = $orEq === true ? $currVal <= min($arrNumComp) : $currVal < min($arrNumComp);
-                                                }
-                                                if($conditionMet === true) {
-                                                    break;
+                                            $lenv = count(array_values($arrNumVals));
+                                            $lenc = count(array_values($arrNumComp));
+                                            if($lenc > 0) {
+                                                for ($i = 0; $i < $lenv; $i++) {
+                                                    $currVal = $arrNumVals[$i];
+                                                    if($gtr === true) {
+                                                        $conditionMet = $orEq === true ? $currVal >= max($arrNumComp) : $currVal > max($arrNumComp);
+                                                    } else {
+                                                        $conditionMet = $orEq === true ? $currVal <= min($arrNumComp) : $currVal < min($arrNumComp);
+                                                    }
+                                                    if($conditionMet === true) {
+                                                        break;
+                                                    }
                                                 }
                                             }
                                             break;

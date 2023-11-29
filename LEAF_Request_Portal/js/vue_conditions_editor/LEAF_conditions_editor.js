@@ -611,7 +611,7 @@ const ConditionsEditor = Vue.createApp({
           ];
           break;
       }
-      if (this.selectedParentValueOptions.every(opt => Number.isFinite(+opt))) {
+      if (this.selectedParentValueOptions.some(opt => Number.isFinite(+opt))) {
         operators = operators.concat([
           {val:"gt", text: "is greater than"},
           {val:"gte", text: "is greater or equal to"},
