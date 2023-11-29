@@ -304,31 +304,7 @@ var LeafForm = function (containerID) {
         }
       });
     };
-    const mathCompValues = (arrSelections, arrCompareValues, op) => {
-      const arrComp = arrCompareValues.map(v => +v);
-      let result = false;
-      for (let i = 0; i < arrSelections.length; i++) {
-        const currVal = +arrSelections[i];
-        switch(op) {
-          case '<=':
-          case '<':
-            result = op.includes('=') ?
-              currVal <= Math.min(arrComp) : currVal < Math.min(...arrComp) //unlikely to be set up with more than one, just in case
-            break;
-          case '>=':
-          case '>':
-            result = op.includes('=') ?
-              currVal >= Math.max(arrComp) : currVal > Math.max(...arrComp)
-            break;
-          default:
-          break;
-        }
-        if(result === true) {
-          break
-        }
-      }
-      return result;
-    }
+
     /**
      * returns true if any of the selected values are in the comparisonValues
      * @param {array} multiChoiceSelections array of option values
@@ -466,6 +442,9 @@ var LeafForm = function (containerID) {
         });
         //selected value for a radio or single select dropdown
         const parent_val = getParentValue(parentFormat, parent_id);
+        //make both arrays for consistency and filter out any empties
+        let val =  multiOptionFormats.includes(parentFormat) ? multiSelValues : [parent_val];
+        val = val.filter(v => v !== '');
 
         let comparison = null;
         const op = cond.selectedOp;
@@ -474,19 +453,32 @@ var LeafForm = function (containerID) {
           case "!=":
             //define comparison for value equality checking
             comparison = multiOptionFormats.includes(parentFormat) ?
-              valIncludesMultiselOption(multiSelValues, arrCompareValues) :
-              arrCompareValues[0] === parent_val;
+              valIncludesMultiselOption(val, arrCompareValues) :
+              val[0] !== undefined && val[0] === arrCompareValues[0];
             if(op.includes('!')) {
               comparison = !comparison;
             }
             break;
-          case '<':
-          case '<=':
-          case '>':
-          case '>=':
-            comparison = multiOptionFormats.includes(parentFormat) ?
-              mathCompValues(multiSelValues, arrCompareValues, op) :
-              mathCompValues([parent_val], arrCompareValues, op)
+          case 'lt':
+          case 'lte':
+          case 'gt':
+          case 'gte':
+            const arrNumVals = val.map(v => +v);
+            const arrNumComp = arrCompareValues.map(v => +v);
+            const orEq = op.includes('e');
+            const gtr = op.includes('g');
+            for (let i = 0; i < arrNumVals.length; i++) {
+              const currVal = arrNumVals[i];
+              if(gtr === true) {
+                //unlikely to be set up with more than one comp val, but checking just in case
+                comparison = orEq === true ? currVal >= Math.max(...arrNumComp) : currVal > Math.max(...arrNumComp);
+              } else {
+                comparison = orEq === true ? currVal <= Math.min(...arrNumComp) : currVal < Math.min(...arrNumComp);
+              }
+              if(comparison === true) {
+                break;
+              }
+            }
             break;
           default:
             console.log(op);

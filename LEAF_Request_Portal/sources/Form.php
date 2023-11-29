@@ -1610,13 +1610,48 @@ class Form
                                                 $conditionMet = true;
                                             }
                                             break;
+                                        case 'gt':
+                                        case 'gte':
+                                        case 'lt':
+                                        case 'lte':
+                                            //conv numbers.  don't allow empties
+                                            $arrNumVals = array();
+                                            $arrNumComp = array();
+                                            foreach($currentParentDataValue as $v) {
+                                                $val = $v ?? '';
+                                                if($val !== '') {
+                                                    $arrNumVals[] = (float) $val;
+                                                }
+                                            }
+                                            foreach($conditionParentValue as $cval) {
+                                                $val = $cval ?? '';
+                                                if($val !== '') {
+                                                    $arrNumComp[] = (float) $cval;
+                                                }
+                                            }
+                                            $orEq = str_contains($operator, 'e');
+                                            $gtr = str_contains($operator, 'g');
+                                            $len = count(array_values($arrNumVals));
+                                            for ($i = 0; $i < $len; $i++) {
+                                                $currVal = $arrNumVals[$i];
+                                                if($gtr === true) {
+                                                    $conditionMet = $orEq === true ? $currVal >= max($arrNumComp) : $currVal > max($arrNumComp);
+                                                } else {
+                                                    $conditionMet = $orEq === true ? $currVal <= min($arrNumComp) : $currVal < min($arrNumComp);
+                                                }
+                                                if($conditionMet === true) {
+                                                    break;
+                                                }
+                                            }
+                                            break;
                                         default:
                                             break;
                                     }
 
                                 }
                                 //if the question is not being shown due to its conditions, do not count it as a required question
-                                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') || ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
+                                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
+                                    ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
                                     $countRequestRequired--;
                                     break;
                                 }
