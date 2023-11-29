@@ -304,29 +304,43 @@ var LeafForm = function (containerID) {
         }
       });
     };
-
+    const mathCompValues = (arrSelections, arrCompareValues, op) => {
+      const arrComp = arrCompareValues.map(v => +v);
+      let result = false;
+      for (let i = 0; i < arrSelections.length; i++) {
+        const currVal = +arrSelections[i];
+        switch(op) {
+          case '<=':
+          case '<':
+            result = op.includes('=') ?
+              currVal <= Math.min(arrComp) : currVal < Math.min(...arrComp) //unlikely to be set up with more than one, just in case
+            break;
+          case '>=':
+          case '>':
+            result = op.includes('=') ?
+              currVal >= Math.max(arrComp) : currVal > Math.max(...arrComp)
+            break;
+          default:
+          break;
+        }
+        if(result === true) {
+          break
+        }
+      }
+      return result;
+    }
     /**
      * returns true if any of the selected values are in the comparisonValues
-     * @param {array} multiChoiceElements array of option elements or checkboxes
+     * @param {array} multiChoiceSelections array of option values
      * @param {array} comparisonValues array of values to compare against
      * @returns
      */
     const valIncludesMultiselOption = (
-      multiChoiceElements = [],
+      multiChoiceSelections = [],
       comparisonValues = []
     ) => {
       let result = false;
-      //get the values associated with the selection elements
-      let vals = multiChoiceElements.map((sel) => {
-        if (sel?.label) {
-          //multiselect option
-          return sanitize(sel.label.replaceAll("\r", "").trim());
-        } else {
-          //checkboxes
-          return sanitize(sel.value.replaceAll("\r", "").trim());
-        }
-      });
-      vals.forEach((v) => {
+      multiChoiceSelections.forEach((v) => {
         if (comparisonValues.includes(v)) {
           result = true;
         }
@@ -431,110 +445,65 @@ var LeafForm = function (containerID) {
         const parentComparisonValues = cond.selectedParentValue.trim();
         const outcome = cond.selectedOutcome.toLowerCase();
 
-        switch (cond.selectedOp) {
+        //multioption formats options will be a string of values separated with \n
+        const arrCompareValues = parentComparisonValues
+          .split("\n")
+          .map((option) => option.replaceAll("\r", "").trim());
+        //actual selected elements for multiselect and checkboxes (option or input elements)
+        const selectionElements = parentFormat === "multiselect" ?
+          Array.from(
+            document.getElementById(parent_id)?.selectedOptions || []
+          ) :
+          Array.from(
+            document.querySelectorAll(
+              `input[type="checkbox"][id^="${parent_id}"]:checked`
+            ) || []
+          );
+        const multiSelValues = selectionElements.map((sel) => {
+          return sel?.label ?   //multiselect : checkboxes
+            sanitize(sel.label.replaceAll("\r", "").trim()) :
+            sanitize(sel.value.replaceAll("\r", "").trim())
+        });
+        //selected value for a radio or single select dropdown
+        const parent_val = getParentValue(parentFormat, parent_id);
+
+        let comparison = null;
+        const op = cond.selectedOp;
+        switch (op) {
           case "==":
-            //these are repetitive, but potentially more confusing in a method because of their alteration of variables and comparison differences between operators
-            if (multiOptionFormats.includes(parentFormat)) {
-              //values from the condition to compare against. For multioption formats this will be a string of values separated with \n
-              const arrCompareValues = parentComparisonValues
-                .split("\n")
-                .map((option) => option.replaceAll("\r", "").trim());
-              //actual selected elements for multiselect and checkboxes (option or input elements)
-              const selectionElements =
-                parentFormat === "multiselect"
-                  ? Array.from(
-                      document.getElementById(parent_id)?.selectedOptions || []
-                    )
-                  : Array.from(
-                      document.querySelectorAll(
-                        `input[type="checkbox"][id^="${parent_id}"]:checked`
-                      ) || []
-                    );
-              //hide and show should be mutually exclusive and only matter once, so don't continue if it has already become true
-              if (
-                ["hide", "show"].includes(outcome) &&
-                !hideShowConditionMet &&
-                valIncludesMultiselOption(selectionElements, arrCompareValues)
-              ) {
-                hideShowConditionMet = true;
-              }
-              //likewise if there are mult controllers for a prefill then they should have the same prefill value
-              if (
-                outcome === "pre-fill" &&
-                childPrefillValue === "" &&
-                valIncludesMultiselOption(selectionElements, arrCompareValues)
-              ) {
-                childPrefillValue = cond.selectedChildValue.trim();
-              }
-            } else {
-              const parent_val = getParentValue(parentFormat, parent_id);
-              if (
-                ["hide", "show"].includes(outcome) &&
-                !hideShowConditionMet &&
-                parentComparisonValues === parent_val
-              ) {
-                hideShowConditionMet = true;
-              }
-              if (
-                outcome === "pre-fill" &&
-                childPrefillValue === "" &&
-                parentComparisonValues === parent_val
-              ) {
-                childPrefillValue = cond.selectedChildValue.trim();
-              }
+          case "!=":
+            //define comparison for value equality checking
+            comparison = multiOptionFormats.includes(parentFormat) ?
+              valIncludesMultiselOption(multiSelValues, arrCompareValues) :
+              arrCompareValues[0] === parent_val;
+            if(op.includes('!')) {
+              comparison = !comparison;
             }
             break;
-          case "!=":
-            if (multiOptionFormats.includes(parentFormat)) {
-              const arrCompareValues = parentComparisonValues
-                .split("\n")
-                .map((option) => option.replaceAll("\r", "").trim());
-              const selectionElements =
-                parentFormat === "multiselect"
-                  ? Array.from(
-                      document.getElementById(parent_id)?.selectedOptions || []
-                    )
-                  : Array.from(
-                      document.querySelectorAll(
-                        `input[type="checkbox"][id^="${parent_id}"]:checked`
-                      ) || []
-                    );
-
-              if (
-                ["hide", "show"].includes(outcome) &&
-                !hideShowConditionMet &&
-                !valIncludesMultiselOption(selectionElements, arrCompareValues)
-              ) {
-                hideShowConditionMet = true;
-              }
-              if (
-                outcome === "pre-fill" &&
-                childPrefillValue === "" &&
-                !valIncludesMultiselOption(selectionElements, arrCompareValues)
-              ) {
-                childPrefillValue = cond.selectedChildValue.trim();
-              }
-            } else {
-              const parent_val = getParentValue(parentFormat, parent_id);
-              if (
-                ["hide", "show"].includes(outcome) &&
-                !hideShowConditionMet &&
-                parentComparisonValues !== parent_val
-              ) {
-                hideShowConditionMet = true;
-              }
-              if (
-                outcome === "pre-fill" &&
-                childPrefillValue === "" &&
-                parentComparisonValues !== parent_val
-              ) {
-                childPrefillValue = cond.selectedChildValue.trim();
-              }
-            }
+          case '<':
+          case '<=':
+          case '>':
+          case '>=':
+            comparison = multiOptionFormats.includes(parentFormat) ?
+              mathCompValues(multiSelValues, arrCompareValues, op) :
+              mathCompValues([parent_val], arrCompareValues, op)
             break;
           default:
-            console.log(cond.selectedOp);
+            console.log(op);
             break;
+        }
+        if (
+          ["hide", "show"].includes(outcome) &&
+          comparison === true
+        ) {
+          hideShowConditionMet = true;
+        }
+        if (
+          outcome === "pre-fill" &&
+          childPrefillValue === "" &&
+          comparison === true
+        ) {
+          childPrefillValue = cond.selectedChildValue.trim();
         }
       });
 

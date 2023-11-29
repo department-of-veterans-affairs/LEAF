@@ -301,7 +301,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
 
         if (
           response[i].serviceData != undefined &&
-          response[i].serviceData[0].groupTitle != null
+          response[i].serviceData[0]?.groupTitle != null
         ) {
           var counter = 0;
           var divide = "";
@@ -583,7 +583,7 @@ nationalEmployeeSelector.prototype.search = function () {
 
               if (
                 response[i].serviceData != undefined &&
-                response[i].serviceData[0].groupTitle != null
+                response[i].serviceData[0]?.groupTitle != null
               ) {
                 var counter = 0;
                 var divide = "";
