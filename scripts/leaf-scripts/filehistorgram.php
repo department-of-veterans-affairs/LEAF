@@ -11,6 +11,8 @@ $portals = $db->query("SELECT * FROM `sites` WHERE `site_type` = 'portal'");
 $directory = '/var/www/html';
 $totalfilecount = 0;
 $totalfilesize = 0;
+$totalmaxfilesize = 0;
+$totalminfilesize = 0;
 $fp = fopen('filehistogram.csv', 'w');
 fputcsv($fp, ['path', 'max (MB)', 'min (MB)', 'average (MB)', 'count']);
 foreach ($portals as $portal) {
@@ -20,7 +22,7 @@ foreach ($portals as $portal) {
 
     $glob_array = glob($directory . $portal['site_path'] . '/files/*.*');
     $filecount = count($glob_array);
-    $filzesize['count'] = $filecount;
+    $filzesizes['count'] = $filecount;
 
     foreach ($glob_array as $glob) {
         $filesize = filesize($glob);
@@ -31,8 +33,16 @@ foreach ($portals as $portal) {
             $filesizes['max'] = $filesize;
         }
 
-        if ($filesize < $filesizes['min']) {
+        if ($filesize < $filesizes['min'] && $filesize > 0) {
             $filesizes['min'] = $filesize;
+        }
+
+        if ($filesize > $totalmaxfilesize) {
+            $totalmaxfilesize = $filesize;
+        }
+
+        if ($filesize < $totalminfilesize && $filesize > 0) {
+            $totalminfilesize = $filesize;
         }
 
         $filesizes['average'] += $filesize;
@@ -45,7 +55,7 @@ foreach ($portals as $portal) {
         fputcsv($fp, $filesizes);
     }
 }
-fputcsv($fp, ['total', 0, 0, $totalfilesize / $totalfilecount, $totalfilecount]);
+fputcsv($fp, ['total', $totalmaxfilesize, $totalminfilesize, $totalfilesize / $totalfilecount, $totalfilecount]);
 fclose($fp);
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
