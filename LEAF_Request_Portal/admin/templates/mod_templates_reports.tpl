@@ -446,6 +446,7 @@
                 });
 
                 if (fileNames.indexOf(template) === -1) {
+                    alert('Template file not found in directory');
                     return;
                 }
 
