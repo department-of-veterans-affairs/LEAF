@@ -280,7 +280,6 @@
             },
             url: '../api/templateFileHistory/_' + currentFile,
             success: function(res) {
-                console.log("File history has been saved.");
                 getFileHistory(currentFile);
             }
         })
@@ -471,7 +470,6 @@
             dataType: 'json',
             success: function(res) {
                 if (res.length === 0) {
-                    console.log('There are no files in the directory');
                     var contentMessage = '<p class="contentMessage">There are no history files.</p>';
                     $('.file-history-res').html(contentMessage);
                     return;
@@ -482,7 +480,6 @@
                 });
 
                 if (fileNames.indexOf(template) === -1) {
-                    console.log('Template file not found in directory');
                     return;
                 }
 
@@ -859,8 +856,6 @@
 
         if (windowWidth < 1024) {
             $('.leaf-right-nav').css('right', '-100%');
-        } else {
-            console.log('Please check the width of the window');
         }
         $.ajax({
             type: 'GET',
