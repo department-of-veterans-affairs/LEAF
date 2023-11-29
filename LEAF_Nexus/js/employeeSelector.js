@@ -120,7 +120,7 @@ employeeSelector.prototype.setResultHandler = function (func) {
   this.resultHandler = func;
 };
 
-nationalEmployeeSelector.prototype.addSelectHandler = function (func) {
+employeeSelector.prototype.addSelectHandler = function (func) {
     if(typeof func == 'function') {
         this.selectHandlers.push(func);
     }
