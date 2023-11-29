@@ -1,7 +1,7 @@
 <?php
 
 require_once getenv('APP_LIBS_PATH') . '/globals.php';
-require_once getenv('APP_LIBS_PATH') . '../Leaf/Db.php';
+require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
 
 $startTime = microtime(true);
 
@@ -12,7 +12,7 @@ $directory = '/var/www/html';
 $totalfilecount = 0;
 $totalfilesize = 0;
 $totalmaxfilesize = 0;
-$totalminfilesize = 0;
+$totalminfilesize = 999999999;
 $fp = fopen('filehistogram.csv', 'w');
 fputcsv($fp, ['path', 'max (MB)', 'min (MB)', 'average (MB)', 'count']);
 foreach ($portals as $portal) {
@@ -22,7 +22,7 @@ foreach ($portals as $portal) {
 
     $glob_array = glob($directory . $portal['site_path'] . '/files/*.*');
     $filecount = count($glob_array);
-    $filzesizes['count'] = $filecount;
+    $filesizes['count'] = $filecount;
 
     foreach ($glob_array as $glob) {
         $filesize = filesize($glob);
@@ -48,6 +48,10 @@ foreach ($portals as $portal) {
         $filesizes['average'] += $filesize;
     }
 
+    if ($filesizes['min'] > $filesizes['max']) {
+        $filesizes['min'] = 0;
+    }
+
     if (count($glob_array) > 0) {
         $totalfilesize += $filesizes['average'];
         $filesizes['average'] = $filesizes['average'] / $filecount;
@@ -55,6 +59,11 @@ foreach ($portals as $portal) {
         fputcsv($fp, $filesizes);
     }
 }
+
+if ($totalminfilesize > $totalmaxfilesize) {
+    $totalminfilesize = 0;
+}
+
 fputcsv($fp, ['total', $totalmaxfilesize, $totalminfilesize, $totalfilesize / $totalfilecount, $totalfilecount]);
 fclose($fp);
 $endTime = microtime(true);
