@@ -24,7 +24,6 @@ export default {
         'editAdvancedOptions',
         'openIfThenDialog',
         'listTracker',
-        'allowedConditionChildFormats',
         'previewMode',
         'handleNameClick',
         'makePreviewKey',
@@ -51,7 +50,7 @@ export default {
                 this.formNode.conditions !== null && this.formNode.conditions !== '' & this.formNode.conditions !== 'null';
         },
         conditionsAllowed() {
-            return !this.isHeader && this.allowedConditionChildFormats.includes(this.formNode.format?.toLowerCase());
+            return !this.isHeader && (this.formNode.format || '').toLowerCase() !== 'raw_data';
         },
         indicatorName() {
             const page = this.depth === 0 ? `<div class="form_page">${this.formPage + 1}</div>`: '';

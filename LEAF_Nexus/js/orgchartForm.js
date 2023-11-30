@@ -63,7 +63,7 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
         success: function (response) {
           dialog.setContent(response);
           $("input:visible:first, select:visible:first").focus();
-          $("input:visible:first, select:visible:first").keypress(function (
+          $("input:visible:first, select:visible:first").on("keydown", function (
             event
           ) {
             if (event.which == 13) {
@@ -100,11 +100,17 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
         success: function (response) {
           dialog.setContent(response);
           $("input:visible:first, select:visible:first").focus();
-          $("input:visible:first, select:visible:first").keypress(function (
+          $("input:visible:first, select:visible:first").on("keydown", function (
             event
           ) {
             if (event.which == 13) {
-              $("#" + dialog.btnSaveID).trigger("click");
+              let elChosenDrop = null;
+              if(event.target.classList.contains('chosen-search-input')) {
+                elChosenDrop = document.querySelector('.chosen-with-drop');
+              }
+              if(elChosenDrop === null) { //if a chosen dropdown box is still open, the first enter will just close it.
+                $("#" + dialog.btnSaveID).trigger("click");
+              }
             }
           });
         },
@@ -137,7 +143,7 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
         success: function (response) {
           dialog.setContent(response);
           $("input:visible:first, select:visible:first").focus();
-          $("input:visible:first, select:visible:first").keypress(function (
+          $("input:visible:first, select:visible:first").on("keydown", function (
             event
           ) {
             if (event.which == 13) {

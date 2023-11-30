@@ -19,7 +19,7 @@ export default {
             crosswalkFile: '',
             crosswalkHasHeader: false,
             level2IndID: null,
-            noPrefillFormats: ['', 'fileupload', 'image']
+            noPrefillFormats: ['', 'fileupload', 'image', 'grid', 'date', 'number', 'checkbox', 'currency']
         }
     },
     inject: [
