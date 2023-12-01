@@ -11,7 +11,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   let results = {};
   let batchSize = 500;
   let abortSignal;
-  let firstRun = true;
+  let firstRun = true; // keep track of query limit state, to align with user intent
   let origLimit, origLimitOffset;
 
   clearTerms();
@@ -93,6 +93,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
    * @memberOf LeafFormQuery
    */
   function setLimit(offset = 50, limit = 0) {
+    firstRun = true;
     if (limit === 0) {
       query.limit = offset;
     } else {
