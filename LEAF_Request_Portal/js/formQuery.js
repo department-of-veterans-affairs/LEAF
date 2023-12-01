@@ -11,6 +11,8 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   let results = {};
   let batchSize = 500;
   let abortSignal;
+  let firstRun = true;
+  let origLimit, origLimitOffset;
 
   clearTerms();
 
@@ -280,6 +282,15 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
    * @memberOf LeafFormQuery
    */
   function execute() {
+    if(firstRun) {
+        firstRun = false;
+        origLimit = query.limit;
+        origLimitOffset = query.limitOffset;
+    } else {
+        query.limit = origLimit;
+        query.limitOffset = origLimitOffset;
+    }
+
     if (query.getData != undefined && query.getData.length == 0) {
       delete query.getData;
     }
