@@ -47,6 +47,7 @@ function showPreview(recordID) {
 
 function applyFilter(search) {
     query.updateDataTerm('data', '3', 'LIKE', '*' + search + '*');
+    query.setLimitOffset(0);
     query.execute();
     announceFilter(search);
 }
