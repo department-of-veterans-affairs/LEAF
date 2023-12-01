@@ -737,6 +737,7 @@
                                         }
 
                                     } else {
+                                        inputEl.value = '';
                                         const msg = indFormat.toLowerCase() === 'fileupload' ?
                                             'Please ensure the file you are uploading is either a PDF, Word Document or similar format' :
                                             'Please ensure the file you are uploading is a photo. &nbsp;Supported image formats are JPG, PNG';
@@ -745,6 +746,7 @@
                                     }
                                 },
                                 error: (err) => {
+                                    inputEl.value = '';
                                     if (+err?.status === 413) {
                                         statusEl.innerHTML = '<span style="color:#d00;">File upload error:</span><br/>The file is too large.  The maximum upload size is <!--{$max_filesize|strip_tags}-->B';
                                     } else {
@@ -823,11 +825,9 @@
             <script>
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
-                        var oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
-                        var iFrameDOM = $('.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> iframe').contents();
-                        var newFiles = iFrameDOM.find('.newFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->');
-
-                        return oldFiles.length === 0 && newFiles.length === 0;
+                        const oldFiles = $('[id*="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_"]:visible');
+                        const newFiles = document.getElementById(`<!--{$indicator.indicatorID|strip_tags}-->`)?.files?.length || 0;
+                        return oldFiles.length === 0 && newFiles === 0;
                     },
                     setSubmitError: function() {
                         $([document.documentElement, document.body]).animate({
