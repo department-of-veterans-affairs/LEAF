@@ -14,7 +14,7 @@ $totalfilesize = 0;
 $totalmaxfilesize = 0;
 $totalminfilesize = 999999999;
 $fp = fopen('filehistogram.csv', 'w');
-fputcsv($fp, ['path', 'max (MB)', 'min (MB)', 'average (MB)', 'count']);
+fputcsv($fp, ['path', 'max (KB)', 'min (KB)', 'average (KB)', 'count']);
 foreach ($portals as $portal) {
 
     $filesizes = ['path' => $portal['site_path'], 'max' => 0, 'min' => 999999999, 'average' => 0, 'count' => 0];
