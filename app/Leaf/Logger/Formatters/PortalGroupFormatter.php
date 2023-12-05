@@ -24,6 +24,10 @@ class PortalGroupFormatter{
         DataActions::DELETE.'-'.LoggableTypes::EMPLOYEE => [
             "message" => "removed <strong>user:</strong> %s",
             "variables" => "userID"
+        ],
+        DataActions::PRUNE.'-'.LoggableTypes::EMPLOYEE => [
+            "message" => "pruned <strong>user:</strong> %s",
+            "variables" => "userID"
         ]
     ];
 
