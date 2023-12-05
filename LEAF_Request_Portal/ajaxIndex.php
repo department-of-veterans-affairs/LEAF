@@ -78,6 +78,7 @@ switch ($action) {
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
                 $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
+                $t_form->assign('max_filesize', ini_get('upload_max_filesize'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
             }
             else
@@ -240,7 +241,7 @@ switch ($action) {
         //$approval = new Action($db, $login, $_GET['recordID']);
         //$approval->addApproval($_POST['groupID'], $_POST['status'], $_POST['comment'], $_POST['dependencyID']);
         break;
-    case 'doupload': // handle file upload
+    case 'doupload': // legacy handle file upload (retained for older custom files)
         $uploadOk = true;
         $uploadedFilename = '';
         foreach ($_FILES as $file)

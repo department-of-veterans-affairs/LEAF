@@ -71,7 +71,7 @@
 
                     &nbsp;<img src="../dynicons/?img=accessories-text-editor.svg&amp;w=16" tabindex="0" onkeydown="onKeyPressClick(event)" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)" alt="Edit this field" title="Edit this field" style="cursor: pointer" />
                     &nbsp;<img src="../dynicons/?img=emblem-readonly.svg&amp;w=16" tabindex="0" onkeydown="onKeyPressClick(event)" onclick="editIndicatorPrivileges(<!--{$indicator.indicatorID}-->);" alt="Edit indicator privileges" title="Edit indicator privileges" style="cursor: pointer" />
-                    <!--{if $indicator.format|in_array:['text','dropdown','multiselect','radio', 'checkboxes', '', 'fileupload', 'image', 'textarea', 'orgchart_employee', 'orgchart_group', 'orgchart_position']}-->
+                    <!--{if !$indicator.format|in_array:['raw_data']}-->
                         &nbsp;<img id="edit_conditions_<!--{$indicator.indicatorID}-->" src="../dynicons/?img=preferences-system.svg&amp;w=16" tabindex="0" onkeydown="onKeyPressClick(event)" onclick="updateVueData(<!--{$indicator.indicatorID}-->,<!--{$indicator.required}-->);" alt="Edit Conditions" title="Edit conditions" style="cursor: pointer" />
                     <!--{/if}-->
                     <!--{if $indicator.has_code}-->

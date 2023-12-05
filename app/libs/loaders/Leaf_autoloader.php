@@ -142,6 +142,8 @@ if (!defined('ABSOLUTE_PORT_PATH')) define('ABSOLUTE_PORT_PATH', 'https://' . ge
 if (!defined('DOMAIN_PATH')) define('DOMAIN_PATH', 'https://' . getenv('APP_HTTP_HOST'));
 if (!defined('ORGCHART_DB')) define('ORGCHART_DB', $site_paths['orgchart_database']);
 if (!defined('OC_DB')) define('OC_DB', $oc_db);
+if (!defined('LEAF_SETTINGS')) define('LEAF_SETTINGS', $settings);
+if (!defined('OC_SETTINGS')) define('OC_SETTINGS', $oc_settings);
 
 if (!empty($site_paths['portal_database'])) {
     if (!defined('PORTAL_DB')) define('PORTAL_DB', $site_paths['portal_database']);

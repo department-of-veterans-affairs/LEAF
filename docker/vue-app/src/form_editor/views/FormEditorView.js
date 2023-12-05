@@ -22,20 +22,6 @@ export default {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
             listTracker: {},
-            allowedConditionChildFormats: [
-                'dropdown',
-                'text',
-                'multiselect',
-                'radio',
-                'checkboxes',
-                '',
-                'fileupload',
-                'image',
-                'textarea',
-                'orgchart_employee',
-                'orgchart_group',
-                'orgchart_position'
-            ],
             previewMode: false,
             sortOffset: 128, //number to subtract from listindex when comparing or updating sort values
             updateKey: 0,
@@ -121,7 +107,6 @@ export default {
             editQuestion: this.editQuestion,
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
-            allowedConditionChildFormats: this.allowedConditionChildFormats,
             focusIndicator: this.focusIndicator,
             startDrag: this.startDrag,
             onDragEnter: this.onDragEnter,
