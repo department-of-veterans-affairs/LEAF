@@ -314,7 +314,6 @@
                     console.log('Error occurred during the save operation:', errorThrown);
                 }
             });
-            console.log('Your Template has been saved.');
         }
 
         function showDialog(message, color) {
@@ -383,7 +382,6 @@
                 currentSubjectContent = subject;
                 currentEmailToContent = emailToData;
                 currentEmailCcContent = emailCcData;
-                console.log("File history has been saved.");
                 getFileHistory(currentFile);
             }
         });
@@ -419,7 +417,6 @@
             dataType: 'json',
             success: function(res) {
                 if (res.length === 0) {
-                    console.log('There are no files in the directory');
                     var contentMessage = '<p class="contentMessage">There are no history files.</p>';
                     $('.file-history-res').html(contentMessage);
                     return;
@@ -430,7 +427,6 @@
                 });
 
                 if (!fileNames.includes(template)) {
-                    console.log('Template file not found in directory');
                     return;
                 }
 
@@ -631,7 +627,6 @@
             dataType: 'json',
             cache: false,
             success: function(res) {
-                console.log(res);
                 loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
                     currentEmailCcFile);
                 exitExpandScreen();
@@ -1171,8 +1166,6 @@
 
         if (windowWidth < 1024) {
             $('.leaf-right-nav').css('right', '-100%');
-        } else {
-            console.log('Please check the width of the window');
         }
         $.ajax({
             type: 'GET',

@@ -392,7 +392,7 @@ class Group
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::EMPLOYEE, [
+            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EMPLOYEE, [
                 new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
                 new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
@@ -422,7 +422,7 @@ class Group
     public function removeMember($member, $groupID): void
     {
         if (is_numeric($groupID) && $member != '') {
-            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EMPLOYEE, [
+            $this->dataActionLogger->logAction(DataActions::PRUNE, LoggableTypes::EMPLOYEE, [
                 new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
                 new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
