@@ -46,7 +46,7 @@
                     <!--{/if}-->
             </span>
             <!--{/if}-->
-            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('/dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
+            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
                 <!--{/if}-->
         </div>
         <div class="response blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
