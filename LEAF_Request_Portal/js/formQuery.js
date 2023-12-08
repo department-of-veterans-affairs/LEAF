@@ -2,8 +2,10 @@
  * Form Query Helper
  * 
  * LeafFormQuery is a globally available object on LEAF sites, and is an interface for ./api/form/query
- * Key features includes splitting large queries into smaller chunks, and providing a mechanism to
- * report progress (onProgress).
+ * Key features include:
+ *  - Automatically splits large queries into multiple small ones, to improve UX
+ *  - Mechanism to report progress (onProgress)
+ *  - Programmatically build query
  */
 var LeafFormQuery = function () {
   let query = {};
