@@ -43,7 +43,7 @@ CREATE TABLE `action_history` (
   KEY `actionTypeID` (`actionTypeID`),
   KEY `dependencyID` (`dependencyID`),
   KEY `actionType` (`actionType`),
-  CONSTRAINT `action_history_action_type` FOREIGN KEY (`actionTypeID`) REFERENCES `action_types` (`actionTypeID`),
+  CONSTRAINT `action_history_ibfk_2` FOREIGN KEY (`actionTypeID`) REFERENCES `action_types` (`actionTypeID`),
   CONSTRAINT `fk_records_action_history_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -128,7 +128,7 @@ CREATE TABLE `category_count` (
   `count` tinyint(3) unsigned NOT NULL,
   PRIMARY KEY (`recordID`,`categoryID`),
   KEY `categoryID` (`categoryID`),
-  CONSTRAINT `category_count_category` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`),
+  CONSTRAINT `category_count_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`),
   CONSTRAINT `fk_records_category_count_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1104,7 +1104,7 @@ CREATE TABLE `category_privs` (
   `writable` tinyint(4) NOT NULL,
   UNIQUE KEY `categoryID` (`categoryID`,`groupID`),
   KEY `groupID` (`groupID`),
-  CONSTRAINT `category_privs_categories` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`)
+  CONSTRAINT `category_privs_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -1114,7 +1114,7 @@ CREATE TABLE `category_staples` (
   `stapledCategoryID` varchar(20) NOT NULL,
   UNIQUE KEY `category_stapled` (`categoryID`,`stapledCategoryID`),
   KEY `categoryID` (`categoryID`),
-  CONSTRAINT `category_staples_category` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `category_staples_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -1129,7 +1129,8 @@ CREATE TABLE `data` (
   UNIQUE KEY `unique` (`recordID`,`indicatorID`,`series`),
   KEY `indicator_series` (`indicatorID`,`series`),
   KEY `fastdata` (`indicatorID`,`data`(10)),
-  FULLTEXT KEY `data` (`data`)
+  FULLTEXT KEY `data` (`data`),
+  CONSTRAINT `fk_records_data_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `userID`) VALUES
@@ -1145,7 +1146,7 @@ INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `u
 (5,	-2,	1,	'test',	1692288077,	'tester'),
 (5,	-1,	1,	'25',	1692288075,	'tester'),
 (6,	2,	1,	'a:3:{s:5:\"cells\";a:2:{i:0;a:3:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";}i:1;a:3:{i:0;s:1:\"a\";i:1;s:1:\"b\";i:2;s:1:\"c\";}}s:5:\"names\";a:4:{i:0;s:5:\"Col 1\";i:1;s:5:\"Col 2\";i:2;s:5:\"Col 3\";i:3;s:2:\" \";}s:7:\"columns\";a:3:{i:0;s:8:\"col_7664\";i:1;s:8:\"col_15d5\";i:2;s:8:\"col_c80a\";}}',	1693263167,	'tester'),
-(7,	3,	1,	'12345',	1700253733,	'tester'),
+(7,	3,	1,	'12345',	1702053663,	'tester'),
 (7,	4,	1,	'80675',	1694021464,	'tester'),
 (7,	5,	1,	'44839',	1694021464,	'tester'),
 (7,	8,	1,	'114',	1695331172,	'tester'),
@@ -3643,7 +3644,7 @@ INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `u
 (504,	5,	1,	'41465',	1694021485,	'tester'),
 (504,	8,	1,	'300',	1695331226,	'tester'),
 (504,	10,	1,	'60',	1695339088,	'tester'),
-(505,	3,	1,	'12345',	1700253733,	'tester'),
+(505,	3,	1,	'12345',	1702053662,	'tester'),
 (505,	4,	1,	'',	1697328866,	'tester'),
 (505,	5,	1,	'87079',	1697328866,	'tester'),
 (505,	6,	1,	'',	1697328866,	'tester'),
@@ -6025,7 +6026,7 @@ CREATE TABLE `dependency_privs` (
   `groupID` mediumint(9) NOT NULL,
   UNIQUE KEY `dependencyID` (`dependencyID`,`groupID`),
   KEY `groupID` (`groupID`),
-  CONSTRAINT `dependency_privs_dependency` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`)
+  CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `dependency_privs` (`dependencyID`, `groupID`) VALUES
@@ -6176,7 +6177,7 @@ CREATE TABLE `indicators` (
   KEY `categoryID` (`categoryID`),
   KEY `parentID` (`parentID`),
   KEY `sort` (`sort`),
-  CONSTRAINT `indicator_category` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`)
+  CONSTRAINT `indicators_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `indicators` (`indicatorID`, `name`, `format`, `description`, `default`, `parentID`, `categoryID`, `html`, `htmlPrint`, `conditions`, `jsSort`, `required`, `sort`, `timeAdded`, `disabled`, `is_sensitive`) VALUES
@@ -7232,7 +7233,7 @@ CREATE TABLE `records_dependencies` (
   KEY `filled` (`dependencyID`,`filled`),
   KEY `time` (`time`),
   CONSTRAINT `fk_records_dependencies_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE,
-  CONSTRAINT `records_dependency_dependency` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`)
+  CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `records_dependencies` (`recordID`, `dependencyID`, `filled`, `time`) VALUES
@@ -12999,8 +13000,8 @@ CREATE TABLE `route_events` (
   KEY `eventID` (`eventID`),
   KEY `workflowID` (`workflowID`,`stepID`,`actionType`),
   KEY `actionType` (`actionType`),
-  CONSTRAINT `route_events_actionType` FOREIGN KEY (`actionType`) REFERENCES `actions` (`actionType`),
-  CONSTRAINT `route_events_event` FOREIGN KEY (`eventID`) REFERENCES `events` (`eventID`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `route_events_ibfk_1` FOREIGN KEY (`actionType`) REFERENCES `actions` (`actionType`),
+  CONSTRAINT `route_events_ibfk_2` FOREIGN KEY (`eventID`) REFERENCES `events` (`eventID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `route_events` (`workflowID`, `stepID`, `actionType`, `eventID`) VALUES
@@ -13181,8 +13182,8 @@ CREATE TABLE `step_dependencies` (
   `dependencyID` smallint(6) NOT NULL,
   UNIQUE KEY `stepID` (`stepID`,`dependencyID`),
   KEY `dependencyID` (`dependencyID`),
-  CONSTRAINT `step_dependency_dependency` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`),
-  CONSTRAINT `step_dependency_step` FOREIGN KEY (`stepID`) REFERENCES `workflow_steps` (`stepID`)
+  CONSTRAINT `fk_step_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`),
+  CONSTRAINT `step_dependencies_ibfk_3` FOREIGN KEY (`stepID`) REFERENCES `workflow_steps` (`stepID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `step_dependencies` (`stepID`, `dependencyID`) VALUES
@@ -13334,8 +13335,8 @@ CREATE TABLE `workflow_routes` (
   UNIQUE KEY `workflowID` (`workflowID`,`stepID`,`actionType`),
   KEY `stepID` (`stepID`),
   KEY `actionType` (`actionType`),
-  CONSTRAINT `workflow_routes_actionType` FOREIGN KEY (`actionType`) REFERENCES `actions` (`actionType`),
-  CONSTRAINT `workflow_routes_workflow` FOREIGN KEY (`workflowID`) REFERENCES `workflows` (`workflowID`)
+  CONSTRAINT `workflow_routes_ibfk_1` FOREIGN KEY (`workflowID`) REFERENCES `workflows` (`workflowID`),
+  CONSTRAINT `workflow_routes_ibfk_3` FOREIGN KEY (`actionType`) REFERENCES `actions` (`actionType`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `workflow_routes` (`workflowID`, `stepID`, `nextStepID`, `actionType`, `displayConditional`) VALUES
@@ -13378,7 +13379,7 @@ CREATE TABLE `workflow_steps` (
   `stepData` text,
   PRIMARY KEY (`stepID`),
   KEY `workflowID` (`workflowID`),
-  CONSTRAINT `workflow_steps_workflow` FOREIGN KEY (`workflowID`) REFERENCES `workflows` (`workflowID`)
+  CONSTRAINT `workflow_steps_ibfk_1` FOREIGN KEY (`workflowID`) REFERENCES `workflows` (`workflowID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `workflow_steps` (`workflowID`, `stepID`, `stepTitle`, `stepBgColor`, `stepFontColor`, `stepBorder`, `jsSrc`, `posX`, `posY`, `indicatorID_for_assigned_empUID`, `indicatorID_for_assigned_groupID`, `requiresDigitalSignature`, `stepData`) VALUES
