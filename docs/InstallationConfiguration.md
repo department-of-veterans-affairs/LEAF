@@ -19,6 +19,13 @@ In the sections below `$dbUser` and `$dbPass` are the same values used in the my
 
 ## Docker Compose
 
+Prerequisite setup:
+```
+docker network create leaf
+docker network create leaf-sql
+docker network create traefik
+```
+
 Open up a terminal and navigate to the LEAF/docker directory.
 Run the command `docker compose -p leaf_20 up --build -d`
 Docker will build the local environment based on the docker-compose.yml file.
