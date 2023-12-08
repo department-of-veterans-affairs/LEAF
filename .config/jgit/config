@@ -1,3 +1,6 @@
 [filesystem "Oracle Corporation|15.0.2|340874607"]
 	timestampResolution = 29139 microseconds
 	minRacyThreshold = 0 nanoseconds
+[filesystem "Eclipse Adoptium|17.0.9|-502350697"]
+	timestampResolution = 1003 microseconds
+	minRacyThreshold = 0 nanoseconds

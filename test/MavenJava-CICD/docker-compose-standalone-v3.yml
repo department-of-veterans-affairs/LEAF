@@ -1,0 +1,13 @@
+# To execute this docker-compose yml file use `docker-compose -f docker-compose-v3.yml up`
+# Add the `-d` flag at the end for detached execution
+# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3.yml down`
+version: "3.8"
+services:
+  chrome:
+    image: selenium/standalone-chrome:4.15.0-20231122
+    hostname: chrome
+    privileged: true 
+    shm_size: 2gb
+    ports:
+      - "4444:4444"
+      - "7900:7900"
