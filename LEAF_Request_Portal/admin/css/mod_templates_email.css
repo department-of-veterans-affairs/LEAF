@@ -1,3 +1,27 @@
+.template_files>a.active {
+    background-color: #0000;
+    color: #005ea2;
+    border: 2px solid #005ea2;
+}
+
+.CodeMirror-merge-left
+  .CodeMirror
+  .CodeMirror-scroll
+  .CodeMirror-sizer
+  .CodeMirror-lines
+  .CodeMirror-linebackground {
+  background-color: #e78c8c !important;
+}
+
+.CodeMirror-merge-pane-rightmost
+  .CodeMirror
+  .CodeMirror-scroll
+  .CodeMirror-sizer
+  .CodeMirror-lines
+  .CodeMirror-linebackground {
+  background-color: #8ce79b !important;
+}
+
 .ui-dialog .ui-dialog-content {
     box-sizing: border-box;
 }
@@ -10,6 +34,29 @@
     width: 100%;
 }
 
+#divEmailTo {
+    width: 100%;
+}
+
+#divEmailTo>textarea{
+    width: 100% !important;
+    border: 2px solid #a4a4a4;
+    border-radius: 5px;
+}
+
+#divEmailCc {
+    width: 100%;
+}
+
+#divEmailCc>textarea{
+    width: 100% !important;
+    border: 2px solid #a4a4a4;
+    border-radius: 5px;
+}
+
+.CodeMirror-merge-2pane .CodeMirror-merge-gap {
+    width: 5.2% !important;
+  }
 .template_files {
     width: 100%;
     display: flex;
@@ -22,12 +69,17 @@
 }
 
 .template_files>a {
-    /* width: 80%; */
     display: block;
     text-decoration: none;
-    border-bottom: 2px solid #e4e4e400;
+    border: 2px solid #e4e4e400;
     transition: all 0.3s ease;
     color: #242424;
+    padding: 0 10px;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
 }
 
 .template_files>a:hover {
@@ -66,7 +118,6 @@ fieldset {
 
 .email-keyboard-shortcuts>table {
     width: 100%;
-    /* max-width: 700px; */
 }
 
 .leaf-code-container {
@@ -85,19 +136,24 @@ fieldset {
 
 .CodeMirror-merge-pane-rightmost {
     border: 4px solid #083;
-    overflow: auto;
-}
+    overflow: hidden;
+    height: -webkit-fill-available;
+    box-sizing: content-box;
+  }
+  
+  .CodeMirror-merge-left {
+    height: 100%;
+    border: 4px solid #b50909;
+    overflow: hidden;
+  }
 
 .CodeMirror-merge-copy {
-    display: none !important;
+    color: #2bb943 !important;
 }
 
-.CodeMirror,
-.cm-s-default {
-    height: auto !important;
-    border-radius: 0 0 5px 5px;
-    border: 2px solid #000;
-}
+.CodeMirror {
+    height: 100vh !important;
+  }
 
 .CodeMirror pre {
     padding: 3px 15px;
@@ -146,8 +202,14 @@ legend {
     font-weight: bold;
 }
 
-#divSubject .CodeMirror {
-    height: 50px;
+#divSubject > .CodeMirror {
+    height: auto !important;
+    border: 2px solid #a4a4a4;
+}
+
+#divCode > .CodeMirror {
+    height: auto !important;
+    border: 2px solid #a4a4a4;
 }
 
 #fileList {
@@ -178,12 +240,9 @@ legend {
 
 .CodeMirror-merge,
 .CodeMirror-merge .CodeMirror {
-    height: 60vh !important;
+    height: 100vh !important;
 }
 
-.CodeMirror-merge-2pane .CodeMirror-merge-pane {
-    height: 100%;
-}
 
 .page-title-container {
     width: 98%;
@@ -346,6 +405,7 @@ legend {
     background-color: #fff;
     font-size: 1.3rem !important;
     margin-top: 10px;
+    border: none;
 }
 
 
@@ -555,19 +615,28 @@ legend {
     align-items: center;
     background-color: #fff;
     padding: 5px 0;
-    border: 2px solid #252f3e;
 }
 
-.CodeMirror-merge-pane-label {
+.CodeMirror-merge-pane-label-right,
+.CodeMirror-merge-pane-label-left {
     width: 50%;
     text-align: center;
     font-weight: bold;
     padding: 10px 0;
 }
 
-.CodeMirror-merge-pane-label:nth-child(2) {
+.CodeMirror-merge-pane-label-right {
     color: #083;
-}
+  }
+  
+  .CodeMirror-merge-pane-label-left {
+    color: #b50909;
+  }
+
+  .CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy::before {
+    visibility: visible;
+    content: "\25ba\25ba\25ba";
+  }
 
 /*File History Contents*/
 
@@ -591,7 +660,6 @@ legend {
     background-color: #1A4480;
     color: #fff;
     padding: 10px 0;
-    /* box-shadow: 0px 3px 3px -1px #01000061; */
     border-radius: 5px 5px 0 0;
     -webkit-border-radius: 5px 5px 0 0;
     -moz-border-radius: 5px 5px 0 0;
@@ -634,6 +702,11 @@ legend {
     -moz-transition: all ease-in-out .3s;
     -ms-transition: all ease-in-out .3s;
     -o-transition: all ease-in-out .3s;
+}
+
+.file_history_options_wrapper.active {
+    background-color: #b50909;
+    color: #fff;
 }
 
 .file_history_options_wrapper:hover {

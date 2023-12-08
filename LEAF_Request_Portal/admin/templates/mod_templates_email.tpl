@@ -52,8 +52,8 @@
                 <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Body</div>
                 <div id="divCode">
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label">(Old File)</div>
-                        <div class="CodeMirror-merge-pane-label">(Current File)</div>
+                        <div class="CodeMirror-merge-pane-label-left"></div>
+                        <div class="CodeMirror-merge-pane-label-right"></div>
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
@@ -238,6 +238,12 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
+    function comparedTitle(currentFile, otherFile) {
+        $(".compared-label-content").css("display", "flex");
+        document.querySelector(".CodeMirror-merge-pane-label-right").innerHTML = currentFile;
+        document.querySelector(".CodeMirror-merge-pane-label-left").innerHTML = otherFile;
+    }
+
     function openRightNavTools(option) {
         let nav = $('.' + option + '');
         nav.css({
@@ -313,7 +319,6 @@
                     console.log('Error occurred during the save operation:', errorThrown);
                 }
             });
-            console.log('Your Template has been saved.');
         }
 
         function showDialog(message, color) {
@@ -382,7 +387,6 @@
                 currentSubjectContent = subject;
                 currentEmailToContent = emailToData;
                 currentEmailCcContent = emailCcData;
-                console.log("File history has been saved.");
                 getFileHistory(currentFile);
             }
         });
@@ -439,7 +443,7 @@
                     '<div class="file_history_author">Author:</div>' +
                     '</div>' +
                     '<div class="file_history_options_container">';
-                for (let i = 0; i < res.length; i++) {
+                for (var i = 0; i < res.length; i++) {
                     var fileParentName = res[i].file_parent_name;
                     var fileName = res[i].file_name;
                     var whoChangedFile = res[i].file_modify_by;
@@ -447,7 +451,8 @@
                     ignoreUnsavedChanges = false;
 
                     accordion +=
-                        '<div class="file_history_options_wrapper" onclick="compareHistoryFile(\'' +
+                        '<div class="file_history_options_wrapper" data-file="' + fileName +
+                        '" onclick="compareHistoryFile(\'' +
                         fileName + '\', \'' + fileParentName + '\', true)">' +
                         '<div class="file_history_options_date">' + fileCreated + '</div>' +
                         '<div class="file_history_options_author">' + whoChangedFile + '</div>' +
@@ -456,6 +461,31 @@
                 accordion += '</div>' +
                     '</div>';
                 $('.file-history-res').html(accordion);
+
+                // Add event listener to handle the click on options
+                $('.file_history_options_wrapper').on('click', function() {
+                    // Remove the 'active' class from all options
+                    $('.file_history_options_wrapper').removeClass('active');
+                    // Add the 'active' class to the clicked option
+                    $(this).addClass('active');
+                });
+
+                // Adds active to the file list
+                let urlParams = new URLSearchParams(window.location.search);
+                let historyFile = urlParams.get('fileName');
+
+                if (historyFile !== null) {
+                    let selectedTemplateLink = document.querySelector(
+                        '.file_history_options_wrapper[data-file="' +
+                        historyFile + '"]');
+
+                    if (selectedTemplateLink !== null) {
+                        selectedTemplateLink.classList.add('active');
+                    } else {
+                        console.log(
+                            "No matching element found for templateFile:", historyFile);
+                    }
+                }
             },
             error: function(xhr, status, error) {
                 console.log('Error getting file history: ' + error);
@@ -491,7 +521,10 @@
         $('#btn_merge').css('display', 'block');
         $('#word-wrap-button').css('display', 'block');
         $('.file_replace_file_btn').css('display', 'block');
+        $('#filename').css('border-bottom', '2px solid #242424');
         let wordWrapEnabled = false; // default to false
+
+        comparedTitle("(Current File)", "(Old File)");
 
         $('#word-wrap-button').click(function() {
             wordWrapEnabled = !wordWrapEnabled;
@@ -588,7 +621,8 @@
                             });
 
                             function toggleWordWrap() {
-                                let lineWrapping = codeEditor.editor().getOption('lineWrapping');
+                                let lineWrapping = codeEditor.editor().getOption(
+                                    'lineWrapping');
                                 codeEditor.editor().setOption('lineWrapping', !lineWrapping);
                                 codeEditor.leftOriginal().setOption('lineWrapping', !
                                     lineWrapping);
@@ -630,7 +664,6 @@
             dataType: 'json',
             cache: false,
             success: function(res) {
-                console.log(res);
                 loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
                     currentEmailCcFile);
                 exitExpandScreen();
@@ -653,7 +686,8 @@
         let templateEmailToFile = urlParams.get('emailToFile');
         let templateEmailCcFile = urlParams.get('emailCcFile');
 
-        if (fileName !== null && parentFile !== null && templateSubjectFile == 'undefined' && templateName == 'undefined') {
+        if (fileName !== null && parentFile !== null && templateSubjectFile == 'undefined' && templateName ==
+            'undefined') {
             loadContent(currentName, templateFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
             compareHistoryFile(fileName, parentFile, false);
         } else if (fileName !== null && parentFile !== null && templateSubjectFile !== null) {
@@ -664,7 +698,6 @@
         } else if (templateFile !== null) {
             loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
         } else {
-            console.log('else');
             loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
         }
     }
@@ -770,6 +803,7 @@
             'width': '100%',
             'text-align': 'left'
         });
+        $('#filename').css('border-bottom', 'none');
         $('.page-title-container>h2').html('Email Template Editor');
 
         let windowWidth = $(window).width();
@@ -1205,72 +1239,118 @@
         $.ajax({
             type: 'GET',
             url: '../api/emailTemplates',
-            success: function (res) {
+            success: function(res) {
                 $.ajax({
                     type: 'GET',
                     url: '../api/emailTemplates/custom',
                     dataType: 'json',
-                    success: function (result) {
+                    success: function(result) {
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
-                        let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
+                        let filesMobile =
+                            '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
 
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
                                 let custom = '';
 
                                 if (result.includes(res[i].fileName)) {
-                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                    custom =
+                                        '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
                                 }
 
                                 // Construct the option element with data- attributes for filesMobile
-                                filesMobile += '<option data-template-data=\'' + JSON.stringify({
-                                    displayName: res[i].displayName,
-                                    fileName: res[i].fileName,
-                                    subjectFileName: res[i].subjectFileName || '',
-                                    emailToFileName: res[i].emailToFileName || '',
-                                    emailCcFileName: res[i].emailCcFileName || '',
-                                }) + '\'>' + res[i].displayName + custom + '</option>';
+                                filesMobile += '<option data-template-data=\'' + JSON
+                                    .stringify({
+                                        displayName: res[i].displayName,
+                                        fileName: res[i].fileName,
+                                        subjectFileName: res[i].subjectFileName ||
+                                            '',
+                                        emailToFileName: res[i].emailToFileName ||
+                                            '',
+                                        emailCcFileName: res[i].emailCcFileName ||
+                                            '',
+                                    }) + '\'>' + res[i].displayName + custom +
+                                    '</option>';
 
                                 // Construct the li element for buffer
-                                buffer += '<li>' + '<div class="template_files"><a href="#" data-template-index="' + i + '">' + res[i].displayName + '</a> ' + custom + ' </div>' + '</li>';
+                                buffer += '<li>' +
+                                    '<div class="template_files"><a href="#" data-file="' +
+                                    res[i].fileName + '" data-template-index="' +
+                                    i + '">' + res[i].displayName + custom + '</a> ' +
+                                    ' </div>' + '</li>';
                             }
 
                             filesMobile += '</select></div>';
                             buffer += '</ul>';
                         } else if (res_array.status['code'] === 4) {
                             buffer += '<li>' + res_array.status['message'] + '</li>';
-                            filesMobile += '<select><option>' + res_array.status['message'] + '</option></select>';
+                            filesMobile += '<select><option>' + res_array.status[
+                                'message'] + '</option></select>';
                         } else {
-                            buffer += '<li>Internal error occurred. If this persists, contact your Primary Admin.</li>';
-                            filesMobile += '<div>Internal error occurred. If this persists, contact your Primary Admin.</div>';
+                            buffer +=
+                                '<li>Internal error occurred. If this persists, contact your Primary Admin.</li>';
+                            filesMobile +=
+                                '<div>Internal error occurred. If this persists, contact your Primary Admin.</div>';
                         }
 
                         $('#fileList').html(buffer);
                         $('.filesMobile').html(filesMobile);
 
                         // Attach onchange event handler to templateFiles select element
-                        $('.template_select_container').on('change', 'select.templateFiles', function () {
-                            let selectedOption = $(this).find(':selected');
-                            let templateData = selectedOption.data('template-data');
+                        $('.template_select_container').on('change',
+                            'select.templateFiles',
+                            function() {
+                                let selectedOption = $(this).find(':selected');
+                                let templateData = selectedOption.data(
+                                    'template-data');
 
-                            if (templateData) {
-                                // Call the loadContent function with the required parameters
-                                loadContent(templateData.displayName, templateData.fileName, templateData.subjectFileName, templateData.emailToFileName, templateData.emailCcFileName);
-                            }
-                        });
+                                if (templateData) {
+                                    // Call the loadContent function with the required parameters
+                                    loadContent(templateData.displayName,
+                                        templateData.fileName, templateData
+                                        .subjectFileName, templateData
+                                        .emailToFileName, templateData
+                                        .emailCcFileName);
+                                }
+                            });
 
                         // Attach click event handler to template links in the buffer
-                        $('.template_files a').on('click', function (e) {
+                        $('.template_files a').on('click', function(e) {
                             e.preventDefault();
                             let templateIndex = $(this).data('template-index');
                             let template = res[templateIndex];
 
+                            // Remove the 'active' class from all template links
+                            $('.template_files a').removeClass('active');
+                            // Add the 'active' class to the clicked template link
+                            $(this).addClass('active');
+
                             // Call the loadContent function with the required parameters
-                            loadContent(template.displayName, template.fileName, template.subjectFileName || '', template.emailToFileName || '', template.emailCcFileName || '');
+                            loadContent(template.displayName, template.fileName,
+                                template.subjectFileName || '', template
+                                .emailToFileName || '', template
+                                .emailCcFileName || '');
                         });
+
+                        let urlParams = new URLSearchParams(window.location.search);
+                        let templateFile = urlParams.get('file');
+
+                        if (templateFile !== null) {
+                            let selectedTemplateLink = document.querySelector(
+                                '.template_files a[data-file="' + templateFile +
+                                '"]');
+
+                            if (selectedTemplateLink !== null) {
+                                selectedTemplateLink.classList.add('active');
+                            } else {
+                                console.log(
+                                    "No matching element found for templateFile:",
+                                    templateFile);
+                            }
+                        }
                     },
-                    error: function (error) {
+                    error: function(error) {
                         console.log(error);
                     }
                 });

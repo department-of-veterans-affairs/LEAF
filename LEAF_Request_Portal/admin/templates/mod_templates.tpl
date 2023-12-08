@@ -31,8 +31,8 @@
                 <div id="filename"></div>
                 <div>
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label">(Old File)</div>
-                        <div class="CodeMirror-merge-pane-label">(Current File)</div>
+                        <div class="CodeMirror-merge-pane-label-left"></div>
+                        <div class="CodeMirror-merge-pane-label-right"></div>
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
@@ -129,11 +129,11 @@
                         Compare to Original
                     </button>
 
-                    <button id="icon_library"
+
+                    <a id="icon_library"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
-                        target="_blank">
-                        <a href="<!--{$domain_path}-->/libs/dynicons/gallery.php">Icon Library</a>
-                    </button>
+                        href="<!--{$domain_path}-->/libs/dynicons/gallery.php" target="_blank">Icon Library</a>
+
                     <button
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem mobileHistory"
                         id="btn_history" onclick="viewHistory()">
@@ -143,11 +143,12 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button id="restore_original"
-                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
-                        onclick="restore();">
-                        Restore Original
+                    <button id="save_button" class="usa-button leaf-btn-med leaf-width-14rem"
+                        onclick="saveInCompared();">
+                        Save Current Changes<span id="saveStatus"
+                            class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
+                    <button class="restore_original_compare" onclick="restore()">Save </button>
                     <button class="file_replace_file_btn">Use Old File</button>
                     <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
@@ -166,20 +167,26 @@
 
 
 <script>
+    // Function displays the compared titles
+    function comparedTitle(currentFile, otherFile) {
+        $(".compared-label-content").css("display", "flex");
+        document.querySelector(".CodeMirror-merge-pane-label-right").innerHTML = currentFile;
+        document.querySelector(".CodeMirror-merge-pane-label-left").innerHTML = otherFile;
+    }
+    // This is a mobile nav slider open
     function openRightNavTools(option) {
         let nav = $('.' + option + '');
         nav.css({
             'right': '0'
         });
     }
-
+    // This is a mobile nav slider close
     function closeRightNavTools(option) {
         let nav = $('.' + option + '');
         nav.css({
             'right': '-100%'
         });
     }
-
     // saves current file content changes
     function save() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
@@ -220,7 +227,48 @@
             }
         });
     }
+    // saves current file content while being in the compared section
+    function saveInCompared() {
+        $('#saveIndicator').attr('src', '../images/indicator.gif');
+        var data = '';
+        if (codeEditor.getValue == undefined) {
+            data = codeEditor.edit.getValue();
+        } else {
+            data = codeEditor.getValue();
+        }
 
+        // Check if the content has changed
+        if (data === currentFileContent) {
+            alert('There are no changes to save.');
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            data: {
+                CSRFToken: '<!--{$CSRFToken}-->',
+                file: data
+            },
+            url: '../api/template/_' + currentFile,
+            success: function(res) {
+                $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
+                $('.modifiedTemplate').css('display', 'block');
+                if ($('#btn_compareStop').css('display') != 'none') {
+                    $('#btn_compare').css('display', 'none');
+                }
+
+                var time = new Date().toLocaleTimeString();
+                $('#saveStatus').html('<br /> Last saved: ' + time);
+                currentFileContent = data;
+                if (res != null) {
+                    alert(res);
+                }
+                saveFileHistory();
+                exitExpandScreen();
+            }
+        });
+    }
+    // This saves the new updates done to the current file while in the copared section
     function save_compare() {
         $('#saveIndicator').attr('src', '../images/indicator.gif');
         var data = '';
@@ -280,7 +328,6 @@
             },
             url: '../api/templateFileHistory/_' + currentFile,
             success: function(res) {
-                console.log("File history has been saved.");
                 getFileHistory(currentFile);
             }
         })
@@ -297,26 +344,24 @@
                     $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                     success: function() {
                         saveFileHistory();
-                        loadContent(currentFile);
+                        exitExpandScreen()
                     }
             });
             dialog.hide();
         });
 
         dialog.show();
-        exitExpandScreen();
     }
 
     var dv;
-    // compares the default with the new template
+    //compares the default with the new template
     function compare() {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
-        $('#btn_compare').css('display', 'none');
-        $('#btn_compareStop').css('display', 'block');
-        $('#save_button_compare').css('display', 'block');
+        $('.restore_original_compare').css('display', 'block');
         $('.file-history').hide();
-
+        $('.controls-compare>#save_button').css('display', 'none');
+        comparedTitle("(Current File)", "(Original File)");
 
         $.ajax({
             type: 'GET',
@@ -339,9 +384,6 @@
                 updateEditorSize();
                 editorExpandScreen();
                 $('.file_replace_file_btn').hide();
-                $('.CodeMirror-linebackground').css({
-                    'background-color': '#8ce79b !important'
-                });
             },
             cache: false
         });
@@ -349,18 +391,6 @@
     // stops comparing the default with the new template
     function stop_comparing() {
         loadContent(currentFile);
-    }
-    // format size of file inside getFileHistory()
-    function formatFileSize(bytes, threshold = 1024) {
-        const units = ['bytes', 'KB', 'MB', 'GB'];
-        let i = 0;
-
-        while (bytes >= threshold && i < units.length - 1) {
-            bytes /= threshold;
-            i++;
-        }
-
-        return bytes.toFixed(2) + ' ' + units[i];
     }
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
@@ -412,6 +442,7 @@
         $('.sidenav-right-compare').hide();
         $('.sidenav-right').show();
         $('.file-history').show();
+        $('#restore_original').css('display', 'block');
         $('.page-title-container>h2').css({
             'width': '100%',
             'text-align': 'left'
@@ -492,45 +523,58 @@
                     '<div class="file_history_author">Author:</div>' +
                     '</div>' +
                     '<div class="file_history_options_container">';
+
                 for (var i = 0; i < res.length; i++) {
                     var fileParentName = res[i].file_parent_name;
                     var fileName = res[i].file_name;
                     var whoChangedFile = res[i].file_modify_by;
                     var fileCreated = res[i].file_created;
                     ignoreUnsavedChanges = false;
+
                     accordion +=
-                        '<div class="file_history_options_wrapper" onclick="compareHistoryFile(\'' +
+                        '<div class="file_history_options_wrapper" data-file="' + fileName +
+                        '" onclick="compareHistoryFile(\'' +
                         fileName + '\', \'' + fileParentName + '\', true)">' +
                         '<div class="file_history_options_date">' + fileCreated + '</div>' +
                         '<div class="file_history_options_author">' + whoChangedFile + '</div>' +
                         '</div>';
                 }
+
                 accordion += '</div>' +
                     '</div>';
+
                 $('.file-history-res').html(accordion);
+
+                // Add event listener to handle the click on options
+                $('.file_history_options_wrapper').on('click', function() {
+                    // Remove the 'active' class from all options
+                    $('.file_history_options_wrapper').removeClass('active');
+                    // Add the 'active' class to the clicked option
+                    $(this).addClass('active');
+                });
+
+                // Adds active to the file list
+                let urlParams = new URLSearchParams(window.location.search);
+                let historyFile = urlParams.get('fileName');
+
+                if (historyFile !== null) {
+                    let selectedTemplateLink = document.querySelector(
+                        '.file_history_options_wrapper[data-file="' +
+                        historyFile + '"]');
+
+                    if (selectedTemplateLink !== null) {
+                        selectedTemplateLink.classList.add('active');
+                    } else {
+                        console.log(
+                            "No matching element found for templateFile:", historyFile);
+                    }
+                }
             },
             error: function(xhr, status, error) {
                 console.log('Error getting file history: ' + error);
             },
             cache: false
         });
-    }
-
-    // Retreave URL to display comparison of files
-    function initializePage() {
-        let urlParams = new URLSearchParams(window.location.search);
-        let fileName = urlParams.get('fileName');
-        let parentFile = urlParams.get('parentFile');
-        let templateFile = urlParams.get('file');
-
-        if (fileName && parentFile !== null) {
-            loadContent(parentFile);
-            compareHistoryFile(fileName, parentFile, false);
-        } else if (templateFile !== null) {
-            loadContent(templateFile);
-        } else {
-            loadContent('view_homepage.tpl');
-        }
     }
 
     var codeEditor = null;
@@ -562,32 +606,12 @@
     function compareHistoryFile(fileName, parentFile, updateURL) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
-        $('#btn_compare').css('display', 'none');
-        $('#save_button').css('display', 'none');
-        $('#btn_compareStop').css('display', 'none');
-        $('#btn_merge').css('display', 'block');
-        $('#word-wrap-button').css('display', 'block');
-        $('.save_button').css('display', 'none');
+        $('.restore_original_compare').css('display', 'none');
         $('.file_replace_file_btn').css('display', 'block');
+        $('.controls-compare>#save_button').css('display', 'block');
         var wordWrapEnabled = false; // default to false
 
-
-        // Word Wrap when viewing the merge editor
-        $('#word-wrap-button').click(function() {
-            wordWrapEnabled = !wordWrapEnabled;
-            if (wordWrapEnabled) {
-                codeEditor.editor().setOption('lineWrapping', true);
-                codeEditor.leftOriginal().setOption('lineWrapping', true);
-                $(this).removeClass('off').addClass('on').text('Word Wrap: On');
-            } else {
-                codeEditor.editor().setOption('lineWrapping', false);
-                codeEditor.leftOriginal().setOption('lineWrapping', false);
-                $(this).removeClass('on').addClass('off').text('Word Wrap: Off');
-            }
-            $('.CodeMirror-linebackground').css({
-                'background-color': '#8ce79b !important'
-            });
-        });
+        comparedTitle("(Current File)", "(Old File)");
 
         $.ajax({
             type: 'GET',
@@ -615,13 +639,10 @@
                                 lineNumbers: true,
                                 mode: 'htmlmixed',
                                 collapseIdentical: true,
-                                lineWrapping: false, // initial value
+                                lineWrapping: false,
                                 autoFormatOnStart: true,
-                                autoFormatOnMode: true
-                            });
-
-                            $('.CodeMirror-linebackground').css({
-                                'background-color': '#8ce79b !important'
+                                autoFormatOnMode: true,
+                                connect: "chunk", // Change to "chunk" for chunk-based connections
                             });
 
                             // Add a shortcut for exit from the merge screen
@@ -639,8 +660,7 @@
                                 let changedLines = codeEditor.leftOriginal().lineCount();
                                 let mergedContent = "";
                                 for (let i = 0; i < changedLines; i++) {
-                                    let mergeLine = codeEditor.leftOriginal().getLine(
-                                        i);
+                                    let mergeLine = codeEditor.leftOriginal().getLine(i);
                                     if (mergeLine !== null && mergeLine !== undefined) {
                                         mergedContent += mergeLine + "\n";
                                     }
@@ -709,6 +729,77 @@
             }
         });
     }
+    function updateEditorSize() {
+        codeWidth = $('#codeArea').width() - 66;
+        $('#codeContainer').css('width', codeWidth + 'px');
+        $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
+    }
+    // initiates  the loadContent()
+    function initEditor() {
+        codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            mode: "htmlmixed",
+            lineNumbers: true,
+            indentUnit: 4,
+            extraKeys: {
+                "F11": function(cm) {
+                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                },
+                "Esc": function(cm) {
+                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                },
+                "Ctrl-S": function(cm) {
+                    save();
+                }
+            }
+        });
+        updateEditorSize();
+    }
+    // Displays  user's history when creating, merge, and so on
+    function viewHistory() {
+        dialog_message.setContent('');
+        dialog_message.setTitle('Access Template History');
+        dialog_message.show();
+        dialog_message.indicateBusy();
+        let windowWidth = $(window).width();
+
+        if (windowWidth < 1024) {
+            $('.leaf-right-nav').css('right', '-100%');
+        } else {
+            console.log('Please check the width of the window');
+        }
+        $.ajax({
+            type: 'GET',
+            url: 'ajaxIndex.php?a=gethistory&type=template&id=' + currentFile,
+            dataType: 'text',
+            success: function(res) {
+                dialog_message.setContent(res);
+                dialog_message.indicateIdle();
+                dialog_message.show();
+            },
+            fail: function() {
+                dialog_message.setContent('Loading failed.');
+                dialog_message.show();
+            },
+            cache: false
+        });
+    }
+    // Retreave URL to display comparison of files
+    function initializePage() {
+        let urlParams = new URLSearchParams(window.location.search);
+        let fileName = urlParams.get('fileName');
+        let parentFile = urlParams.get('parentFile');
+        let templateFile = urlParams.get('file');
+
+        if (fileName && parentFile !== null) {
+            loadContent(parentFile);
+            compareHistoryFile(fileName, parentFile, false);
+        } else if (templateFile !== null) {
+            loadContent(templateFile);
+
+        } else {
+            loadContent('view_homepage.tpl');
+        }
+    }
     // Load the content of a file
     function loadContent(file) {
         if (file === undefined) {
@@ -762,6 +853,7 @@
                 console.log('Error loading file: ' + error);
             },
             cache: false
+
         });
         $('#saveStatus').html('');
 
@@ -823,61 +915,6 @@
             window.history.replaceState(null, null, url.toString());
         }
     }
-
-    function updateEditorSize() {
-        codeWidth = $('#codeArea').width() - 66;
-        $('#codeContainer').css('width', codeWidth + 'px');
-        $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
-    }
-    // initiates  the loadContent()
-    function initEditor() {
-        codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            mode: "htmlmixed",
-            lineNumbers: true,
-            indentUnit: 4,
-            extraKeys: {
-                "F11": function(cm) {
-                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                },
-                "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-                },
-                "Ctrl-S": function(cm) {
-                    save();
-                }
-            }
-        });
-        updateEditorSize();
-    }
-    // Displays  user's history when creating, merge, and so on
-    function viewHistory() {
-        dialog_message.setContent('');
-        dialog_message.setTitle('Access Template History');
-        dialog_message.show();
-        dialog_message.indicateBusy();
-        let windowWidth = $(window).width();
-
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-        } else {
-            console.log('Please check the width of the window');
-        }
-        $.ajax({
-            type: 'GET',
-            url: 'ajaxIndex.php?a=gethistory&type=template&id=' + currentFile,
-            dataType: 'text',
-            success: function(res) {
-                dialog_message.setContent(res);
-                dialog_message.indicateIdle();
-                dialog_message.show();
-            },
-            fail: function() {
-                dialog_message.setContent('Loading failed.');
-                dialog_message.show();
-            },
-            cache: false
-        });
-    }
     // loads components when the document loads
     $(document).ready(function() {
         $('.currentUrlLink').hide();
@@ -886,21 +923,23 @@
             'confirm_button_save', 'confirm_button_cancelchange');
 
         initEditor();
+        initializePage();
 
         $.ajax({
             type: 'GET',
             url: '../api/template/',
-            success: function (res) {
+            success: function(res) {
                 $.ajax({
                     type: 'GET',
                     url: '../api/template/custom',
                     dataType: 'json',
-                    success: function (result) {
+                    success: function(result) {
                         let template_excluded = 'import_from_webHR.tpl';
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
-                        let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
-                        
+                        let filesMobile =
+                            '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
+
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
                                 if (res[i] === template_excluded) {
@@ -909,22 +948,31 @@
                                 }
 
                                 if (result.includes(res[i])) {
-                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                    custom =
+                                        '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
                                 } else {
                                     custom = '';
                                 }
 
                                 let file = res[i].replace('.tpl', '');
 
-                                buffer += '<li><div class="template_files"><a href="#" data-file="' + res[i] + '">' + file + '</a> ' + custom + '</div></li>';
+                                buffer +=
+                                    '<li><div class="template_files">' +
+                                    '<a href="#" data-file="' + res[i] +
+                                    '" class="template-link">' +
+                                    file + custom + '</a></div></li>';
 
-                                filesMobile += '<option value="' + res[i] + '">' + file + ' ' + custom + '</option>';
+                                filesMobile += '<option value="' + res[i] + '">' +
+                                    file + ' ' + custom + '</option>';
                             }
                         } else if (res_array.status['code'] === 4) {
-                            buffer += '<li><div class="template_files">' + res_array.status['message'] + '</div></li>';
-                            filesMobile += '<select><option>' + res_array.status['message'] + '</option></select>';
+                            buffer += '<li><div class="template_files">' + res_array
+                                .status['message'] + '</div></li>';
+                            filesMobile += '<select><option>' + res_array.status[
+                                'message'] + '</option></select>';
                         } else {
-                            buffer += '<li>Internal error occurred, if this persists contact your Primary Admin.</li>';
+                            buffer +=
+                                '<li>Internal error occurred, if this persists contact your Primary Admin.</li>';
                         }
 
                         buffer += '</ul>';
@@ -933,27 +981,53 @@
                         $('.filesMobile').html(filesMobile);
 
                         // Attach click event handler to template links in the buffer
-                        $('#fileList a').on('click', function (e) {
+                        $('#fileList a.template-link').on('click', function(e) {
                             e.preventDefault();
+                            // Remove the 'active' class from all template links
+                            $('#fileList a.template-link').removeClass(
+                                'active');
+                            // Add the 'active' class to the clicked template link
+                            $(this).addClass('active');
+
                             let selectedFile = $(this).data('file');
                             loadContent(selectedFile);
                         });
 
                         // Attach onchange event handler to templateFiles select element
-                        $('.template_select_container').on('change', 'select.templateFiles', function () {
-                            let selectedFile = $(this).val();
-                            loadContent(selectedFile);
-                        });
+                        $('.template_select_container').on('change',
+                            'select.templateFiles',
+                            function() {
+                                let selectedFile = $(this).val();
+                                loadContent(selectedFile);
+                            });
+
+                        // Adds active to the file list
+                        let urlParams = new URLSearchParams(window.location.search);
+                        let templateFile = urlParams.get('file');
+
+                        if (templateFile !== null) {
+                            let selectedTemplateLink = document.querySelector(
+                                '#fileList a.template-link[data-file="' +
+                                templateFile + '"]');
+
+                            if (selectedTemplateLink !== null) {
+                                selectedTemplateLink.classList.add('active');
+                            } else {
+                                console.log(
+                                    "No matching element found for templateFile:",
+                                    templateFile);
+                            }
+                        }
                     },
-                    error: function (error) {
+                    error: function(error) {
                         console.log(error);
                     }
                 });
             },
             cache: false
         });
-        
-        initializePage();
+
+        // initializePage();
 
 
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
