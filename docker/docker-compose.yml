@@ -40,11 +40,7 @@ services:
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
-            - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
-            - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
-            - ../health_checks:/var/www/html/health_checks
-            - ../app:/var/www/html/app
-            - ../libs:/var/www/html/libs # temp step.  Will shift to below later
+            - ../:/var/www/html/
             - ../docker/mysql/db:/var/www/db
             - ./php/dev:/var/www/html/dev
             # - leaf-lib:/var/www/html/libs
@@ -70,7 +66,7 @@ services:
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
-            - ./nginx/src:/var/www/html
+            - ./nginx/src/index.html:/var/www/html/index.html
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
         volumes_from:
             - leaf-php-8
