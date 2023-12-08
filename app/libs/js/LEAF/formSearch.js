@@ -27,7 +27,7 @@ var LeafFormSearch = function (containerID) {
             '<div style="display:flex; align-items:center; width:fit-content; width: -moz-fit-content;">\
 			    <img id="' +
                 prefixID +
-                'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
+                'searchIcon" class="searchIcon" alt="" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
                 rootURL +
                 'dynicons/?img=search.svg&w=16">\
 			    <img id="' +
@@ -51,17 +51,20 @@ var LeafFormSearch = function (containerID) {
                 'advancedOptionsClose" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer; background-image:url(' +
                 rootURL +
                 'dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
-		        <div style="width: 550px">Find items where...</div>\
+                <div style="width: 550px">Find items where...</div>\
 		        <table id="' +
                 prefixID +
                 'searchTerms"></table>\
-		        <button class="buttonNorm" id="' +
+		        <button type="button" aria-label="add logical and filter" class="buttonNorm" id="' +
                 prefixID +
                 'addTerm" style="float: left">And...</button>\
-		        <button class="buttonNorm" id="' +
+		        <button type="button" aria-label="add logical or filter" class="buttonNorm" id="' +
                 prefixID +
                 'orTerm" style="float: left">Or...</button>\
 		        <br /><br />\
+                <div id="unsubmitted_results_notice" style="display:none;color:#b00; margin:0.5rem 2px;">\
+                    <div>Results can include unsubmitted requests.  Consider including \'Current Status IS Submitted\'.</div>\
+                </div>\
 		        <button id="' +
                 prefixID +
                 'advancedSearchApply" class="buttonNorm" style="text-align: center; width: 100%">Apply Filters</button>\
@@ -271,9 +274,14 @@ var LeafFormSearch = function (containerID) {
                                 $(
                                     "#" + prefixID + "widgetCod_" + widgetID
                                 ).trigger("chosen:updated");
-                                $("#" + prefixID + "widgetMat_" + widgetID).val(
-                                    match.replace(/\*/g, "")
-                                );
+
+                                if(operator.indexOf('MATCH') == -1) {
+                                    $("#" + prefixID + "widgetMat_" + widgetID).val(match.replace(/\*/g, ""));
+                                }
+                                else {
+                                    $("#" + prefixID + "widgetMat_" + widgetID).val(match);
+                                }
+
                                 $(
                                     "#" + prefixID + "widgetMat_" + widgetID
                                 ).trigger("chosen:updated");
@@ -290,7 +298,7 @@ var LeafFormSearch = function (containerID) {
                     renderWidget(i);
                 }
                 $("#" + prefixID + "widgetCod_" + i).val(advSearch[i].operator);
-                if (typeof advSearch[i].match == "string") {
+                if (typeof advSearch[i].match == "string" && advSearch[i].operator.indexOf('MATCH') == -1) {
                     $("#" + prefixID + "widgetMat_" + i).val(
                         advSearch[i].match.replace(/\*/g, "")
                     );
@@ -468,6 +476,15 @@ var LeafFormSearch = function (containerID) {
                         }
                     });
                     empSel.initialize();
+                    let previousSelectedEmp = $("#" + prefixID + "widgetMat_" + widgetID).val();
+                    if(previousSelectedEmp != '') {
+                        if(type == 'empUID') {
+                            empSel.forceSearch(`#${previousSelectedEmp}`);
+                        }
+                        else {
+                            empSel.forceSearch(previousSelectedEmp);
+                        }
+                    }
                 },
             });
         } else {
@@ -500,6 +517,15 @@ var LeafFormSearch = function (containerID) {
                 }
             });
             empSel.initialize();
+            let previousSelectedEmp = $("#" + prefixID + "widgetMat_" + widgetID).val();
+            if(previousSelectedEmp != '') {
+                if(type == 'empUID') {
+                    empSel.forceSearch(`#${previousSelectedEmp}`);
+                }
+                else {
+                    empSel.forceSearch(previousSelectedEmp);
+                }
+            }
         }
     }
 
@@ -629,6 +655,9 @@ var LeafFormSearch = function (containerID) {
      */
     function renderSingleSelectInputType(widgetID, options) {
         switch ($("#" + prefixID + "widgetCod_" + widgetID).val()) {
+            case "MATCH ALL":
+            case "NOT MATCH":
+            case "MATCH":
             case "LIKE":
             case "NOT LIKE":
                 $("#" + prefixID + "widgetMatch_" + widgetID).html(
@@ -643,6 +672,39 @@ var LeafFormSearch = function (containerID) {
                 $("#" + prefixID + "widgetMatch_" + widgetID).html(options);
                 chosenOptions();
                 break;
+        }
+    }
+
+    /* assesses query logic for some term filters and updates display of status message if the query can return unsubmitted requests */
+    function checkDateStatus() {
+        let includesOnAndBefore = false;
+        let filtersUnsubmitted = false;
+
+        const elSelTerms = Array.from(document.querySelectorAll(`table select[id^="${prefixID}widgetTerm_"]`));
+        elSelTerms.forEach(sel => {
+            if(sel?.value === "dateSubmitted" || sel?.value === "stepID") {
+                const codID = (sel?.id || '').replace('widgetTerm_', 'widgetCod_');
+                const gateID = (sel?.id || '').replace('widgetTerm_', 'widgetGate_');
+                const opValue = document.getElementById(codID)?.value || '';
+                const gateVal = document.getElementById(gateID)?.innerText || 'AND';
+
+                if(sel.value === "dateSubmitted") {
+                    if(opValue === '<=') {
+                        includesOnAndBefore = true;
+                    } else {
+                        if (gateVal === 'AND') {
+                            filtersUnsubmitted = true;
+                        }
+                    }
+                }
+                if(sel.value === "stepID" && gateVal === 'AND' && opValue === '=') {
+                    filtersUnsubmitted = true;
+                }
+            }
+        });
+        let msgEl = document.getElementById('unsubmitted_results_notice');
+        if (msgEl !== null) {
+            msgEl.style.display = includesOnAndBefore && !filtersUnsubmitted ? 'block' : 'none';
         }
     }
 
@@ -722,16 +784,13 @@ var LeafFormSearch = function (containerID) {
             case "dateInitiated":
             case "dateSubmitted":
                 $("#" + prefixID + "widgetCondition_" + widgetID).html(
-                    '<select id="' +
-                        prefixID +
-                        "widgetCod_" +
-                        widgetID +
-                        '" style="width: 140px" class="chosen" aria-label="date">\
-	            		<option value="=">ON</option>\
-	            		<option value=">=">ON AND AFTER</option>\
-	            		<option value="<=">ON AND BEFORE</option>\
-	            	</select>'
+                    `<select id="${prefixID}widgetCod_${widgetID}" style="width: 140px" class="chosen" aria-label="date">
+                        <option value="=">ON</option>
+                        <option value=">=">ON AND AFTER</option>
+                        <option value="<=">ON AND BEFORE</option>
+                    </select>`
                 );
+                $(`#${prefixID}widgetCod_${widgetID}`).on("change", checkDateStatus);
                 $("#" + prefixID + "widgetMatch_" + widgetID).html(
                     '<input type="text" aria-label="text" id="' +
                         prefixID +
@@ -893,9 +952,10 @@ var LeafFormSearch = function (containerID) {
                         widgetID +
                         '" style="width: 140px" class="chosen" aria-label="categoryID">\
 	            		<option value="=">IS</option>\
-	            		<option value="!=">IS NOT</option>\
+	            		<option value="!=" selected>IS NOT</option>\
 	            	</select>'
                 );
+                $(`#${prefixID}widgetCod_${widgetID}`).on("change", checkDateStatus);
                 url =
                     rootURL === ""
                         ? "./api/workflow/steps"
@@ -917,7 +977,7 @@ var LeafFormSearch = function (containerID) {
                         categories +=
                             '<option value="deleted">Cancelled</option>';
                         categories +=
-                            '<option value="resolved">Resolved</option>';
+                            '<option value="resolved" selected>Resolved</option>';
                         categories +=
                             '<option value="actionable">Actionable by me</option>';
                         //categories += '<option value="destruction">Scheduled for Destruction</option>';
@@ -932,12 +992,17 @@ var LeafFormSearch = function (containerID) {
                                 "</option>";
                         }
                         categories += "</select>";
-                        $("#" + prefixID + "widgetMatch_" + widgetID).html(
-                            categories
-                        );
-                        chosenOptions();
-                        if (callback != undefined) {
-                            callback();
+                        // quick and dirty fix to avoid a race condition related to custom
+                        // implementations of formSearch. Since the new default UI will trigger
+                        // the parent ajax call, we don't want to overwrite the existing widget
+                        if($("#" + prefixID + "widgetMatch_" + widgetID).html() == "") {
+                            $("#" + prefixID + "widgetMatch_" + widgetID).html(
+                                categories
+                            );
+                            chosenOptions();
+                            if (callback != undefined) {
+                                callback();
+                            }
                         }
                     },
                 });
@@ -997,7 +1062,10 @@ var LeafFormSearch = function (containerID) {
                                         widgetID
                                 ).val();
 
-                                // set default conditions for "any data field"
+                                /* Set default conditions for "any data field"
+                                 * Negative conditions are excluded because more extensive postprocessing
+                                 * is needed for logically valid results
+                                 */
                                 if (iID == ALL_DATA_FIELDS) {
                                     $(
                                         "#" +
@@ -1010,10 +1078,10 @@ var LeafFormSearch = function (containerID) {
                                             "widgetCod_" +
                                             widgetID +
                                             '" class="chosen" aria-label="condition" style="width: 120px">\
-										<option value="LIKE">CONTAINS</option>\
-										<option value="NOT LIKE">DOES NOT CONTAIN</option>\
+                                        <option value="MATCH ALL">CONTAINS</option>\
+                                        <option value="MATCH">CONTAINS EITHER</option>\
 					            		<option value="=">=</option>\
-										<option value="!=">!=</option>\
+										<option value="LIKE">HAS FRAGMENT</option>\
 					            	</select>'
                                     );
                                     $(
@@ -1278,12 +1346,15 @@ var LeafFormSearch = function (containerID) {
                                                         '" class="chosen" aria-label="condition" style="width: 120px">\
                                                     <option value="=">IS</option>\
                                                     <option value="!=">IS NOT</option>\
-													<option value="LIKE">CONTAINS</option>\
-													<option value="NOT LIKE">DOES NOT CONTAIN</option>\
+                                                    <option value="MATCH ALL">CONTAINS</option>\
+                                                    <option value="NOT MATCH">DOES NOT CONTAIN</option>\
+                                                    <option value="MATCH">CONTAINS EITHER</option>\
 								            		<option value=">">></option>\
 								            		<option value=">=">>=</option>\
 								            		<option value="<"><</option>\
 								            		<option value="<="><=</option>\
+                                                    <option value="LIKE">HAS FRAGMENT</option>\
+                                                    <option value="NOT LIKE">DOES NOT HAVE FRAGMENT</option>\
 								            	</select>'
                                                 );
                                                 var resOptions =
@@ -1341,10 +1412,13 @@ var LeafFormSearch = function (containerID) {
                                                         "widgetCod_" +
                                                         widgetID +
                                                         '" class="chosen" aria-label="condition" style="width: 120px">\
-													<option value="LIKE">CONTAINS</option>\
-													<option value="NOT LIKE">DOES NOT CONTAIN</option>\
-								            		<option value="=">=</option>\
-													<option value="!=">!=</option>\
+                                                        <option value="MATCH ALL">CONTAINS</option>\
+                                                        <option value="NOT MATCH">DOES NOT CONTAIN</option>\
+                                                        <option value="MATCH">CONTAINS EITHER</option>\
+                                                        <option value="=">=</option>\
+                                                        <option value="!=">!=</option>\
+                                                        <option value="LIKE">HAS FRAGMENT</option>\
+                                                        <option value="NOT LIKE">DOES NOT HAVE FRAGMENT</option>\
 								            	</select>'
                                                 );
                                                 $(
@@ -1366,6 +1440,7 @@ var LeafFormSearch = function (containerID) {
                                 }
                             }
                         );
+                        $("#" + prefixID + "widgetIndicator_" + widgetID).trigger("chosen:updated"); // trigger render on first load
                         $(
                             "#" +
                                 prefixID +
@@ -1378,6 +1453,28 @@ var LeafFormSearch = function (containerID) {
                         }
                     },
                 });
+                break;
+            case "recordID":
+                $("#" + prefixID + "widgetCondition_" + widgetID).html(
+                    '<select id="' +
+                        prefixID +
+                        "widgetCod_" +
+                        widgetID +
+                        '" class="chosen" aria-label="condition" style="width: 55px">\
+		            		<option value="=">=</option>\
+		            		<option value=">">></option>\
+		            		<option value=">=">>=</option>\
+		            		<option value="<"><</option>\
+		            		<option value="<="><=</option>\
+		            	</select>'
+                );
+                $("#" + prefixID + "widgetMatch_" + widgetID).html(
+                    '<input type="text" aria-label="text" id="' +
+                        prefixID +
+                        "widgetMat_" +
+                        widgetID +
+                        '" style="width: 200px" />'
+                );
                 break;
             default:
                 $("#" + prefixID + "widgetCondition_" + widgetID).html(
@@ -1413,41 +1510,30 @@ var LeafFormSearch = function (containerID) {
         if (gate === undefined) {
             gate = "AND";
         }
-        let widget =
-            '<tr id="' +
-            prefixID +
-            "widget_" +
-            widgetCounter +
-            '" style="border-spacing: 5px">\
-						<td id="' +
-            prefixID +
-            "widgetRemove_" +
-            widgetCounter +
-            '"><button id="widgetRemoveButton"><img src="' +
-            rootURL +
-            'dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
-						<td style="text-align: center"><strong id="' +
-            prefixID +
-            "widgetGate_" +
-            widgetCounter +
-            '" value="' +
-            gate +
-            '">' +
-            gate +
-            '</strong></td>\
-						<td><select id="' +
+
+        let widget = `<tr id="${prefixID}widget_${widgetCounter}" style="border-spacing: 5px">
+                <td id="${prefixID}widgetRemove_${widgetCounter}">
+                    <button type="button" id="${prefixID}widgetRemoveButton_${widgetCounter}" aria-label="remove filter row" style="cursor: pointer">
+                        <img src="${rootURL}dynicons/?img=list-remove.svg&w=16" alt="" />
+                    </button>
+                </td>
+                <td style="text-align: center">
+                    <strong id="${prefixID}widgetGate_${widgetCounter}" value="${gate}">${gate}</strong>
+                </td>` +
+			'<td><select id="' +
             prefixID +
             "widgetTerm_" +
             widgetCounter +
             '" style="width: 150px" class="chosen" aria-label="condition">\
-            				<option value="title">Title</option>\
-            				<option value="serviceID">Service</option>\
-            				<option value="dateSubmitted">Date Submitted</option>\
-            				<option value="categoryID">Type</option>\
-            				<option value="userID">Initiator</option>\
-            				<option value="dependencyID">Requirement</option>\
-            				<option value="stepID">Current Status</option>\
+                            <option value="stepID">Current Status</option>\
             				<option value="data">Data Field</option>\
+            				<option value="dateSubmitted">Date Submitted</option>\
+                            <option value="userID">Initiator</option>\
+            				<option value="serviceID">Service</option>\
+            				<option value="title">Title</option>\
+            				<option value="categoryID">Type</option>\
+                            <option value="recordID">Record ID</option>\
+            				<option value="dependencyID">Requirement</option>\
             				</select></td>\
 			            <td id="' +
             prefixID +
@@ -1460,6 +1546,7 @@ var LeafFormSearch = function (containerID) {
             widgetCounter +
             '"></td>\
 					  </tr>';
+
         $(widget).appendTo("#" + prefixID + "searchTerms");
         renderWidget(widgetCounter);
         firstChild();
@@ -1470,16 +1557,18 @@ var LeafFormSearch = function (containerID) {
             widgetCounter,
             function (e) {
                 renderWidget(e.data);
+                checkDateStatus();
                 chosenOptions();
             }
         );
-        $("#" + prefixID + "widgetRemove_" + widgetCounter).on(
+        $("#" + prefixID + "widgetRemoveButton_" + widgetCounter).on(
             "click",
             "",
             widgetCounter,
             function (e) {
                 $("#" + prefixID + "widget_" + e.data).remove();
                 $("#" + prefixID + "widgetOp_" + e.data).remove();
+                checkDateStatus();
                 firstChild();
             }
         );

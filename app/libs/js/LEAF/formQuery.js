@@ -1,7 +1,13 @@
 /**
  * Form Query Helper
+ * 
+ * LeafFormQuery is a globally available object on LEAF sites, and is an interface for ./api/form/query
+ * Key features include:
+ *  - Automatically splits large queries into multiple small ones, to improve UX
+ *  - Mechanism to report progress (onProgress)
+ *  - Programmatically build query
  */
-var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code imports it in unexpected places.
+var LeafFormQuery = function () {
   let query = {};
   let successCallback = null;
   let progressCallback = null;
@@ -11,6 +17,8 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   let results = {};
   let batchSize = 500;
   let abortSignal;
+  let firstRun = true; // keep track of query limit state, to align with user intent
+  let origLimit, origLimitOffset;
 
   clearTerms();
 
@@ -91,6 +99,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
    * @memberOf LeafFormQuery
    */
   function setLimit(offset = 50, limit = 0) {
+    firstRun = true;
     if (limit === 0) {
       query.limit = offset;
     } else {
@@ -223,6 +232,13 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
+   * encodeReadableURI provides minimal character URI encoding, prioritizing readible URLs
+   */
+  function encodeReadableURI(url) {
+      return url.replaceAll('+', '%2b');
+  }
+
+  /**
    * Execute search query in chunks
    * @param {number} limitOffset Used in subsequent recursive calls to track current offset
    * @returns Promise resolving to query response
@@ -244,7 +260,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     const urlParamJSONP = useJSONP ? "&format=jsonp" : "";
     return $.ajax({
       type: "GET",
-      url: `${rootURL}api/form/query?q=${queryUrl + extraParams + urlParamJSONP}`,
+      url: `${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`,
       dataType: dataType,
       error: (err) => console.log(err)
     }).then((res, resStatus, resJqXHR) => {
@@ -273,6 +289,15 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
    * @memberOf LeafFormQuery
    */
   function execute() {
+    if(firstRun) {
+        firstRun = false;
+        origLimit = query.limit;
+        origLimitOffset = query.limitOffset;
+    } else {
+        query.limit = origLimit;
+        query.limitOffset = origLimitOffset;
+    }
+
     if (query.getData != undefined && query.getData.length == 0) {
       delete query.getData;
     }
@@ -288,7 +313,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     const urlParamJSONP = useJSONP ? "&format=jsonp" : "";
     return $.ajax({
       type: "GET",
-      url: `${rootURL}api/form/query?q=${queryUrl + extraParams + urlParamJSONP}`,
+      url: `${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`,
       dataType: dataType,
       success: successCallback,
       error: (err) => console.log(err)
