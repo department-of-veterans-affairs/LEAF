@@ -1,7 +1,11 @@
 /**
  * Form Query Helper
+ * 
+ * LeafFormQuery is a globally available object on LEAF sites, and is an interface for ./api/form/query
+ * Key features includes splitting large queries into smaller chunks, and providing a mechanism to
+ * report progress (onProgress).
  */
-var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code imports it in unexpected places.
+var LeafFormQuery = function () {
   let query = {};
   let successCallback = null;
   let progressCallback = null;

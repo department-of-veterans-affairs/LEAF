@@ -103,7 +103,6 @@ switch ($action) {
                 APP_JS_PATH . '/LEAF/XSSHelpers.js',
                 APP_JS_PATH . '/nexus/LEAFNexusAPI.js',
                 APP_JS_PATH . '/portal/LEAFPortalAPI.js',
-                APP_JS_PATH . '/portal/model/FormQuery.js',
                 APP_JS_PATH . '/choicesjs/choices.min.js'
             ));
 
