@@ -189,6 +189,12 @@
         },
     };
 
+    function scrubHTML(input) {
+        let t = document.createElement('div');
+        t.innerHTML = input;
+        return t.innerText;
+    }
+
     function interfaceReady() {
         document.querySelector('#viewport').style.visibility = 'visible';
         $('#progressContainer').slideUp();
@@ -268,7 +274,7 @@
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     roleID = Sha1.hash(uDD.approverUID);
-                    description = uDD.approverName;
+                    description = scrubHTML(uDD.approverName);
                 }
 
                 let stepHash = `${description}:;ROLEID${roleID}`;
