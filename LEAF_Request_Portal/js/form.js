@@ -337,7 +337,7 @@ var LeafForm = function (containerID) {
       elEmptyOption.selected = true;
     };
     /**
-     * used to get the sanitized input value for radio and dropdown parents
+     * used to get the sanitized input value for single option parent controllers
      * @param {*} pFormat format of the parent according to conditions object
      * @param {*} pIndID id of the parent according to the conditions object
      * @returns string.
@@ -345,17 +345,12 @@ var LeafForm = function (containerID) {
     const getParentValue = (pFormat = "", pIndID = 0) => {
       let val = "";
       if (pFormat === "radio") {
-        val =
-          sanitize(
-            document
-              .querySelector(`input[id^="${pIndID}_radio"]:checked`)
-              ?.value.trim()
-          ) || "";
+        val = document.querySelector(`input[id^="${pIndID}_radio"]:checked`)?.value || "";
       }
-      if (pFormat === "dropdown") {
-        val = sanitize(document.getElementById(pIndID)?.value.trim()) || "";
+      if (["dropdown", "currency", "number"].includes(pFormat)) {
+        val = document.getElementById(pIndID)?.value || "";
       }
-      return val;
+      return sanitize(val).trim();
     };
 
     /* clear out potential entries and set validator for hidden questions */

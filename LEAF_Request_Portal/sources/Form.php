@@ -1561,7 +1561,7 @@ class Form
                 } else {
                     //finally, check if there are conditions that result in required questions being in a hidden state, and adjust count and percentage
                     $multiChoiceParentFormats = array('multiselect', 'checkboxes');
-                    $singleChoiceParentFormats = array('radio', 'dropdown');
+                    $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency');
 
                     foreach ($resRequestRequired as $ind) {
                         //if question is not complete, and there are conditions (conditions could potentially have the string null due to a past import issue) ...
@@ -1614,7 +1614,6 @@ class Form
                                         case 'gte':
                                         case 'lt':
                                         case 'lte':
-                                            //conv numbers.  don't allow empties
                                             $arrNumVals = array();
                                             $arrNumComp = array();
                                             foreach($currentParentDataValue as $v) {
@@ -1627,17 +1626,17 @@ class Form
                                                     $arrNumComp[] = (float) $cval;
                                                 }
                                             }
-                                            $orEq = str_contains($operator, 'e');
-                                            $gtr = str_contains($operator, 'g');
-                                            $lenv = count(array_values($arrNumVals));
-                                            $lenc = count(array_values($arrNumComp));
-                                            if($lenc > 0) {
-                                                for ($i = 0; $i < $lenv; $i++) {
+                                            $useOrEqual = str_contains($operator, 'e');
+                                            $useGreaterThan = str_contains($operator, 'g');
+                                            $lenValues = count(array_values($arrNumVals));
+                                            $lenCompare = count(array_values($arrNumComp));
+                                            if($lenCompare > 0) {
+                                                for ($i = 0; $i < $lenValues; $i++) {
                                                     $currVal = $arrNumVals[$i];
-                                                    if($gtr === true) {
-                                                        $conditionMet = $orEq === true ? $currVal >= max($arrNumComp) : $currVal > max($arrNumComp);
+                                                    if($useGreaterThan === true) {
+                                                        $conditionMet = $useOrEqual === true ? $currVal >= max($arrNumComp) : $currVal > max($arrNumComp);
                                                     } else {
-                                                        $conditionMet = $orEq === true ? $currVal <= min($arrNumComp) : $currVal < min($arrNumComp);
+                                                        $conditionMet = $useOrEqual === true ? $currVal <= min($arrNumComp) : $currVal < min($arrNumComp);
                                                     }
                                                     if($conditionMet === true) {
                                                         break;
