@@ -36,8 +36,6 @@ export default {
                 "orgchart_employee": 1,
                 "orgchart_group": 1,
                 "orgchart_position": 1,
-                //"number": 1,
-                //"currency": 1
             },
             numericOperators: ['gt', 'gte', 'lt', 'lte'],
         }
@@ -636,6 +634,11 @@ export default {
         parentChoicesKey(newVal, oldVal) {
             if(this.multiOptionFormats.includes(this.parentFormat)) {
                 this.updateChoicesJS()
+            }
+        },
+        selectedOperator(newVal, oldVal) {
+            if (oldVal !== "" && this.numericOperators.includes(newVal) && !this.numericOperators.includes(oldVal)) {
+              this.selectedParentValue = ""
             }
         }
     },

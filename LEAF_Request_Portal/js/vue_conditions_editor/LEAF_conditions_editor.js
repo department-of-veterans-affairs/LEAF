@@ -40,8 +40,6 @@ const ConditionsEditor = Vue.createApp({
         "orgchart_employee": 1,
         "orgchart_group": 1,
         "orgchart_position": 1,
-        //"number": 1,
-        //"currency": 1
       },
       numericOperators: ['gt', 'gte', 'lt', 'lte'],
     };
@@ -733,7 +731,6 @@ const ConditionsEditor = Vue.createApp({
      */
     conditionComplete() {
       const {
-        childIndID,
         parentIndID,
         selectedOp,
         selectedParentValue,
@@ -746,16 +743,14 @@ const ConditionsEditor = Vue.createApp({
       if (!this.showRemoveModal) { //don't bother if showing delete view
         switch(selectedOutcome.toLowerCase()) {
           case 'pre-fill':
-            returnValue = parseInt(childIndID) !== 0
-                          && parseInt(parentIndID) !== 0
+            returnValue = parentIndID !== 0
                           && selectedOp !== ""
                           && selectedParentValue !== ""
                           && selectedChildValue !== "";
             break;
           case 'hide':
           case 'show':
-            returnValue = parseInt(childIndID) !== 0
-                          && parseInt(parentIndID) !== 0
+            returnValue = parentIndID !== 0
                           && selectedOp !== ""
                           && selectedParentValue !== "";
             break;    
@@ -805,6 +800,11 @@ const ConditionsEditor = Vue.createApp({
     parentChoicesKey(newVal, oldVal) {
       if(this.multiOptionFormats.includes(this.parentFormat)) {
         this.updateChoicesJS()
+      }
+    },
+    selectedOperator(newVal, oldVal) {
+      if (oldVal !== "" && this.numericOperators.includes(newVal) && !this.numericOperators.includes(oldVal)) {
+        this.selectedParentValue = ""
       }
     }
   },

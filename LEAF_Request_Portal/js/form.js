@@ -262,7 +262,7 @@ var LeafForm = function (containerID) {
         }).catch(err => console.log('could not get file contents', err));
 
       } else {
-        console.log('unexpected number of crosswalk conditions.  check indicator condition entry')
+        console.log('unexpected number of crosswalk conditions.  check indicator condition entry for ', indID)
       }
     }
 
@@ -311,10 +311,7 @@ var LeafForm = function (containerID) {
      * @param {array} comparisonValues array of values to compare against
      * @returns
      */
-    const valIncludesMultiselOption = (
-      multiChoiceSelections = [],
-      comparisonValues = []
-    ) => {
+    const valIncludesMultiselOption = (multiChoiceSelections = [], comparisonValues = []) => {
       let result = false;
       multiChoiceSelections.forEach((v) => {
         if (comparisonValues.includes(v)) {
@@ -450,7 +447,7 @@ var LeafForm = function (containerID) {
             comparison = multiOptionFormats.includes(parentFormat) ?
               valIncludesMultiselOption(val, arrCompareValues) :
               val[0] !== undefined && val[0] === arrCompareValues[0];
-            if(op.includes('!')) {
+            if(op === "!=") {
               comparison = !comparison;
             }
             break;
@@ -464,16 +461,16 @@ var LeafForm = function (containerID) {
             const arrNumComp = arrCompareValues
               .filter(v => !isNaN(v))
               .map(v => +v);
-            const orEq = op.includes('e');
-            const gtr = op.includes('g');
+            const useOrEqual = op.endsWith('e');
+            const useGreaterThan = op.startsWith('g');
             if(arrNumComp.length > 0) {
               for (let i = 0; i < arrNumVals.length; i++) {
                 const currVal = arrNumVals[i];
-                if(gtr === true) {
+                if(useGreaterThan === true) {
                   //unlikely to be set up with more than one comp val, but checking just in case
-                  comparison = orEq === true ? currVal >= Math.max(...arrNumComp) : currVal > Math.max(...arrNumComp);
+                  comparison = useOrEqual === true ? currVal >= Math.max(...arrNumComp) : currVal > Math.max(...arrNumComp);
                 } else {
-                  comparison = orEq === true ? currVal <= Math.min(...arrNumComp) : currVal < Math.min(...arrNumComp);
+                  comparison = useOrEqual === true ? currVal <= Math.min(...arrNumComp) : currVal < Math.min(...arrNumComp);
                 }
                 if(comparison === true) {
                   break;
@@ -615,7 +612,6 @@ var LeafForm = function (containerID) {
 
     //confirm that the parent indicators exist on the form (in case of archive/deletion)
     let confirmedParElsByIndID = [];
-    let notFoundParElsByIndID = [];
     let crosswalks = [];
     for (let entry in formConditionsByChild) {
       const formConditions = formConditionsByChild[entry].conditions || [];
@@ -629,29 +625,25 @@ var LeafForm = function (containerID) {
         } else {
           let parentEl = null;
           switch (c.parentFormat.toLowerCase()) {
-            case "radio": //radio buttons use indID_radio1, indID_radio2 etc
-              parentEl = document.querySelector(
-                `input[id^="${c.parentIndID}_radio"]`
-              );
+            case "radio":
+              parentEl = document.querySelector(`input[id^="${c.parentIndID}_radio"]`);
               break;
-            case "checkboxes": //checkboxes use indID_0, indID_1 etc
+            case "checkboxes":
               parentEl = document.querySelector(`input[id^="${c.parentIndID}_"]`);
               break;
-            default: //multisel, dropdown, text use input id=indID.
+            default: //multisel, dropdown, inputs
               parentEl = document.getElementById(c.parentIndID);
               break;
           }
           if (parentEl !== null) {
             confirmedParElsByIndID.push(parseInt(c.parentIndID));
           } else {
-            notFoundParElsByIndID.push(parseInt(c.parentIndID));
             console.log(`Element associated with controller ${c.parentIndID} was not found in the DOM`)
           }
         }
       });
     }
     confirmedParElsByIndID = Array.from(new Set(confirmedParElsByIndID));
-    notFoundParElsByIndID = Array.from(new Set(notFoundParElsByIndID));
     crosswalks = Array.from(new Set(crosswalks));
 
     /*filter: current format is not raw_data, current and saved formats match,
@@ -663,7 +655,7 @@ var LeafForm = function (containerID) {
       ].conditions.filter(c =>
         currentFormat !== 'raw_data' &&
         currentFormat === c.childFormat.toLowerCase() &&
-        !notFoundParElsByIndID.includes(parseInt(c.parentIndID))
+        confirmedParElsByIndID.includes(parseInt(c.parentIndID))
       );
     }
     confirmedParElsByIndID.forEach((id) => {

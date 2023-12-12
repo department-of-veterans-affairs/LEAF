@@ -1587,9 +1587,9 @@ class Form
                                     }
 
                                     $operator = $c->selectedOp;
-
                                     switch ($operator) {
                                         case '==':
+                                        case '!=':
                                             if (in_array($parentFormat, $multiChoiceParentFormats)) {
                                                 //true if the current data value includes any of the condition values
                                                 foreach ($currentParentDataValue as $v) {
@@ -1601,13 +1601,8 @@ class Form
                                             } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
                                                 $conditionMet = true;
                                             }
-                                            break;
-                                        case '!=':
-                                            if (
-                                                (in_array($parentFormat, $multiChoiceParentFormats) && !array_intersect($currentParentDataValue, $conditionParentValue)) ||
-                                                (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] !== $conditionParentValue[0])
-                                            ) {
-                                                $conditionMet = true;
+                                            if($operator === "!=") {
+                                                $conditionMet = !$conditionMet;
                                             }
                                             break;
                                         case 'gt':
@@ -1647,7 +1642,6 @@ class Form
                                         default:
                                             break;
                                     }
-
                                 }
                                 //if the question is not being shown due to its conditions, do not count it as a required question
                                 if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
