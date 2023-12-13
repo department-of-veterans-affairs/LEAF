@@ -2,7 +2,6 @@ const ConditionsEditor = Vue.createApp({
   data() {
     return {
       orgchartPath: orgchartPath,
-      formID: '',
       childIndID: 0,
       parentIndID: 0,
 
@@ -302,8 +301,10 @@ const ConditionsEditor = Vue.createApp({
     //called by event dispatch when indicator chosen
     forceUpdate() {
       this.clearSelections();
-      this.formID = currCategoryID || '';
       this.childIndID = ifThenIndicatorID;
+      if(this.childIndID === 0) {
+        this.getFormIndicators()
+      }
     },
     truncateText(text = "", maxTextLength = 40) {
       return text?.length > maxTextLength
@@ -730,9 +731,6 @@ const ConditionsEditor = Vue.createApp({
     }
   },
   watch: {
-    formID() {
-      this.getFormIndicators();
-    },
     childIndID(newVal, oldVal) {
       setTimeout(() => {
         const elNew = document.querySelector('#condition_editor_inputs .btnNewCondition');
