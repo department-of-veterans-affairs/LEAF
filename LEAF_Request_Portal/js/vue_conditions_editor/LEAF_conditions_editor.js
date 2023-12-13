@@ -2,11 +2,11 @@ const ConditionsEditor = Vue.createApp({
   data() {
     return {
       orgchartPath: orgchartPath,
+      formID: '',
       childIndID: 0,
       parentIndID: 0,
       windowTop: 0,
 
-      indicators: [],
       currFormIndicators: [],
       selectedOperator: "",
       selectedParentValue: "",
@@ -45,34 +45,49 @@ const ConditionsEditor = Vue.createApp({
     };
   },
   created() {
-    this.getAllIndicators();
     this.getFileManagerFiles();
   },
-  mounted() {
-    document.addEventListener("scroll", this.onScroll);
-  },
-  beforeUnmount() {
-    document.removeEventListener("scroll", this.onScroll);
-  },
   methods: {
-    onScroll() {
-      if (this.childIndID !== 0) return;
-      this.windowTop = window.top.scrollY;
-    },
-    getAllIndicators() {
-      //get all enabled indicators + headings
-      $.ajax({
-        type: "GET",
-        url: "../api/form/indicator/list/unabridged",
-        success: (res) => {
-          this.indicators = res.filter(ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0);
-          this.updateCurrFormIndicators();
+    /**
+    * Get indicators for currCategoryID(MODFORM global) and create flat array for currFormIndicators.
+    * Ensure ind IDs are numbers, format is trimmed lower, options are trimmed and in array without empty strings.
+    */
+    getFormIndicators() {
+      let formIndicators = [];
+      const addIndicator = (index, parentID, node) => {
+        let options = Array.isArray(node?.options) ? node.options.map(o => o.trim()) : [];
+        options = options.filter(o => o !== "");
+
+        formIndicators.push({
+          formPage: index,
+          parentID: +parentID, //null will become 0
+          indicatorID: +node.indicatorID,
+          name: node.name || "",
+          format: node.format.toLowerCase().trim(),
+          options: options,
+          conditions: node.conditions
+        });
+        if(node.child !== null) {
+          for(let c in node.child) {
+            addIndicator(index, node.indicatorID, node.child[c])
+          }
+        }
+      }
+
+      try {
+        fetch(`../api/form/_${currCategoryID}`)
+        .then(res => res.json().then(data => {
+          const formPages = data || [];
+          formPages.forEach((page, index) => {
+            addIndicator(index, null, page);
+          });
+          this.currFormIndicators = formIndicators;
           this.updateTooltips();
-        },
-        error: (err) => {
-          console.log(err);
-        },
-      });
+        })
+        .catch(err => console.log(err)))
+      } catch (err) {
+        console.log(err)
+      }
     },
     getFileManagerFiles() {
       $.ajax({
@@ -161,30 +176,6 @@ const ConditionsEditor = Vue.createApp({
           this.selectedChildValue = XSSHelpers.stripAllTags(value);
       }
     },
-    selectNewChildIndicator() {
-      this.clearSelections();
-      if (this.childIndID !== 0) {
-        this.dragElement(
-          document.getElementById("condition_editor_center_panel")
-        );
-      }
-    },
-    /**
-     * Recursively searches indicators to add headerIndicatorID to the indicators list.
-     * The headerIndicatorID is used to track which indicators are on the same page.
-     * @param {Number} indID parent ID of indicator at the current depth
-     * @param {Object} initialIndicator reference to the indicator to update
-     */
-    addHeaderIDs(indID = 0, initialIndicator = {}) {
-      const parent = this.currFormIndicators.find(i => parseInt(i.indicatorID) === indID);
-      if(parent === undefined) return;
-      //if the parent has a null parentID, then this is the header, update the passed reference
-      if (parent?.parentIndicatorID === null) {
-        initialIndicator.headerIndicatorID = indID;
-      } else {
-        this.addHeaderIDs(parseInt(parent.parentIndicatorID), initialIndicator);
-      }
-    },
     newCondition() {
       this.selectedConditionJSON = "";
       this.showConditionEditor = true;
@@ -201,7 +192,7 @@ const ConditionsEditor = Vue.createApp({
     postConditions(addSelected = true) {
       if (this.conditionComplete || addSelected === false) {
         const childID = this.childIndID;
-        let indToUpdate = this.currFormIndicators.find(i => parseInt(i.indicatorID) === childID);
+        let indToUpdate = this.currFormIndicators.find(i => i.indicatorID === childID);
         //copy of all conditions on child, and filter using stored JSON val
         let currConditions = [...this.savedConditions];
         let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.selectedConditionJSON);
@@ -271,6 +262,7 @@ const ConditionsEditor = Vue.createApp({
      * @param {Object} el (DOM element)
      */
     dragElement(el = {}) {
+      el.style.top = window.top.scrollY + 15 + 'px'
       let pos1 = 0,
         pos2 = 0,
         pos3 = 0,
@@ -279,7 +271,6 @@ const ConditionsEditor = Vue.createApp({
       if (document.getElementById(el.id + "_header")) {
         document.getElementById(el.id + "_header").onmousedown = dragMouseDown;
       }
-
       function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
@@ -288,7 +279,6 @@ const ConditionsEditor = Vue.createApp({
         document.onmouseup = closeDragElement;
         document.onmousemove = elementDrag;
       }
-
       function elementDrag(e) {
         e = e || window.event;
         e.preventDefault();
@@ -299,7 +289,6 @@ const ConditionsEditor = Vue.createApp({
         el.style.top = el.offsetTop - pos2 + "px";
         el.style.left = el.offsetLeft - pos1 + "px";
       }
-
       function closeDragElement() {
         if (el.offsetTop - window.top.scrollY < 0) {
           el.style.top = window.top.scrollY + 15 + "px";
@@ -311,26 +300,11 @@ const ConditionsEditor = Vue.createApp({
         document.onmousemove = null;
       }
     },
-    /** uses variable from mod_form.tpl */
-    updateCurrFormIndicators() {
-      const formID = currCategoryID || '';
-      this.currFormIndicators = this.indicators.filter(i => i.categoryID === formID);
-      this.currFormIndicators.forEach(i => {
-        //add header info to assist filtering
-        if (i.parentIndicatorID !== null) {
-          this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
-        } else {
-          i.headerIndicatorID = parseInt(i.indicatorID);
-        }
-      });
-    },
+    //called by event dispatch when indicator chosen
     forceUpdate() {
+      this.clearSelections();
+      this.formID = currCategoryID || '';
       this.childIndID = ifThenIndicatorID;
-      if (this.childIndID === 0) {
-            this.getAllIndicators();
-        } else {
-            this.selectNewChildIndicator();
-        }
     },
     truncateText(text = "", maxTextLength = 40) {
       return text?.length > maxTextLength
@@ -427,12 +401,8 @@ const ConditionsEditor = Vue.createApp({
       const savedChildFormat = (condition?.childFormat || '').toLowerCase().trim();
       const savedParentFormat = (condition?.parentFormat || '').toLowerCase().trim();
       const savedParIndID = parseInt(condition?.parentIndID || 0);
-      const parentInd = this.selectableParents.find(
-        p => parseInt(p.indicatorID) === savedParIndID
-      );
-      const parentIndFormat = (parentInd?.format || '')
-        .toLowerCase()
-        .split('\n')[0].trim();
+      const parentInd = this.selectableParents.find(p => p.indicatorID === savedParIndID);
+      const parentIndFormat = parentInd?.format || '';
 
       return savedChildFormat !== this.childFormat || savedParentFormat !== parentIndFormat;
     },
@@ -554,46 +524,38 @@ const ConditionsEditor = Vue.createApp({
       return !['', 'crosswalk'].includes(this.selectedOutcome) && this.selectableParents.length < 1;
     },
     childIndicator() {
-      const indicator = this.currFormIndicators.find(i => parseInt(i.indicatorID) === this.childIndID);
+      const indicator = this.currFormIndicators.find(i => i.indicatorID === this.childIndID);
       return indicator === undefined ? {} : {...indicator};
     },
     /**
     * @returns {object} current parent selection
     */
     selectedParentIndicator() {
-      const indicator = this.selectableParents.find(
-          i => parseInt(i.indicatorID) === this.parentIndID
-      );
+      const indicator = this.selectableParents.find(i => i.indicatorID === this.parentIndID);
       return indicator === undefined ? {} : {...indicator};
     },
     /**
     * @returns {string} lower case base format of the parent question if there is one
     */
     parentFormat() {
-      const f = (this.selectedParentIndicator?.format || '').toLowerCase();
-      return f.split('\n')[0].trim();
+      return this.selectedParentIndicator?.format || "";
     },
     /**
      * @returns {string} lower case base format of the child question
      */
     childFormat() {
-        const f = (this.childIndicator?.format || '').toLowerCase();
-        return f.split('\n')[0].trim();
+        return this.childIndicator?.format || "";
     },
     /**
     * @returns list of indicators that are on the same page, enabled as parents, and different than child 
     */
     selectableParents() {
-      let selectable = [];
-      const headerIndicatorID = this.childIndicator?.headerIndicatorID || 0;
-      if (headerIndicatorID !== 0) {
-        selectable = this.currFormIndicators.filter(i => {
-          const parFormat = i.format?.split('\n')[0].trim().toLowerCase();
-          return i.headerIndicatorID === headerIndicatorID &&
-              parseInt(i.indicatorID) !== this.childIndID &&
-              this.enabledParentFormats[parFormat] === 1;
-        });
-      }
+      const formPage = this.childIndicator.formPage;
+      const selectable = this.currFormIndicators.filter(i => {
+        return i.formPage === formPage &&
+          i.indicatorID !== this.childIndID &&
+          this.enabledParentFormats[i.format] === 1;
+      });
       return selectable;
     },
     /**
@@ -644,36 +606,27 @@ const ConditionsEditor = Vue.createApp({
      */
     crosswalkLevelTwo() {
       let levelOptions = [];
-      const headerIndicatorID = this.childIndicator?.headerIndicatorID || 0;
-      if(headerIndicatorID !== 0) {
-        levelOptions = this.currFormIndicators.filter((i) => {
-          const format = i.format?.split("\n")[0].trim().toLowerCase();
-          return (
-              i.headerIndicatorID === headerIndicatorID &&
-              parseInt(i.indicatorID) !== this.childIndID &&
-              ['dropdown', 'multiselect'].includes(format)
-          );
-        });
-      }
+      const formPage = this.childIndicator.formPage;
+      levelOptions = this.currFormIndicators.filter(i => {
+        return (
+            i.formPage === formPage &&
+            i.indicatorID !== this.childIndID &&
+            ['dropdown', 'multiselect'].includes(i.format)
+        );
+      });
       return levelOptions;
     },
     /**
     * @returns list of options for comparison based on parent indicator selection
     */
     selectedParentValueOptions() {
-      const fullFormatToArray = (this.selectedParentIndicator?.format || '').split("\n");
-      let options = fullFormatToArray.length > 1 ? fullFormatToArray.slice(1) : [];
-      options = options.map(o => o.trim());
-      return options.filter(o => o !== '');
+      return this.selectedParentIndicator?.options || []
     },
     /**
-    * @returns list of options for prefill outcomes.  Does NOT combine with file loaded options.
+    * @returns list of options for prefill outcomes.  Does not combine with file loaded options.
     */
     selectedChildValueOptions() {
-      const fullFormatToArray = (this.childIndicator?.format || '').split("\n");
-      let options = fullFormatToArray.length > 1 ? fullFormatToArray.slice(1) : [];
-      options = options.map(o => o.trim());
-      return options.filter(o => o !== '');
+      return this.childIndicator?.options || []
     },
     canAddCrosswalk() {
       return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect')
@@ -784,20 +737,25 @@ const ConditionsEditor = Vue.createApp({
     }
   },
   watch: {
+    formID() {
+      this.getFormIndicators();
+    },
     childIndID(newVal, oldVal) {
       setTimeout(() => {
         const elNew = document.querySelector('#condition_editor_inputs .btnNewCondition');
         if(+newVal > 0 && elNew !== null) {
+          let elPanel = document.getElementById("condition_editor_center_panel");
+          this.dragElement(elPanel);
           elNew.focus();
         }
       });
     },
-    childChoicesKey(newVal, oldVal) {
+    childChoicesKey() {
       if(this.selectedOutcome.toLowerCase() == 'pre-fill' && this.multiOptionFormats.includes(this.childFormat)) {
         this.updateChoicesJS()
       }
     },
-    parentChoicesKey(newVal, oldVal) {
+    parentChoicesKey() {
       if(this.multiOptionFormats.includes(this.parentFormat)) {
         this.updateChoicesJS()
       }
@@ -809,7 +767,7 @@ const ConditionsEditor = Vue.createApp({
     }
   },
   template: `<div id="condition_editor_content" :style="{display: childIndID===0 ? 'none' : 'block'}">
-        <div id="condition_editor_center_panel" :style="{top: windowTop > 0 ? 15+windowTop+'px' : '15px'}">
+        <div id="condition_editor_center_panel">
 
             <!-- NOTE: MAIN EDITOR TEMPLATE -->
             <div id="condition_editor_inputs">
