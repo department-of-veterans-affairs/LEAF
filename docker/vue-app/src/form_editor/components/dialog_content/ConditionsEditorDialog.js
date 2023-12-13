@@ -48,6 +48,7 @@ export default {
         'checkRequiredData',
         'orgchartFormats',
         'focusedFormRecord',
+        'focusedFormTree',
         'getFormByCategoryID',
         'closeFormDialog',
         'truncateText',
@@ -65,27 +66,36 @@ export default {
         if (elSaveDiv !== null) elSaveDiv.style.display = 'none';
     },
     methods: {
-        getFormIndicators(){
-            $.ajax({
-                type: 'GET',
-                url: `${this.APIroot}form/indicator/list/unabridged`,
-                success: (res)=> {
-                    const filteredList = res.filter(
-                        ele => parseInt(ele.indicatorID) > 0 && parseInt(ele.isDisabled) === 0 && ele.categoryID === this.formID
-                    );
-                    this.indicators = filteredList;
+        /**
+         * create flat array for indicators from current form using injected form tree.
+         * Ensures number types for indIDs, trimmed lower format, trimmed options in array
+         */
+        getFormIndicators() {
+            let formIndicators = [];
+            const addIndicator = (index, parentID, node) => {
+              let options = Array.isArray(node?.options) ? node.options.map(o => o.trim()) : [];
+              options = options.filter(o => o !== "");
 
-                    this.indicators.forEach(i => { 
-                        if (i.parentIndicatorID !== null) {
-                            this.addHeaderIDs(parseInt(i.parentIndicatorID), i);
-                        } else {
-                            i.headerIndicatorID = parseInt(i.indicatorID);
-                        }
-                    });
-                    this.appIsLoadingIndicators = false;
-                },
-                error: (err) => console.log(err)
+              formIndicators.push({
+                formPage: index,
+                parentID: +parentID, //null will become 0
+                indicatorID: +node.indicatorID,
+                name: node.name || "",
+                format: node.format.toLowerCase().trim(),
+                options: options,
+                conditions: node.conditions
+              });
+              if(node.child !== null) {
+                for(let c in node.child) {
+                  addIndicator(index, node.indicatorID, node.child[c])
+                }
+              }
+            }
+            this.focusedFormTree.forEach((page, index) => {
+                addIndicator(index, null, page);
             });
+            this.indicators = formIndicators;
+            this.appIsLoadingIndicators = false;
         },
         /**
         * @param {number} indicatorID
@@ -128,22 +138,6 @@ export default {
                 this.selectedParentValue = XSSHelpers.stripAllTags(value);
             } else if (type.toLowerCase() === 'child') {
                 this.selectedChildValue = XSSHelpers.stripAllTags(value);
-            }
-        },
-        /**
-         * Recursively searches indicators to add headerIndicatorID to the indicators list.
-         * The headerIndicatorID is used to track which indicators are on the same page.
-         * @param {Number} indID parent ID of indicator at the current depth
-         * @param {Object} initialIndicator reference to the indicator to update
-         */
-        addHeaderIDs(indID = 0, initialIndicator = {}) {
-            const parent = this.indicators.find(i => parseInt(i.indicatorID) === indID);
-            if(parent === undefined) return;
-            //if the parent has a null parentID, then this is the header, update the passed reference
-            if (parent?.parentIndicatorID === null) {
-                initialIndicator.headerIndicatorID = indID;
-            } else {
-                this.addHeaderIDs(parseInt(parent.parentIndicatorID), initialIndicator);
             }
         },
         newCondition(showEditor = true) {
@@ -303,13 +297,9 @@ export default {
             const savedChildFormat = (condition?.childFormat || '').toLowerCase().trim();
             const savedParentFormat = (condition?.parentFormat || '').toLowerCase().trim();
             const savedParIndID = parseInt(condition?.parentIndID || 0);
-            const parentInd = this.selectableParents.find(
-                p => parseInt(p.indicatorID) === savedParIndID
-            );
-            const parentIndFormat = (parentInd?.format || '')
-                .toLowerCase()
-                .split('\n')[0].trim();
 
+            const parentInd = this.selectableParents.find(p => p.indicatorID === savedParIndID);
+            const parentIndFormat = parentInd?.format || ''
             return savedChildFormat !== this.childFormat || savedParentFormat !== parentIndFormat;
         },
         /**
@@ -401,42 +391,38 @@ export default {
             return this.dialogData.indicatorID;
         },
         childIndicator() {
-            return this.indicators.find(i => parseInt(i.indicatorID) === this.childIndID);
+            return this.indicators.find(i => i.indicatorID === this.childIndID);
         },
         /**
          * @returns {object} current parent selection
          */
         selectedParentIndicator() {
             const indicator = this.selectableParents.find(
-                i => parseInt(i.indicatorID) === parseInt(this.parentIndID)
+                i => i.indicatorID === parseInt(this.parentIndID)
             );
             return indicator === undefined ? {} : {...indicator};
         },
         /**
-         * @returns {string} lower case base format of the parent question if there is one
+         * @returns {string} format of the parent question if there is one
          */
         parentFormat() {
-            const f = (this.selectedParentIndicator?.format || '').toLowerCase();
-            return f.split('\n')[0].trim();
+            return this.selectedParentIndicator?.format || ''
         },
         /**
-         * @returns {string} lower case base format of the child question
+         * @returns {string} format of the child question
          */
         childFormat() {
-            const f = (this.childIndicator?.format || '').toLowerCase();
-            return f.split('\n')[0].trim();
+            return this.childIndicator?.format || '';
         },
         /**
          * @returns list of indicators that are on the same page, enabled as parents, and different than child 
          */
         selectableParents() {
-            const headerIndicatorID = this.childIndicator?.headerIndicatorID || 0;
-            return this.indicators.filter(i => {
-                const parFormat = i.format?.split('\n')[0].trim().toLowerCase();
-                return i.headerIndicatorID === headerIndicatorID &&
-                    parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-                    this.enabledParentFormats[parFormat] === 1;
-            });
+            return this.indicators.filter(i =>
+                i.formPage === this.childIndicator.formPage &&
+                i.indicatorID !== this.childIndID &&
+                this.enabledParentFormats[i.format] === 1
+            );
         },
         /**
          * @returns list of operators and human readable text base on parent format
@@ -481,33 +467,24 @@ export default {
             return operators;
         },
         crosswalkLevelTwo() {
-            const headerIndicatorID = this.childIndicator.headerIndicatorID;
-            return this.indicators.filter((i) => {
-                const format = i.format?.split("\n")[0].trim().toLowerCase();
-                return (
-                    i.headerIndicatorID === headerIndicatorID &&
-                    parseInt(i.indicatorID) !== parseInt(this.childIndicator.indicatorID) &&
-                    ['dropdown', 'multiselect'].includes(format)
-                );
-            });
+            const formPage = this.childIndicator.formPage;
+            return this.indicators.filter(i =>
+                i.formPage === formPage &&
+                i.indicatorID !== this.childIndID &&
+                ['dropdown', 'multiselect'].includes(i.format)
+            );
         },
         /**
          * @returns list of options for comparison based on parent indicator selection
          */
         selectedParentValueOptions() {
-            const fullFormatToArray = (this.selectedParentIndicator?.format || '').split("\n");
-            let options = fullFormatToArray.length > 1 ? fullFormatToArray.slice(1) : [];
-            options = options.map(o => o.trim());
-            return options.filter(o => o !== '')
+            return this.selectedParentIndicator?.options || []
         },
         /**
-         * @returns list of options for prefill outcomes.  Does NOT combine with file loaded options.
+         * @returns list of options for prefill outcomes.  Does not combine with file loaded options.
          */
         selectedChildValueOptions() {
-            const fullFormatToArray = this.childIndicator.format.split("\n");
-            let options = fullFormatToArray.length > 1 ? fullFormatToArray.slice(1) : [];
-            options = options.map(o => o.trim());
-            return options.filter(o => o !== '')
+            return this.childIndicator?.options || []
         },
         canAddCrosswalk() {
             return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect')

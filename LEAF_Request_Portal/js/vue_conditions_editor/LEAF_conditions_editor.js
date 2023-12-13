@@ -5,7 +5,6 @@ const ConditionsEditor = Vue.createApp({
       formID: '',
       childIndID: 0,
       parentIndID: 0,
-      windowTop: 0,
 
       currFormIndicators: [],
       selectedOperator: "",
@@ -550,13 +549,11 @@ const ConditionsEditor = Vue.createApp({
     * @returns list of indicators that are on the same page, enabled as parents, and different than child 
     */
     selectableParents() {
-      const formPage = this.childIndicator.formPage;
-      const selectable = this.currFormIndicators.filter(i => {
-        return i.formPage === formPage &&
+      return this.currFormIndicators.filter(i =>
+          i.formPage === this.childIndicator.formPage &&
           i.indicatorID !== this.childIndID &&
-          this.enabledParentFormats[i.format] === 1;
-      });
-      return selectable;
+          this.enabledParentFormats[i.format] === 1
+      );
     },
     /**
     * @returns list of operators and human readable text base on parent format
@@ -605,16 +602,12 @@ const ConditionsEditor = Vue.createApp({
      * on the same page, not the currently selected question, base format is dropdown or multiselect
      */
     crosswalkLevelTwo() {
-      let levelOptions = [];
       const formPage = this.childIndicator.formPage;
-      levelOptions = this.currFormIndicators.filter(i => {
-        return (
-            i.formPage === formPage &&
-            i.indicatorID !== this.childIndID &&
-            ['dropdown', 'multiselect'].includes(i.format)
-        );
-      });
-      return levelOptions;
+      return this.currFormIndicators.filter(i =>
+        i.formPage === formPage &&
+        i.indicatorID !== this.childIndID &&
+        ['dropdown', 'multiselect'].includes(i.format)
+      );
     },
     /**
     * @returns list of options for comparison based on parent indicator selection
