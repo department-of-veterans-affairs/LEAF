@@ -2,6 +2,13 @@ FROM php:8.2-fpm as base
 
 RUN docker-php-ext-install pdo pdo_mysql
 
+RUN apt-get update && apt-get install -y \
+		libfreetype-dev \
+		libjpeg62-turbo-dev \
+		libpng-dev \
+	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
+	&& docker-php-ext-install -j$(nproc) gd
+
 COPY docker/php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/php/conf.d/* /usr/local/etc/php/conf.d/
 
