@@ -190,9 +190,8 @@
     };
 
     function scrubHTML(input) {
-        let t = document.createElement('div');
-        t.innerHTML = input;
-        return t.innerText;
+        let t = new DOMParser().parseFromString(input, 'text/html');
+        return t.textContent;
     }
 
     function interfaceReady() {
