@@ -19,6 +19,7 @@ function employeeSelector(containerID) {
   this.intervalID = null;
   this.selectHandler = null;
   this.resultHandler = null;
+  this.selectHandlers = [];
   this.selectLink = null;
   this.selectionData = new Object();
   this.optionNoLimit = 0;
@@ -108,6 +109,7 @@ employeeSelector.prototype.select = function (id) {
   if (this.selectHandler != null) {
     this.selectHandler();
   }
+  this.selectHandlers.forEach(selectHandler => selectHandler());
 };
 
 employeeSelector.prototype.setSelectHandler = function (func) {
@@ -116,6 +118,15 @@ employeeSelector.prototype.setSelectHandler = function (func) {
 
 employeeSelector.prototype.setResultHandler = function (func) {
   this.resultHandler = func;
+};
+
+employeeSelector.prototype.addSelectHandler = function (func) {
+    if(typeof func == 'function') {
+        this.selectHandlers.push(func);
+    }
+    else {
+        console.error('argument supplied to addSelectHandler must be a function');
+    }
 };
 
 employeeSelector.prototype.setSelectLink = function (link) {

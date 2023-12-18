@@ -11,4 +11,5 @@ class DataActions
     const RESTORE = 'restore';
     const CREATE = 'create';
     const MERGE = 'merge';
+    const PRUNE = 'prune';
 }

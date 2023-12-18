@@ -281,10 +281,12 @@ class FormWorkflow
                         }, $groupIDs);
     
             $groupIDs = implode(',', $groupIDs);
-            $res = $this->db->prepared_query("SELECT groupID, name FROM `groups`
-                                                WHERE groupID IN ({$groupIDs})", []);
-            foreach($res as $group) {
-                $groupNames[$group['groupID']] = $group['name'];
+            if($groupIDs != "") {
+                $res = $this->db->prepared_query("SELECT groupID, name FROM `groups`
+                                                   WHERE groupID IN ({$groupIDs})", []);
+                foreach($res as $group) {
+                    $groupNames[$group['groupID']] = $group['name'];
+                }
             }
         }
 
@@ -1365,12 +1367,15 @@ class FormWorkflow
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
+            $fields = $this->getFields();
+
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
                     $email = new Email();
 
                     $email->addSmartyVariables(array(
-                        "comment" => $comment
+                        "comment" => $comment,
+                        "field" => $fields
                     ));
 
                     $dir = $this->getDirectory();
@@ -1414,7 +1419,8 @@ class FormWorkflow
                             "service" => $requestRecords[0]['service'],
                             "lastStatus" => $requestRecords[0]['lastStatus'],
                             "comment" => $comment,
-                            "siteRoot" => $this->siteRoot
+                            "siteRoot" => $this->siteRoot,
+                            "field" => $fields
                         ));
                         $email->setTemplateByID(Email::NOTIFY_COMPLETE);
 
@@ -1470,7 +1476,6 @@ class FormWorkflow
                         $email = new Email();
 
                         $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
-                        $fields = $this->getFields();
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $title,
@@ -1540,7 +1545,9 @@ class FormWorkflow
                                            'workflowID' => $workflowID,
                                            'stepID' => $stepID,
                                            'actionType' => $actionType,
-                                           'comment' => $comment, );
+                                           'comment' => $comment,
+                                           "field" => $fields
+                        );
 
                         $customClassName = "Portal\\CustomEvent_{$event['eventID']}";
 

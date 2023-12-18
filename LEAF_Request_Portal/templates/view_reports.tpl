@@ -14,7 +14,7 @@
     <div style="padding: 8px">
         <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
         <br style="clear: both" />
-        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
+        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Report <img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="" /></button>
     </div>
 </div>
 
@@ -1106,7 +1106,7 @@ $(function() {
     $('#' + leafSearch.getPrefixID() + 'advancedOptions').css('border', '0');
     $('#' + leafSearch.getPrefixID() + 'advancedOptionsClose').css('visibility', 'hidden');
     $('#' + leafSearch.getPrefixID() + 'advancedOptions>legend').css('display', 'none');
-    $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="dynicons/?img=go-next.svg&w=32" alt="next step" />');
+    $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="dynicons/?img=go-next.svg&w=32" alt="" />');
 
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').off();
 

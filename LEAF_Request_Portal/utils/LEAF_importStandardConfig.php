@@ -4,6 +4,7 @@ ini_set('display_errors', 0); // Set to 1 to display errors
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $debug = false;
+$doc_root = $_SERVER['DOCUMENT_ROOT'];
 
 // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
 //$protocol = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
@@ -11,9 +12,9 @@ $protocol = 'https://';
 $siteRootURL = $protocol . HTTP_HOST;
 
 $relativePath = trim(str_replace($siteRootURL, '', LEAF_SETTINGS['national_linkedPrimary']));
-$tempFolder = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'files/temp/';
-$copy_custom_templates = $_SERVER['DOCUMENT_ROOT'] . $relativePath . 'templates/email/custom_override/';
-$paste_custom_templates = getenv('APP_LIB_PATH') . '../' . PORTAL_PATH . '/templates/email/custom_override/';
+$tempFolder = $doc_root . $relativePath . 'files/temp/';
+$copy_custom_templates = $doc_root . $relativePath . 'templates/email/custom_override/';
+$paste_custom_templates = $doc_root . PORTAL_PATH . '/templates/email/custom_override/';
 
 if(LEAF_SETTINGS['siteType'] != 'national_subordinate') {
     echo "ERROR: This is not a national subordinate site.";
