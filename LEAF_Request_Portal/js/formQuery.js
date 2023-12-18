@@ -235,7 +235,8 @@ var LeafFormQuery = function () {
    * encodeReadableURI provides minimal character URI encoding, prioritizing readable URLs
    */
   function encodeReadableURI(url) {
-      return url.replaceAll('+', '%2b');
+    url = url.replaceAll('+', '%2b');
+    return url;
   }
 
   /**
