@@ -17,38 +17,39 @@ $fp = fopen('filehistogram.csv', 'w');
 fputcsv($fp, ['path', 'max (KB)', 'min (KB)', 'average (KB)', 'count']);
 foreach ($portals as $portal) {
 
+    // setup our initial array
     $filesizes = ['path' => $portal['site_path'], 'max' => 0, 'min' => 999999999, 'average' => 0, 'count' => 0];
-    $paths = [$directory . $portal['site_path'] . '/files/*.*', $portal['site_uploads'] . '*.*'];
-    foreach ($paths as $path) {
-        $glob_array = glob($path);
-        $filecount = count($glob_array);
-        $filesizes['count'] += $filecount;
 
-        foreach ($glob_array as $glob) {
-            $filesize = filesize($glob);
-            if ($filesize > 0)
-                $filesize = $filesize / 1024;
+    // look at the erm uploads, if looking at multiple dirs, will need to decouple filecounts, since we mainly want to look at erm I will just look at erm.
+    $path = $portal['site_uploads'] . '*.*';
 
-            if ($filesize > $filesizes['max']) {
-                $filesizes['max'] = $filesize;
-            }
+    $glob_array = glob($path);
+    $filecount = count($glob_array);
+    $filesizes['count'] += $filecount;
 
-            if ($filesize < $filesizes['min'] && $filesize > 0) {
-                $filesizes['min'] = $filesize;
-            }
+    foreach ($glob_array as $glob) {
+        $filesize = filesize($glob);
+        if ($filesize > 0)
+            $filesize = $filesize / 1024;
 
-            if ($filesize > $totalmaxfilesize) {
-                $totalmaxfilesize = $filesize;
-            }
-
-            if ($filesize < $totalminfilesize && $filesize > 0) {
-                $totalminfilesize = $filesize;
-            }
-
-            $filesizes['average'] += $filesize;
+        if ($filesize > $filesizes['max']) {
+            $filesizes['max'] = $filesize;
         }
-    }
 
+        if ($filesize < $filesizes['min'] && $filesize > 0) {
+            $filesizes['min'] = $filesize;
+        }
+
+        if ($filesize > $totalmaxfilesize) {
+            $totalmaxfilesize = $filesize;
+        }
+
+        if ($filesize < $totalminfilesize && $filesize > 0) {
+            $totalminfilesize = $filesize;
+        }
+
+        $filesizes['average'] += $filesize;
+    }
 
     if ($filesizes['min'] > $filesizes['max']) {
         $filesizes['min'] = 0;
