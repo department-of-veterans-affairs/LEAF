@@ -136,6 +136,15 @@ export default {
             }
             if (type.toLowerCase() === 'parent') {
                 this.selectedParentValue = XSSHelpers.stripAllTags(value);
+                if(this.parentFormat === 'number' || this.parentFormat === 'currency') {
+                    if (/^(\d*)(\.\d+)?$/.test(value)) {
+                        const floatValue = parseFloat(value);
+                        this.selectedParentValue = this.parentFormat === 'currency' ?
+                            (Math.round(100 * floatValue) / 100).toFixed(2) : String(floatValue);
+                    } else {
+                        this.selectedParentValue = '';
+                    }
+                }
             } else if (type.toLowerCase() === 'child') {
                 this.selectedChildValue = XSSHelpers.stripAllTags(value);
             }
