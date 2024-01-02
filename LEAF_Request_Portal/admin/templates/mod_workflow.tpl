@@ -798,7 +798,11 @@
             $.ajax({
                 type: 'DELETE',
                 url: `../api/workflow/step/${stepID}/dependencies?`
-                    + $.param({ 'dependencyID': dependencyID, 'CSRFToken': CSRFToken }),
+                    + $.param({
+                        'dependencyID': dependencyID,
+                        'workflowID': currentWorkflow,
+                        'CSRFToken': CSRFToken
+                    }),
                 success: function() {
                     $('.workflowStepInfo').css('display', 'none');
                     showStepInfo(stepID);
@@ -2543,9 +2547,11 @@
      */
     function postStepDependency(stepID, dependencyID, callback) {
         $.ajax({
-                type: 'POST',
-                url: '../api/workflow/step/' + stepID + '/dependencies',
-                data: {dependencyID: dependencyID,
+            type: 'POST',
+            url: '../api/workflow/step/' + stepID + '/dependencies',
+            data: {
+                dependencyID: dependencyID,
+                workflowID: currentWorkflow,
                 CSRFToken: CSRFToken
             },
             success: function() {

@@ -800,9 +800,14 @@ class Workflow
         $res = $this->db->prepared_query('INSERT INTO step_dependencies (stepID, dependencyID)
                                             VALUES (:stepID, :dependencyID)', $vars);
 
+        $depVars = array(':dependencyID' => $dependencyID);
+        $dep = $this->db->prepared_query("SELECT `description` FROM dependencies WHERE dependencyID=:dependencyID", $depVars)[0];
+        $depDescr = $dep["description"];
+
         $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::STEP_DEPENDENCY, [
+            new LogItem("workflows", "workflowID", $this->workflowID),
             new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID)
+            new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr)
         ]);
 
         // populate records_dependencies so we can filter on items immediately
@@ -844,9 +849,14 @@ class Workflow
     									AND filled=0
                                         AND records_dependencies.time IS NULL', $vars);
 
+        $depVars = array(':dependencyID' => $dependencyID);
+        $dep = $this->db->prepared_query("SELECT `description` FROM dependencies WHERE dependencyID=:dependencyID", $depVars)[0];
+        $depDescr = $dep["description"];
+
         $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::STEP_DEPENDENCY, [
+            new LogItem("workflows", "workflowID", $this->workflowID),
             new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID)
+            new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr)
         ]);
 
         return true;
