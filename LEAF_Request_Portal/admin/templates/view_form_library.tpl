@@ -159,16 +159,16 @@ $(function() {
     <h2>LEAF Library</h2>
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
-        <a role="button" class="buttonNorm leaf-marginBot-1rem" tabindex="0" href="?a=form" style="display: inherit; width: 220px; text-decoration: none; color: black" id="backToForm"><img src="../dynicons/?img=edit-undo.svg&amp;w=32" alt="Go back" title="Go back"/> Back to My Forms</a>
+        <a role="button" class="buttonNorm leaf-marginBot-1rem" tabindex="0" href="?a=form" style="display: inherit; width: 220px; text-decoration: none; color: black" id="backToForm"><img src="../dynicons/?img=edit-undo.svg&amp;w=32" alt="" title="Back to My Forms"/> Back to My Forms</a>
 
         <div class="leaf-marginBot-halfRem">Filter by Business Lines:</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="Icon" title="Icon"/> All Business Lines</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines"/> All Business Lines</div>
 
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Administrative')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=applications-office.svg&amp;w=32" alt="Icon" title="Icon" /> Administrative</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Human Resources')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=system-users.svg&amp;w=32" alt="Icon" title="Icon" /> Human Resources</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Information Technology')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=network-idle.svg&amp;w=32" alt="Icon" title="Icon" /> Information Technology</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Logistics')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=package-x-generic.svg&amp;w=32" alt="Icon" title="Icon" /> Logistics</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Fiscal')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="Icon" title="Icon" /> Fiscal</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Administrative')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=applications-office.svg&amp;w=32" alt="" title="Administrative" /> Administrative</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Human Resources')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=system-users.svg&amp;w=32" alt="" title="Human Resources" /> Human Resources</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Information Technology')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=network-idle.svg&amp;w=32" alt="" title="Information Technology" /> Information Technology</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Logistics')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=package-x-generic.svg&amp;w=32" alt="" title="Logistics" /> Logistics</div>
+        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Fiscal')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="" title="Fiscal" /> Fiscal</div>
     </div>
     <div id="formEditor_content" style="margin-left: 238px; padding-left: 8px">
 

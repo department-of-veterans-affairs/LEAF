@@ -58,7 +58,7 @@
         </div>
 
         <div id="noResultsMsg" class="leaf-no-results usa-alert usa-alert--error usa-alert--slim" role="alert">
-            <p><i class="fas fa-exclamation-circle" alt="Error Icon"></i>No matching groups or users found.</p>
+            <p><i class="fas fa-exclamation-circle" alt=""></i>No matching groups or users found.</p>
         </div>
 
         <div id="sysAdmins" class="leaf-marginTop-1rem">

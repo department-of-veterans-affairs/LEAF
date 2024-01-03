@@ -177,7 +177,7 @@
 
     <!--
     <a href="./?a=site_designer" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
-        <i class="leaf-admin-btnicon fas fa-edit text-orange-50 leaf-icn-narrow2" alt="Site Designer" title="Site Designer"></i>
+        <i class="leaf-admin-btnicon fas fa-edit text-orange-50 leaf-icn-narrow2" alt="" title="Site Designer"></i>
         <span class="leaf-admin-btntitle">Site Designer</span>
         <span class="leaf-admin-btndesc">Change the way the site looks (Alpha)</span>
     </a>

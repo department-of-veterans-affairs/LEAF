@@ -69,7 +69,7 @@
 	</div>
 </div>
 <div style="padding: 8px; margin: auto" id="submitControl">
-    <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" title="Submit Form"><img src="dynicons/?img=go-next.svg&amp;w=32" alt="Submit" />Send Request to Selected Individuals</button>
+    <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" title="Submit Form"><img src="dynicons/?img=go-next.svg&amp;w=32" alt="" />Send Request to Selected Individuals</button>
 </div>
 <div id="pp_progressSidebar" style="display: none;">
         <div style="padding: 8px; margin: 0px; color: black; font-weight: bold; text-align: center; font-size: 120%"><img src="./images/indicator.gif" />Submitting</div>

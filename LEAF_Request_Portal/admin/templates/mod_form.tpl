@@ -314,7 +314,7 @@ function openContent(url) {
     		                          '</span><br /><span tabindex="0" class="isSubForm">Workflow: ' + workflow + '</span>' +
     		                          '<br /><span tabindex="0"class="isSubForm">Need to Know mode: ' + (categories[currCategoryID].needToKnow == 1 ? 'On' : 'Off') + '</span>' +
     		                      '</div>' +
-                                  '</div><br /><div id="formEditor_form" style="background-color: white"><div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div></div>');
+                                  '</div><br /><div id="formEditor_form" style="background-color: white"><div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="" /></div></div>');
     if(isSubForm) {
         $('.isSubForm').css('display', 'none');
     }
@@ -615,13 +615,13 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 </table><br />
                 html (for pages where the user can edit data):
                 <button id="btn_codeSave_html" class="buttonNorm" title="Save Code">
-                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="" />
                     Save Code<span id="codeSaveStatus_html"></span>
                 </button>
                 <textarea id="html"></textarea><br />
                 htmlPrint (for pages where the user can only read data):
                 <button id="btn_codeSave_htmlPrint" class="buttonNorm" title="Save Code">
-                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="" />
                     Save Code<span id="codeSaveStatus_htmlPrint"></span>
                 </button>
                 <textarea id="htmlPrint"></textarea>
@@ -988,11 +988,11 @@ function updateNames(){
  */
 function gridCellBasicInputs(name = '', columnNumber = '', id = makeColumnID(), isNewRow = false) {
     return `<div tabindex="0" id="${id}" class="cell">
-      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer;" />
-      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: ${isNewRow ? 'none;' : 'inline;'}" />
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="" style="cursor: pointer;" />
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="" style="cursor: pointer; display: ${isNewRow ? 'none;' : 'inline;'}" />
       </br>
       <span class="columnNumber">Column #${columnNumber}: </span>
-      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="" style="cursor: pointer; vertical-align: middle;" />
       </br>&nbsp;
       <input type="text" value="${name}" onchange="updateNames();" />
       </br>&nbsp;</br>
@@ -1910,7 +1910,7 @@ function deleteForm() {
  * @param categoryID
  */
 function buildMenu(categoryID) {
-	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
+	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="" /> View All Forms</div><br />');
 	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" onkeydown="onKeyPressClick(event)" role="button"><img src="../dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
     $('#' + categoryID).on('click', function(categoryID) {
         return function() {
@@ -1935,12 +1935,12 @@ function buildMenu(categoryID) {
 		}
 	}
 
-	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="createForm(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=list-add.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
+	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="createForm(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=list-add.svg&w=32" alt="" /> Add Internal-Use</div><br />');
 
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="mergeFormDialog(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="mergeFormDialog(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=tab-new.svg&w=32" alt="" /> Staple other form</div>\
                           <div id="stapledArea"></div><br />');
 
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>\
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="" /> View History</div>\
                         <div id="viewHistory"></div><br />');
 
 
@@ -1961,9 +1961,9 @@ function buildMenu(categoryID) {
     });
 
 
-	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
+	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../dynicons/?img=network-wireless.svg&w=32" alt="" /> Export Form</div><br />');
     $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="deleteForm();"><img src="../dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="" /> Restore Fields</div>');
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
@@ -1982,10 +1982,10 @@ function selectForm(categoryID) {
  */
 function showFormBrowser() {
     window.location = '#';
-    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeydown="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
-    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeydown="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../dynicons/?img=document-new.svg&w=32" alt="" /> Create Form</div><br />');
+    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="" /> LEAF Library</div><br />');
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../dynicons/?img=package-x-generic.svg&w=32" alt="" /> Import Form</div><br />');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
         url: '../api/formStack/categoryList/all',
@@ -1999,7 +1999,7 @@ function showFormBrowser() {
                     const availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
                     let needToKnow = '';
                     if(res[i].needToKnow == 1) {
-                        needToKnow = ' <img style="position:absolute; right: 6px;" src="../dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
+                        needToKnow = ' <img style="position:absolute; right: 6px;" src="../dynicons/?img=emblem-readonly.svg&w=16" alt="" title="Need to know mode enabled" />';
                     }
                     let formActiveID = '';
                     if(res[i].workflowID > 0) {

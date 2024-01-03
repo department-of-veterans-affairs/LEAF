@@ -10,10 +10,10 @@
     </div>
 </div>
 <div id="controls" style="float: right; width: 170px; visibility: hidden">
-    <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes</div><br /><br /><br />
-    <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="../dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Open Report" /> Open Report</div>
+    <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=32" alt="" /> Save Changes</div><br /><br /><br />
+    <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="../dynicons/?img=x-office-spreadsheet.svg&w=32" alt="" /> Open Report</div>
     <br /><br /><br /><br /><br /><br />
-    <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="../dynicons/?img=process-stop.svg&w=32" alt="Delete Report" /> Delete Report</div>
+    <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="../dynicons/?img=process-stop.svg&w=32" alt="" /> Delete Report</div>
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->

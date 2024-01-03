@@ -28,12 +28,12 @@
             <!--{/if}-->
             <div style="float: right">
 
-            <span onkeydown="onKeyPressClick(event)" class="buttonNorm" tabindex="0" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../dynicons/?img=list-add.svg&amp;w=16" alt="Add Sub-question" title="Add Sub-question"/> Add Sub-question</span>
+            <span onkeydown="onKeyPressClick(event)" class="buttonNorm" tabindex="0" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../dynicons/?img=list-add.svg&amp;w=16" alt="" title="Add Sub-question"/> Add Sub-question</span>
 
             </div>
             <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" >
             <!--{if $indicator.is_sensitive == 1}-->
-                &nbsp;<img src="../dynicons/?img=eye_invisible.svg&amp;w=16" alt="This field is sensitive" title="This field is sensitive" />&nbsp;
+                &nbsp;<img src="../dynicons/?img=eye_invisible.svg&amp;w=16" alt="" title="This field is sensitive" />&nbsp;
             <!--{/if}-->
                 <span onkeydown="onKeyPressClick(event)" tabindex="0" onclick="getForm(<!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->)">
             <!--{if trim($indicator.name) != ''}-->
@@ -77,7 +77,7 @@
                     <!--{if $indicator.has_code}-->
                         &nbsp;<img src="../dynicons/?img=document-properties.svg&amp;w=16" tabindex="0" alt="Advanced Options present" title="Advanced Options present" style="cursor: pointer" />
                     <!--{/if}-->
-                <br /><br /><span tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../dynicons/?img=list-add.svg&amp;w=16" alt="Add Sub-question" title="Add Sub-question"/> Add Sub-question</span>
+                <br /><br /><span tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../dynicons/?img=list-add.svg&amp;w=16" alt="" title="Add Sub-question"/> Add Sub-question</span>
                 </span>
         <!--{/if}-->
             </div>

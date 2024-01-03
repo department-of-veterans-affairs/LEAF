@@ -67,7 +67,7 @@
                 </tbody>
             </table>
             </div>
-            <button type="button" class="buttonNorm" id="addRowBtn_<!--{$indicator.indicatorID}-->" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow()"><img src="dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
+            <button type="button" class="buttonNorm" id="addRowBtn_<!--{$indicator.indicatorID}-->" title="Grid input add row" aria-label="Grid input add row" onclick="gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow()"><img src="dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
             <script>
                 var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
                 $(function() {
@@ -814,7 +814,7 @@
                             aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->"
                             onchange="addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->,'<!--{$indicator.format|strip_tags}-->')" <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
                     </div>
-                    <div id="loading_indicator_<!--{$indicator.indicatorID|strip_tags}-->" style="display:none;"><img src="images/indicator.gif" alt="loading..." /> Attaching file...</div>
+                    <div id="loading_indicator_<!--{$indicator.indicatorID|strip_tags}-->" style="display:none;"><img src="images/indicator.gif" alt="" /> Attaching file...</div>
                     <div tabindex="0" id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem; line-height:1.6;"></div>
                     <div style="font-family: verdana; font-size: 10px">
                         <br />Maximum attachment size is <b><!--{$max_filesize|strip_tags}-->B.</b>
@@ -971,7 +971,7 @@
                         $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append(br);
 
                         var ocLink = document.createElement('div');
-                        ocLink.innerHTML = '<img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="View Position Details" /> View Details in Org. Chart';
+                        ocLink.innerHTML = '<img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="" /> View Details in Org. Chart';
                         ocLink.setAttribute('onclick', "window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.value|strip_tags}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');");
                         ocLink.setAttribute('class', 'buttonNorm');
                         ocLink.setAttribute('style', 'margin-top: 8px');

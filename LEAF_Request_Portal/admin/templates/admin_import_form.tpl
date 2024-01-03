@@ -2,7 +2,7 @@
     <form id="record" enctype="multipart/form-data" action="ajaxIndex.php?a=manualImportForm" method="post">
         <input name="CSRFToken" type="hidden" value="{$CSRFToken}" />
         <div id="file_control">Select LEAF Form Packet to import: <input id="formPacket" name="formPacket" type="file" /></div>
-        <div id="file_status" style="visibility: hidden; display: none; background-color: #fffcae; padding: 4px"><img src="../images/indicator.gif" alt="loading..." /> Importing form...</div>
+        <div id="file_status" style="visibility: hidden; display: none; background-color: #fffcae; padding: 4px"><img src="../images/indicator.gif" alt="" /> Importing form...</div>
     </form>
 </div>
 

@@ -1,29 +1,29 @@
 <div id="sideBar" style="float: left; width: 180px">
     <div id="btn_createStep" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="createStep();" style="font-size: 120%; display: none"
-        role="button" tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
-    Workflows: <br />
+        role="button" tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="" /> Add Step</div><br />
+    <label for="workflowList" style="font-family: Source Sans Pro Web"> Workflows:</label>
     <div id="workflowList"></div>
     <br />
     <div id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size: 120%" role="button"
-        tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
+        tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="" /> New Workflow</div><br />
     <br />
     <div id="btn_deleteWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="deleteWorkflow();" style="font-size: 120%; display: none"
-        role="button" tabindex="0"><img src="../dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete
+        role="button" tabindex="0"><img src="../dynicons/?img=list-remove.svg&w=16" alt="" /> Delete
         workflow</div><br />
     <div id="btn_listActionType" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="listActionType();" style="font-size: 120%; display: none"
         role="button" tabindex="0">Edit Actions</div><br />
     <div id="btn_listEvents" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="listEvents();" style="font-size: 120%; display: none"
         role="button" tabindex="0">Edit Events</div><br />
     <div id="btn_viewHistory" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="viewHistory();" style="font-size: 120%; display: none;"
-        role="button" tabindex="0"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View
+        role="button" tabindex="0"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="" /> View
         History</div><br />
     <div id="btn_renameWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="renameWorkflow();" style="font-size: 120%; display: none;"
         role="button" tabindex="0"><img src="../dynicons/?img=accessories-text-editor.svg&amp;w=32"
-            alt="Rename Workflow" /> Rename
+            alt="" /> Rename
         Workflow</div>
     <div id="btn_duplicateWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="duplicateWorkflow();" style="font-size: 100%; display: none; margin-top: 10px;"
         role="button" tabindex="0"><img src="../dynicons/?img=edit-copy.svg&amp;w=32"
-            alt="Duplicate Workflow" /> Duplicate
+            alt="" /> Duplicate
         Workflow</div>
 </div>
 <div id="workflow"
@@ -1086,7 +1086,7 @@
         return `
             <table style="margin-bottom:2rem;">
                 <tr>
-                    <td><span id="action_label">Action <span style="color: red">*Required</span></span></td>
+                    <td><span id="action_label">Action <span style="color: #c00000">*Required</span></span></td>
                     <td>
                         <input id="actionText" type="text" maxlength="50" style="border: 1px solid red"
                         value="${action?.actionText || ''}" aria-labelledby="action_label"/>
@@ -1094,7 +1094,7 @@
                     <td>eg: Approve</td>
                 </tr>
                 <tr>
-                    <td><span id="action_past_tense_label">Action Past Tense <span style="color: red">*Required</span></span></td>
+                    <td><span id="action_past_tense_label">Action Past Tense <span style="color: #c00000">*Required</span></span></td>
                     <td>
                         <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red"
                         value="${action?.actionTextPasttense || ''}" aria-labelledby="action_past_tense_label"/>
@@ -1436,7 +1436,7 @@
                     .eventDescription +
                     '</b> <img tabindex=0 onkeydown="onKeyPressClick(event)" src="../dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent(' +
                     currentWorkflow + ', ' + stepID + ', \'' + params.action + '\', \'' + res[i]
-                    .eventID + '\')" alt="Remove Action" title="Remove Action" /></li>';
+                    .eventID + '\')" alt="Remove Event" title="Remove Event" /></li>';
             }
             output += '<li style="padding-top: 8px"><span tabindex=0 class="buttonNorm" id="event_' +
                 currentWorkflow + '_' + stepID + '_' + params.action + '" onkeydown="onKeyPressClick(event)">Add Event</span>';
@@ -1667,21 +1667,21 @@
                     success: function(res) {
                         var control_removeStep =
                             '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="removeStep(' +
-                            stepID + ')" alt="Remove" />';
+                            stepID + ')" title="Remove Step" alt="Remove Step" />';
                         let output = '<h2>stepID: #' + stepID + ' ' + control_removeStep +
                             '</h2><br />Step: <b>' + steps[stepID].stepTitle +
                             '</b> <img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editStep(' +
-                            stepID + ')" alt="Edit Step" /><br />';
+                            stepID + ')" title="Edit Step" alt="Edit Step" /><br />';
 
                         output += '<br /><br /><div>Requirements:<ul>';
                         var tDeps = {};
                         for (let i in res) {
                             control_editDependency =
                                 '<img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editRequirement(' +
-                                res[i].dependencyID + ')" alt="Edit Requirement" />';
+                                res[i].dependencyID + ')" title="Edit Requirement" alt="Edit Requirement" />';
                             control_unlinkDependency =
                                 '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="unlinkDependency(' +
-                                stepID + ', ' + res[i].dependencyID + ')" alt="Remove" />';
+                                stepID + ', ' + res[i].dependencyID + ')" title="Remove Requirement" alt="Remove Requirement" />';
                             if (res[i].dependencyID == 1) { // special case for service chief and quadrad
                                 output += '<li><b style="color: green">' + res[i].description + '</b> ' +
                                     control_editDependency + ' ' + control_unlinkDependency + ' (depID: ' +
@@ -1698,7 +1698,7 @@
                                 if (res[i].indicatorID_for_assigned_empUID == null || res[i]
                                     .indicatorID_for_assigned_empUID == 0) {
                                     indicatorWarning =
-                                        '<li><span style="color: red; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
+                                        '<li><span style="color: #c00000; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
                                 }
                                 output += '<li><b style="color: green">' + res[i].description + '</b> ' +
                                     control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
@@ -1715,7 +1715,7 @@
                                 if (res[i].indicatorID_for_assigned_groupID == null || res[i]
                                     .indicatorID_for_assigned_groupID == 0) {
                                     indicatorWarning =
-                                        '<li><span style="color: red; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
+                                        '<li><span style="color: #c00000; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
                                 }
                                 output += '<li><b style="color: green">' + res[i].description + '</b> ' +
                                     control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
@@ -1732,20 +1732,20 @@
                                         control_editDependency + ' ' + control_unlinkDependency +
                                         '<ul id="step_' + stepID + '_dep' + res[i].dependencyID +
                                         '"><li style="padding-top: 8px"><span tabindex=0 onkeydown="onKeyPressClick(event)" class="buttonNorm" onclick="dependencyGrantAccess(' +
-                                        res[i].dependencyID + ')"><img src="../dynicons/?img=list-add.svg&w=16" alt="Add" /> Add Group</span></li>\
+                                        res[i].dependencyID + ')"><img src="../dynicons/?img=list-add.svg&w=16" alt="" /> Add Group</span></li>\
                                 </ul></li>';
                                 }
                             }
                         }
                         if (res.length == 0) {
                             output +=
-                                '<li><span style="color: red; font-weight: bold">A requirement must be added.</span></li>';
+                                '<li><span style="color: #c00000; font-weight: bold">A requirement must be added.</span></li>';
                         }
                         output += '</ul><div>';
 
                         // TODO: This will eventually be moved to some sort of Workflow extension plugin
                         output += '<fieldset><legend>Options</legend><ul>';
-                        output += '<li>Form Field: <select id="workflowIndicator_' + stepID +
+                        output += '<li><label for="workflowIndicator_' + stepID + '" style="font-family: Source Sans Pro Web">Form Field:</label> <select id="workflowIndicator_' + stepID +
                             '" style="width: 240px"><option value="">None</option></select></li>';
                         output += '</ul></fieldset>';
 
@@ -1792,13 +1792,13 @@
                                     .groupID + '">' + res[i].name +
                                     '</b> <img tabindex=0 onkeydown="onKeyPressClick(event)" style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" onclick="dependencyRevokeAccess(' +
                                     res[i].dependencyID + ', ' + res[i].groupID +
-                                    ')" alt="Remove" /></span></li>');
+                                    ')" title="Remove Group" alt="Remove Group" /></span></li>');
                                 counter++;
                             }
                             if (counter == 0 &&
                                 res[i] != undefined) {
                                 $('#step_' + stepID + '_dep' + res[i].dependencyID).prepend(
-                                    '<li><span style="color: red; font-weight: bold">A group must be added.</span></li>'
+                                    '<li><span style="color: #c00000; font-weight: bold">A group must be added.</span></li>'
                                 );
                             }
                         }
@@ -2013,7 +2013,7 @@
                         if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
                             let dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
                             let dayText = ((dayCount > 1) ? 'Days' : 'Day')
-                            emailNotificationIcon = `<img src="../dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" />`
+                            emailNotificationIcon = `<img src="../dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" title="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" />`
                         }
                     }
 
