@@ -988,11 +988,11 @@ function updateNames(){
  */
 function gridCellBasicInputs(name = '', columnNumber = '', id = makeColumnID(), isNewRow = false) {
     return `<div tabindex="0" id="${id}" class="cell">
-      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="" style="cursor: pointer;" />
-      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="" style="cursor: pointer; display: ${isNewRow ? 'none;' : 'inline;'}" />
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveLeft(event)" src="../dynicons/?img=go-previous.svg&w=16" title="Move column left" alt="Move column left" style="cursor: pointer;" />
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="moveRight(event)" src="../dynicons/?img=go-next.svg&w=16" title="Move column right" alt="Move column right" style="cursor: pointer; display: ${isNewRow ? 'none;' : 'inline;'}" />
       </br>
       <span class="columnNumber">Column #${columnNumber}: </span>
-      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="" style="cursor: pointer; vertical-align: middle;" />
+      <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
       </br>&nbsp;
       <input type="text" value="${name}" onchange="updateNames();" />
       </br>&nbsp;</br>
@@ -1999,7 +1999,7 @@ function showFormBrowser() {
                     const availability = res[i].visible == 1 ? '' : 'Hidden. Users cannot submit new requests.';
                     let needToKnow = '';
                     if(res[i].needToKnow == 1) {
-                        needToKnow = ' <img style="position:absolute; right: 6px;" src="../dynicons/?img=emblem-readonly.svg&w=16" alt="" title="Need to know mode enabled" />';
+                        needToKnow = ' <img style="position:absolute; right: 6px;" src="../dynicons/?img=emblem-readonly.svg&w=16" alt="Need to know mode enabled" title="Need to know mode enabled" />';
                     }
                     let formActiveID = '';
                     if(res[i].workflowID > 0) {

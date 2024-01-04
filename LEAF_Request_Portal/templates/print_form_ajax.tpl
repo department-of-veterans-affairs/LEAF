@@ -15,7 +15,7 @@
                 </td>
                 <td><b><!--{$service|sanitize}--></b>
                     <!--{if $submitted == 0}-->
-                        <img src="dynicons/?img=accessories-text-editor.svg&amp;w=16" style="cursor: pointer" alt="" title="Edit Service" onclick="changeService()" role="button" tabindex="0" onkeydown="if (event.keyCode==13){ changeService(); }"/>
+                        <img src="dynicons/?img=accessories-text-editor.svg&amp;w=16" style="cursor: pointer" alt="Edit Service" title="Edit Service" onclick="changeService()" role="button" tabindex="0" onkeydown="if (event.keyCode==13){ changeService(); }"/>
                     <!--{/if}-->
                 </td>
             </tr>

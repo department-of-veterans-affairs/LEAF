@@ -1,5 +1,5 @@
 <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
-    <button class="buttonNorm" onclick="newReport();" style="float: left; width: 200px; margin: 4px;"><img src="../dynicons/?img=document-new.svg&w=32" alt="New File" /> New File</button><br />
+    <button class="buttonNorm" onclick="newReport();" style="float: left; width: 200px; margin: 4px;"><img src="../dynicons/?img=document-new.svg&w=32" alt="" /> New File</button><br />
     <b>Files:</b>
     <div id="fileList"></div>
 </div>

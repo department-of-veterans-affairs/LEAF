@@ -1,6 +1,6 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
-        <button class="tools" onclick="newGroup()"><img src="dynicons/?img=folder-new.svg&amp;w=32" style="vertical-align: middle" alt="New Group" title="New Group" /> Create New Group</button>
+        <button class="tools" onclick="newGroup()"><img src="dynicons/?img=folder-new.svg&amp;w=32" style="vertical-align: middle" alt="" title="New Group" /> Create New Group</button>
     </div>
 </div>
 

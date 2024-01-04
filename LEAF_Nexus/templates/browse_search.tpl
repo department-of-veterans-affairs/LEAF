@@ -1,8 +1,8 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Options</h1>
-        <div onclick="window.location='?a=browse_group';"><img src="dynicons/?img=preferences-desktop-theme.svg&amp;w=32" style="vertical-align: middle" alt="Search Groups" title="Search Groups" /> View Groups</div>
-        <div onclick="window.location='?a=browse_position';"><img src="dynicons/?img=system-users.svg&amp;w=32" style="vertical-align: middle" alt="Search Position" title="Search Position" /> View Positions</div>
-        <div onclick="window.location='?a=browse_employee';"><img src="dynicons/?img=contact-new.svg&amp;w=32" style="vertical-align: middle" alt="Search Employees" title="Search Employees" /> View Employees</div>
+        <div onclick="window.location='?a=browse_group';"><img src="dynicons/?img=preferences-desktop-theme.svg&amp;w=32" style="vertical-align: middle" alt="" title="Search Groups" /> View Groups</div>
+        <div onclick="window.location='?a=browse_position';"><img src="dynicons/?img=system-users.svg&amp;w=32" style="vertical-align: middle" alt="" title="Search Position" /> View Positions</div>
+        <div onclick="window.location='?a=browse_employee';"><img src="dynicons/?img=contact-new.svg&amp;w=32" style="vertical-align: middle" alt="" title="Search Employees" /> View Employees</div>
     </div>
 </div>
 

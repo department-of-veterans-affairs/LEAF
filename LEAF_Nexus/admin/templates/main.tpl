@@ -54,7 +54,7 @@
     </span>
     <span id="headerLogin"></span>
     <span id="headerTab">{$emergency}{$tabText}</span>
-    <span id="headerTabImg"><img src="../images/tab.png" alt="tab" /></span>
+    <span id="headerTabImg"><img src="../images/tab.png" alt="" /></span>
     <span id="headerMenu">{$menu}</span>
 </div>
 <div id="body">

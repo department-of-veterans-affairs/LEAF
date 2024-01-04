@@ -5,7 +5,7 @@ This software was developed at the Washington D.C.<br />
 VA Medical Center in an effort to improve resource<br />
 requesting processes.
 <br /><br />
-<img src="dynicons/?img=internet-mail.svg&amp;w=16" alt="email icon" /> Developer Contact: <a href="mailto:Michael.Gao@va.gov&amp;subject=ERM:">Michael.Gao@va.gov</a>
+<img src="dynicons/?img=internet-mail.svg&amp;w=16" alt="" /> Developer Contact: <a href="mailto:Michael.Gao@va.gov&amp;subject=ERM:">Michael.Gao@va.gov</a>
 </span>
 <br /><br />
 

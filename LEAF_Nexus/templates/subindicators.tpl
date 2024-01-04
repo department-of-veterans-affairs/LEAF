@@ -251,7 +251,7 @@
                         dojo.byId('indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series}-->').appendChild(br);
 
                         var ocLink = document.createElement('div');
-                        ocLink.innerHTML = '<img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="View Position Details" /> View Details in Org. Chart';
+                        ocLink.innerHTML = '<img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="" /> View Details in Org. Chart';
                         ocLink.setAttribute('onclick', "window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.data}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');");
                         ocLink.setAttribute('class', 'buttonNorm');
                         ocLink.setAttribute('style', 'margin-top: 8px');
