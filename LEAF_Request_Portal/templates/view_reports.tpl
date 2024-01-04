@@ -725,8 +725,8 @@ function editLabels() {
                     <input type="text" style="min-width: 400px" id="id_${resSelectList[i]}" value="${resIndicatorList[resSelectList[i]]}"></input>
                 </td>
                 <td>
-                    <button class="buttonNorm" onclick="editLabels_down(${resSelectList[i]});"><img src="./dynicons/?img=go-down_red.svg&w=16" /></button>
-                    <button class="buttonNorm" onclick="editLabels_up(${resSelectList[i]});"><img src="./dynicons/?img=go-up.svg&w=16" /></button>
+                    <button class="buttonNorm" onclick="editLabels_down(${resSelectList[i]});"><img src="./dynicons/?img=go-down_red.svg&w=16" alt="move down" /></button>
+                    <button class="buttonNorm" onclick="editLabels_up(${resSelectList[i]});"><img src="./dynicons/?img=go-up.svg&w=16" alt="move up" /></button>
                 </td>
                 </tr>`;
         }

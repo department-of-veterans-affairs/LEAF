@@ -79,11 +79,11 @@ function editProperties(isSubForm) {
                                  <td id="container_workflowID"></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Need to Know mode <img src="../dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information."></td>\
+                                 <td>Need to Know mode <img src="../dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information." alt="" /></td>\
                                  <td><select id="needToKnow"><option value="0">Off</option><option value="1">On</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Availability <img src="../dynicons/?img=emblem-notice.svg&w=16" title="When hidden, users will not be able to select this form as an option."></td>\
+                                 <td>Availability <img src="../dynicons/?img=emblem-notice.svg&w=16" title="When hidden, users will not be able to select this form as an option." alt="" /></td>\
                                  <td><select id="visible"><option value="1">Available</option><option value="0">Hidden</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
@@ -91,7 +91,7 @@ function editProperties(isSubForm) {
                                  <td><input id="sort" type="number"></input></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                            	 <td>Type <img src="../dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
+                            	 <td>Type <img src="../dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form." alt="" /></td>\
                             	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
                              </tr>\
                            </table>');
@@ -666,7 +666,7 @@ function getIndicatorModalTemplate(isEditingModal = false) {
             </div>
             <div id="container_indicatorGrid" style="display: none">
                 <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span><br/>
-                <button class="buttonNorm" onclick="addCells(\'column\')"><img src="../dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button><br/><br/>
+                <button class="buttonNorm" onclick="addCells(\'column\')"><img src="../dynicons/?img=list-add.svg&w=16" style="height: 25px;" alt="" />Add column</button><br/><br/>
                 Columns:
                 <div border="1" style="overflow-x: scroll; max-width: 100%;"></div>
             </div>

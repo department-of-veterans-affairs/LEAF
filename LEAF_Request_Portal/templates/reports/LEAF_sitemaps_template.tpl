@@ -90,7 +90,7 @@
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +
             ' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Site">' + button.title +
             '</a></li>');
-        const icon = button.icon ? '<img style="float: left; margin-right: 1rem; height: 48px; width: 48px;" src="' +
+        const icon = button.icon ? '<img alt="" style="float: left; margin-right: 1rem; height: 48px; width: 48px;" src="' +
             button.icon + '">' : '';
         $('div#sortable').append(
             '<div tabindex="0" class="edit-card leaf-sitemap-card draggable="true" style="cursor: pointer; background-color: ' +
@@ -262,7 +262,7 @@
             '<div class="leaf-marginAll-1rem" style="width: 90%; float: left;">' +
             '<label for="iconpicker" class="leaf-bold" style="display: inline-block;">Icon (Optional)</label>' +
             '<div id="picked-icon" class="icon-picked" style="display: inline-block;">' + (icon ?
-                '<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=' + icon + '>' : '') +
+                '<img alt="" class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=' + icon + '>' : '') +
             '</div>' +
             '</div>' +
             '<div id="iconpicker" tabindex="0" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
@@ -342,7 +342,7 @@
         const selectedIcon = document.querySelector(`.icon[src="${src}"]`);
         selectedIcon.classList.add('icon-selected');
 
-        document.getElementById('picked-icon').innerHTML = `<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=${src}>`;
+        document.getElementById('picked-icon').innerHTML = `<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src="${src}" alt="" />`;
     }
 
     // saves sitemap json into the custom report
@@ -404,7 +404,7 @@
         </div>
         <div style="border: 2px solid black; text-align: center; font-size: 16px; font-weight: bold; background: white; padding: 16px; width: 95%"
             id="spinner">
-            Loading... <img src="./images/largespinner.gif" alt="loading..." />
+            Loading... <img src="./images/largespinner.gif" alt="" />
         </div>
 
     </div>

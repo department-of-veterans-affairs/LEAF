@@ -84,7 +84,7 @@ div.specialties {
     <img id="searchRosterBtn"
         class="searchIcon"
         src="dynicons/?img=search.svg&w=25"
-        alt="search icon" />
+        alt="" />
 </div>
 
 <div id="coaches"></div>

@@ -19,7 +19,7 @@
     <div style="float: left; cursor: pointer; background-color: black; font-size: 150%; font-weight: bold; color: white; padding: 8px; text-align: center" onclick="window.location='?a=printview&amp;recordID=<!--{$record.recordID|strip_tags}-->'">
         <!--{$record.recordID}--><br />
         <!--{if $record.actionIcon != ''}-->
-        <img src="dynicons/?img=<!--{$record.actionIcon|strip_tags}-->&amp;w=32" alt="" title="<!--{$record.stepTitle|strip_tags}--> <!--{$record.actionTextPasttense|strip_tags}-->" />
+        <img alt="" src="dynicons/?img=<!--{$record.actionIcon|strip_tags}-->&amp;w=32" title="<!--{$record.stepTitle|strip_tags}--> <!--{$record.actionTextPasttense|strip_tags}-->" />
         <!--{else}-->
         <img src="dynicons/?img=emblem-notice.svg&amp;w=32" alt="" title="<!--{$record.stepTitle|strip_tags}--> <!--{$record.actionTextPasttense|strip_tags}-->" />
         <!--{/if}-->

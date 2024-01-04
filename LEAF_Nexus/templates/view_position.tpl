@@ -92,7 +92,7 @@
           <!--{/if}-->
           <div id="employee_<!--{$counter}-->" class="employee">
               <div id="employeeHeader_<!--{$counter}-->" class="employeeHeader">
-                  <img src="dynicons/?img=process-stop.svg&amp;w=16" style="float: right; cursor: pointer" onclick="confirmUnlink(<!--{$employee.empUID|strip_tags}-->); return false;" alt="Unlink Employee" title="Unlink Employee" />
+                  <img alt="Unlink Employee" src="dynicons/?img=process-stop.svg&amp;w=16" style="float: right; cursor: pointer" onclick="confirmUnlink(<!--{$employee.empUID|strip_tags}-->); return false;" title="Unlink Employee" />
                   <span id="employeeName_<!--{$counter}-->" class="employeeName" style="cursor: pointer" onclick="window.location='?a=view_employee&amp;empUID=<!--{$employee.empUID|strip_tags}-->'"><!--{$employee.lastName|sanitize}-->, <!--{$employee.firstName|sanitize}--><!--{if $employee.isActing == 1}--> <span style="font-weight: bold; color: blue">(Acting)</span><!--{/if}--></span>
               </div>
               <div id="employeeBody_<!--{$counter}-->" class="employeeBody">
@@ -336,7 +336,7 @@ function changeSupervisor() {
                 if (Number.isInteger(response)) {
                     window.location.reload();
                 } else {
-                    dialog.setContent(`<strong style="display:table;margin:0 auto;"><img src="dynicons/?img=dialog-error.svg&amp;w=32" style="vertical-align:middle;float:left;">${response.errors[0]}</strong>`);
+                    dialog.setContent(`<strong style="display:table;margin:0 auto;"><img src="dynicons/?img=dialog-error.svg&amp;w=32" style="vertical-align:middle;float:left;" alt="" />${response.errors[0]}</strong>`);
                 }
             },
             cache: false

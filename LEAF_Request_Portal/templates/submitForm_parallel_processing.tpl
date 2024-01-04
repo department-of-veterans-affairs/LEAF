@@ -72,6 +72,6 @@
     <button class="buttonNorm" type="button" style="font-weight: bold; font-size: 120%" title="Submit Form"><img src="dynicons/?img=go-next.svg&amp;w=32" alt="" />Send Request to Selected Individuals</button>
 </div>
 <div id="pp_progressSidebar" style="display: none;">
-        <div style="padding: 8px; margin: 0px; color: black; font-weight: bold; text-align: center; font-size: 120%"><img src="./images/indicator.gif" />Submitting</div>
+        <div style="padding: 8px; margin: 0px; color: black; font-weight: bold; text-align: center; font-size: 120%"><img src="./images/indicator.gif" alt="" />Submitting</div>
         <div id="pp_progressControl" style="padding: 0 16px 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%"><div id="pp_progressBar" style="height: 30px; border: 1px solid black; text-align: center; width: 80%; margin: auto"><div style="width: 100%; line-height: 200%; float: left; font-size: 14px" id="pp_progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div></div>
 </div>
