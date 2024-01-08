@@ -1,17 +1,15 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
     <!--{if $is_admin == true}-->
-        <div onclick="refreshEmp('<!--{$summary.employee.userName|escape:"quotes"}-->');"><img src="dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</div>
-        <br />
+        <button type="button" class="options" onclick="refreshEmp('<!--{$summary.employee.userName|escape:"quotes"}-->');"><img src="dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</button>
       <!--{/if}-->
-        <div onclick="assignBackup();"><img src="dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="" /> Assign Backup</div>
-        <br />
+        <button type="button" class="options" onclick="assignBackup();"><img src="dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="" /> Assign Backup</button>
 <!--{if $summary.employee.deleted == 0}-->
-        <div id="disable_account_<!--{$empUID}-->" class="" onclick="disableAccount();"><img src="dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="" /> Disable Account</div>
-        <div id="enable_account_<!--{$empUID}-->" class="notrequired" onclick="enableAccount();"><img src="dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="" /> Enable Account</div>
+        <button type="button" class="options" id="disable_account_<!--{$empUID}-->" onclick="disableAccount();"><img src="dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="" /> Disable Account</button>
+        <button type="button" class="options notrequired" id="enable_account_<!--{$empUID}-->" onclick="enableAccount();"><img src="dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="" /> Enable Account</button>
 <!--{else}-->
-        <div id="disable_account_<!--{$empUID}-->" class="notrequired" onclick="disableAccount();"><img src="dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="" /> Disable Account</div>
-        <div id="enable_account_<!--{$empUID}-->" class="" onclick="enableAccount();"><img src="dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="" /> Enable Account</div>
+        <button type="button" class="options notrequired" id="disable_account_<!--{$empUID}-->" onclick="disableAccount();"><img src="dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="" /> Disable Account</button>
+        <button type="button" class="options" id="enable_account_<!--{$empUID}-->" class="" onclick="enableAccount();"><img src="dynicons/?img=edit-redo.svg&amp;w=32" style="vertical-align: middle" alt="" /> Enable Account</button>
 <!--{/if}-->
 <!--         <div onclick="alert('Not implemented yet');"><img src="dynicons/?img=emblem-train.svg&amp;w=32" style="vertical-align: middle" alt=""  /> Request Travel/Training</div>
         <div onclick="alert('Not implemented yet');"><img src="dynicons/?img=car.svg&amp;w=32" style="vertical-align: middle" alt="" /> Request Govt. Vehicle</div>

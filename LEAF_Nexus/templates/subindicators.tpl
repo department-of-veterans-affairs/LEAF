@@ -22,7 +22,7 @@
         <div class="mainlabel">
             <div>
             <span>
-                <b><!--{$indicator.name|sanitize}--></b><br />
+                <b id="question_label"><!--{$indicator.name|sanitize}--></b><br />
             </span>
             </div>
                 <!--{else}-->
@@ -44,11 +44,11 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'textarea' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <span class="text">
-                <br /><textarea rows="10" style="width: 99%" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.data}--></textarea>
+                <br /><textarea aria-labelledby="question_label" rows="10" style="width: 99%" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.data}--></textarea>
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'radio' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
-                <span id="parentID_<!--{$indicator.parentID}-->">
+                <span id="parentID_<!--{$indicator.parentID}-->" aria-labelledby="question_label">
                 <!--{counter assign='ctr' print=false}-->
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{if is_array($option)}-->
@@ -72,7 +72,7 @@
                 </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'dropdown' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
-                <span><select id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 50%">
+                <span><select aria-labelledby="question_label" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="width: 50%">
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{if is_array($option)}-->
                     <!--{assign var='option' value=$option[0]}-->
@@ -95,12 +95,12 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'text' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <span class="text">
-                <br /><input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" style="width: 50%" <!--{$indicator.html}--> />
+                <br /><input aria-labelledby="question_label" type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" style="width: 50%" <!--{$indicator.html}--> />
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'number' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <span class="text">
-                <br /><input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" <!--{$indicator.html}--> />
+                <br /><input aria-labelledby="question_label" type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" <!--{$indicator.html}--> />
             </span>
             <script type="text/javascript">
             orgchartForm.dialog.setValidator(<!--{$indicator.indicatorID|strip_tags}-->, function() {
@@ -121,7 +121,7 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'date' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <span class="text">
-                <br /><input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" <!--{$indicator.html}--> />
+                <br /><input type="text" aria-labelledby="question_label" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" <!--{$indicator.html}--> />
                 <script type="text/javascript">
                 $('#<!--{$indicator.indicatorID|strip_tags}-->').datepicker();
                 </script>
@@ -129,12 +129,12 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'time' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <span class="text">
-                <br /><input disabled="disabled" type="text" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" <!--{$indicator.html}--> />
+                <br /><input aria-labelledby="question_label" disabled="disabled" type="text" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" <!--{$indicator.html}--> />
             </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'currency' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <span class="text">
-                <br /><input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" <!--{$indicator.html}--> /> (Amount in USD)
+                <br /><input aria-labelledby="question_label" type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.data}-->" <!--{$indicator.html}--> /> (Amount in USD)
                 <script type="text/javascript">
                 orgchartForm.dialog.setValidator(<!--{$indicator.indicatorID|strip_tags}-->, function() {
                     return ($.isNumeric($('#<!--{$indicator.indicatorID|strip_tags}-->').val()) || $('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
@@ -147,17 +147,17 @@
                     <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->" value="no" /> <!-- dumb workaround -->
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{if $option == $indicator.data}-->
-                    <br /><input dojoType="dijit.form.CheckBox" type="checkbox" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" checked="checked" />
+                    <br /><input aria-labelledby="question_label" dojoType="dijit.form.CheckBox" type="checkbox" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" checked="checked" />
                     <!--{$option}-->
                 <!--{else}-->
-                    <br /><input dojoType="dijit.form.CheckBox" type="checkbox" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" />
+                    <br /><input aria-labelledby="question_label" dojoType="dijit.form.CheckBox" type="checkbox" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$option}-->" />
                     <!--{$option}-->
                 <!--{/if}-->
             <!--{/foreach}-->
                 </span>
         <!--{/if}-->
         <!--{if $indicator.format == 'checkboxes' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
-                <span id="parentID_<!--{$indicator.parentID}-->">
+                <span id="parentID_<!--{$indicator.parentID}-->" aria-labelledby="question_label">
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.options item=option}-->
                     <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags}-->[<!--{$idx}-->]" value="no" /> <!-- dumb workaround -->
@@ -187,11 +187,11 @@
                 </div>
                 <!--{assign "counter" $counter+1}-->
                 <!--{/foreach}-->
-                <iframe id="fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe>
+                <iframe title="File Upload" id="fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe>
                 <br />
                 <button type="button" id="fileAdditional" class="buttonNorm" onclick="$('#fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('display', 'inline'); $('#fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('visibility', 'visible'); $('#fileAdditional').css('visibility', 'hidden')"><img src="dynicons/?img=document-open.svg&amp;w=32" alt="" /> Attach Additional File</button>
                 <!--{else}-->
-                    <iframe src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe><br />
+                    <iframe title="Additional File Upload" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe><br />
                 <!--{/if}-->
                 </span>
             </fieldset>
@@ -204,8 +204,8 @@
                 <div style="background-color: #b7c5ff; padding: 4px"><img src="dynicons/?img=mail-attachment.svg&amp;w=16" alt="" /> <b>Photo Attached:</b> <img alt="<!--{$indicator.data}-->" src="image.php?categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" style="max-width: 150px" /></div>
                 <div style="float: right; padding: 4px">
                 [ <span class="link" onclick="$('#fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('display', 'inline'); $('#fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('visibility', 'visible');">Replace</span> | <span class="link" onclick="$('#fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('display', 'inline'); $('#fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->').css('visibility', 'visible');">Delete</span> ]</div>
-                <iframe id="fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getdeleteprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID<!--{$indicator.indicatorID|strip_tags}-->&amp;file=<!--{$indicator.data}-->" frameborder="0" width="440px" height="85px"></iframe>
-                <iframe id="fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe>
+                <iframe title="Delete Photo" id="fileDeleteIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getdeleteprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID<!--{$indicator.indicatorID|strip_tags}-->&amp;file=<!--{$indicator.data}-->" frameborder="0" width="440px" height="85px"></iframe>
+                <iframe title="Attach Photo" id="fileIframe_<!--{$UID}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$categoryID}-->" style="visibility: hidden; display: none" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe>
                 <!--{else}-->
                     <iframe src="ajaxIframe.php?a=getuploadprompt&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="85px"></iframe><br />
                 <!--{/if}-->
@@ -392,7 +392,7 @@
         <div>
             <br />
             <fieldset><legend>Access Permissions</legend>
-            <iframe tabindex="0" src="ajaxIframe.php?a=permission&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="140px"></iframe>
+            <iframe title="Access Permissions" tabindex="0" src="ajaxIframe.php?a=permission&amp;categoryID=<!--{$categoryID}-->&amp;UID=<!--{$UID}-->&amp;indicatorID=<!--{$indicator.indicatorID|strip_tags}-->" frameborder="0" width="440px" height="140px"></iframe>
             </fieldset>
         </div>
         <!--{include file="subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->

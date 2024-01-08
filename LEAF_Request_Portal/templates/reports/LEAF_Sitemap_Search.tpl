@@ -625,7 +625,7 @@ function editLabels() {
             buffer += `<tr id="sortID_${resSelectList[i]}">
                 <td>
                     <input type="color" id="colorPicker${resSelectList[i]}" value="#d1dfff" style="height: 26px;" />
-                    <input type="text" style="min-width: 400px" id="id_${resSelectList[i]}" value="${resIndicatorList[resSelectList[i]]}"></input>
+                    <input type="text" style="min-width: 400px" id="id_${resSelectList[i]}" value="${resIndicatorList[resSelectList[i]]}"/>
                 </td>
                 <td>
                     <button class="buttonNorm" onclick="editLabels_down(${resSelectList[i]});"><img src="./dynicons/?img=go-down_red.svg&w=16" alt="move down" /></button>

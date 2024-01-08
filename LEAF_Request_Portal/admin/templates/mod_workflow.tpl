@@ -1,7 +1,7 @@
 <div id="sideBar" style="float: left; width: 180px">
     <div id="btn_createStep" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="createStep();" style="font-size: 120%; display: none"
         role="button" tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="" /> Add Step</div><br />
-    <label for="workflowList" style="font-family: Source Sans Pro Web"> Workflows:</label>
+    <label id="workflows_label" style="font-family: Source Sans Pro Web"> Workflows:</label>
     <div id="workflowList"></div>
     <br />
     <div id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size: 120%" role="button"
@@ -201,7 +201,7 @@
         if (!Array.isArray(groups)) {
             return 'Invalid parameter(s): groups must be an array.';
         }
-        let content = 'Notify Group: <select id="groupID">' +
+        let content = '<label for="groupID">Notify Group: </label><select id="groupID">' +
             '<optgroup label="User Groups">' +
             '<option value="None">None</option>';
 
@@ -377,12 +377,14 @@
         }).fail(function(error) {
             alert(error);
         });
-        let createEventContent = '<div>Event Type: <select id="eventType">' +
+        let createEventContent = '<div><label for="eventType">Event Type: </label><select id="eventType">' +
             '<option value="Email" selected>Email</option>' +
             '</select><br /><br />' +
-            '<span>Event Name: </span><input type="text" id="eventName" class="eventTextBox" /><br /><br />' +
-            '<span>Short Description: </span><input type="text" id="eventDesc" class="eventTextBox" /><br /><br />' +
-            '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />' +
+            '<label for="eventName">Event Name: </label><input type="text" id="eventName" class="eventTextBox" /><br /><br />' +
+            '<label for="eventDesc">Short Description: </span><input type="text" id="eventDesc" class="eventTextBox" /><br /><br />' +
+            '<div id="eventEmailSettings" style="display: none">' +
+            '<label for="notifyRequestor">Notify Requestor Email: </label><input id="notifyRequestor" type="checkbox" /><br /><br />' +
+            '<label for="notifyNext">Notify Next Approver Email: </label><input id="notifyNext" type="checkbox" /><br /><br />' +
             groupList + '</div>';
         dialog.setContent(createEventContent);
         if ($('#eventType').val() === 'Email') {
@@ -456,12 +458,10 @@
             return 'Invalid parameter(s): events must be an array.';
         }
 
-        let content = '';
-        content = 'Add an event: ';
-        content += '<br /><div><select id="eventID" name="eventID">';
+        let content = '<label id="event_label">Add an event: </label>';
+        content += '<br /><div><select id="eventID" name="eventID" title="event">';
         for (let i in events) {
-            content += '<option value="' + events[i].eventID + '">' + events[i].eventType + ' - ' + events[i]
-                .eventDescription + '</option>';
+            content += `<option value="${events[i].eventID}">${events[i].eventType} - ${events[i].eventDescription}</option>`;
         }
         content += '</select></div>';
 
@@ -496,13 +496,14 @@
                 });
                 $('#eventID').chosen({disable_search_threshold: 5})
                 .change(function() {
-                        $('#eventData').html('');
-                        dialog.clearValidators();
-                        if ($("#eventID").val() == 'automated_email_reminder') {
-                            setEmailReminderHTML(workflowID, stepID, actionType, dialog);
-                        }
-                    })
-                    .trigger("change");
+                    $('#eventData').html('');
+                    dialog.clearValidators();
+                    if ($("#eventID").val() == 'automated_email_reminder') {
+                        setEmailReminderHTML(workflowID, stepID, actionType, dialog);
+                    }
+                }).trigger("chosen:updated");
+                $('#eventID_chosen input.chosen-search-input').attr('aria-labelledby', 'event_label');
+                $('input.chosen-search-input').attr('role', 'combobox');
                 dialog.setSaveHandler(function() {
                     let ajaxData = {eventID: $('#eventID').val(),
                                     CSRFToken: CSRFToken};
@@ -536,16 +537,17 @@
             return 'Invalid parameter(s): groups must be an array.';
         }
 
-        let content = '<div>Event Type: <select id="eventType">' +
+        let content = '<div><label for="eventType">Event Type: </label><select id="eventType">' +
             '<option value="Email" selected>Email</option>' +
             '</select><br /><br />' +
-            '<span>Event Name: </span><input type="text" id="eventName" class="eventTextBox" value="' + event[0].eventID
+            '<label for="eventName">Event Name: </label><input type="text" id="eventName" class="eventTextBox" value="' + event[0].eventID
             .replace('CustomEvent_', '') + '" /><br /><br />' +
-            '<span>Short Description: </span><input type="text" id="eventDesc" class="eventTextBox" value="' + event[0]
+            '<label for="eventDesc">Short Description: </label><input type="text" id="eventDesc" class="eventTextBox" value="' + event[0]
             .eventDescription + '" /><br /><br />' +
-            '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />';
+            '<div id="eventEmailSettings" style="display: none"><label for="notifyRequestor">Notify Requestor Email: </label><input id="notifyRequestor" type="checkbox" /><br /><br />' +
+            '<label for="notifyNext">Notify Next Approver Email: </label><input id="notifyNext" type="checkbox" /><br /><br />';
 
-        content += 'Notify Group: <select id="groupID">' +
+        content += '<label for="groupID">Notify Group: </label><select id="groupID">' +
             '<optgroup label="User Groups">' +
             '<option value="None">None</option>';
 
@@ -754,10 +756,11 @@
         dialog.show();
     }
 
-    function editRequirement(dependencyID) {
+    function editRequirement(dependencyID, description = "") {
+        const inputDescription = description.replace(/"|'/g, '');
         $('.workflowStepInfo').css('display', 'none');
         dialog.setTitle('Edit Requirement');
-        dialog.setContent('Label: <input type="text" id="description"></input>');
+        dialog.setContent(`<label for="description">Label:</label><input type="text" id="description" value="${inputDescription}" />`);
         dialog.setSaveHandler(function() {
             if ($('#description').val() == '') {
                 dialog_ok.setTitle('Description Validation');
@@ -766,7 +769,7 @@
                     dialog_ok.clearDialog();
                     dialog_ok.hide();
                     dialog.hide();
-                    editRequirement(dependencyID);
+                    editRequirement(dependencyID, description);
                 });
                 dialog_ok.show();
             } else {
@@ -848,7 +851,7 @@
             type: 'GET',
             url: '../api/system/groups',
             success: function(res) {
-                let buffer = 'Grant Privileges to Group:<br /><select id="groupID">' +
+                let buffer = '<label for="groupID">Grant Privileges to Group:</label><br /><select id="groupID">' +
                     '<optgroup label="User Groups">';
 
                 for (let i in res) {
@@ -898,7 +901,7 @@
     function newDependency(stepID) {
         dialog.setTitle('Create a new requirement');
         dialog.setContent(
-            '<br />Requirement Label: <input type="text" id="description"></input><br /><br />Requirements determine the WHO and WHAT part of the process.<br />Example: "Fiscal Team Review"'
+            '<br /><label for="description">Requirement Label: </label><input type="text" id="description"/><br /><br />Requirements determine the WHO and WHAT part of the process.<br />Example: "Fiscal Team Review"'
         );
 
         dialog.setSaveHandler(function() {
@@ -929,7 +932,7 @@
             url: '../api/workflow/dependencies',
             success: function(res) {
                 let buffer = '';
-                buffer = 'Select an existing requirement ';
+                buffer = '<label id="requirements_label">Select an existing requirement</label>';
                 buffer += '<br /><div><select id="dependencyID" name="dependencyID">';
 
                 var reservedDependencies = [-3, -2, -1, 1, 8];
@@ -961,6 +964,8 @@
                 $('#dependencyList').html(buffer);
                 $('#dependencyID').chosen({disable_search_threshold: 5});
 
+                $('#dependencyID_chosen input.chosen-search-input').attr('role', 'combobox');
+                $('#dependencyID_chosen input.chosen-search-input').attr('aria-labelledby', 'requirements_label');
                 dialog.setSaveHandler(function() {
                     linkDependency(stepID, $('#dependencyID').val());
                 });
@@ -978,7 +983,7 @@
 
         dialog.setTitle('Create new Step');
         dialog.setContent(
-            '<br /><label for="stepTitle">Step Title:</label> <input type="text" id="stepTitle"></input><br /><br />Example: "Service Chief"'
+            '<br /><label for="stepTitle">Step Title: </label><input type="text" id="stepTitle"/><br /><br />Example: "Service Chief"'
         );
         dialog.setSaveHandler(function() {
             addStep(currentWorkflow, $('#stepTitle').val(), function(stepID) {
@@ -1423,7 +1428,7 @@
             output = '<h2>Action: ' + stepTitle + ' clicks ' + params.action + '</h2>';
 
             if (params.action == 'sendback') {
-                output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + ' /> Require a comment to sendback.<br />';
+                output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + 'aria-label="Require Comment" /> Require a comment to sendback.<br />';
             }
 
             output += '<br /><div>Triggers these events:<ul>';
@@ -1446,6 +1451,7 @@
                 currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
                 '\')">Remove Action</span></div>';
             $('#stepInfo_' + stepID).html(output);
+            $(`#event_${currentWorkflow}_${stepID}_${params.action}`).focus();
             $('#event_' + currentWorkflow + '_' + stepID + '_' + params.action).on('click', function() {
                 addEventDialog(currentWorkflow, stepID, params.action);
             });
@@ -1677,8 +1683,8 @@
                         var tDeps = {};
                         for (let i in res) {
                             control_editDependency =
-                                '<img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editRequirement(' +
-                                res[i].dependencyID + ')" title="Edit Requirement" alt="Edit Requirement" />';
+                                `<img tabindex=0 style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" title="Edit Requirement" alt="Edit Requirement"
+                                onkeydown="onKeyPressClick(event)" onclick="editRequirement(${res[i].dependencyID},'${res[i].description}')" />`;
                             control_unlinkDependency =
                                 '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="unlinkDependency(' +
                                 stepID + ', ' + res[i].dependencyID + ')" title="Remove Requirement" alt="Remove Requirement" />';
@@ -1950,6 +1956,12 @@
                     createAction(info);
                 });
                 jsPlumb.setSuspendDrawing(false, true);
+
+                let actionOverlays = Array.from(document.querySelectorAll('div.jtk-overlay.workflowAction'));
+                actionOverlays.forEach(ao => {
+                    ao.setAttribute('tabindex', 0);
+                    ao.addEventListener('keydown', onKeyPressClick);
+                });
             },
             error: (err) => console.log(err),
             cache: false
@@ -2081,7 +2093,7 @@
             type: 'GET',
             url: '../api/workflow',
             success: function(res) {
-                let output = '<select tabindex=0 id="workflows" style="width: 100%">';
+                let output = '<select id="workflows" title="workflows" style="width: 100%">';
                 var count = 0;
                 var firstWorkflowID = 0;
                 let firstWorkflowDescription = '';
@@ -2109,6 +2121,10 @@
                     loadWorkflow($('#workflows').val());
                 });
                 $('#workflows').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '100%'});
+
+                $('input.chosen-search-input').attr('role', 'combobox');
+                $('#workflows_chosen input.chosen-search-input').attr('aria-labelledby', 'workflows_label');
+
                 if (workflowID == undefined) {
                     workflowDescription = firstWorkflowDescription;
                     workflowID = firstWorkflowID;
@@ -2143,9 +2159,8 @@
     function renameWorkflow() {
         $('.workflowStepInfo').css('display', 'none');
         dialog.setContent(
-            '<input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
-            '" tabindex="0">' +
-            '</input>');
+            '<label for="workflow_rename">Workflow Name: </label><input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
+            '" tabindex="0"/>');
         dialog.setTitle('Rename Workflow');
         dialog.setSaveHandler(function() {
             $.ajax({
@@ -2180,7 +2195,7 @@
         $('.workflowStepInfo').css('display', 'none');
 
         dialog.setTitle('Duplicate current workflow');
-        dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
+        dialog.setContent('<br /><label for="description">New Workflow Title: </label><input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
         dialog.setSaveHandler(function() {
             let old_steps = {};
             let workflowID;

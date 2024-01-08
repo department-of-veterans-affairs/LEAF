@@ -149,7 +149,7 @@
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.value item=file}-->
                 <!--{if $indicator.value != '[protected data]'}-->
-                <img src="image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" style="max-width: 200px" onclick="window.open('image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" alt="image upload: <!--{$file}-->"/>
+                <img alt="image upload: <!--{$file}-->" src="image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" style="max-width: 200px" onclick="window.open('image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" />
                 <!--{assign var='idx' value=$idx+1}-->
                 <!--{else}-->
                 [protected data]

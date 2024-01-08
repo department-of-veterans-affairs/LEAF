@@ -46,7 +46,7 @@
                     <!--{/if}-->
             </span>
             <!--{/if}-->
-            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('/dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
+            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="sensitive. Click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('/dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
                 <!--{/if}-->
         </div>
         <div class="response blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
@@ -339,6 +339,7 @@
                 <script>
                 $(function() {
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '80%'});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen input.chosen-search-input').attr('role', 'combobox');
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen input.chosen-search-input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
                 });
                 <!--{if $indicator.required == 1}-->
@@ -811,7 +812,7 @@
                 <!--{/if}-->  
                     <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select <!--{if $counter > 0}-->additional <!--{/if}-->File to attach: 
                         <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file"
-                            aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->"
+                            aria-labelledby="format_label_<!--{$indicator.indicatorID|strip_tags}-->"
                             onchange="addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->,'<!--{$indicator.format|strip_tags}-->')" <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
                     </div>
                     <div id="loading_indicator_<!--{$indicator.indicatorID|strip_tags}-->" style="display:none;"><img src="images/indicator.gif" alt="" /> Attaching file...</div>

@@ -43,6 +43,7 @@ $(function() {
     <!--{/if}-->
     $('#priority').chosen({disable_search_threshold: 5, width: "90%"});
     $('#priority_chosen input.chosen-search-input').attr('aria-labelledby', 'priority_label');
+    $('input.chosen-search-input').attr('role', 'combobox');
 
     $('#record').on('submit', function() {
         if(checkForm() == true) {
@@ -63,7 +64,7 @@ $(function() {
 </script>
 
 <main style="padding: 1rem;">
-    <header tabindex="0" style="border: 2px dotted black; padding: 0.5rem; margin-bottom: 1rem;">
+    <header style="border: 2px dotted black; padding: 0.5rem; margin-bottom: 1rem;">
         <h2 style="margin: 0 0 0.5rem 0;">Welcome, <b><!--{$recorder|sanitize}--></b>, to the <!--{$city|sanitize}--> request website.</h2>
         After clicking "proceed", you will be presented with a series of request related questions. Incomplete requests may result
         in delays. Upon completion of the request, you will be given an opportunity to print the submission.
@@ -78,7 +79,7 @@ $(function() {
                 </tr>
                 <!--{if count($services) != 0}-->
                 <tr>
-                    <td><span id="service_label">Service</span></td>
+                    <td><label id="service_label">Service</label></td>
                     <td>
                         <select id="service" name="service">
                         <option value=""></option>
@@ -92,7 +93,7 @@ $(function() {
                 <input type="hidden" id="service" name="service" value="0" />
                 <!--{/if}-->
                 <tr>
-                    <td><span id="priority_label">Priority</span></td>
+                    <td><label id="priority_label">Priority</label></td>
                     <td>
                         <select id="priority" name="priority">
                         <option value="-10">EMERGENCY</option>
@@ -103,7 +104,7 @@ $(function() {
                 <tr>
                     <td><label for="title">Title of Request</label></td>
                     <td>
-                    <span style="font-size: 80%">Please enter keywords to describe this request.</span><br />
+                        <span style="font-size: 80%">Please enter keywords to describe this request.</span><br />
                         <input class="input" id="title" type="text" name="title" maxlength="100" style="width: 90%" />
                     </td>
                 </tr>

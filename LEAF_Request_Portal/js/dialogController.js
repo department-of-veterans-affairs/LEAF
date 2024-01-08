@@ -63,6 +63,8 @@ dialogController.prototype.clearDialog = function() {
 
 dialogController.prototype.setTitle = function(title) {
 	$('#' + this.containerID).dialog('option', 'title', title);
+	const parentLabelledBy = $('#' + this.containerID).parent().attr('aria-labelledBy');
+	$('#' + this.containerID).attr('aria-labelledby', parentLabelledBy);
 };
 
 dialogController.prototype.hide = function() {

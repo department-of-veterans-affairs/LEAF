@@ -153,8 +153,8 @@ function editGroupName() {
     if(groupAbbr === '') {
         groupAbbr = 'none';
     }
-    dialog.setContent('<div style="display: inline">Group Name: </div><input aria-label="Group Name is <!--{$group[0].groupTitle}-->" id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"></input><br /><br />\
-    		<div style="display: inline">Alternate Names: </div><input aria-label="Alternate Names are '+ groupAbbr +'" id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"></input>');
+    dialog.setContent('<label for="inputtitle">Group Name: </label></div><input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupTitle}-->"/><br /><br />\
+            <label for="abrinputtitle">Alternate Names: </label><input id="abrinputtitle" style="width: 300px" class="dialogInput" value="<!--{$group[0].groupAbbreviation}-->"/>');
 
     dialog.show(); // need to show early because of ie6
 
@@ -411,7 +411,7 @@ function checkPosition(groupID) {
 }
 
 function addTag() {
-    dialog.setContent('Tag Name: <input tabindex="0" id="inputtitle" style="width: 300px" class="dialogInput" value=""></input>');
+    dialog.setContent('<label for="inputtitle">Tag Name: </label><input tabindex="0" id="inputtitle" style="width: 300px" class="dialogInput" value=""/>');
     dialog.show(); // need to show early because of ie6
 
     dialog.setSaveHandler(function() {

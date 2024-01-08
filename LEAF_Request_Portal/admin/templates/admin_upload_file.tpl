@@ -6,7 +6,7 @@
         <input name="CSRFToken" type="hidden" value="<!--{$CSRFToken}-->" />
         
         <div class="leaf-marginTop-1rem">
-            <h3 id="file_control">Select file to upload</h3>
+            <h3 id="file_control"><label for="file">Select file to upload</label></h3>
         </div>
         
         <div class="leaf-marginTop-1rem">

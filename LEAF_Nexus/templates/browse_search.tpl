@@ -8,8 +8,8 @@
 
 <div id="maincontent">
 <div id="searchContainer">
-    <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #5A79A5">
-        Search: <input id="search" style="width: 80%; font-size: 140%; padding: 2px; border: 1px solid black" type="text" />
+    <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #4A6995">
+        <label for="search">Search: </label><input id="search" style="width: 80%; font-size: 140%; padding: 2px; border: 1px solid black" type="text" />
     </div>
     <br />
     <div style="margin-bottom: 8px" id="employee">

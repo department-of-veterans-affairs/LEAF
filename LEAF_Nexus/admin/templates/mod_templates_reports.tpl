@@ -40,10 +40,9 @@ function save() {
 
 function newReport() {
     dialog.setTitle('New File');
-    dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
+    dialog.setContent('<label for="newFilename">Filename: </label><input type="text" id="newFilename" />');
 
     dialog.setSaveHandler(function() {
-    	console.log($('#newFile').val());
     	var file = $('#newFilename').val();
         $.ajax({
             type: 'POST',

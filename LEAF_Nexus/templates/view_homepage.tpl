@@ -38,11 +38,11 @@
 
 <div id="main">
     <div id="searchContainer" style="float: left; border: 1px solid #e0e0e0; padding: 4px; background-color: white">
-        <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #5A79A5">
-            <div id="searchBorder" style="white-space: nowrap; background-color: #5a79a5;">
+        <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #4A6995">
+            <div id="searchBorder" style="white-space: nowrap; background-color: #4A6995;">
                 <img id="searchIcon" src="dynicons/?img=search.svg&w=16" style="position: absolute; margin-left: 66px; padding: 10px" alt="" />
                 <img id="searchIconBusy" src="images/indicator.gif" style="display: none; position: absolute; margin-left: 66px; padding: 10px" alt="" />
-                Search <input id="search" name="search" aria-label="Search" style="font-size: 140%; width: 75%; padding: 2px 2px 2px 26px; border: 1px solid black; background-repeat: no-repeat; background-position: right center" type="text" />
+                <label for="search">Search </label><input id="search" name="search" aria-label="Search" style="font-size: 140%; width: 75%; padding: 2px 2px 2px 26px; border: 1px solid black; background-repeat: no-repeat; background-position: right center" type="text" />
             </div>
         </div>
         <br />

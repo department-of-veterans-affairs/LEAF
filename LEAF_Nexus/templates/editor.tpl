@@ -166,7 +166,7 @@ function changeSupervisor(currPositionID) {
 
 function addSupervisor(positionID) {
     positions[positionID].unsetFocus();
-    dialog.setContent('Full Position Title: <input id="inputtitle" style="width: 300px" class="dialogInput"></input>');
+    dialog.setContent('<label for="inputtitle">Full Position Title: </label><input id="inputtitle" style="width: 300px" class="dialogInput"/>');
     dialog.setTitle('Add Supervisor');
     dialog.show(); // need to show early because of ie6
     $('#inputtitle').focus();
@@ -232,7 +232,7 @@ function addSupervisor(positionID) {
 
 function addSubordinate(parentID) {
 	positions[parentID].unsetFocus();
-    dialog.setContent('Full Position Title: <input id="inputtitle" style="width: 300px" class="dialogInput"></input>');
+    dialog.setContent('<label for="inputtitle">Full Position Title: </label><input id="inputtitle" style="width: 300px" class="dialogInput"/>');
     dialog.setTitle('Add Subordinate');
     dialog.show(); // need to show early because of ie6
     $('#inputtitle').focus();

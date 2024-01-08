@@ -95,7 +95,7 @@ function createDirectorGroup() {
     dialog.setTitle('Create Group for Leadership Team');
     dialog.setContent('<table>\
                 <tr>\
-                    <td>Name of Service: </td>\
+                    <td><label for="serviceName">Name of Service: </label></td>\
                     <td><input id="serviceName" type="text" value="Office of the Director" /></td>\
                 </tr>\
             </table>');
@@ -163,17 +163,17 @@ function createGroup() {
 	dialog.setTitle('Create Group for Leadership Team');
 	dialog.setContent('<table>\
 		        <tr>\
-			        <td>Name of Service: </td>\
+			        <td><label for="serviceName">Name of Service: </label></td>\
 			        <td><input id="serviceName" type="text" /> eg: "Office of the Chief of Staff"</td>\
 			    </tr>\
 			    <tr>\
-                    <td>Position Title: </td>\
+                    <td><label for="positionTitle">Position Title: </label></td>\
                     <td><input id="positionTitle" type="text" /> eg: "Chief of Staff"</td>\
                 </tr>\
                 <tr>\
-                    <td>Employee: </td>\
+                    <td><label for="employee">Employee: </label></td>\
                     <td><div id="employee"></div>\
-                        <br /><input id="isActing" type="checkbox"> Acting for vacant position\
+                        <br /><input id="isActing" type="checkbox" /><label for="isActing">Acting for vacant position</label>\
                     </td>\
                 </tr>\
 			</table>');
@@ -365,17 +365,17 @@ function createService(parentGroupID) {
     dialog.setTitle('Create Service');
     dialog.setContent('<table>\
                 <tr>\
-                    <td>Name of Service: </td>\
+                    <td><label for="serviceName">Name of Service: </label></td>\
                     <td><input id="serviceName" type="text" /> eg: "Fiscal Service"</td>\
                 </tr>\
                 <tr>\
-                    <td>Position Title: </td>\
+                    <td><label for="positionTitle">Position Title: </label></td>\
                     <td><input id="positionTitle" type="text" /> eg: "Chief, Fiscal Service"</td>\
                 </tr>\
                 <tr>\
-                    <td>Employee: </td>\
+                    <td><label for="employee">Employee: </label></td>\
                     <td><div id="employee"></div>\
-                        <br /><input id="isActing" type="checkbox"> Acting for vacant position</div>\
+                        <br /><input id="isActing" type="checkbox"/><label for="isActing">Acting for vacant position</label></div>\
                     </td>\
                 </tr>\
             </table>');
@@ -520,9 +520,9 @@ function setupServices() {
                 	leadershipNomenclature = leadershipName;
                     var buffer = '<ul style="font-size: 140%">';
                     for(var i in res) {
-                        buffer += '<li>'+ res[i].groupTitle +'<ul id="group_'+ res[i].groupID +'">\
+                        buffer += '<li>'+ res[i].groupTitle +'<ul id="group_'+ res[i].groupID +'" style="margin-bottom: 1rem;">\
                             <li style="padding: 8px"><span class="buttonNorm" onclick="createService('+ res[i].groupID +');">Add Service</span></li>\
-                        </ul></li><br />';
+                        </ul></li>';
                     }
                     buffer += '</ul>';
                     $('#leaders').html(buffer);

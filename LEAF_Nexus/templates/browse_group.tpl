@@ -23,7 +23,7 @@
 
 function newGroup()
 {
-    dialog.setContent('Group Name: <input id="groupName" style="width: 300px" class="dialogInput"></input>');
+    dialog.setContent('<label for="groupName">Group Name: </label><input id="groupName" style="width: 300px" class="dialogInput"/>');
     dialog.setTitle('Create New Group');
     dialog.show(); // need to show early because of ie6
 

@@ -65,13 +65,13 @@
                 style="font-style: italic; background-color: white; color: #d00; border: 1px solid black; padding: 4px">BETA</span></button>
         <input type='hidden' id='abs_portal_path' value='<!--{$abs_portal_path}-->' />
         <!--{if $bookmarked == ''}-->
-            <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Add Bookmark"
-                role="status" aria-live="polite"><img src="dynicons/?img=bookmark-new.svg&amp;w=32" alt=""
-                    style="vertical-align: middle" /> <span>Add Bookmark</span></button>
+            <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Add Bookmark">
+                <img src="dynicons/?img=bookmark-new.svg&amp;w=32" alt=""
+                    style="vertical-align: middle" /> <span role="status" aria-live="polite">Add Bookmark</span></button>
         <!--{else}-->
-            <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Delete Bookmark"
-                role="status" aria-live="polite"><img src="dynicons/?img=bookmark-new.svg&amp;w=32" alt=""
-                    style="vertical-align: middle" /> <span>Delete Bookmark</span></button>
+            <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Delete Bookmark">
+                <img src="dynicons/?img=bookmark-new.svg&amp;w=32" alt=""
+                    style="vertical-align: middle" /> <span role="status" aria-live="polite">Delete Bookmark</span></button>
         <!--{/if}-->
         <button class="tools" onclick="copyRequest()" title="Copy Request"
             style="vertical-align: middle; background-image: url(dynicons/?img=edit-copy.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px">
