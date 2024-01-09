@@ -1565,7 +1565,7 @@ class Workflow
 
     }
 
-    public function getHistory($filterById)
+    public function getHistory(string $filterById): array
     {
         $stepVars = array(':workflowID' => $filterById);
         $strSQL = "SELECT workflow_steps.stepID, dependencyID FROM workflow_steps
