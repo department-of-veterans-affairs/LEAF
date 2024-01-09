@@ -1377,11 +1377,16 @@ function getForm(indicatorID, series) {
             type: 'GET',
             url: '../api/form/_' + currCategoryID + '/flat',
             success: function(res) {
-                let buffer = '<select id="parentID">';
+                const shortName = (name = "") => {
+                    const maxLen = 65;
+                    const displayName = XSSHelpers.stripAllTags(name || "").trim();
+                    return displayName.length <= maxLen ? displayName : displayName.slice(0, maxLen) + '...';
+                }
+                let buffer = '<select id="parentID" style="width:300px;">';
                 buffer += '<option value="">None</option>';
                 for(let i in res) {
                     if(indicatorID != i) {
-                        buffer += '<option style="width:300px;" value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
+                        buffer += '<option value="'+ i +'">' + i + ': ' + shortName(res[i][1].name) +'</option>';
                     }
                 }
                 buffer += '</select>';

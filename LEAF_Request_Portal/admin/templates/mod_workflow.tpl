@@ -479,8 +479,8 @@
         dialog.setTitle('Add Event');
         let eventDialogContent =
             '<div><button id="createEvent" class="usa-button leaf-btn-med">Create Event</button></div>' +
-            '<div id="addEventDialog"></div>' +
-            '<div id="eventData"></div>';
+            '<div id="addEventDialog"></div>';
+
         dialog.setContent(eventDialogContent);
         dialog.indicateBusy();
         dialog.show();
@@ -494,26 +494,14 @@
                 $('#createEvent').on('click', function() {
                     newEvent(res);
                 });
-                $('#eventID').chosen({disable_search_threshold: 5})
-                .change(function() {
-                    $('#eventData').html('');
-                    dialog.clearValidators();
-                    if ($("#eventID").val() == 'automated_email_reminder') {
-                        setEmailReminderHTML(workflowID, stepID, actionType, dialog);
-                    }
-                }).trigger("chosen:updated");
+                $('#eventID').chosen({disable_search_threshold: 5});
+                $('#xhrDialog').css('overflow', 'visible');
+
                 $('#eventID_chosen input.chosen-search-input').attr('aria-labelledby', 'event_label');
                 $('input.chosen-search-input').attr('role', 'combobox');
                 dialog.setSaveHandler(function() {
                     let ajaxData = {eventID: $('#eventID').val(),
                                     CSRFToken: CSRFToken};
-                    if ($('#eventID').val() == 'automated_email_reminder') {
-                        var formObj = {};
-                        $.each($('#eventData :input').serializeArray(), function() {
-                            formObj[this.name] = this.value;
-                        });
-                        $.extend(ajaxData, formObj);
-                    }
 
                     postEvent(stepID, actionType, workflowID, ajaxData, function (res) {
                         loadWorkflow(workflowID);
@@ -1443,18 +1431,27 @@
                     currentWorkflow + ', ' + stepID + ', \'' + params.action + '\', \'' + res[i]
                     .eventID + '\')" alt="Remove Event" title="Remove Event" /></li>';
             }
-            output += '<li style="padding-top: 8px"><span tabindex=0 class="buttonNorm" id="event_' +
-                currentWorkflow + '_' + stepID + '_' + params.action + '" onkeydown="onKeyPressClick(event)">Add Event</span>';
+            output += '<li style="padding-top: 8px"><button class="buttonNorm" id="event_' +
+                currentWorkflow + '_' + stepID + '_' + params.action + '">Add Event</button>';
             output += '</ul></div>';
             output +=
-                '<hr /><div style="padding: 4px"><span class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="removeAction(' +
+                '<hr /><div style="padding: 4px"><button class="buttonNorm" onclick="removeAction(' +
                 currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
-                '\')">Remove Action</span></div>';
+                '\')">Remove Action</button></div>';
             $('#stepInfo_' + stepID).html(output);
-            $(`#event_${currentWorkflow}_${stepID}_${params.action}`).focus();
             $('#event_' + currentWorkflow + '_' + stepID + '_' + params.action).on('click', function() {
                 addEventDialog(currentWorkflow, stepID, params.action);
             });
+            const modalEl = document.getElementById('stepInfo_' + stepID);
+            const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input'));
+            const first = interActiveEls[0] || null;
+            const last = interActiveEls[interActiveEls.length - 1] || null;
+            if (first !== null && last !== null) {
+                const actionTabbing = controlTabbing(first, last);
+                first.focus();
+                first.addEventListener('keydown', actionTabbing);
+                last.addEventListener('keydown', actionTabbing);
+            }
         });
 
         $('#stepInfo_' + stepID).css({
@@ -1586,6 +1583,27 @@
         }
     }
 
+    /**
+    * Creates a function that restricts tabbing to a modal area
+    * @param firstEl first dom element
+    * @param lastEl last dom element
+    * @returns {function}
+    */
+    function controlTabbing(firstEl = null, lastEl = null) {
+        return function(event) {
+            if (firstEl !== null && lastEl !== null) {
+                if (event?.shiftKey === true && event?.keyCode === 9 && event?.currentTarget === firstEl) {
+                    lastEl.focus();
+                    event.preventDefault();
+                }
+                if (event?.shiftKey === false && event?.keyCode === 9 && event?.currentTarget === lastEl) {
+                    firstEl.focus();
+                    event.preventDefault();
+                }
+            }
+        }
+    }
+
     function buildWorkflowIndicatorDropdown(stepID, steps) {
         $.ajax({
                 type: 'GET',
@@ -1635,6 +1653,16 @@
                                     $('#workflowIndicator_' + stepID).val(config.indicatorID);
                                 }
                             }
+                        }
+                        const modalEl = document.getElementById('stepInfo_' + stepID);
+                        const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, select'));
+                        const first = interActiveEls[0];
+                        const last = interActiveEls[interActiveEls.length - 1];
+                        if (first !== null && last !== null) {
+                            first.focus();
+                            const stepTabbing = controlTabbing(first, last);
+                            first.addEventListener('keydown', stepTabbing);
+                            last.addEventListener('keydown', stepTabbing);
                         }
                     });
             });
@@ -1737,8 +1765,8 @@
                                         .dependencyID + ')">' + res[i].description + '</b> ' +
                                         control_editDependency + ' ' + control_unlinkDependency +
                                         '<ul id="step_' + stepID + '_dep' + res[i].dependencyID +
-                                        '"><li style="padding-top: 8px"><span tabindex=0 onkeydown="onKeyPressClick(event)" class="buttonNorm" onclick="dependencyGrantAccess(' +
-                                        res[i].dependencyID + ')"><img src="../dynicons/?img=list-add.svg&w=16" alt="" /> Add Group</span></li>\
+                                        '"><li style="padding-top: 8px"><button class="buttonNorm" onclick="dependencyGrantAccess(' +
+                                        res[i].dependencyID + ')"><img src="../dynicons/?img=list-add.svg&w=16" alt="" /> Add Group</button></li>\
                                 </ul></li>';
                                 }
                             }
@@ -1777,11 +1805,11 @@
                             }
                         }
                         output +=
-                            '<hr /><div style="padding: 4px; display:flex;"><span tabindex=0 class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="linkDependencyDialog(' + stepID +
-                            ')">Add Requirement</span>';
+                            '<hr /><div style="padding: 4px; display:flex;"><button class="buttonNorm" onclick="linkDependencyDialog(' + stepID +
+                            ')">Add Requirement</button>';
                         output +=
-                            '<span tabindex=0 class="buttonNorm" style="margin-left: auto;" onkeydown="onKeyPressClick(event)" onclick="addEmailReminderDialog(' +
-                            stepID + ')">Email Reminder</span></div>';
+                            '<button class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog(' +
+                            stepID + ')">Email Reminder</button></div>';
 
                         $('#stepInfo_' + stepID).html(output);
 
@@ -2120,7 +2148,11 @@
                     workflowDescription = $('option:selected', this).attr('description');
                     loadWorkflow($('#workflows').val());
                 });
-                $('#workflows').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '100%'});
+                $('#workflows').chosen({
+                    disable_search_threshold: 5,
+                    allow_single_deselect: true,
+                    width: '100%'
+                });
 
                 $('input.chosen-search-input').attr('role', 'combobox');
                 $('#workflows_chosen input.chosen-search-input').attr('aria-labelledby', 'workflows_label');
@@ -2759,119 +2791,7 @@
         });
     }
 
-    /*
-        START: EMAIL REMINDER BLOCK
-    */
-    function setEmailReminderHTML(workflowID, stepID, actionType) {
-        Promise.all([getEmailTemplates(), getDateIndicators(), getSavedEmailReminderData(workflowID, stepID,
-                actionType)])
-            .then(function(data) {
-                var emailTemplates = data[0];
-                var dateIndicators = data[1];
-                var formFields = data[2];
-
-                var indicatorList = '';
-                for (let i in dateIndicators) {
-                    indicatorList += '<option value="' + dateIndicators[i].indicatorID + '">' + dateIndicators[i]
-                        .categoryName + ': ' + dateIndicators[i].name + ' (id: ' + dateIndicators[i].indicatorID +
-                        ')</option>';
-                }
-                var emailTemplateList = '';
-                for (let i in emailTemplates) {
-                    emailTemplate = emailTemplates[i].fileName;
-                    emailTemplateList += '<option value="' + emailTemplate + '">' + emailTemplate + '</option>';
-                }
-
-                eventDataHTML = '<div id="emailReminder">';
-                eventDataHTML += '<h2>Email Reminder Details</h2>';
-
-                eventDataHTML += '<div class="eventDataInput">';
-                eventDataHTML += '<label for="frequency">Frequency of Reminders (in Business Days)</label>';
-                eventDataHTML += '<input type="number" id="frequency" name="frequency" min="0">';
-                eventDataHTML += '</div>';
-
-                eventDataHTML += '<div class="eventDataInput">';
-                eventDataHTML += '<label for="startDateIndicatorID">Reminder Start Date</label>';
-                eventDataHTML += '<select id="startDateIndicatorID" name="startDateIndicatorID">';
-                eventDataHTML += indicatorList;
-                eventDataHTML += '</select>';
-                eventDataHTML += '</div>';
-
-                eventDataHTML += '<div class="eventDataInput">';
-                eventDataHTML += '<label for="emailTemplate">Email Template</label>';
-                eventDataHTML += '<select id="emailTemplate" name="emailTemplate">';
-                eventDataHTML += emailTemplateList;
-                eventDataHTML += '</select>';
-                eventDataHTML += '</div>';
-
-                eventDataHTML += '<div class="eventDataInput">';
-                eventDataHTML += '<label for="emailGroupSelector">Recipient Group</label>';
-                eventDataHTML += '<div id="emailGroupSelector"></div>';
-                eventDataHTML += '<input id="recipientGroupID" name="recipientGroupID" style="display: none;">';
-                eventDataHTML += '</div>';
-
-                eventDataHTML += '</div>'; //emailReminder div
-                $('#eventData').html(eventDataHTML);
-
-                $.each(formFields, function(key, value) {
-                    $('#emailReminder #' + key).val(value);
-                });
-
-                $('#emailTemplate').chosen({disable_search_threshold: 5});
-                $('#startDateIndicatorID').chosen({disable_search_threshold: 5});
-
-                var grpSel = new groupSelector('emailGroupSelector');
-                grpSel.basePath = '<!--{$orgchartPath}-->/';
-                grpSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                grpSel.tag = '<!--{$orgchartImportTags[0]}-->';
-                grpSel.setSelectHandler(function() {
-                    $('#recipientGroupID').val(grpSel.selection);
-                });
-                grpSel.setResultHandler(function() {
-                    $('#recipientGroupID').val(grpSel.selection);
-                });
-                grpSel.initialize();
-                if ($('#recipientGroupID').val() != '') {
-                    grpSel.forceSearch('group#' + $('#recipientGroupID').val());
-                }
-
-                dialog.setValidator('frequency', function() {
-                    return $('#emailReminder #frequency').val() != '';
-                });
-                dialog.setValidatorError('frequency', function() {
-                    alert('Frequency is required.');
-                });
-
-                dialog.setValidator('frequency_pos', function() {
-                    return $('#emailReminder #frequency').val() > 0;
-                });
-                dialog.setValidatorError('frequency_pos', function() {
-                    alert('Frequency must be greater than zero.');
-                });
-
-                dialog.setValidator('startDateIndicatorID', function() {
-                    return $('#emailReminder #startDateIndicatorID').val() != '';
-                });
-                dialog.setValidatorError('startDateIndicatorID', function() {
-                    alert('Please select a start date indicator.');
-                });
-
-                dialog.setValidator('emailTemplate', function() {
-                    return $('#emailReminder #emailTemplate').val() != '';
-                });
-                dialog.setValidatorError('emailTemplate', function() {
-                    alert('Please select an email template.');
-                });
-
-                dialog.setValidator('recipientGroupID', function() {
-                    return $('#emailReminder #recipientGroupID').val() != '';
-                });
-                dialog.setValidatorError('recipientGroupID', function() {
-                    alert('Please select a group.');
-                });
-            });
-    }
-
+    // automated email reminder types, frequency and specific date
     function toggleReminderType() {
         const elSelect = document.getElementById('reminder_type_select');
         if(elSelect !== null) {
@@ -2899,63 +2819,7 @@
         }
     }
 
-    function getEmailTemplates() {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: '../api/emailTemplates/',
-                type: 'GET',
-                success: function(res) {
-                    resolve(res);
-                },
-                error: function() {
-                    reject();
-                },
-                cache: false
-            });
-        });
-    }
 
-    function getDateIndicators() {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: '../api/form/indicator/list',
-                type: 'GET',
-                success: function(res) {
-                    var data = []
-                    for (let i in res) {
-                        if (res[i]['format'] == 'date') {
-                            data.push(res[i]);
-                        }
-                    }
-                    resolve(data);
-                },
-                error: function() {
-                    reject();
-                },
-                cache: false
-            });
-        });
-    }
-
-    function getSavedEmailReminderData(workflowID, stepID, actionType) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + actionType +
-                    '/events/emailReminder?CSRFToken=' + CSRFToken,
-                type: 'GET',
-                success: function(res) {
-                    resolve(res[0]);
-                },
-                error: function() {
-                    reject();
-                },
-                cache: false
-            });
-        });
-    }
-    /*
-        END: EMAIL REMINDER BLOCK
-    */
     var dialog, dialog_confirm, dialog_simple;
     var workflows = {};
     var steps = {};
