@@ -1413,7 +1413,10 @@
             }
 
             stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
-            output = '<h2>Action: ' + stepTitle + ' clicks ' + params.action + '</h2>';
+            output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
+                <h2 style="display:inline-block;margin:0;">Action: ${stepTitle} clicks ${params.action}</h2>
+                <button id="closeModal" style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
+            </div>`;
 
             if (params.action == 'sendback') {
                 output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + 'aria-label="Require Comment" /> Require a comment to sendback.<br />';
@@ -1431,11 +1434,11 @@
                     currentWorkflow + ', ' + stepID + ', \'' + params.action + '\', \'' + res[i]
                     .eventID + '\')" alt="Remove Event" title="Remove Event" /></li>';
             }
-            output += '<li style="padding-top: 8px"><button class="buttonNorm" id="event_' +
+            output += '<li style="padding-top: 8px"><button class="buttonNorm" style="font-size:1rem;padding:0.25em;" id="event_' +
                 currentWorkflow + '_' + stepID + '_' + params.action + '">Add Event</button>';
             output += '</ul></div>';
             output +=
-                '<hr /><div style="padding: 4px"><button class="buttonNorm" onclick="removeAction(' +
+                '<hr /><div style="padding: 4px"><button class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="removeAction(' +
                 currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
                 '\')">Remove Action</button></div>';
             $('#stepInfo_' + stepID).html(output);
@@ -1452,6 +1455,10 @@
                 first.addEventListener('keydown', actionTabbing);
                 last.addEventListener('keydown', actionTabbing);
             }
+            $('*#closeModal').on('click', ()=> {
+                $('.workflowStepInfo').css('display', 'none');
+                $('#stepInfo_' + stepID).html("");
+            });
         });
 
         $('#stepInfo_' + stepID).css({
@@ -1702,10 +1709,15 @@
                         var control_removeStep =
                             '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="removeStep(' +
                             stepID + ')" title="Remove Step" alt="Remove Step" />';
-                        let output = '<h2>stepID: #' + stepID + ' ' + control_removeStep +
-                            '</h2><br />Step: <b>' + steps[stepID].stepTitle +
-                            '</b> <img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editStep(' +
-                            stepID + ')" title="Edit Step" alt="Edit Step" /><br />';
+
+
+                        let output = `<div style="display:flex;gap:0.5rem;align-items:center;justify-content:space-between;">
+                                <h2 style="display:inline-block;margin:0;">stepID: #${stepID} ${control_removeStep}</h2>
+                                <button id="closeModal" style="padding:2px;background-color:#fff;border-color:#eee;" title="close modal">&#10006</button>
+                            </div></br>
+                            Step: <b>${steps[stepID].stepTitle}</b>
+                            <img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16"
+                            tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editStep(${stepID})" title="Edit Step" alt="Edit Step" />`;
 
                         output += '<br /><br /><div>Requirements:<ul>';
                         var tDeps = {};
@@ -1765,7 +1777,7 @@
                                         .dependencyID + ')">' + res[i].description + '</b> ' +
                                         control_editDependency + ' ' + control_unlinkDependency +
                                         '<ul id="step_' + stepID + '_dep' + res[i].dependencyID +
-                                        '"><li style="padding-top: 8px"><button class="buttonNorm" onclick="dependencyGrantAccess(' +
+                                        '"><li style="padding-top: 8px"><button class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="dependencyGrantAccess(' +
                                         res[i].dependencyID + ')"><img src="../dynicons/?img=list-add.svg&w=16" alt="" /> Add Group</button></li>\
                                 </ul></li>';
                                 }
@@ -1805,14 +1817,17 @@
                             }
                         }
                         output +=
-                            '<hr /><div style="padding: 4px; display:flex;"><button class="buttonNorm" onclick="linkDependencyDialog(' + stepID +
+                            '<hr /><div style="padding: 4px; display:flex;"><button class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="linkDependencyDialog(' + stepID +
                             ')">Add Requirement</button>';
                         output +=
-                            '<button class="buttonNorm" style="margin-left: auto;" onclick="addEmailReminderDialog(' +
+                            '<button class="buttonNorm" style="margin-left:auto;font-size:1rem;padding:0.25em;" onclick="addEmailReminderDialog(' +
                             stepID + ')">Email Reminder</button></div>';
 
                         $('#stepInfo_' + stepID).html(output);
-
+                        $('*#closeModal').on('click', ()=> {
+                            $('.workflowStepInfo').css('display', 'none');
+                            $('#stepInfo_' + stepID).html("");
+                        });
                         // setup UI for form fields in the workflow area
                         buildWorkflowIndicatorDropdown(stepID, steps);
 
