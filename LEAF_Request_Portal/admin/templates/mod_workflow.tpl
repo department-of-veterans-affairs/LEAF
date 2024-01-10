@@ -4,7 +4,7 @@
             <label id="workflows_label" style="font-family: Source Sans Pro Web"> Workflows:</label>
             <div id="workflowList"></div>
         </div>
-        <button id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+        <button type="button" id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
             <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Workflow
         </button>
 
@@ -12,28 +12,28 @@
             <label id="steps_label" style="font-family: Source Sans Pro Web"> Current Workflow Steps:</label>
             <div id="stepList"></div>
         </div>
-        <button id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+        <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
             <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> Add Step
         </button>
 
         <hr />
-        <button id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">Edit Actions</button>
+        <button type="button" id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">Edit Actions</button>
 
-        <button id="btn_listEvents" class="buttonNorm" onclick="listEvents();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">Edit Events</button>
+        <button type="button" id="btn_listEvents" class="buttonNorm" onclick="listEvents();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">Edit Events</button>
 
-        <button id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+        <button type="button" id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
             <img src="../dynicons/?img=accessories-text-editor.svg&amp;w=26" alt="" /> Rename Workflow
         </button>
 
-        <button id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" style="font-size:1.1rem;text-align: start;padding:4px;height:36px;">
+        <button type="button" id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" style="font-size:1.1rem;text-align: start;padding:4px;height:36px;">
             <img src="../dynicons/?img=edit-copy.svg&amp;w=26" alt="" /> Duplicate Workflow
         </button>
 
-        <button id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+        <button type="button" id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
             <img src="../dynicons/?img=list-remove.svg&w=26" alt="" /> Delete Workflow
         </button>
         <hr />
-        <button id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+        <button type="button" id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
             <img src="../dynicons/?img=appointment.svg&amp;w=26" alt="" /> View History
         </button>
     </div>
@@ -155,11 +155,11 @@
                 <td width="200px" id="${events[i].eventDescription}">${events[i].eventDescription}</td>
                 <td width="150px" id="${events[i].eventType}">${events[i].eventType}</td>
                 <td width="100px" id="editor_${events[i].eventID}">
-                    <button class="buttonNorm" onclick="editEvent('${events[i].eventID}')"
+                    <button type="button" class="buttonNorm" onclick="editEvent('${events[i].eventID}')"
                         style="background: #22b;color: #fff; padding: 2px 4px;">
                         Edit
                     </button>
-                    <button class="buttonNorm" onclick="deleteEvent('${events[i].eventID}')"
+                    <button type="button" class="buttonNorm" onclick="deleteEvent('${events[i].eventID}')"
                         style="background: #c00;color: #fff;margin-left: 10px; padding: 2px 4px;">
                         Delete
                     </button>
@@ -490,7 +490,7 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog.setTitle('Add Event');
         let eventDialogContent =
-            '<div><button id="createEvent" class="usa-button leaf-btn-med">Create Event</button></div>' +
+            '<div><button type="button" id="createEvent" class="usa-button leaf-btn-med">Create Event</button></div>' +
             '<div id="addEventDialog"></div>';
 
         dialog.setContent(eventDialogContent);
@@ -938,7 +938,7 @@
                 var reservedDependencies = [-3, -2, -1, 1, 8];
                 var maskedDependencies = [5];
 
-                buffer += '<optgroup label="Custom Requirements">';
+                buffer += '<optgroup label="Custom Requirements" aria-label="Custom Requirements">';
                 for (let i in res) {
                     if (reservedDependencies.indexOf(res[i].dependencyID) == -1 &&
                         maskedDependencies.indexOf(res[i].dependencyID) == -1) {
@@ -948,7 +948,7 @@
                 }
                 buffer += '</optgroup>';
 
-                buffer += '<optgroup label="&quot;Smart&quot; Requirements">';
+                buffer += '<optgroup label="&quot;Smart&quot; Requirements" aria-label="Smart Requirements">';
                 for (let i in res) {
                     if (reservedDependencies.indexOf(res[i].dependencyID) != -1) {
                         buffer += '<option value="' + res[i].dependencyID + '">' + res[i].description +
@@ -959,15 +959,15 @@
 
                 buffer += '</select></div>';
                 buffer +=
-                    '<br /><br /><br /><div>If a requirement does not exist: <button class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="newDependency(' + stepID +
+                    '<br /><br /><br /><div>If a requirement does not exist: <button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="newDependency(' + stepID +
                     ')">Create a new requirement</button></div>';
                 $('#dependencyList').html(buffer);
                 $('#xhrDialog').css('overflow', 'visible');
                 $('#dependencyID').chosen({
                     disable_search_threshold: 5
                 });
-                $('#dependencyID_chosen input.chosen-search-input').attr('role', 'combobox');
-                $('#dependencyID_chosen input.chosen-search-input').attr('aria-labelledby', 'requirements_label');
+                updateChosenAttributes("dependencyID", "requirements_label", "Select Requirement");
+
                 dialog.setSaveHandler(function() {
                     linkDependency(stepID, $('#dependencyID').val());
                 });
@@ -1430,7 +1430,7 @@
             stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
             output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
                 <h2 style="display:inline-block;margin:0;">Action: ${stepTitle} clicks ${params.action}</h2>
-                <button id="closeModal" style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
+                <button type="button" id="closeModal" style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
             </div>`;
 
             if (params.action == 'sendback') {
@@ -1449,11 +1449,11 @@
                     currentWorkflow + ', ' + stepID + ', \'' + params.action + '\', \'' + res[i]
                     .eventID + '\')" alt="Remove Event" title="Remove Event" /></li>';
             }
-            output += '<li style="padding-top: 8px"><button class="buttonNorm" style="font-size:1rem;padding:0.25em;" id="event_' +
+            output += '<li style="padding-top: 8px"><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" id="event_' +
                 currentWorkflow + '_' + stepID + '_' + params.action + '">Add Event</button>';
             output += '</ul></div>';
             output +=
-                '<hr /><div style="padding: 4px"><button class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="removeAction(' +
+                '<hr /><div style="padding: 4px"><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="removeAction(' +
                 currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
                 '\')">Remove Action</button></div>';
             $('#stepInfo_' + stepID).html(output);
@@ -1746,6 +1746,9 @@
                         <div>
                     </fieldset>`;
                 $('#stepInfo_' + stepID).html(output);
+                const select = document.getElementById('create_route');
+                const tabControl = controlTabbing(select, select)
+                select.addEventListener('keydown', tabControl);
                 break;
             case 0:
                 $('#stepInfo_' + stepID).html('The End.  (stepID #: 0)');
@@ -1762,7 +1765,7 @@
 
                         let output = `<div style="display:flex;gap:0.5rem;align-items:center;justify-content:space-between;">
                                 <h2 style="display:inline-block;margin:0;">stepID: #${stepID} ${control_removeStep}</h2>
-                                <button id="closeModal" style="padding:2px;background-color:#fff;border-color:#eee;" title="close modal">&#10006</button>
+                                <button type="button" id="closeModal" style="padding:2px;background-color:#fff;border-color:#eee;" title="close modal">&#10006</button>
                             </div></br>
                             Step: <b>${steps[stepID].stepTitle}</b>
                             <img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16"
@@ -1826,7 +1829,7 @@
                                         .dependencyID + ')">' + res[i].description + '</b> ' +
                                         control_editDependency + ' ' + control_unlinkDependency +
                                         '<ul id="step_' + stepID + '_dep' + res[i].dependencyID +
-                                        '"><li style="padding-top: 8px"><button class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="dependencyGrantAccess(' +
+                                        '"><li style="padding-top: 8px"><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="dependencyGrantAccess(' +
                                         res[i].dependencyID + ')"><img src="../dynicons/?img=list-add.svg&w=16" alt="" /> Add Group</button></li>\
                                 </ul></li>';
                                 }
@@ -1881,10 +1884,10 @@
                             }
                         }
                         output +=
-                            '<hr /><div style="padding: 4px; display:flex;"><button class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="linkDependencyDialog(' + stepID +
+                            '<hr /><div style="padding: 4px; display:flex;"><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="linkDependencyDialog(' + stepID +
                             ')">Add Requirement</button>';
                         output +=
-                            '<button class="buttonNorm" style="margin-left:auto;font-size:1rem;padding:0.25em;" onclick="addEmailReminderDialog(' +
+                            '<button type="button" class="buttonNorm" style="margin-left:auto;font-size:1rem;padding:0.25em;" onclick="addEmailReminderDialog(' +
                             stepID + ')">Email Reminder</button></div>';
 
                         $('#stepInfo_' + stepID).html(output);
@@ -2193,7 +2196,7 @@
             type: 'GET',
             url: '../api/workflow',
             success: function(res) {
-                let output = '<select id="workflows" title="workflows" style="width: 100%">';
+                let output = '<select id="workflows" title="Select a Workflow" style="width: 100%">';
                 var count = 0;
                 var firstWorkflowID = 0;
                 let firstWorkflowDescription = '';
@@ -2226,8 +2229,7 @@
                     width: '100%'
                 });
 
-                $('input.chosen-search-input').attr('role', 'combobox');
-                $('#workflows_chosen input.chosen-search-input').attr('aria-labelledby', 'workflows_label');
+                updateChosenAttributes("workflows", "workflows_label", "Select Workflow");
 
                 if (workflowID == undefined) {
                     workflowDescription = firstWorkflowDescription;
@@ -2241,7 +2243,7 @@
     }
 
     function buildStepList(steps = {}) {
-        let output = '<select id="workflow_steps" title="current workflow steps" style="width: 100%"><option value="-1">Requestor</option>';
+        let output = '<select id="workflow_steps" title="Select Workflow Step" style="width: 100%"><option value="-1">Requestor</option>';
         const stepIDs = Object.keys(steps);
         stepIDs.forEach(id => {
             output += `<option value="${id}">${steps[id].stepTitle} (#${id})</option>`;
@@ -2252,8 +2254,8 @@
             disable_search_threshold: 5,
             width: '100%'
         });
-        $('#workflow_steps_chosen input.chosen-search-input').attr('role', 'combobox');
-        $('#workflow_steps_chosen input.chosen-search-input').attr('aria-labelledby', 'steps_label');
+        updateChosenAttributes("workflow_steps", "steps_label", "Select Workflow Step");
+
         $('#workflow_steps').on('change', function() {
             showStepInfo($('#workflow_steps').val());
         });
@@ -2915,6 +2917,13 @@
                 elContainerDate.style.display = reminderType === 'date' ? 'block' : 'none';
             }
         }
+    }
+
+    function updateChosenAttributes(selectID = "", labelID = "", title = "List Selection") {
+        $(`#${selectID}_chosen input.chosen-search-input`).attr('role', 'combobox');
+        $(`#${selectID}_chosen input.chosen-search-input`).attr('aria-labelledby', labelID);
+        $(`#${selectID}-chosen-search-results`).attr('title', title);
+        $(`#${selectID}-chosen-search-results`).attr('role', 'listbox');
     }
 
 

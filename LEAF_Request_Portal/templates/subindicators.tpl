@@ -341,6 +341,8 @@
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '80%'});
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen input.chosen-search-input').attr('role', 'combobox');
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen input.chosen-search-input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
+                    $(`#<!--{$indicator.indicatorID|strip_tags}-->-chosen-search-results`).attr('title', "Selection List");
+                    $(`#<!--{$indicator.indicatorID|strip_tags}-->-chosen-search-results`).attr('role', 'listbox');
                 });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {

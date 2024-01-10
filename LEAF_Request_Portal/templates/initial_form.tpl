@@ -18,6 +18,12 @@
 </style>
 
 <script type="text/javascript">
+function updateChosenAttributes(selectID = "", labelID = "", title = "List Selection") {
+    $(`#${selectID}_chosen input.chosen-search-input`).attr('role', 'combobox');
+    $(`#${selectID}_chosen input.chosen-search-input`).attr('aria-labelledby', labelID);
+    $(`#${selectID}-chosen-search-results`).attr('title', title);
+    $(`#${selectID}-chosen-search-results`).attr('role', 'listbox');
+}
 function checkForm() {
     <!--{if count($services) != 0}-->
     if($("#service").val() == "") {
@@ -39,11 +45,10 @@ function checkForm() {
 $(function() {
     <!--{if count($services) != 0}-->
     $('#service').chosen({width: "90%"});
-    $('#service_chosen input.chosen-search-input').attr('aria-labelledby', 'service_label');
+    updateChosenAttributes("service","service_label","Select Service");
     <!--{/if}-->
     $('#priority').chosen({disable_search_threshold: 5, width: "90%"});
-    $('#priority_chosen input.chosen-search-input').attr('aria-labelledby', 'priority_label');
-    $('input.chosen-search-input').attr('role', 'combobox');
+    updateChosenAttributes("priority","priority_label","Select Priority");
 
     $('#record').on('submit', function() {
         if(checkForm() == true) {
@@ -71,7 +76,7 @@ $(function() {
     </header>
     <form id="record" style="display: flex;" method="post" action="ajaxIndex.php?a=newform">
         <section style="margin-right: 1rem;">
-            <h3 tabindex="0" style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 1 - General Information</h3>
+            <h3 style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 1 - General Information</h3>
             <table id="step1_questions" style="width: 100%; margin: 0; padding: 1rem 0.5rem">
                 <tr>
                     <td>Contact Info</td>
@@ -81,7 +86,7 @@ $(function() {
                 <tr>
                     <td><label id="service_label">Service</label></td>
                     <td>
-                        <select id="service" name="service">
+                        <select id="service" name="service" title="Select Service">
                         <option value=""></option>
                         <!--{foreach from=$services item=service}-->
                         <option value="<!--{$service.serviceID|strip_tags}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service|sanitize}--></option>
@@ -95,7 +100,7 @@ $(function() {
                 <tr>
                     <td><label id="priority_label">Priority</label></td>
                     <td>
-                        <select id="priority" name="priority">
+                        <select id="priority" name="priority" title="Select Priority">
                         <option value="-10">EMERGENCY</option>
                         <option value="0" selected="selected">Normal</option>
                         </select>
@@ -111,7 +116,7 @@ $(function() {
             </table>
         </section>
         <section>
-            <h3 tabindex="0" style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 2 - Select type of request</h3>
+            <h3 style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 2 - Select type of request</h3>
             <div style="padding: 0.5rem">
                 <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
                 <!--{if count($categories) > 0}-->
