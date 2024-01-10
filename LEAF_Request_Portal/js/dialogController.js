@@ -231,7 +231,7 @@ dialogController.prototype.clearValidators = function() {
 	this.validatorErrors = {};
 	this.requirements = {};
 	this.requirementErrors = {};
-	$('input[type="text"]').off();
+	$('#' + this.containerID + ' input[type="text"]').off();
 };
 
 dialogController.prototype.setSubmitValid = function(id, func) {

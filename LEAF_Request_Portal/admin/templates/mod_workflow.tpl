@@ -1,33 +1,45 @@
-<div id="sideBar" style="float: left; width: 180px">
-    <div id="btn_createStep" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="createStep();" style="font-size: 120%; display: none"
-        role="button" tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="" /> Add Step</div><br />
-    <label id="workflows_label" style="font-family: Source Sans Pro Web"> Workflows:</label>
-    <div id="workflowList"></div>
-    <br />
-    <div id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size: 120%" role="button"
-        tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="" /> New Workflow</div><br />
-    <br />
-    <div id="btn_deleteWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="deleteWorkflow();" style="font-size: 120%; display: none"
-        role="button" tabindex="0"><img src="../dynicons/?img=list-remove.svg&w=16" alt="" /> Delete
-        workflow</div><br />
-    <div id="btn_listActionType" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="listActionType();" style="font-size: 120%; display: none"
-        role="button" tabindex="0">Edit Actions</div><br />
-    <div id="btn_listEvents" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="listEvents();" style="font-size: 120%; display: none"
-        role="button" tabindex="0">Edit Events</div><br />
-    <div id="btn_viewHistory" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="viewHistory();" style="font-size: 120%; display: none;"
-        role="button" tabindex="0"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="" /> View
-        History</div><br />
-    <div id="btn_renameWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="renameWorkflow();" style="font-size: 120%; display: none;"
-        role="button" tabindex="0"><img src="../dynicons/?img=accessories-text-editor.svg&amp;w=32"
-            alt="" /> Rename
-        Workflow</div>
-    <div id="btn_duplicateWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="duplicateWorkflow();" style="font-size: 100%; display: none; margin-top: 10px;"
-        role="button" tabindex="0"><img src="../dynicons/?img=edit-copy.svg&amp;w=32"
-            alt="" /> Duplicate
-        Workflow</div>
-</div>
-<div id="workflow"
-    style="margin-left: 184px; background-color: #444444; margin-top: 16px; overflow-x: auto; overflow-y: auto; width: 72%;">
+<div id="workflow_editor" style="margin-top:0.5rem;display:flex;gap:0.25rem;padding:0.25rem;">
+    <div id="sideBar" style="width:182px;display:flex;gap:0.5rem;flex-direction:column;">
+        <div>
+            <label id="workflows_label" style="font-family: Source Sans Pro Web"> Workflows:</label>
+            <div id="workflowList"></div>
+        </div>
+        <button id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Workflow
+        </button>
+
+        <div>
+            <label id="steps_label" style="font-family: Source Sans Pro Web"> Current Workflow Steps:</label>
+            <div id="stepList"></div>
+        </div>
+        <button id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> Add Step
+        </button>
+
+        <hr />
+        <button id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">Edit Actions</button>
+
+        <button id="btn_listEvents" class="buttonNorm" onclick="listEvents();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">Edit Events</button>
+
+        <button id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+            <img src="../dynicons/?img=accessories-text-editor.svg&amp;w=26" alt="" /> Rename Workflow
+        </button>
+
+        <button id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" style="font-size:1.1rem;text-align: start;padding:4px;height:36px;">
+            <img src="../dynicons/?img=edit-copy.svg&amp;w=26" alt="" /> Duplicate Workflow
+        </button>
+
+        <button id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+            <img src="../dynicons/?img=list-remove.svg&w=26" alt="" /> Delete Workflow
+        </button>
+        <hr />
+        <button id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+            <img src="../dynicons/?img=appointment.svg&amp;w=26" alt="" /> View History
+        </button>
+    </div>
+    <div id="workflow"
+        style="background-color: #444446; overflow-x: auto; overflow-y: auto; width: 100%;">
+    </div>
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -921,7 +933,7 @@
             success: function(res) {
                 let buffer = '';
                 buffer = '<label id="requirements_label">Select an existing requirement</label>';
-                buffer += '<br /><div><select id="dependencyID" name="dependencyID">';
+                buffer += '<div><select id="dependencyID" name="dependencyID" title="Select a requiremement">';
 
                 var reservedDependencies = [-3, -2, -1, 1, 8];
                 var maskedDependencies = [5];
@@ -947,11 +959,13 @@
 
                 buffer += '</select></div>';
                 buffer +=
-                    '<br /><br /><br /><br /><div>If a requirement does not exist: <span tabindex=0 class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newDependency(' + stepID +
-                    ')">Create a new requirement</span></div>';
+                    '<br /><br /><br /><div>If a requirement does not exist: <button class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="newDependency(' + stepID +
+                    ')">Create a new requirement</button></div>';
                 $('#dependencyList').html(buffer);
-                $('#dependencyID').chosen({disable_search_threshold: 5});
-
+                $('#xhrDialog').css('overflow', 'visible');
+                $('#dependencyID').chosen({
+                    disable_search_threshold: 5
+                });
                 $('#dependencyID_chosen input.chosen-search-input').attr('role', 'combobox');
                 $('#dependencyID_chosen input.chosen-search-input').attr('aria-labelledby', 'requirements_label');
                 dialog.setSaveHandler(function() {
@@ -1455,7 +1469,7 @@
                 first.addEventListener('keydown', actionTabbing);
                 last.addEventListener('keydown', actionTabbing);
             }
-            $('*#closeModal').on('click', ()=> {
+            $('#closeModal').on('click', ()=> {
                 $('.workflowStepInfo').css('display', 'none');
                 $('#stepInfo_' + stepID).html("");
             });
@@ -1824,7 +1838,7 @@
                             stepID + ')">Email Reminder</button></div>';
 
                         $('#stepInfo_' + stepID).html(output);
-                        $('*#closeModal').on('click', ()=> {
+                        $('#closeModal').on('click', ()=> {
                             $('.workflowStepInfo').css('display', 'none');
                             $('#stepInfo_' + stepID).html("");
                         });
@@ -2014,14 +2028,6 @@
     var currentWorkflow = 0;
 
     function loadWorkflow(workflowID) {
-        $('#btn_createStep').css('display', 'block');
-        $('#btn_deleteWorkflow').css('display', 'block');
-        $('#btn_listActionType').css('display', 'block');
-        $('#btn_listEvents').css('display', 'block');
-        $('#btn_viewHistory').css('display', 'block');
-        $('#btn_renameWorkflow').css('display', 'block');
-        $('#btn_duplicateWorkflow').css('display', 'block');
-
         currentWorkflow = workflowID;
         jsPlumb.reset();
         endPoints = [];
@@ -2124,6 +2130,7 @@
 
                 $('#workflow').css('height', 300 + maxY + 'px');
                 drawRoutes(workflowID);
+                buildStepList(steps)
             },
             error: (err) => console.log(err),
             cache: false
@@ -2181,6 +2188,25 @@
             error: (err) => console.log(err),
             cache: false
         });
+    }
+
+    function buildStepList(steps = {}) {
+        let output = '<select id="workflow_steps" title="current workflow steps" style="width: 100%">';
+        const stepIDs = Object.keys(steps);
+        if (stepIDs.length === 0) {
+            output += '<option value="">No Steps Available</option>';
+        }
+        stepIDs.forEach(id => {
+            output += `<option value="${id}">${steps[id].stepTitle} (#${id})</option>`;
+        });
+        output += '</select>';
+        $('#stepList').html(output);
+        $('#workflow_steps').chosen({
+            disable_search_threshold: 5,
+            width: '100%'
+        });
+        $('#workflow_steps_chosen input.chosen-search-input').attr('role', 'combobox');
+        $('#workflow_steps_chosen input.chosen-search-input').attr('aria-labelledby', 'steps_label');
     }
 
     function viewHistory() {
