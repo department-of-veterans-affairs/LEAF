@@ -1377,10 +1377,9 @@ function getForm(indicatorID, series) {
             type: 'GET',
             url: '../api/form/_' + currCategoryID + '/flat',
             success: function(res) {
-                const shortName = (name = "") => {
-                    const maxLen = 65;
+                const shortName = (name = "", len = 50) => {
                     const displayName = XSSHelpers.stripAllTags(name || "").trim();
-                    return displayName.length <= maxLen ? displayName : displayName.slice(0, maxLen) + '...';
+                    return displayName.length <= len ? displayName : displayName.slice(0, len) + '...';
                 }
                 let buffer = '<select id="parentID" style="width:300px;">';
                 buffer += '<option value="">None</option>';

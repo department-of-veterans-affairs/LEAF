@@ -1354,6 +1354,7 @@
 
                 dialog.indicateIdle();
                 dialog.setContent(buffer);
+                $('#xhrDialog').css('overflow', 'visible');
                 $('#actionType').chosen({disable_search_threshold: 5});
                 // TODO: Figure out why this triggers even when the user clicks save
                 /*
@@ -1643,6 +1644,10 @@
                         cache: false
                     })
                     .then(function(indicatorList) {
+                        const shortName = (name = "", len = 50) => {
+                            name = XSSHelpers.stripAllTags(name || "").trim();
+                            return name.length <= len ? name : name.slice(0, len) + '...';
+                        }
                         var stapledInternalIndicators;
                         for (let i in associatedCategories) {
                             for (let j in indicatorList) {
@@ -1652,7 +1657,7 @@
                                     indicatorList[j].parentIndicatorID == null) {
                                     $('#workflowIndicator_' + stepID).append('<option value="' + indicatorList[
                                             j].indicatorID + '">' + indicatorList[j].categoryName + ': ' +
-                                        indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID +
+                                        shortName(indicatorList[j].name) + ' (id: ' + indicatorList[j].indicatorID +
                                         ')</option>');
                                 } else if (indicatorList[j].parentStaples != null) {
                                     for (let k in indicatorList[j].parentStaples) {
@@ -1697,6 +1702,19 @@
 
             postModule(stepID, $('#workflowIndicator_' + stepID).val());
         });
+    }
+
+    function addConnection(fromStepID = null, toStepID = null) {
+        if(Number.isInteger(parseInt(fromStepID)) && Number.isInteger(parseInt(toStepID))) {
+            console.log(fromStepID, toStepID)
+            const jsPlumbParams = {
+                sourceId: `step_${fromStepID}`,
+                targetId: `step_${toStepID}`,
+            }
+            createAction(jsPlumbParams);
+        } else {
+            console.log('unexpected arguments')
+        }
     }
 
     function showStepInfo(stepID) {
@@ -1803,11 +1821,31 @@
                         }
                         output += '</ul><div>';
 
-                        // TODO: This will eventually be moved to some sort of Workflow extension plugin
-                        output += '<fieldset><legend>Options</legend><ul>';
-                        output += '<li><label for="workflowIndicator_' + stepID + '" style="font-family: Source Sans Pro Web">Form Field:</label> <select id="workflowIndicator_' + stepID +
-                            '" style="width: 240px"><option value="">None</option></select></li>';
-                        output += '</ul></fieldset>';
+                        const stepKeys = Object.keys(steps);
+                        let step_options = ""
+                        stepKeys.forEach(k => {
+                            step_options += `<option value="${k}">${steps[k].stepTitle}(id#${k})</option>`;
+                        });
+                        output += `<fieldset>
+                            <legend>Options</legend>
+                            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                                <div>
+                                    <label for="workflowIndicator_${stepID}" style="font-family: Source Sans Pro Web;display:block;">Form Field:</label>
+                                    <select id="workflowIndicator_${stepID}" style="width:250px;">
+                                        <option value="">None</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="create_route" style="font-family: Source Sans Pro Web;display:block;">New Connection:</label>
+                                    <select id="create_route" style="width:250px;" onchange="addConnection(${stepID}, this.value)">
+                                        <option value="">Choose a Step</option>
+                                        <option value="-1">Requestor</option>
+                                        <option value="0">End</option>
+                                        ${step_options}
+                                    </select>
+                                <div>
+                            </div>
+                        </fieldset>`;
 
                         // button options for steps
                         output += '<hr />';
@@ -1873,11 +1911,11 @@
         }
 
         position = $('#step_' + stepID).offset();
-        width = $('#step_' + stepID).width();
+        height = $('#step_' + stepID).height();
 
         $('#stepInfo_' + stepID).css({
-            left: position.left + width + 'px',
-            top: position.top + 'px'
+            left: position.left + 'px',
+            top: position.top + height + 20 + 'px'
         });
         $('#stepInfo_' + stepID).show('slide', null, 200);
     }
@@ -2207,6 +2245,16 @@
         });
         $('#workflow_steps_chosen input.chosen-search-input').attr('role', 'combobox');
         $('#workflow_steps_chosen input.chosen-search-input').attr('aria-labelledby', 'steps_label');
+        $('#workflow_steps').on('change', function() {
+            showStepInfo($('#workflow_steps').val());
+        });
+        $('#workflow_steps + .chosen-container').on('keydown', function(event) {
+            const code = (event?.code || "").toLowerCase()
+            if (code === 'space') {
+                event.preventDefault();
+                showStepInfo($('#workflow_steps').val());
+            }
+        });
     }
 
     function viewHistory() {
