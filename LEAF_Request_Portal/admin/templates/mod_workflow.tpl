@@ -1461,7 +1461,7 @@
                 addEventDialog(currentWorkflow, stepID, params.action);
             });
             const modalEl = document.getElementById('stepInfo_' + stepID);
-            const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input'));
+            const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
             const first = interActiveEls[0] || null;
             const last = interActiveEls[interActiveEls.length - 1] || null;
             if (first !== null && last !== null) {
@@ -1681,7 +1681,7 @@
                             }
                         }
                         const modalEl = document.getElementById('stepInfo_' + stepID);
-                        const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, select'));
+                        const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
                         const first = interActiveEls[0];
                         const last = interActiveEls[interActiveEls.length - 1];
                         if (first !== null && last !== null) {
@@ -1726,9 +1726,26 @@
         $('.workflowStepInfo').css('display', 'none');
         $('#stepInfo_' + stepID).html('Loading...');
 
+        const stepKeys = Object.keys(steps);
+        let step_options = ""
+        stepKeys.forEach(k => {
+            step_options += `<option value="${k}">${steps[k].stepTitle}(id#${k})</option>`;
+        });
         switch (Number(stepID)) {
             case -1:
-                $('#stepInfo_' + stepID).html('Request initiator (stepID #: -1)');
+                const output = `Request initiator (stepID #: -1)
+                    <fieldset>
+                        <legend>Options</legend>
+                        <div>
+                            <label for="create_route" style="font-family: Source Sans Pro Web;display:block;">New Connection:</label>
+                            <select id="create_route" style="width:250px;" onchange="addConnection(${stepID}, this.value)">
+                                <option value="">Choose a Step</option>
+                                <option value="0">End</option>
+                                ${step_options}
+                            </select>
+                        <div>
+                    </fieldset>`;
+                $('#stepInfo_' + stepID).html(output);
                 break;
             case 0:
                 $('#stepInfo_' + stepID).html('The End.  (stepID #: 0)');
@@ -1821,11 +1838,6 @@
                         }
                         output += '</ul><div>';
 
-                        const stepKeys = Object.keys(steps);
-                        let step_options = ""
-                        stepKeys.forEach(k => {
-                            step_options += `<option value="${k}">${steps[k].stepTitle}(id#${k})</option>`;
-                        });
                         output += `<fieldset>
                             <legend>Options</legend>
                             <div style="display:flex;flex-direction:column;gap:0.5rem;">
@@ -2229,11 +2241,8 @@
     }
 
     function buildStepList(steps = {}) {
-        let output = '<select id="workflow_steps" title="current workflow steps" style="width: 100%">';
+        let output = '<select id="workflow_steps" title="current workflow steps" style="width: 100%"><option value="-1">Requestor</option>';
         const stepIDs = Object.keys(steps);
-        if (stepIDs.length === 0) {
-            output += '<option value="">No Steps Available</option>';
-        }
         stepIDs.forEach(id => {
             output += `<option value="${id}">${steps[id].stepTitle} (#${id})</option>`;
         });
