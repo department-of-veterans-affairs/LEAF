@@ -471,7 +471,9 @@
         }
 
         let content = '<label id="event_label">Add an event: </label>';
-        content += '<br /><div><select id="eventID" name="eventID" title="event">';
+        content += `<br /><div>
+            <span id="event_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+            <select id="eventID" name="eventID" title="Select Event" onchange="updateSelectionStatus(this, 'event_select_status')">`;
         for (let i in events) {
             content += `<option value="${events[i].eventID}">${events[i].eventType} - ${events[i].eventDescription}</option>`;
         }
@@ -509,8 +511,8 @@
                 $('#eventID').chosen({disable_search_threshold: 5});
                 $('#xhrDialog').css('overflow', 'visible');
 
-                $('#eventID_chosen input.chosen-search-input').attr('aria-labelledby', 'event_label');
-                $('input.chosen-search-input').attr('role', 'combobox');
+                updateChosenAttributes("eventID", "event_label", "Select Event");
+
                 dialog.setSaveHandler(function() {
                     let ajaxData = {eventID: $('#eventID').val(),
                                     CSRFToken: CSRFToken};
@@ -933,7 +935,8 @@
             success: function(res) {
                 let buffer = '';
                 buffer = '<label id="requirements_label">Select an existing requirement</label>';
-                buffer += '<div><select id="dependencyID" name="dependencyID" title="Select a requiremement">';
+                buffer += `<div><span id="req_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+                    <select id="dependencyID" name="dependencyID" title="Select a requiremement" onchange="updateSelectionStatus(this, 'req_select_status')">`;
 
                 var reservedDependencies = [-3, -2, -1, 1, 8];
                 var maskedDependencies = [5];
@@ -1430,7 +1433,8 @@
             stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
             output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
                 <h2 style="display:inline-block;margin:0;">Action: ${stepTitle} clicks ${params.action}</h2>
-                <button type="button" id="closeModal" style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
+                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})"
+                    style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
             </div>`;
 
             if (params.action == 'sendback') {
@@ -1470,10 +1474,6 @@
                 first.addEventListener('keydown', actionTabbing);
                 last.addEventListener('keydown', actionTabbing);
             }
-            $('#closeModal').on('click', ()=> {
-                $('.workflowStepInfo').css('display', 'none');
-                $('#stepInfo_' + stepID).html("");
-            });
         });
 
         $('#stepInfo_' + stepID).css({
@@ -1680,16 +1680,6 @@
                                 }
                             }
                         }
-                        const modalEl = document.getElementById('stepInfo_' + stepID);
-                        const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
-                        const first = interActiveEls[0];
-                        const last = interActiveEls[interActiveEls.length - 1];
-                        if (first !== null && last !== null) {
-                            first.focus();
-                            const stepTabbing = controlTabbing(first, last);
-                            first.addEventListener('keydown', stepTabbing);
-                            last.addEventListener('keydown', stepTabbing);
-                        }
                     });
             });
 
@@ -1717,6 +1707,12 @@
         }
     }
 
+    function closeStepInfo(stepID) {
+        $('.workflowStepInfo').css('display', 'none');
+        $('#stepInfo_' + stepID).html("");
+        $(`#workflow_steps_chosen input.chosen-search-input`).focus();
+    }
+
     function showStepInfo(stepID) {
         $('#stepInfo_' + stepID).html('');
         if ($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second click
@@ -1726,29 +1722,39 @@
         $('.workflowStepInfo').css('display', 'none');
         $('#stepInfo_' + stepID).html('Loading...');
 
-        const stepKeys = Object.keys(steps);
-        let step_options = ""
-        stepKeys.forEach(k => {
-            step_options += `<option value="${k}">${steps[k].stepTitle}(id#${k})</option>`;
-        });
+        let routeOptions = "";
+        if (currentWorkflow > 0) {
+            const stepKeys = Object.keys(steps);
+            let step_options = "";
+            stepKeys.forEach(k => {
+                step_options += `<option value="${k}">${steps[k].stepTitle}(id#${k})</option>`;
+            });
+            routeOptions = `<div>
+                <label for="create_route" style="font-family: Source Sans Pro Web;display:block;">New Connection:</label>
+                <select id="create_route" style="width:250px;" onchange="addConnection(${stepID}, this.value)">
+                    <option value="">Choose a Step</option>
+                    <option value="-1">Requestor</option>
+                    <option value="0">End</option>
+                    ${step_options}
+                </select>
+            <div>`;
+        }
+
         switch (Number(stepID)) {
             case -1:
-                const output = `Request initiator (stepID #: -1)
-                    <fieldset>
+                let output = `Request initiator (stepID #: -1)`;
+                if (currentWorkflow > 0) {
+                    output += `<fieldset>
                         <legend>Options</legend>
-                        <div>
-                            <label for="create_route" style="font-family: Source Sans Pro Web;display:block;">New Connection:</label>
-                            <select id="create_route" style="width:250px;" onchange="addConnection(${stepID}, this.value)">
-                                <option value="">Choose a Step</option>
-                                <option value="0">End</option>
-                                ${step_options}
-                            </select>
-                        <div>
+                        ${routeOptions}
                     </fieldset>`;
+                }
                 $('#stepInfo_' + stepID).html(output);
                 const select = document.getElementById('create_route');
-                const tabControl = controlTabbing(select, select)
-                select.addEventListener('keydown', tabControl);
+                if(select !== null) {
+                    const tabControl = controlTabbing(select, select)
+                    select.addEventListener('keydown', tabControl);
+                }
                 break;
             case 0:
                 $('#stepInfo_' + stepID).html('The End.  (stepID #: 0)');
@@ -1765,7 +1771,8 @@
 
                         let output = `<div style="display:flex;gap:0.5rem;align-items:center;justify-content:space-between;">
                                 <h2 style="display:inline-block;margin:0;">stepID: #${stepID} ${control_removeStep}</h2>
-                                <button type="button" id="closeModal" style="padding:2px;background-color:#fff;border-color:#eee;" title="close modal">&#10006</button>
+                                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})"
+                                    style="padding:2px;background-color:#fff;border-color:#eee;" title="close modal">&#10006</button>
                             </div></br>
                             Step: <b>${steps[stepID].stepTitle}</b>
                             <img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16"
@@ -1850,15 +1857,7 @@
                                         <option value="">None</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label for="create_route" style="font-family: Source Sans Pro Web;display:block;">New Connection:</label>
-                                    <select id="create_route" style="width:250px;" onchange="addConnection(${stepID}, this.value)">
-                                        <option value="">Choose a Step</option>
-                                        <option value="-1">Requestor</option>
-                                        <option value="0">End</option>
-                                        ${step_options}
-                                    </select>
-                                <div>
+                                ${routeOptions}
                             </div>
                         </fieldset>`;
 
@@ -1891,10 +1890,16 @@
                             stepID + ')">Email Reminder</button></div>';
 
                         $('#stepInfo_' + stepID).html(output);
-                        $('#closeModal').on('click', ()=> {
-                            $('.workflowStepInfo').css('display', 'none');
-                            $('#stepInfo_' + stepID).html("");
-                        });
+                        const modalEl = document.getElementById('stepInfo_' + stepID);
+                        const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
+                        const first = interActiveEls[0];
+                        const last = interActiveEls[interActiveEls.length - 1];
+                        if (first !== null && last !== null) {
+                            first.focus();
+                            const stepTabbing = controlTabbing(first, last);
+                            first.addEventListener('keydown', stepTabbing);
+                            last.addEventListener('keydown', stepTabbing);
+                        }
                         // setup UI for form fields in the workflow area
                         buildWorkflowIndicatorDropdown(stepID, steps);
 
@@ -2196,7 +2201,9 @@
             type: 'GET',
             url: '../api/workflow',
             success: function(res) {
-                let output = '<select id="workflows" title="Select a Workflow" style="width: 100%">';
+                let output = `
+                <span id="workflow_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+                <select id="workflows" title="Select a Workflow" style="width: 100%" onchange="updateSelectionStatus(this, 'workflow_select_status')">`;
                 var count = 0;
                 var firstWorkflowID = 0;
                 let firstWorkflowDescription = '';
@@ -2243,7 +2250,9 @@
     }
 
     function buildStepList(steps = {}) {
-        let output = '<select id="workflow_steps" title="Select Workflow Step" style="width: 100%"><option value="-1">Requestor</option>';
+        let output = `<span id="step_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+            <select id="workflow_steps" title="Select Workflow Step" style="width: 100%" onchange="updateSelectionStatus(this, 'step_select_status')">
+            <option value="-1">Requestor</option>`;
         const stepIDs = Object.keys(steps);
         stepIDs.forEach(id => {
             output += `<option value="${id}">${steps[id].stepTitle} (#${id})</option>`;
@@ -2260,7 +2269,7 @@
             showStepInfo($('#workflow_steps').val());
         });
         $('#workflow_steps + .chosen-container').on('keydown', function(event) {
-            const code = (event?.code || "").toLowerCase()
+            const code = (event?.code || "").toLowerCase();
             if (code === 'space') {
                 event.preventDefault();
                 showStepInfo($('#workflow_steps').val());
@@ -2924,6 +2933,15 @@
         $(`#${selectID}_chosen input.chosen-search-input`).attr('aria-labelledby', labelID);
         $(`#${selectID}-chosen-search-results`).attr('title', title);
         $(`#${selectID}-chosen-search-results`).attr('role', 'listbox');
+    }
+    function updateSelectionStatus(selectEl = null, statusID = "") {
+        if(selectEl !== null && statusID !== "") {
+            const statusEl = document.getElementById(statusID);
+            const textVal = selectEl.querySelector(`option[value="${selectEl?.value}"]`)?.innerText || "";
+            if(statusEl !== null && textVal !== "") {
+                statusEl.setAttribute('aria-label', `${textVal} is selected`);
+            }
+        }
     }
 
 

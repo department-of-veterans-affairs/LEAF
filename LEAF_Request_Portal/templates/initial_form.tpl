@@ -24,6 +24,15 @@ function updateChosenAttributes(selectID = "", labelID = "", title = "List Selec
     $(`#${selectID}-chosen-search-results`).attr('title', title);
     $(`#${selectID}-chosen-search-results`).attr('role', 'listbox');
 }
+function updateSelectionStatus(selectEl = null, statusID = "") {
+    if(selectEl !== null && statusID !== "") {
+        const statusEl = document.getElementById(statusID);
+        const textVal = selectEl.querySelector(`option[value="${selectEl?.value}"]`)?.innerText || "";
+        if(statusEl !== null && textVal !== "") {
+            statusEl.setAttribute('aria-label', `${textVal} is selected`);
+        }
+    }
+}
 function checkForm() {
     <!--{if count($services) != 0}-->
     if($("#service").val() == "") {
@@ -80,13 +89,14 @@ $(function() {
             <table id="step1_questions" style="width: 100%; margin: 0; padding: 1rem 0.5rem">
                 <tr>
                     <td>Contact Info</td>
-                    <td><input id="recorder" aria-label="recorder" type="text" value="<!--{$recorder|sanitize}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="phone" value="<!--{$phone|sanitize}-->" disabled="disabled" /></td>
+                    <td><input id="recorder" aria-label="auto populated requestor username" type="text" value="<!--{$recorder|sanitize}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="auto populated requestor phone" value="<!--{$phone|sanitize}-->" disabled="disabled" /></td>
                 </tr>
                 <!--{if count($services) != 0}-->
                 <tr>
                     <td><label id="service_label">Service</label></td>
                     <td>
-                        <select id="service" name="service" title="Select Service">
+                        <span id="service_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+                        <select id="service" name="service" title="Select Service" onchange="updateSelectionStatus(this, 'service_select_status')">
                         <option value=""></option>
                         <!--{foreach from=$services item=service}-->
                         <option value="<!--{$service.serviceID|strip_tags}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service|sanitize}--></option>
@@ -100,9 +110,10 @@ $(function() {
                 <tr>
                     <td><label id="priority_label">Priority</label></td>
                     <td>
-                        <select id="priority" name="priority" title="Select Priority">
+                        <span id="priority_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+                        <select id="priority" name="priority" title="Select Priority" onchange="updateSelectionStatus(this, 'priority_select_status')">
                         <option value="-10">EMERGENCY</option>
-                        <option value="0" selected="selected">Normal</option>
+                        <option value="0" selected>Normal</option>
                         </select>
                     </td>
                 </tr>
