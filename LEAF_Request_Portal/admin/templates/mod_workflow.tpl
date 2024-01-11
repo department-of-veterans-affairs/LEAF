@@ -1,7 +1,7 @@
 <div id="workflow_editor" style="margin-top:0.5rem;display:flex;gap:0.25rem;padding:0.25rem;">
     <div id="sideBar" style="width:182px;display:flex;gap:0.5rem;flex-direction:column;">
         <div>
-            <label id="workflows_label" style="font-family: Source Sans Pro Web"> Workflows:</label>
+            <label id="workflows_label"> Workflows:</label>
             <div id="workflowList"></div>
         </div>
         <button type="button" id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
@@ -9,11 +9,19 @@
         </button>
 
         <div>
-            <label id="steps_label" style="font-family: Source Sans Pro Web"> Current Workflow Steps:</label>
+            <label id="steps_label" style="font-family: Source Sans Pro Web"> Workflow Steps:</label>
             <div id="stepList"></div>
         </div>
         <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
             <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> Add Step
+        </button>
+
+        <div>
+            <label id="actions_label" style="font-family: Source Sans Pro Web"> Workflow Actions:</label>
+            <div id="actionList"></div>
+        </div>
+        <button type="button" id="btn_createAction" class="buttonNorm" onclick="newAction()" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> Add New Action
         </button>
 
         <hr />
@@ -1433,7 +1441,7 @@
             stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
             output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
                 <h2 style="display:inline-block;margin:0;">Action: ${stepTitle} clicks ${params.action}</h2>
-                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})"
+                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID}, true)"
                     style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
             </div>`;
 
@@ -1470,15 +1478,15 @@
             const last = interActiveEls[interActiveEls.length - 1] || null;
             if (first !== null && last !== null) {
                 const actionTabbing = controlTabbing(first, last);
-                first.focus();
                 first.addEventListener('keydown', actionTabbing);
                 last.addEventListener('keydown', actionTabbing);
+                first.focus();
             }
         });
 
         $('#stepInfo_' + stepID).css({
-            left: evt.pageX + 'px',
-            top: evt.pageY + 'px'
+            left: evt.pageX || 200 + 'px',
+            top: evt.pageY || 300 + 'px'
         });
         $('#stepInfo_' + stepID).show('slide', null, 200);
     }
@@ -1506,8 +1514,10 @@
                 for (let i in res) {
                     if (res[i]['format'] == 'orgchart_employee' ||
                         res[i]['format'] == 'raw_data') {
+                        let name = XSSHelpers.stripAllTags(res[i].name);
+                        name = name.length <= 50 ? name : name.slice(0, 50) + '...';
                         indicatorList += '<option value="' + res[i].indicatorID + '">' + res[i]
-                            .categoryName + ': ' + res[i].name + ' (id: ' + res[i].indicatorID +
+                            .categoryName + ': ' + name + ' (id: ' + res[i].indicatorID +
                             ')</option>';
                     }
                 }
@@ -1644,10 +1654,6 @@
                         cache: false
                     })
                     .then(function(indicatorList) {
-                        const shortName = (name = "", len = 50) => {
-                            name = XSSHelpers.stripAllTags(name || "").trim();
-                            return name.length <= len ? name : name.slice(0, len) + '...';
-                        }
                         var stapledInternalIndicators;
                         for (let i in associatedCategories) {
                             for (let j in indicatorList) {
@@ -1655,9 +1661,11 @@
                                         associatedCategories[i].categoryID == indicatorList[j].parentCategoryID
                                     ) &&
                                     indicatorList[j].parentIndicatorID == null) {
+                                    let name = XSSHelpers.stripAllTags(indicatorList[j].name);
+                                    name = name.length <= 50 ? name : name.slice(0, 50) + '...';
                                     $('#workflowIndicator_' + stepID).append('<option value="' + indicatorList[
                                             j].indicatorID + '">' + indicatorList[j].categoryName + ': ' +
-                                        shortName(indicatorList[j].name) + ' (id: ' + indicatorList[j].indicatorID +
+                                            name + ' (id: ' + indicatorList[j].indicatorID +
                                         ')</option>');
                                 } else if (indicatorList[j].parentStaples != null) {
                                     for (let k in indicatorList[j].parentStaples) {
@@ -1696,7 +1704,6 @@
 
     function addConnection(fromStepID = null, toStepID = null) {
         if(Number.isInteger(parseInt(fromStepID)) && Number.isInteger(parseInt(toStepID))) {
-            console.log(fromStepID, toStepID)
             const jsPlumbParams = {
                 sourceId: `step_${fromStepID}`,
                 targetId: `step_${toStepID}`,
@@ -1707,10 +1714,14 @@
         }
     }
 
-    function closeStepInfo(stepID) {
+    function closeStepInfo(stepID = "", actions = false) {
         $('.workflowStepInfo').css('display', 'none');
         $('#stepInfo_' + stepID).html("");
-        $(`#workflow_steps_chosen input.chosen-search-input`).focus();
+        if (actions === false) {
+            $(`#workflow_steps_chosen input.chosen-search-input`).focus();
+        } else {
+            $(`#workflow_actions_chosen input.chosen-search-input`).focus();
+        }
     }
 
     function showStepInfo(stepID) {
@@ -1754,6 +1765,7 @@
                 if(select !== null) {
                     const tabControl = controlTabbing(select, select)
                     select.addEventListener('keydown', tabControl);
+                    select.focus();
                 }
                 break;
             case 0:
@@ -1809,8 +1821,8 @@
                                     control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
                                     indicatorWarning + '<li>indicatorID: ' + res[i]
                                     .indicatorID_for_assigned_empUID +
-                                    '<br /><div class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="setDynamicApprover(' + res[i]
-                                    .stepID + ')">Set Data Field</div></li></ul></li>';
+                                    '<br /><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="setDynamicApprover(' + res[i]
+                                    .stepID + ')">Set Data Field</button></li></ul></li>';
                             } else if (res[i].dependencyID == -2) { // dependencyID -2 : requestor followup
                                 output += '<li><b style="color: green">' + res[i].description + '</b> ' +
                                     control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')</li>';
@@ -1826,8 +1838,8 @@
                                     control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
                                     indicatorWarning + '<li>indicatorID: ' + res[i]
                                     .indicatorID_for_assigned_groupID +
-                                    '<br /><div class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="setDynamicGroupApprover(' + res[
-                                        i].stepID + ')">Set Data Field</div></li></ul></li>';
+                                    '<br /><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="setDynamicGroupApprover(' + res[
+                                        i].stepID + ')">Set Data Field</button></li></ul></li>';
                             } else {
                                 if (tDeps[res[i].dependencyID] == undefined) { //
                                     tDeps[res[i].dependencyID] = 1;
@@ -1895,10 +1907,10 @@
                         const first = interActiveEls[0];
                         const last = interActiveEls[interActiveEls.length - 1];
                         if (first !== null && last !== null) {
-                            first.focus();
                             const stepTabbing = controlTabbing(first, last);
                             first.addEventListener('keydown', stepTabbing);
                             last.addEventListener('keydown', stepTabbing);
+                            first.focus();
                         }
                         // setup UI for form fields in the workflow area
                         buildWorkflowIndicatorDropdown(stepID, steps);
@@ -1986,7 +1998,7 @@
                                 ["Label", {
                                         id: 'stepLabel_' + res[i].stepID + '_0_' + res[i]
                                             .actionType,
-                                        cssClass: "workflowAction",
+                                        cssClass: `workflowAction ${res[i].stepID}-sendback-0`,
                                         label: res[i].actionText,
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
@@ -2013,7 +2025,7 @@
                                 ["Label", {
                                         id: 'stepLabel_' + res[i].stepID + '_' + res[i].nextStepID +
                                             '_' + res[i].actionType,
-                                        cssClass: "workflowAction",
+                                        cssClass: `workflowAction ${res[i].stepID}-${res[i].actionType}-${res[i].nextStepID}`,
                                         label: res[i].actionText,
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
@@ -2047,7 +2059,7 @@
                         overlays: [
                             ["Label", {
                                     id: 'stepLabel_0_' + workflows[workflowID].initialStepID + '_submit',
-                                    cssClass: "workflowAction",
+                                    cssClass: `workflowAction 0-submit-${workflows[workflowID].initialStepID}`,
                                     label: 'Submit',
                                     location: loc,
                                     parameters: {'stepID': -1,
@@ -2071,6 +2083,9 @@
                     createAction(info);
                 });
                 jsPlumb.setSuspendDrawing(false, true);
+
+                //Add quick route selector
+                buildRoutesList(routes)
 
                 let actionOverlays = Array.from(document.querySelectorAll('div.jtk-overlay.workflowAction'));
                 actionOverlays.forEach(ao => {
@@ -2273,6 +2288,49 @@
             if (code === 'space') {
                 event.preventDefault();
                 showStepInfo($('#workflow_steps').val());
+            }
+        });
+    }
+
+    function buildRoutesList(actions = []) {
+        const initialStep = workflows[currentWorkflow].initialStepID;
+        let output = `<span id="action_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+            <select id="workflow_actions" title="Select Workflow Action" style="width: 100%" onchange="updateSelectionStatus(this, 'action_select_status')">
+            <option value="0-submit-${initialStep}">Submit->${initialStep}</option>`;
+
+        actions.forEach(a => {
+            let toText = a.nextStepID + ":";
+            if (a.actionType === "sendback") {
+                toText = ""
+            } else if (a.nextStepID === 0) {
+                toText = "End:"
+            }
+            output += `<option value="${a.stepID}-${a.actionType}-${a.nextStepID}">
+                    ${a.stepID}->${toText} ${a.actionText}</option>`;
+        });
+        output += '</select>';
+        $('#actionList').html(output);
+        $('#workflow_actions').chosen({
+            disable_search_threshold: 5,
+            width: '100%'
+        });
+        updateChosenAttributes("workflow_actions", "actions_label", "Select Action");
+
+        const sel = document.getElementById('workflow_actions');
+        $('#workflow_actions').on('change', function() {
+            const val = sel.value || ""
+            if (val !== "") {
+                $(`.workflowAction.${val}`).click();
+            }
+        });
+        $('#workflow_actions + .chosen-container').on('keydown', function(event) {
+            const code = (event?.code || "").toLowerCase();
+            if (code === 'space') {
+                event.preventDefault();
+                const val = sel.value || "";
+                if (val !== "") {
+                    $(`.workflowAction.${val}`).click();
+                }
             }
         });
     }
