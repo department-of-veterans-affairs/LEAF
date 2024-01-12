@@ -807,7 +807,7 @@ class Workflow
         $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::STEP_DEPENDENCY, [
             new LogItem("workflows", "workflowID", $this->workflowID),
             new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr." (req#".$dependencyID.")")
+            new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr." (#".$dependencyID.")")
         ]);
 
         // populate records_dependencies so we can filter on items immediately
@@ -856,7 +856,7 @@ class Workflow
         $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::STEP_DEPENDENCY, [
             new LogItem("workflows", "workflowID", $this->workflowID),
             new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr." (req#".$dependencyID.")")
+            new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr." (#".$dependencyID.")")
         ]);
 
         return true;
@@ -925,7 +925,7 @@ class Workflow
 
         $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::DEPENDENCY_PRIVS, [
             new LogItem("dependency_privs", "groupID",  $groupID),
-            new LogItem("dependency_privs", "dependencyID",  $dependencyID, $depDescr." (req#".$dependencyID.")")
+            new LogItem("dependency_privs", "dependencyID",  $dependencyID, $depDescr." (#".$dependencyID.")")
         ]);
 
         return true;
@@ -951,7 +951,7 @@ class Workflow
 
         $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::DEPENDENCY_PRIVS, [
             new LogItem("dependency_privs", "groupID",  $groupID),
-            new LogItem("dependency_privs", "dependencyID", $dependencyID, $depDescr." (req#".$dependencyID.")")
+            new LogItem("dependency_privs", "dependencyID", $dependencyID, $depDescr." (#".$dependencyID.")")
         ]);
 
         return true;
