@@ -2181,89 +2181,85 @@
      * Created at: 7/26/2023, 1:08:10 PM (America/New_York)
      */
     function duplicateWorkflow() {
-        if (+currentWorkflow > 0) {
-            $('.workflowStepInfo').css('display', 'none');
+        $('.workflowStepInfo').css('display', 'none');
 
-            dialog.setTitle('Duplicate current workflow');
-            dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
-            dialog.setSaveHandler(function() {
-                let old_steps = {};
-                let workflowID;
-                let title = $('#description').val();
+        dialog.setTitle('Duplicate current workflow');
+        dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
+        dialog.setSaveHandler(function() {
+            let old_steps = {};
+            let workflowID;
+            let title = $('#description').val();
 
-                postWorkflow(function(workflow_id) {
-                    workflowID = workflow_id;
-                    dialog.hide();
-                });
-
-                workflows[workflowID] = workflows[currentWorkflow];
-                workflows[workflowID]['workflowID'] = parseInt(workflowID);
-                workflows[workflowID]['description'] = title;
-                old_steps[-1] = -1;
-
-                for(let i in steps) {
-                    // add step, if successful update that step
-                    addStep(workflowID, steps[i].stepTitle, function(stepID) {
-
-                        if (isNaN(stepID)) {
-                            console.log(stepID);
-                        } else {
-                            old_steps[steps[i].stepID] = stepID;
-                            updatePosition(workflowID, stepID, steps[i].posX, steps[i].posY);
-
-                            updateTitle(steps[i].stepTitle, stepID, function(res) {
-                                // Alls well that ends well.
-                            });
-
-                            if (steps[i].stepData != null) {
-                                let auto = JSON.parse(steps[i].stepData);
-
-                                let seriesData = {
-                                    AutomatedEmailReminders: {
-                                        'Automate Email Group': auto.AutomatedEmailReminders.AutomateEmailGroup,
-                                        'Days Selected': auto.AutomatedEmailReminders.DaysSelected,
-                                        'Date Selected': auto.AutomatedEmailReminders?.DateSelected || '',
-                                        'Additional Days Selected': auto.AutomatedEmailReminders.AdditionalDaysSelected,
-                                    }
-                                };
-
-                                updateStepData(seriesData, stepID, function (res) {
-                                    // Alls well that ends well.
-                                });
-                            }
-
-                            updateApprover(steps[i].indicatorID_for_assigned_empUID, stepID, function (res) {
-                                // Alls well that ends well.
-                            });
-
-                            updateGroupApprover(steps[i].indicatorID_for_assigned_groupID, stepID, function (res) {
-                                // Alls well that ends well.
-                            });
-
-                            // set requireDigitalSignature
-                            // this endpoint does not exist in this file at this time.
-
-                            updateDependencies(steps[i].stepID, old_steps);
-                        }
-                    });
-
-
-                }
-
-                workflows[workflowID]['initialStepID'] = parseInt(old_steps[workflows[currentWorkflow].initialStepID]);
-
-                updateInitialStep(workflowID, workflows[workflowID]['initialStepID'], function () {
-                    // nothing to do here
-                });
-
-                updateRoutes(workflowID, old_steps);
-                updateRouteEvents(currentWorkflow, workflowID, old_steps);
-                loadWorkflowList(workflowID);
+            postWorkflow(function(workflow_id) {
+                workflowID = workflow_id;
+                dialog.hide();
             });
-            dialog.show();
-       } else {
-           alert('Built In workflows cannot be copied')
-       }
+
+            workflows[workflowID] = workflows[currentWorkflow];
+            workflows[workflowID]['workflowID'] = parseInt(workflowID);
+            workflows[workflowID]['description'] = title;
+            old_steps[-1] = -1;
+
+            for(let i in steps) {
+                // add step, if successful update that step
+                addStep(workflowID, steps[i].stepTitle, function(stepID) {
+
+                    if (isNaN(stepID)) {
+                        console.log(stepID);
+                    } else {
+                        old_steps[steps[i].stepID] = stepID;
+                        updatePosition(workflowID, stepID, steps[i].posX, steps[i].posY);
+
+                        updateTitle(steps[i].stepTitle, stepID, function(res) {
+                            // Alls well that ends well.
+                        });
+
+                        if (steps[i].stepData != null) {
+                            let auto = JSON.parse(steps[i].stepData);
+
+                            let seriesData = {
+                                AutomatedEmailReminders: {
+                                    'Automate Email Group': auto.AutomatedEmailReminders.AutomateEmailGroup,
+                                    'Days Selected': auto.AutomatedEmailReminders.DaysSelected,
+                                    'Date Selected': auto.AutomatedEmailReminders?.DateSelected || '',
+                                    'Additional Days Selected': auto.AutomatedEmailReminders.AdditionalDaysSelected,
+                                }
+                            };
+
+                            updateStepData(seriesData, stepID, function (res) {
+                                // Alls well that ends well.
+                            });
+                        }
+
+                        updateApprover(steps[i].indicatorID_for_assigned_empUID, stepID, function (res) {
+                            // Alls well that ends well.
+                        });
+
+                        updateGroupApprover(steps[i].indicatorID_for_assigned_groupID, stepID, function (res) {
+                            // Alls well that ends well.
+                        });
+
+                        // set requireDigitalSignature
+                        // this endpoint does not exist in this file at this time.
+
+                        updateDependencies(steps[i].stepID, old_steps);
+                    }
+                });
+
+
+            }
+
+            workflows[workflowID]['initialStepID'] = parseInt(old_steps[workflows[currentWorkflow].initialStepID]);
+
+            updateInitialStep(workflowID, workflows[workflowID]['initialStepID'], function () {
+                // nothing to do here
+            });
+
+            updateRoutes(workflowID, old_steps);
+            updateRouteEvents(currentWorkflow, workflowID, old_steps);
+            loadWorkflowList(workflowID);
+        });
+        dialog.show();
     }
 
     /**
