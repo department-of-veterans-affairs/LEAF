@@ -13,7 +13,7 @@
             <div id="stepList"></div>
         </div>
         <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
-            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> Add Step
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Step
         </button>
 
         <div>
@@ -21,7 +21,7 @@
             <div id="actionList"></div>
         </div>
         <button type="button" id="btn_createAction" class="buttonNorm" onclick="newAction()" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
-            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> Add New Action
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Action
         </button>
 
         <hr />
@@ -1469,26 +1469,33 @@
                 currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
                 '\')">Remove Action</button></div>';
             $('#stepInfo_' + stepID).html(output);
+
+            $('#stepInfo_' + stepID).show('slide', 200, () => {
+                const modalEl = document.getElementById('stepInfo_' + stepID);
+                const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
+                const first = interActiveEls[0] || null;
+                const last = interActiveEls[interActiveEls.length - 1] || null;
+                if (first !== null && last !== null) {
+                    const actionTabbing = controlTabbing(first, last);
+                    first.addEventListener('keydown', actionTabbing);
+                    last.addEventListener('keydown', actionTabbing);
+                    first.focus();
+                }
+                $('#stepInfo_' + stepID).on('keydown', function(event) {
+                    const code = event.code.toLowerCase();
+                    if (code === 'escape') {
+                        closeStepInfo(stepID, true);
+                    }
+                });
+            });
             $('#event_' + currentWorkflow + '_' + stepID + '_' + params.action).on('click', function() {
                 addEventDialog(currentWorkflow, stepID, params.action);
             });
-            const modalEl = document.getElementById('stepInfo_' + stepID);
-            const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
-            const first = interActiveEls[0] || null;
-            const last = interActiveEls[interActiveEls.length - 1] || null;
-            if (first !== null && last !== null) {
-                const actionTabbing = controlTabbing(first, last);
-                first.addEventListener('keydown', actionTabbing);
-                last.addEventListener('keydown', actionTabbing);
-                first.focus();
-            }
         });
-
         $('#stepInfo_' + stepID).css({
             left: evt.pageX || 200 + 'px',
             top: evt.pageY || 300 + 'px'
         });
-        $('#stepInfo_' + stepID).show('slide', null, 200);
     }
 
     function switchRequired(element) {
@@ -1742,7 +1749,7 @@
             });
             routeOptions = `<div>
                 <label for="create_route" style="font-family: Source Sans Pro Web;display:block;">New Connection:</label>
-                <select id="create_route" style="width:250px;" onchange="addConnection(${stepID}, this.value)">
+                <select id="create_route" style="width:250px;" title="Choose a step to connect to" onchange="addConnection(${stepID}, this.value)">
                     <option value="">Choose a Step</option>
                     <option value="-1">Requestor</option>
                     <option value="0">End</option>
@@ -1761,12 +1768,6 @@
                     </fieldset>`;
                 }
                 $('#stepInfo_' + stepID).html(output);
-                const select = document.getElementById('create_route');
-                if(select !== null) {
-                    const tabControl = controlTabbing(select, select)
-                    select.addEventListener('keydown', tabControl);
-                    select.focus();
-                }
                 break;
             case 0:
                 $('#stepInfo_' + stepID).html('The End.  (stepID #: 0)');
@@ -1902,16 +1903,6 @@
                             stepID + ')">Email Reminder</button></div>';
 
                         $('#stepInfo_' + stepID).html(output);
-                        const modalEl = document.getElementById('stepInfo_' + stepID);
-                        const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
-                        const first = interActiveEls[0];
-                        const last = interActiveEls[interActiveEls.length - 1];
-                        if (first !== null && last !== null) {
-                            const stepTabbing = controlTabbing(first, last);
-                            first.addEventListener('keydown', stepTabbing);
-                            last.addEventListener('keydown', stepTabbing);
-                            first.focus();
-                        }
                         // setup UI for form fields in the workflow area
                         buildWorkflowIndicatorDropdown(stepID, steps);
 
@@ -1949,7 +1940,24 @@
             left: position.left + 'px',
             top: position.top + height + 20 + 'px'
         });
-        $('#stepInfo_' + stepID).show('slide', null, 200);
+        $('#stepInfo_' + stepID).show('slide', 200, () => {
+            const modalEl = document.getElementById('stepInfo_' + stepID);
+            const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
+            const first = interActiveEls[0] || null
+            const last = interActiveEls[interActiveEls.length - 1] || null;
+            if (first !== null && last !== null) {
+                const stepTabbing = controlTabbing(first, last);
+                first.addEventListener('keydown', stepTabbing);
+                last.addEventListener('keydown', stepTabbing);
+                first.focus();
+            }
+            $('#stepInfo_' + stepID).on('keydown', function(event) {
+                const code = event.code.toLowerCase();
+                if (code === 'escape') {
+                    closeStepInfo(stepID);
+                }
+            });
+        });
     }
 
     var endPoints = [];
@@ -2266,7 +2274,7 @@
 
     function buildStepList(steps = {}) {
         let output = `<span id="step_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
-            <select id="workflow_steps" title="Select Workflow Step" style="width: 100%" onchange="updateSelectionStatus(this, 'step_select_status')">
+            <select id="workflow_steps" title="Select a Workflow Step to edit it" onchange="updateSelectionStatus(this, 'step_select_status')">
             <option value="-1">Requestor</option>`;
         const stepIDs = Object.keys(steps);
         stepIDs.forEach(id => {
@@ -2294,19 +2302,20 @@
 
     function buildRoutesList(actions = []) {
         const initialStep = workflows[currentWorkflow].initialStepID;
+        const initialStepName = steps[initialStep]?.stepTitle || "";
         let output = `<span id="action_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
-            <select id="workflow_actions" title="Select Workflow Action" style="width: 100%" onchange="updateSelectionStatus(this, 'action_select_status')">
-            <option value="0-submit-${initialStep}">Submit->${initialStep}</option>`;
+            <select id="workflow_actions" title="Select a Workflow Action to edit it" onchange="updateSelectionStatus(this, 'action_select_status')">
+            <option value="0-submit-${initialStep}">Submit to ${initialStepName || initialStep}</option>`;
 
         actions.forEach(a => {
-            let toText = a.nextStepID + ":";
+            let toText = steps[a.nextStepID]?.stepTitle || a.nextStepID;
             if (a.actionType === "sendback") {
-                toText = ""
+                toText = "Requestor"
             } else if (a.nextStepID === 0) {
-                toText = "End:"
+                toText = "End"
             }
-            output += `<option value="${a.stepID}-${a.actionType}-${a.nextStepID}">
-                    ${a.stepID}->${toText} ${a.actionText}</option>`;
+            const fromText = steps[a.stepID]?.stepTitle || a.stepID;
+            output += `<option value="${a.stepID}-${a.actionType}-${a.nextStepID}">${a.actionText}: from ${fromText} to ${toText}</option>`;
         });
         output += '</select>';
         $('#actionList').html(output);
@@ -3020,18 +3029,12 @@
     this.portalAPI.setCSRFToken(CSRFToken);
 
 
-
     // Fix dialog boxes not going away when clicking outside of box
-    $(document).mouseup(function(e) {
+    $(document).on('mousedown', function(e) {
         let container = $(".workflowStepInfo");
         if (!container.is(e.target) && container.has(e.target).length === 0) {
             container.hide();
         }
-        container.on('keydown', function(e) {
-            if (e.keyCode === 27) {
-                container.hide();
-            }
-        });
     });
 
     $(function() {
