@@ -55,14 +55,14 @@ class GroupController extends RESTfulResponse
 
         $this->index['GET']->register('group/[digit]/members', function ($args) use ($group) {
             $members = $group->getMembers($args[0]);
-            $users = array();
 
-            foreach ($members['data'] as $key => $value) {
-                if ($members['data'][$key]['backupID'] == '') {
-                    $members['data'][$key]['backupID'] = null;
+            // Backward compatibility?
+            foreach ($members as $key => $value) {
+                if ($members[$key]['backupID'] == '') {
+                    $members[$key]['backupID'] = null;
                 }
             }
-            return $members['data'];
+            return $members;
         });
 
         $this->index['GET']->register('group/[digit]/list_members', function ($args) use ($group) {

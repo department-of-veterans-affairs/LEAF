@@ -223,16 +223,10 @@ function getMembers(groupID) {
     let response;
 
     getMemberList(groupID, function(data) {
-        response = data;
-    });
-
-    if (response.status['code'] == 2) {
         $('#members' + groupID).fadeOut();
-        populateMembers(groupID, response.data);
+        populateMembers(groupID, data);
         $('#members' + groupID).fadeIn();
-    } else {
-        displayDialogOk(response.status['message']);
-    }
+    });
 }
 
 // All in one update for member groups (sync)
@@ -244,16 +238,10 @@ function updateAndGetMembers(groupID) {
             let response;
 
             getMemberList(groupID, function(data) {
-                response = data;
-            });
-
-            if (response.status['code'] == 2) {
                 $('#members' + groupID).fadeOut();
-                populateMembers(groupID, response.data);
+                populateMembers(groupID, data);
                 $('#members' + groupID).fadeIn();
-            } else {
-                displayDialogOk(response.status['message']);
-            }
+            });
         },
         error: function (err) {
             console.log(err);
@@ -265,13 +253,7 @@ function updateAndGetMembers(groupID) {
 function getPrimaryAdmin() {
     let response;
 
-    getMemberList(1, function(data) {
-        response = data;
-    });
-
-    let res = response.data;
-
-    if (response.status['code'] == 2) {
+    getMemberList(1, function(res) {
         $('#membersPrimaryAdmin').fadeOut();
         $('#membersPrimaryAdmin').html('');
         let foundPrimary = false;
@@ -287,9 +269,7 @@ function getPrimaryAdmin() {
             $('#membersPrimaryAdmin').append("Primary Administrator has not been set");
         }
         $('#membersPrimaryAdmin').fadeIn();
-    } else {
-        displayDialogOk(response.status['message']);
-    }
+    });
 }
 
 function displayDialogOk(message) {
@@ -431,8 +411,8 @@ function removeAdmin(userID) {
     } else {
         $.ajax({
             type: 'DELETE',
-            url: "../api/group/" + 1 + "/members/_" + userID + "?" +
-                            $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
+            url: "../api/group/" + 1 + "/members/_" + userID,
+            data: {'CSRFToken': '<!--{$CSRFToken}-->'},
             success: function(response) {
                 getMembers(1);
             },
@@ -506,9 +486,7 @@ function getGroupList() {
                         $.ajax({
                             type: 'GET',
                             url: '../api/group/' + groupID + '/membersWBackups',
-                            success: function(response) {
-                                if (response.status.code == 2) {
-                                    let res = response.data;
+                            success: function(res) {
                                     dialog.clear();
                                     dialog.setTitle("Edit Group");
                                     let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
@@ -807,9 +785,6 @@ function getGroupList() {
                                         $("#simplebutton_save").remove();
                                         dialog.show();
                                     }, 0);
-                                } else {
-                                    displayDialogOk(response.status['message']);
-                                }
                             },
                             cache: false
                         });
@@ -870,13 +845,7 @@ function getGroupList() {
                         });
                         let response;
 
-                        getMemberList(1, function(data) {
-                            response = data;
-                        });
-
-                        let res = response.data;
-
-                        if (response.status['code'] == 2) {
+                        getMemberList(1, function(res) {
                             $('#adminSummary').html('');
                             let counter = 0;
                             for(let i in res) {
@@ -890,10 +859,7 @@ function getGroupList() {
                                 counter++;
                             }
                             dialog.show();
-                        } else {
-                            displayDialogOk(response.status['message']);
-                        }
-
+                        });
                     }
                 	$('#' + res[i].groupID).on('click', function() {
                 		openAdminGroup();
@@ -919,13 +885,7 @@ function getGroupList() {
                     function openPrimaryAdminGroup(){
                         let response;
 
-                        getMemberList(1, function(data) {
-                            response = data;
-                        });
-
-                        let admin_list = response.data;
-
-                        if (response.status['code'] == 2) {
+                        getMemberList(1, function(admin_list) {
                             let dropdown = '<select id="employeeSelectorDropdown"><option value="">Unset (No Primary Admin selected)</option>';
 
                             for (let i in admin_list) {
@@ -957,9 +917,7 @@ function getGroupList() {
                                 dialog.hide();
                             });
                             dialog.show();
-                        } else {
-                            displayDialogOk(response.status['message']);
-                        }
+                        });
                     }
                     $('#primaryAdmin').on('click', function() {
                 		openPrimaryAdminGroup();
@@ -1004,7 +962,6 @@ $(function() {
 
 function getMemberList(group_id, callback) {
     $.ajax({
-        async: false,
         type: 'GET',
         url: "../api/group/"+ group_id +"/list_members",
         dataType: "json",
@@ -1013,8 +970,7 @@ function getMemberList(group_id, callback) {
         },
         error: function (err) {
             callback(err);
-        },
-        cache: false
+        }
     });
 }
 

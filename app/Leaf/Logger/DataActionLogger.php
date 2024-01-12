@@ -37,9 +37,7 @@ class DataActionLogger
         );
 
         $sql =
-            "BEGIN;
-
-            INSERT INTO data_action_log (`userID`, `timestamp`, `action`, `userDisplay`)
+            "INSERT INTO data_action_log (`userID`, `timestamp`, `action`, `userDisplay`)
                     VALUES (:userID, UTC_TIMESTAMP(), :action, :userDisplay);
 
             SELECT LAST_INSERT_ID() INTO @log_id;
@@ -59,9 +57,11 @@ class DataActionLogger
             $sql = $sql . "(@log_id, :tableName$i, :column$i, :value$i, :displayValue$i)" . (($i == count($toLog) - 1 ? "; " : ", "));
         }
 
-        $sql = $sql . 'COMMIT;';
+        $sql = $sql;
 
+        $this->db->beginTransaction();
         $this->db->prepared_query($sql, $vars);
+        $this->db->commitTransaction();
     }
 
 
