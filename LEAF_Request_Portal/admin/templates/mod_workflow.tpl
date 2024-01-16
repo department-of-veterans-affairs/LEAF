@@ -1719,6 +1719,14 @@
         $(`#workflow_steps_chosen input.chosen-search-input`).focus();
     }
 
+    function toggleManageActions() {
+        let elMng = document.getElementById('manage_actions_options');
+        if(elMng !== null) {
+            const currDisplay = elMng.style.display;
+            elMng.style.display = currDisplay === 'none' ? 'block' : 'none';
+        }
+    }
+
     function showStepInfo(stepID) {
         $('#stepInfo_' + stepID).html('');
         if ($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second click
@@ -1738,7 +1746,7 @@
                 }
             });
             routeOptions = `<div>
-                <label for="create_route" style="font-family: Source Sans Pro Web;display:block;">Add Action:</label>
+                <label for="create_route">Add Action:</label>
                 <select id="create_route" style="width:300px;" title="Choose a step to connect to" onchange="addConnection(${stepID}, this.value)">
                     <option value="">Choose Step to Connect to</option>
                     <option value="0">End</option>`;
@@ -1748,15 +1756,20 @@
             }  
             routeOptions += `${step_options}</select><div>`;
         }
-        const actionHTML = buildRoutesList(+stepID, +currentWorkflow);
+        const actionList = buildRoutesList(+stepID, +currentWorkflow);
 
         switch (Number(stepID)) {
             case -1:
                 const output = `Request initiator (stepID #: -1)
                     <fieldset>
                         <legend>Options</legend>
-                        ${actionHTML}
-                        ${currentWorkflow > 0 ? routeOptions : ""}
+                        <label for="toggleManageActions" style="margin-top:0.5rem;">
+                            <input id="toggleManageActions" type="checkbox" onchange="toggleManageActions()"/>Manage Actions or Events
+                        </label>
+                        <div id="manage_actions_options" style="display:none;">
+                            ${actionList}
+                            ${currentWorkflow > 0 ? routeOptions : ""}
+                        </div>
                     </fieldset>`;
                 $('#stepInfo_' + stepID).html(output);
                 break;
@@ -1771,100 +1784,98 @@
                         const control_removeStep = `<button type="button" class="buttonNorm icon" onclick="removeStep('${stepID}')" title="Remove Step" aria-label="Remove Step">
                             <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" /></button>`;
 
-                        let output = `<div style="display:flex;gap:0.5rem;align-items:center;justify-content:space-between;">
-                                <h2 style="display:inline-block;margin:0;">stepID: #${stepID} ${control_removeStep}</h2>
+                        let output = `<div style="display:flex;gap:0.25rem;align-items:center;">
+                                <h2 style="display:inline-block;margin:0;">stepID: #${stepID}</h2>${control_removeStep}
                                 <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})"
-                                    style="padding:2px;background-color:#fff;border-color:#eee;" title="close modal">&#10006</button>
+                                    style="padding:2px;background-color:#fff;border-color:#eee;margin-left:auto;" title="close modal">&#10006</button>
                             </div></br>
-                            Step: <b>${steps[stepID].stepTitle}</b>
-                            <img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16"
-                            tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editStep(${stepID})" title="Edit Step" alt="Edit Step" />`;
+                            <div style="display:flex;gap:0.25rem;align-items:center;">
+                                Step: <b>${steps[stepID].stepTitle}</b>
+                                <button type="button" class="buttonNorm icon" onclick="editStep(${stepID})" title="Edit Step Name" aria-label="Edit Step Name">
+                                    <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
+                                </button>
+                            </div>`;
 
-                        output += '<br /><br /><div>Requirements:<ul>';
-                        var tDeps = {};
+                        output += '<br /><br /><div>Requirements:<ul id="step_requirements">';
+                        let tDeps = {};
                         for (let i in res) {
-                            control_editDependency =
-                                `<button type="button" class="buttonNorm icon" onclick="editRequirement(${res[i].dependencyID},'${res[i].description}')"
-                                    title="Edit Requirement" aria-label="Edit Requirement">
+                            const depID = res[i].dependencyID;
+                            const control_editDependency = `<button type="button" class="buttonNorm icon" onclick="editRequirement(${depID},'${res[i].description}')"
+                                    title="Edit Requirement Name" aria-label="Edit Requirement Name">
                                     <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
                                 </button>`;
-                            control_unlinkDependency =
-                                `<button type="button" class="buttonNorm icon" onclick="unlinkDependency('${stepID}', '${res[i].dependencyID}')"
+                            const control_unlinkDependency = `<button type="button" class="buttonNorm icon" onclick="unlinkDependency('${stepID}', '${depID}')"
                                     title="Remove Requirement" aria-label="Remove Requirement">
                                     <img src="../dynicons/?img=dialog-error.svg&w=16"  alt="" />
                                 </button>`;
-                            if (res[i].dependencyID == 1) { // special case for service chief and quadrad
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_editDependency + ' ' + control_unlinkDependency + ' (depID: ' +
-                                    res[i].dependencyID + ')</li>';
-                            } else if (res[i].dependencyID ==
-                                8) { // special case for service chief and quadrad
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_editDependency + ' ' + control_unlinkDependency + ' (depID: ' +
-                                    res[i].dependencyID + ')</li>';
-                            } else if (res[i].dependencyID == -
-                                1
-                            ) { // dependencyID -1 : special case for person designated by the requestor
-                                var indicatorWarning = '';
-                                if (res[i].indicatorID_for_assigned_empUID == null || res[i]
-                                    .indicatorID_for_assigned_empUID == 0) {
-                                    indicatorWarning =
-                                        '<li><span style="color: #c00000; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
-                                }
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
-                                    indicatorWarning + '<li>indicatorID: ' + res[i]
-                                    .indicatorID_for_assigned_empUID +
-                                    '<br /><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="setDynamicApprover(' + res[i]
-                                    .stepID + ')">Set Data Field</button></li></ul></li>';
-                            } else if (res[i].dependencyID == -2) { // dependencyID -2 : requestor followup
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')</li>';
-                            } else if (res[i].dependencyID == -
-                                3) { // dependencyID -3 : special case for group designated by the requestor
-                                var indicatorWarning = '';
-                                if (res[i].indicatorID_for_assigned_groupID == null || res[i]
-                                    .indicatorID_for_assigned_groupID == 0) {
-                                    indicatorWarning =
-                                        '<li><span style="color: #c00000; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
-                                }
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
-                                    indicatorWarning + '<li>indicatorID: ' + res[i]
-                                    .indicatorID_for_assigned_groupID +
-                                    '<br /><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="setDynamicGroupApprover(' + res[
-                                        i].stepID + ')">Set Data Field</button></li></ul></li>';
+
+                            if (depID === 1 || depID === 8) { // special cases for service chief and quadrad
+                                output += `<li>
+                                    <b style="color: green;vertical-align:middle;">${res[i].description}</b>${control_editDependency} ${control_unlinkDependency} (depID: ${depID})
+                                </li>`;
+
+                            } else if (depID == -1) { // dependencyID -1 : special case for person designated by the requestor
+                                const indicatorWarning = (res[i].indicatorID_for_assigned_empUID == null || res[i].indicatorID_for_assigned_empUID == 0) ?
+                                    '<div style="color:#c00000;font-weight:bold">A data field (indicatorID) must be set.</div>' : '';
+
+                                output += `<li><b style="color:green;vertical-align:middle;">${res[i].description}</b> ${control_unlinkDependency} (depID: ${depID})
+                                    ${indicatorWarning}
+                                    <div>indicatorID: ${res[i].indicatorID_for_assigned_empUID ?? '<b style="color: #c00000;">not set</b>'}</div>
+                                    <button type="button" class="buttonNorm" onclick="setDynamicApprover('${res[i].stepID}')">Set Data Field</button>
+                                </li>`;
+
+                            } else if (depID === -2) { // dependencyID -2 : requestor followup
+                                output += `<li>
+                                    <b style="color:green;vertical-align:middle;">${res[i].description}</b> ${control_unlinkDependency} (depID: ${depID})
+                                </li>`;
+
+                            } else if (depID === -3) { // dependencyID -3 : special case for group designated by the requestor
+                                const indicatorWarning = (res[i].indicatorID_for_assigned_groupID == null || res[i].indicatorID_for_assigned_groupID == 0) ?
+                                    '<div style="color:#c00000;font-weight:bold">A data field (indicatorID) must be set.</div>' : '';
+
+                                output += `<li><b style="color:green;vertical-align:middle;">${res[i].description}</b> ${control_unlinkDependency} (depID: ${depID})
+                                    ${indicatorWarning}
+                                    <div>indicatorID: ${res[i].indicatorID_for_assigned_groupID ?? '<b style="color: #c00000;">not set</b>'}</div>
+                                    <button type="button" class="buttonNorm" onclick="setDynamicGroupApprover('${res[i].stepID}')">Set Data Field</button>
+                                </li>`;
                             } else {
-                                if (tDeps[res[i].dependencyID] == undefined) { //
-                                    tDeps[res[i].dependencyID] = 1;
-                                    output += '<li style="padding-bottom: 8px"><b title="depID: ' + res[i]
+                                if (tDeps[depID] == undefined) {
+                                    tDeps[depID] = 1;
+                                    output += '<li><b title="depID: ' + res[i]
                                         .dependencyID + '" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess(' + res[i]
                                         .dependencyID + ')">' + res[i].description + '</b> ' +
-                                        control_editDependency + ' ' + control_unlinkDependency +
-                                        '<ul id="step_' + stepID + '_dep' + res[i].dependencyID +
-                                        '"><li style="padding-top: 8px"><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="dependencyGrantAccess(' +
-                                        res[i].dependencyID + ')"><img src="../dynicons/?img=list-add.svg&w=16" alt="" /> Add Group</button></li>\
-                                </ul></li>';
+                                        control_editDependency + ' ' + control_unlinkDependency + 
+                                            `<ul id="step_${stepID}_dep${depID}">
+                                                <li>
+                                                    <button type="button" class="buttonNorm" onclick="dependencyGrantAccess('${depID}')">
+                                                    <img src="../dynicons/?img=list-add.svg&w=16" alt="" /> Add Group</button>
+                                                </li>
+                                            </ul>
+                                        </li>`;
                                 }
                             }
                         }
                         if (res.length == 0) {
-                            output +=
-                                '<li><span style="color: #c00000; font-weight: bold">A requirement must be added.</span></li>';
+                            output += '<li><span style="color: #c00000; font-weight: bold">A requirement must be added.</span></li>';
                         }
                         output += '</ul><div>';
 
                         output += `<fieldset>
                             <legend>Options</legend>
-                            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                            <div style="display:flex;flex-direction:column;gap:0.75rem;">
                                 <div>
-                                    <label for="workflowIndicator_${stepID}" style="font-family: Source Sans Pro Web;display:block;">Form Field:</label>
+                                    <label for="workflowIndicator_${stepID}">Form Field:</label>
                                     <select id="workflowIndicator_${stepID}" style="width:300px;">
                                         <option value="">None</option>
                                     </select>
                                 </div>
-                                ${actionHTML}
-                                ${routeOptions}
+                                <label for="toggleManageActions" style="margin-top:0.5rem;">
+                                    <input id="toggleManageActions" type="checkbox" onchange="toggleManageActions()"/>Manage Actions or Events
+                                </label>
+                                <div id="manage_actions_options" style="display:none;">
+                                    ${actionList}
+                                    ${routeOptions}
+                                </div>
                             </div>
                         </fieldset>`;
 
@@ -1890,10 +1901,10 @@
                             }
                         }
                         output +=
-                            '<hr /><div style="padding: 4px; display:flex;"><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="linkDependencyDialog(' + stepID +
+                            '<hr /><div style="padding: 4px; display:flex;"><button type="button" class="buttonNorm" onclick="linkDependencyDialog(' + stepID +
                             ')">Add Requirement</button>';
                         output +=
-                            '<button type="button" class="buttonNorm" style="margin-left:auto;font-size:1rem;padding:0.25em;" onclick="addEmailReminderDialog(' +
+                            '<button type="button" class="buttonNorm" style="margin-left:auto;" onclick="addEmailReminderDialog(' +
                             stepID + ')">Email Reminder</button></div>';
 
                         $('#stepInfo_' + stepID).html(output);
@@ -1905,7 +1916,7 @@
                             group = '';
                             if (res[i].groupID != null) {
                                 $('#step_' + stepID + '_dep' + res[i].dependencyID).prepend(
-                                    `<li style="display:flex;gap:0.25rem;align-items:center;white-space: nowrap">
+                                    `<li style="white-space:nowrap">
                                         <b title="groupID: ${res[i].groupID}">${res[i].name}</b>
                                         <button type="button" class="buttonNorm icon" onclick="dependencyRevokeAccess('${res[i].dependencyID}', '${res[i].groupID}')"
                                             title="Remove Group" aria-label="Remove Group">
@@ -2339,10 +2350,10 @@
         });
         let output = "";
         if(stepRoutes.length > 0) {
-            output = `<div style="margin-top:0.5rem;"><b>Manage Actions on this step</b><ul class="workflow_actions">`;
+            output = `<div>Actions on this step<ul class="workflow_actions">`;
             stepRoutes.forEach(a => {
                 const delNextID = a.actionType === "sendback" ? 0 : a.nextStepID; //needs to be 0 for POST
-                output += `<li style="display:flex;gap:0.25rem;margin-top:0.375rem;">${a.actionText}
+                output += `<li>${a.actionText}
                     ${workflowID > 0 && a.stepID != -1 ?  //usually can't rm submit like other actions so not showing rm btn
                     `<button type="button" class="buttonNorm icon" aria-label="Remove this action" title="Remove this action"
                         onclick="removeAction(${currentWorkflow}, ${a.stepID}, ${delNextID}, '${a.actionType}')" ${workflowID}>
