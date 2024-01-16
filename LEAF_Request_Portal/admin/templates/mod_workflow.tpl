@@ -1,10 +1,10 @@
 <div id="workflow_editor" style="margin-top:0.5rem;display:flex;gap:0.25rem;padding:0.25rem;">
-    <div id="sideBar" style="width:182px;display:flex;gap:0.5rem;flex-direction:column;">
+    <div id="sideBar">
         <div>
             <label id="workflows_label"> Workflows:</label>
             <div id="workflowList"></div>
         </div>
-        <button type="button" id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+        <button type="button" id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();">
             <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Workflow
         </button>
 
@@ -12,42 +12,33 @@
             <label id="steps_label" style="font-family: Source Sans Pro Web"> Workflow Steps:</label>
             <div id="stepList"></div>
         </div>
-        <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+        <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();">
             <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Step
         </button>
 
-        <div>
-            <label id="actions_label" style="font-family: Source Sans Pro Web"> Workflow Actions:</label>
-            <div id="actionList"></div>
-        </div>
-        <button type="button" id="btn_createAction" class="buttonNorm" onclick="newAction()" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
-            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Action
-        </button>
-
         <hr />
-        <button type="button" id="btn_listActionType" class="buttonNorm" onclick="listActionType();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">Edit Actions</button>
+        <button type="button" id="btn_listActionType" class="buttonNorm" onclick="listActionType();">Edit Actions</button>
 
-        <button type="button" id="btn_listEvents" class="buttonNorm" onclick="listEvents();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">Edit Events</button>
+        <button type="button" id="btn_listEvents" class="buttonNorm" onclick="listEvents();" >Edit Events</button>
 
-        <button type="button" id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+        <button type="button" id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();" >
             <img src="../dynicons/?img=accessories-text-editor.svg&amp;w=26" alt="" /> Rename Workflow
         </button>
 
-        <button type="button" id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" style="font-size:1.1rem;text-align: start;padding:4px;height:36px;">
+        <button type="button" id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" >
             <img src="../dynicons/?img=edit-copy.svg&amp;w=26" alt="" /> Duplicate Workflow
         </button>
 
-        <button type="button" id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
-            <img src="../dynicons/?img=list-remove.svg&w=26" alt="" /> Delete Workflow
-        </button>
         <hr />
-        <button type="button" id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" style="font-size:1.1rem;text-align:start;padding:4px;height:36px;">
+        <button type="button" id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" >
             <img src="../dynicons/?img=appointment.svg&amp;w=26" alt="" /> View History
         </button>
+        <hr />
+        <button type="button" id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" >
+            <img src="../dynicons/?img=list-remove.svg&w=26" alt="" /> Delete Workflow
+        </button>
     </div>
-    <div id="workflow"
-        style="background-color: #444446; overflow-x: auto; overflow-y: auto; width: 100%;">
-    </div>
+    <div id="workflow"></div>
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -1441,7 +1432,7 @@
             stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
             output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
                 <h2 style="display:inline-block;margin:0;">Action: ${stepTitle} clicks ${params.action}</h2>
-                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID}, true)"
+                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})"
                     style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
             </div>`;
 
@@ -1455,11 +1446,12 @@
                 output += '<li><b>Email - Notify the requestor</b></li>';
             }
             for (let i in res) {
-                output += '<li><b title="' + res[i].eventID + '">' + res[i].eventType + ' - ' + res[i]
-                    .eventDescription +
-                    '</b> <img tabindex=0 onkeydown="onKeyPressClick(event)" src="../dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent(' +
-                    currentWorkflow + ', ' + stepID + ', \'' + params.action + '\', \'' + res[i]
-                    .eventID + '\')" alt="Remove Event" title="Remove Event" /></li>';
+                output += `<li><b>${res[i].eventType} - ${res[i].eventDescription}</b>
+                    <button type="button" class="buttonNorm icon" onclick="unlinkEvent('${currentWorkflow}', '${stepID}', '${params.action}', '${res[i].eventID}')"
+                        title="Remove Event" aria-label="Remove Event">
+                        <img src="../dynicons/?img=dialog-error.svg&w=16"  alt="" />
+                    </button>
+                </li>`;
             }
             output += '<li style="padding-top: 8px"><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" id="event_' +
                 currentWorkflow + '_' + stepID + '_' + params.action + '">Add Event</button>';
@@ -1484,7 +1476,7 @@
                 $('#stepInfo_' + stepID).on('keydown', function(event) {
                     const code = event.code.toLowerCase();
                     if (code === 'escape') {
-                        closeStepInfo(stepID, true);
+                        closeStepInfo(stepID);
                     }
                 });
             });
@@ -1721,14 +1713,10 @@
         }
     }
 
-    function closeStepInfo(stepID = "", actions = false) {
+    function closeStepInfo(stepID = "") {
         $('.workflowStepInfo').css('display', 'none');
         $('#stepInfo_' + stepID).html("");
-        if (actions === false) {
-            $(`#workflow_steps_chosen input.chosen-search-input`).focus();
-        } else {
-            $(`#workflow_actions_chosen input.chosen-search-input`).focus();
-        }
+        $(`#workflow_steps_chosen input.chosen-search-input`).focus();
     }
 
     function showStepInfo(stepID) {
@@ -1745,28 +1733,31 @@
             const stepKeys = Object.keys(steps);
             let step_options = "";
             stepKeys.forEach(k => {
-                step_options += `<option value="${k}">${steps[k].stepTitle}(id#${k})</option>`;
+                if (+k !== +stepID) {
+                    step_options += `<option value="${k}">${steps[k].stepTitle}(id#${k})</option>`;
+                }
             });
             routeOptions = `<div>
-                <label for="create_route" style="font-family: Source Sans Pro Web;display:block;">New Connection:</label>
-                <select id="create_route" style="width:250px;" title="Choose a step to connect to" onchange="addConnection(${stepID}, this.value)">
-                    <option value="">Choose a Step</option>
-                    <option value="-1">Requestor</option>
-                    <option value="0">End</option>
-                    ${step_options}
-                </select>
-            <div>`;
+                <label for="create_route" style="font-family: Source Sans Pro Web;display:block;">Add Action:</label>
+                <select id="create_route" style="width:300px;" title="Choose a step to connect to" onchange="addConnection(${stepID}, this.value)">
+                    <option value="">Choose Step to Connect to</option>
+                    <option value="0">End</option>`;
+            if(stepID !== -1) {
+                routeOptions += `<option value="-1">Requestor</option>`;
+                routeOptions += `<option value="${stepID}">Self</option>`;
+            }  
+            routeOptions += `${step_options}</select><div>`;
         }
+        const actionHTML = buildRoutesList(+stepID, +currentWorkflow);
 
         switch (Number(stepID)) {
             case -1:
-                let output = `Request initiator (stepID #: -1)`;
-                if (currentWorkflow > 0) {
-                    output += `<fieldset>
+                const output = `Request initiator (stepID #: -1)
+                    <fieldset>
                         <legend>Options</legend>
-                        ${routeOptions}
+                        ${actionHTML}
+                        ${currentWorkflow > 0 ? routeOptions : ""}
                     </fieldset>`;
-                }
                 $('#stepInfo_' + stepID).html(output);
                 break;
             case 0:
@@ -1777,10 +1768,8 @@
                     type: 'GET',
                     url: '../api/workflow/step/' + stepID + '/dependencies',
                     success: function(res) {
-                        var control_removeStep =
-                            '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="removeStep(' +
-                            stepID + ')" title="Remove Step" alt="Remove Step" />';
-
+                        const control_removeStep = `<button type="button" class="buttonNorm icon" onclick="removeStep('${stepID}')" title="Remove Step" aria-label="Remove Step">
+                            <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" /></button>`;
 
                         let output = `<div style="display:flex;gap:0.5rem;align-items:center;justify-content:space-between;">
                                 <h2 style="display:inline-block;margin:0;">stepID: #${stepID} ${control_removeStep}</h2>
@@ -1795,11 +1784,15 @@
                         var tDeps = {};
                         for (let i in res) {
                             control_editDependency =
-                                `<img tabindex=0 style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" title="Edit Requirement" alt="Edit Requirement"
-                                onkeydown="onKeyPressClick(event)" onclick="editRequirement(${res[i].dependencyID},'${res[i].description}')" />`;
+                                `<button type="button" class="buttonNorm icon" onclick="editRequirement(${res[i].dependencyID},'${res[i].description}')"
+                                    title="Edit Requirement" aria-label="Edit Requirement">
+                                    <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
+                                </button>`;
                             control_unlinkDependency =
-                                '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="unlinkDependency(' +
-                                stepID + ', ' + res[i].dependencyID + ')" title="Remove Requirement" alt="Remove Requirement" />';
+                                `<button type="button" class="buttonNorm icon" onclick="unlinkDependency('${stepID}', '${res[i].dependencyID}')"
+                                    title="Remove Requirement" aria-label="Remove Requirement">
+                                    <img src="../dynicons/?img=dialog-error.svg&w=16"  alt="" />
+                                </button>`;
                             if (res[i].dependencyID == 1) { // special case for service chief and quadrad
                                 output += '<li><b style="color: green">' + res[i].description + '</b> ' +
                                     control_editDependency + ' ' + control_unlinkDependency + ' (depID: ' +
@@ -1866,10 +1859,11 @@
                             <div style="display:flex;flex-direction:column;gap:0.5rem;">
                                 <div>
                                     <label for="workflowIndicator_${stepID}" style="font-family: Source Sans Pro Web;display:block;">Form Field:</label>
-                                    <select id="workflowIndicator_${stepID}" style="width:250px;">
+                                    <select id="workflowIndicator_${stepID}" style="width:300px;">
                                         <option value="">None</option>
                                     </select>
                                 </div>
+                                ${actionHTML}
                                 ${routeOptions}
                             </div>
                         </fieldset>`;
@@ -1906,21 +1900,21 @@
                         // setup UI for form fields in the workflow area
                         buildWorkflowIndicatorDropdown(stepID, steps);
 
-                        // TODO: clean everything here up
-                        var counter = 0;
+                        let counter = 0;
                         for (let i in res) {
                             group = '';
                             if (res[i].groupID != null) {
                                 $('#step_' + stepID + '_dep' + res[i].dependencyID).prepend(
-                                    '<li><span style="white-space: nowrap"><b title="groupID: ' + res[i]
-                                    .groupID + '">' + res[i].name +
-                                    '</b> <img tabindex=0 onkeydown="onKeyPressClick(event)" style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" onclick="dependencyRevokeAccess(' +
-                                    res[i].dependencyID + ', ' + res[i].groupID +
-                                    ')" title="Remove Group" alt="Remove Group" /></span></li>');
+                                    `<li style="display:flex;gap:0.25rem;align-items:center;white-space: nowrap">
+                                        <b title="groupID: ${res[i].groupID}">${res[i].name}</b>
+                                        <button type="button" class="buttonNorm icon" onclick="dependencyRevokeAccess('${res[i].dependencyID}', '${res[i].groupID}')"
+                                            title="Remove Group" aria-label="Remove Group">
+                                            <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
+                                        </button>
+                                    </li>`);
                                 counter++;
                             }
-                            if (counter == 0 &&
-                                res[i] != undefined) {
+                            if (counter == 0 && res[i] != undefined) {
                                 $('#step_' + stepID + '_dep' + res[i].dependencyID).prepend(
                                     '<li><span style="color: #c00000; font-weight: bold">A group must be added.</span></li>'
                                 );
@@ -2006,7 +2000,7 @@
                                 ["Label", {
                                         id: 'stepLabel_' + res[i].stepID + '_0_' + res[i]
                                             .actionType,
-                                        cssClass: `workflowAction ${res[i].stepID}-sendback-0`,
+                                        cssClass: `workflowAction action-${res[i].stepID}-sendback--1`,
                                         label: res[i].actionText,
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
@@ -2033,7 +2027,7 @@
                                 ["Label", {
                                         id: 'stepLabel_' + res[i].stepID + '_' + res[i].nextStepID +
                                             '_' + res[i].actionType,
-                                        cssClass: `workflowAction ${res[i].stepID}-${res[i].actionType}-${res[i].nextStepID}`,
+                                        cssClass: `workflowAction action-${res[i].stepID}-${res[i].actionType}-${res[i].nextStepID}`,
                                         label: res[i].actionText,
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
@@ -2067,7 +2061,7 @@
                         overlays: [
                             ["Label", {
                                     id: 'stepLabel_0_' + workflows[workflowID].initialStepID + '_submit',
-                                    cssClass: `workflowAction 0-submit-${workflows[workflowID].initialStepID}`,
+                                    cssClass: `workflowAction action--1-submit-${workflows[workflowID].initialStepID}`,
                                     label: 'Submit',
                                     location: loc,
                                     parameters: {'stepID': -1,
@@ -2091,9 +2085,6 @@
                     createAction(info);
                 });
                 jsPlumb.setSuspendDrawing(false, true);
-
-                //Add quick route selector
-                buildRoutesList(routes)
 
                 let actionOverlays = Array.from(document.querySelectorAll('div.jtk-overlay.workflowAction'));
                 actionOverlays.forEach(ao => {
@@ -2275,10 +2266,20 @@
     function buildStepList(steps = {}) {
         let output = `<span id="step_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
             <select id="workflow_steps" title="Select a Workflow Step to edit it" onchange="updateSelectionStatus(this, 'step_select_status')">
+            <option>Choose a step to edit it</option>
             <option value="-1">Requestor</option>`;
-        const stepIDs = Object.keys(steps);
-        stepIDs.forEach(id => {
-            output += `<option value="${id}">${steps[id].stepTitle} (#${id})</option>`;
+
+        let arrSteps = [];
+        for (let key in steps) {
+            arrSteps.push(steps[key]);
+        }
+        const sortedSteps = arrSteps.sort((a, b) => {
+            const stepA = a.stepTitle.toLowerCase();
+            const stepB = b.stepTitle.toLowerCase();
+            return stepA < stepB ? -1 : stepA > stepB ? 1 : 0
+        });
+        sortedSteps.forEach(step => {
+            output += `<option value="${step.stepID}">${step.stepTitle} (#${step.stepID})</option>`;
         });
         output += '</select>';
         $('#stepList').html(output);
@@ -2300,48 +2301,61 @@
         });
     }
 
-    function buildRoutesList(actions = []) {
-        const initialStep = workflows[currentWorkflow].initialStepID;
-        const initialStepName = steps[initialStep]?.stepTitle || "";
-        let output = `<span id="action_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
-            <select id="workflow_actions" title="Select a Workflow Action to edit it" onchange="updateSelectionStatus(this, 'action_select_status')">
-            <option value="0-submit-${initialStep}">Submit to ${initialStepName || initialStep}</option>`;
+    function clickAction(selector) {
+        const elOverlay = document.querySelector(`${selector}`);
+        if(elOverlay !== null) {
+            elOverlay.click();
+        }
+    }
 
-        actions.forEach(a => {
-            let toText = steps[a.nextStepID]?.stepTitle || a.nextStepID;
-            if (a.actionType === "sendback") {
-                toText = "Requestor"
-            } else if (a.nextStepID === 0) {
-                toText = "End"
+    function buildRoutesList(stepID, workflowID) {
+        let allRoutes = [...routes];
+        let hasSubmit = false;
+        allRoutes.forEach(r => {
+            if(r.actionType === "sendback") {
+                r.nextStepID = -1; //next step for sendback is referred to in global as 0 instead of -1, need -1 to filter
             }
-            const fromText = steps[a.stepID]?.stepTitle || a.stepID;
-            output += `<option value="${a.stepID}-${a.actionType}-${a.nextStepID}">${a.actionText}: from ${fromText} to ${toText}</option>`;
-        });
-        output += '</select>';
-        $('#actionList').html(output);
-        $('#workflow_actions').chosen({
-            disable_search_threshold: 5,
-            width: '100%'
-        });
-        updateChosenAttributes("workflow_actions", "actions_label", "Select Action");
-
-        const sel = document.getElementById('workflow_actions');
-        $('#workflow_actions').on('change', function() {
-            const val = sel.value || ""
-            if (val !== "") {
-                $(`.workflowAction.${val}`).click();
+            if(r.actionType === "submit") {
+                hasSubmit = true;
             }
         });
-        $('#workflow_actions + .chosen-container').on('keydown', function(event) {
-            const code = (event?.code || "").toLowerCase();
-            if (code === 'space') {
-                event.preventDefault();
-                const val = sel.value || "";
-                if (val !== "") {
-                    $(`.workflowAction.${val}`).click();
-                }
+        //sometimes needs submit route, depending where it is (only exists if requestor -> end)
+        if(hasSubmit === false) {
+            const initialStepID = workflows[currentWorkflow]?.initialStepID;
+            const initialStepName = steps[initialStepID]?.stepTitle || "";
+            const submit = {
+                actionType: "submit",
+                actionText: "Submit",
+                stepID: -1,
+                nextStepID: initialStepID
             }
+            allRoutes.push(submit);
+        }
+        let stepRoutes = allRoutes.filter(a => a.stepID === stepID || a.nextStepID === stepID );
+        stepRoutes = stepRoutes.sort((a, b) => {
+            const rA = a.actionText.toLowerCase();
+            const rB = b.actionText.toLowerCase();
+            return rA < rB ? -1 : rA > rB ? 1 : 0
         });
+        let output = "";
+        if(stepRoutes.length > 0) {
+            output = `<div style="margin-top:0.5rem;"><b>Manage Actions on this step</b><ul class="workflow_actions">`;
+            stepRoutes.forEach(a => {
+                const delNextID = a.actionType === "sendback" ? 0 : a.nextStepID; //needs to be 0 for POST
+                output += `<li style="display:flex;gap:0.25rem;margin-top:0.375rem;">${a.actionText}
+                    ${workflowID > 0 && a.stepID != -1 ?  //usually can't rm submit like other actions so not showing rm btn
+                    `<button type="button" class="buttonNorm icon" aria-label="Remove this action" title="Remove this action"
+                        onclick="removeAction(${currentWorkflow}, ${a.stepID}, ${delNextID}, '${a.actionType}')" ${workflowID}>
+                        <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
+                    </button>` : ``}
+                    <button type="button" class="buttonNorm" style="margin-left:auto;"
+                        onclick="clickAction('.action-${a.stepID}-${a.actionType}-${a.nextStepID}')">Edit Events
+                    </button>
+                </li>`;
+            });
+            output += '</ul></div>';
+        }
+        return output;
     }
 
     function viewHistory() {
