@@ -1,26 +1,22 @@
-<div id="workflow_editor" style="margin-top:0.5rem;display:flex;gap:0.25rem;padding:0.25rem;">
+<div id="workflow_editor">
     <div id="sideBar">
         <div>
-            <label id="workflows_label"> Workflows:</label>
-            <div id="workflowList"></div>
-        </div>
-        <button type="button" id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();">
-            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Workflow
-        </button>
-
-        <div>
-            <label id="steps_label" style="font-family: Source Sans Pro Web"> Workflow Steps:</label>
+            <label id="steps_label"> Workflow Steps:</label>
             <div id="stepList"></div>
         </div>
         <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();">
             <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Step
         </button>
 
+        <div>
+            <label id="workflows_label"> Workflows:</label>
+            <div id="workflowList"></div>
+        </div>
+        <button type="button" id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();">
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Workflow
+        </button>
+
         <hr />
-        <button type="button" id="btn_listActionType" class="buttonNorm" onclick="listActionType();">Edit Actions</button>
-
-        <button type="button" id="btn_listEvents" class="buttonNorm" onclick="listEvents();" >Edit Events</button>
-
         <button type="button" id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();" >
             <img src="../dynicons/?img=accessories-text-editor.svg&amp;w=26" alt="" /> Rename Workflow
         </button>
@@ -33,6 +29,12 @@
         <button type="button" id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" >
             <img src="../dynicons/?img=appointment.svg&amp;w=26" alt="" /> View History
         </button>
+
+        <hr />
+        <button type="button" id="btn_listActionType" class="buttonNorm" onclick="listActionType();">Edit Actions</button>
+
+        <button type="button" id="btn_listEvents" class="buttonNorm" onclick="listEvents();" >Edit Events</button>
+
         <hr />
         <button type="button" id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" >
             <img src="../dynicons/?img=list-remove.svg&w=26" alt="" /> Delete Workflow
@@ -167,7 +169,7 @@
         }
 
         content += `</table><br /><br />
-            <span class="buttonNorm" id="create-event" tabindex="0">Create a new Event</span><br /><br />
+            <button type="button" class="buttonNorm" id="create-event">Create a new Event</button><br /><br />
             You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a>`;
 
         return content;
@@ -353,7 +355,7 @@
             }
             updateStepData(seriesData, stepID, function (res) {
                 if (res == 1) {
-                    loadWorkflow(currentWorkflow);
+                    loadWorkflow(currentWorkflow, stepID);
                     dialog.hide();
                 } else {
                     alert(res);
@@ -822,7 +824,7 @@
         });
     }
 
-    function dependencyRevokeAccess(dependencyID, groupID) {
+    function dependencyRevokeAccess(dependencyID, groupID, reopenStepID = null) {
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to revoke these privileges?');
@@ -833,7 +835,7 @@
                     + $.param({ 'groupID': groupID, 'CSRFToken': CSRFToken }),
                 success: function() {
                     $('.workflowStepInfo').css('display', 'none');
-                    loadWorkflow(currentWorkflow);
+                    loadWorkflow(currentWorkflow, reopenStepID);
                     dialog_confirm.hide();
                 },
                 error: (err) => console.log(err),
@@ -888,7 +890,7 @@
                     },
                     success: function(res) {
                         dialog.hide();
-                        loadWorkflow(currentWorkflow);
+                        loadWorkflow(currentWorkflow, stepID);
                         if (stepID != undefined) {
                             linkDependency(stepID, dependencyID);
                         }
@@ -1067,7 +1069,7 @@
                 }
 
                 buffer += `</table><br /><br />
-                    <span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>`;
+                    <button type="button" class="buttonNorm" id="create-action-type">Create a new Action</button>`;
 
                 dialog.indicateIdle();
                 dialog.setContent(buffer);
@@ -1291,7 +1293,7 @@
     }
 
     // connect 2 steps with an action
-    function createAction(params) {
+    function createAction(params, reopenStepID = null) {
         $('.workflowStepInfo').css('display', 'none');
         source = parseFloat(params.sourceId.substr(5));
         sourceTitle = '';
@@ -1320,7 +1322,7 @@
             // automatically select "return to requestor" if the user links a step to the requestor's step
             if (source > 0) {
                 postAction(source, target, 'sendback', currentWorkflow, function(res) {
-                    loadWorkflow(currentWorkflow);
+                    loadWorkflow(currentWorkflow, reopenStepID);
                 });
                 return;
             }
@@ -1352,7 +1354,7 @@
 
                 buffer += '</select>';
                 buffer +=
-                    '<br />- OR -<br /><br /><span class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="newAction();">Create a new Action Type</span>';
+                    '<br />- OR -<br /><br /><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25rem;" onclick="newAction();">Create a new Action Type</button>';
 
                 dialog.indicateIdle();
                 dialog.setContent(buffer);
@@ -1365,7 +1367,7 @@
                 });*/
                 dialog.setSaveHandler(function() {
                     postAction(source, target, $('#actionType').val(), currentWorkflow, function(res) {
-                        loadWorkflow(currentWorkflow);
+                        loadWorkflow(currentWorkflow, reopenStepID);
                     });
                     dialog.hide();
                 });
@@ -1375,7 +1377,7 @@
         });
     }
 
-    function removeAction(workflowID, stepID, nextStepID, action) {
+    function removeAction(workflowID, stepID, nextStepID, action, reopenStepID = null) {
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirm action removal');
         dialog_confirm.setContent('Confirm removal of:<br /><br />' + stepID + ' -> ' + action + ' -> ' + nextStepID);
@@ -1385,7 +1387,7 @@
                 url: `../api/workflow/${workflowID}/step/${stepID}/_${action}/${nextStepID}?`
                     + $.param({ 'CSRFToken': CSRFToken }),
                 success: function() {
-                    loadWorkflow(workflowID);
+                    loadWorkflow(workflowID, reopenStepID);
                 },
                 error: (err) => console.log(err),
             });
@@ -1707,7 +1709,7 @@
                 sourceId: `step_${fromStepID}`,
                 targetId: `step_${toStepID}`,
             }
-            createAction(jsPlumbParams);
+            createAction(jsPlumbParams, fromStepID);
         } else {
             console.log('unexpected arguments')
         }
@@ -1728,8 +1730,8 @@
     }
 
     function showStepInfo(stepID) {
-        $('#stepInfo_' + stepID).html('');
-        if ($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second click
+        $('.workflowStepInfo').html('');
+        if ($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second step click
             $('.workflowStepInfo').css('display', 'none');
             return;
         }
@@ -1800,6 +1802,7 @@
                         let tDeps = {};
                         for (let i in res) {
                             const depID = res[i].dependencyID;
+                            const depText = `<b style="color:green;vertical-align:middle;">${res[i].description}</b>`;
                             const control_editDependency = `<button type="button" class="buttonNorm icon" onclick="editRequirement(${depID},'${res[i].description}')"
                                     title="Edit Requirement Name" aria-label="Edit Requirement Name">
                                     <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
@@ -1810,30 +1813,26 @@
                                 </button>`;
 
                             if (depID === 1 || depID === 8) { // special cases for service chief and quadrad
-                                output += `<li>
-                                    <b style="color: green;vertical-align:middle;">${res[i].description}</b>${control_editDependency} ${control_unlinkDependency} (depID: ${depID})
-                                </li>`;
+                                output += `<li>${depText} ${control_editDependency} ${control_unlinkDependency} (depID:${depID})</li>`;
 
                             } else if (depID == -1) { // dependencyID -1 : special case for person designated by the requestor
                                 const indicatorWarning = (res[i].indicatorID_for_assigned_empUID == null || res[i].indicatorID_for_assigned_empUID == 0) ?
                                     '<div style="color:#c00000;font-weight:bold">A data field (indicatorID) must be set.</div>' : '';
 
-                                output += `<li><b style="color:green;vertical-align:middle;">${res[i].description}</b> ${control_unlinkDependency} (depID: ${depID})
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})
                                     ${indicatorWarning}
                                     <div>indicatorID: ${res[i].indicatorID_for_assigned_empUID ?? '<b style="color: #c00000;">not set</b>'}</div>
                                     <button type="button" class="buttonNorm" onclick="setDynamicApprover('${res[i].stepID}')">Set Data Field</button>
                                 </li>`;
 
                             } else if (depID === -2) { // dependencyID -2 : requestor followup
-                                output += `<li>
-                                    <b style="color:green;vertical-align:middle;">${res[i].description}</b> ${control_unlinkDependency} (depID: ${depID})
-                                </li>`;
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})</li>`;
 
                             } else if (depID === -3) { // dependencyID -3 : special case for group designated by the requestor
                                 const indicatorWarning = (res[i].indicatorID_for_assigned_groupID == null || res[i].indicatorID_for_assigned_groupID == 0) ?
                                     '<div style="color:#c00000;font-weight:bold">A data field (indicatorID) must be set.</div>' : '';
 
-                                output += `<li><b style="color:green;vertical-align:middle;">${res[i].description}</b> ${control_unlinkDependency} (depID: ${depID})
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})
                                     ${indicatorWarning}
                                     <div>indicatorID: ${res[i].indicatorID_for_assigned_groupID ?? '<b style="color: #c00000;">not set</b>'}</div>
                                     <button type="button" class="buttonNorm" onclick="setDynamicGroupApprover('${res[i].stepID}')">Set Data Field</button>
@@ -1841,13 +1840,15 @@
                             } else {
                                 if (tDeps[depID] == undefined) {
                                     tDeps[depID] = 1;
-                                    output += '<li><b title="depID: ' + res[i]
-                                        .dependencyID + '" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess(' + res[i]
-                                        .dependencyID + ')">' + res[i].description + '</b> ' +
-                                        control_editDependency + ' ' + control_unlinkDependency + 
-                                            `<ul id="step_${stepID}_dep${depID}">
+                                    output += `<li>
+                                        <b tabindex=0 title="depID: ${res[i].dependencyID}"
+                                            onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess('${res[i].dependencyID},${stepID})">
+                                            ${res[i].description}
+                                        </b>
+                                        ${control_editDependency} ${control_unlinkDependency}
+                                            <ul id="step_${stepID}_dep${depID}">
                                                 <li>
-                                                    <button type="button" class="buttonNorm" onclick="dependencyGrantAccess('${depID}')">
+                                                    <button type="button" class="buttonNorm" onclick="dependencyGrantAccess('${depID}',${stepID})">
                                                     <img src="../dynicons/?img=list-add.svg&w=16" alt="" /> Add Group</button>
                                                 </li>
                                             </ul>
@@ -1918,7 +1919,7 @@
                                 $('#step_' + stepID + '_dep' + res[i].dependencyID).prepend(
                                     `<li style="white-space:nowrap">
                                         <b title="groupID: ${res[i].groupID}">${res[i].name}</b>
-                                        <button type="button" class="buttonNorm icon" onclick="dependencyRevokeAccess('${res[i].dependencyID}', '${res[i].groupID}')"
+                                        <button type="button" class="buttonNorm icon" onclick="dependencyRevokeAccess('${res[i].dependencyID}', '${res[i].groupID}', ${stepID})"
                                             title="Remove Group" aria-label="Remove Group">
                                             <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
                                         </button>
@@ -1967,7 +1968,7 @@
 
     var endPoints = [];
 
-    function drawRoutes(workflowID) {
+    function drawRoutes(workflowID, stepID = null) {
         $.ajax({
             type: 'GET',
             url: '../api/workflow/' + workflowID + '/route',
@@ -2102,6 +2103,10 @@
                     ao.setAttribute('tabindex', 0);
                     ao.addEventListener('keydown', onKeyPressClick);
                 });
+                //if user came via stepinfo key nav re-open that modal
+                if(stepID !== null) {
+                    showStepInfo(stepID);
+                }
             },
             error: (err) => console.log(err),
             cache: false
@@ -2110,7 +2115,7 @@
 
     var currentWorkflow = 0;
 
-    function loadWorkflow(workflowID) {
+    function loadWorkflow(workflowID, stepID = null) {
         currentWorkflow = workflowID;
         jsPlumb.reset();
         endPoints = [];
@@ -2212,8 +2217,8 @@
                 });
 
                 $('#workflow').css('height', 300 + maxY + 'px');
-                drawRoutes(workflowID);
-                buildStepList(steps)
+                drawRoutes(workflowID, stepID);
+                buildStepList(steps);
             },
             error: (err) => console.log(err),
             cache: false
@@ -2355,12 +2360,13 @@
                 const delNextID = a.actionType === "sendback" ? 0 : a.nextStepID; //needs to be 0 for POST
                 output += `<li>${a.actionText}
                     ${workflowID > 0 && a.stepID != -1 ?  //usually can't rm submit like other actions so not showing rm btn
-                    `<button type="button" class="buttonNorm icon" aria-label="Remove this action" title="Remove this action"
-                        onclick="removeAction(${currentWorkflow}, ${a.stepID}, ${delNextID}, '${a.actionType}')" ${workflowID}>
+                    `<button type="button" class="buttonNorm icon" aria-label="Remove action: ${a.actionText}" title="Remove this action"
+                        onclick="removeAction(${currentWorkflow}, ${a.stepID}, ${delNextID}, '${a.actionType}', ${stepID})" ${workflowID}>
                         <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
                     </button>` : ``}
-                    <button type="button" class="buttonNorm" style="margin-left:auto;"
-                        onclick="clickAction('.action-${a.stepID}-${a.actionType}-${a.nextStepID}')">Edit Events
+                    <button type="button" class="buttonNorm icon" aria-label="Manage events for action: ${a.actionText}" title="Manage Action Events"
+                        onclick="clickAction('.action-${a.stepID}-${a.actionType}-${a.nextStepID}')">
+                        <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
                     </button>
                 </li>`;
             });
