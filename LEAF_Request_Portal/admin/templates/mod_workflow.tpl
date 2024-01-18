@@ -1488,14 +1488,16 @@
 
             $('#stepInfo_' + stepID).show('slide', 200, () => {
                 const modalEl = document.getElementById('stepInfo_' + stepID);
-                const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
-                const first = interActiveEls[0] || null;
-                const last = interActiveEls[interActiveEls.length - 1] || null;
-                if (first !== null && last !== null) {
-                    const actionTabbing = controlTabbing(first, last);
-                    first.addEventListener('keydown', actionTabbing);
-                    last.addEventListener('keydown', actionTabbing);
-                    first.focus();
+                if(modalEl !== null) {
+                    const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
+                    const first = interActiveEls[0] || null;
+                    const last = interActiveEls[interActiveEls.length - 1] || null;
+                    if (first !== null && last !== null) {
+                        const actionTabbing = controlTabbing(first, last);
+                        first.addEventListener('keydown', actionTabbing);
+                        last.addEventListener('keydown', actionTabbing);
+                        first.focus();
+                    }
                 }
                 $('#stepInfo_' + stepID).on('keydown', function(event) {
                     const code = event.code.toLowerCase();
@@ -1974,14 +1976,16 @@
         });
         $('#stepInfo_' + stepID).show('slide', 200, () => {
             const modalEl = document.getElementById('stepInfo_' + stepID);
-            const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
-            const first = interActiveEls[0] || null
-            const last = interActiveEls[interActiveEls.length - 1] || null;
-            if (first !== null && last !== null) {
-                const stepTabbing = controlTabbing(first, last);
-                first.addEventListener('keydown', stepTabbing);
-                last.addEventListener('keydown', stepTabbing);
-                first.focus();
+            if(modalEl !== null) {
+                const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
+                const first = interActiveEls[0] || null
+                const last = interActiveEls[interActiveEls.length - 1] || null;
+                if (first !== null && last !== null) {
+                    const stepTabbing = controlTabbing(first, last);
+                    first.addEventListener('keydown', stepTabbing);
+                    last.addEventListener('keydown', stepTabbing);
+                    first.focus();
+                }
             }
             $('#stepInfo_' + stepID).on('keydown', function(event) {
                 const code = event.code.toLowerCase();
@@ -3069,7 +3073,7 @@
     }
 
 
-    var dialog, dialog_confirm, dialog_simple;
+    var dialog, dialog_confirm, dialog_simple, dialog_ok;
     var workflows = {};
     var steps = {};
     var routes = {};
@@ -3095,12 +3099,9 @@
     });
 
     $(function() {
-        dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save',
-            'button_cancelchange');
-        dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
-            'confirm_button_save', 'confirm_button_cancelchange');
-        dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator',
-            'simplebutton_save', 'simplebutton_cancelchange');
+        dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save','button_cancelchange');
+        dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator','confirm_button_save', 'confirm_button_cancelchange');
+        dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator','simplebutton_save', 'simplebutton_cancelchange');
         dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
         $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 

@@ -206,7 +206,7 @@ dialogController.prototype.setCancelHandler = function(funct) {
     $('#' + this.containerID).on('dialogbeforeclose', function() {
         if(t.isValid() == 1 && t.isComplete() == 1) {        	
         	funct();
-        	$('#' + this.containerID).off('dialogbeforeclose');
+            $('#' + t.containerID).off('dialogbeforeclose');
         }
         else {
         	t.indicateIdle();
