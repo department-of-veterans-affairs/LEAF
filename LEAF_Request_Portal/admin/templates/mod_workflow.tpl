@@ -844,6 +844,11 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to revoke these privileges?');
+        dialog_confirm.setCancelHandler(function() {
+            if(reopenStepID !== null) {
+                showStepInfo(reopenStepID);
+            }
+        });
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
