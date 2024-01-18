@@ -335,7 +335,9 @@
         dialog.setSubmitValid('reminder_days_additional', function() {
             alert('Additional Number of days to remind user must be greater than 0!');
         });
-
+        dialog.setCancelHandler(function() {
+            showStepInfo(stepID);
+        });
         dialog.setSaveHandler(function() {
             const remindersChecked = document.getElementById('edit_email_check')?.checked;
             const reminderType = (document.getElementById('reminder_type_select')?.value || '').toLowerCase();
@@ -717,6 +719,9 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to remove this step?');
+        dialog_confirm.setCancelHandler(function() {
+            showStepInfo(stepID);
+        });
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
@@ -746,10 +751,13 @@
 
         dialog.setTitle('Edit Step');
         dialog.setContent(`<label for="title">Title:</label> <input type="text" id="title" value="${workflowStep?.stepTitle}" />`);
+        dialog.setCancelHandler(function() {
+            showStepInfo(stepID);
+        });
         dialog.setSaveHandler(function() {
             updateTitle($('#title').val(), stepID, function(step_id) {
                 if (step_id == 1) {
-                    loadWorkflow(currentWorkflow);
+                    loadWorkflow(currentWorkflow, stepID);
                     dialog.hide();
                 } else {
                     alert(res);
@@ -759,11 +767,16 @@
         dialog.show();
     }
 
-    function editRequirement(dependencyID, description = "") {
+    function editRequirement(dependencyID, description = "", reopenStepID = null) {
         const inputDescription = description.replace(/"|'/g, '');
         $('.workflowStepInfo').css('display', 'none');
         dialog.setTitle('Edit Requirement');
         dialog.setContent(`<label for="description">Label:</label><input type="text" id="description" value="${inputDescription}" />`);
+        dialog.setCancelHandler(function() {
+            if(reopenStepID !== null) {
+                showStepInfo(reopenStepID);
+            }
+        });
         dialog.setSaveHandler(function() {
             if ($('#description').val() == '') {
                 dialog_ok.setTitle('Description Validation');
@@ -772,7 +785,7 @@
                     dialog_ok.clearDialog();
                     dialog_ok.hide();
                     dialog.hide();
-                    editRequirement(dependencyID, description);
+                    editRequirement(dependencyID, description, reopenStepID);
                 });
                 dialog_ok.show();
             } else {
@@ -784,7 +797,7 @@
                     url: '../api/workflow/dependency/' + dependencyID,
                     success: function() {
                         $('.workflowStepInfo').css('display', 'none');
-                        loadWorkflow(currentWorkflow);
+                        loadWorkflow(currentWorkflow, reopenStepID);
                         dialog.hide();
                     },
                     error: (err) => console.log(err),
@@ -799,6 +812,9 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to remove this requirement?');
+        dialog_confirm.setCancelHandler(function() {
+            showStepInfo(stepID);
+        });
         dialog_confirm.setSaveHandler(function() {
             dialog_confirm.indicateBusy();
             $.ajax({
@@ -1360,11 +1376,12 @@
                 dialog.setContent(buffer);
                 $('#xhrDialog').css('overflow', 'visible');
                 $('#actionType').chosen({disable_search_threshold: 5});
-                // TODO: Figure out why this triggers even when the user clicks save
-                /*
+
                 dialog.setCancelHandler(function() {
-                    loadWorkflow(currentWorkflow);
-                });*/
+                    if(reopenStepID !== null) {
+                        showStepInfo(reopenStepID);
+                    }
+                });
                 dialog.setSaveHandler(function() {
                     postAction(source, target, $('#actionType').val(), currentWorkflow, function(res) {
                         loadWorkflow(currentWorkflow, reopenStepID);
@@ -1381,6 +1398,11 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirm action removal');
         dialog_confirm.setContent('Confirm removal of:<br /><br />' + stepID + ' -> ' + action + ' -> ' + nextStepID);
+        dialog_confirm.setCancelHandler(function() {
+            if(reopenStepID !== null) {
+                showStepInfo(reopenStepID);
+            }
+        });
         dialog_confirm.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
@@ -1434,7 +1456,7 @@
             stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
             output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
                 <h2 style="display:inline-block;margin:0;">Action: ${stepTitle} clicks ${params.action}</h2>
-                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})"
+                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal"
                     style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
             </div>`;
 
@@ -1765,12 +1787,14 @@
                 const output = `Request initiator (stepID #: -1)
                     <fieldset>
                         <legend>Options</legend>
-                        <label for="toggleManageActions" style="margin-top:0.5rem;">
-                            <input id="toggleManageActions" type="checkbox" onchange="toggleManageActions()"/>Manage Actions or Events
-                        </label>
-                        <div id="manage_actions_options" style="display:none;">
-                            ${actionList}
-                            ${currentWorkflow > 0 ? routeOptions : ""}
+                        <div>
+                            <label for="toggleManageActions">
+                                <input id="toggleManageActions" type="checkbox" onchange="toggleManageActions()"/>View Step Actions
+                            </label>
+                            <div id="manage_actions_options" style="display:none;">
+                                ${actionList}
+                                ${currentWorkflow > 0 ? routeOptions : ""}
+                            </div>
                         </div>
                     </fieldset>`;
                 $('#stepInfo_' + stepID).html(output);
@@ -1789,7 +1813,7 @@
                         let output = `<div style="display:flex;gap:0.25rem;align-items:center;">
                                 <h2 style="display:inline-block;margin:0;">stepID: #${stepID}</h2>${control_removeStep}
                                 <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})"
-                                    style="padding:2px;background-color:#fff;border-color:#eee;margin-left:auto;" title="close modal">&#10006</button>
+                                    style="padding:2px;background-color:#fff;border-color:#eee;margin-left:auto;" aria-label="Close Modal" title="close modal">&#10006</button>
                             </div></br>
                             <div style="display:flex;gap:0.25rem;align-items:center;">
                                 Step: <b>${steps[stepID].stepTitle}</b>
@@ -1803,7 +1827,7 @@
                         for (let i in res) {
                             const depID = res[i].dependencyID;
                             const depText = `<b style="color:green;vertical-align:middle;">${res[i].description}</b>`;
-                            const control_editDependency = `<button type="button" class="buttonNorm icon" onclick="editRequirement(${depID},'${res[i].description}')"
+                            const control_editDependency = `<button type="button" class="buttonNorm icon" onclick="editRequirement(${depID},'${res[i].description}','${stepID}')"
                                     title="Edit Requirement Name" aria-label="Edit Requirement Name">
                                     <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
                                 </button>`;
@@ -1863,19 +1887,21 @@
 
                         output += `<fieldset>
                             <legend>Options</legend>
-                            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                            <div style="display:flex;flex-direction:column;gap:1rem;">
                                 <div>
                                     <label for="workflowIndicator_${stepID}">Form Field:</label>
                                     <select id="workflowIndicator_${stepID}" style="width:300px;">
                                         <option value="">None</option>
                                     </select>
                                 </div>
-                                <label for="toggleManageActions" style="margin-top:0.5rem;">
-                                    <input id="toggleManageActions" type="checkbox" onchange="toggleManageActions()"/>Manage Actions or Events
-                                </label>
-                                <div id="manage_actions_options" style="display:none;">
-                                    ${actionList}
-                                    ${routeOptions}
+                                <div>
+                                    <label for="toggleManageActions">
+                                        <input id="toggleManageActions" type="checkbox" onchange="toggleManageActions()"/>View Step Actions
+                                    </label>
+                                    <div id="manage_actions_options" style="display:none;">
+                                        ${actionList}
+                                        ${routeOptions}
+                                    </div>
                                 </div>
                             </div>
                         </fieldset>`;
@@ -2355,7 +2381,7 @@
         });
         let output = "";
         if(stepRoutes.length > 0) {
-            output = `<div>Actions on this step<ul class="workflow_actions">`;
+            output = `<ul class="workflow_actions">`;
             stepRoutes.forEach(a => {
                 const delNextID = a.actionType === "sendback" ? 0 : a.nextStepID; //needs to be 0 for POST
                 output += `<li>${a.actionText}
@@ -2365,12 +2391,12 @@
                         <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
                     </button>` : ``}
                     <button type="button" class="buttonNorm icon" aria-label="Manage events for action: ${a.actionText}" title="Manage Action Events"
-                        onclick="clickAction('.action-${a.stepID}-${a.actionType}-${a.nextStepID}')">
+                        onclick="clickAction('.action-${a.stepID}-${a.actionType}-${a.nextStepID}','${stepID}')">
                         <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
                     </button>
                 </li>`;
             });
-            output += '</ul></div>';
+            output += '</ul>';
         }
         return output;
     }
