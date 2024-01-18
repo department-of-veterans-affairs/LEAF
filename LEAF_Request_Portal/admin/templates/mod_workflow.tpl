@@ -8,7 +8,7 @@
             <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Step
         </button>
 
-        <div>
+        <div style="margin-top:0.5rem;">
             <label id="workflows_label"> Workflows:</label>
             <div id="workflowList"></div>
         </div>
@@ -17,26 +17,30 @@
         </button>
 
         <hr />
-        <button type="button" id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();" >
+        <button type="button" id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();">
             <img src="../dynicons/?img=accessories-text-editor.svg&amp;w=26" alt="" /> Rename Workflow
         </button>
 
-        <button type="button" id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();" >
+        <button type="button" id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();">
             <img src="../dynicons/?img=edit-copy.svg&amp;w=26" alt="" /> Duplicate Workflow
         </button>
 
         <hr />
-        <button type="button" id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();" >
+        <button type="button" id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();">
             <img src="../dynicons/?img=appointment.svg&amp;w=26" alt="" /> View History
         </button>
 
         <hr />
-        <button type="button" id="btn_listActionType" class="buttonNorm" onclick="listActionType();">Edit Actions</button>
+        <button type="button" id="btn_listActionType" class="buttonNorm" onclick="listActionType();">
+            <img src="../dynicons/?img=applications-other.svg&amp;w=26" alt="" /> Edit Actions
+        </button>
 
-        <button type="button" id="btn_listEvents" class="buttonNorm" onclick="listEvents();" >Edit Events</button>
+        <button type="button" id="btn_listEvents" class="buttonNorm" onclick="listEvents();">
+            <img src="../dynicons/?img=gnome-system-run.svg&amp;w=26" alt="" /> Edit Events
+        </button>
 
         <hr />
-        <button type="button" id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();" >
+        <button type="button" id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();">
             <img src="../dynicons/?img=list-remove.svg&w=26" alt="" /> Delete Workflow
         </button>
     </div>
