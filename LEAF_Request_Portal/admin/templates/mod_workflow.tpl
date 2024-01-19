@@ -339,10 +339,14 @@
         dialog.setSubmitValid('reminder_days_additional', function() {
             alert('Additional Number of days to remind user must be greater than 0!');
         });
+        let saving = false;
         dialog.setCancelHandler(function() {
-            showStepInfo(stepID);
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
         });
         dialog.setSaveHandler(function() {
+            saving = true;
             const remindersChecked = document.getElementById('edit_email_check')?.checked;
             const reminderType = (document.getElementById('reminder_type_select')?.value || '').toLowerCase();
             const reminderDays = remindersChecked === true && reminderType === 'duration' ?
@@ -723,10 +727,14 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to remove this step?');
+        let saving = false;
         dialog_confirm.setCancelHandler(function() {
-            showStepInfo(stepID);
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
         });
         dialog_confirm.setSaveHandler(function() {
+            saving = true;
             $.ajax({
                 type: 'DELETE',
                 url: `../api/workflow/step/${stepID}?` + $.param({ 'CSRFToken': CSRFToken }),
@@ -755,10 +763,14 @@
 
         dialog.setTitle('Edit Step');
         dialog.setContent(`<label for="title">Title:</label> <input type="text" id="title" value="${workflowStep?.stepTitle}" />`);
+        let saving = false;
         dialog.setCancelHandler(function() {
-            showStepInfo(stepID);
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
         });
         dialog.setSaveHandler(function() {
+            saving = true;
             updateTitle($('#title').val(), stepID, function(step_id) {
                 if (step_id == 1) {
                     loadWorkflow(currentWorkflow, stepID);
@@ -776,12 +788,14 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog.setTitle('Edit Requirement');
         dialog.setContent(`<label for="description">Label:</label><input type="text" id="description" value="${inputDescription}" />`);
+        let saving = false;
         dialog.setCancelHandler(function() {
-            if(reopenStepID !== null) {
+            if(reopenStepID !== null && saving === false) {
                 showStepInfo(reopenStepID);
             }
         });
         dialog.setSaveHandler(function() {
+            saving = true;
             if ($('#description').val() == '') {
                 dialog_ok.setTitle('Description Validation');
                 dialog_ok.setContent('Description cannot be blank, please enter a Title or click cancel.');
@@ -816,10 +830,14 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to remove this requirement?');
+        let saving = false;
         dialog_confirm.setCancelHandler(function() {
-            showStepInfo(stepID);
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
         });
         dialog_confirm.setSaveHandler(function() {
+            saving = true;
             dialog_confirm.indicateBusy();
             $.ajax({
                 type: 'DELETE',
@@ -848,12 +866,14 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to revoke these privileges?');
+        let saving = false;
         dialog_confirm.setCancelHandler(function() {
-            if(reopenStepID !== null) {
+            if(reopenStepID !== null && saving === false) {
                 showStepInfo(reopenStepID);
             }
         });
         dialog_confirm.setSaveHandler(function() {
+            saving = true;
             $.ajax({
                 type: 'DELETE',
                 url: '../api/workflow/dependency/' + dependencyID + '/privileges?'
@@ -905,23 +925,29 @@
             error: (err) => console.log(err),
             cache: false
         });
-
+        let saving = false;
+        dialog.setCancelHandler(function() {
+            if(saving === false) {
+                showStepInfo(stepID)
+            }
+        });
         dialog.setSaveHandler(function() {
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/dependency/' + dependencyID + '/privileges',
-                        data: {groupID: $('#groupID').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        dialog.hide();
-                        loadWorkflow(currentWorkflow, stepID);
-                        if (stepID != undefined) {
-                            linkDependency(stepID, dependencyID);
-                        }
-                    },
-                    error: (err) => console.log(err),
-                });
+            saving = true;
+            $.ajax({
+                    type: 'POST',
+                    url: '../api/workflow/dependency/' + dependencyID + '/privileges',
+                    data: {groupID: $('#groupID').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    dialog.hide();
+                    loadWorkflow(currentWorkflow);
+                    if (stepID != undefined) {
+                        linkDependency(stepID, dependencyID);
+                    }
+                },
+                error: (err) => console.log(err),
+            });
         });
         dialog.show();
     }
@@ -997,7 +1023,14 @@
                 });
                 updateChosenAttributes("dependencyID", "requirements_label", "Select Requirement");
 
+                let saving = false;
+                dialog.setCancelHandler(function() {
+                    if(saving === false) {
+                        showStepInfo(stepID);
+                    }
+                });
                 dialog.setSaveHandler(function() {
+                    saving = true;
                     linkDependency(stepID, $('#dependencyID').val());
                 });
             },
@@ -1385,13 +1418,14 @@
                 dialog.setContent(buffer);
                 $('#xhrDialog').css('overflow', 'visible');
                 $('#actionType').chosen({disable_search_threshold: 5});
-
+                let saving = false;
                 dialog.setCancelHandler(function() {
-                    if(reopenStepID !== null) {
+                    if(reopenStepID !== null && saving === false) {
                         showStepInfo(reopenStepID);
                     }
                 });
                 dialog.setSaveHandler(function() {
+                    saving = true;
                     postAction(source, target, $('#actionType').val(), currentWorkflow, function(res) {
                         loadWorkflow(currentWorkflow, reopenStepID);
                     });
@@ -1407,12 +1441,14 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirm action removal');
         dialog_confirm.setContent('Confirm removal of:<br /><br />' + stepID + ' -> ' + action + ' -> ' + nextStepID);
+        let saving = false;
         dialog_confirm.setCancelHandler(function() {
-            if(reopenStepID !== null) {
+            if(reopenStepID !== null && saving === false) {
                 showStepInfo(reopenStepID);
             }
         });
         dialog_confirm.setSaveHandler(function() {
+            saving = true;
             $.ajax({
                 type: 'DELETE',
                 url: `../api/workflow/${workflowID}/step/${stepID}/_${action}/${nextStepID}?`
@@ -1431,46 +1467,26 @@
     function showActionInfo(params, evt) {
         $('.workflowStepInfo').css('display', 'none');
         $('#stepInfo_' + params.stepID).html('Loading...');
-
-        let stepID = params.stepID;
-        $.ajax({
-            type: 'GET',
-            url: '../api/workflow/' + currentWorkflow + '/step/' + stepID + '/_' + params.action + '/events',
-            success: function(res) {
-                let find_required = '';
-                if (typeof params.required === 'undefined' || params.required === '') {
-                    find_required = $.parseJSON('{"required":"false"}');
-                } else {
-                    find_required = $.parseJSON(params.required);
-                }
-            }
-        });
+        const reopenStepID = evt?.detail?.reopenStepID || null;
+        const stepID = params.stepID;
 
         getRouteEvents(currentWorkflow, stepID, params.action, function (res) {
-            let find_required = '';
+            const stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
 
-            if (typeof params.required === 'undefined' || params.required === '') {
-                find_required = $.parseJSON('{"required":"false"}');
-            } else {
-                find_required = $.parseJSON(params.required);
-            }
-
-            let output = '';
-            let required = '';
-
-            if (find_required.required == 'true') {
-                required = 'checked=checked';
-            }
-
-            stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
-            output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
+            let output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
                 <h2 style="display:inline-block;margin:0;">Action: ${stepTitle} clicks ${params.action}</h2>
-                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal"
+                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID}, ${reopenStepID})" aria-label="Close Modal"
                     style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
             </div>`;
 
             if (params.action == 'sendback') {
-                output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + 'aria-label="Require Comment" /> Require a comment to sendback.<br />';
+                //routes is global.
+                const sendBackRoute = routes.find(r => r.actionType === "sendback" && +r.stepID === +stepID);
+                const parseRequired = isJSON(sendBackRoute?.displayConditional) && JSON.parse(sendBackRoute.displayConditional)?.required;
+                const required = parseRequired === "true" ? "checked" : ""; //true is a string
+                output += `<br /><label for="require_sendback_${stepID}">
+                    <input type="checkbox" id="require_sendback_${stepID}" onchange="switchRequired(this)" ${required} /> Require a comment to sendback.
+                </label><br />`;
             }
 
             output += '<br /><div>Triggers these events:<ul>';
@@ -1486,13 +1502,15 @@
                     </button>
                 </li>`;
             }
-            output += '<li style="padding-top: 8px"><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" id="event_' +
-                currentWorkflow + '_' + stepID + '_' + params.action + '">Add Event</button>';
+            output += `<li style="padding-top: 8px">
+                <button type="button" class="buttonNorm" id="event_${currentWorkflow}_${stepID}_${params.action}"
+                    onclick="addEventDialog('${currentWorkflow}', '${stepID}', '${params.action}');">Add Event
+                </button>
+            </li>`;
             output += '</ul></div>';
             output +=
-                '<hr /><div style="padding: 4px"><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="removeAction(' +
-                currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
-                '\')">Remove Action</button></div>';
+                `<hr /><div style="padding: 4px"><button type="button" class="buttonNorm" 
+                    onclick="removeAction('${currentWorkflow}', '${stepID}', '${params.nextStepID}', '${params.action}', ${reopenStepID})">Remove Action</button></div>`;
             $('#stepInfo_' + stepID).html(output);
 
             $('#stepInfo_' + stepID).show('slide', 200, () => {
@@ -1511,12 +1529,9 @@
                 $('#stepInfo_' + stepID).on('keydown', function(event) {
                     const code = event.code.toLowerCase();
                     if (code === 'escape') {
-                        closeStepInfo(stepID);
+                        closeStepInfo(stepID, reopenStepID);
                     }
                 });
-            });
-            $('#event_' + currentWorkflow + '_' + stepID + '_' + params.action).on('click', function() {
-                addEventDialog(currentWorkflow, stepID, params.action);
             });
         });
         $('#stepInfo_' + stepID).css({
@@ -1526,12 +1541,18 @@
     }
 
     function switchRequired(element) {
-        let stepID = element.id.split('_');
+        let stepID = element.id.split('_')[2];
         let e = document.getElementById("workflows");
         let workflowID = e.value;
 
-        updateRequiredCheckbox(workflowID, stepID[2], element.checked, function(res) {
-            console.log(res);
+        updateRequiredCheckbox(workflowID, stepID, element.checked, function(res) {
+            if(res?.data?.length === 1) {
+                const displayConditional = res.data[0].displayConditional;
+                let sendBackRoute = routes.find(r => r.actionType === "sendback" && +r.stepID === +stepID) || null;
+                if (sendBackRoute !== null) {
+                    sendBackRoute.displayConditional = displayConditional;
+                }
+            }
         });
     }
 
@@ -1748,10 +1769,19 @@
         }
     }
 
-    function closeStepInfo(stepID = "") {
+    /** 
+    * close the step or action info modal.
+    * @param {string} stepID - active modal step
+    * @param {string} reopenStepID - used to reopen the stepinfo modal if viewing actions via the stepinfo modal
+    */
+    function closeStepInfo(stepID = "", reopenStepID = null) {
         $('.workflowStepInfo').css('display', 'none');
         $('#stepInfo_' + stepID).html("");
-        $(`#workflow_steps_chosen input.chosen-search-input`).focus();
+        if(reopenStepID === null) {
+            $(`#workflow_steps_chosen input.chosen-search-input`).focus();
+        } else {
+            showStepInfo(reopenStepID);
+        }
     }
 
     function toggleManageActions() {
@@ -1763,6 +1793,7 @@
     }
 
     function showStepInfo(stepID) {
+        $('.workflowStepInfo').off();
         $('.workflowStepInfo').html('');
         if ($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second step click
             $('.workflowStepInfo').css('display', 'none');
@@ -1818,7 +1849,7 @@
                     type: 'GET',
                     url: '../api/workflow/step/' + stepID + '/dependencies',
                     success: function(res) {
-                        const control_removeStep = `<button type="button" class="buttonNorm icon" onclick="removeStep('${stepID}')" title="Remove Step" aria-label="Remove Step">
+                        const control_removeStep = `<button type="button" class="buttonNorm icon" onclick="removeStep(${stepID})" title="Remove Step" aria-label="Remove Step">
                             <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" /></button>`;
 
                         let output = `<div style="display:flex;gap:0.25rem;align-items:center;">
@@ -1838,11 +1869,11 @@
                         for (let i in res) {
                             const depID = res[i].dependencyID;
                             const depText = `<b style="color:green;vertical-align:middle;">${res[i].description}</b>`;
-                            const control_editDependency = `<button type="button" class="buttonNorm icon" onclick="editRequirement(${depID},'${res[i].description}','${stepID}')"
+                            const control_editDependency = `<button type="button" class="buttonNorm icon" onclick="editRequirement(${depID},'${res[i].description}',${stepID})"
                                     title="Edit Requirement Name" aria-label="Edit Requirement Name">
                                     <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
                                 </button>`;
-                            const control_unlinkDependency = `<button type="button" class="buttonNorm icon" onclick="unlinkDependency('${stepID}', '${depID}')"
+                            const control_unlinkDependency = `<button type="button" class="buttonNorm icon" onclick="unlinkDependency(${stepID}, '${depID}')"
                                     title="Remove Requirement" aria-label="Remove Requirement">
                                     <img src="../dynicons/?img=dialog-error.svg&w=16"  alt="" />
                                 </button>`;
@@ -2049,15 +2080,13 @@
                             paintStyle: {stroke: 'red'},
                             overlays: [
                                 ["Label", {
-                                        id: 'stepLabel_' + res[i].stepID + '_0_' + res[i]
-                                            .actionType,
+                                        id: 'stepLabel_' + res[i].stepID + '_0_' + res[i].actionType,
                                         cssClass: `workflowAction action-${res[i].stepID}-sendback--1`,
                                         label: res[i].actionText,
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
                                         'nextStepID': 0,
                                         'action': res[i].actionType,
-                                        'required': res[i].displayConditional
                                     },
                                     events: {
                                         click: function(overlay, evt) {
@@ -2084,7 +2113,6 @@
                                         parameters: {'stepID': res[i].stepID,
                                         'nextStepID': res[i].nextStepID,
                                         'action': res[i].actionType,
-                                        'required': res[i].displayConditional
                                     },
                                     events: {
                                         click: function(overlay, evt) {
@@ -2118,7 +2146,6 @@
                                     parameters: {'stepID': -1,
                                     'nextStepID': workflows[workflowID].initialStepID,
                                     'action': 'submit',
-                                    'required': '{"required":"false"}'
                                 },
                                 events: {
                                     click: function(overlay, evt) {
@@ -2321,7 +2348,7 @@
     function buildStepList(steps = {}) {
         let output = `<span id="step_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
             <select id="workflow_steps" title="Select a Workflow Step to edit it" onchange="updateSelectionStatus(this, 'step_select_status')">
-            <option>Choose a step to edit it</option>
+            <option>Choose a step to edit</option>
             <option value="-1">Requestor</option>`;
 
         let arrSteps = [];
@@ -2356,10 +2383,17 @@
         });
     }
 
-    function clickAction(selector) {
+    function clickAction(selector, stepID = null) {
         const elOverlay = document.querySelector(`${selector}`);
         if(elOverlay !== null) {
-            elOverlay.click();
+            const actionEvent = new CustomEvent("click", {
+                detail: {
+                    reopenStepID: stepID
+                },
+                bubbles: true,
+                cancelable: true
+            });
+            elOverlay.dispatchEvent(actionEvent)
         }
     }
 
@@ -2400,7 +2434,7 @@
                 output += `<li>${a.actionText}
                     ${workflowID > 0 && a.stepID != -1 ?  //usually can't rm submit like other actions so not showing rm btn
                     `<button type="button" class="buttonNorm icon" aria-label="Remove action: ${a.actionText}" title="Remove this action"
-                        onclick="removeAction(${currentWorkflow}, ${a.stepID}, ${delNextID}, '${a.actionType}', ${stepID})" ${workflowID}>
+                        onclick="removeAction(${currentWorkflow}, ${a.stepID}, ${delNextID},'${a.actionType}', ${stepID})">
                         <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
                     </button>` : ``}
                     <button type="button" class="buttonNorm icon" aria-label="Manage events for action: ${a.actionText}" title="Manage Action Events"
