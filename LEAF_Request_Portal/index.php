@@ -268,6 +268,7 @@ switch ($action) {
             'js/workflow.js',
             'js/formGrid.js',
             'js/gridInput.js',
+            APP_JS_PATH . '/LEAF/XSSHelpers.js',
             APP_JS_PATH . '/choicesjs/choices.min.js'));
 
         $t_form = new Smarty;
