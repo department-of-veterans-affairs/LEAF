@@ -1475,8 +1475,7 @@
 
             let output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
                 <h2 style="display:inline-block;margin:0;">Action: ${stepTitle} clicks ${params.action}</h2>
-                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID}, ${reopenStepID})" aria-label="Close Modal"
-                    style="padding:2px;background-color:#fff;border-color:#eee" title="close modal">&#10006</button>
+                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal" title="close modal">&#10006</button>
             </div>`;
 
             if (params.action == 'sendback') {
@@ -1512,27 +1511,7 @@
                 `<hr /><div style="padding: 4px"><button type="button" class="buttonNorm" 
                     onclick="removeAction('${currentWorkflow}', '${stepID}', '${params.nextStepID}', '${params.action}', ${reopenStepID})">Remove Action</button></div>`;
             $('#stepInfo_' + stepID).html(output);
-
-            $('#stepInfo_' + stepID).show('slide', 200, () => {
-                const modalEl = document.getElementById('stepInfo_' + stepID);
-                if(modalEl !== null) {
-                    const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
-                    const first = interActiveEls[0] || null;
-                    const last = interActiveEls[interActiveEls.length - 1] || null;
-                    if (first !== null && last !== null) {
-                        const actionTabbing = controlTabbing(first, last);
-                        first.addEventListener('keydown', actionTabbing);
-                        last.addEventListener('keydown', actionTabbing);
-                        first.focus();
-                    }
-                }
-                $('#stepInfo_' + stepID).on('keydown', function(event) {
-                    const code = event.code.toLowerCase();
-                    if (code === 'escape') {
-                        closeStepInfo(stepID, reopenStepID);
-                    }
-                });
-            });
+            $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
         });
         $('#stepInfo_' + stepID).css({
             left: evt.pageX || 200 + 'px',
@@ -1792,6 +1771,27 @@
         }
     }
 
+    function modalSetup(stepID) {
+        const modalEl = document.getElementById('stepInfo_' + stepID);
+        if(modalEl !== null) {
+            const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
+            const first = interActiveEls[0] || null
+            const last = interActiveEls[interActiveEls.length - 1] || null;
+            if (first !== null && last !== null) {
+                const stepTabbing = controlTabbing(first, last);
+                first.addEventListener('keydown', stepTabbing);
+                last.addEventListener('keydown', stepTabbing);
+                first.focus();
+            }
+        }
+        $('#stepInfo_' + stepID).on('keydown', function(event) {
+            const code = event.code.toLowerCase();
+            if (code === 'escape') {
+                closeStepInfo(stepID);
+            }
+        });
+    }
+
     function showStepInfo(stepID) {
         $('.workflowStepInfo').off();
         $('.workflowStepInfo').html('');
@@ -1800,6 +1800,12 @@
             return;
         }
         $('.workflowStepInfo').css('display', 'none');
+        const position = $('#step_' + stepID).offset();
+        const height = $('#step_' + stepID).height();
+        $('#stepInfo_' + stepID).css({
+            left: position.left + 'px',
+            top: position.top + height + 20 + 'px'
+        });
         $('#stepInfo_' + stepID).html('Loading...');
 
         let routeOptions = "";
@@ -1823,10 +1829,12 @@
             routeOptions += `${step_options}</select><div>`;
         }
         const actionList = buildRoutesList(+stepID, +currentWorkflow);
-
         switch (Number(stepID)) {
             case -1:
-                const output = `Request initiator (stepID #: -1)
+                const output = `<div style="display:flex;">
+                        <div>Request initiator (stepID #: -1)</div>
+                        <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal" title="close modal">&#10006</button>
+                    </div>
                     <fieldset>
                         <legend>Options</legend>
                         <div>
@@ -1840,9 +1848,14 @@
                         </div>
                     </fieldset>`;
                 $('#stepInfo_' + stepID).html(output);
+                $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
                 break;
             case 0:
-                $('#stepInfo_' + stepID).html('The End.  (stepID #: 0)');
+                $('#stepInfo_' + stepID).html(`<div style="display:flex;align-items:center;">
+                    <div>The End.  (stepID #: 0)</div>
+                    <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal" title="close modal">&#10006</button>
+                </div>`);
+                $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
                 break;
             default:
                 $.ajax({
@@ -1854,8 +1867,7 @@
 
                         let output = `<div style="display:flex;gap:0.25rem;align-items:center;">
                                 <h2 style="display:inline-block;margin:0;">stepID: #${stepID}</h2>${control_removeStep}
-                                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})"
-                                    style="padding:2px;background-color:#fff;border-color:#eee;margin-left:auto;" aria-label="Close Modal" title="close modal">&#10006</button>
+                                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal" title="close modal">&#10006</button>
                             </div></br>
                             <div style="display:flex;gap:0.25rem;align-items:center;">
                                 Step: <b>${steps[stepID].stepTitle}</b>
@@ -1975,11 +1987,10 @@
                         output +=
                             '<button type="button" class="buttonNorm" style="margin-left:auto;" onclick="addEmailReminderDialog(' +
                             stepID + ')">Email Reminder</button></div>';
-
                         $('#stepInfo_' + stepID).html(output);
+                        $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
                         // setup UI for form fields in the workflow area
                         buildWorkflowIndicatorDropdown(stepID, steps);
-
                         let counter = 0;
                         for (let i in res) {
                             group = '';
@@ -2005,35 +2016,7 @@
                     cache: false
                 });
                 break;
-        }
-
-        position = $('#step_' + stepID).offset();
-        height = $('#step_' + stepID).height();
-
-        $('#stepInfo_' + stepID).css({
-            left: position.left + 'px',
-            top: position.top + height + 20 + 'px'
-        });
-        $('#stepInfo_' + stepID).show('slide', 200, () => {
-            const modalEl = document.getElementById('stepInfo_' + stepID);
-            if(modalEl !== null) {
-                const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
-                const first = interActiveEls[0] || null
-                const last = interActiveEls[interActiveEls.length - 1] || null;
-                if (first !== null && last !== null) {
-                    const stepTabbing = controlTabbing(first, last);
-                    first.addEventListener('keydown', stepTabbing);
-                    last.addEventListener('keydown', stepTabbing);
-                    first.focus();
-                }
-            }
-            $('#stepInfo_' + stepID).on('keydown', function(event) {
-                const code = event.code.toLowerCase();
-                if (code === 'escape') {
-                    closeStepInfo(stepID);
-                }
-            });
-        });
+        } 
     }
 
     var endPoints = [];
@@ -2201,7 +2184,7 @@
             'background-color': '#e0e0e0'
         });
         $('#workflow').append(
-            '<div tabindex="0" class="workflowStep" id="step_0" tabindex="0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>'
+            '<div tabindex="0" class="workflowStep" id="step_0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>'
         );
         $('#step_0').css({
             'left': 180 + 40 + 'px',

@@ -68,6 +68,12 @@ ul#step_requirements > li li {
   z-index: 5000;
   min-width: 300px;
 }
+#closeModal {
+  padding:2px;
+  background-color:#fff;
+  border-color:#eee;
+  margin-left:auto;
+}
 .workflowStepInfo > h2 {
   margin: 0px;
 }
