@@ -22,7 +22,7 @@
         </button>
 
         <button type="button" id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();">
-            <img src="../dynicons/?img=edit-copy.svg&amp;w=26" alt="" /> Duplicate Workflow
+            <img src="../dynicons/?img=edit-copy.svg&amp;w=26" alt="" /> Copy Workflow
         </button>
 
         <hr />
@@ -918,8 +918,8 @@
                 }
 
                 buffer += '</optgroup></select>';
-
                 dialog.setContent(buffer);
+                dialog.show();
                 dialog.indicateIdle();
             },
             error: (err) => console.log(err),
@@ -949,7 +949,6 @@
                 error: (err) => console.log(err),
             });
         });
-        dialog.show();
     }
 
     function newDependency(stepID) {
@@ -1811,10 +1810,21 @@
         let routeOptions = "";
         if (currentWorkflow > 0) {
             const stepKeys = Object.keys(steps);
-            let step_options = "";
+            let options = [];
             stepKeys.forEach(k => {
                 if (+k !== +stepID) {
-                    step_options += `<option value="${k}">${steps[k].stepTitle}(id#${k})</option>`;
+                    options.push({...steps[k]});
+                }
+            });
+            const sortedOptions = options.sort((a, b) => {
+                const stepA = a.stepTitle.toLowerCase();
+                const stepB = b.stepTitle.toLowerCase();
+                return stepA < stepB ? -1 : stepA > stepB ? 1 : 0
+            });
+            let step_options = "";
+            sortedOptions.forEach(opt => {
+                if (+opt.stepID !== +stepID) {
+                    step_options += `<option value="${opt.stepID}">${opt.stepTitle} (id#${opt.stepID})</option>`;
                 }
             });
             routeOptions = `<div>
@@ -2403,7 +2413,7 @@
             }
             allRoutes.push(submit);
         }
-        let stepRoutes = allRoutes.filter(a => a.stepID === stepID || a.nextStepID === stepID );
+        let stepRoutes = allRoutes.filter(a => a.stepID === stepID);
         stepRoutes = stepRoutes.sort((a, b) => {
             const rA = a.actionText.toLowerCase();
             const rB = b.actionText.toLowerCase();
@@ -2415,15 +2425,15 @@
             stepRoutes.forEach(a => {
                 const delNextID = a.actionType === "sendback" ? 0 : a.nextStepID; //needs to be 0 for POST
                 output += `<li>${a.actionText}
-                    ${workflowID > 0 && a.stepID != -1 ?  //usually can't rm submit like other actions so not showing rm btn
-                    `<button type="button" class="buttonNorm icon" aria-label="Remove action: ${a.actionText}" title="Remove this action"
-                        onclick="removeAction(${currentWorkflow}, ${a.stepID}, ${delNextID},'${a.actionType}', ${stepID})">
-                        <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
-                    </button>` : ``}
-                    <button type="button" class="buttonNorm icon" aria-label="Manage events for action: ${a.actionText}" title="Manage Action Events"
+                    <button type="button" class="buttonNorm icon" aria-label="Manage events for action: ${a.actionText}, step ${a.stepID}" title="Manage Action Events"
                         onclick="clickAction('.action-${a.stepID}-${a.actionType}-${a.nextStepID}','${stepID}')">
                         <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
                     </button>
+                    ${workflowID > 0 && a.stepID !== -1 ?  //usually can't rm submit like other actions so not showing rm btn
+                    `<button type="button" class="buttonNorm icon" aria-label="Remove action: ${a.actionText}, step ${a.stepID}" title="Remove this action"
+                        onclick="removeAction(${currentWorkflow}, ${a.stepID}, ${delNextID},'${a.actionType}', ${stepID})">
+                        <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
+                    </button>` : ``}
                 </li>`;
             });
             output += '</ul>';
