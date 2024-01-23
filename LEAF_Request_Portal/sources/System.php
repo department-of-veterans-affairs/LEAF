@@ -796,7 +796,57 @@ class System
             $this->updateGroup($group['groupID'], $oc_db);
         }
 
+        $this->cleanupSystemAdmin();
+
         return 'Syncing has finished. You are set to go.';
+    }
+
+    /**
+     *
+     * @return void
+     * 
+     */
+    private function cleanupSystemAdmin(): void
+    {
+        // get all portal users with groupID = 1
+        $groups = new Group($this->db, $this->login);
+
+        $admins = $groups->getMembers(1);
+
+        // create an array of users with their backups
+        $admin_list = array();
+
+        foreach ($admins['data'] as $admin) {
+            if ($admin['backupID'] != '') {
+                $admin_list[$admin['backupID']]['backup'][] = $admin['userName'];
+            }
+        }
+
+        // get all primary users from nexus with their backups
+        $dir = new VAMC_Directory();
+        $oc_db = OC_DB;
+        $employee = new \Orgchart\Employee($oc_db, $this->login);
+        $check_list = array();
+
+        foreach ($admin_list as $key => $admin) {
+            $nexus_user = $dir->lookupLogin($key, false, true, false);
+            $backups = $employee->getBackups($nexus_user[0]['empUID']);
+            $check_list[$key]['backup'] = array();
+
+            foreach ($backups as $backup) {
+                $check_list[$key]['backup'][] = $backup['userName'];
+            }
+        }
+
+        // check that all the backups are still there, if not remove them from portal
+
+        foreach ($admin_list as $key => $user) {
+            foreach ($user['backup'] as $backup) {
+                if (!in_array($backup, $check_list[$key]['backup'])) {
+                    $groups->removeMember($backup, 1, $key);
+                }
+            }
+        }
     }
 
     /**

@@ -419,7 +419,7 @@ class Group
      *
      * @return void
      */
-    public function removeMember($member, $groupID): void
+    public function removeMember($member, $groupID, $backupID = ''): void
     {
         if (is_numeric($groupID) && $member != '') {
             $this->dataActionLogger->logAction(DataActions::PRUNE, LoggableTypes::EMPLOYEE, [
@@ -428,12 +428,13 @@ class Group
             ]);
 
             $vars = array(':userID' => $member,
-                          ':groupID' => $groupID);
+                          ':groupID' => $groupID,
+                          ':backupID' => $backupID);
             $sql = 'DELETE
                     FROM `users`
                     WHERE (`userID` = :userID
                         AND `groupID` = :groupID
-                        AND `backupID` = "")
+                        AND `backupID` = :backupID)
                     OR (`groupID` = :groupID
                         AND `backupID` = :userID)';
 
