@@ -719,6 +719,8 @@
     $(function() {
         document.title = 'Inbox - ' + document.title;
 
+        dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+
         let urlParams = new URLSearchParams(window.location.search);
         if(urlParams.get('adminView') != null) {
             nonAdmin = false;
@@ -855,6 +857,7 @@
 </style>
 
 <!--{include file="site_elements/generic_OkDialog.tpl"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <div id="genericDialog" style="visibility: hidden; display: none">
     <div>
