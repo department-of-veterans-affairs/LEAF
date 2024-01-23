@@ -1,7 +1,13 @@
 /**
  * Form Query Helper
+ * 
+ * LeafFormQuery is a globally available object on LEAF sites, and is an interface for ./api/form/query
+ * Key features include:
+ *  - Automatically splits large queries into multiple small ones, to improve UX
+ *  - Mechanism to report progress (onProgress)
+ *  - Programmatically build query
  */
-var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code imports it in unexpected places.
+var LeafFormQuery = function () {
   let query = {};
   let successCallback = null;
   let progressCallback = null;
@@ -226,10 +232,11 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
-   * encodeReadableURI provides minimal character URI encoding, prioritizing readible URLs
+   * encodeReadableURI provides minimal character URI encoding, prioritizing readable URLs
    */
   function encodeReadableURI(url) {
-      return url.replaceAll('+', '%2b');
+    url = url.replaceAll('+', '%2b');
+    return url;
   }
 
   /**
