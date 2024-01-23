@@ -890,34 +890,28 @@
                     type: 'GET',
                     url: '../api/template/custom',
                     dataType: 'json',
-                    success: function (result) {
+                    success: function (customTemplates) {
                         let template_excluded = 'import_from_webHR.tpl';
-                        let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
                         let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
                         
-                        if (res_array.status['code'] === 2) {
+                        if (Array.isArray(customTemplates)) {
                             for (let i in res) {
                                 if (res[i] === template_excluded) {
                                     // Will skip the excluded template, until further notice.
                                     continue;
                                 }
 
-                                if (result.includes(res[i])) {
+                                let custom = '';
+                                if (customTemplates.includes(res[i])) {
                                     custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
-                                } else {
-                                    custom = '';
                                 }
-
                                 let file = res[i].replace('.tpl', '');
 
                                 buffer += '<li><div class="template_files"><a href="#" data-file="' + res[i] + '">' + file + '</a> ' + custom + '</div></li>';
 
                                 filesMobile += '<option value="' + res[i] + '">' + file + ' ' + custom + '</option>';
                             }
-                        } else if (res_array.status['code'] === 4) {
-                            buffer += '<li><div class="template_files">' + res_array.status['message'] + '</div></li>';
-                            filesMobile += '<select><option>' + res_array.status['message'] + '</option></select>';
                         } else {
                             buffer += '<li>Internal error occurred, if this persists contact your Primary Admin.</li>';
                         }
