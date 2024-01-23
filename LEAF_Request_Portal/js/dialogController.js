@@ -46,7 +46,7 @@ function dialogController(containerID, contentID, loadIndicatorID, btnSaveID, bt
         if(e?.keyCode === 13 && (e?.target?.nodeName || '').toLowerCase() === "input" && e?.target?.type !== 'color') {
             e.preventDefault();
         }
-    }
+    };
     $(`#${t.contentID}`).on('keydown', preventCloseOnEnter);
 }
 
