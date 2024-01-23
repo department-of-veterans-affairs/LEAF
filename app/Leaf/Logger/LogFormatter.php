@@ -13,6 +13,7 @@ use App\Leaf\Logger\Formatters\PrimaryAdminFormatter;
 use App\Leaf\Logger\Formatters\ServiceChiefFormatter;
 use App\Leaf\Logger\Formatters\TemplateFormatter;
 use App\Leaf\Logger\Formatters\WorkflowFormatter;
+use App\Leaf\Logger\Formatters\DependencyFormatter;
 
 class LogFormatter
 {
@@ -22,6 +23,7 @@ class LogFormatter
         LoggableTypes::FORM => FormFormatter::TEMPLATES,
         LoggableTypes::PORTAL_GROUP => PortalGroupFormatter::TEMPLATES,
         LoggableTypes::WORKFLOW => WorkflowFormatter::TEMPLATES,
+        LoggableTypes::DEPENDENCY_PRIVS => DependencyFormatter::TEMPLATES,
         LoggableTypes::PRIMARY_ADMIN => PrimaryAdminFormatter::TEMPLATES,
         LoggableTypes::EMAIL_TEMPLATE_TO => EmailTemplateFormatter::TEMPLATES,
         LoggableTypes::EMAIL_TEMPLATE_CC => EmailTemplateFormatter::TEMPLATES,

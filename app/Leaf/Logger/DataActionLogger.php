@@ -12,6 +12,7 @@ use App\Leaf\Logger\Formatters\PrimaryAdminFormatter;
 use App\Leaf\Logger\Formatters\ServiceChiefFormatter;
 use App\Leaf\Logger\Formatters\TemplateFormatter;
 use App\Leaf\Logger\Formatters\WorkflowFormatter;
+use App\Leaf\Logger\Formatters\DependencyFormatter;
 
 class DataActionLogger
 {
