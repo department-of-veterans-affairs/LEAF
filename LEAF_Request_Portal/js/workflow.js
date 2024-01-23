@@ -521,7 +521,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         ] == null
                     ) {
                         name =
-                            "Warning: User not selected for currennt action (Contact Administrator)";
+                            "Warning: User not selected for current action (Contact Administrator)";
                     } else {
                         name =
                             "Pending action from " +
