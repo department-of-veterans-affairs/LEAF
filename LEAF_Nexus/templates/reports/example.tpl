@@ -204,7 +204,7 @@ $.ajax({
 </script>
 
 <div id="progressContainer" style="width: 50%; border: 1px solid black; background-color: white; margin: auto; padding: 16px">
-    <h1 style="text-align: center">Loading... <img src="./images/largespinner.gif" alt="Loading" /></h1>
+    <h1 style="text-align: center">Loading... <img src="./images/largespinner.gif" alt="" /></h1>
 </div>
 
 <div id="reportBody" style="display: none">

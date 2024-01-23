@@ -63,6 +63,8 @@ dialogController.prototype.clearDialog = function() {
 
 dialogController.prototype.setTitle = function(title) {
 	$('#' + this.containerID).dialog('option', 'title', title);
+	const parentLabelledBy = $('#' + this.containerID).parent().attr('aria-labelledBy');
+	$('#' + this.containerID).attr('aria-labelledby', parentLabelledBy);
 };
 
 dialogController.prototype.hide = function() {
@@ -204,7 +206,7 @@ dialogController.prototype.setCancelHandler = function(funct) {
     $('#' + this.containerID).on('dialogbeforeclose', function() {
         if(t.isValid() == 1 && t.isComplete() == 1) {        	
         	funct();
-        	$('#' + this.containerID).off('dialogbeforeclose');
+            $('#' + t.containerID).off('dialogbeforeclose');
         }
         else {
         	t.indicateIdle();
@@ -229,7 +231,7 @@ dialogController.prototype.clearValidators = function() {
 	this.validatorErrors = {};
 	this.requirements = {};
 	this.requirementErrors = {};
-	$('input[type="text"]').off();
+	$('#' + this.containerID + ' input[type="text"]').off();
 };
 
 dialogController.prototype.setSubmitValid = function(id, func) {

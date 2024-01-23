@@ -67,32 +67,32 @@ function editProperties(isSubForm) {
     dialog.setTitle('Edit Properties');
     dialog.setContent('<table>\
                              <tr>\
-                                 <td>Name</td>\
-                                 <td><input id="name" type="text" maxlength="50"></input></td>\
+                                 <td><label for="name">Name</label></td>\
+                                 <td><input id="name" type="text" maxlength="50"/></td>\
                              </tr>\
                              <tr>\
-                                 <td>Description</td>\
+                                 <td><label for="description">Description</label></td>\
                                  <td><textarea id="description" maxlength="255"></textarea></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Workflow</td>\
+                                 <td><label for="workflowID">Workflow</label></td>\
                                  <td id="container_workflowID"></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Need to Know mode <img src="../dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information."></td>\
+                                 <td><label for="needToKnow">Need to Know mode </label><img src="../dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information." alt="" /></td>\
                                  <td><select id="needToKnow"><option value="0">Off</option><option value="1">On</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Availability <img src="../dynicons/?img=emblem-notice.svg&w=16" title="When hidden, users will not be able to select this form as an option."></td>\
+                                 <td><label for="visible">Availability </label><img src="../dynicons/?img=emblem-notice.svg&w=16" title="When hidden, users will not be able to select this form as an option." alt="" /></td>\
                                  <td><select id="visible"><option value="1">Available</option><option value="0">Hidden</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Sort Priority</td>\
-                                 <td><input id="sort" type="number"></input></td>\
+                                 <td><label for="sort">Sort Priority </label></td>\
+                                 <td><input id="sort" type="number" style="width: 50px;"/></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                            	 <td>Type <img src="../dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
-                            	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
+                                <td><label for="formType">Type </label><img src="../dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form." alt="" /></td>\
+                                <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
                              </tr>\
                            </table>');
     $.ajax({
@@ -314,7 +314,7 @@ function openContent(url) {
     		                          '</span><br /><span tabindex="0" class="isSubForm">Workflow: ' + workflow + '</span>' +
     		                          '<br /><span tabindex="0"class="isSubForm">Need to Know mode: ' + (categories[currCategoryID].needToKnow == 1 ? 'On' : 'Off') + '</span>' +
     		                      '</div>' +
-                                  '</div><br /><div id="formEditor_form" style="background-color: white"><div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div></div>');
+                                  '</div><br /><div id="formEditor_form" style="background-color: white"><div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="" /></div></div>');
     if(isSubForm) {
         $('.isSubForm').css('display', 'none');
     }
@@ -574,12 +574,12 @@ function onKeyPressClick(event){
  */
 function getIndicatorModalTemplate(isEditingModal = false) {
     const parentArchDel = `<tr>
-            <td>Parent Question ID</td>
-            <td colspan="2"><div id="container_parentID"></div></td>
+            <td><label for="parentID">Parent Question ID</label></td>
+            <td><div id="container_parentID"></div></td>
         </tr>
         <tr>
-            <td>Archive</td>
-            <td colspan="1"><input id="archived" name="disable_or_delete" type="checkbox" value="archived" onkeydown="onKeyPressClick(event)" /></td>
+            <td><label for="archived">Archive</label></td>
+            <td><input id="archived" name="disable_or_delete" type="checkbox" value="archived" onkeydown="onKeyPressClick(event)" /></td>
             <td style="width: 275px;">
                 <span id="archived-warning" style="color: red; visibility: hidden;">
                 This field will be archived.  It can be<br/>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.
@@ -587,8 +587,8 @@ function getIndicatorModalTemplate(isEditingModal = false) {
             </td>
         </tr>
         <tr>
-            <td>Delete</td>
-            <td colspan="1"><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" onkeydown="onKeyPressClick(event)" /></td>
+            <td><label for="deleted">Delete</label></td>
+            <td><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" onkeydown="onKeyPressClick(event)" /></td>
             <td style="width: 275px;">
                 <span id="deletion-warning" style="color: red; visibility: hidden;">
                 Deleted items can only be re-enabled<br/>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.
@@ -615,28 +615,28 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 </table><br />
                 html (for pages where the user can edit data):
                 <button id="btn_codeSave_html" class="buttonNorm" title="Save Code">
-                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="" />
                     Save Code<span id="codeSaveStatus_html"></span>
                 </button>
                 <textarea id="html"></textarea><br />
                 htmlPrint (for pages where the user can only read data):
                 <button id="btn_codeSave_htmlPrint" class="buttonNorm" title="Save Code">
-                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="" />
                     Save Code<span id="codeSaveStatus_htmlPrint"></span>
                 </button>
                 <textarea id="htmlPrint"></textarea>
             </fieldset>
         </div>`;
-    return `<fieldset><legend>Field Name</legend>
-            <textarea id="name" style="width: 99%"></textarea>
+    return `<fieldset><legend id="name_label">Field Name</legend>
+            <textarea id="name" aria-labelledby="name_label" style="width: 99%"></textarea>
             <button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button>
             <button class="buttonNorm" id="advNameEditor">Advanced Formatting</button>
         </fieldset>
-        <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>
-            <input type="text" id="description" maxlength="50" />
+        <fieldset><legend id="description_label">Short Label (Describe this field in 1-2 words)</legend>
+            <input type="text" id="description" aria-labelledby="description_label" maxlength="50" />
         </fieldset>
-        <fieldset><legend>Input Format</legend>
-            <select id="indicatorType" style="margin-bottom:1em;">
+        <fieldset><legend id="format_label">Input Format</legend>
+            <select id="indicatorType" style="margin-bottom:1em;" aria-labelledby="format_label">
                 <option value="">None</option>
                 <option value="text">Single line text</option>
                 <option value="textarea">Multi-line text</option>
@@ -657,7 +657,7 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 <option value="raw_data">Raw Data (for programmers)</option>
                 <!-- <option value="signature">Signature</option> -->
             </select>
-            <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox:<br/>
+            <div id="container_indicatorSingleAnswer" style="display: none"><label for="indicatorSingleAnswer">Text for checkbox: </label><br/>
                 <input type="text" id="indicatorSingleAnswer" />
             </div>
             <div id="container_indicatorMultiAnswer" style="display: none">One option per line:<br/>
@@ -666,27 +666,27 @@ function getIndicatorModalTemplate(isEditingModal = false) {
             </div>
             <div id="container_indicatorGrid" style="display: none">
                 <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span><br/>
-                <button class="buttonNorm" onclick="addCells(\'column\')"><img src="../dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button><br/><br/>
+                <button class="buttonNorm" onclick="addCells(\'column\')"><img src="../dynicons/?img=list-add.svg&w=16" style="height: 25px;" alt="" />Add column</button><br/><br/>
                 Columns:
                 <div border="1" style="overflow-x: scroll; max-width: 100%;"></div>
             </div>
-            <fieldset><legend>Default Answer</legend>
+            <fieldset><legend id="default_answer_label">Default Answer</legend>
                 <div id="default-answer"></div>
             </fieldset>
         </fieldset>
         <fieldset><legend>Attributes</legend>
             <table>
                 <tr>
-                    <td>Required</td>
-                    <td colspan="2" style="width: 300px;"><input id="required" name="required" type="checkbox" onkeydown="onKeyPressClick(event)" /></td>
+                    <td><label for="required">Required</label></td>
+                    <td><input id="required" name="required" type="checkbox" onkeydown="onKeyPressClick(event)" /></td>
                 </tr>
                 </tr>
-                    <td>Sensitive Data (PHI/PII)</td>
-                    <td colspan="2"><input id="sensitive" name="sensitive" type="checkbox" onkeydown="onKeyPressClick(event)" /></td>
+                    <td><label for="sensitive">Sensitive Data (PHI/PII)</label></td>
+                    <td><input id="sensitive" name="sensitive" type="checkbox" onkeydown="onKeyPressClick(event)" /></td>
                 </tr>
                 <tr>
-                    <td>Sort Priority</td>
-                    <td colspan="2"><input id="sort" name="sort" type="number" style="width: 40px" /></td>
+                    <td><label for="sort">Sort Priority</label></td>
+                    <td><input id="sort" name="sort" type="number" style="width: 50px" /></td>
                 </tr>
                 ${isEditingModal ? parentArchDel : ''}
             </table>
@@ -704,7 +704,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
     $('#container_indicatorGrid').css('display', 'none');
     $('#container_indicatorMultiAnswer').css('display', 'none');
     $('#container_indicatorSingleAnswer').css('display', 'none');
-    $('#default-answer').html('<textarea id="default" style="width: 50%;"></textarea>');
+    $('#default-answer').html('<textarea aria-labelledby="default_answer_label" id="default" style="width: 50%;"></textarea>');
     switch(indFormat?.toLowerCase()) {
         case 'grid':
             $('#container_indicatorGrid').css('display', 'block');
@@ -994,7 +994,8 @@ function gridCellBasicInputs(name = '', columnNumber = '', id = makeColumnID(), 
       <span class="columnNumber">Column #${columnNumber}: </span>
       <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
       </br>&nbsp;
-      <input type="text" value="${name}" onchange="updateNames();" />
+      <label for="column_name_${columnNumber}" style="display: block; margin-top: 0.5rem; text-align: left;">Column Name:</label>
+      <input type="text" id="column_name_${columnNumber}" value="${name}" onchange="updateNames();" />
       </br>&nbsp;</br>
       <label for="grid_cell_type_${columnNumber}" style="display: block; text-align: left;">Type: </label>
       <select id="grid_cell_type_${columnNumber}" style="width: 185px;" onchange="toggleDropDown(this.value, this, ${columnNumber});">
@@ -1376,11 +1377,15 @@ function getForm(indicatorID, series) {
             type: 'GET',
             url: '../api/form/_' + currCategoryID + '/flat',
             success: function(res) {
-                let buffer = '<select id="parentID" style="width: 300px">';
+                const shortName = (name = "", len = 50) => {
+                    const displayName = XSSHelpers.stripAllTags(name || "").trim();
+                    return displayName.length <= len ? displayName : displayName.slice(0, len) + '...';
+                }
+                let buffer = '<select id="parentID" style="width:300px;">';
                 buffer += '<option value="">None</option>';
                 for(let i in res) {
                     if(indicatorID != i) {
-                        buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
+                        buffer += '<option value="'+ i +'">' + i + ': ' + shortName(res[i][1].name) +'</option>';
                     }
                 }
                 buffer += '</select>';
@@ -1910,7 +1915,7 @@ function deleteForm() {
  * @param categoryID
  */
 function buildMenu(categoryID) {
-	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
+	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="" /> View All Forms</div><br />');
 	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" onkeydown="onKeyPressClick(event)" role="button"><img src="../dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
     $('#' + categoryID).on('click', function(categoryID) {
         return function() {
@@ -1935,12 +1940,12 @@ function buildMenu(categoryID) {
 		}
 	}
 
-	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="createForm(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=list-add.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
+	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="createForm(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=list-add.svg&w=32" alt="" /> Add Internal-Use</div><br />');
 
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="mergeFormDialog(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="mergeFormDialog(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=tab-new.svg&w=32" alt="" /> Staple other form</div>\
                           <div id="stapledArea"></div><br />');
 
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>\
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="" /> View History</div>\
                         <div id="viewHistory"></div><br />');
 
 
@@ -1961,9 +1966,9 @@ function buildMenu(categoryID) {
     });
 
 
-	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
+	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../dynicons/?img=network-wireless.svg&w=32" alt="" /> Export Form</div><br />');
     $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="deleteForm();"><img src="../dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="" /> Restore Fields</div>');
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
@@ -1982,10 +1987,10 @@ function selectForm(categoryID) {
  */
 function showFormBrowser() {
     window.location = '#';
-    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeydown="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
-    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeydown="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../dynicons/?img=document-new.svg&w=32" alt="" /> Create Form</div><br />');
+    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="" /> LEAF Library</div><br />');
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../dynicons/?img=package-x-generic.svg&w=32" alt="" /> Import Form</div><br />');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
         url: '../api/formStack/categoryList/all',
@@ -2207,11 +2212,11 @@ function createForm(parentID) {
     }
     dialog.setContent('<table>\
                             <tr>\
-                                <td>Form Label</td>\
-                                <td><input tabindex="0" id="name" type="text" maxlength="50"></input></td>\
+                                <td><label for="name">Form Label </label></td>\
+                                <td><input tabindex="0" id="name" type="text" maxlength="50"/></td>\
                             </tr>\
                             <tr>\
-                                <td>Form Description</td>\
+                                <td><label for="description">Form Description </label></td>\
                                 <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
                             </tr>\
                         </table>');

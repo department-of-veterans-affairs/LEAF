@@ -28,7 +28,7 @@
             <!--{/if}-->
             <div style="float: right">
 
-            <span onkeydown="onKeyPressClick(event)" class="buttonNorm" tabindex="0" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../dynicons/?img=list-add.svg&amp;w=16" alt="Add Sub-question" title="Add Sub-question"/> Add Sub-question</span>
+            <span onkeydown="onKeyPressClick(event)" class="buttonNorm" tabindex="0" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../dynicons/?img=list-add.svg&amp;w=16" alt="" title="Add Sub-question"/> Add Sub-question</span>
 
             </div>
             <span class="printsubheading" style="cursor: pointer" title="indicatorID: <!--{$indicator.indicatorID}-->" >
@@ -77,7 +77,7 @@
                     <!--{if $indicator.has_code}-->
                         &nbsp;<img src="../dynicons/?img=document-properties.svg&amp;w=16" tabindex="0" alt="Advanced Options present" title="Advanced Options present" style="cursor: pointer" />
                     <!--{/if}-->
-                <br /><br /><span tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../dynicons/?img=list-add.svg&amp;w=16" alt="Add Sub-question" title="Add Sub-question"/> Add Sub-question</span>
+                <br /><br /><span tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newQuestion(<!--{$indicator.indicatorID}-->);"><img src="../dynicons/?img=list-add.svg&amp;w=16" alt="" title="Add Sub-question"/> Add Sub-question</span>
                 </span>
         <!--{/if}-->
             </div>

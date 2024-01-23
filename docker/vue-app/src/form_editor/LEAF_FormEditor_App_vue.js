@@ -79,6 +79,7 @@ export default {
 
             /** dialog related */
             closeFormDialog: this.closeFormDialog,
+            lastModalTab: this.lastModalTab,
             setDialogSaveFunction: this.setDialogSaveFunction,
             checkRequiredData: this.checkRequiredData,
 
@@ -95,6 +96,11 @@ export default {
     },
     created() {
         this.getEnabledCategories();
+        document.addEventListener('keydown', (event)=> {
+            if((event?.key || "").toLowerCase() === "escape" && this.showFormDialog === true) {
+                this.closeFormDialog();
+            }
+        })
     },
     methods: {
         truncateText(str = '', maxlength = 40, overflow = '...') {
@@ -363,6 +369,15 @@ export default {
             this.dialogButtonText = {confirm: 'Save', cancel: 'Cancel'};
             this.formSaveFunction = null;
             this.dialogData = null;
+        },
+        lastModalTab(event) {
+            if (event?.shiftKey === false) {
+                const close = document.getElementById('leaf-vue-dialog-close');
+                if(close !== null){
+                    close.focus();
+                    event.preventDefault();
+                }
+            }
         },
         setCustomDialogTitle(htmlContent = '') {
             this.dialogTitle = htmlContent;

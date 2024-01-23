@@ -211,7 +211,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
 
         $(gridBodySelector + " > tr:last").append(
           `<td aria-label="${name}">
-            <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width: fill-available;">
+            <select aria-label="${name}" ${isMultiple ? " multiple" : ""} style="width: fill-available;">
               <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
               ${optTemplate}
             </select>

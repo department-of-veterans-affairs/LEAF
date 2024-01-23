@@ -583,13 +583,13 @@
 
             <div class="grid-row">
                 <div class="grid-col-12">
-                    <h2>Step 1: Select Spreadsheet for Import</h2>
+                    <h2><label for="import-fileInput">Step 1: Select Spreadsheet for Import</label></h2>
                     <p>Select a file to import and click Continue. The first row of the spreadsheet must contain the headers of the columns.</p>
                     <div>
                         <span class="usa-error-message leaf-content-hide" id="input-error-message1" role="alert">No file selected, select a file to continue.</span>
                     </div>
                     <div class="leaf-grey-box leaf-width50pct">
-                        <input type="file" id="import-fileInput" accept=".xlsx">
+                        <input type="file" id="import-fileInput" accept=".xlsx"/>
                     </div>
                 </div>
             </div>
