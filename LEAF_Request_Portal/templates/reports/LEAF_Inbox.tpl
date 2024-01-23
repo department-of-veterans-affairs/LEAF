@@ -418,7 +418,7 @@
 
         let customCols = [];
         if (customColumns == false) {
-            site.columns = site.columns ?? 'UID,service,title,status';
+            site.columns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
         }
         site.columns.split(',').forEach(col => {
             if (isNaN(col)) {
