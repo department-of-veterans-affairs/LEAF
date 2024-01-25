@@ -105,11 +105,11 @@
                     <legend>Quick Field Search</legend>
                     <div id="quick_field_search">
                         <div id="form-select">
-                            <span>Select Form:</span>
+                            <label for="form-select-dropdown">Select Form:</label>
                             <select id="form-select-dropdown" onchange="getIndicators(this.value)"></select>
                         </div>
                         <div id="indicator-select">
-                            <span>Select Question:</span>
+                            <label for="indicator-select-dropdown">Select Question:</label>
                             <select id="indicator-select-dropdown"
                                 onchange="showIndicator(this.value, this.options[this.selectedIndex].dataset.isSensitive)"></select>
                         </div>
@@ -1006,17 +1006,14 @@
      */
     function loadFormSelection(forms) {
         let sel = document.getElementById('form-select-dropdown');
-        let opt = null;
-
         // empty the selection for between loads
-        sel.innerHTML = "";
+        sel.innerHTML = `<option value="">Select a Form</option>`;
 
         // repopulate the dropdown
         forms.forEach(form => {
-            opt = document.createElement('option');
+            let opt = document.createElement('option');
             opt.value = form.categoryID;
-            opt.innerHTML = form.categoryName.length > 50 ? form.categoryName.slice(0, 47) + "..." : form
-                .categoryName;
+            opt.innerHTML = form.categoryName.length > 50 ? form.categoryName.slice(0, 47) + "..." : form.categoryName;
             sel.appendChild(opt);
         });
 
@@ -1034,16 +1031,16 @@
         if (this.value === "" || typeof form === 'undefined' || typeof form === 'null') {
             return;
         }
-
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                type: "GET",
-                url: "../api/form/indicator/list",
-                data: {forms: form},
-                cache: false,
-                success: (res) => loadIndicatorSelection(res),
-                fail: (err) => reject(err)
-            });
+        $.ajax({
+            type: "GET",
+            url: "../api/form/indicator/list",
+            data: {forms: form},
+            cache: false,
+            success: (res) => {
+                const filteredIndicators = res.filter(i => i.categoryID === form && +i.isDisabled === 0);
+                loadIndicatorSelection(filteredIndicators)
+            },
+            error: (err) => reject(err)
         });
     }
 
@@ -1060,14 +1057,17 @@
         let opt = null;
 
         sel.innerHTML = "";
-
-        indicators.forEach(indicator => {
-            opt = document.createElement('option');
-            opt.value = indicator.indicatorID;
-            opt.innerHTML = indicator.name.length > 50 ? indicator.name.slice(0, 47) + "..." : indicator.name;
-            opt.dataset.isSensitive = indicator.is_sensitive;
-            sel.appendChild(opt);
-        });
+        if(indicators.length === 0) {
+            sel.innerHTML = `<option value="">No options available</option>`;
+        } else {
+            indicators.forEach(indicator => {
+                opt = document.createElement('option');
+                opt.value = indicator.indicatorID;
+                opt.innerHTML = indicator.name.length > 50 ? indicator.name.slice(0, 47) + "..." : indicator.name;
+                opt.dataset.isSensitive = indicator.is_sensitive;
+                sel.appendChild(opt);
+            });
+        }
 
         if (indicators.length === 1) {
             showIndicator(indicators[0].indicatorID, indicators[0].isSensitive);

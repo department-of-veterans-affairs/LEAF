@@ -495,13 +495,16 @@ class Email
         $hasEmailTemplate = $this->getFilepath($tplLocation);
         $emailTemplate = __DIR__ . '/../templates/email/' . $hasEmailTemplate;
         if (file_exists($emailTemplate)) {
-            $emailList = file($emailTemplate, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
+            $emailListContentList =  explode(PHP_EOL, trim($this->setContent($emailTemplate)));
             // For each line in template, add that email address, if valid
-            foreach($emailList as $emailAddress) {
-                if ($isCc) {
-                    $this->addCcBcc(XSSHelpers::xscrub($emailAddress), true);
-                } else {
-                    $this->addRecipient(XSSHelpers::xscrub($emailAddress), true);
+            foreach($emailListContentList as $emailAddress) {
+                $eAddress = trim(XSSHelpers::xscrub($emailAddress));
+                if($eAddress !== "") { //addCc and addRec both have regex checks
+                    if ($isCc) {
+                        $this->addCcBcc($eAddress, true);
+                    } else {
+                        $this->addRecipient($eAddress, true);
+                    }
                 }
             }
         }

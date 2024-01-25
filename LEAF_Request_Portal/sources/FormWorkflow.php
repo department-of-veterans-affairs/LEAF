@@ -1600,13 +1600,9 @@ class FormWorkflow
                     }
                     break;
                 case (str_starts_with($format, "checkboxes") != false):
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $data = $this->buildCheckboxes(unserialize($data));
-                    }
-                    break;
                 case (str_starts_with($format, "multiselect") != false):
                     if(!empty($data) && is_array(unserialize($data))){
-                        $data = $this->buildMultiselect(unserialize($data));
+                        $data = $this->buildMultiOption(unserialize($data));
                     }
                     break;
                 case (str_starts_with($format, "radio") != false):
@@ -1672,23 +1668,16 @@ class FormWorkflow
         return $grid;
     }
 
-    private function buildMultiselect(array $data): string
+    private function buildMultiOption(array $data): string
     {
         // filter out non-selected selections
         $data = array_filter($data, function($x) { return $x !== "no"; });
-        // comma separate to be readable in email
-        $formattedData = "- " . implode("\r\n- ", $data);
-
-        return $formattedData;
-    }
-
-    private function buildCheckboxes(array $data): string
-    {
-        // filter out non-selected selections
-        $data = array_filter($data, function($x) { return $x !== "no"; });
-        // comma separate to be readable in email
-        $formattedData = implode(",", $data);
-
+        // list to be readable in email
+        $formattedData = "<ul>";
+        foreach($data as $item) {
+            $formattedData .= "<li>".$item."</li>";
+        }
+        $formattedData .=  "</ul>";
         return $formattedData;
     }
 
@@ -1730,9 +1719,9 @@ class FormWorkflow
     {
         $employee = new \Orgchart\Employee($this->oc_db, $this->login);
         $employeeData = $employee->lookupEmpUID($data)[0];
-        $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
+        $employeeEmail = $employeeData["email"];
 
-        return $employeeName;
+        return $employeeEmail;
     }
 
     /**

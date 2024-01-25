@@ -739,13 +739,10 @@ legend {
 #indicator-select-dropdown,
 #indicator-id {
     border: 2px solid #333;
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: 0.25rem;
+    padding: 0.5rem;
+    width: 400px;
     border-radius: 5px;
-}
-
-#indicator-id {
-    padding: 0;
 }
 
 #form-select,
