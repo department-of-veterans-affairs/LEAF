@@ -394,9 +394,9 @@ $(function() {
     orgchartForm = new orgchartForm('orgchartForm');
     orgchartForm.initialize();
     orgchartForm.addUpdateEvent(19, function(response) {
-    	if(($('.employee').size() - 1) < $('#data_19_2_<!--{$positionID}-->').html()) {
-    		window.location.reload();
-    	}
+        if(($('.employee').length - 1) < $('#data_19_2_<!--{$positionID}-->').html()) {
+            window.location.reload();
+        }
     });
     // include file="site_elements/orgchartForm_updateOutlook.js.tpl"
 

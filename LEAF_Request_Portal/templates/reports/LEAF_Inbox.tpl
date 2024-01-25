@@ -507,9 +507,9 @@
         }
         $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}" class="depContainer">
             <div id="depLabel${hash}_${stepID}" class="depInbox" style="padding: 8px; background-color: ${site.backgroundColor}">
-			<span style="float: right; text-decoration: underline; font-weight: bold">View ${recordIDs.length} requests</span>
-			<span style="font-size: 130%; font-weight: bold">${stepName}</span><br />
-            <span>${categoryName}</span></div>
+			<span style="float: right; text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
+			<span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
+            <span style="color: ${site.fontColor}">${categoryName}</span></div>
 			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + stepID).on('click', function() {
             buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);

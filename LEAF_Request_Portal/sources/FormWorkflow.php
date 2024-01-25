@@ -140,7 +140,7 @@ class FormWorkflow
     }
 
     /**
-     * includePersonDesignatedApproverData efficiently merges approver data to $srcRecords, for a
+     * includePersonDesignatedData efficiently merges approver data to $srcRecords, for a
      * given list of $pdRecordList and $pdIndicators.
      * 
      * When $skipNames is false, $srcRecords is expected to contain dependencyIDs
@@ -223,6 +223,99 @@ class FormWorkflow
     }
 
     /**
+     * includeGroupDesignatedData efficiently merges approver data to $srcRecords, for a
+     * given list of $gdRecordList and $gdIndicators.
+     * 
+     * When $skipNames is false, $srcRecords is expected to contain dependencyIDs
+     * 
+     * WARNING: This function should only be used to support getRecordsDependencyData() and getActionable().
+     *          Usage in other areas must be carefully reviewed as this retrieves data without
+     *          checking for valid access. The $gdIndicators variable must only contain indicator IDs
+     *          that are related to a "group designated" field AND workflow that utilizes the "group 
+     *          designated" feature.
+     * @param array $srcRecords list of records
+     * @param array $gdRecordsMap map of record IDs => indicatorID that utilize "group designated"
+     * @param array $gdIndicator list of indicator IDs mapped to "group designated" fields
+     * @param bool $skipNames set true to exclude employee lookups
+     * @return array Amended records
+     */
+    private function includeGroupDesignatedData(array $srcRecords, array $gdRecordsMap, array $gdIndicators, bool $skipNames = false): array
+    {
+        // sanitize for use in query
+        $gdIndicators = array_map(function($x) {
+                            return (int)$x;
+                        }, $gdIndicators);
+        $gdIndicators = implode(',', $gdIndicators);
+
+        $gdRecordIDs = array_keys($gdRecordsMap);
+        $gdRecordIDs = array_map(function($x) {
+                        return (int)$x;
+                    }, $gdRecordIDs);
+
+        $gdRecordIDs = implode(',', $gdRecordIDs);
+
+        $query = "SELECT recordID, `data`, `name`, indicatorID FROM `data`
+                    LEFT JOIN indicators USING (indicatorID)
+                    WHERE indicatorID IN ({$gdIndicators}) 
+                        AND recordID IN ({$gdRecordIDs})
+                        AND series=1
+                        AND `disabled`=0";
+        $res = $this->db->prepared_query($query, []);
+
+        $groupIDs = [];
+        // create map of recordIDs with "group designated"
+        $dRecords = [];
+        foreach($res as $record) {
+            if(isset($gdRecordsMap[$record['recordID']][$record['indicatorID']])) {
+                $dRecords[$record['recordID']]['data'] = $record['data'];
+                $dRecords[$record['recordID']]['name'] = $record['name'];
+                $groupIDs[$record['data']] = 1;
+            }
+        }
+
+        $groupNames = [];
+        if(!$skipNames) {
+            $groupIDs = array_keys($groupIDs);
+            $groupIDs = array_map(function($x) {
+                            return (int)$x;
+                        }, $groupIDs);
+    
+            $groupIDs = implode(',', $groupIDs);
+            if($groupIDs != "") {
+                $res = $this->db->prepared_query("SELECT groupID, name FROM `groups`
+                                                   WHERE groupID IN ({$groupIDs})", []);
+                foreach($res as $group) {
+                    $groupNames[$group['groupID']] = $group['name'];
+                }
+            }
+        }
+
+        // loop through all srcRecords
+        foreach($srcRecords as $i => $v) {
+            // amend actionable status
+            if(isset($dRecords[$v['recordID']])) {
+                if($srcRecords[$i]['isActionable'] == 0) {
+                    $srcRecords[$i]['isActionable'] = $this->login->checkGroup($dRecords[$v['recordID']]['data']);
+                }
+
+                if($skipNames) {
+                    continue;
+                }
+
+                // Only amend group name for group designated records
+                if($v['dependencyID'] == -3) {      
+                    $groupName = isset($groupNames[$group['groupID']]) ? $groupNames[$group['groupID']] : 'Warning: Group has not been imported into the User Access Group';
+                    $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $groupName . ')';
+                    $srcRecords[$i]['approverName'] = $groupName;
+                    $srcRecords[$i]['approverUID'] = 'groupID:' . $dRecords[$v['recordID']]['data'];
+                }
+            }
+        }
+
+        return $srcRecords;
+    }
+
+    /**
      * Adds an "isActionable" parameter for each record within $records
      * @param object $form instance of Form
      * @param array $records result set from a query on db:records. Requires 'recordID'.
@@ -260,6 +353,8 @@ class FormWorkflow
 
         $personDesignatedRecords = []; // map of records using "person designated" => associated indicatorID
         $personDesignatedIndicators = []; // map of indicators using "person designated"
+        $groupDesignatedRecords = []; // map of records using "group designated" => associated indicatorID
+        $groupDesignatedIndicators = []; // map of indicators using "group designated"
         foreach ($res as $depRecord) {
             $depRecordID = $depRecord['recordID'];
             if(!isset($records[$depRecordID]['isActionable'])) {
@@ -299,11 +394,8 @@ class FormWorkflow
                     break;
 
                 case -3: // dependencyID -3 is for a group designated by the requestor
-                    $resGroupID = $form->getIndicator($depRecord['indicatorID_for_assigned_groupID'], 1, $depRecord['recordID'], null, true);
-                    $groupID = $resGroupID[$depRecord['indicatorID_for_assigned_groupID']]['value'];
-
-                    // make sure the right person has access
-                    $records[$depRecordID]['isActionable'] = $this->login->checkGroup($groupID);
+                    $groupDesignatedRecords[$depRecord['recordID']][$depRecord['indicatorID_for_assigned_groupID']] = 1;
+                    $groupDesignatedIndicators[$depRecord['indicatorID_for_assigned_groupID']] = 1;
                     break;
 
                 default:
@@ -323,6 +415,9 @@ class FormWorkflow
 
         if(count($personDesignatedRecords) > 0) {
             $records = $this->includePersonDesignatedData($records, $personDesignatedRecords, array_keys($personDesignatedIndicators), true);
+        }
+        if(count($groupDesignatedRecords) > 0) {
+            $records = $this->includeGroupDesignatedData($records, $groupDesignatedRecords, array_keys($groupDesignatedIndicators), true);
         }
 
         return $records;
@@ -377,6 +472,8 @@ class FormWorkflow
 
         $personDesignatedRecords = []; // map of records using "person designated"
         $personDesignatedIndicators = []; // map of indicators using "person designated"
+        $groupDesignatedRecords = []; // map of records using "group designated"
+        $groupDesignatedIndicators = []; // map of indicators using "group designated"
         foreach ($res as $i => $record) {
             // override access if user is in the admin group
             $res[$i]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable
@@ -407,13 +504,8 @@ class FormWorkflow
                         }
                         break;
                     case -3: // dependencyID -3 is for a group designated by the requestor
-                        $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID'], null, true);
-                        $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-
-                        // get actual group name
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $this->getActionableGroupName($groupID) . ')';
-                        $res[$i]['approverName'] = $this->getActionableGroupName($groupID);
-                        $res[$i]['approverUID'] = 'groupID:'. $groupID;
+                        $groupDesignatedRecords[$res[$i]['recordID']][$res[$i]['indicatorID_for_assigned_groupID']] = 1;
+                        $groupDesignatedIndicators[$res[$i]['indicatorID_for_assigned_groupID']] = 1;
                         break;
                     default:
                         break;
@@ -462,16 +554,8 @@ class FormWorkflow
                     break;
 
                 case -3: // dependencyID -3 is for a group designated by the requestor
-                    $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID'], null, true);
-                    $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-
-                    // make sure the right person has access
-                    $res[$i]['isActionable'] = $this->login->checkGroup($groupID);
-
-                    // get actual group name
-                    $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $this->getActionableGroupName($groupID) . ')';
-                    $res[$i]['approverName'] = $this->getActionableGroupName($groupID);
-                    $res[$i]['approverUID'] = 'groupID:' . $groupID;
+                    $groupDesignatedRecords[$res[$i]['recordID']][$res[$i]['indicatorID_for_assigned_groupID']] = 1;
+                    $groupDesignatedIndicators[$res[$i]['indicatorID_for_assigned_groupID']] = 1;
                     break;
 
                 default:
@@ -491,6 +575,9 @@ class FormWorkflow
 
         if(count($personDesignatedRecords) > 0) {
             $res = $this->includePersonDesignatedData($res, $personDesignatedRecords, array_keys($personDesignatedIndicators));
+        }
+        if(count($groupDesignatedRecords) > 0) {
+            $res = $this->includeGroupDesignatedData($res, $groupDesignatedRecords, array_keys($groupDesignatedIndicators));
         }
 
         return $res;
@@ -1280,12 +1367,15 @@ class FormWorkflow
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
+            $fields = $this->getFields();
+
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
                     $email = new Email();
 
                     $email->addSmartyVariables(array(
-                        "comment" => $comment
+                        "comment" => $comment,
+                        "field" => $fields
                     ));
 
                     $dir = $this->getDirectory();
@@ -1329,7 +1419,8 @@ class FormWorkflow
                             "service" => $requestRecords[0]['service'],
                             "lastStatus" => $requestRecords[0]['lastStatus'],
                             "comment" => $comment,
-                            "siteRoot" => $this->siteRoot
+                            "siteRoot" => $this->siteRoot,
+                            "field" => $fields
                         ));
                         $email->setTemplateByID(Email::NOTIFY_COMPLETE);
 
@@ -1385,7 +1476,6 @@ class FormWorkflow
                         $email = new Email();
 
                         $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
-                        $fields = $this->getFields();
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $title,
@@ -1455,7 +1545,9 @@ class FormWorkflow
                                            'workflowID' => $workflowID,
                                            'stepID' => $stepID,
                                            'actionType' => $actionType,
-                                           'comment' => $comment, );
+                                           'comment' => $comment,
+                                           "field" => $fields
+                        );
 
                         $customClassName = "Portal\\CustomEvent_{$event['eventID']}";
 

@@ -66,6 +66,14 @@ class WorkflowFormatter
             "message"=>"set <strong>name:</strong> %s in <strong>workflow:</strong> %s",
             "variables"=>"description,workflowID"
         ],
+        DataActions::ADD.'-'.LoggableTypes::STEP_DEPENDENCY => [
+            "message"=>"added requirement <strong>%s </strong> to <strong>step %s</strong>",
+            "variables"=>"dependencyID,stepID"
+        ],
+        DataActions::DELETE.'-'.LoggableTypes::STEP_DEPENDENCY => [
+            "message"=>"removed requirement <strong>%s </strong> from <strong>step %s</strong>",
+            "variables"=>"dependencyID,stepID"
+        ],
     ];
 
     const TABLE = "workflows";

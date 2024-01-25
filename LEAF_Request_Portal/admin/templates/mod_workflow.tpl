@@ -798,7 +798,11 @@
             $.ajax({
                 type: 'DELETE',
                 url: `../api/workflow/step/${stepID}/dependencies?`
-                    + $.param({ 'dependencyID': dependencyID, 'CSRFToken': CSRFToken }),
+                    + $.param({
+                        'dependencyID': dependencyID,
+                        'workflowID': currentWorkflow,
+                        'CSRFToken': CSRFToken
+                    }),
                 success: function() {
                     $('.workflowStepInfo').css('display', 'none');
                     showStepInfo(stepID);
@@ -983,7 +987,7 @@
         dialog.setSaveHandler(function() {
             addStep(currentWorkflow, $('#stepTitle').val(), function(stepID) {
                 if (isNaN(stepID)) {
-                    console.log(stepID);
+                    alert(stepID);
                 } else {
                     loadWorkflow(currentWorkflow);
                 }
@@ -1374,8 +1378,12 @@
                 type: 'DELETE',
                 url: `../api/workflow/${workflowID}/step/${stepID}/_${action}/${nextStepID}?`
                     + $.param({ 'CSRFToken': CSRFToken }),
-                success: function() {
-                    loadWorkflow(workflowID);
+                success: function(res) {
+                    if (+res === 1) {
+                        loadWorkflow(workflowID);
+                    } else {
+                        alert(res)
+                    }
                 },
                 error: (err) => console.log(err),
             });
@@ -2543,9 +2551,11 @@
      */
     function postStepDependency(stepID, dependencyID, callback) {
         $.ajax({
-                type: 'POST',
-                url: '../api/workflow/step/' + stepID + '/dependencies',
-                data: {dependencyID: dependencyID,
+            type: 'POST',
+            url: '../api/workflow/step/' + stepID + '/dependencies',
+            data: {
+                dependencyID: dependencyID,
+                workflowID: currentWorkflow,
                 CSRFToken: CSRFToken
             },
             success: function() {
@@ -2602,7 +2612,11 @@
                 CSRFToken: CSRFToken
             },
             success: function(res) {
-                callback(res)
+                if (+res === 1) {
+                    callback(res)
+                } else {
+                    alert(res)
+                }
             },
             error: (err) => console.log(err),
         });

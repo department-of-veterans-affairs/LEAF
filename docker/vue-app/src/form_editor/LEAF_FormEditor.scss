@@ -409,9 +409,6 @@ table[class$="SelectorTable"] th {
     ul[id^="internalFormRecords_"] {
         border-left: 4px solid $BG_Pearl;
         padding-top: 0.6rem;
-        &:not(:last-child) {
-            margin-bottom: 1.5rem;
-        }
         
         > li  {
             &:not(:last-child) {
@@ -442,6 +439,7 @@ table[class$="SelectorTable"] th {
         }
     }
     button[id^="addInternalUse_"], button[id^="addStaple_"] {
+        margin-top: 1.5rem;
         height: 2rem;
         width: 100%;
         padding: 2px 0.25rem;
@@ -567,7 +565,6 @@ table[class$="SelectorTable"] th {
 
     div.printformblock {
         height:auto;
-        min-height: 100px;
         position: relative;
         break-inside: avoid;
         height: auto;

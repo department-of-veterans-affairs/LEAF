@@ -70,20 +70,6 @@ var LeafForm = function (containerID) {
     formConditionsByChild = {},
     dialog = null
   ) {
-    const allowedChildFormats = [
-      "dropdown",
-      "text",
-      "multiselect",
-      "radio",
-      "checkboxes",
-      "",
-      "fileupload",
-      "image",
-      "textarea",
-      "orgchart_employee",
-      "orgchart_group",
-      "orgchart_position",
-    ];
 
     /** crosswalk variables and functions */
     let dropdownInfo = {};
@@ -382,10 +368,23 @@ var LeafForm = function (containerID) {
       return val;
     };
 
+    /* clear out potential entries and set validator for hidden questions */
     const clearValues = (childFormat = "", childIndID = 0) => {
-      $("#" + childIndID).val("");
-      $(`input[id^="${childIndID}_"]`).prop("checked", false); //this will hit both radio and checkboxes formats
+      $("#" + childIndID).val(""); //clears most formats
+      $(`input[id^="${childIndID}_"]`).prop("checked", false); //radio and checkbox(es) formats
       $(`input[id^="${childIndID}_radio0"]`).prop("checked", true);
+
+      $(`#grid_${childIndID}_1_input tbody td`) //grid table data
+      .each(function () {
+        if ($("textarea", this).length) {
+          $("textarea", this).val('');
+        } else if ($("select", this).length) {
+          $("select", this).val('');
+        } else if ($("input", this).length) {
+          $("input", this).val('');
+        }
+      });
+
       if (childFormat === "multiselect") {
         clearMultiSelectChild($("#" + childIndID), childIndID);
       }
@@ -693,14 +692,14 @@ var LeafForm = function (containerID) {
     notFoundParElsByIndID = Array.from(new Set(notFoundParElsByIndID));
     crosswalks = Array.from(new Set(crosswalks));
 
-    /*filter: current format is in allowedFormats list, current and saved formats match,
+    /*filter: current format is not raw_data, current and saved formats match,
     and the parentID is not in the list of IDs for elements not found in the DOM */
     for (let entry in formConditionsByChild) {
       const currentFormat = formConditionsByChild[entry].format.toLowerCase();
       formConditionsByChild[entry].conditions = formConditionsByChild[
         entry
       ].conditions.filter(c =>
-        allowedChildFormats.includes(currentFormat) &&
+        currentFormat !== 'raw_data' &&
         currentFormat === c.childFormat.toLowerCase() &&
         !notFoundParElsByIndID.includes(parseInt(c.parentIndID))
       );

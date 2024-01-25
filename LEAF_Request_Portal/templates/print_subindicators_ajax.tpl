@@ -119,7 +119,7 @@
             <ul style="list-style: none">
             <!--{foreach from=$indicator.value item=option}-->
                     <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" />
-                    <!--{if $indicator.value[$idx] != 'no'}-->
+                    <!--{if $indicator.value[$idx] != 'no' && $indicator.value[$idx] !== ''}-->
                         <li><img class="print" src="dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
                         <!--{$option|sanitize}--></li>
                     <!--{/if}-->
@@ -149,7 +149,7 @@
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.value item=file}-->
                 <!--{if $indicator.value != '[protected data]'}-->
-                <img src="image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" style="max-width: 200px" onclick="window.open('image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" />
+                <img src="image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" style="max-width: 200px" onclick="window.open('image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" alt="image upload: <!--{$file}-->"/>
                 <!--{assign var='idx' value=$idx+1}-->
                 <!--{else}-->
                 [protected data]

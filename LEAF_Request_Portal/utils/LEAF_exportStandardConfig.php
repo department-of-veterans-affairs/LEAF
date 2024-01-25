@@ -26,12 +26,14 @@ function exportTable($db, $tempFolder, $table) {
         case 'category_staples':
         case 'dependencies':
         case 'indicators':
+        case 'events':
         case 'route_events':
         case 'workflows':
         case 'workflow_steps':
         case 'step_dependencies':
         case 'workflow_routes':
         case 'step_modules':
+        case 'email_templates':
             break;
         default:
             exit();
@@ -41,14 +43,16 @@ function exportTable($db, $tempFolder, $table) {
     file_put_contents("{$tempFolder}{$table}.sql", serialize($res));
 }
 
-exportTable(DB, $tempFolder, 'actions');
-exportTable(DB, $tempFolder, 'categories');
-exportTable(DB, $tempFolder, 'category_staples');
-exportTable(DB, $tempFolder, 'dependencies');
-exportTable(DB, $tempFolder, 'indicators');
-exportTable(DB, $tempFolder, 'route_events');
-exportTable(DB, $tempFolder, 'workflows');
-exportTable(DB, $tempFolder, 'workflow_steps');
-exportTable(DB, $tempFolder, 'step_dependencies');
-exportTable(DB, $tempFolder, 'workflow_routes');
-exportTable(DB, $tempFolder, 'step_modules');
+exportTable($db, $tempFolder, 'actions');
+exportTable($db, $tempFolder, 'categories');
+exportTable($db, $tempFolder, 'category_staples');
+exportTable($db, $tempFolder, 'dependencies');
+exportTable($db, $tempFolder, 'indicators');
+exportTable($db, $tempFolder, 'events');
+exportTable($db, $tempFolder, 'route_events');
+exportTable($db, $tempFolder, 'workflows');
+exportTable($db, $tempFolder, 'workflow_steps');
+exportTable($db, $tempFolder, 'step_dependencies');
+exportTable($db, $tempFolder, 'workflow_routes');
+exportTable($db, $tempFolder, 'step_modules');
+exportTable($db, $tempFolder, 'email_templates');
