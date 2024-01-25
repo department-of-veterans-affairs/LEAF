@@ -13,11 +13,11 @@
 <body>
     <div id="header">
         <div style="cursor: pointer" onclick="window.location='./'">
-            <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
+            <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" /></span>
             <span id="headerDescription">{$title|sanitize}</span>
         </div>
         <span id="headerTab"></span>
-        <span id="headerTabImg"><img src="images/tab.png" alt="tab" /></span>
+        <span id="headerTabImg"><img src="images/tab.png" alt="" /></span>
     </div>
     <div id="body">
         <div id="content">

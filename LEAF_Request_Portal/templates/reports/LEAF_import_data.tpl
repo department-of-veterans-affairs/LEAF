@@ -36,18 +36,23 @@
 
 <div id="status" style="background-color: black; color: white; font-weight: bold; font-size: 140%"></div>
 <div id="uploadBox">
-    <h4>Choose a Spreadsheet</h4>
+    <h4><label for="sheet_upload">Choose a Spreadsheet</label></h4>
     The first row of the file must be headers for the columns.
     <br/>
 
-    <input id="sheet_upload" type="file"></input>
+    <input id="sheet_upload" type="file"/>
 
     <br />
     <br />
 </div>
 <div id="toggler" style="display: none">
-    <input id="newFormToggler" name="toggle" onclick="toggleImport(event)" type="radio">New Form</input>
-    <input id="existingFormToggler" name="toggle" onclick="toggleImport(event)" type="radio">Existing Form</input>
+    <fieldset>
+        <legend>Import Type</legend>
+        <label for="newFormToggler">New Form<label>
+        <input id="newFormToggler" name="toggle" style="margin-right: 1rem;" onclick="toggleImport(event)" type="radio" />
+        <label for="existingFormToggler">Existing Form<label>
+        <input id="existingFormToggler" name="toggle" onclick="toggleImport(event)" type="radio" />
+    </fieldset>
 </div>
 <div id="import_data_new_form" style="display: none;">
     <h4>Create a Form</h4>
@@ -184,16 +189,16 @@
             '<table id="new_form_indicators" style="text-align: center;">' +
             '   <thead>' +
             '       <tr>' +
-            '           <th> Sheet Column </th>' +
-            '           <th> Name </th>' +
-            '           <th> Format </th>' +
-            '           <th> Required </th>' +
-            '           <th> Sensitive </th>' +
+            '           <th scope="col"> Sheet Column </th>' +
+            '           <th scope="col"> Name </th>' +
+            '           <th scope="col"> Format </th>' +
+            '           <th scope="col"> Required </th>' +
+            '           <th scope="col"> Sensitive </th>' +
             '       </tr>' +
             '   <thead>' +
             '   <tbody>';
         $.each(spreadSheet.headers, function(key, value) {
-            var requiredCheckbox = blankIndicators.indexOf(key) === -1 ? '<input type="checkbox"></input>' : '<input type="checkbox" onclick="return false;" disabled="disabled" title="Cannot set as required when a row in this column is blank."></input>';
+            var requiredCheckbox = blankIndicators.indexOf(key) === -1 ? '<input type="checkbox"/>' : '<input type="checkbox" onclick="return false;" disabled="disabled" title="Cannot set as required when a row in this column is blank."/>';
             table +=
                 '<tr>' +
                 '   <td>' + key + '</td>' +
@@ -212,7 +217,7 @@
                 '       </select>' +
                 '   </td>' +
                 '   <td>' + requiredCheckbox + '</td>' +
-                '   <td><input type="checkbox"></input></td>' +
+                '   <td><input type="checkbox"/></td>' +
                 '</tr>';
         });
         table += '</tbody></table>';

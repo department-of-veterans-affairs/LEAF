@@ -53,12 +53,12 @@
         <h2><a href="../admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
 
         <div class="leaf-user-search">
-            <p>Filter by group or user name</p>
+            <p><label for="userGroupSearch">Filter by group or user name</label></p>
             <input id="userGroupSearch" class="leaf-user-search-input" type="text" title="" onkeyup="searchGroups();" disabled />
         </div>
 
         <div id="noResultsMsg" class="leaf-no-results usa-alert usa-alert--error usa-alert--slim" role="alert">
-            <p><i class="fas fa-exclamation-circle" alt="Error Icon"></i>No matching groups or users found.</p>
+            <p><i class="fas fa-exclamation-circle" alt=""></i>No matching groups or users found.</p>
         </div>
 
         <div id="sysAdmins" class="leaf-marginTop-1rem">
@@ -1137,7 +1137,7 @@ function importGroup() {
 
 function createGroup() {
     dialog.setTitle('Create a new group');
-    dialog.setContent('<div><label role="heading">Group Title</label><div class="leaf-marginTop-halfRem"><input aria-label="Enter group name" id="groupNameInput" class="usa-input" size="36"></input></div></div>');
+    dialog.setContent('<div><label for="groupNameInput">Group Title</label><div class="leaf-marginTop-halfRem"><input id="groupNameInput" class="usa-input" size="36"/></div></div>');
     dialog.showButtons();
     dialog.setSaveHandler(function() {
     	dialog.indicateBusy();

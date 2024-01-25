@@ -211,7 +211,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
 
         $(gridBodySelector + " > tr:last").append(
           `<td aria-label="${name}">
-            <select aria-label="${name}" role="dropdown"${isMultiple ? " multiple" : ""} style="width: fill-available;">
+            <select aria-label="${name}" ${isMultiple ? " multiple" : ""} style="width: fill-available;">
               <option value="">${isMultiple ? "Select Options" : "Select an Option"}</option>
               ${optTemplate}
             </select>
@@ -376,7 +376,7 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       $(gridBodyElement).append("<tr></tr>");
       //row td elements for each column
       for (let j = 0; j < numCols; j++) {
-        const colID = gridParameters[j].id
+        const colID = gridParameters[j].id;
         const val = getDataValueByCellID(colID, dataColumnIDs, selectedRowDataValues);
         $(gridBodyElement + " > tr:last").append(`<td style="width:100px">${val}</td>`);
       }
