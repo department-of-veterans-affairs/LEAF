@@ -134,7 +134,7 @@ function main() {
 
     document.addEventListener("click", abortSearchListener );
     function abortSearchListener(event){
-        var element = event.target;
+        let element = event.target;
         if(element.id == 'btn_abortSearch' ){
             abortController.abort();
             abortSearch = true;
