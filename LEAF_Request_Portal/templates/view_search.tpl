@@ -1,5 +1,6 @@
 <section style="display: flex; flex-direction: column; width: fit-content;">
     <div id="searchContainer"></div>
+    <button id="btn_abortSearch" class="buttonNorm">Stop searching for more</button>
     <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;">Show more records</button>
 </section>
 <script>
@@ -117,6 +118,7 @@ function renderResult(leafSearch, res) {
 
 function main() {
     let query = new LeafFormQuery();
+    let abortController = new AbortController();
     let leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setJsPath('<!--{$app_js_path}-->');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
@@ -129,6 +131,16 @@ function main() {
     let batchSize = 50;
     let abortSearch = false;
     let scrollY = 0; // track scroll position for more seamless UX when loading more records
+
+    document.addEventListener("click", abortSearchListener );
+    function abortSearchListener(event){
+        var element = event.target;
+        if(element.id == 'btn_abortSearch' ){
+            abortController.abort();
+            abortSearch = true;
+            document.getElementById("btn_abortSearch").style.display = "none";
+        }
+    }
 
     // On the first visit, if no results are owned by the user, append their results
     query.onSuccess(function(res, resStatus, resJqXHR) {
@@ -159,10 +171,8 @@ function main() {
             && loadAllResults
             && !abortSearch) {
 
-            document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = `<h3>Searching ${offset}+ possible records...</h3><p><button id="btn_abortSearch" class="buttonNorm">Stop searching for more</button></p>`;
-            document.querySelector('#btn_abortSearch').addEventListener('click', function() {
-                abortSearch = true;
-            });
+            document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = `<h3>Searching ${offset}+ possible records...</h3><p></p>`;
+            document.getElementById("btn_abortSearch").style.display = "block";
             offset += batchSize;
             query.setLimit(offset, batchSize);
             query.execute();
@@ -174,9 +184,11 @@ function main() {
 
         // UI for "show more results" button
         if(!loadAllResults) {
+            document.getElementById("btn_abortSearch").style.display = "none";
             document.querySelector('#searchContainer_getMoreResults').style.display = 'inline';
         }
         else {
+            document.getElementById("btn_abortSearch").style.display = "none";
             document.querySelector('#searchContainer_getMoreResults').style.display = 'none';
         }
     });
@@ -259,6 +271,7 @@ function main() {
             query.setQuery(tQuery);
         }
         offset += batchSize;
+        query.setAbortSignal(abortController.signal);
         query.setLimit(offset, batchSize);
         query.execute()
     });
