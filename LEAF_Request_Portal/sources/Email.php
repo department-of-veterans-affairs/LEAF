@@ -212,10 +212,10 @@ class Email
      */
     public function addRecipient(string|null $address, bool $requiredAddress = false): bool
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0){
+        $emailReg = "/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i";
+        if (preg_match($emailReg, $address) == 0){
             return false;
         }
-
         if ($this->emailRecipient == ''){
             $this->emailRecipient = $address;
         } else {
@@ -277,10 +277,10 @@ class Email
 
     public function addCcBcc(string|null $address, bool $requiredAddress = false, bool $isBcc = false): bool
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0) {
+        $emailReg = "/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i";
+        if (preg_match($emailReg, $address) == 0){
             return false;
         }
-
         if ( !$this->isExistingRecipient($address) || ($requiredAddress)  ) {
           if (!$isBcc) {
               $this->emailCC[] = $address;
@@ -495,11 +495,14 @@ class Email
         $hasEmailTemplate = $this->getFilepath($tplLocation);
         $emailTemplate = __DIR__ . '/../templates/email/' . $hasEmailTemplate;
         if (file_exists($emailTemplate)) {
-            $emailListContentList =  explode(PHP_EOL, trim($this->setContent($emailTemplate)));
-            // For each line in template, add that email address, if valid
-            foreach($emailListContentList as $emailAddress) {
+            $emailContentList =  explode(PHP_EOL, trim($this->setContent($emailTemplate)));
+            $extractEmailReg = "/([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}/i";
+            foreach($emailContentList as $emailAddress) {
                 $eAddress = trim(XSSHelpers::xscrub($emailAddress));
-                if($eAddress !== "") { //addCc and addRec both have regex checks
+                preg_match($extractEmailReg, $eAddress, $matches);
+                $eAddress = $matches[0];
+                //filter blanks.  addCcBcc and addRec also both have email regex checks with set start and end vals
+                if($eAddress !== "") {
                     if ($isCc) {
                         $this->addCcBcc($eAddress, true);
                     } else {
