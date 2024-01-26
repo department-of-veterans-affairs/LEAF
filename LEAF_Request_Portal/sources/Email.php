@@ -212,7 +212,7 @@ class Email
      */
     public function addRecipient(string|null $address, bool $requiredAddress = false): bool
     {
-        $emailReg = "/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i";
+        $emailReg = "/(\w+@[a-zA-Z_\-]+?\.[a-zA-Z]{2,6})$/i";
         if (preg_match($emailReg, $address) == 0){
             return false;
         }
@@ -277,7 +277,7 @@ class Email
 
     public function addCcBcc(string|null $address, bool $requiredAddress = false, bool $isBcc = false): bool
     {
-        $emailReg = "/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i";
+        $emailReg = "/(\w+@[a-zA-Z_\-]+?\.[a-zA-Z]{2,6})$/i";
         if (preg_match($emailReg, $address) == 0){
             return false;
         }
@@ -496,12 +496,9 @@ class Email
         $emailTemplate = __DIR__ . '/../templates/email/' . $hasEmailTemplate;
         if (file_exists($emailTemplate)) {
             $emailContentList =  explode(PHP_EOL, trim($this->setContent($emailTemplate)));
-            $extractEmailReg = "/([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}/i";
             foreach($emailContentList as $emailAddress) {
-                $eAddress = trim(XSSHelpers::xscrub($emailAddress));
-                preg_match($extractEmailReg, $eAddress, $matches);
-                $eAddress = $matches[0];
-                //filter blanks.  addCcBcc and addRec also both have email regex checks with set start and end vals
+                $eAddress = strip_tags($emailAddress);
+                //filter blanks.  addCcBcc and addRec both have email regex checks with set start and end vals
                 if($eAddress !== "") {
                     if ($isCc) {
                         $this->addCcBcc($eAddress, true);

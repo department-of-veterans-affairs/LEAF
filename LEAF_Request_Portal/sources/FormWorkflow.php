@@ -1673,10 +1673,11 @@ class FormWorkflow
         // filter out non-selected selections
         $data = array_filter($data, function($x) { return $x !== "no"; });
         // list to be readable in email
-        $formattedData = "\r\n";
+        $formattedData = "<ul>";
         foreach($data as $item) {
-            $formattedData .= "- ".$item."\r\n";
+            $formattedData .= "<li>".$item."</li>\n";
         }
+        $formattedData .= "</ul>";
         return $formattedData;
     }
 
