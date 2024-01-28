@@ -33,6 +33,7 @@ class Email
     private array $emailBCC = array();
 
     public array $smartyVariables = array();
+    public array $smartyEmailVariables = array();
 
     private object $position;
 
@@ -181,7 +182,12 @@ class Email
         if (($tplVar != '') && ($strContent != '')) {
             $smarty->assign($tplVar, $strContent);
         } else {
-            $smarty->assign($this->smartyVariables);
+            $isEmailToCc = str_ends_with($tplFile, "_emailCc.tpl") || str_ends_with($tplFile, "_emailTo.tpl");
+            if($isEmailToCc) {
+                $smarty->assign($this->smartyEmailVariables);
+            } else {
+                $smarty->assign($this->smartyVariables);
+            }
         }
         $htmlOutput = $smarty->fetch($tplFile);
         return $htmlOutput;
@@ -497,7 +503,7 @@ class Email
         if (file_exists($emailTemplate)) {
             $emailContentList =  explode(PHP_EOL, trim($this->setContent($emailTemplate)));
             foreach($emailContentList as $emailAddress) {
-                $eAddress = strip_tags($emailAddress);
+                $eAddress = trim(strip_tags(htmlspecialchars_decode($emailAddress, ENT_QUOTES | ENT_HTML5 )));
                 //filter blanks.  addCcBcc and addRec both have email regex checks with set start and end vals
                 if($eAddress !== "") {
                     if ($isCc) {
@@ -562,9 +568,13 @@ class Email
      * @param array $newVariables associative array where the keys are the variable names and the values are the variable values
      * @return void
      */
-    function addSmartyVariables(array $newVariables): void
+    function addSmartyVariables(array $newVariables, bool $setEmailVariables = false): void
     {
-        $this->smartyVariables = array_merge($this->smartyVariables, $newVariables);
+        if ($setEmailVariables === true) {
+            $this->smartyEmailVariables = array_merge($this->smartyEmailVariables, $newVariables);
+        } else {
+            $this->smartyVariables = array_merge($this->smartyVariables, $newVariables);
+        }
     }
 
     /**

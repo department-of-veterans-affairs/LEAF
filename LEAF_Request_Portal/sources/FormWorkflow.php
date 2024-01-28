@@ -1367,7 +1367,9 @@ class FormWorkflow
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
-            $fields = $this->getFields();
+            $formattedData = $this->getFields();
+            $fields = $formattedData["content"];
+            $emailAddresses = $formattedData["to_cc_content"];
 
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
@@ -1422,6 +1424,9 @@ class FormWorkflow
                             "siteRoot" => $this->siteRoot,
                             "field" => $fields
                         ));
+                        $email->addSmartyVariables(array(
+                            "field" => $emailAddresses
+                        ), true);
                         $email->setTemplateByID(Email::NOTIFY_COMPLETE);
 
                         $dir = $this->getDirectory();
@@ -1487,7 +1492,9 @@ class FormWorkflow
                             "siteRoot" => $this->siteRoot,
                             "field" => $fields
                         ));
-
+                        $email->addSmartyVariables(array(
+                            "field" => $emailAddresses
+                        ), true);
                         $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
                         $email->setTemplateByID($emailTemplateID);
 
@@ -1586,47 +1593,59 @@ class FormWorkflow
         foreach($fields as $field)
         {
             if ($field["is_sensitive"] == 1) {
-                $formattedFields[$field['indicatorID']] = "**********";
+                $formattedFields["content"][$field['indicatorID']] = "**********";
+                $formattedFields["to_cc_content"][$field['indicatorID']] = "";
                 continue;
             }
 
-            $format = strtolower($field["format"]);
             $data = $field["data"];
+            $emailValue = "";
 
-            switch(true) {
-                case (str_starts_with($format, "grid") != false):
+            $format = strtolower(explode(PHP_EOL, $field["format"])[0] ?? "");
+            switch($format) {
+                case "grid":
                     if(!empty($data) && is_array(unserialize($data))){
                         $data = $this->buildGrid(unserialize($data));
                     }
                     break;
-                case (str_starts_with($format, "checkboxes") != false):
-                case (str_starts_with($format, "multiselect") != false):
+                case "checkboxes":
+                case "multiselect":
                     if(!empty($data) && is_array(unserialize($data))){
-                        $data = $this->buildMultiOption(unserialize($data));
+                        $formatted = $this->buildMultiOption(unserialize($data));
+                        $data = $formatted["content"];
+                        $emailValue = $formatted["to_cc_content"];
                     }
                     break;
-                case (str_starts_with($format, "radio") != false):
-                case (str_starts_with($format, "checkbox") != false):
+                case "radio":
+                case "checkbox":
+                case "dropdown":
                     if ($data == "no") {
                         $data = "";
+                    } else {
+                        $emailValue = $data;
                     }
                     break;
-                case ($format == "fileupload"):
-                case ($format == "image"):
+                case "fileupload":
+                case "image":
                     $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
                     break;
-                case ($format == "orgchart_group"):
+                case "orgchart_group":
                     $data = $this->getOrgchartGroup((int) $data);
                     break;
-                case ($format == "orgchart_position"):
+                case "orgchart_position":
                     $data = $this->getOrgchartPosition((int) $data);
                     break;
-                case ($format == "orgchart_employee"):
-                    $data = $this->getOrgchartEmployee((int) $data);
+                case "orgchart_employee":
+                    $employeeData = $this->getOrgchartEmployee((int) $data);
+                    $data = $employeeData["employeeName"];
+                    $emailValue = $employeeData["employeeEmail"];
                     break;
+                default:
+                break;
             }
 
-            $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+            $formattedFields["content"][$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+            $formattedFields["to_cc_content"][$field['indicatorID']] = $emailValue;
         }
 
         return $formattedFields;
@@ -1668,17 +1687,19 @@ class FormWorkflow
         return $grid;
     }
 
-    private function buildMultiOption(array $data): string
+    private function buildMultiOption(array $data): array
     {
         // filter out non-selected selections
         $data = array_filter($data, function($x) { return $x !== "no"; });
         // list to be readable in email
         $formattedData = "<ul>";
+        $formattedEmails = "";
         foreach($data as $item) {
-            $formattedData .= "<li>".$item."</li>\n";
+            $formattedData .= "<li>".$item."</li>";
+            $formattedEmails .= $item."\r\n";
         }
         $formattedData .= "</ul>";
-        return $formattedData;
+        return array("content" => $formattedData, "to_cc_content" => $formattedEmails);
     }
 
     private function buildFileLink(string $data, string $id, string $series): string
@@ -1715,13 +1736,14 @@ class FormWorkflow
         return $positionName;
     }
 
-    private function getOrgchartEmployee(int $data): string
+    private function getOrgchartEmployee(int $data): array
     {
         $employee = new \Orgchart\Employee($this->oc_db, $this->login);
         $employeeData = $employee->lookupEmpUID($data)[0];
         $employeeEmail = $employeeData["email"];
+        $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
 
-        return $employeeEmail;
+        return array("employeeName" => $employeeName,"employeeEmail" => $employeeEmail);
     }
 
     /**
