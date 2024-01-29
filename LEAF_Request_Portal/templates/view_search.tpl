@@ -1,7 +1,9 @@
 <section style="display: flex; flex-direction: column; width: fit-content;">
     <div id="searchContainer"></div>
-    <button id="btn_abortSearch" class="buttonNorm" type="button">Stop searching for more</button>
-    <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; margin-left:auto;" type="button">Show more records</button>
+    <div class="clear">
+        <button id="btn_abortSearch" class="buttonNorm" type="button" style="float:left">Stop searching for more</button>
+        <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; float:right;" type="button">Show more records</button>
+    </div>
 </section>
 <script>
 var CSRFToken = '<!--{$CSRFToken}-->';
