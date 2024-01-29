@@ -1274,6 +1274,26 @@ class FormWorkflow
     {
         $errors = array();
 
+        $varEvents = array(':workflowID' => $workflowID,
+                           ':stepID' => $stepID,
+                           ':actionType' => $actionType,
+        );
+        $strSQL = 'SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt
+            LEFT JOIN events as et USING (eventID)
+            WHERE workflowID = :workflowID
+            AND stepID = :stepID
+            AND actionType = :actionType
+            ORDER BY eventID ASC';
+        $resEvents = $this->db->prepared_query($strSQL, $varEvents);
+
+        $fields = array();
+        $emailAddresses = array();
+        if(count($resEvents) > 0 || $actionType == 'sendback') {
+            $formattedData = $this->getFields();
+            $fields = $formattedData["content"];
+            $emailAddresses = $formattedData["to_cc_content"];
+        }
+
         // Take care of special events (sendback)
         if ($actionType == 'sendback')
         {
@@ -1312,8 +1332,12 @@ class FormWorkflow
                 "service" => $record[0]['service'],
                 "stepTitle" => $groupName[0]['stepTitle'],
                 "comment" => $comment,
-                "siteRoot" => $this->siteRoot
+                "siteRoot" => $this->siteRoot,
+                "field" => $fields
             ));
+            $email->addSmartyVariables(array(
+                "field" => $emailAddresses
+            ), true);
             $email->setTemplateByID(Email::SEND_BACK);
 
             $dir = $this->getDirectory();
@@ -1349,27 +1373,12 @@ class FormWorkflow
         }
 
         // Handle Events
-        $varEvents = array(':workflowID' => $workflowID,
-                           ':stepID' => $stepID,
-                           ':actionType' => $actionType,
-        );
-        $strSQL = 'SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt
-            LEFT JOIN events as et USING (eventID)
-            WHERE workflowID = :workflowID
-            AND stepID = :stepID
-            AND actionType = :actionType
-            ORDER BY eventID ASC';
-        $res = $this->db->prepared_query($strSQL, $varEvents);
-
-        foreach ($res as $event)
+        foreach ($resEvents as $event)
         {
             $customEvent = '';
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
-            $formattedData = $this->getFields();
-            $fields = $formattedData["content"];
-            $emailAddresses = $formattedData["to_cc_content"];
 
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
@@ -1589,6 +1598,8 @@ class FormWorkflow
         $fields = $this->db->prepared_query($strSQL, $vars);
 
         $formattedFields = array();
+        $formattedFields["content"] = array();
+        $formattedFields["to_cc_content"] = array();
 
         foreach($fields as $field)
         {
