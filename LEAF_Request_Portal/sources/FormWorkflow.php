@@ -1624,7 +1624,6 @@ class FormWorkflow
                     if(!empty($data) && is_array(unserialize($data))){
                         $formatted = $this->buildMultiOption(unserialize($data));
                         $data = $formatted["content"];
-                        $emailValue = $formatted["to_cc_content"];
                     }
                     break;
                 case "radio":
@@ -1632,8 +1631,6 @@ class FormWorkflow
                 case "dropdown":
                     if ($data == "no") {
                         $data = "";
-                    } else {
-                        $emailValue = $data;
                     }
                     break;
                 case "fileupload":

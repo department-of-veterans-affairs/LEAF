@@ -33,24 +33,27 @@
                         <legend>Email To and CC</legend>
                         <p>
                             Enter email addresses, one per line. Users will be
-                            emailed each time this template is used in any workflow.
+                            emailed each time this template is used in any workflow.&nbsp;
+                            <div id="field_use_notice" style="display: none; color:#c00000;">
+                            Please note that only orgchart employee formats are supported in this section.
+                            </div>
                         </p>
-                        <div id="emailTo" class="emailToCc">Email To:</div>
+                        <label for="emailToCode" id="emailTo" class="emailToCc">Email To:</label>
                         <div id="divEmailTo">
-                            <textarea id="emailToCode" style="width: 95%;" rows="5"></textarea>
+                            <textarea id="emailToCode" style="width: 95%;" rows="5" onchange="checkFieldEntries()"></textarea>
                         </div>
-                        <div id="emailCc" class="emailToCc">Email CC:</div>
+                        <label for="emailCcCode" id="emailCc" class="emailToCc">Email CC:</label>
                         <div id="divEmailCc">
-                            <textarea id="emailCcCode" style="width: 95%;" rows="5"></textarea>
+                            <textarea id="emailCcCode" style="width: 95%;" rows="5" onchange="checkFieldEntries()"></textarea>
                         </div>
                     </fieldset>
                 </div>
-                <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold">Subject</div>
+                <label for="subjectCode" id="subject" style="padding: 8px; font-size: 140%; font-weight: bold">Subject</label>
                 <div id="divSubject">
                     <textarea id="subjectCode"></textarea>
                     <div id="subjectCompare"></div>
                 </div>
-                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Body</div>
+                <label for="code" id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Body</label>
                 <div id="divCode">
                     <div class="compared-label-content">
                         <div class="CodeMirror-merge-pane-label">(Old File)</div>
@@ -95,7 +98,7 @@
                             <tr>
                                 <td><b>{{$field.&lt;fieldID&gt;}}</fieldID>
                                 </td>
-                                <td>The value of the field by ID. <span style="color: red;">Sensitive data fields may
+                                <td>The value of the field by ID. <span style="color:#c00000;">Sensitive data fields may
                                         not be included in email templates.</span></td>
                             </tr>
                         </table>
@@ -244,6 +247,33 @@
         nav.css({
             'right': '0'
         });
+    }
+
+    function checkFieldEntries() {
+        const elTextareaTo = document.getElementById("emailToCode");
+        const elTextareaCc = document.getElementById("emailCcCode");
+        const elTextInput = (elTextareaTo?.value || "") + "\r\n" + (elTextareaCc?.value || "");
+        if(elTextInput !== "") {
+            const fieldReg = /field\.\d*/g;
+            const fieldMatches = elTextInput.match(fieldReg);
+            let elNotice = document.getElementById("field_use_notice");
+            if (elNotice !== null) {
+                if(fieldMatches?.length > 0) {
+                    const ids = fieldMatches.map(m => +m.slice(m.indexOf(".") + 1));
+                    let includesNonOrgchartEmp = false;
+                    for(let i = 0; i < ids.length; i++) {
+                        const id = ids[i];
+                        if(indicatorFormats[id] !== "orgchart_employee") {
+                            includesNonOrgchartEmp = true;
+                            break;
+                        }
+                    }
+                    elNotice.style.display = includesNonOrgchartEmp ? "block" : "none";
+                } else {
+                    elNotice.style.display = "none";
+                }
+            }
+        }
     }
 
     function closeRightNavTools(option) {
@@ -477,6 +507,7 @@
 
     var ignoreUnsavedChanges = false;
     var ignorePrompt = true;
+    let indicatorFormats = {};
 
     // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {
@@ -894,6 +925,7 @@
 
                 $("#emailToCode").val(currentEmailToContent);
                 $("#emailCcCode").val(currentEmailCcContent);
+                checkFieldEntries();
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').show();
@@ -1028,21 +1060,27 @@
      * get all available indicators that exist in the selected form.
      */
     function getIndicators(form = "") {
-        if (form === "") {
-            loadIndicatorSelection([]);
-        } else {
-            $.ajax({
-                type: "GET",
-                url: "../api/form/indicator/list",
-                data: {forms: form},
-                cache: false,
-                success: (res) => {
-                    const filteredIndicators = res.filter(i => i.categoryID === form && +i.isDisabled === 0);
+        $.ajax({
+            type: "GET",
+            url: "../api/form/indicator/list",
+            data: {forms: form},
+            cache: false,
+            success: (res) => {
+                if (form === "") {
+                    loadIndicatorSelection([]);
+                } else {
+                    const filteredIndicators = res.filter(i => +i.isDisabled === 0);
                     loadIndicatorSelection(filteredIndicators);
-                },
-                error: (err) => reject(err)
-            });
-        }
+                }
+                res.forEach(indicator => {
+                    const indID = indicator.indicatorID
+                    const format = (indicator.format || "").split("\n")[0];
+                    indicatorFormats[indID] = format.trim().toLowerCase();
+                });
+                checkFieldEntries();
+            },
+            error: (err) => reject(err)
+        });
     }
 
     /**
@@ -1246,6 +1284,7 @@
     }
     // loads components when the document loads
     $(document).ready(function() {
+        getIndicators(); //get indicators to make format table 
         $('.currentUrlLink').hide();
         $('.sidenav-right-compare').hide();
         dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
@@ -1268,14 +1307,15 @@
                     success: function (result) {
                         let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
-                        let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
+                        let filesMobile = `<label for="template_file_select">Template Files:</label>
+                            <div class="template_select_container"><select id="template_file_select" class="templateFiles">`;
 
                         if (res_array.status['code'] === 2) {
                             for (let i in res) {
                                 let custom = '';
 
                                 if (result.includes(res[i].fileName)) {
-                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                    custom = '<span class=\'custom_file\' style=\'color:#c00000; font-size: .75em\'>(custom)</span>';
                                 }
 
                                 // Construct the option element with data- attributes for filesMobile
