@@ -13,6 +13,7 @@ export default {
     inject: [
         'dialogData',
         'checkRequiredData',
+        'lastModalTab'
     ],
     created() {
         this.checkRequiredData(this.requiredDataProperties);
@@ -66,7 +67,7 @@ export default {
             <button v-if="showNext" id="next" type="button"
                 class="btn-general"
                 style="width: 125px; margin-left: auto;"
-                @click="getNext" title="get next page">
+                @click="getNext" @keydown.tab="lastModalTab" title="get next page">
                 Next page
             </button>
         </div>

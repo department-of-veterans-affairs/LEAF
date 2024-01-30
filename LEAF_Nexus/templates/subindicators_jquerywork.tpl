@@ -154,7 +154,7 @@
                 <span class="text">
                 <iframe src="ajaxIframe.php?a=getuploadprompt&amp;categoryID={$categoryID}&amp;UID={$UID}&amp;indicatorID={$indicator.indicatorID}" frameborder="0" width="440px" height="85px"></iframe><br />
                 {if $indicator.data != ''}
-                <span style="background-color: #b7c5ff; padding: 4px; line-height: 20px"><img src="dynicons/?img=mail-attachment.svg&amp;w=16" /> <b>File Attached:</b> <a href="" target="_blank">{$indicator.data}</a></span>
+                <span style="background-color: #b7c5ff; padding: 4px; line-height: 20px"><img src="dynicons/?img=mail-attachment.svg&amp;w=16"  alt="" /> <b>File Attached:</b> <a href="" target="_blank">{$indicator.data}</a></span>
                 {/if}
                 </span>
             </fieldset>
@@ -163,9 +163,9 @@
             <fieldset>
                 <legend>Photo Attachment</legend>
                 <span class="text">
-                <iframe src="ajaxIframe.php?a=getuploadprompt&amp;categoryID={$categoryID}&amp;UID={$UID}&amp;indicatorID={$indicator.indicatorID}" frameborder="0" width="440px" height="85px"></iframe><br />
+                <iframe title="Photo Attachment" src="ajaxIframe.php?a=getuploadprompt&amp;categoryID={$categoryID}&amp;UID={$UID}&amp;indicatorID={$indicator.indicatorID}" frameborder="0" width="440px" height="85px"></iframe><br />
                 {if $indicator.data != ''}
-                <span style="background-color: #b7c5ff; padding: 4px; line-height: 20px"><img src="dynicons/?img=mail-attachment.svg&amp;w=16" /> <b>File Attached:</b> <a href="" target="_blank">{$indicator.data}</a></span>
+                <span style="background-color: #b7c5ff; padding: 4px; line-height: 20px"><img src="dynicons/?img=mail-attachment.svg&amp;w=16" alt="" /> <b>File Attached:</b> <a href="" target="_blank">{$indicator.data}</a></span>
                 {/if}
                 </span>
             </fieldset>

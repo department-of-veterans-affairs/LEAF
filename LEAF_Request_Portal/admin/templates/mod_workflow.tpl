@@ -1,33 +1,50 @@
-<div id="sideBar" style="float: left; width: 180px">
-    <div id="btn_createStep" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="createStep();" style="font-size: 120%; display: none"
-        role="button" tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="Add Step" /> Add Step</div><br />
-    Workflows: <br />
-    <div id="workflowList"></div>
-    <br />
-    <div id="btn_newWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newWorkflow();" style="font-size: 120%" role="button"
-        tabindex="0"><img src="../dynicons/?img=list-add.svg&w=32" alt="New Workflow" /> New Workflow</div><br />
-    <br />
-    <div id="btn_deleteWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="deleteWorkflow();" style="font-size: 120%; display: none"
-        role="button" tabindex="0"><img src="../dynicons/?img=list-remove.svg&w=16" alt="Delete workflow" /> Delete
-        workflow</div><br />
-    <div id="btn_listActionType" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="listActionType();" style="font-size: 120%; display: none"
-        role="button" tabindex="0">Edit Actions</div><br />
-    <div id="btn_listEvents" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="listEvents();" style="font-size: 120%; display: none"
-        role="button" tabindex="0">Edit Events</div><br />
-    <div id="btn_viewHistory" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="viewHistory();" style="font-size: 120%; display: none;"
-        role="button" tabindex="0"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View
-        History</div><br />
-    <div id="btn_renameWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="renameWorkflow();" style="font-size: 120%; display: none;"
-        role="button" tabindex="0"><img src="../dynicons/?img=accessories-text-editor.svg&amp;w=32"
-            alt="Rename Workflow" /> Rename
-        Workflow</div>
-    <div id="btn_duplicateWorkflow" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="duplicateWorkflow();" style="font-size: 100%; display: none; margin-top: 10px;"
-        role="button" tabindex="0"><img src="../dynicons/?img=edit-copy.svg&amp;w=32"
-            alt="Duplicate Workflow" /> Duplicate
-        Workflow</div>
-</div>
-<div id="workflow"
-    style="margin-left: 184px; background-color: #444444; margin-top: 16px; overflow-x: auto; overflow-y: auto; width: 72%;">
+<div id="workflow_editor">
+    <div id="sideBar">
+        <div>
+            <label id="steps_label"> Workflow Steps:</label>
+            <div id="stepList"></div>
+        </div>
+        <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();">
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Step
+        </button>
+
+        <div style="margin-top:0.5rem;">
+            <label id="workflows_label"> Workflows:</label>
+            <div id="workflowList"></div>
+        </div>
+        <button type="button" id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();">
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Workflow
+        </button>
+
+        <hr />
+        <button type="button" id="btn_renameWorkflow" class="buttonNorm" onclick="renameWorkflow();">
+            <img src="../dynicons/?img=accessories-text-editor.svg&amp;w=26" alt="" /> Rename Workflow
+        </button>
+
+        <button type="button" id="btn_duplicateWorkflow" class="buttonNorm" onclick="duplicateWorkflow();">
+            <img src="../dynicons/?img=edit-copy.svg&amp;w=26" alt="" /> Copy Workflow
+        </button>
+
+        <hr />
+        <button type="button" id="btn_viewHistory" class="buttonNorm" onclick="viewHistory();">
+            <img src="../dynicons/?img=appointment.svg&amp;w=26" alt="" /> View History
+        </button>
+
+        <hr />
+        <button type="button" id="btn_listActionType" class="buttonNorm" onclick="listActionType();">
+            <img src="../dynicons/?img=applications-other.svg&amp;w=26" alt="" /> Edit Actions
+        </button>
+
+        <button type="button" id="btn_listEvents" class="buttonNorm" onclick="listEvents();">
+            <img src="../dynicons/?img=gnome-system-run.svg&amp;w=26" alt="" /> Edit Events
+        </button>
+
+        <hr />
+        <button type="button" id="btn_deleteWorkflow" class="buttonNorm" onclick="deleteWorkflow();">
+            <img src="../dynicons/?img=list-remove.svg&w=26" alt="" /> Delete Workflow
+        </button>
+    </div>
+    <div id="workflow"></div>
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -143,11 +160,11 @@
                 <td width="200px" id="${events[i].eventDescription}">${events[i].eventDescription}</td>
                 <td width="150px" id="${events[i].eventType}">${events[i].eventType}</td>
                 <td width="100px" id="editor_${events[i].eventID}">
-                    <button class="buttonNorm" onclick="editEvent('${events[i].eventID}')"
+                    <button type="button" class="buttonNorm" onclick="editEvent('${events[i].eventID}')"
                         style="background: #22b;color: #fff; padding: 2px 4px;">
                         Edit
                     </button>
-                    <button class="buttonNorm" onclick="deleteEvent('${events[i].eventID}')"
+                    <button type="button" class="buttonNorm" onclick="deleteEvent('${events[i].eventID}')"
                         style="background: #c00;color: #fff;margin-left: 10px; padding: 2px 4px;">
                         Delete
                     </button>
@@ -156,7 +173,7 @@
         }
 
         content += `</table><br /><br />
-            <span class="buttonNorm" id="create-event" tabindex="0">Create a new Event</span><br /><br />
+            <button type="button" class="buttonNorm" id="create-event">Create a new Event</button><br /><br />
             You can edit custom email events here: <a href="./?a=mod_templates_email" target="_blank">Email Template Editor</a>`;
 
         return content;
@@ -201,7 +218,7 @@
         if (!Array.isArray(groups)) {
             return 'Invalid parameter(s): groups must be an array.';
         }
-        let content = 'Notify Group: <select id="groupID">' +
+        let content = '<label for="groupID">Notify Group: </label><select id="groupID">' +
             '<optgroup label="User Groups">' +
             '<option value="None">None</option>';
 
@@ -322,8 +339,14 @@
         dialog.setSubmitValid('reminder_days_additional', function() {
             alert('Additional Number of days to remind user must be greater than 0!');
         });
-
+        let saving = false;
+        dialog.setCancelHandler(function() {
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
+        });
         dialog.setSaveHandler(function() {
+            saving = true;
             const remindersChecked = document.getElementById('edit_email_check')?.checked;
             const reminderType = (document.getElementById('reminder_type_select')?.value || '').toLowerCase();
             const reminderDays = remindersChecked === true && reminderType === 'duration' ?
@@ -342,7 +365,7 @@
             }
             updateStepData(seriesData, stepID, function (res) {
                 if (res == 1) {
-                    loadWorkflow(currentWorkflow);
+                    loadWorkflow(currentWorkflow, stepID);
                     dialog.hide();
                 } else {
                     alert(res);
@@ -377,12 +400,14 @@
         }).fail(function(error) {
             alert(error);
         });
-        let createEventContent = '<div>Event Type: <select id="eventType">' +
+        let createEventContent = '<div><label for="eventType">Event Type: </label><select id="eventType">' +
             '<option value="Email" selected>Email</option>' +
             '</select><br /><br />' +
-            '<span>Event Name: </span><input type="text" id="eventName" class="eventTextBox" /><br /><br />' +
-            '<span>Short Description: </span><input type="text" id="eventDesc" class="eventTextBox" /><br /><br />' +
-            '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />' +
+            '<label for="eventName">Event Name: </label><input type="text" id="eventName" class="eventTextBox" /><br /><br />' +
+            '<label for="eventDesc">Short Description: </span><input type="text" id="eventDesc" class="eventTextBox" /><br /><br />' +
+            '<div id="eventEmailSettings" style="display: none">' +
+            '<label for="notifyRequestor">Notify Requestor Email: </label><input id="notifyRequestor" type="checkbox" /><br /><br />' +
+            '<label for="notifyNext">Notify Next Approver Email: </label><input id="notifyNext" type="checkbox" /><br /><br />' +
             groupList + '</div>';
         dialog.setContent(createEventContent);
         if ($('#eventType').val() === 'Email') {
@@ -456,12 +481,12 @@
             return 'Invalid parameter(s): events must be an array.';
         }
 
-        let content = '';
-        content = 'Add an event: ';
-        content += '<br /><div><select id="eventID" name="eventID">';
+        let content = '<label id="event_label">Add an event: </label>';
+        content += `<br /><div>
+            <span id="event_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+            <select id="eventID" name="eventID" title="Select Event" onchange="updateSelectionStatus(this, 'event_select_status')">`;
         for (let i in events) {
-            content += '<option value="' + events[i].eventID + '">' + events[i].eventType + ' - ' + events[i]
-                .eventDescription + '</option>';
+            content += `<option value="${events[i].eventID}">${events[i].eventType} - ${events[i].eventDescription}</option>`;
         }
         content += '</select></div>';
 
@@ -478,9 +503,9 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog.setTitle('Add Event');
         let eventDialogContent =
-            '<div><button id="createEvent" class="usa-button leaf-btn-med">Create Event</button></div>' +
-            '<div id="addEventDialog"></div>' +
-            '<div id="eventData"></div>';
+            '<div><button type="button" id="createEvent" class="usa-button leaf-btn-med">Create Event</button></div>' +
+            '<div id="addEventDialog"></div>';
+
         dialog.setContent(eventDialogContent);
         dialog.indicateBusy();
         dialog.show();
@@ -494,25 +519,14 @@
                 $('#createEvent').on('click', function() {
                     newEvent(res);
                 });
-                $('#eventID').chosen({disable_search_threshold: 5})
-                .change(function() {
-                        $('#eventData').html('');
-                        dialog.clearValidators();
-                        if ($("#eventID").val() == 'automated_email_reminder') {
-                            setEmailReminderHTML(workflowID, stepID, actionType, dialog);
-                        }
-                    })
-                    .trigger("change");
+                $('#eventID').chosen({disable_search_threshold: 5});
+                $('#xhrDialog').css('overflow', 'visible');
+
+                updateChosenAttributes("eventID", "event_label", "Select Event");
+
                 dialog.setSaveHandler(function() {
                     let ajaxData = {eventID: $('#eventID').val(),
                                     CSRFToken: CSRFToken};
-                    if ($('#eventID').val() == 'automated_email_reminder') {
-                        var formObj = {};
-                        $.each($('#eventData :input').serializeArray(), function() {
-                            formObj[this.name] = this.value;
-                        });
-                        $.extend(ajaxData, formObj);
-                    }
 
                     postEvent(stepID, actionType, workflowID, ajaxData, function (res) {
                         loadWorkflow(workflowID);
@@ -536,16 +550,17 @@
             return 'Invalid parameter(s): groups must be an array.';
         }
 
-        let content = '<div>Event Type: <select id="eventType">' +
+        let content = '<div><label for="eventType">Event Type: </label><select id="eventType">' +
             '<option value="Email" selected>Email</option>' +
             '</select><br /><br />' +
-            '<span>Event Name: </span><input type="text" id="eventName" class="eventTextBox" value="' + event[0].eventID
+            '<label for="eventName">Event Name: </label><input type="text" id="eventName" class="eventTextBox" value="' + event[0].eventID
             .replace('CustomEvent_', '') + '" /><br /><br />' +
-            '<span>Short Description: </span><input type="text" id="eventDesc" class="eventTextBox" value="' + event[0]
+            '<label for="eventDesc">Short Description: </label><input type="text" id="eventDesc" class="eventTextBox" value="' + event[0]
             .eventDescription + '" /><br /><br />' +
-            '<div id="eventEmailSettings" style="display: none">Notify Requestor Email: <input id="notifyRequestor" type="checkbox" /><br /><br />Notify Next Approver Email: <input id="notifyNext" type="checkbox" /><br /><br />';
+            '<div id="eventEmailSettings" style="display: none"><label for="notifyRequestor">Notify Requestor Email: </label><input id="notifyRequestor" type="checkbox" /><br /><br />' +
+            '<label for="notifyNext">Notify Next Approver Email: </label><input id="notifyNext" type="checkbox" /><br /><br />';
 
-        content += 'Notify Group: <select id="groupID">' +
+        content += '<label for="groupID">Notify Group: </label><select id="groupID">' +
             '<optgroup label="User Groups">' +
             '<option value="None">None</option>';
 
@@ -712,7 +727,14 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to remove this step?');
+        let saving = false;
+        dialog_confirm.setCancelHandler(function() {
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
+        });
         dialog_confirm.setSaveHandler(function() {
+            saving = true;
             $.ajax({
                 type: 'DELETE',
                 url: `../api/workflow/step/${stepID}?` + $.param({ 'CSRFToken': CSRFToken }),
@@ -741,10 +763,17 @@
 
         dialog.setTitle('Edit Step');
         dialog.setContent(`<label for="title">Title:</label> <input type="text" id="title" value="${workflowStep?.stepTitle}" />`);
+        let saving = false;
+        dialog.setCancelHandler(function() {
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
+        });
         dialog.setSaveHandler(function() {
+            saving = true;
             updateTitle($('#title').val(), stepID, function(step_id) {
                 if (step_id == 1) {
-                    loadWorkflow(currentWorkflow);
+                    loadWorkflow(currentWorkflow, stepID);
                     dialog.hide();
                 } else {
                     alert(res);
@@ -754,11 +783,19 @@
         dialog.show();
     }
 
-    function editRequirement(dependencyID) {
+    function editRequirement(dependencyID, description = "", reopenStepID = null) {
+        const inputDescription = description.replace(/"|'/g, '');
         $('.workflowStepInfo').css('display', 'none');
         dialog.setTitle('Edit Requirement');
-        dialog.setContent('Label: <input type="text" id="description"></input>');
+        dialog.setContent(`<label for="description">Label:</label><input type="text" id="description" value="${inputDescription}" />`);
+        let saving = false;
+        dialog.setCancelHandler(function() {
+            if(reopenStepID !== null && saving === false) {
+                showStepInfo(reopenStepID);
+            }
+        });
         dialog.setSaveHandler(function() {
+            saving = true;
             if ($('#description').val() == '') {
                 dialog_ok.setTitle('Description Validation');
                 dialog_ok.setContent('Description cannot be blank, please enter a Title or click cancel.');
@@ -766,7 +803,7 @@
                     dialog_ok.clearDialog();
                     dialog_ok.hide();
                     dialog.hide();
-                    editRequirement(dependencyID);
+                    editRequirement(dependencyID, description, reopenStepID);
                 });
                 dialog_ok.show();
             } else {
@@ -778,7 +815,7 @@
                     url: '../api/workflow/dependency/' + dependencyID,
                     success: function() {
                         $('.workflowStepInfo').css('display', 'none');
-                        loadWorkflow(currentWorkflow);
+                        loadWorkflow(currentWorkflow, reopenStepID);
                         dialog.hide();
                     },
                     error: (err) => console.log(err),
@@ -793,7 +830,14 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to remove this requirement?');
+        let saving = false;
+        dialog_confirm.setCancelHandler(function() {
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
+        });
         dialog_confirm.setSaveHandler(function() {
+            saving = true;
             dialog_confirm.indicateBusy();
             $.ajax({
                 type: 'DELETE',
@@ -822,18 +866,25 @@
         });
     }
 
-    function dependencyRevokeAccess(dependencyID, groupID) {
+    function dependencyRevokeAccess(dependencyID, groupID, reopenStepID = null) {
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirmation required');
         dialog_confirm.setContent('Are you sure you want to revoke these privileges?');
+        let saving = false;
+        dialog_confirm.setCancelHandler(function() {
+            if(reopenStepID !== null && saving === false) {
+                showStepInfo(reopenStepID);
+            }
+        });
         dialog_confirm.setSaveHandler(function() {
+            saving = true;
             $.ajax({
                 type: 'DELETE',
                 url: '../api/workflow/dependency/' + dependencyID + '/privileges?'
                     + $.param({ 'groupID': groupID, 'CSRFToken': CSRFToken }),
                 success: function() {
                     $('.workflowStepInfo').css('display', 'none');
-                    loadWorkflow(currentWorkflow);
+                    loadWorkflow(currentWorkflow, reopenStepID);
                     dialog_confirm.hide();
                 },
                 error: (err) => console.log(err),
@@ -852,7 +903,7 @@
             type: 'GET',
             url: '../api/system/groups',
             success: function(res) {
-                let buffer = 'Grant Privileges to Group:<br /><select id="groupID">' +
+                let buffer = '<label for="groupID">Grant Privileges to Group:</label><br /><select id="groupID">' +
                     '<optgroup label="User Groups">';
 
                 for (let i in res) {
@@ -871,38 +922,43 @@
                 }
 
                 buffer += '</optgroup></select>';
-
                 dialog.setContent(buffer);
+                dialog.show();
                 dialog.indicateIdle();
             },
             error: (err) => console.log(err),
             cache: false
         });
-
-        dialog.setSaveHandler(function() {
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/dependency/' + dependencyID + '/privileges',
-                        data: {groupID: $('#groupID').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        dialog.hide();
-                        loadWorkflow(currentWorkflow);
-                        if (stepID != undefined) {
-                            linkDependency(stepID, dependencyID);
-                        }
-                    },
-                    error: (err) => console.log(err),
-                });
+        let saving = false;
+        dialog.setCancelHandler(function() {
+            if(saving === false) {
+                showStepInfo(stepID)
+            }
         });
-        dialog.show();
+        dialog.setSaveHandler(function() {
+            saving = true;
+            $.ajax({
+                    type: 'POST',
+                    url: '../api/workflow/dependency/' + dependencyID + '/privileges',
+                    data: {groupID: $('#groupID').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    dialog.hide();
+                    loadWorkflow(currentWorkflow);
+                    if (stepID != undefined) {
+                        linkDependency(stepID, dependencyID);
+                    }
+                },
+                error: (err) => console.log(err),
+            });
+        });
     }
 
     function newDependency(stepID) {
         dialog.setTitle('Create a new requirement');
         dialog.setContent(
-            '<br />Requirement Label: <input type="text" id="description"></input><br /><br />Requirements determine the WHO and WHAT part of the process.<br />Example: "Fiscal Team Review"'
+            '<br /><label for="description">Requirement Label: </label><input type="text" id="description"/><br /><br />Requirements determine the WHO and WHAT part of the process.<br />Example: "Fiscal Team Review"'
         );
 
         dialog.setSaveHandler(function() {
@@ -933,13 +989,14 @@
             url: '../api/workflow/dependencies',
             success: function(res) {
                 let buffer = '';
-                buffer = 'Select an existing requirement ';
-                buffer += '<br /><div><select id="dependencyID" name="dependencyID">';
+                buffer = '<label id="requirements_label">Select an existing requirement</label>';
+                buffer += `<div><span id="req_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+                    <select id="dependencyID" name="dependencyID" title="Select a requiremement" onchange="updateSelectionStatus(this, 'req_select_status')">`;
 
                 var reservedDependencies = [-3, -2, -1, 1, 8];
                 var maskedDependencies = [5];
 
-                buffer += '<optgroup label="Custom Requirements">';
+                buffer += '<optgroup label="Custom Requirements" aria-label="Custom Requirements">';
                 for (let i in res) {
                     if (reservedDependencies.indexOf(res[i].dependencyID) == -1 &&
                         maskedDependencies.indexOf(res[i].dependencyID) == -1) {
@@ -949,7 +1006,7 @@
                 }
                 buffer += '</optgroup>';
 
-                buffer += '<optgroup label="&quot;Smart&quot; Requirements">';
+                buffer += '<optgroup label="&quot;Smart&quot; Requirements" aria-label="Smart Requirements">';
                 for (let i in res) {
                     if (reservedDependencies.indexOf(res[i].dependencyID) != -1) {
                         buffer += '<option value="' + res[i].dependencyID + '">' + res[i].description +
@@ -960,12 +1017,23 @@
 
                 buffer += '</select></div>';
                 buffer +=
-                    '<br /><br /><br /><br /><div>If a requirement does not exist: <span tabindex=0 class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="newDependency(' + stepID +
-                    ')">Create a new requirement</span></div>';
+                    '<br /><br /><br /><div>If a requirement does not exist: <button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="newDependency(' + stepID +
+                    ')">Create a new requirement</button></div>';
                 $('#dependencyList').html(buffer);
-                $('#dependencyID').chosen({disable_search_threshold: 5});
+                $('#xhrDialog').css('overflow', 'visible');
+                $('#dependencyID').chosen({
+                    disable_search_threshold: 5
+                });
+                updateChosenAttributes("dependencyID", "requirements_label", "Select Requirement");
 
+                let saving = false;
+                dialog.setCancelHandler(function() {
+                    if(saving === false) {
+                        showStepInfo(stepID);
+                    }
+                });
                 dialog.setSaveHandler(function() {
+                    saving = true;
                     linkDependency(stepID, $('#dependencyID').val());
                 });
             },
@@ -982,7 +1050,7 @@
 
         dialog.setTitle('Create new Step');
         dialog.setContent(
-            '<br /><label for="stepTitle">Step Title:</label> <input type="text" id="stepTitle"></input><br /><br />Example: "Service Chief"'
+            '<br /><label for="stepTitle">Step Title: </label><input type="text" id="stepTitle"/><br /><br />Example: "Service Chief"'
         );
         dialog.setSaveHandler(function() {
             addStep(currentWorkflow, $('#stepTitle').val(), function(stepID) {
@@ -1062,7 +1130,7 @@
                 }
 
                 buffer += `</table><br /><br />
-                    <span class="buttonNorm" id="create-action-type" tabindex="0">Create a new Action</span>`;
+                    <button type="button" class="buttonNorm" id="create-action-type">Create a new Action</button>`;
 
                 dialog.indicateIdle();
                 dialog.setContent(buffer);
@@ -1090,7 +1158,7 @@
         return `
             <table style="margin-bottom:2rem;">
                 <tr>
-                    <td><span id="action_label">Action <span style="color: red">*Required</span></span></td>
+                    <td><span id="action_label">Action <span style="color: #c00000">*Required</span></span></td>
                     <td>
                         <input id="actionText" type="text" maxlength="50" style="border: 1px solid red"
                         value="${action?.actionText || ''}" aria-labelledby="action_label"/>
@@ -1098,7 +1166,7 @@
                     <td>eg: Approve</td>
                 </tr>
                 <tr>
-                    <td><span id="action_past_tense_label">Action Past Tense <span style="color: red">*Required</span></span></td>
+                    <td><span id="action_past_tense_label">Action Past Tense <span style="color: #c00000">*Required</span></span></td>
                     <td>
                         <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red"
                         value="${action?.actionTextPasttense || ''}" aria-labelledby="action_past_tense_label"/>
@@ -1286,7 +1354,7 @@
     }
 
     // connect 2 steps with an action
-    function createAction(params) {
+    function createAction(params, reopenStepID = null) {
         $('.workflowStepInfo').css('display', 'none');
         source = parseFloat(params.sourceId.substr(5));
         sourceTitle = '';
@@ -1315,7 +1383,7 @@
             // automatically select "return to requestor" if the user links a step to the requestor's step
             if (source > 0) {
                 postAction(source, target, 'sendback', currentWorkflow, function(res) {
-                    loadWorkflow(currentWorkflow);
+                    loadWorkflow(currentWorkflow, reopenStepID);
                 });
                 return;
             }
@@ -1347,19 +1415,22 @@
 
                 buffer += '</select>';
                 buffer +=
-                    '<br />- OR -<br /><br /><span class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="newAction();">Create a new Action Type</span>';
+                    '<br />- OR -<br /><br /><button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25rem;" onclick="newAction();">Create a new Action Type</button>';
 
                 dialog.indicateIdle();
                 dialog.setContent(buffer);
+                $('#xhrDialog').css('overflow', 'visible');
                 $('#actionType').chosen({disable_search_threshold: 5});
-                // TODO: Figure out why this triggers even when the user clicks save
-                /*
+                let saving = false;
                 dialog.setCancelHandler(function() {
-                    loadWorkflow(currentWorkflow);
-                });*/
+                    if(reopenStepID !== null && saving === false) {
+                        showStepInfo(reopenStepID);
+                    }
+                });
                 dialog.setSaveHandler(function() {
+                    saving = true;
                     postAction(source, target, $('#actionType').val(), currentWorkflow, function(res) {
-                        loadWorkflow(currentWorkflow);
+                        loadWorkflow(currentWorkflow, reopenStepID);
                     });
                     dialog.hide();
                 });
@@ -1369,18 +1440,25 @@
         });
     }
 
-    function removeAction(workflowID, stepID, nextStepID, action) {
+    function removeAction(workflowID, stepID, nextStepID, action, reopenStepID = null) {
         $('.workflowStepInfo').css('display', 'none');
         dialog_confirm.setTitle('Confirm action removal');
         dialog_confirm.setContent('Confirm removal of:<br /><br />' + stepID + ' -> ' + action + ' -> ' + nextStepID);
+        let saving = false;
+        dialog_confirm.setCancelHandler(function() {
+            if(reopenStepID !== null && saving === false) {
+                showStepInfo(reopenStepID);
+            }
+        });
         dialog_confirm.setSaveHandler(function() {
+            saving = true;
             $.ajax({
                 type: 'DELETE',
                 url: `../api/workflow/${workflowID}/step/${stepID}/_${action}/${nextStepID}?`
                     + $.param({ 'CSRFToken': CSRFToken }),
                 success: function(res) {
                     if (+res === 1) {
-                        loadWorkflow(workflowID);
+                        loadWorkflow(workflowID, reopenStepID);
                     } else {
                         alert(res)
                     }
@@ -1396,42 +1474,25 @@
     function showActionInfo(params, evt) {
         $('.workflowStepInfo').css('display', 'none');
         $('#stepInfo_' + params.stepID).html('Loading...');
-
-        let stepID = params.stepID;
-        $.ajax({
-            type: 'GET',
-            url: '../api/workflow/' + currentWorkflow + '/step/' + stepID + '/_' + params.action + '/events',
-            success: function(res) {
-                let find_required = '';
-                if (typeof params.required === 'undefined' || params.required === '') {
-                    find_required = $.parseJSON('{"required":"false"}');
-                } else {
-                    find_required = $.parseJSON(params.required);
-                }
-            }
-        });
+        const reopenStepID = evt?.detail?.reopenStepID || null;
+        const stepID = params.stepID;
 
         getRouteEvents(currentWorkflow, stepID, params.action, function (res) {
-            let find_required = '';
+            const stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
 
-            if (typeof params.required === 'undefined' || params.required === '') {
-                find_required = $.parseJSON('{"required":"false"}');
-            } else {
-                find_required = $.parseJSON(params.required);
-            }
-
-            let output = '';
-            let required = '';
-
-            if (find_required.required == 'true') {
-                required = 'checked=checked';
-            }
-
-            stepTitle = steps[stepID] != undefined ? steps[stepID].stepTitle : 'Requestor';
-            output = '<h2>Action: ' + stepTitle + ' clicks ' + params.action + '</h2>';
+            let output = `<div style="display:flex;gap:0.5rem;align-items:center; justify-content:space-between;">
+                <h2 style="display:inline-block;margin:0;">Action: ${stepTitle} clicks ${params.action}</h2>
+                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal" title="close modal">&#10006</button>
+            </div>`;
 
             if (params.action == 'sendback') {
-                output += '<br /><input type="checkbox" id="require_sendback_' + stepID + '" onchange="switchRequired(this)" ' + required + ' /> Require a comment to sendback.<br />';
+                //routes is global.
+                const sendBackRoute = routes.find(r => r.actionType === "sendback" && +r.stepID === +stepID);
+                const parseRequired = isJSON(sendBackRoute?.displayConditional) && JSON.parse(sendBackRoute.displayConditional)?.required;
+                const required = parseRequired === "true" ? "checked" : ""; //true is a string
+                output += `<br /><label for="require_sendback_${stepID}">
+                    <input type="checkbox" id="require_sendback_${stepID}" onchange="switchRequired(this)" ${required} /> Require a comment to sendback.
+                </label><br />`;
             }
 
             output += '<br /><div>Triggers these events:<ul>';
@@ -1440,39 +1501,44 @@
                 output += '<li><b>Email - Notify the requestor</b></li>';
             }
             for (let i in res) {
-                output += '<li><b title="' + res[i].eventID + '">' + res[i].eventType + ' - ' + res[i]
-                    .eventDescription +
-                    '</b> <img tabindex=0 onkeydown="onKeyPressClick(event)" src="../dynicons/?img=dialog-error.svg&w=16" style="cursor: pointer" onclick="unlinkEvent(' +
-                    currentWorkflow + ', ' + stepID + ', \'' + params.action + '\', \'' + res[i]
-                    .eventID + '\')" alt="Remove Action" title="Remove Action" /></li>';
+                output += `<li><b>${res[i].eventType} - ${res[i].eventDescription}</b>
+                    <button type="button" class="buttonNorm icon" onclick="unlinkEvent('${currentWorkflow}', '${stepID}', '${params.action}', '${res[i].eventID}')"
+                        title="Remove Event" aria-label="Remove Event">
+                        <img src="../dynicons/?img=dialog-error.svg&w=16"  alt="" />
+                    </button>
+                </li>`;
             }
-            output += '<li style="padding-top: 8px"><span tabindex=0 class="buttonNorm" id="event_' +
-                currentWorkflow + '_' + stepID + '_' + params.action + '" onkeydown="onKeyPressClick(event)">Add Event</span>';
+            output += `<li style="padding-top: 8px">
+                <button type="button" class="buttonNorm" id="event_${currentWorkflow}_${stepID}_${params.action}"
+                    onclick="addEventDialog('${currentWorkflow}', '${stepID}', '${params.action}');">Add Event
+                </button>
+            </li>`;
             output += '</ul></div>';
             output +=
-                '<hr /><div style="padding: 4px"><span class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="removeAction(' +
-                currentWorkflow + ', ' + stepID + ', ' + params.nextStepID + ', \'' + params.action +
-                '\')">Remove Action</span></div>';
+                `<hr /><div style="padding: 4px"><button type="button" class="buttonNorm" 
+                    onclick="removeAction('${currentWorkflow}', '${stepID}', '${params.nextStepID}', '${params.action}', ${reopenStepID})">Remove Action</button></div>`;
             $('#stepInfo_' + stepID).html(output);
-            $('#event_' + currentWorkflow + '_' + stepID + '_' + params.action).on('click', function() {
-                addEventDialog(currentWorkflow, stepID, params.action);
-            });
+            $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
         });
-
         $('#stepInfo_' + stepID).css({
-            left: evt.pageX + 'px',
-            top: evt.pageY + 'px'
+            left: evt.pageX || 200 + 'px',
+            top: evt.pageY || 300 + 'px'
         });
-        $('#stepInfo_' + stepID).show('slide', null, 200);
     }
 
     function switchRequired(element) {
-        let stepID = element.id.split('_');
+        let stepID = element.id.split('_')[2];
         let e = document.getElementById("workflows");
         let workflowID = e.value;
 
-        updateRequiredCheckbox(workflowID, stepID[2], element.checked, function(res) {
-            console.log(res);
+        updateRequiredCheckbox(workflowID, stepID, element.checked, function(res) {
+            if(res?.data?.length === 1) {
+                const displayConditional = res.data[0].displayConditional;
+                let sendBackRoute = routes.find(r => r.actionType === "sendback" && +r.stepID === +stepID) || null;
+                if (sendBackRoute !== null) {
+                    sendBackRoute.displayConditional = displayConditional;
+                }
+            }
         });
     }
 
@@ -1489,8 +1555,10 @@
                 for (let i in res) {
                     if (res[i]['format'] == 'orgchart_employee' ||
                         res[i]['format'] == 'raw_data') {
+                        let name = XSSHelpers.stripAllTags(res[i].name);
+                        name = name.length <= 50 ? name : name.slice(0, 50) + '...';
                         indicatorList += '<option value="' + res[i].indicatorID + '">' + res[i]
-                            .categoryName + ': ' + res[i].name + ' (id: ' + res[i].indicatorID +
+                            .categoryName + ': ' + name + ' (id: ' + res[i].indicatorID +
                             ')</option>';
                     }
                 }
@@ -1588,6 +1656,27 @@
         }
     }
 
+    /**
+    * Creates a function that restricts tabbing to a modal area
+    * @param firstEl first dom element
+    * @param lastEl last dom element
+    * @returns {function}
+    */
+    function controlTabbing(firstEl = null, lastEl = null) {
+        return function(event) {
+            if (firstEl !== null && lastEl !== null) {
+                if (event?.shiftKey === true && event?.keyCode === 9 && event?.currentTarget === firstEl) {
+                    lastEl.focus();
+                    event.preventDefault();
+                }
+                if (event?.shiftKey === false && event?.keyCode === 9 && event?.currentTarget === lastEl) {
+                    firstEl.focus();
+                    event.preventDefault();
+                }
+            }
+        }
+    }
+
     function buildWorkflowIndicatorDropdown(stepID, steps) {
         $.ajax({
                 type: 'GET',
@@ -1613,9 +1702,11 @@
                                         associatedCategories[i].categoryID == indicatorList[j].parentCategoryID
                                     ) &&
                                     indicatorList[j].parentIndicatorID == null) {
+                                    let name = XSSHelpers.stripAllTags(indicatorList[j].name);
+                                    name = name.length <= 50 ? name : name.slice(0, 50) + '...';
                                     $('#workflowIndicator_' + stepID).append('<option value="' + indicatorList[
                                             j].indicatorID + '">' + indicatorList[j].categoryName + ': ' +
-                                        indicatorList[j].name + ' (id: ' + indicatorList[j].indicatorID +
+                                            name + ' (id: ' + indicatorList[j].indicatorID +
                                         ')</option>');
                                 } else if (indicatorList[j].parentStaples != null) {
                                     for (let k in indicatorList[j].parentStaples) {
@@ -1652,110 +1743,240 @@
         });
     }
 
+    function addConnection(fromStepID = null, toStepID = null) {
+        if(Number.isInteger(parseInt(fromStepID)) && Number.isInteger(parseInt(toStepID))) {
+            const jsPlumbParams = {
+                sourceId: `step_${fromStepID}`,
+                targetId: `step_${toStepID}`,
+            }
+            createAction(jsPlumbParams, fromStepID);
+        } else {
+            console.log('unexpected arguments')
+        }
+    }
+
+    /** 
+    * close the step or action info modal.
+    * @param {string} stepID - active modal step
+    * @param {string} reopenStepID - used to reopen the stepinfo modal if viewing actions via the stepinfo modal
+    */
+    function closeStepInfo(stepID = "", reopenStepID = null) {
+        $('.workflowStepInfo').css('display', 'none');
+        $('#stepInfo_' + stepID).html("");
+        if(reopenStepID === null) {
+            $(`#workflow_steps_chosen input.chosen-search-input`).focus();
+        } else {
+            showStepInfo(reopenStepID);
+        }
+    }
+
+    function toggleManageActions() {
+        let elMng = document.getElementById('manage_actions_options');
+        if(elMng !== null) {
+            const currDisplay = elMng.style.display;
+            elMng.style.display = currDisplay === 'none' ? 'block' : 'none';
+        }
+    }
+
+    function modalSetup(stepID) {
+        const modalEl = document.getElementById('stepInfo_' + stepID);
+        if(modalEl !== null) {
+            const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
+            const first = interActiveEls[0] || null
+            const last = interActiveEls[interActiveEls.length - 1] || null;
+            if (first !== null && last !== null) {
+                const stepTabbing = controlTabbing(first, last);
+                first.addEventListener('keydown', stepTabbing);
+                last.addEventListener('keydown', stepTabbing);
+                first.focus();
+            }
+        }
+        $('#stepInfo_' + stepID).on('keydown', function(event) {
+            const code = event.code.toLowerCase();
+            if (code === 'escape') {
+                closeStepInfo(stepID);
+            }
+        });
+    }
+
     function showStepInfo(stepID) {
-        $('#stepInfo_' + stepID).html('');
-        if ($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second click
+        $('.workflowStepInfo').off();
+        $('.workflowStepInfo').html('');
+        if ($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second step click
             $('.workflowStepInfo').css('display', 'none');
             return;
         }
         $('.workflowStepInfo').css('display', 'none');
+        const position = $('#step_' + stepID).offset();
+        const height = $('#step_' + stepID).height();
+        $('#stepInfo_' + stepID).css({
+            left: position.left + 'px',
+            top: position.top + height + 20 + 'px'
+        });
         $('#stepInfo_' + stepID).html('Loading...');
 
+        let routeOptions = "";
+        if (currentWorkflow > 0) {
+            const stepKeys = Object.keys(steps);
+            let options = [];
+            stepKeys.forEach(k => {
+                if (+k !== +stepID) {
+                    options.push({...steps[k]});
+                }
+            });
+            const sortedOptions = options.sort((a, b) => {
+                const stepA = a.stepTitle.toLowerCase();
+                const stepB = b.stepTitle.toLowerCase();
+                return stepA < stepB ? -1 : stepA > stepB ? 1 : 0
+            });
+            let step_options = "";
+            sortedOptions.forEach(opt => {
+                if (+opt.stepID !== +stepID) {
+                    step_options += `<option value="${opt.stepID}">${opt.stepTitle} (id#${opt.stepID})</option>`;
+                }
+            });
+            routeOptions = `<div>
+                <label for="create_route">Add Action:</label>
+                <select id="create_route" style="width:300px;" title="Choose a step to connect to" onchange="addConnection(${stepID}, this.value)">
+                    <option value="">Choose Step to Connect to</option>
+                    <option value="0">End</option>`;
+            if(stepID !== -1) {
+                routeOptions += `<option value="-1">Requestor</option>`;
+                routeOptions += `<option value="${stepID}">Self</option>`;
+            }  
+            routeOptions += `${step_options}</select><div>`;
+        }
+        const actionList = buildRoutesList(+stepID, +currentWorkflow);
         switch (Number(stepID)) {
             case -1:
-                $('#stepInfo_' + stepID).html('Request initiator (stepID #: -1)');
+                const output = `<div style="display:flex;">
+                        <div>Request initiator (stepID #: -1)</div>
+                        <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal" title="close modal">&#10006</button>
+                    </div>
+                    <fieldset>
+                        <legend>Options</legend>
+                        <div>
+                            <label for="toggleManageActions">
+                                <input id="toggleManageActions" type="checkbox" onchange="toggleManageActions()"/>View Step Actions
+                            </label>
+                            <div id="manage_actions_options" style="display:none;">
+                                ${actionList}
+                                ${currentWorkflow > 0 ? routeOptions : ""}
+                            </div>
+                        </div>
+                    </fieldset>`;
+                $('#stepInfo_' + stepID).html(output);
+                $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
                 break;
             case 0:
-                $('#stepInfo_' + stepID).html('The End.  (stepID #: 0)');
+                $('#stepInfo_' + stepID).html(`<div style="display:flex;align-items:center;">
+                    <div>The End.  (stepID #: 0)</div>
+                    <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal" title="close modal">&#10006</button>
+                </div>`);
+                $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
                 break;
             default:
                 $.ajax({
                     type: 'GET',
                     url: '../api/workflow/step/' + stepID + '/dependencies',
                     success: function(res) {
-                        var control_removeStep =
-                            '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="removeStep(' +
-                            stepID + ')" alt="Remove" />';
-                        let output = '<h2>stepID: #' + stepID + ' ' + control_removeStep +
-                            '</h2><br />Step: <b>' + steps[stepID].stepTitle +
-                            '</b> <img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editStep(' +
-                            stepID + ')" alt="Edit Step" /><br />';
+                        const control_removeStep = `<button type="button" class="buttonNorm icon" onclick="removeStep(${stepID})" title="Remove Step" aria-label="Remove Step">
+                            <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" /></button>`;
 
-                        output += '<br /><br /><div>Requirements:<ul>';
-                        var tDeps = {};
+                        let output = `<div style="display:flex;gap:0.25rem;align-items:center;">
+                                <h2 style="display:inline-block;margin:0;">stepID: #${stepID}</h2>${control_removeStep}
+                                <button type="button" id="closeModal" onclick="closeStepInfo(${stepID})" aria-label="Close Modal" title="close modal">&#10006</button>
+                            </div></br>
+                            <div style="display:flex;gap:0.25rem;align-items:center;">
+                                Step: <b>${steps[stepID].stepTitle}</b>
+                                <button type="button" class="buttonNorm icon" onclick="editStep(${stepID})" title="Edit Step Name" aria-label="Edit Step Name">
+                                    <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
+                                </button>
+                            </div>`;
+
+                        output += '<br /><br /><div>Requirements:<ul id="step_requirements">';
+                        let tDeps = {};
                         for (let i in res) {
-                            control_editDependency =
-                                '<img style="cursor: pointer" src="../dynicons/?img=accessories-text-editor.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="editRequirement(' +
-                                res[i].dependencyID + ')" alt="Edit Requirement" />';
-                            control_unlinkDependency =
-                                '<img style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="unlinkDependency(' +
-                                stepID + ', ' + res[i].dependencyID + ')" alt="Remove" />';
-                            if (res[i].dependencyID == 1) { // special case for service chief and quadrad
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_editDependency + ' ' + control_unlinkDependency + ' (depID: ' +
-                                    res[i].dependencyID + ')</li>';
-                            } else if (res[i].dependencyID ==
-                                8) { // special case for service chief and quadrad
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_editDependency + ' ' + control_unlinkDependency + ' (depID: ' +
-                                    res[i].dependencyID + ')</li>';
-                            } else if (res[i].dependencyID == -
-                                1
-                            ) { // dependencyID -1 : special case for person designated by the requestor
-                                var indicatorWarning = '';
-                                if (res[i].indicatorID_for_assigned_empUID == null || res[i]
-                                    .indicatorID_for_assigned_empUID == 0) {
-                                    indicatorWarning =
-                                        '<li><span style="color: red; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
-                                }
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
-                                    indicatorWarning + '<li>indicatorID: ' + res[i]
-                                    .indicatorID_for_assigned_empUID +
-                                    '<br /><div class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="setDynamicApprover(' + res[i]
-                                    .stepID + ')">Set Data Field</div></li></ul></li>';
-                            } else if (res[i].dependencyID == -2) { // dependencyID -2 : requestor followup
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')</li>';
-                            } else if (res[i].dependencyID == -
-                                3) { // dependencyID -3 : special case for group designated by the requestor
-                                var indicatorWarning = '';
-                                if (res[i].indicatorID_for_assigned_groupID == null || res[i]
-                                    .indicatorID_for_assigned_groupID == 0) {
-                                    indicatorWarning =
-                                        '<li><span style="color: red; font-weight: bold">A data field (indicatorID) must be set.</span></li>';
-                                }
-                                output += '<li><b style="color: green">' + res[i].description + '</b> ' +
-                                    control_unlinkDependency + ' (depID: ' + res[i].dependencyID + ')<ul>' +
-                                    indicatorWarning + '<li>indicatorID: ' + res[i]
-                                    .indicatorID_for_assigned_groupID +
-                                    '<br /><div class="buttonNorm" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="setDynamicGroupApprover(' + res[
-                                        i].stepID + ')">Set Data Field</div></li></ul></li>';
+                            const depID = res[i].dependencyID;
+                            const depText = `<b style="color:green;vertical-align:middle;">${res[i].description}</b>`;
+                            const control_editDependency = `<button type="button" class="buttonNorm icon" onclick="editRequirement(${depID},'${res[i].description}',${stepID})"
+                                    title="Edit Requirement Name" aria-label="Edit Requirement Name">
+                                    <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
+                                </button>`;
+                            const control_unlinkDependency = `<button type="button" class="buttonNorm icon" onclick="unlinkDependency(${stepID}, '${depID}')"
+                                    title="Remove Requirement" aria-label="Remove Requirement">
+                                    <img src="../dynicons/?img=dialog-error.svg&w=16"  alt="" />
+                                </button>`;
+
+                            if (depID === 1 || depID === 8) { // special cases for service chief and quadrad
+                                output += `<li>${depText} ${control_editDependency} ${control_unlinkDependency} (depID:${depID})</li>`;
+
+                            } else if (depID == -1) { // dependencyID -1 : special case for person designated by the requestor
+                                const indicatorWarning = (res[i].indicatorID_for_assigned_empUID == null || res[i].indicatorID_for_assigned_empUID == 0) ?
+                                    '<div style="color:#c00000;font-weight:bold">A data field (indicatorID) must be set.</div>' : '';
+
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})
+                                    ${indicatorWarning}
+                                    <div>indicatorID: ${res[i].indicatorID_for_assigned_empUID ?? '<b style="color: #c00000;">not set</b>'}</div>
+                                    <button type="button" class="buttonNorm" onclick="setDynamicApprover('${res[i].stepID}')">Set Data Field</button>
+                                </li>`;
+
+                            } else if (depID === -2) { // dependencyID -2 : requestor followup
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})</li>`;
+
+                            } else if (depID === -3) { // dependencyID -3 : special case for group designated by the requestor
+                                const indicatorWarning = (res[i].indicatorID_for_assigned_groupID == null || res[i].indicatorID_for_assigned_groupID == 0) ?
+                                    '<div style="color:#c00000;font-weight:bold">A data field (indicatorID) must be set.</div>' : '';
+
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})
+                                    ${indicatorWarning}
+                                    <div>indicatorID: ${res[i].indicatorID_for_assigned_groupID ?? '<b style="color: #c00000;">not set</b>'}</div>
+                                    <button type="button" class="buttonNorm" onclick="setDynamicGroupApprover('${res[i].stepID}')">Set Data Field</button>
+                                </li>`;
                             } else {
-                                if (tDeps[res[i].dependencyID] == undefined) { //
-                                    tDeps[res[i].dependencyID] = 1;
-                                    output += '<li style="padding-bottom: 8px"><b title="depID: ' + res[i]
-                                        .dependencyID + '" tabindex=0 onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess(' + res[i]
-                                        .dependencyID + ')">' + res[i].description + '</b> ' +
-                                        control_editDependency + ' ' + control_unlinkDependency +
-                                        '<ul id="step_' + stepID + '_dep' + res[i].dependencyID +
-                                        '"><li style="padding-top: 8px"><span tabindex=0 onkeydown="onKeyPressClick(event)" class="buttonNorm" onclick="dependencyGrantAccess(' +
-                                        res[i].dependencyID + ')"><img src="../dynicons/?img=list-add.svg&w=16" alt="Add" /> Add Group</span></li>\
-                                </ul></li>';
+                                if (tDeps[depID] == undefined) {
+                                    tDeps[depID] = 1;
+                                    output += `<li>
+                                        <b tabindex=0 title="depID: ${res[i].dependencyID}"
+                                            onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess('${res[i].dependencyID},${stepID})">
+                                            ${res[i].description}
+                                        </b>
+                                        ${control_editDependency} ${control_unlinkDependency}
+                                            <ul id="step_${stepID}_dep${depID}">
+                                                <li>
+                                                    <button type="button" class="buttonNorm" onclick="dependencyGrantAccess('${depID}',${stepID})">
+                                                    <img src="../dynicons/?img=list-add.svg&w=16" alt="" /> Add Group</button>
+                                                </li>
+                                            </ul>
+                                        </li>`;
                                 }
                             }
                         }
                         if (res.length == 0) {
-                            output +=
-                                '<li><span style="color: red; font-weight: bold">A requirement must be added.</span></li>';
+                            output += '<li><span style="color: #c00000; font-weight: bold">A requirement must be added.</span></li>';
                         }
                         output += '</ul><div>';
 
-                        // TODO: This will eventually be moved to some sort of Workflow extension plugin
-                        output += '<fieldset><legend>Options</legend><ul>';
-                        output += '<li>Form Field: <select id="workflowIndicator_' + stepID +
-                            '" style="width: 240px"><option value="">None</option></select></li>';
-                        output += '</ul></fieldset>';
+                        output += `<fieldset>
+                            <legend>Options</legend>
+                            <div style="display:flex;flex-direction:column;gap:1rem;">
+                                <div>
+                                    <label for="workflowIndicator_${stepID}">Form Field:</label>
+                                    <select id="workflowIndicator_${stepID}" style="width:300px;">
+                                        <option value="">None</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="toggleManageActions">
+                                        <input id="toggleManageActions" type="checkbox" onchange="toggleManageActions()"/>View Step Actions
+                                    </label>
+                                    <div id="manage_actions_options" style="display:none;">
+                                        ${actionList}
+                                        ${routeOptions}
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>`;
 
                         // button options for steps
                         output += '<hr />';
@@ -1779,34 +2000,32 @@
                             }
                         }
                         output +=
-                            '<hr /><div style="padding: 4px; display:flex;"><span tabindex=0 class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="linkDependencyDialog(' + stepID +
-                            ')">Add Requirement</span>';
+                            '<hr /><div style="padding: 4px; display:flex;"><button type="button" class="buttonNorm" onclick="linkDependencyDialog(' + stepID +
+                            ')">Add Requirement</button>';
                         output +=
-                            '<span tabindex=0 class="buttonNorm" style="margin-left: auto;" onkeydown="onKeyPressClick(event)" onclick="addEmailReminderDialog(' +
-                            stepID + ')">Email Reminder</span></div>';
-
+                            '<button type="button" class="buttonNorm" style="margin-left:auto;" onclick="addEmailReminderDialog(' +
+                            stepID + ')">Email Reminder</button></div>';
                         $('#stepInfo_' + stepID).html(output);
-
+                        $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
                         // setup UI for form fields in the workflow area
                         buildWorkflowIndicatorDropdown(stepID, steps);
-
-                        // TODO: clean everything here up
-                        var counter = 0;
+                        let counter = 0;
                         for (let i in res) {
                             group = '';
                             if (res[i].groupID != null) {
                                 $('#step_' + stepID + '_dep' + res[i].dependencyID).prepend(
-                                    '<li><span style="white-space: nowrap"><b title="groupID: ' + res[i]
-                                    .groupID + '">' + res[i].name +
-                                    '</b> <img tabindex=0 onkeydown="onKeyPressClick(event)" style="cursor: pointer" src="../dynicons/?img=dialog-error.svg&w=16" onclick="dependencyRevokeAccess(' +
-                                    res[i].dependencyID + ', ' + res[i].groupID +
-                                    ')" alt="Remove" /></span></li>');
+                                    `<li style="white-space:nowrap">
+                                        <b title="groupID: ${res[i].groupID}">${res[i].name}</b>
+                                        <button type="button" class="buttonNorm icon" onclick="dependencyRevokeAccess('${res[i].dependencyID}', '${res[i].groupID}', ${stepID})"
+                                            title="Remove Group" aria-label="Remove Group">
+                                            <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
+                                        </button>
+                                    </li>`);
                                 counter++;
                             }
-                            if (counter == 0 &&
-                                res[i] != undefined) {
+                            if (counter == 0 && res[i] != undefined) {
                                 $('#step_' + stepID + '_dep' + res[i].dependencyID).prepend(
-                                    '<li><span style="color: red; font-weight: bold">A group must be added.</span></li>'
+                                    '<li><span style="color: #c00000; font-weight: bold">A group must be added.</span></li>'
                                 );
                             }
                         }
@@ -1815,21 +2034,12 @@
                     cache: false
                 });
                 break;
-        }
-
-        position = $('#step_' + stepID).offset();
-        width = $('#step_' + stepID).width();
-
-        $('#stepInfo_' + stepID).css({
-            left: position.left + width + 'px',
-            top: position.top + 'px'
-        });
-        $('#stepInfo_' + stepID).show('slide', null, 200);
+        } 
     }
 
     var endPoints = [];
 
-    function drawRoutes(workflowID) {
+    function drawRoutes(workflowID, stepID = null) {
         $.ajax({
             type: 'GET',
             url: '../api/workflow/' + workflowID + '/route',
@@ -1871,15 +2081,13 @@
                             paintStyle: {stroke: 'red'},
                             overlays: [
                                 ["Label", {
-                                        id: 'stepLabel_' + res[i].stepID + '_0_' + res[i]
-                                            .actionType,
-                                        cssClass: "workflowAction",
+                                        id: 'stepLabel_' + res[i].stepID + '_0_' + res[i].actionType,
+                                        cssClass: `workflowAction action-${res[i].stepID}-sendback--1`,
                                         label: res[i].actionText,
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
                                         'nextStepID': 0,
                                         'action': res[i].actionType,
-                                        'required': res[i].displayConditional
                                     },
                                     events: {
                                         click: function(overlay, evt) {
@@ -1900,13 +2108,12 @@
                                 ["Label", {
                                         id: 'stepLabel_' + res[i].stepID + '_' + res[i].nextStepID +
                                             '_' + res[i].actionType,
-                                        cssClass: "workflowAction",
+                                        cssClass: `workflowAction action-${res[i].stepID}-${res[i].actionType}-${res[i].nextStepID}`,
                                         label: res[i].actionText,
                                         location: loc,
                                         parameters: {'stepID': res[i].stepID,
                                         'nextStepID': res[i].nextStepID,
                                         'action': res[i].actionType,
-                                        'required': res[i].displayConditional
                                     },
                                     events: {
                                         click: function(overlay, evt) {
@@ -1934,13 +2141,12 @@
                         overlays: [
                             ["Label", {
                                     id: 'stepLabel_0_' + workflows[workflowID].initialStepID + '_submit',
-                                    cssClass: "workflowAction",
+                                    cssClass: `workflowAction action--1-submit-${workflows[workflowID].initialStepID}`,
                                     label: 'Submit',
                                     location: loc,
                                     parameters: {'stepID': -1,
                                     'nextStepID': workflows[workflowID].initialStepID,
                                     'action': 'submit',
-                                    'required': '{"required":"false"}'
                                 },
                                 events: {
                                     click: function(overlay, evt) {
@@ -1958,6 +2164,16 @@
                     createAction(info);
                 });
                 jsPlumb.setSuspendDrawing(false, true);
+
+                let actionOverlays = Array.from(document.querySelectorAll('div.jtk-overlay.workflowAction'));
+                actionOverlays.forEach(ao => {
+                    ao.setAttribute('tabindex', 0);
+                    ao.addEventListener('keydown', onKeyPressClick);
+                });
+                //if user came via stepinfo key nav re-open that modal
+                if(stepID !== null) {
+                    showStepInfo(stepID);
+                }
             },
             error: (err) => console.log(err),
             cache: false
@@ -1966,15 +2182,7 @@
 
     var currentWorkflow = 0;
 
-    function loadWorkflow(workflowID) {
-        $('#btn_createStep').css('display', 'block');
-        $('#btn_deleteWorkflow').css('display', 'block');
-        $('#btn_listActionType').css('display', 'block');
-        $('#btn_listEvents').css('display', 'block');
-        $('#btn_viewHistory').css('display', 'block');
-        $('#btn_renameWorkflow').css('display', 'block');
-        $('#btn_duplicateWorkflow').css('display', 'block');
-
+    function loadWorkflow(workflowID, stepID = null) {
         currentWorkflow = workflowID;
         jsPlumb.reset();
         endPoints = [];
@@ -1994,7 +2202,7 @@
             'background-color': '#e0e0e0'
         });
         $('#workflow').append(
-            '<div tabindex="0" class="workflowStep" id="step_0" tabindex="0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>'
+            '<div tabindex="0" class="workflowStep" id="step_0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>'
         );
         $('#step_0').css({
             'left': 180 + 40 + 'px',
@@ -2021,7 +2229,7 @@
                         if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
                             let dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
                             let dayText = ((dayCount > 1) ? 'Days' : 'Day')
-                            emailNotificationIcon = `<img src="../dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" />`
+                            emailNotificationIcon = `<img src="../dynicons/?img=appointment.svg&w=18" style="margin-bottom: -3px;" alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" title="Email reminders will be sent after ${dayCount} ${dayText} of inactivity" />`
                         }
                     }
 
@@ -2076,7 +2284,8 @@
                 });
 
                 $('#workflow').css('height', 300 + maxY + 'px');
-                drawRoutes(workflowID);
+                drawRoutes(workflowID, stepID);
+                buildStepList(steps);
             },
             error: (err) => console.log(err),
             cache: false
@@ -2089,7 +2298,9 @@
             type: 'GET',
             url: '../api/workflow',
             success: function(res) {
-                let output = '<select tabindex=0 id="workflows" style="width: 100%">';
+                let output = `
+                <span id="workflow_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+                <select id="workflows" title="Select a Workflow" style="width: 100%" onchange="updateSelectionStatus(this, 'workflow_select_status')">`;
                 var count = 0;
                 var firstWorkflowID = 0;
                 let firstWorkflowDescription = '';
@@ -2116,7 +2327,14 @@
                     workflowDescription = $('option:selected', this).attr('description');
                     loadWorkflow($('#workflows').val());
                 });
-                $('#workflows').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '100%'});
+                $('#workflows').chosen({
+                    disable_search_threshold: 5,
+                    allow_single_deselect: true,
+                    width: '100%'
+                });
+
+                updateChosenAttributes("workflows", "workflows_label", "Select Workflow");
+
                 if (workflowID == undefined) {
                     workflowDescription = firstWorkflowDescription;
                     workflowID = firstWorkflowID;
@@ -2126,6 +2344,109 @@
             error: (err) => console.log(err),
             cache: false
         });
+    }
+
+    function buildStepList(steps = {}) {
+        let output = `<span id="step_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+            <select id="workflow_steps" title="Select a Workflow Step to edit it" onchange="updateSelectionStatus(this, 'step_select_status')">
+            <option>Choose a step to edit</option>
+            <option value="-1">Requestor</option>`;
+
+        let arrSteps = [];
+        for (let key in steps) {
+            arrSteps.push(steps[key]);
+        }
+        const sortedSteps = arrSteps.sort((a, b) => {
+            const stepA = a.stepTitle.toLowerCase();
+            const stepB = b.stepTitle.toLowerCase();
+            return stepA < stepB ? -1 : stepA > stepB ? 1 : 0
+        });
+        sortedSteps.forEach(step => {
+            output += `<option value="${step.stepID}">${step.stepTitle} (#${step.stepID})</option>`;
+        });
+        output += '</select>';
+        $('#stepList').html(output);
+        $('#workflow_steps').chosen({
+            disable_search_threshold: 5,
+            width: '100%'
+        });
+        updateChosenAttributes("workflow_steps", "steps_label", "Select Workflow Step");
+
+        $('#workflow_steps').on('change', function() {
+            showStepInfo($('#workflow_steps').val());
+        });
+        $('#workflow_steps + .chosen-container').on('keydown', function(event) {
+            const code = (event?.code || "").toLowerCase();
+            if (code === 'space') {
+                event.preventDefault();
+                showStepInfo($('#workflow_steps').val());
+            }
+        });
+    }
+
+    function clickAction(selector, stepID = null) {
+        const elOverlay = document.querySelector(`${selector}`);
+        if(elOverlay !== null) {
+            const actionEvent = new CustomEvent("click", {
+                detail: {
+                    reopenStepID: stepID
+                },
+                bubbles: true,
+                cancelable: true
+            });
+            elOverlay.dispatchEvent(actionEvent)
+        }
+    }
+
+    function buildRoutesList(stepID, workflowID) {
+        let allRoutes = [...routes];
+        let hasSubmit = false;
+        allRoutes.forEach(r => {
+            if(r.actionType === "sendback") {
+                r.nextStepID = -1; //next step for sendback is referred to in global as 0 instead of -1, need -1 to filter
+            }
+            if(r.actionType === "submit") {
+                hasSubmit = true;
+            }
+        });
+        //sometimes needs submit route, depending where it is (only exists if requestor -> end)
+        if(hasSubmit === false) {
+            const initialStepID = workflows[currentWorkflow]?.initialStepID;
+            const initialStepName = steps[initialStepID]?.stepTitle || "";
+            const submit = {
+                actionType: "submit",
+                actionText: "Submit",
+                stepID: -1,
+                nextStepID: initialStepID
+            }
+            allRoutes.push(submit);
+        }
+        let stepRoutes = allRoutes.filter(a => a.stepID === stepID);
+        stepRoutes = stepRoutes.sort((a, b) => {
+            const rA = a.actionText.toLowerCase();
+            const rB = b.actionText.toLowerCase();
+            return rA < rB ? -1 : rA > rB ? 1 : 0
+        });
+        let output = "";
+        if(stepRoutes.length > 0) {
+            output = `<ul class="workflow_actions">`;
+            stepRoutes.forEach(a => {
+                const delNextID = a.actionType === "sendback" ? 0 : a.nextStepID; //needs to be 0 for POST
+                output += `<li>${a.actionText}
+                    <button type="button" class="buttonNorm icon" aria-label="Manage events for action: ${a.actionText}, step ${a.stepID}" title="Manage Action Events"
+                        onclick="clickAction('.action-${a.stepID}-${a.actionType}-${a.nextStepID}','${stepID}')">
+                        <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
+                    </button>
+                    ${workflowID > 0 && a.stepID !== -1 ?  //usually can't rm submit like other actions so not showing rm btn
+                    `<button type="button" class="buttonNorm icon" aria-label="Remove action: ${a.actionText}, step ${a.stepID}" title="Remove this action"
+                        onclick="removeAction(${currentWorkflow}, ${a.stepID}, ${delNextID},'${a.actionType}', ${stepID})">
+                        <img src="../dynicons/?img=dialog-error.svg&w=16" alt="" />
+                    </button>` : ``}
+                </li>`;
+            });
+            output += '</ul>';
+        }
+        return output;
     }
 
     function viewHistory() {
@@ -2151,9 +2472,8 @@
     function renameWorkflow() {
         $('.workflowStepInfo').css('display', 'none');
         dialog.setContent(
-            '<input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
-            '" tabindex="0">' +
-            '</input>');
+            '<label for="workflow_rename">Workflow Name: </label><input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
+            '" tabindex="0"/>');
         dialog.setTitle('Rename Workflow');
         dialog.setSaveHandler(function() {
             $.ajax({
@@ -2188,7 +2508,7 @@
         $('.workflowStepInfo').css('display', 'none');
 
         dialog.setTitle('Duplicate current workflow');
-        dialog.setContent('<br /><label for="description">New Workflow Title:</label> <input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
+        dialog.setContent('<br /><label for="description">New Workflow Title: </label><input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
         dialog.setSaveHandler(function() {
             let old_steps = {};
             let workflowID;
@@ -2758,119 +3078,7 @@
         });
     }
 
-    /*
-        START: EMAIL REMINDER BLOCK
-    */
-    function setEmailReminderHTML(workflowID, stepID, actionType) {
-        Promise.all([getEmailTemplates(), getDateIndicators(), getSavedEmailReminderData(workflowID, stepID,
-                actionType)])
-            .then(function(data) {
-                var emailTemplates = data[0];
-                var dateIndicators = data[1];
-                var formFields = data[2];
-
-                var indicatorList = '';
-                for (let i in dateIndicators) {
-                    indicatorList += '<option value="' + dateIndicators[i].indicatorID + '">' + dateIndicators[i]
-                        .categoryName + ': ' + dateIndicators[i].name + ' (id: ' + dateIndicators[i].indicatorID +
-                        ')</option>';
-                }
-                var emailTemplateList = '';
-                for (let i in emailTemplates) {
-                    emailTemplate = emailTemplates[i].fileName;
-                    emailTemplateList += '<option value="' + emailTemplate + '">' + emailTemplate + '</option>';
-                }
-
-                eventDataHTML = '<div id="emailReminder">';
-                eventDataHTML += '<h2>Email Reminder Details</h2>';
-
-                eventDataHTML += '<div class="eventDataInput">';
-                eventDataHTML += '<label for="frequency">Frequency of Reminders (in Business Days)</label>';
-                eventDataHTML += '<input type="number" id="frequency" name="frequency" min="0">';
-                eventDataHTML += '</div>';
-
-                eventDataHTML += '<div class="eventDataInput">';
-                eventDataHTML += '<label for="startDateIndicatorID">Reminder Start Date</label>';
-                eventDataHTML += '<select id="startDateIndicatorID" name="startDateIndicatorID">';
-                eventDataHTML += indicatorList;
-                eventDataHTML += '</select>';
-                eventDataHTML += '</div>';
-
-                eventDataHTML += '<div class="eventDataInput">';
-                eventDataHTML += '<label for="emailTemplate">Email Template</label>';
-                eventDataHTML += '<select id="emailTemplate" name="emailTemplate">';
-                eventDataHTML += emailTemplateList;
-                eventDataHTML += '</select>';
-                eventDataHTML += '</div>';
-
-                eventDataHTML += '<div class="eventDataInput">';
-                eventDataHTML += '<label for="emailGroupSelector">Recipient Group</label>';
-                eventDataHTML += '<div id="emailGroupSelector"></div>';
-                eventDataHTML += '<input id="recipientGroupID" name="recipientGroupID" style="display: none;">';
-                eventDataHTML += '</div>';
-
-                eventDataHTML += '</div>'; //emailReminder div
-                $('#eventData').html(eventDataHTML);
-
-                $.each(formFields, function(key, value) {
-                    $('#emailReminder #' + key).val(value);
-                });
-
-                $('#emailTemplate').chosen({disable_search_threshold: 5});
-                $('#startDateIndicatorID').chosen({disable_search_threshold: 5});
-
-                var grpSel = new groupSelector('emailGroupSelector');
-                grpSel.basePath = '<!--{$orgchartPath}-->/';
-                grpSel.apiPath = '<!--{$orgchartPath}-->/api/?a=';
-                grpSel.tag = '<!--{$orgchartImportTags[0]}-->';
-                grpSel.setSelectHandler(function() {
-                    $('#recipientGroupID').val(grpSel.selection);
-                });
-                grpSel.setResultHandler(function() {
-                    $('#recipientGroupID').val(grpSel.selection);
-                });
-                grpSel.initialize();
-                if ($('#recipientGroupID').val() != '') {
-                    grpSel.forceSearch('group#' + $('#recipientGroupID').val());
-                }
-
-                dialog.setValidator('frequency', function() {
-                    return $('#emailReminder #frequency').val() != '';
-                });
-                dialog.setValidatorError('frequency', function() {
-                    alert('Frequency is required.');
-                });
-
-                dialog.setValidator('frequency_pos', function() {
-                    return $('#emailReminder #frequency').val() > 0;
-                });
-                dialog.setValidatorError('frequency_pos', function() {
-                    alert('Frequency must be greater than zero.');
-                });
-
-                dialog.setValidator('startDateIndicatorID', function() {
-                    return $('#emailReminder #startDateIndicatorID').val() != '';
-                });
-                dialog.setValidatorError('startDateIndicatorID', function() {
-                    alert('Please select a start date indicator.');
-                });
-
-                dialog.setValidator('emailTemplate', function() {
-                    return $('#emailReminder #emailTemplate').val() != '';
-                });
-                dialog.setValidatorError('emailTemplate', function() {
-                    alert('Please select an email template.');
-                });
-
-                dialog.setValidator('recipientGroupID', function() {
-                    return $('#emailReminder #recipientGroupID').val() != '';
-                });
-                dialog.setValidatorError('recipientGroupID', function() {
-                    alert('Please select a group.');
-                });
-            });
-    }
-
+    // automated email reminder types, frequency and specific date
     function toggleReminderType() {
         const elSelect = document.getElementById('reminder_type_select');
         if(elSelect !== null) {
@@ -2898,64 +3106,24 @@
         }
     }
 
-    function getEmailTemplates() {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: '../api/emailTemplates/',
-                type: 'GET',
-                success: function(res) {
-                    resolve(res);
-                },
-                error: function() {
-                    reject();
-                },
-                cache: false
-            });
-        });
+    function updateChosenAttributes(selectID = "", labelID = "", title = "List Selection") {
+        $(`#${selectID}_chosen input.chosen-search-input`).attr('role', 'combobox');
+        $(`#${selectID}_chosen input.chosen-search-input`).attr('aria-labelledby', labelID);
+        $(`#${selectID}-chosen-search-results`).attr('title', title);
+        $(`#${selectID}-chosen-search-results`).attr('role', 'listbox');
+    }
+    function updateSelectionStatus(selectEl = null, statusID = "") {
+        if(selectEl !== null && statusID !== "") {
+            const statusEl = document.getElementById(statusID);
+            const textVal = selectEl.querySelector(`option[value="${selectEl?.value}"]`)?.innerText || "";
+            if(statusEl !== null && textVal !== "") {
+                statusEl.setAttribute('aria-label', `${textVal} is selected`);
+            }
+        }
     }
 
-    function getDateIndicators() {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: '../api/form/indicator/list',
-                type: 'GET',
-                success: function(res) {
-                    var data = []
-                    for (let i in res) {
-                        if (res[i]['format'] == 'date') {
-                            data.push(res[i]);
-                        }
-                    }
-                    resolve(data);
-                },
-                error: function() {
-                    reject();
-                },
-                cache: false
-            });
-        });
-    }
 
-    function getSavedEmailReminderData(workflowID, stepID, actionType) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: '../api/workflow/' + workflowID + '/step/' + stepID + '/_' + actionType +
-                    '/events/emailReminder?CSRFToken=' + CSRFToken,
-                type: 'GET',
-                success: function(res) {
-                    resolve(res[0]);
-                },
-                error: function() {
-                    reject();
-                },
-                cache: false
-            });
-        });
-    }
-    /*
-        END: EMAIL REMINDER BLOCK
-    */
-    var dialog, dialog_confirm, dialog_simple;
+    var dialog, dialog_confirm, dialog_simple, dialog_ok;
     var workflows = {};
     var steps = {};
     var routes = {};
@@ -2972,27 +3140,18 @@
     this.portalAPI.setCSRFToken(CSRFToken);
 
 
-
     // Fix dialog boxes not going away when clicking outside of box
-    $(document).mouseup(function(e) {
+    $(document).on('mousedown', function(e) {
         let container = $(".workflowStepInfo");
         if (!container.is(e.target) && container.has(e.target).length === 0) {
             container.hide();
         }
-        container.on('keydown', function(e) {
-            if (e.keyCode === 27) {
-                container.hide();
-            }
-        });
     });
 
     $(function() {
-        dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save',
-            'button_cancelchange');
-        dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
-            'confirm_button_save', 'confirm_button_cancelchange');
-        dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator',
-            'simplebutton_save', 'simplebutton_cancelchange');
+        dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save','button_cancelchange');
+        dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator','confirm_button_save', 'confirm_button_cancelchange');
+        dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator','simplebutton_save', 'simplebutton_cancelchange');
         dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
         $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 

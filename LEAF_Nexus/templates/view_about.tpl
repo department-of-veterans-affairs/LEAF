@@ -5,7 +5,7 @@ This software was developed at the Washington D.C.<br />
 VA Medical Center in an effort to improve resource<br />
 requesting processes.
 <br /><br />
-<img src="dynicons/?img=internet-mail.svg&amp;w=16" alt="email icon" /> Developer Contact: <a href="mailto:Michael.Gao@va.gov&amp;subject=ERM:">Michael.Gao@va.gov</a>
+<img src="dynicons/?img=internet-mail.svg&amp;w=16" alt="" /> Developer Contact: <a href="mailto:Michael.Gao@va.gov&amp;subject=ERM:">Michael.Gao@va.gov</a>
 </span>
 <br /><br />
 
@@ -28,7 +28,7 @@ requesting processes.
     </tr>
 </table>
 
-<img style="position: absolute; bottom: 0px; right: 0px; width: 57%; z-index: -999" src="images/aboutlogo.png" alt="logo" />
+<img style="position: absolute; bottom: 0px; right: 0px; width: 57%; z-index: -999" src="images/aboutlogo.png" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />
 <script type="text/javascript">
 /* <![CDATA[ */
 

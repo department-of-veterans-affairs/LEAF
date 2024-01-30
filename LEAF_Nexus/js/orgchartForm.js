@@ -23,10 +23,10 @@ orgchartForm.prototype.initialize = function () {
 				    <div>\
 				        <button id="' +
       this.prefixID +
-      'button_cancelchange" class="buttonNorm" style="position: absolute; left: 10px"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button>\
+      'button_cancelchange" class="buttonNorm" style="position: absolute; left: 10px"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="" /> Cancel</button>\
 				        <button id="' +
       this.prefixID +
-      'button_save" class="buttonNorm" style="position: absolute; right: 10px"><img src="dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
+      'button_save" class="buttonNorm" style="position: absolute; right: 10px"><img src="dynicons/?img=media-floppy.svg&amp;w=16" alt="" /> Save Change</button>\
 				        <div style="border-bottom: 2px solid black; line-height: 30px"><br /></div>\
 				        <div id="' +
       this.prefixID +

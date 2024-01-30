@@ -5,7 +5,7 @@
         <div role="document">
             
             <div id="importloadIndicator" class="leaf-dialog-loader">
-                Loading...<img src="../images/largespinner.gif" alt="loading..." />
+                Loading...<img src="../images/largespinner.gif" alt="" />
             </div>
             
             <main id="import_xhr" class="leaf-dialog-content" role="main"></main>

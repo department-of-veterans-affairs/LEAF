@@ -2,14 +2,14 @@ The following is a list of requests that are pending your action:
 <!--{if count($inbox) == 0}-->
 <br /><br />
 <div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px; background-color: white">
-<img src="dynicons/?img=folder-open.svg&amp;w=96" alt="empty" style="float: left; padding-right: 16px"/><div style="font-size: 200%"> Your inbox is empty.<br /><br />Have a good day!</div>
+<img src="dynicons/?img=folder-open.svg&amp;w=96" alt="" style="float: left; padding-right: 16px"/><div style="font-size: 200%"> Your inbox is empty.<br /><br />Have a good day!</div>
 </div>
 <!--{/if}-->
 
 <!--{if count($errors) > 0 && $errors[0].code == 1}-->
 <br /><br />
 <div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px; background-color: white">
-<img src="dynicons/?img=folder-open.svg&amp;w=96" alt="empty" style="float: left; padding-right: 16px"/><div style="font-size: 200%">Warning: Inbox limit is in place to ensure consistent performance</div>
+<img src="dynicons/?img=folder-open.svg&amp;w=96" alt="" style="float: left; padding-right: 16px"/><div style="font-size: 200%">Warning: Inbox limit is in place to ensure consistent performance</div>
 </div>
 <!--{/if}-->
 

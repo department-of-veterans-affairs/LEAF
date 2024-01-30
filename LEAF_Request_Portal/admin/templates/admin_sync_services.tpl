@@ -26,7 +26,7 @@
 /* <![CDATA[ */
 
 $(function() {
-    $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... for a large system this can take several seconds to minutes <img src="../images/largespinner.gif" alt="loading..." /></div>');
+    $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... for a large system this can take several seconds to minutes <img src="../images/largespinner.gif" alt="" /></div>');
 
     $.ajax({
     	type: 'GET',
