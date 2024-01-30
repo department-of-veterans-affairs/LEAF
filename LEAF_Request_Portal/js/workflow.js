@@ -100,7 +100,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             $("#workflowbox_dep" + data["dependencyID"]).html(
                 '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="' +
                     rootURL +
-                    'images/largespinner.gif" alt="loading..." /></div>'
+                    'images/largespinner.gif" alt="" /></div>'
             );
             $.ajax({
                 type: "POST",
@@ -158,7 +158,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             $("#workflowbox_dep" + data["dependencyID"]).html(
                                 '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' +
                                     rootURL +
-                                    'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" /> ' +
+                                    'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="" /> ' +
                                     errors +
                                     '<br /><span style="font-size: 14px; font-weight: normal">After resolving the errors, <button id="workflowbtn_tryagain" class="buttonNorm">click here to try again</button>.</span></div>'
                             );
@@ -170,7 +170,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         $("#workflowbox_dep" + data["dependencyID"]).html(
                             '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' +
                                 rootURL +
-                                'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" />Session has expired.<br /><span style="font-size: 14px; font-weight: normal"><button id="workflowbtn_tryagain" class="buttonNorm">Click here to try again</button></span></div>'
+                                'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="" />Session has expired.<br /><span style="font-size: 14px; font-weight: normal"><button id="workflowbtn_tryagain" class="buttonNorm">Click here to try again</button></span></div>'
                         );
                         $("#workflowbtn_tryagain").on("click", function () {
                             getWorkflow(currRecordID);
@@ -294,7 +294,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             const icon =
                 step.dependencyActions[i].actionIcon != ""
                     ? `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
-            alt="${step.dependencyActions[i].actionText}" style="vertical-align: middle" />`
+            alt="" style="vertical-align: middle" />`
                     : "";
             const alignment =
                 step.dependencyActions[i].actionAlignment.toLowerCase();
@@ -521,7 +521,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         ] == null
                     ) {
                         name =
-                            "Warning: User not selected for currennt action (Contact Administrator)";
+                            "Warning: User not selected for current action (Contact Administrator)";
                     } else {
                         name =
                             "Pending action from " +

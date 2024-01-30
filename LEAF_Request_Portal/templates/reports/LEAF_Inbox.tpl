@@ -189,6 +189,11 @@
         },
     };
 
+    function scrubHTML(input) {
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        return t.textContent;
+    }
+
     function interfaceReady() {
         document.querySelector('#viewport').style.visibility = 'visible';
         $('#progressContainer').slideUp();
@@ -268,7 +273,7 @@
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     roleID = Sha1.hash(uDD.approverUID);
-                    description = uDD.approverName;
+                    description = scrubHTML(uDD.approverName);
                 }
 
                 let stepHash = `${description}:;ROLEID${roleID}`;
@@ -413,7 +418,7 @@
 
         let customCols = [];
         if (customColumns == false) {
-            site.columns = site.columns ?? 'UID,service,title,status';
+            site.columns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
         }
         site.columns.split(',').forEach(col => {
             if (isNaN(col)) {
@@ -719,6 +724,8 @@
     $(function() {
         document.title = 'Inbox - ' + document.title;
 
+        dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
+
         let urlParams = new URLSearchParams(window.location.search);
         if(urlParams.get('adminView') != null) {
             nonAdmin = false;
@@ -855,6 +862,7 @@
 </style>
 
 <!--{include file="site_elements/generic_OkDialog.tpl"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <div id="genericDialog" style="visibility: hidden; display: none">
     <div>

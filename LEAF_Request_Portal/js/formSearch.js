@@ -27,12 +27,12 @@ var LeafFormSearch = function (containerID) {
             '<div style="display:flex; align-items:center; width:fit-content; width: -moz-fit-content;">\
 			    <img id="' +
                 prefixID +
-                'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
+                'searchIcon" class="searchIcon" alt="" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
                 rootURL +
                 'dynicons/?img=search.svg&w=16">\
 			    <img id="' +
                 prefixID +
-                'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="' +
+                'searchIconBusy" class="searchIcon" alt="" style="vertical-align: middle; padding-right: 4px; display:none" src="' +
                 rootURL +
                 'images/indicator.gif">\
 					<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" class="status" role="status"></span>\
@@ -51,17 +51,20 @@ var LeafFormSearch = function (containerID) {
                 'advancedOptionsClose" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer; background-image:url(' +
                 rootURL +
                 'dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
-		        <div style="width: 550px">Find items where...</div>\
+                <div style="width: 550px">Find items where...</div>\
 		        <table id="' +
                 prefixID +
                 'searchTerms"></table>\
-		        <button class="buttonNorm" id="' +
+		        <button type="button" aria-label="add logical and filter" class="buttonNorm" id="' +
                 prefixID +
                 'addTerm" style="float: left">And...</button>\
-		        <button class="buttonNorm" id="' +
+		        <button type="button" aria-label="add logical or filter" class="buttonNorm" id="' +
                 prefixID +
                 'orTerm" style="float: left">Or...</button>\
 		        <br /><br />\
+                <div id="unsubmitted_results_notice" style="display:none;color:#b00; margin:0.5rem 2px;">\
+                    <div>Results can include unsubmitted requests.  Consider including \'Current Status IS Submitted\'.</div>\
+                </div>\
 		        <button id="' +
                 prefixID +
                 'advancedSearchApply" class="buttonNorm" style="text-align: center; width: 100%">Apply Filters</button>\
@@ -672,6 +675,39 @@ var LeafFormSearch = function (containerID) {
         }
     }
 
+    /* assesses query logic for some term filters and updates display of status message if the query can return unsubmitted requests */
+    function checkDateStatus() {
+        let includesOnAndBefore = false;
+        let filtersUnsubmitted = false;
+
+        const elSelTerms = Array.from(document.querySelectorAll(`table select[id^="${prefixID}widgetTerm_"]`));
+        elSelTerms.forEach(sel => {
+            if(sel?.value === "dateSubmitted" || sel?.value === "stepID") {
+                const codID = (sel?.id || '').replace('widgetTerm_', 'widgetCod_');
+                const gateID = (sel?.id || '').replace('widgetTerm_', 'widgetGate_');
+                const opValue = document.getElementById(codID)?.value || '';
+                const gateVal = document.getElementById(gateID)?.innerText || 'AND';
+
+                if(sel.value === "dateSubmitted") {
+                    if(opValue === '<=') {
+                        includesOnAndBefore = true;
+                    } else {
+                        if (gateVal === 'AND') {
+                            filtersUnsubmitted = true;
+                        }
+                    }
+                }
+                if(sel.value === "stepID" && gateVal === 'AND' && opValue === '=') {
+                    filtersUnsubmitted = true;
+                }
+            }
+        });
+        let msgEl = document.getElementById('unsubmitted_results_notice');
+        if (msgEl !== null) {
+            msgEl.style.display = includesOnAndBefore && !filtersUnsubmitted ? 'block' : 'none';
+        }
+    }
+
     /**
      * @memberOf LeafFormSearch
      */
@@ -748,16 +784,13 @@ var LeafFormSearch = function (containerID) {
             case "dateInitiated":
             case "dateSubmitted":
                 $("#" + prefixID + "widgetCondition_" + widgetID).html(
-                    '<select id="' +
-                        prefixID +
-                        "widgetCod_" +
-                        widgetID +
-                        '" style="width: 140px" class="chosen" aria-label="date">\
-	            		<option value="=">ON</option>\
-	            		<option value=">=">ON AND AFTER</option>\
-	            		<option value="<=">ON AND BEFORE</option>\
-	            	</select>'
+                    `<select id="${prefixID}widgetCod_${widgetID}" style="width: 140px" class="chosen" aria-label="date">
+                        <option value="=">ON</option>
+                        <option value=">=">ON AND AFTER</option>
+                        <option value="<=">ON AND BEFORE</option>
+                    </select>`
                 );
+                $(`#${prefixID}widgetCod_${widgetID}`).on("change", checkDateStatus);
                 $("#" + prefixID + "widgetMatch_" + widgetID).html(
                     '<input type="text" aria-label="text" id="' +
                         prefixID +
@@ -922,6 +955,7 @@ var LeafFormSearch = function (containerID) {
 	            		<option value="!=" selected>IS NOT</option>\
 	            	</select>'
                 );
+                $(`#${prefixID}widgetCod_${widgetID}`).on("change", checkDateStatus);
                 url =
                     rootURL === ""
                         ? "./api/workflow/steps"
@@ -1476,29 +1510,17 @@ var LeafFormSearch = function (containerID) {
         if (gate === undefined) {
             gate = "AND";
         }
-        let widget =
-            '<tr id="' +
-            prefixID +
-            "widget_" +
-            widgetCounter +
-            '" style="border-spacing: 5px">\
-						<td id="' +
-            prefixID +
-            "widgetRemove_" +
-            widgetCounter +
-            '"><button id="widgetRemoveButton"><img src="' +
-            rootURL +
-            'dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
-						<td style="text-align: center"><strong id="' +
-            prefixID +
-            "widgetGate_" +
-            widgetCounter +
-            '" value="' +
-            gate +
-            '">' +
-            gate +
-            '</strong></td>\
-						<td><select id="' +
+
+        let widget = `<tr id="${prefixID}widget_${widgetCounter}" style="border-spacing: 5px">
+                <td id="${prefixID}widgetRemove_${widgetCounter}">
+                    <button type="button" id="${prefixID}widgetRemoveButton_${widgetCounter}" aria-label="remove filter row" style="cursor: pointer">
+                        <img src="${rootURL}dynicons/?img=list-remove.svg&w=16" alt="" />
+                    </button>
+                </td>
+                <td style="text-align: center">
+                    <strong id="${prefixID}widgetGate_${widgetCounter}" value="${gate}">${gate}</strong>
+                </td>` +
+			'<td><select id="' +
             prefixID +
             "widgetTerm_" +
             widgetCounter +
@@ -1524,6 +1546,7 @@ var LeafFormSearch = function (containerID) {
             widgetCounter +
             '"></td>\
 					  </tr>';
+
         $(widget).appendTo("#" + prefixID + "searchTerms");
         renderWidget(widgetCounter);
         firstChild();
@@ -1534,16 +1557,18 @@ var LeafFormSearch = function (containerID) {
             widgetCounter,
             function (e) {
                 renderWidget(e.data);
+                checkDateStatus();
                 chosenOptions();
             }
         );
-        $("#" + prefixID + "widgetRemove_" + widgetCounter).on(
+        $("#" + prefixID + "widgetRemoveButton_" + widgetCounter).on(
             "click",
             "",
             widgetCounter,
             function (e) {
                 $("#" + prefixID + "widget_" + e.data).remove();
                 $("#" + prefixID + "widgetOp_" + e.data).remove();
+                checkDateStatus();
                 firstChild();
             }
         );
@@ -1611,6 +1636,7 @@ var LeafFormSearch = function (containerID) {
             disable_search_threshold: 6,
             width: "100%",
         }); // needs to be here due to chosen issue with display:none
+        $('input.chosen-search-input').attr('role', 'combobox');
     }
 
     /**

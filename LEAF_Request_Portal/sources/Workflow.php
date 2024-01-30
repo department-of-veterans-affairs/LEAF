@@ -313,7 +313,7 @@ class Workflow
 
         // Don't allow changes to standardized components
         // Exclude stepID -1 since it's the requestor
-        if($stepID < -1) {
+        if($this->workflowID < 0 || $stepID < -1) {
             return 'Restricted command.';
         }
 
@@ -362,7 +362,7 @@ class Workflow
 
         // Don't allow changes to standardized components
         // Exclude stepID -1 since it's the requestor
-        if($stepID < -1) {
+        if($this->workflowID < 0 || $stepID < -1) {
             return 'Restricted command.';
         }
 
@@ -575,7 +575,7 @@ class Workflow
         }
 
         // Don't allow changes to standardized components
-        if($stepID < 0) {
+        if($this->workflowID < 0 || $stepID < 0) {
             return 'Restricted command.';
         }
 
@@ -800,9 +800,14 @@ class Workflow
         $res = $this->db->prepared_query('INSERT INTO step_dependencies (stepID, dependencyID)
                                             VALUES (:stepID, :dependencyID)', $vars);
 
+        $depVars = array(':dependencyID' => $dependencyID);
+        $dep = $this->db->prepared_query("SELECT `description` FROM dependencies WHERE dependencyID=:dependencyID", $depVars)[0];
+        $depDescr = $dep["description"];
+
         $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::STEP_DEPENDENCY, [
+            new LogItem("workflows", "workflowID", $this->workflowID),
             new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID)
+            new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr." (#".$dependencyID.")")
         ]);
 
         // populate records_dependencies so we can filter on items immediately
@@ -844,9 +849,14 @@ class Workflow
     									AND filled=0
                                         AND records_dependencies.time IS NULL', $vars);
 
+        $depVars = array(':dependencyID' => $dependencyID);
+        $dep = $this->db->prepared_query("SELECT `description` FROM dependencies WHERE dependencyID=:dependencyID", $depVars)[0];
+        $depDescr = $dep["description"];
+
         $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::STEP_DEPENDENCY, [
+            new LogItem("workflows", "workflowID", $this->workflowID),
             new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID)
+            new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr." (#".$dependencyID.")")
         ]);
 
         return true;
@@ -909,9 +919,13 @@ class Workflow
         $res = $this->db->prepared_query('INSERT INTO dependency_privs (dependencyID, groupID)
                                             VALUES (:dependencyID, :groupID)', $vars);
 
+        $vars = array(':dependencyID' => $dependencyID);
+        $strSQL = "SELECT `description` FROM dependencies WHERE dependencyID=:dependencyID";
+        $depDescr = $this->db->prepared_query($strSQL, $vars)[0]["description"] ?? "";
+
         $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::DEPENDENCY_PRIVS, [
             new LogItem("dependency_privs", "groupID",  $groupID),
-            new LogItem("dependency_privs", "dependencyID",  $dependencyID)
+            new LogItem("dependency_privs", "dependencyID",  $dependencyID, $depDescr." (#".$dependencyID.")")
         ]);
 
         return true;
@@ -931,9 +945,13 @@ class Workflow
     										WHERE dependencyID=:dependencyID
     											AND groupID=:groupID', $vars);
 
+        $vars = array(':dependencyID' => $dependencyID);
+        $strSQL = "SELECT `description` FROM dependencies WHERE dependencyID=:dependencyID";
+        $depDescr = $this->db->prepared_query($strSQL, $vars)[0]["description"] ?? "";
+
         $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::DEPENDENCY_PRIVS, [
             new LogItem("dependency_privs", "groupID",  $groupID),
-            new LogItem("dependency_privs", "dependencyID",  $dependencyID)
+            new LogItem("dependency_privs", "dependencyID", $dependencyID, $depDescr." (#".$dependencyID.")")
         ]);
 
         return true;
@@ -1547,9 +1565,24 @@ class Workflow
 
     }
 
-    public function getHistory($filterById)
+    public function getHistory(string $filterById): array
     {
-        return $this->dataActionLogger->getHistory($filterById, "workflowID", LoggableTypes::WORKFLOW);
+        $stepVars = array(':workflowID' => $filterById);
+        $strSQL = "SELECT workflow_steps.stepID, dependencyID FROM workflow_steps
+            INNER JOIN step_dependencies USING (stepID)
+            WHERE workflowID=:workflowID
+            GROUP BY dependencyID";
+
+        $depData = $this->db->prepared_query($strSQL, $stepVars);
+
+        $log = $this->dataActionLogger->getHistory($filterById, "workflowID", LoggableTypes::WORKFLOW);
+        if(count($depData) > 0) {
+            foreach($depData as $entry) {
+                $depHistory = $this->dataActionLogger->getHistory((string)$entry["dependencyID"], "dependencyID", LoggableTypes::DEPENDENCY_PRIVS);
+                $log = array_merge($log, $depHistory);
+            }
+        }
+        return $log;
     }
 
     public function setEmailReminderData($stepID, $actionType, $frequency, $recipientGroupID, $emailTemplate, $startDateIndicatorID)

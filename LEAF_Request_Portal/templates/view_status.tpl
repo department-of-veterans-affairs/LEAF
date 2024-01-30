@@ -1,4 +1,4 @@
-<div><a href="?a=status&amp;recordID=<!--{$recordID|strip_tags}-->"><img src="dynicons/?img=printer.svg&amp;w=16" alt="Print status" /></a></div>
+<div><a href="?a=status&amp;recordID=<!--{$recordID|strip_tags}-->"><img src="dynicons/?img=printer.svg&amp;w=16" alt="" /></a></div>
 <div> <!-- main content -->
 <span style="font-weight: bold; font-size: 16px">History of Request ID#: <!--{$recordID|sanitize}--></span>
 <br />

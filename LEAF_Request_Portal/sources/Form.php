@@ -936,13 +936,12 @@ class Form
             $categoryData[$cat['categoryID']] = $cat['categoryID'];
             $categoryNames[$cat['categoryID']] = $cat['categoryName'];
         }
+        $parentIDs = implode(',', array_values($categoryData));
 
-        //Check for Internal Forms of Main categoryID
-        $vars = array(':parentID' => $resCategory[0]['categoryID']);
-
+        //Check for forms with these parentIDs (Internal Forms)
+        $vars = array(':parentIDs' => $parentIDs);
         $resInternal = $this->db->prepared_query('SELECT * FROM categories
-                                            WHERE parentID=:parentID', $vars);
-
+                                            WHERE FIND_IN_SET(parentID, :parentIDs) AND `disabled`=0', $vars);
         $count = count($resInternal);
         $internalIDs = array();
         for ($i = 0; $i < $count;$i++) {
@@ -3030,7 +3029,7 @@ class Form
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
                 case 'recordID':
-                    $conditions .= "{$gate}recordID {$operator} :recordID{$count}";
+                    $conditions .= "{$gate}records.recordID {$operator} :recordID{$count}";
 
                     break;
                 case 'recordIDs':
@@ -3046,7 +3045,7 @@ class Form
                     }
                     $validRecordIDs = trim($validRecordIDs, ',');
 
-                    $conditions .= "{$gate}recordID IN ({$validRecordIDs})";
+                    $conditions .= "{$gate}records.recordID IN ({$validRecordIDs})";
 
                     unset($vars[":recordIDs{$count}"]);
 

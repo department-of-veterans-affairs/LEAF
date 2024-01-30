@@ -54,7 +54,8 @@ export default {
         'truncateText',
         'decodeAndStripHTML',
         'fileManagerTextFiles',
-        'initializeOrgSelector'
+        'initializeOrgSelector',
+        'lastModalTab',
     ],
     created() {
         this.checkRequiredData(this.requiredDataProperties);
@@ -642,7 +643,7 @@ export default {
                             @click="removeCondition({confirmDelete: true, condition: {}})">
                             Delete
                         </button>
-                        <button type="button" class="btn-general" @click="showRemoveModal=false">
+                        <button type="button" class="btn-general" @click="showRemoveModal=false" @keydown.tab="lastModalTab">
                             Cancel
                         </button>
                     </div>

@@ -19,6 +19,7 @@ function nationalEmployeeSelector(containerID) {
   this.intervalID = null;
   this.selectHandler = null;
   this.resultHandler = null;
+  this.selectHandlers = [];
   this.selectLink = null;
   this.selectionData = new Object();
   this.optionNoLimit = 0;
@@ -93,17 +94,17 @@ nationalEmployeeSelector.prototype.initialize = function () {
       this.prefixID +
       'icon" src="' +
       t.rootPath +
-      'dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
+      'dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="" />\
 			<img id="' +
       this.prefixID +
       'iconBusy" src="' +
       t.rootPath +
-      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" />\
+      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="" />\
 			<input id="' +
       this.prefixID +
       'input" type="search" class="employeeSelectorInput" aria-label="Search for user to add as ' +
       arialLabelText +
-      '"></input></div>\
+      '"/></div>\
 			<div id="' +
       this.prefixID +
       'result" aria-label="search results"></div>'
@@ -161,6 +162,7 @@ nationalEmployeeSelector.prototype.select = function (id) {
   if (this.selectHandler != null) {
     this.selectHandler();
   }
+  this.selectHandlers.forEach(selectHandler => selectHandler());
 };
 
 nationalEmployeeSelector.prototype.setSelectHandler = function (func) {
@@ -169,6 +171,15 @@ nationalEmployeeSelector.prototype.setSelectHandler = function (func) {
 
 nationalEmployeeSelector.prototype.setResultHandler = function (func) {
   this.resultHandler = func;
+};
+
+nationalEmployeeSelector.prototype.addSelectHandler = function (func) {
+    if(typeof func == 'function') {
+        this.selectHandlers.push(func);
+    }
+    else {
+        console.error('argument supplied to addSelectHandler must be a function');
+    }
 };
 
 nationalEmployeeSelector.prototype.setSelectLink = function (link) {

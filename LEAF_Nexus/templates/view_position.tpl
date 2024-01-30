@@ -1,12 +1,12 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
-        <div onclick="window.location='?a=navigator&amp;rootID=<!--{$positionID|strip_tags}-->';"><img src="dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee" title="Add Employee" /> View in Org Chart</div>
-        <div onclick="addEmployee()"><img src="dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee" title="Add Employee" /> Add Employee</div>
-        <div onclick="editTitle()"><img src="dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Title</div>
-        <div onclick="changeSupervisor()"><img src="dynicons/?img=system-users.svg&amp;w=32" style="vertical-align: middle" alt="Change Service" title="Change Service" /> Change Supervisor</div>
-        <div onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="dynicons/?img=mail-forward.svg&amp;w=32" style="vertical-align: middle" alt="Forward as Email" title="Forward as Email" /> Forward as Email</div>
+        <button type="button" class="options" onclick="window.location='?a=navigator&amp;rootID=<!--{$positionID|strip_tags}-->';"><img src="dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="" title="View in Org Chart" /> View in Org Chart</button>
+        <button type="button" class="options" onclick="addEmployee()"><img src="dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="" title="Add Employee" /> Add Employee</button>
+        <button type="button" class="options" onclick="editTitle()"><img src="dynicons/?img=edit-select-all.svg&amp;w=32" style="vertical-align: middle" alt="" title="Edit Title" /> Edit Title</button>
+        <button type="button" class="options" onclick="changeSupervisor()"><img src="dynicons/?img=system-users.svg&amp;w=32" style="vertical-align: middle" alt="" title="Change Supervisor" /> Change Supervisor</button>
+        <button type="button" class="options" onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="dynicons/?img=mail-forward.svg&amp;w=32" style="vertical-align: middle" alt="" title="Forward as Email" /> Forward as Email</button>
         <br />
-        <div onclick="confirmRemove()"><img src="dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="Delete Position" title="Delete Position" /> Delete Position</div>
+        <button type="button" class="options" onclick="confirmRemove()"><img src="dynicons/?img=process-stop.svg&amp;w=16" style="vertical-align: middle" alt="" title="Delete Position" /> Delete Position</button>
     </div>
 
     <!-- <div style="background-color: white; border: 1px solid black; padding: 2px"><h1>Tags</h1>
@@ -30,7 +30,7 @@
             <!--{/foreach}-->
             <!--{if $positionPrivileges[$positionID].write == 1}-->
             <br /><br />
-            <div class="buttonNorm" onclick="addGroup()">Assign Group</div>
+            <button type="button" class="options" onclick="addGroup()">Assign Group</button>
             <!--{/if}-->
         </div>
     </div>
@@ -38,22 +38,22 @@
     <div class="toolbar_security"><h1>Security Permissions</h1>
         <div>
         <!--{if $positionPrivileges[$positionID].read == 1}-->
-            <img src="dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" /> You have read access
+            <img src="dynicons/?img=edit-find.svg&amp;w=32" alt="" style="vertical-align: middle" /> You have read access
         <!--{else}-->
-            <img src="dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle" /> You do not have read access
+            <img src="dynicons/?img=emblem-readonly.svg&amp;w=32" alt="" style="vertical-align: middle" /> You do not have read access
         <!--{/if}-->
         </div>
         <div>
         <!--{if $positionPrivileges[$positionID].write == 1}-->
-            <img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access" style="vertical-align: middle" /> You have write access
+            <img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" style="vertical-align: middle" /> You have write access
         <!--{else}-->
-            <img src="dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Write Access" style="vertical-align: middle" /> You do not have write access
+            <img src="dynicons/?img=emblem-readonly.svg&amp;w=32" alt="" style="vertical-align: middle" /> You do not have write access
         <!--{/if}-->
         </div>
         <!--{if $positionPrivileges[$positionID].grant != 0}-->
-        <div class="buttonNorm" onclick="window.open('index.php?a=view_position_permissions&amp;positionID=<!--{$positionID}-->','Orgchart','width=840,resizable=yes,scrollbars=yes,menubar=yes').focus();">
-            <img src="dynicons/?img=emblem-system.svg&amp;w=32" alt="Change Permissions" style="vertical-align: middle" /> Change Permissions
-        </div>
+        <button type="button" class="options" onclick="window.open('index.php?a=view_position_permissions&amp;positionID=<!--{$positionID}-->','Orgchart','width=840,resizable=yes,scrollbars=yes,menubar=yes').focus();">
+            <img src="dynicons/?img=emblem-system.svg&amp;w=32" alt="" style="vertical-align: middle" /> Change Permissions
+        </button>
         <!--{/if}-->
     </div>
 </div>
@@ -80,7 +80,7 @@
             </span>
         </div>
         <div id="positionBody">
-            <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
+            <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="" /></div>
         </div>
         <!--{assign var=counter value=0}-->
         <!--{assign var=numActing value=0}-->
@@ -92,11 +92,11 @@
           <!--{/if}-->
           <div id="employee_<!--{$counter}-->" class="employee">
               <div id="employeeHeader_<!--{$counter}-->" class="employeeHeader">
-                  <img src="dynicons/?img=process-stop.svg&amp;w=16" style="float: right; cursor: pointer" onclick="confirmUnlink(<!--{$employee.empUID|strip_tags}-->); return false;" alt="Unlink Employee" title="Unlink Employee" />
+                  <img alt="Unlink Employee" src="dynicons/?img=process-stop.svg&amp;w=16" style="float: right; cursor: pointer" onclick="confirmUnlink(<!--{$employee.empUID|strip_tags}-->); return false;" title="Unlink Employee" />
                   <span id="employeeName_<!--{$counter}-->" class="employeeName" style="cursor: pointer" onclick="window.location='?a=view_employee&amp;empUID=<!--{$employee.empUID|strip_tags}-->'"><!--{$employee.lastName|sanitize}-->, <!--{$employee.firstName|sanitize}--><!--{if $employee.isActing == 1}--> <span style="font-weight: bold; color: blue">(Acting)</span><!--{/if}--></span>
               </div>
               <div id="employeeBody_<!--{$counter}-->" class="employeeBody">
-                  <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
+                  <div style="visibility: visible; text-align: center; font-size: 24px; font-weight: bold; padding: 16px; height: 95%; width: 95%">Loading... <img src="images/largespinner.gif" alt="" /></div>
               </div>
           </div>
           <!--{/foreach}-->
@@ -107,7 +107,7 @@
                     <span class="employeeName" style="cursor: pointer" onclick="addEmployee()">VACANT</span><br />
                 </div>
                 <div class="employeeBody">
-                    <div class="button" onclick="startFTE()"><img src="dynicons/?img=document-new.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee" title="Add Employee" /> Initiate FTE Request to fill Vacancy</div>
+                    <!--<button type="button" class="options" onclick="startFTE()"><img src="dynicons/?img=document-new.svg&amp;w=32" style="vertical-align: middle" alt="" title="Add Employee" /> Initiate FTE Request to fill Vacancy</button>-->
                 </div>
             </div>
           <!--{else if $positionSummary.positionData[19].data == ''}-->
@@ -128,11 +128,11 @@
 <div id="start_requestxhrDialog" style="visibility: hidden">
 <form id="start_requestrecord" enctype="multipart/form-data" action="javascript:void(0);">
     <div>
-        <span id="start_requestbutton_cancelchange" class="buttonNorm" style="position: absolute; left: 10px"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</span>
+        <span id="start_requestbutton_cancelchange" class="buttonNorm" style="position: absolute; left: 10px"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="" /> Cancel</span>
         <div style="border-bottom: 2px solid black; line-height: 30px"><br /></div>
-        <div id="start_requestloadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 100px; width: 460px">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
+        <div id="start_requestloadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 100px; width: 460px">Loading... <img src="images/largespinner.gif" alt="" /></div>
         <div id="start_requestxhr" style="width: 540px; height: 100px; overflow: auto; font-size: 12px"></div>
-        <div id="start_requestbutton_save" class="buttonNorm" style="width: 80%"><img src="dynicons/?img=go-next.svg&amp;w=32" alt="save" /> Start FTE Request to fill <b><!--{$positionSummary.employeeList[0].positionTitle|sanitize}--></b></div>
+        <button type="button" id="start_requestbutton_save" class="buttonNorm" style="width: 80%"><img src="dynicons/?img=go-next.svg&amp;w=32" alt="save" /> Start FTE Request to fill <b><!--{$positionSummary.employeeList[0].positionTitle|sanitize}--></b></button>
         <br /><br />
     </div>
 </form>
@@ -161,7 +161,7 @@ function assocEmployeePosition(empUID) {
 function addEmployee() {
     dialog.setContent('Employee Search: <div id="employeeSelector"></div>\
     		<fieldset><legend>Options</legend>\
-            <input id="isActing" type="checkbox"> Acting for vacant position</div>\
+            <input id="isActing" type="checkbox"><label for="isActing">Acting for vacant position</label>\
             </fieldset>');
     dialog.show(); // need to show early because of ie6
 
@@ -200,7 +200,7 @@ function startFTE() {
 		return false;
 	}
 
-    start_request_dialog.setContent('Description for this request (optional): <input class="dialogInput" id="description" type="text"></input>');
+    start_request_dialog.setContent('<label for="description">Description for this request (optional): </label><input class="dialogInput" id="description" type="text"/>');
     start_request_dialog.show(); // need to show early because of ie6
 
     start_request_dialog.setSaveHandler(function() {
@@ -249,7 +249,7 @@ function startFTE() {
 }
 
 function editTitle() {
-    dialog.setContent('Position Title: <input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$positionSummary.employeeList[0].positionTitle}-->"></input>');
+    dialog.setContent('<label for="inputtitle">Position Title: </label><input id="inputtitle" style="width: 300px" class="dialogInput" value="<!--{$positionSummary.employeeList[0].positionTitle}-->"/>');
     dialog.show(); // need to show early because of ie6
 
     dialog.setSaveHandler(function() {
@@ -268,7 +268,8 @@ function editTitle() {
 }
 
 function addGroup() {
-    dialog.setContent('Group Search: <div id="groupSelector"></div><br /><fieldset><legend>Options</legend><input id="includeSub" type="checkbox" disabled="disabled" /> Apply to all subordinates</fieldset>');
+    dialog.setContent('Group Search: <div id="groupSelector"></div><br />\
+        <fieldset><legend>Options</legend><input id="includeSub" type="checkbox" disabled="disabled" /><label for="includeSub">Apply to all subordinates</label></fieldset>');
     dialog.show(); // need to show early because of ie6
 
     grpSel = new groupSelector('groupSelector');
@@ -336,7 +337,7 @@ function changeSupervisor() {
                 if (Number.isInteger(response)) {
                     window.location.reload();
                 } else {
-                    dialog.setContent(`<strong style="display:table;margin:0 auto;"><img src="dynicons/?img=dialog-error.svg&amp;w=32" style="vertical-align:middle;float:left;">${response.errors[0]}</strong>`);
+                    dialog.setContent(`<strong style="display:table;margin:0 auto;"><img src="dynicons/?img=dialog-error.svg&amp;w=32" style="vertical-align:middle;float:left;" alt="" />${response.errors[0]}</strong>`);
                 }
             },
             cache: false
@@ -345,7 +346,7 @@ function changeSupervisor() {
 }
 
 function confirmUnlink(empUID) {
-	confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to unlink this employee?</span>');
+	confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to unlink this employee?</span>');
 	confirm_dialog.setTitle('Confirmation');
 	confirm_dialog.setSaveHandler(function() {
         $.ajax({
@@ -362,7 +363,7 @@ function confirmUnlink(empUID) {
 }
 
 function confirmRemove() {
-    confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="question icon" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this position?</span>');
+    confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this position?</span>');
     confirm_dialog.setTitle('Confirmation');
     confirm_dialog.setSaveHandler(function() {
         $.ajax({

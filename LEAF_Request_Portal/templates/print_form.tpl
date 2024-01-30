@@ -1,8 +1,8 @@
 <!--{if $deleted > 0}-->
-    <div style="font-size: 36px"><img src="dynicons/?img=emblem-unreadable.svg&amp;w=96" alt="Unreadable"
-            style="float: left" /> Notice: This request has been marked as deleted.<br />
+    <div style="font-size: 36px"><img src="dynicons/?img=emblem-unreadable.svg&amp;w=96" alt=""
+            style="float: left" /> Notice: This request has been marked as cancelled and will be permanently deleted.<br />
         <span class="buttonNorm" onclick="restoreRequest(<!--{$recordID|strip_tags}-->)"><img
-                src="dynicons/?img=user-trash-full.svg&amp;w=32" alt="un-delete" /> Un-delete request</span>
+                src="dynicons/?img=document-open.svg&amp;w=32" /> Restore request</span>
     </div><br style="clear: both" />
     <hr />
 <!--{/if}-->
@@ -36,7 +36,7 @@
     <div id="formcontent">
         <div
             style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">
-            Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
+            Loading... <img src="images/largespinner.gif" alt="" /></div>
     </div>
 </div>
 
@@ -47,31 +47,31 @@
         <h1>Tools</h1>
         <!--{if $submitted == 0}-->
             <button class="tools" onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags}-->'"><img
-                    src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="Guided editor" title="Guided editor"
+                    src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="" title="Guided editor"
                     style="vertical-align: middle" /> Edit this form</button>
             <br />
             <br />
         <!--{/if}-->
         <button type="button" class="tools" onclick="viewHistory()" title="View History"><img
-                src="dynicons/?img=appointment.svg&amp;w=32" alt="View Status" style="vertical-align: middle" /> View
+                src="dynicons/?img=appointment.svg&amp;w=32" alt="" style="vertical-align: middle" /> View
             History</button>
         <button type="button" class="tools" title="Write Email"
             onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img
-                src="dynicons/?img=internet-mail.svg&amp;w=32" alt="Write Email" style="vertical-align: middle" /> Write
+                src="dynicons/?img=internet-mail.svg&amp;w=32" alt="" style="vertical-align: middle" /> Write
             Email</button>
         <button type="button" class="tools" id="btn_printForm" title="Print this Form"><img
-                src="dynicons/?img=printer.svg&amp;w=32" alt="Print this Form" style="vertical-align: middle" /> Print
+                src="dynicons/?img=printer.svg&amp;w=32" alt="" style="vertical-align: middle" /> Print
             to PDF <span
                 style="font-style: italic; background-color: white; color: #d00; border: 1px solid black; padding: 4px">BETA</span></button>
         <input type='hidden' id='abs_portal_path' value='<!--{$abs_portal_path}-->' />
         <!--{if $bookmarked == ''}-->
-            <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Add Bookmark"
-                role="status" aria-live="polite"><img src="dynicons/?img=bookmark-new.svg&amp;w=32" alt="Add Bookmark"
-                    style="vertical-align: middle" /> <span>Add Bookmark</span></button>
+            <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Add Bookmark">
+                <img src="dynicons/?img=bookmark-new.svg&amp;w=32" alt=""
+                    style="vertical-align: middle" /> <span role="status" aria-live="polite">Add Bookmark</span></button>
         <!--{else}-->
-            <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Delete Bookmark"
-                role="status" aria-live="polite"><img src="dynicons/?img=bookmark-new.svg&amp;w=32" alt="Delete Bookmark"
-                    style="vertical-align: middle" /> <span>Delete Bookmark</span></button>
+            <button type="button" class="tools" onclick="toggleBookmark()" id="tool_bookmarkText" title="Delete Bookmark">
+                <img src="dynicons/?img=bookmark-new.svg&amp;w=32" alt=""
+                    style="vertical-align: middle" /> <span role="status" aria-live="polite">Delete Bookmark</span></button>
         <!--{/if}-->
         <button class="tools" onclick="copyRequest()" title="Copy Request"
             style="vertical-align: middle; background-image: url(dynicons/?img=edit-copy.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px">
@@ -79,7 +79,7 @@
         <br />
         <br />
         <button type="button" class="tools" id="btn_cancelRequest" title="Cancel Request" onclick="cancelRequest()"><img
-                src="dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" style="vertical-align: middle" />
+                src="dynicons/?img=process-stop.svg&amp;w=16" alt="" style="vertical-align: middle" />
             Cancel Request</button>
     </div>
 
@@ -155,19 +155,19 @@
         <h1 role="heading">Security Permissions</h1>
         <button class="buttonPermission" onclick="viewAccessLogsRead()">
             <!--{if $canRead}-->
-                <img src="dynicons/?img=edit-find.svg&amp;w=32" alt="Read Access" style="vertical-align: middle" /> You have
+                <img src="dynicons/?img=edit-find.svg&amp;w=32" alt="" style="vertical-align: middle" /> You have
                 read access
             <!--{else}-->
-                <img src="dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Read Access" style="vertical-align: middle"
+                <img src="dynicons/?img=emblem-readonly.svg&amp;w=32" alt="" style="vertical-align: middle"
                     tabindex="0" /> You do not have read access
             <!--{/if}-->
         </button>
         <button class="buttonPermission" onclick="viewAccessLogsWrite()">
             <!--{if $canWrite}-->
-                <img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Write Access"
+                <img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt=""
                     style="vertical-align: middle" /> You have write access
             <!--{else}-->
-                <img src="dynicons/?img=emblem-readonly.svg&amp;w=32" alt="No Write Access"
+                <img src="dynicons/?img=emblem-readonly.svg&amp;w=32" alt=""
                     style="vertical-align: middle" /> You do not have write access
             <!--{/if}-->
         </button>
@@ -215,7 +215,7 @@ var serviceID = <!--{$serviceID|strip_tags}-->;
 let CSRFToken = '<!--{$CSRFToken}-->';
 let formPrintConditions = {};
 function doSubmit(recordID) {
-    $('#submitControl').empty().html('<img alt="Submitting..." src="./images/indicator.gif" />Submitting...');
+    $('#submitControl').empty().html('<img alt="" src="./images/indicator.gif" />Submitting...');
     $.ajax({
         type: 'POST',
         url: "./api/form/" + recordID + "/submit",
@@ -612,7 +612,7 @@ function doSubmit(recordID) {
 
     function openContent(url) {
         $("#formcontent").html(
-            '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>'
+            '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="images/largespinner.gif" alt="" /></div>'
         );
         $.ajax({
             type: 'GET',
@@ -687,7 +687,7 @@ function doSubmit(recordID) {
 
     function cancelRequest() {
         dialog_confirm.setContent(
-            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?<br /><textarea id="cancel_comment" cols=30 rows=3 placeholder="Enter Comment"></textarea>'
+            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?<br /><textarea id="cancel_comment" cols=30 rows=3 placeholder="Enter Comment"></textarea>'
         );
 
         dialog_confirm.setSaveHandler(function() {

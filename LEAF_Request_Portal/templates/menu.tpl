@@ -2,14 +2,17 @@
     <a href="./" class="buttonNorm" title="nav to homepage"><img src="dynicons/?img=go-home.svg&amp;w=16" alt="" />Main Page</a>
 {/if}
 <div id="headerMenu_container" style="display: inline-block">
-    <a id="button_showLinks" tabIndex="0" class="buttonNorm" title="site links" aria-haspopup="true" aria-expanded="false" role="button">Links</a>
+    <a id="button_showLinks" tabIndex="0" class="buttonNorm" title="site links" aria-haspopup="true" aria-expanded="false" role="button">
+        Links<span role="img" aria="" alt="">▼</span>
+    </a>
     <div id="headerMenu_links">
     {include file={$menu_links}}
     </div>
 </div>
 <div id="headerMenuHelp_container" style="display: inline-block">
     <a id="button_showHelp" tabIndex="0" class="buttonNorm" title="primary admin contact information" aria-haspopup="true" aria-expanded="false" role="button">
-        <img style="vertical-align: sub;" src="dynicons/?img=help-browser.svg&amp;w=16" alt="" />&nbsp;Help
+        <img style="vertical-align: sub;" src="dynicons/?img=help-browser.svg&amp;w=16" alt="" />
+        Help<span role="img" aria="" alt="">▼</span>
     </a>
     <div id="headerMenu_help" tabindex="0">
     {include file={$menu_help}}

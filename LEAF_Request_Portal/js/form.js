@@ -26,14 +26,14 @@ var LeafForm = function (containerID) {
                     <div id="form-xhr-cancel-save-menu" style="border-bottom: 2px solid black; height: 30px">\
                         <button id="' +
       prefixID +
-      'button_cancelchange" class="buttonNorm" ><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button>\
+      'button_cancelchange" class="buttonNorm" ><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="" /> Cancel</button>\
                         <button id="' +
       prefixID +
-      'button_save" class="buttonNorm"><img src="dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
+      'button_save" class="buttonNorm"><img src="dynicons/?img=media-floppy.svg&amp;w=16" alt="" /> Save Change</button>\
                     </div>\
                     <div id="' +
       prefixID +
-      'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>\
+      'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="" /></div>\
                     <div id="' +
       prefixID +
       'xhr" style="min-width: 540px; min-height: 420px; padding: 8px; overflow: auto"></div>\
@@ -682,7 +682,7 @@ var LeafForm = function (containerID) {
     var temp = $("#" + dialog.btnSaveID).html();
     $("#" + dialog.btnSaveID)
       .empty()
-      .html('<img src="images/indicator.gif" alt="saving" /> Saving...');
+      .html('<img src="images/indicator.gif" alt="" /> Saving...');
 
     $("#" + htmlFormID)
       .find(":input:disabled")

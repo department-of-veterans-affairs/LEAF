@@ -2,7 +2,7 @@
 
 <a href="?a=navigator" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: #ffefa5" tabindex="0">
-        <img class="menuIconSmall" src="dynicons/?img=applications-internet.svg&amp;w=76" style="position: relative" alt="Navigator" title="Navigator" />
+        <img class="menuIconSmall" src="dynicons/?img=applications-internet.svg&amp;w=76" style="position: relative" alt="" />
         <span class="menuTextSmall">Browser</span><br />
         <span class="menuDescSmall">View Organizational Charts</span>
     </span>
@@ -11,7 +11,7 @@
 <!--{if $groupLeader != ''}-->
 <a href="?a=navigator&amp;rootID=<!--{$groupLeader|strip_tags}-->" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: #b3ceff" tabindex="0">
-        <img class="menuIconSmall" src="dynicons/?img=preferences-system-windows.svg&amp;w=76" style="position: relative" alt="Search" title="Search" />
+        <img class="menuIconSmall" src="dynicons/?img=preferences-system-windows.svg&amp;w=76" style="position: relative" alt="" />
         <span class="menuTextSmall">Service Org. Chart</span><br />
         <span class="menuDescSmall">View your service's Org. Chart</span>
     </span>
@@ -20,7 +20,7 @@
 
 <a href="./utils/exportPDL.php" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
-        <img class="menuIconSmall" src="dynicons/?img=x-office-spreadsheet.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+        <img class="menuIconSmall" src="dynicons/?img=x-office-spreadsheet.svg&amp;w=76" style="position: relative" alt=""  />
         <span class="menuTextSmall" style="color: white">Export PDL</span><br />
         <span class="menuDescSmall" style="color: white">Download the Position Description List</span>
     </span>
@@ -28,7 +28,7 @@
 
 <a href="?a=summary" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
-        <img class="menuIconSmall" src="dynicons/?img=x-office-presentation.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+        <img class="menuIconSmall" src="dynicons/?img=x-office-presentation.svg&amp;w=76" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Vacancy Summary</span><br />
         <span class="menuDescSmall" style="color: white">View vacancies by Service</span>
     </span>
@@ -38,30 +38,30 @@
 
 <div id="main">
     <div id="searchContainer" style="float: left; border: 1px solid #e0e0e0; padding: 4px; background-color: white">
-        <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #5A79A5">
-            <div id="searchBorder" style="white-space: nowrap; background-color: #5a79a5;">
-                <img id="searchIcon" src="dynicons/?img=search.svg&w=16" style="position: absolute; margin-left: 66px; padding: 10px" alt="search" />
-                <img id="searchIconBusy" src="images/indicator.gif" style="display: none; position: absolute; margin-left: 66px; padding: 10px" alt="search" />
-                Search <input id="search" name="search" aria-label="Search" style="font-size: 140%; width: 75%; padding: 2px 2px 2px 26px; border: 1px solid black; background-repeat: no-repeat; background-position: right center" type="text" />
+        <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #4A6995">
+            <div id="searchBorder" style="white-space: nowrap; background-color: #4A6995;">
+                <img id="searchIcon" src="dynicons/?img=search.svg&w=16" style="position: absolute; margin-left: 66px; padding: 10px" alt="" />
+                <img id="searchIconBusy" src="images/indicator.gif" style="display: none; position: absolute; margin-left: 66px; padding: 10px" alt="" />
+                <label for="search">Search </label><input id="search" name="search" aria-label="Search" style="font-size: 140%; width: 75%; padding: 2px 2px 2px 26px; border: 1px solid black; background-repeat: no-repeat; background-position: right center" type="text" />
             </div>
         </div>
         <br />
         <div id="searchTips" style="max-width: 300px">
             <fieldset><legend style="font-size: 11px; color: #767676">Available Search Options</legend>
                <div>
-                   <img title="Employees" alt="Employees" style="float: left; padding: 8px" src="dynicons/?img=contact-new.svg&amp;w=32" />
+                   <img title="Employees" alt="" style="float: left; padding: 8px" src="dynicons/?img=contact-new.svg&amp;w=32" />
                    <div><h3>Employees</h3>
                    Names</div>
                </div>
                <br />
                <div>
-                   <img title="Positions" alt="Positions" style="float: left; padding: 8px" src="dynicons/?img=system-users.svg&amp;w=32" />
+                   <img title="Positions" alt="" style="float: left; padding: 8px" src="dynicons/?img=system-users.svg&amp;w=32" />
                    <div><h3>Positions</h3>
                    Titles, PD Number</div>
                </div>
                <br />
                <div>
-                   <img title="Groups" alt="Groups" style="float: left; padding: 8px" src="dynicons/?img=preferences-desktop-theme.svg&amp;w=32" />
+                   <img title="Groups" alt="" style="float: left; padding: 8px" src="dynicons/?img=preferences-desktop-theme.svg&amp;w=32" />
                    <div><h3>Groups</h3>
                    Services, Organizational</div>
                </div>

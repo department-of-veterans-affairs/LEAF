@@ -46,7 +46,7 @@
                     <!--{/if}-->
             </span>
             <!--{/if}-->
-            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('/dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
+            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="sensitive. Click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
                 <!--{/if}-->
         </div>
         <div class="response blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
@@ -67,7 +67,7 @@
                 </tbody>
             </table>
             </div>
-            <button type="button" class="buttonNorm" id="addRowBtn_<!--{$indicator.indicatorID}-->" title="Grid input add row" alt="Grid input add row" aria-label="Grid input add row" onclick="gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow()"><img src="dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add row</button>
+            <button type="button" class="buttonNorm" id="addRowBtn_<!--{$indicator.indicatorID}-->" title="Grid input add row" aria-label="Grid input add row" onclick="gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->.addRow()"><img src="dynicons/?img=list-add.svg&w=16" style="height: 25px;" alt="" />Add row</button>
             <script>
                 var gridInput_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}--> = new gridInput(<!--{$indicator.options[0]}-->, <!--{$indicator.indicatorID}-->, <!--{$indicator.series}-->);
                 $(function() {
@@ -339,7 +339,10 @@
                 <script>
                 $(function() {
                 	$('#<!--{$indicator.indicatorID|strip_tags}-->').chosen({disable_search_threshold: 5, allow_single_deselect: true, width: '80%'});
+                    $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen input.chosen-search-input').attr('role', 'combobox');
                     $('#<!--{$indicator.indicatorID|strip_tags}-->_chosen input.chosen-search-input').attr('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
+                    $(`#<!--{$indicator.indicatorID|strip_tags}-->-chosen-search-results`).attr('title', "Selection List");
+                    $(`#<!--{$indicator.indicatorID|strip_tags}-->-chosen-search-results`).attr('role', 'listbox');
                 });
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
@@ -445,7 +448,7 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'date' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-            <span class="text">
+            <span class="text" style="position:relative;">
                 <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="background: url(dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value|sanitize}-->" />
                 <input class="ui-helper-hidden-accessible" id="<!--{$indicator.indicatorID|strip_tags}-->_focusfix" type="text" />
                 <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Incorrect Date</span>
@@ -811,10 +814,10 @@
                 <!--{/if}-->  
                     <div id="file<!--{$indicator.indicatorID|strip_tags}-->_control" style="margin-top: 0.5rem;">Select <!--{if $counter > 0}-->additional <!--{/if}-->File to attach: 
                         <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" type="file"
-                            aria-describedby="format_label_<!--{$indicator.indicatorID|strip_tags}-->"
+                            aria-labelledby="format_label_<!--{$indicator.indicatorID|strip_tags}-->"
                             onchange="addFile_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(<!--{$indicator.indicatorID|strip_tags}-->,<!--{$indicator.series|strip_tags}-->,'<!--{$indicator.format|strip_tags}-->')" <!--{if $indicator.format === 'image'}-->accept="image/*"<!--{/if}--> />
                     </div>
-                    <div id="loading_indicator_<!--{$indicator.indicatorID|strip_tags}-->" style="display:none;"><img src="images/indicator.gif" alt="loading..." /> Attaching file...</div>
+                    <div id="loading_indicator_<!--{$indicator.indicatorID|strip_tags}-->" style="display:none;"><img src="images/indicator.gif" alt="" /> Attaching file...</div>
                     <div tabindex="0" id="file<!--{$indicator.indicatorID|strip_tags}-->_status" style="display: none; background-color: #fffcae; padding: 4px; font-weight: bolder; margin-top:0.2rem; line-height:1.6;"></div>
                     <div style="font-family: verdana; font-size: 10px">
                         <br />Maximum attachment size is <b><!--{$max_filesize|strip_tags}-->B.</b>
@@ -971,7 +974,7 @@
                         $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append(br);
 
                         var ocLink = document.createElement('div');
-                        ocLink.innerHTML = '<img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="View Position Details" /> View Details in Org. Chart';
+                        ocLink.innerHTML = '<img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="" /> View Details in Org. Chart';
                         ocLink.setAttribute('onclick', "window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.value|strip_tags}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');");
                         ocLink.setAttribute('class', 'buttonNorm');
                         ocLink.setAttribute('style', 'margin-top: 8px');
