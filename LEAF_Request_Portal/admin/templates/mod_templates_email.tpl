@@ -8,7 +8,7 @@
     <div class="page-title-container">
         <h2>Email Template Editor</h2>
         <div class="mobileToolsNav">
-            <button class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
+            <button type="button" class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
         </div>
     </div>
     <div class="page-main-content">
@@ -16,7 +16,7 @@
             <aside class="sidenav">
                 <div id="fileBrowser">
 
-                    <button
+                    <button type="button"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         id="btn_history" onclick="viewHistory()">View History</button>
                 </div>
@@ -119,7 +119,7 @@
                         <div id="indicator-id-label">
                             <span>Your field ID is: </span><span id="indicator-id"
                                 style="font-weight: 700; margin-right: 1rem;"></span>
-                            <button id="copy-field-id" style="width: auto; display: inline-block;"
+                            <button type="button" id="copy-field-id" style="width: auto; display: inline-block;"
                                 class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med"><i
                                     class="fas fa-copy"></i> Copy</button>
                         </div>
@@ -202,21 +202,21 @@
             </div>
         </main>
         <div class="leaf-right-nav">
-            <div id="closeMobileToolsNavBtnContainer"><button id="closeMobileToolsNavBtn"
+            <div id="closeMobileToolsNavBtnContainer"><button type="button" id="closeMobileToolsNavBtn" aria-label="close tools menu"
                     onclick="closeRightNavTools('leaf-right-nav')">X</button></div>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right">
                 <div id="controls">
-                    <button id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
+                    <button type="button" id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
                         onclick="save();">
                         Save Changes<span id="saveStatus"
                             class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
-                    <button id="restore_original"
+                    <button type="button" id="restore_original"
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
                         onclick="restore();">Restore Original</button>
-                    <button
+                    <button type="button"
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         id="btn_compareStop" style="display: none" onclick="loadContent();">Stop Comparing</button>
                     <!-- <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
@@ -225,8 +225,8 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button class="file_replace_file_btn">Use Old File</button>
-                    <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
+                    <button type="button" class="file_replace_file_btn">Use Old File</button>
+                    <button type="button" class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
             <div class="file-history">
@@ -263,7 +263,7 @@
                     let includesNonOrgchartEmp = false;
                     for(let i = 0; i < ids.length; i++) {
                         const id = ids[i];
-                        if(indicatorFormats[id] !== "orgchart_employee") {
+                        if(allowedToCcFormats?.[indicatorFormats[id]] !== 1) {
                             includesNonOrgchartEmp = true;
                             break;
                         }
@@ -508,6 +508,9 @@
     var ignoreUnsavedChanges = false;
     var ignorePrompt = true;
     let indicatorFormats = {};
+    const allowedToCcFormats = {
+        "orgchart_employee": 1,
+    }
 
     // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {

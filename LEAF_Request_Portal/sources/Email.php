@@ -51,6 +51,8 @@ class Email
 
     private int $recordID;
 
+    private string $emailRegex = "/(\w+@[a-z_\-]+?\.[a-z]{2,6})$/i";
+
     const SEND_BACK = -1;
     const NOTIFY_NEXT = -2;
     const NOTIFY_COMPLETE = -3;
@@ -218,8 +220,7 @@ class Email
      */
     public function addRecipient(string|null $address, bool $requiredAddress = false): bool
     {
-        $emailReg = "/(\w+@[a-z_\-]+?\.[a-z]{2,6})$/i";
-        if (preg_match($emailReg, $address) == 0){
+        if (preg_match($this->emailRegex, $address) == 0){
             return false;
         }
         if ($this->emailRecipient == ''){
@@ -283,8 +284,7 @@ class Email
 
     public function addCcBcc(string|null $address, bool $requiredAddress = false, bool $isBcc = false): bool
     {
-        $emailReg = "/(\w+@[a-z_\-]+?\.[a-z]{2,6})$/i";
-        if (preg_match($emailReg, $address) == 0){
+        if (preg_match($this->emailRegex, $address) == 0){
             return false;
         }
         if ( !$this->isExistingRecipient($address) || ($requiredAddress)  ) {
