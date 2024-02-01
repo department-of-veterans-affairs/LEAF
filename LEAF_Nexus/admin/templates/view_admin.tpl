@@ -2,15 +2,15 @@
 
 <a href="../?a=browse_group" tabindex="-1">
     <span class="menuButton" style="background-color: #cb9ed7" tabindex="0">
-        <img class="menuIcon" src="../dynicons/?img=preferences-desktop-theme.svg&amp;w=96" style="position: relative" alt="Group Search" title="Group Search" />
-        <span class="menuText">Groups</span><br />
+        <img class="menuIcon" src="../dynicons/?img=preferences-desktop-theme.svg&amp;w=96" style="position: relative" alt="" />
+        <span class="menuText">Search Groups</span><br />
         <span class="menuDesc">View groups such as services, sub-sections, etc.</span>
     </span>
 </a>
 
 <a href="?a=admin_refresh_directory" tabindex="-1">
     <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
-        <img class="menuIcon" src="../dynicons/?img=system-software-update.svg&amp;w=96" style="position: relative" alt="Directory Update" title="Directory Update" />
+        <img class="menuIcon" src="../dynicons/?img=system-software-update.svg&amp;w=96" style="position: relative" alt="" />
         <span class="menuText">Refresh Directory</span><br />
         <span class="menuDesc">Update account list from Active Directory</span>
     </span>
@@ -18,7 +18,7 @@
 
 <a href="?a=setup_medical_center" tabindex="-1">
     <span class="menuButton" style="background-color: #c6ffbe" tabindex="0">
-        <img class="menuIcon" src="../dynicons/?img=preferences-system.svg&amp;w=96" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+        <img class="menuIcon" src="../dynicons/?img=preferences-system.svg&amp;w=96" style="position: relative" alt="" />
         <span class="menuText">Setup Wizard</span><br />
         <span class="menuDesc">Initial setup for VA Medical Centers</span>
     </span>
@@ -26,7 +26,7 @@
 
 <a href="?a=mod_templates_reports" tabindex="-1">
     <span class="menuButton" style="background-color: black" tabindex="0">
-        <img class="menuIcon" src="../dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+        <img class="menuIcon" src="../dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="" />
         <span class="menuText" style="color: white">Report Programmer</span><br />
         <span class="menuDesc" style="color: white">Advanced Reports and Custom Pages</span>
     </span>
@@ -46,7 +46,7 @@ Programmer Options:<br />
 
 <a href="../?a=browse_search" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
-        <img class="menuIconSmall" src="../dynicons/?img=system-search.svg&amp;w=72" style="position: relative" alt="Search" title="Search" />
+        <img class="menuIconSmall" src="../dynicons/?img=system-search.svg&amp;w=72" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Search</span><br />
         <span class="menuDescSmall" style="color: white">All-in-one search</span>
     </span>
@@ -54,7 +54,7 @@ Programmer Options:<br />
 
 <a href="#" onclick="newEmployee()" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
-        <img class="menuIconSmall" src="../dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="Search" title="Search" />
+        <img class="menuIconSmall" src="../dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Import Employee</span><br />
         <span class="menuDescSmall" style="color: white">Old tool to import employees into the database</span>
     </span>
@@ -62,7 +62,7 @@ Programmer Options:<br />
 
 <a href="?a=import_employees_from_spreadsheet" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
-        <img class="menuIconSmall" src="../dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+        <img class="menuIconSmall" src="../dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Spreadsheet Import</span><br />
         <span class="menuDescSmall" style="color: white">Batch add employees from spreadsheet</span>
     </span>
@@ -70,7 +70,7 @@ Programmer Options:<br />
 
 <a href="?a=mod_system" tabindex="-1">
     <span class="menuButtonSmall" style="background-color: black" tabindex="0">
-        <img class="menuIconSmall" src="../dynicons/?img=preferences-desktop.svg&amp;w=72" style="position: relative" alt="Bookmarks" title="Bookmarks" />
+        <img class="menuIconSmall" src="../dynicons/?img=preferences-desktop.svg&amp;w=72" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Change Site Name</span><br />
         <span class="menuDescSmall" style="color: white">Edit site name and other parameters</span>
     </span>
@@ -80,7 +80,7 @@ Programmer Options:<br />
 
 <a href="?a=admin_update_database" tabindex="-1">
     <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
-        <img class="menuIcon" src="../dynicons/?img=application-x-executable.svg&amp;w=96" style="position: relative" alt="Database Update" title="Database Update" />
+        <img class="menuIcon" src="../dynicons/?img=application-x-executable.svg&amp;w=96" style="position: relative" alt=""  />
         <span class="menuText">Update Database</span><br />
         <span class="menuDesc">Updates the system database, if available</span>
     </span>

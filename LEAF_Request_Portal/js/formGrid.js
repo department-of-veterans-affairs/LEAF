@@ -830,7 +830,7 @@ var LeafFormGrid = function (containerID, options) {
           colspan +
           ' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="' +
           rootURL +
-          'images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>'
+          'images/indicator.gif" style="vertical-align: middle" alt="" /> Loading more results...</td></tr>'
       );
     }
 
@@ -896,7 +896,7 @@ var LeafFormGrid = function (containerID, options) {
         colspan +
         '" style="text-align: left; padding: 8px">Building report... <img src="' +
         rootURL +
-        'images/largespinner.gif" alt="loading..." /></td></tr>'
+        'images/largespinner.gif" alt="" /></td></tr>'
     );
 
     var headerIDList = "";
@@ -989,7 +989,7 @@ var LeafFormGrid = function (containerID, options) {
         prefixID +
         'getExcel" class="buttonNorm"><img src="' +
         rootURL +
-        'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>'
+        'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="" /> Export</button>'
     );
 
     $("#" + prefixID + "getExcel").on("click", function () {

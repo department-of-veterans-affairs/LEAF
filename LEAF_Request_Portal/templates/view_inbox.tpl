@@ -2,14 +2,14 @@ The following is a list of requests that are pending your action:
 <!--{if count($inbox) == 0}-->
 <br /><br />
 <div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px; background-color: white">
-<img src="dynicons/?img=folder-open.svg&amp;w=96" alt="empty" style="float: left; padding-right: 16px"/><div style="font-size: 200%"> Your inbox is empty.<br /><br />Have a good day!</div>
+<img src="dynicons/?img=folder-open.svg&amp;w=96" alt="" style="float: left; padding-right: 16px"/><div style="font-size: 200%"> Your inbox is empty.<br /><br />Have a good day!</div>
 </div>
 <!--{/if}-->
 
 <!--{if count($errors) > 0 && $errors[0].code == 1}-->
 <br /><br />
 <div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px; background-color: white">
-<img src="dynicons/?img=folder-open.svg&amp;w=96" alt="empty" style="float: left; padding-right: 16px"/><div style="font-size: 200%">Warning: Inbox limit is in place to ensure consistent performance</div>
+<img src="dynicons/?img=folder-open.svg&amp;w=96" alt="" style="float: left; padding-right: 16px"/><div style="font-size: 200%">Warning: Inbox limit is in place to ensure consistent performance</div>
 </div>
 <!--{/if}-->
 
@@ -44,6 +44,7 @@ The following is a list of requests that are pending your action:
 <!-- DIALOG BOXES -->
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 <!--{include file="site_elements/generic_OkDialog.tpl"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <script type="text/javascript" src="js/functions/toggleZoom.js"></script>
 <script type="text/javascript" src="<!--{$app_js_path}-->/LEAF/sensitiveIndicator.js"></script>
@@ -53,6 +54,7 @@ The following is a list of requests that are pending your action:
 
     $(function() {
         dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+        dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
         dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
         <!--{foreach from=$inbox item=dep}-->
         toggleDepVisibility('<!--{$dep.dependencyID|strip_tags}-->', 1, CSRFToken);

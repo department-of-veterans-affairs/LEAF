@@ -1307,18 +1307,17 @@
                     type: 'GET',
                     url: '../api/emailTemplates/custom',
                     dataType: 'json',
-                    success: function (result) {
-                        let res_array = $.parseJSON(result);
+                    success: function (customTemplates) {
                         let buffer = '<ul class="leaf-ul">';
                         let filesMobile = `<label for="template_file_select">Template Files:</label>
                             <div class="template_select_container"><select id="template_file_select" class="templateFiles">`;
 
-                        if (res_array.status['code'] === 2) {
+                        if (Array.isArray(customTemplates)) {
                             for (let i in res) {
                                 let custom = '';
 
-                                if (result.includes(res[i].fileName)) {
-                                    custom = '<span class=\'custom_file\' style=\'color:#c00000; font-size: .75em\'>(custom)</span>';
+                                if (customTemplates.includes(res[i].fileName)) {
+                                    custom = '<span class=\'custom_file\' style=\'color: #c00000; font-size: .75em\'>(custom)</span>';
                                 }
 
                                 // Construct the option element with data- attributes for filesMobile
@@ -1336,9 +1335,6 @@
 
                             filesMobile += '</select></div>';
                             buffer += '</ul>';
-                        } else if (res_array.status['code'] === 4) {
-                            buffer += '<li>' + res_array.status['message'] + '</li>';
-                            filesMobile += '<select><option>' + res_array.status['message'] + '</option></select>';
                         } else {
                             buffer += '<li>Internal error occurred. If this persists, contact your Primary Admin.</li>';
                             filesMobile += '<div>Internal error occurred. If this persists, contact your Primary Admin.</div>';

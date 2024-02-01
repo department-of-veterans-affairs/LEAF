@@ -61,7 +61,7 @@
         <button class="buttonNorm buttonDaySearch" id="submitSearchByDays">Search Requests</button>
     </div>
 
-    <img id="iconBusy" src="./images/indicator.gif" class="employeeSelectorIcon" alt="busy">
+    <img id="iconBusy" src="./images/indicator.gif" class="employeeSelectorIcon" alt="busy" />
     <div id="searchResults">
         <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal">Take Action</button>
         <div class="progress"></div>

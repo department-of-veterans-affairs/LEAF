@@ -7,11 +7,11 @@
             <div id="progressArea" style="height: 34px; background-color: #feffd2; padding: 4px; border-bottom: 1px solid black">
                 <div id="progressControl" style="float: left">Form completion progress: <div tabIndex="0" id="progressBar" title="form progress bar" style="height: 14px; margin: 2px; border: 1px solid black; text-align: center"><div style="width: 300px; line-height: 120%; float: left; font-size: 12px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div>
                 </div>
-                <div style="float: right"><button id="nextQuestion" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="Next" /> Next Question</button></div>
+                <div style="float: right"><button id="nextQuestion" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" /> Next Question</button></div>
                 <br style="clear: both" />
             </div>
             <div>
-                <img src="images/indicator.gif" id="loadIndicator" style="visibility: hidden; float: right" alt="loading..." />
+                <img src="images/indicator.gif" id="loadIndicator" style="visibility: hidden; float: right" alt="" />
                 <form id="record" enctype="multipart/form-data" action="javascript:void(0);">
                     <div>
                         <div id="xhr" style="padding: 16px"></div>
@@ -20,8 +20,8 @@
                 </form>
             </div>
             <div id="progressArea2" style="height: 34px; background-color: #feffd2; padding: 4px; border-top: 1px solid black">
-                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="dynicons/?img=go-previous.svg&amp;w=22" alt="Previous" aria-label="Previous"/> Previous Question</button></div>
-                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="Next" aria-label="Next"/> Next Question</button></div>
+                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="dynicons/?img=go-previous.svg&amp;w=22" alt="" aria-label="Previous"/> Previous Question</button></div>
+                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" aria-label="Next"/> Next Question</button></div>
             </div>
         </div>
         <br />
@@ -29,9 +29,9 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <div id="showSinglePage" role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View full form"><img src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="View full form"  /> Show single page</div>
+            <div id="showSinglePage" role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View full form"><img src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt=""  /> Show single page</div>
             <br /><br />
-            <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="Cancel Request" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
+            <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
         </div>
     </div>
 </div>
@@ -125,7 +125,7 @@ function updateProgress(focusNext=false) {
                 $('#progressLabel').text(response + '%');
             }
             else {
-                savechange = '<div tabindex="0" class="buttonNorm" onkeydown="if(event.keyCode === 13){ manualSaveChange(); }" onclick="manualSaveChange();"><div id="save_indicator"><img src="dynicons/?img=media-floppy.svg&amp;w=22" alt="save" style="vertical-align: middle" /> Save Change</div></button>';
+                savechange = '<div tabindex="0" class="buttonNorm" onkeydown="if(event.keyCode === 13){ manualSaveChange(); }" onclick="manualSaveChange();"><div id="save_indicator"><img src="dynicons/?img=media-floppy.svg&amp;w=22" alt="" style="vertical-align: middle" /> Save Change</div></button>';
                 $('#progressControl').html(savechange);
             }
             window.scrollTo(0,0);
@@ -144,7 +144,7 @@ function updateProgress(focusNext=false) {
 }
 
 function cancelRequest() {
-    dialog_confirm.setContent('<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="Cancel Request" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?');
+    dialog_confirm.setContent('<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?');
 
     dialog_confirm.setSaveHandler(function() {
         $.ajax({
@@ -164,7 +164,7 @@ function cancelRequest() {
 
 function manualSaveChange()
 {
-    $("#save_indicator").html('<img src="images/indicator.gif" alt="Saving..." /> Saving...');
+    $("#save_indicator").html('<img src="images/indicator.gif" alt="" /> Saving...');
     setTimeout("$('#save_indicator').html('<img src=\"dynicons/?img=media-floppy.svg&amp;w=22\" alt=\"save\" style=\"vertical-align: middle\"/> Save Change')", 1000);
     form.setPostModifyCallback(function() {
         getForm(formStructure[currFormPosition].indicatorID, formStructure[currFormPosition].series);

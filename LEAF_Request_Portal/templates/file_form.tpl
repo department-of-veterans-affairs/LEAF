@@ -4,7 +4,7 @@
     <input type="hidden" name="indicatorID" value="{$indicatorID|strip_tags}" />
     <div id="file{$indicatorID|strip_tags}_control">Select File to attach: 
     <input id="file{$indicatorID|strip_tags}" name="{$indicatorID|strip_tags}" type="file" aria-labelledby="format_label_{$indicatorID|strip_tags}" /></div>
-    <div id="file{$indicatorID|strip_tags}_status" style="visibility: hidden; display: none; background-color: #fffcae; padding: 4px"><img src="images/indicator.gif" alt="loading..." /> Attaching file...</div>
+    <div id="file{$indicatorID|strip_tags}_status" style="visibility: hidden; display: none; background-color: #fffcae; padding: 4px"><img src="images/indicator.gif" alt="" /> Attaching file...</div>
 <div style="font-family: verdana; font-size: 10px">
   <br />Maximum attachment size is <b>{$max_filesize}B.</b>
 </div>

@@ -32,7 +32,7 @@ var LeafFormSearch = function (containerID) {
                 'dynicons/?img=search.svg&w=16">\
 			    <img id="' +
                 prefixID +
-                'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="' +
+                'searchIconBusy" class="searchIcon" alt="" style="vertical-align: middle; padding-right: 4px; display:none" src="' +
                 rootURL +
                 'images/indicator.gif">\
 					<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" class="status" role="status"></span>\
@@ -1636,6 +1636,7 @@ var LeafFormSearch = function (containerID) {
             disable_search_threshold: 6,
             width: "100%",
         }); // needs to be here due to chosen issue with display:none
+        $('input.chosen-search-input').attr('role', 'combobox');
     }
 
     /**

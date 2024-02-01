@@ -20,7 +20,7 @@
         
         <div id="fileList"></div>
         <div id="fileFormContext" style="margin-top: 1rem;">
-            Loading Form Information... <img src="../images/largespinner.gif" alt="loading..." />
+            Loading Form Information... <img src="../images/largespinner.gif" alt="" />
         </div>
 
         <div class="leaf-row-space"></div>

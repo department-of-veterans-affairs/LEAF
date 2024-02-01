@@ -206,8 +206,8 @@ class FormWorkflow
                     $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
                     
                     if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $dRecords[$v['recordID']]['name'] . ')';
-                        $srcRecords[$i]['approverName'] = $dRecords[$v['recordID']]['name'];
+                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' ( *NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'] . ')';
+                        $srcRecords[$i]['approverName'] = '*NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'];
                         $srcRecords[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
                     }
                     else {
