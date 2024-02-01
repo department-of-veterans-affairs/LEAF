@@ -655,7 +655,7 @@ var LeafForm = function (containerID) {
       ].conditions.filter(c =>
         currentFormat !== 'raw_data' &&
         currentFormat === c.childFormat.toLowerCase() &&
-        confirmedParElsByIndID.includes(parseInt(c.parentIndID))
+        (c.selectedOutcome === "crosswalk" || confirmedParElsByIndID.includes(+c.parentIndID))
       );
     }
     confirmedParElsByIndID.forEach((id) => {
