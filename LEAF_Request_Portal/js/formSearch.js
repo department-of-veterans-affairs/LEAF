@@ -39,18 +39,18 @@ var LeafFormSearch = function (containerID) {
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="' +
                 prefixID +
                 'searchtxt" name="searchtxt" size="50" title="Enter your search text" value="" />\
-			    <button class="buttonNorm" id="' +
+			    <button type="button" class="buttonNorm" id="' +
                 prefixID +
                 'advancedSearchButton">Advanced Options</button>\
 			    <fieldset id="' +
                 prefixID +
                 'advancedOptions" style="position: relative; display: none; margin: 0px; border: 1px solid black; background-color: white">\
 		        <legend>Advanced Search Options</legend>\
-		        <button id="' +
+		        <button type="button" id="' +
                 prefixID +
                 'advancedOptionsClose" style="float: right; margin-top: -20px; margin-right: -14px; display: none; cursor: pointer; background-image:url(' +
                 rootURL +
-                'dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em" alt="Close advanced search">Close advanced search</button>\
+                'dynicons/?img=process-stop.svg&w=16); height: 16px;width: 16px; border: none; background-color: transparent; text-indent: -9999em">Close advanced search</button>\
                 <div style="width: 550px">Find items where...</div>\
 		        <table id="' +
                 prefixID +
@@ -65,7 +65,7 @@ var LeafFormSearch = function (containerID) {
                 <div id="unsubmitted_results_notice" style="display:none;color:#b00; margin:0.5rem 2px;">\
                     <div>Results can include unsubmitted requests.  Consider including \'Current Status IS Submitted\'.</div>\
                 </div>\
-		        <button id="' +
+		        <button type="button" id="' +
                 prefixID +
                 'advancedSearchApply" class="buttonNorm" style="text-align: center; width: 100%">Apply Filters</button>\
 		    </fieldset>\
@@ -93,30 +93,7 @@ var LeafFormSearch = function (containerID) {
                 $("#" + prefixID + "searchtxt").focus();
             });
         });
-        //added for keyboard navigation and accessibility to close advanced search options
-        var searchOrigWidth = 0;
-        $("#" + prefixID + "advancedOptionsClose").on("keydown", function (e) {
-            if (e.keyCode == 13) {
-                localStorage.setItem(localStorageNamespace + ".search", "");
-                $("#" + prefixID + "searchtxt").val("");
-                search("");
-                $("#" + prefixID + "advancedOptionsClose").css(
-                    "display",
-                    "none"
-                );
-                $("#" + prefixID + "advancedOptions").slideUp(function () {
-                    $("#" + prefixID + "advancedSearchButton").fadeIn();
-                    $("#" + prefixID + "searchtxt").css("display", "inline");
-                    $("#" + prefixID + "searchtxt").animate(
-                        { width: searchOrigWidth },
-                        400,
-                        "swing"
-                    );
-                    $("#" + prefixID + "searchtxt").focus();
-                });
-            }
-        });
-
+        //this element is a button, so this will also handle keyboard events
         $("#" + prefixID + "advancedSearchButton").on("click", function () {
             searchOrigWidth = $("#" + prefixID + "searchtxt").width();
             $("#" + prefixID + "advancedSearchButton").fadeOut();

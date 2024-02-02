@@ -12,79 +12,96 @@ function renderResult(leafSearch, res) {
     grid.hideIndex();
     grid.setDataBlob(res);
     grid.setHeaders([
-        {name: 'Date', indicatorID: 'date', editable: false, callback: function(data, blob) {
-            let date = new Date(blob[data.recordID].date * 1000);
-            let now = new Date();
-            let year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
-            let formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
-            document.querySelector(`#${data.cellContainerID}`).innerHTML = formattedDate;
-            if(blob[data.recordID].userID == "<!--{$userID|unescape|escape:'quotes'}-->") {
-                document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
-            }
-        }},
-        {name: 'Title', indicatorID: 'title', callback: function(data, blob) {
-            let types = '';
-            for(let i in blob[data.recordID].categoryNames) {
-                if(blob[data.recordID].categoryNames[i] != '') {
-                    types += blob[data.recordID].categoryNames[i] + ' | ';
+        {
+            name: 'Date',
+            indicatorID: 'date',
+            editable: false,
+            callback: function(data, blob) {
+                let date = new Date(blob[data.recordID].date * 1000);
+                let now = new Date();
+                let year = now.getFullYear() != date.getFullYear() ? ' ' + date.getFullYear() : '';
+                let formattedDate = months[date.getMonth()] + ' ' + parseFloat(date.getDate()) + year;
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = formattedDate;
+                if(blob[data.recordID].userID == "<!--{$userID|unescape|escape:'quotes'}-->") {
+                    document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
                 }
             }
-            types = types.substr(0, types.length - 3);
+        },
+        {
+            name: 'Title',
+            indicatorID: 'title',
+            callback: function(data, blob) {
+                let types = '';
+                for(let i in blob[data.recordID].categoryNames) {
+                    if(blob[data.recordID].categoryNames[i] != '') {
+                        types += blob[data.recordID].categoryNames[i] + ' | ';
+                    }
+                }
+                types = types.substr(0, types.length - 3);
 
-            priority = '';
-            priorityStyle = '';
-            if(blob[data.recordID].priority == -10) {
-                priority = '<span style="color: red"> ( Emergency ) </span>';
-                priorityStyle = ' style="background-color: red; color: black"';
-            }
+                priority = '';
+                priorityStyle = '';
+                if(blob[data.recordID].priority == -10) {
+                    priority = '<span style="color:#d00000;"> (&nbsp;Emergency&nbsp;)</span>';
+                    priorityStyle = ' style="background-color: #FF4040; color: black"';
+                }
 
-            document.querySelector(`#${data.cellContainerID}`).innerHTML =
-                `<span class="browsecounter">
-                    <a ${priorityStyle} href="index.php?a=printview&recordID=${data.recordID}" tabindex="-1">${data.recordID}</a>
-                 </span>
-                 <a href="index.php?a=printview&recordID=${data.recordID}">${blob[data.recordID].title}</a><br />
-                 <span class="browsetypes">${types}</span>${priority}`;
-            document.querySelector(`#${data.cellContainerID}`).addEventListener('click', function() {
-                window.location = 'index.php?a=printview&recordID='+data.recordID;
-            });
-        }},
-        {name: 'Service', indicatorID: 'service', editable: false, callback: function(data, blob) {
-            document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
-            if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
-                document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
+                document.querySelector(`#${data.cellContainerID}`).innerHTML =
+                    `<span class="browsecounter" ${priorityStyle}>${data.recordID}</span>
+                    <a href="index.php?a=printview&recordID=${data.recordID}">${blob[data.recordID].title}</a><br />
+                    <span class="browsetypes">${types}</span>${priority}`;
+                document.querySelector(`#${data.cellContainerID}`).addEventListener('click', function() {
+                    window.location = 'index.php?a=printview&recordID='+data.recordID;
+                });
             }
-        }},
-        {name: 'Status', indicatorID: 'currentStatus', editable: false, callback: function(data, blob) {
-            let waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
-            let status = '';
-            if(blob[data.recordID].stepID == null && blob[data.recordID].submitted == '0') {
-                if(blob[data.recordID].lastStatus == null) {
-                    status = '<span style="color: #e00000">Not Submitted</span>';
+        },
+        {
+            name: 'Service',
+            indicatorID: 'service',
+            editable: false,
+            callback: function(data, blob) {
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
+                if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
+                    document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
+                }
+            }
+        },
+        {
+            name: 'Status',
+            indicatorID: 'currentStatus',
+            editable: false,
+            callback: function(data, blob) {
+                let waitText = blob[data.recordID].blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
+                let status = '';
+                if(blob[data.recordID].stepID == null && blob[data.recordID].submitted == '0') {
+                    if(blob[data.recordID].lastStatus == null) {
+                        status = '<span style="color: #e00000">Not Submitted</span>';
+                    }
+                    else {
+                        status = '<span style="color: #e00000">Pending Re-submission</span>';
+                    }
+                }
+                else if(blob[data.recordID].stepID == null) {
+                    let lastStatus = blob[data.recordID].lastStatus;
+                    if(lastStatus == '') {
+                        lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
+                    }
+                    status = '<span style="font-weight: bold">' + lastStatus + '</span>';
                 }
                 else {
-                    status = '<span style="color: #e00000">Pending Re-submission</span>';
+                    status = waitText + blob[data.recordID].stepTitle;
+                }
+
+                if(blob[data.recordID].deleted > 0) {
+                    status += ', Cancelled';
+                }
+
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = status;
+                if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
+                    document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
                 }
             }
-            else if(blob[data.recordID].stepID == null) {
-                let lastStatus = blob[data.recordID].lastStatus;
-                if(lastStatus == '') {
-                    lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
-                }
-                status = '<span style="font-weight: bold">' + lastStatus + '</span>';
-            }
-            else {
-                status = waitText + blob[data.recordID].stepTitle;
-            }
-
-            if(blob[data.recordID].deleted > 0) {
-                status += ', Cancelled';
-            }
-
-            document.querySelector(`#${data.cellContainerID}`).innerHTML = status;
-            if(blob[data.recordID].userID == '<!--{$userID|unescape|escape:'quotes'}-->') {
-                document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#feffd1';
-            }
-        }}
+        }
     ]);
     grid.setPostProcessDataFunc(function(data) {
         let data2 = [];

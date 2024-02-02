@@ -211,7 +211,7 @@ span#headerHelp {
   position: absolute;
   top: 8px;
   right: 10px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: normal;
 }
 
@@ -527,6 +527,9 @@ table.table {
   border-collapse: collapse;
   margin: 2px;
   color: black;
+}
+#searchContainer table {
+  font-size: 14px;
 }
 
 .table > thead {
@@ -1124,7 +1127,7 @@ div.workflowbox {
 .openlate {
 }
 
-span.browsecounter a {
+span.browsecounter {
   padding: 4px;
   margin-right: 4px;
   font-size: 140%;
