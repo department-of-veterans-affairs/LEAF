@@ -109,10 +109,11 @@ fieldset {
 
 .CodeMirror-linenumber {
     text-align: center;
+    color: #707070;
 }
 
 .CodeMirror-gutters {
-    background-color: #e8e8e8;
+    background-color: #fcfcfc;
 }
 
 #emailTemplateHeader {
@@ -142,6 +143,8 @@ legend {
 }
 
 .emailToCc {
+    display: block;
+    width: 100%;
     padding: 8px;
     font-weight: bold;
 }
@@ -172,6 +175,7 @@ legend {
 
 #codeContainer {
     width: 98% !important;
+    min-width: 400px;
     box-shadow: none;
     padding: 0;
 }
@@ -338,6 +342,8 @@ legend {
 
 #filename,
 #subject {
+    display: block;
+    width: 100%;
     padding: 10px 15px !important;
     font-size: 1.2rem;
     color: #000;
@@ -739,13 +745,10 @@ legend {
 #indicator-select-dropdown,
 #indicator-id {
     border: 2px solid #333;
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: 0.25rem;
+    padding: 0.5rem;
+    width: 380px;
     border-radius: 5px;
-}
-
-#indicator-id {
-    padding: 0;
 }
 
 #form-select,
@@ -844,6 +847,7 @@ legend {
 
     .filesMobile {
         display: flex;
+        gap: 2px;
     }
 
     .main-content {

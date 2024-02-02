@@ -12,7 +12,8 @@ export default {
         'libsPath',
         'initializeOrgSelector',
         'orgchartFormats',
-        'decodeAndStripHTML'
+        'decodeAndStripHTML',
+        'updateChosenAttributes',
     ],
     computed: {
         baseFormat() {
@@ -34,7 +35,7 @@ export default {
             return this.baseFormat.slice(this.baseFormat.indexOf('_') + 1);
         },
         labelSelector() {
-            return this.indID + '_format_label';
+            return 'format_label_' + this.indID;
         },
         printResponseID() {
             return `xhrIndicator_${this.indID}_${this.indicator.series}`;
@@ -71,7 +72,7 @@ export default {
                     allow_single_deselect: true, 
                     width: '50%'
                 });
-                document.querySelector(`#${this.inputElID}_chosen input.chosen-search-input`)?.setAttribute('aria-labelledby', this.labelSelector);
+                this.updateChosenAttributes(this.inputElID, this.labelSelector, "Select Question Option");
                 break;
             case 'multiselect':
                 const elSelect = document.getElementById(this.inputElID);
