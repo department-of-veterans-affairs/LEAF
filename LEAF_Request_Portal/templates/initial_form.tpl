@@ -93,7 +93,7 @@ $(function() {
                 </tr>
                 <!--{if count($services) != 0}-->
                 <tr>
-                    <td><label id="service_label">Service</label></td>
+                    <td><label id="service_label" for="service">Service</label></td>
                     <td>
                         <span id="service_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
                         <select id="service" name="service" title="Select Service" onchange="updateSelectionStatus(this, 'service_select_status')">
@@ -108,7 +108,7 @@ $(function() {
                 <input type="hidden" id="service" name="service" value="0" />
                 <!--{/if}-->
                 <tr>
-                    <td><label id="priority_label">Priority</label></td>
+                    <td><label id="priority_label" for="priority">Priority</label></td>
                     <td>
                         <span id="priority_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
                         <select id="priority" name="priority" title="Select Priority" onchange="updateSelectionStatus(this, 'priority_select_status')">
