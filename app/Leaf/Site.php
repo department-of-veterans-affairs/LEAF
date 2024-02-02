@@ -82,7 +82,7 @@ class Site
     {
         $vars = array(':site_path' => $this->match);
         $sql = 'SELECT `site_path`, `site_uploads`, `portal_database`, `orgchart_path`,
-                    `orgchart_database`
+                    `orgchart_database`, `launchpadID`, `decommission`
                 FROM `sites`
                 WHERE `site_path` = BINARY :site_path';
 
