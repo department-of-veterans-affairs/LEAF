@@ -26,7 +26,7 @@ function getBaseDir()
 //$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
 $protocol = 'https://';
 
-$authURL = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/auth_cookie/index.php?r=' . base64_encode(getBaseDir());
+$authURL = $protocol . HTTP_HOST . dirname($_SERVER['PHP_SELF']) . '/../auth_cookie/index.php?r=' . base64_encode(getBaseDir());
 $authCertURL = $protocol . AUTH_CERT_URL . '/auth_token/index.php?r=' . base64_encode(getBaseDir());
 
 ?>
