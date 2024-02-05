@@ -65,7 +65,8 @@ When logging into this system, you agree to the following:<br />
 
     <div style="font-size: 150%">
         <a href="<?php echo $authCertURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV/CAC card</b><img src="../dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV/CAC card" title="Icon for PIV/CAC card" /></div></a>
-        <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>Windows Login/b><img src="../dynicons/?img=system-log-out.svg&amp;w=32" style="padding-left: 8px" alt="Icon for Windows Login" title="Icon for Windows Login" /></div></a>
+        <br>
+        <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>Windows Login</b><img src="../dynicons/?img=system-log-out.svg&amp;w=32" style="padding-left: 8px" alt="Icon for Windows Login" title="Icon for Windows Login" /></div></a>
     </div>
 </div>
 
