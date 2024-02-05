@@ -17,7 +17,7 @@
 </style>
 
 <div id="import_data_main">
-    <h4>Choose a File</h4>
+    <h4><label for="file_select">Choose a File</label></h4>
     A spreadsheet must be upload through the <a href="?a=mod_file_manager">File Manager</a> first. The first row of the file
     must be headers for the columns.
 

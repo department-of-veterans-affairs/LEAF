@@ -1,15 +1,15 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Options</h1>
-        <div onclick="window.location='?a=browse_group';"><img src="dynicons/?img=preferences-desktop-theme.svg&amp;w=32" style="vertical-align: middle" alt="Search Groups" title="Search Groups" /> View Groups</div>
-        <div onclick="window.location='?a=browse_position';"><img src="dynicons/?img=system-users.svg&amp;w=32" style="vertical-align: middle" alt="Search Position" title="Search Position" /> View Positions</div>
-        <div onclick="window.location='?a=browse_employee';"><img src="dynicons/?img=contact-new.svg&amp;w=32" style="vertical-align: middle" alt="Search Employees" title="Search Employees" /> View Employees</div>
+        <div onclick="window.location='?a=browse_group';"><img src="dynicons/?img=preferences-desktop-theme.svg&amp;w=32" style="vertical-align: middle" alt="" title="Search Groups" /> View Groups</div>
+        <div onclick="window.location='?a=browse_position';"><img src="dynicons/?img=system-users.svg&amp;w=32" style="vertical-align: middle" alt="" title="Search Position" /> View Positions</div>
+        <div onclick="window.location='?a=browse_employee';"><img src="dynicons/?img=contact-new.svg&amp;w=32" style="vertical-align: middle" alt="" title="Search Employees" /> View Employees</div>
     </div>
 </div>
 
 <div id="maincontent">
 <div id="searchContainer">
-    <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #5A79A5">
-        Search: <input id="search" style="width: 80%; font-size: 140%; padding: 2px; border: 1px solid black" type="text" />
+    <div style="padding: 8px; color: white; font-weight: bold; font-size: 140%; background-color: #4A6995">
+        <label for="search">Search: </label><input id="search" style="width: 80%; font-size: 140%; padding: 2px; border: 1px solid black" type="text" />
     </div>
     <br />
     <div style="margin-bottom: 8px" id="employee">

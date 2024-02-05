@@ -1,5 +1,5 @@
 <div id="fileBrowser" style="float: left; width: 200px; margin: 4px">
-    <button class="buttonNorm" onclick="newReport();" style="float: left; width: 200px; margin: 4px;"><img src="../dynicons/?img=document-new.svg&w=32" alt="New File" /> New File</button><br />
+    <button class="buttonNorm" onclick="newReport();" style="float: left; width: 200px; margin: 4px;"><img src="../dynicons/?img=document-new.svg&w=32" alt="" /> New File</button><br />
     <b>Files:</b>
     <div id="fileList"></div>
 </div>
@@ -10,10 +10,10 @@
     </div>
 </div>
 <div id="controls" style="float: right; width: 170px; visibility: hidden">
-    <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=32" alt="Save" /> Save Changes</div><br /><br /><br />
-    <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="../dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Open Report" /> Open Report</div>
+    <div id="saveButton" class="buttonNorm" onclick="save();"><img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=32" alt="" /> Save Changes</div><br /><br /><br />
+    <div class="buttonNorm" onclick="runReport();"><img id="saveIndicator" src="../dynicons/?img=x-office-spreadsheet.svg&w=32" alt="" /> Open Report</div>
     <br /><br /><br /><br /><br /><br />
-    <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="../dynicons/?img=process-stop.svg&w=32" alt="Delete Report" /> Delete Report</div>
+    <div id="deleteButton" class="buttonNorm" onclick="deleteReport();"><img src="../dynicons/?img=process-stop.svg&w=32" alt="" /> Delete Report</div>
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
@@ -40,10 +40,9 @@ function save() {
 
 function newReport() {
     dialog.setTitle('New File');
-    dialog.setContent('Filename: <input type="text" id="newFilename"></input>');
+    dialog.setContent('<label for="newFilename">Filename: </label><input type="text" id="newFilename" />');
 
     dialog.setSaveHandler(function() {
-    	console.log($('#newFile').val());
     	var file = $('#newFilename').val();
         $.ajax({
             type: 'POST',

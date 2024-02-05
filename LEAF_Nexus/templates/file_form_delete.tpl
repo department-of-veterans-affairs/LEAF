@@ -1,7 +1,7 @@
 <div id="deleteConfirmation" style="width: 100%">
 <div style="background-color: #9d0000; color: white; padding: 4px; font-weight: bold">Are you sure you want to delete this attachment?</div>
-<div class="button" onclick="hideConfirmation()" style="float: left; padding: 8px; text-align: center; width: 200px"><img src="dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="Icon" title="Icon" /> No</div>
-<div class="button" onclick="confirmDelete()" style="float: left; padding: 8px; text-align: center; width: 200px"><img src="dynicons/?img=edit-delete.svg&amp;w=32" style="vertical-align: middle" alt="Icon" title="Icon" /> Yes</div>
+<div class="button" onclick="hideConfirmation()" style="float: left; padding: 8px; text-align: center; width: 200px"><img src="dynicons/?img=process-stop.svg&amp;w=32" style="vertical-align: middle" alt="" title="No" /> No</div>
+<div class="button" onclick="confirmDelete()" style="float: left; padding: 8px; text-align: center; width: 200px"><img src="dynicons/?img=edit-delete.svg&amp;w=32" style="vertical-align: middle" alt="" title="Yes" /> Yes</div>
 </div>
 <script type="text/javascript">
 /* <![CDATA[ */

@@ -41,7 +41,12 @@
             <!--{if $indicator.isWritable == 0}-->
                 <img src="dynicons/?img=emblem-readonly.svg&amp;w=16" alt="Read-only" title="Read-only" tabindex="0" role="button" />
             <!--{else}-->
-                <button type="button" style="width: 16px; height: 16px; padding: 0; border: 0; background-image: url('dynicons/?img=accessories-text-editor.svg&amp;w=16'); cursor: pointer;" alt="Edit <!--{$indicator.name|strip_tags}--> field" title="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> field" onclick="getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button"></button>
+                <button type="button"
+                    style="width: 16px; height: 16px; padding: 0; border: 0; background-image: url('dynicons/?img=accessories-text-editor.svg&amp;w=16'); cursor: pointer;"
+                    alt="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> field"
+                    title="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> field"
+                    onclick="getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button">
+                </button>
             <!--{/if}-->
             </div>
             <!--{if $indicator.isWritable == 0}-->

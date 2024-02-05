@@ -42,7 +42,7 @@ function customTemplate($tpl)
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-$main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
+$main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
 
 $t_login->assign('name', $oc_login->getName());
 

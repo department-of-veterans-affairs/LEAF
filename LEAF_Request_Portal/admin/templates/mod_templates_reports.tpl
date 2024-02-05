@@ -343,7 +343,7 @@
     // creates a new report
     function newReport() {
         dialog.setTitle('New File');
-        dialog.setContent('Filename: <input type="text" id="newFilename">');
+        dialog.setContent('<label for="newFilename">Filename: </label><input type="text" id="newFilename">');
 
         $('#newFilename').on('keyup', function(e) {
             $(this).val($(this).val().replace(/[^a-z0-9\.\/]/gi, '_'));

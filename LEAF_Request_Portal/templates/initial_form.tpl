@@ -18,6 +18,21 @@
 </style>
 
 <script type="text/javascript">
+function updateChosenAttributes(selectID = "", labelID = "", title = "List Selection") {
+    $(`#${selectID}_chosen input.chosen-search-input`).attr('role', 'combobox');
+    $(`#${selectID}_chosen input.chosen-search-input`).attr('aria-labelledby', labelID);
+    $(`#${selectID}-chosen-search-results`).attr('title', title);
+    $(`#${selectID}-chosen-search-results`).attr('role', 'listbox');
+}
+function updateSelectionStatus(selectEl = null, statusID = "") {
+    if(selectEl !== null && statusID !== "") {
+        const statusEl = document.getElementById(statusID);
+        const textVal = selectEl.querySelector(`option[value="${selectEl?.value}"]`)?.innerText || "";
+        if(statusEl !== null && textVal !== "") {
+            statusEl.setAttribute('aria-label', `${textVal} is selected`);
+        }
+    }
+}
 function checkForm() {
     <!--{if count($services) != 0}-->
     if($("#service").val() == "") {
@@ -39,10 +54,10 @@ function checkForm() {
 $(function() {
     <!--{if count($services) != 0}-->
     $('#service').chosen({width: "90%"});
-    $('#service_chosen input.chosen-search-input').attr('aria-labelledby', 'service_label');
+    updateChosenAttributes("service","service_label","Select Service");
     <!--{/if}-->
     $('#priority').chosen({disable_search_threshold: 5, width: "90%"});
-    $('#priority_chosen input.chosen-search-input').attr('aria-labelledby', 'priority_label');
+    updateChosenAttributes("priority","priority_label","Select Priority");
 
     $('#record').on('submit', function() {
         if(checkForm() == true) {
@@ -63,24 +78,25 @@ $(function() {
 </script>
 
 <main style="padding: 1rem;">
-    <header tabindex="0" style="border: 2px dotted black; padding: 0.5rem; margin-bottom: 1rem;">
+    <header style="border: 2px dotted black; padding: 0.5rem; margin-bottom: 1rem;">
         <h2 style="margin: 0 0 0.5rem 0;">Welcome, <b><!--{$recorder|sanitize}--></b>, to the <!--{$city|sanitize}--> request website.</h2>
         After clicking "proceed", you will be presented with a series of request related questions. Incomplete requests may result
         in delays. Upon completion of the request, you will be given an opportunity to print the submission.
     </header>
     <form id="record" style="display: flex;" method="post" action="ajaxIndex.php?a=newform">
         <section style="margin-right: 1rem;">
-            <h3 tabindex="0" style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 1 - General Information</h3>
+            <h3 style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 1 - General Information</h3>
             <table id="step1_questions" style="width: 100%; margin: 0; padding: 1rem 0.5rem">
                 <tr>
                     <td>Contact Info</td>
-                    <td><input id="recorder" aria-label="recorder" type="text" value="<!--{$recorder|sanitize}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="phone" value="<!--{$phone|sanitize}-->" disabled="disabled" /></td>
+                    <td><input id="recorder" aria-label="auto populated requestor username" type="text" value="<!--{$recorder|sanitize}-->" disabled="disabled"/> <input id="phone" type="text" aria-label="auto populated requestor phone" value="<!--{$phone|sanitize}-->" disabled="disabled" /></td>
                 </tr>
                 <!--{if count($services) != 0}-->
                 <tr>
-                    <td><span id="service_label">Service</span></td>
+                    <td><label id="service_label">Service</label></td>
                     <td>
-                        <select id="service" name="service">
+                        <span id="service_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+                        <select id="service" name="service" title="Select Service" onchange="updateSelectionStatus(this, 'service_select_status')">
                         <option value=""></option>
                         <!--{foreach from=$services item=service}-->
                         <option value="<!--{$service.serviceID|strip_tags}-->"<!--{if $selectedService == $service}-->selected="selected"<!--{/if}-->><!--{$service.service|sanitize}--></option>
@@ -92,25 +108,26 @@ $(function() {
                 <input type="hidden" id="service" name="service" value="0" />
                 <!--{/if}-->
                 <tr>
-                    <td><span id="priority_label">Priority</span></td>
+                    <td><label id="priority_label">Priority</label></td>
                     <td>
-                        <select id="priority" name="priority">
+                        <span id="priority_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
+                        <select id="priority" name="priority" title="Select Priority" onchange="updateSelectionStatus(this, 'priority_select_status')">
                         <option value="-10">EMERGENCY</option>
-                        <option value="0" selected="selected">Normal</option>
+                        <option value="0" selected>Normal</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="title">Title of Request</label></td>
                     <td>
-                    <span style="font-size: 80%">Please enter keywords to describe this request.</span><br />
+                        <span style="font-size: 80%">Please enter keywords to describe this request.</span><br />
                         <input class="input" id="title" type="text" name="title" maxlength="100" style="width: 90%" />
                     </td>
                 </tr>
             </table>
         </section>
         <section>
-            <h3 tabindex="0" style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 2 - Select type of request</h3>
+            <h3 style="background-color: black; color: white; margin: 0; padding: 0.3rem 0.5rem; font-size: 22px;">Step 2 - Select type of request</h3>
             <div style="padding: 0.5rem">
                 <input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />
                 <!--{if count($categories) > 0}-->

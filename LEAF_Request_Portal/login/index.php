@@ -38,7 +38,7 @@ $authURL = $protocol . AUTH_URL . '/auth_token/index.php?r=' . base64_encode(get
 <body>
 <div id="header">
     <div>
-      <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo" /></span>
+      <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" /></span>
       <span id="headerLabel"><?php echo htmlentities(LEAF_SETTINGS['subHeading']); ?></span>
       <span id="headerDescription"><?php echo htmlentities(LEAF_SETTINGS['heading']); ?></span>
     </div>

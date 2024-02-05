@@ -283,11 +283,6 @@ span#headerMenu {
   display: block;
 }
 
-#headerMenu_container > a::after,
-#headerMenuHelp_container > a::after {
-  content: "\25BC";
-}
-
 #headerMenu_links > a:focus > .menuButtonSmall,
 #headerMenu_help > a:focus > .menuButtonSmall {
   box-shadow: 0 4px 6px 2px #8e8e8e;
