@@ -114,8 +114,8 @@ class Login
         $nonBrowserAuth = '/login/?r=';
 
         if(defined('AUTH_TYPE') && AUTH_TYPE == 'cookie') {
-            $authType = '/auth_cookie/?r=';
-            $nonBrowserAuth = '/auth_cookie/?r=';
+            $authType = '/auth/?r=';
+            $nonBrowserAuth = '/auth/?r=';
         }
 
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
