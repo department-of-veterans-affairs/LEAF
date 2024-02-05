@@ -1171,8 +1171,7 @@ div.workflowbox {
 
 span.browsecounter a { /*keeping for compat with custom view_search pages*/
   padding: 4px;
-  margin-right: 4px;
-  font-size: 140%;
+  font-size: 1rem;
   font-weight: bold;
   background-color: black;
   color: white;
@@ -1182,9 +1181,8 @@ span.browsecounter a { /*keeping for compat with custom view_search pages*/
 span.browsecounter {
   padding: 4px;
   margin-right: 4px;
-  font-size: 140%;
+  font-size: 1rem;
   font-weight: bold;
-  background-color: black;
   color: white;
   float: left;
   text-decoration: none;

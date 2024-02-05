@@ -39,11 +39,11 @@ function renderResult(leafSearch, res) {
                 }
                 types = types.substr(0, types.length - 3);
 
-                priority = '';
-                priorityStyle = '';
+                let priority = '';
+                let priorityStyle = ' style="background-color:black;color:white";';
                 if(blob[data.recordID].priority == -10) {
                     priority = '<span style="color:#d00000;"> (&nbsp;Emergency&nbsp;)</span>';
-                    priorityStyle = ' style="background-color: #FF4040; color: black"';
+                    priorityStyle = ' style="background-color:#FF4040;color:black";';
                 }
 
                 document.querySelector(`#${data.cellContainerID}`).innerHTML =
