@@ -1,4 +1,8 @@
 <?php
+/**
+ * This file is used to get the different db versions after a deploy to verify update. 
+ * You will need to update the db version manually in this file to do the search at this time however
+ */
 
 require_once getenv('APP_LIBS_PATH') . '/globals.php';
 require_once getenv('APP_LIBS_PATH') . '../Leaf/Db.php';

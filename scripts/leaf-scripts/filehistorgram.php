@@ -1,4 +1,7 @@
 <?php
+/**
+ * This file gets the amount of storage used for each portal in the ERM uploads directory.
+ */
 
 require_once getenv('APP_LIBS_PATH') . '/globals.php';
 require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
@@ -71,5 +74,5 @@ fputcsv($fp, ['total', $totalmaxfilesize, $totalminfilesize, $totalfilesize / $t
 fclose($fp);
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
-echo "Destruction took {$timeInMinutes} minutes\r\n";
+echo "Processing took {$timeInMinutes} minutes\r\n";
 echo date('Y-m-d g:i:s a') . "\r\n";
