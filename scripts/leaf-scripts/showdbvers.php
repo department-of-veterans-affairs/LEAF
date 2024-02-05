@@ -29,5 +29,5 @@ foreach ($portals as $portal) {
 
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
-echo "Destruction took {$timeInMinutes} minutes\r\n";
+echo "Processing took {$timeInMinutes} minutes\r\n";
 echo date('Y-m-d g:i:s a') . "\r\n";
