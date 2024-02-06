@@ -88,7 +88,7 @@ export default {
                 </button>
                 <!-- NAME -->
                 <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
-                    class="indicator-name-preview" :id="indicatorID + '_format_label'">
+                    class="indicator-name-preview" :id="'format_label_' + indicatorID">
                 </div>
 
                 <!-- TOOLBAR -->

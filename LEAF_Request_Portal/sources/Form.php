@@ -1560,7 +1560,7 @@ class Form
                 } else {
                     //finally, check if there are conditions that result in required questions being in a hidden state, and adjust count and percentage
                     $multiChoiceParentFormats = array('multiselect', 'checkboxes');
-                    $singleChoiceParentFormats = array('radio', 'dropdown');
+                    $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency');
 
                     foreach ($resRequestRequired as $ind) {
                         //if question is not complete, and there are conditions (conditions could potentially have the string null due to a past import issue) ...
@@ -1586,9 +1586,9 @@ class Form
                                     }
 
                                     $operator = $c->selectedOp;
-
                                     switch ($operator) {
                                         case '==':
+                                        case '!=':
                                             if (in_array($parentFormat, $multiChoiceParentFormats)) {
                                                 //true if the current data value includes any of the condition values
                                                 foreach ($currentParentDataValue as $v) {
@@ -1600,22 +1600,51 @@ class Form
                                             } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
                                                 $conditionMet = true;
                                             }
+                                            if($operator === "!=") {
+                                                $conditionMet = !$conditionMet;
+                                            }
                                             break;
-                                        case '!=':
-                                            if (
-                                                (in_array($parentFormat, $multiChoiceParentFormats) && !array_intersect($currentParentDataValue, $conditionParentValue)) ||
-                                                (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] !== $conditionParentValue[0])
-                                            ) {
-                                                $conditionMet = true;
+                                        case 'gt':
+                                        case 'gte':
+                                        case 'lt':
+                                        case 'lte':
+                                            $arrNumVals = array();
+                                            $arrNumComp = array();
+                                            foreach($currentParentDataValue as $v) {
+                                                if(is_numeric($v)) {
+                                                    $arrNumVals[] = (float) $v;
+                                                }
+                                            }
+                                            foreach($conditionParentValue as $cval) {
+                                                if(is_numeric($cval)) {
+                                                    $arrNumComp[] = (float) $cval;
+                                                }
+                                            }
+                                            $useOrEqual = str_contains($operator, 'e');
+                                            $useGreaterThan = str_contains($operator, 'g');
+                                            $lenValues = count(array_values($arrNumVals));
+                                            $lenCompare = count(array_values($arrNumComp));
+                                            if($lenCompare > 0) {
+                                                for ($i = 0; $i < $lenValues; $i++) {
+                                                    $currVal = $arrNumVals[$i];
+                                                    if($useGreaterThan === true) {
+                                                        $conditionMet = $useOrEqual === true ? $currVal >= max($arrNumComp) : $currVal > max($arrNumComp);
+                                                    } else {
+                                                        $conditionMet = $useOrEqual === true ? $currVal <= min($arrNumComp) : $currVal < min($arrNumComp);
+                                                    }
+                                                    if($conditionMet === true) {
+                                                        break;
+                                                    }
+                                                }
                                             }
                                             break;
                                         default:
                                             break;
                                     }
-
                                 }
                                 //if the question is not being shown due to its conditions, do not count it as a required question
-                                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') || ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
+                                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
+                                    ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
                                     $countRequestRequired--;
                                     break;
                                 }

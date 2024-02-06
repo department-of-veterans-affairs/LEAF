@@ -762,7 +762,7 @@ table[class$="SelectorTable"] th {
         align-items: center;
         min-height: 60px;
         padding-bottom: 0;
-        > select, #parent_choices_wrapper {
+        > select, #parent_choices_wrapper, input {
             width: 35%;
             margin: 0;
         }

@@ -531,25 +531,58 @@ function doSubmit(recordID) {
                         selectedParentOptionsLI !== null)) {
 
                     if (comparison !== true) { //no need to re-assess if it has already become true
-                        const val = multiChoiceFormats.includes(parentFormat) ? arrParVals : elParentInd?.innerText
-                            .trim();
+                        let val = multiChoiceFormats.includes(parentFormat) ?
+                            arrParVals :
+                            [
+                                (elParentInd?.innerText || '').trim()
+                            ];
+                        val = val.filter(v => v !== '');
 
-                        let compVal = '';
+                        let compVal = [];
                         if (multiChoiceFormats.includes(parentFormat)) {
                             compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
                             compVal = compVal.map(v => v.trim());
                         } else {
-                            compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim();
+                            compVal = [
+                                $('<div/>').html(conditions[i].selectedParentValue).text().trim()
+                            ];
                         }
-
-                        switch (conditions[i].selectedOp) {
+                        const op = conditions[i].selectedOp;
+                        switch (op) {
                             case '==':
-                                comparison = multiChoiceFormats.includes(parentFormat) ? valIncludesMultiselOption(val,
-                                    compVal) : val === compVal;
+                                comparison = multiChoiceFormats.includes(parentFormat) ?
+                                    valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] === compVal[0];
                                 break;
                             case '!=':
-                                comparison = multiChoiceFormats.includes(parentFormat) ? !valIncludesMultiselOption(val,
-                                    compVal) : val !== compVal;
+                                comparison = multiChoiceFormats.includes(parentFormat) ?
+                                    !valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] !== compVal[0];
+                                break;
+                            case 'lt':
+                            case 'lte':
+                            case 'gt':
+                            case 'gte':
+                                const arrNumVals = val
+                                    .filter(v => !isNaN(v))
+                                    .map(v => +v);
+                                const arrNumComp = compVal
+                                    .filter(v => !isNaN(v))
+                                    .map(v => +v);
+                                const orEq = op.includes('e');
+                                const gtr = op.includes('g');
+                                if(arrNumComp.length > 0) {
+                                    for (let i = 0; i < arrNumVals.length; i++) {
+                                        const currVal = arrNumVals[i];
+                                        if(gtr === true) {
+                                            //unlikely to be set up with more than one comp val, but checking just in case
+                                            comparison = orEq === true ? currVal >= Math.max(...arrNumComp) : currVal > Math.max(...arrNumComp);
+                                        } else {
+                                            comparison = orEq === true ? currVal <= Math.min(...arrNumComp) : currVal < Math.min(...arrNumComp);
+                                        }
+                                        if(comparison === true) {
+                                            break;
+                                        }
+                                    }
+                                }
                                 break;
                             default:
                                 console.log(conditions[i].selectedOp);
