@@ -1,11 +1,11 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Options</h1>
-        <div onclick="addEmployeePosition()"><img src="dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Employee/" title="Add Employee/Position" /> Add Employee/Position</div>
-        <div onclick="addGroup()"><img src="dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Position" title="Add Position" /> Add Group/Service</div>
-        <div onclick="addEveryone()"><img src="dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="Add Everyone" title="Add Everyone" /> Add Everyone</div>
+        <div onclick="addEmployeePosition()"><img src="dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="" title="Add Employee/Position" /> Add Employee/Position</div>
+        <div onclick="addGroup()"><img src="dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="" title="Add Group/Service" /> Add Group/Service</div>
+        <div onclick="addEveryone()"><img src="dynicons/?img=list-add.svg&amp;w=32" style="vertical-align: middle" alt="" title="Add Everyone" /> Add Everyone</div>
         <br />
         <h1>Advanced Options</h1><div style="color: #e0e0e0">
-        <div onclick="addEmployee()"><img src="dynicons/?img=list-add.svg&amp;w=16" style="opacity: .5; vertical-align: middle" alt="Add Position" title="Add Position" /> Add Employee Only</div>
+        <div onclick="addEmployee()"><img src="dynicons/?img=list-add.svg&amp;w=16" style="opacity: .5; vertical-align: middle" alt="" title="Add Employee" /> Add Employee Only</div>
         </div>
     </div>
 </div>
@@ -37,62 +37,62 @@
     <!--{foreach from=$permissions item=permission}-->
         <!--{if $permission.UID == 2 || $permission.UID == 1}-->
         <tr style="background-color: <!--{cycle values='#e0e0e0,#c4c4c4'}-->; opacity: 50%;">
-            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="loading..." /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="" /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_read" style="font-size: 14px">
                 <div class="buttonNorm">
                     <!--{if $permission.read == 1}-->
-                    <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
+                    <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" /> Yes
                     <!--{else}-->
-                    <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No
+                    <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" /> No
                     <!--{/if}-->
                 </div>
             </td>
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_write" style="font-size: 14px">
                 <div class="buttonNorm">
                     <!--{if $permission.write == 1}-->
-                    <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
+                    <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" /> Yes
                     <!--{else}-->
-                    <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No
+                    <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" /> No
                     <!--{/if}-->
                 </div>
             </td>
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_grant" style="font-size: 14px">
                 <div class="buttonNorm">
                     <!--{if $permission.grant == 1}-->
-                    <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
+                    <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" /> Yes
                     <!--{else}-->
-                    <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No
+                    <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" /> No
                     <!--{/if}-->
                 </div>
             </td>
         </tr>
         <!--{else}-->
         <tr style="background-color: <!--{cycle values='#e0e0e0,#c4c4c4'}-->">
-            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="loading..." /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
+            <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="" /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_read" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'read')">
                 <div class="buttonNorm">
                 <!--{if $permission.read == 1}-->
-                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
+                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" /> Yes
                 <!--{else}-->
-                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No
+                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" /> No
                 <!--{/if}-->
                 </div>
             </td>
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_write" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'write')">
                 <div class="buttonNorm">
                 <!--{if $permission.write == 1}-->
-                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
+                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" /> Yes
                 <!--{else}-->
-                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No
+                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" /> No
                 <!--{/if}-->
                 </div>
             </td>
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_grant" style="font-size: 14px" onclick="togglePermission('<!--{$permission.categoryID|strip_tags}-->', <!--{$permission.UID|strip_tags}-->, 'grant')">
                 <div class="buttonNorm">
                 <!--{if $permission.grant == 1}-->
-                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes
+                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" /> Yes
                 <!--{else}-->
-                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No
+                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" /> No
                 <!--{/if}-->
                 </div>
             </td>
@@ -100,22 +100,22 @@
         <!--{/if}-->
     <!--{/foreach}-->
     <!--{if count($permissions) == 0}-->
-        <tr><td colspan="4" style="background-color: #c10303; color: white; font-weight: bold; font-size: 14px; padding: 4px"><img src="dynicons/?img=emblem-notice.svg&amp;w=32" alt="Notice" style="vertical-align: middle" /> Permissions have not been set. The following default settings are in effect:</td></tr>
+        <tr><td colspan="4" style="background-color: #c10303; color: white; font-weight: bold; font-size: 14px; padding: 4px"><img src="dynicons/?img=emblem-notice.svg&amp;w=32" alt="" style="vertical-align: middle" /> Permissions have not been set. The following default settings are in effect:</td></tr>
         <tr>
             <td style="font-size: 14px">Everyone</td>
             <td style="font-size: 14px">
                 <div>
-                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> Yes
+                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" style="vertical-align: middle" /> Yes
                 </div>
             </td>
             <td style="font-size: 14px">
                 <div>
-                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="No" style="vertical-align: middle" /> No
+                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" style="vertical-align: middle" /> No
                 </div>
             </td>
             <td style="font-size: 14px">
                 <div>
-                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="No" style="vertical-align: middle" /> No
+                <img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" style="vertical-align: middle" /> No
                 </div>
             </td>
         </tr>
@@ -123,17 +123,17 @@
             <td style="font-size: 14px">System Administrators</td>
             <td style="font-size: 14px">
                 <div>
-                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> Yes
+                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" style="vertical-align: middle" /> Yes
                 </div>
             </td>
             <td style="font-size: 14px">
                 <div>
-                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> Yes
+                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" style="vertical-align: middle" /> Yes
                 </div>
             </td>
             <td style="font-size: 14px">
                 <div>
-                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" style="vertical-align: middle" /> Yes
+                <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" style="vertical-align: middle" /> Yes
                 </div>
             </td>
         </tr>
@@ -286,10 +286,10 @@ function togglePermission(categoryID, UID, type)
         success: function(response) {
             if(response != null) {
                 if(response == '1') {
-                	$('#'+categoryID+'_'+UID+'_'+type).html('<div class="buttonNorm"><img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="Yes" /> Yes</div>');
+                	$('#'+categoryID+'_'+UID+'_'+type).html('<div class="buttonNorm"><img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" /> Yes</div>');
                 }
                 else if(response == '0') {
-                	$('#'+categoryID+'_'+UID+'_'+type).html('<div class="buttonNorm"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="No" /> No</div>');
+                	$('#'+categoryID+'_'+UID+'_'+type).html('<div class="buttonNorm"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" /> No</div>');
                 }
             }
         },
@@ -312,15 +312,15 @@ $(function() {
             if(response != '') {
             	switch("<!--{$permission.categoryID}-->") {
             	   case "employee":
-                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="dynicons/?img=gnome-stock-person.svg&w=32" alt="employee" style="vertical-align: middle" /> <a href="?a=view_employee&empUID=<!--{$permission.UID}-->">'
+                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="dynicons/?img=gnome-stock-person.svg&w=32" alt="" style="vertical-align: middle" /> <a href="?a=view_employee&empUID=<!--{$permission.UID}-->">'
                     	   + response.employee.lastName + ', ' + response.employee.firstName + '</a>');
             		   break;
             	   case "position":
-                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="dynicons/?img=contact-new.svg&w=32" alt="position" style="vertical-align: middle" /> <a href="?a=view_position&positionID=<!--{$permission.UID}-->">'
+                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="dynicons/?img=contact-new.svg&w=32" alt="" style="vertical-align: middle" /> <a href="?a=view_position&positionID=<!--{$permission.UID}-->">'
                     	   + response.title + '</a>');
                        break;
                    case "group":
-                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="dynicons/?img=system-users.svg&w=32" alt="group" style="vertical-align: middle" /> <a href="?a=view_group&groupID=<!--{$permission.UID}-->">'
+                       $("#<!--{$permission.categoryID}-->_<!--{$permission.UID}-->").html('<img src="dynicons/?img=system-users.svg&w=32" alt="" style="vertical-align: middle" /> <a href="?a=view_group&groupID=<!--{$permission.UID}-->">'
                            + response.title + '</a>');
                        break;
             	}

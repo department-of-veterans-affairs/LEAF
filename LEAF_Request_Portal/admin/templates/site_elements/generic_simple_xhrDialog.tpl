@@ -3,7 +3,7 @@
     <div role="document">
         
         <div id="simpleloadIndicator" class="leaf-dialog-loader">
-            Loading...<img src="../images/largespinner.gif" alt="loading..." />
+            Loading...<img src="../images/largespinner.gif" alt="" />
         </div>
 
         <main id="simplexhr" class="leaf-dialog-content" role="main"></main>

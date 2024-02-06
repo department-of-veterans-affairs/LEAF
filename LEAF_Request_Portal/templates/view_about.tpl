@@ -3,7 +3,7 @@
 <div style="line-height: 140%; width: 40%">
     The Light Electronic Action Framework (LEAF) is a highly adaptable VA-owned and developed process improvement software that leverages open source technologies and empowers VA employees to rapidly digitize existing business processes.
 <br /><br />
-<img src="dynicons/?img=internet-mail.svg&amp;w=16" alt="email icon" /> Developer Contact: <a href="mailto:LEAF@va.gov&amp;subject=LEAF:">LEAF@va.gov</a>
+<img src="dynicons/?img=internet-mail.svg&amp;w=16" alt="" /> Developer Contact: <a href="mailto:LEAF@va.gov&amp;subject=LEAF:">LEAF@va.gov</a>
 </div>
 <br /><br />
 
@@ -26,7 +26,7 @@
     </tr>
 </table>
 
-<img style="position: absolute; bottom: 0px; right: 0px; width: 57%; z-index: -999" src="images/aboutlogo.png" alt="logo" />
+<img style="position: absolute; bottom: 0px; right: 0px; width: 57%; z-index: -999" src="images/aboutlogo.png" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />
 <script type="text/javascript">
 
 $(function() {

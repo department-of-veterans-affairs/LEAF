@@ -94,17 +94,17 @@ nationalEmployeeSelector.prototype.initialize = function () {
       this.prefixID +
       'icon" src="' +
       t.rootPath +
-      'dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
+      'dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="" />\
 			<img id="' +
       this.prefixID +
       'iconBusy" src="' +
       t.rootPath +
-      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" />\
+      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="" />\
 			<input id="' +
       this.prefixID +
       'input" type="search" class="employeeSelectorInput" aria-label="Search for user to add as ' +
       arialLabelText +
-      '"></input></div>\
+      '"/></div>\
 			<div id="' +
       this.prefixID +
       'result" aria-label="search results"></div>'

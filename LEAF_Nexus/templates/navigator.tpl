@@ -4,17 +4,17 @@ placeholder<br />
 
 <span id="editor_toolbar" class="noprint">
     <span id="editor_tools">
-        <span onclick="window.location='?a=editor&amp;rootID=<!--{$rootID}-->';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" style="vertical-align: middle" alt="Edit" title="Edit" /> Edit Orgchart</span>
+        <span onclick="window.location='?a=editor&amp;rootID=<!--{$rootID}-->';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" style="vertical-align: middle" alt="" title="Edit Orgchart" /> Edit Orgchart</span>
         <!--{if $rootID != $topPositionID}-->
-        <span onclick="viewSupervisor();"><img src="dynicons/?img=go-up.svg&amp;w=32" style="vertical-align: middle" alt="Zoom Out" title="Zoom Out" /> Go Up One Level</span>
+        <span onclick="viewSupervisor();"><img src="dynicons/?img=go-up.svg&amp;w=32" style="vertical-align: middle" alt="" title="Zoom Out" /> Go Up One Level</span>
         <!--{/if}-->
-        <span onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="dynicons/?img=mail-forward.svg&amp;w=32" style="vertical-align: middle" alt="Forward as Email" title="Forward as Email" /> Forward as Email</span>
+        <span onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="dynicons/?img=mail-forward.svg&amp;w=32" style="vertical-align: middle" alt="" title="Forward as Email" /> Forward as Email</span>
     </span>
 </span>
 
 <div id="pageloadIndicator" style="visibility: visible">
     <div style="opacity: 0.8; z-index: 1000; position: absolute; background: #f3f3f3; height: 97%; width: 97%"></div>
-    <div style="z-index: 1001; position: absolute; padding: 16px; width: 97%; text-align: center; font-size: 24px; font-weight: bold; background-color: white">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>
+    <div style="z-index: 1001; position: absolute; padding: 16px; width: 97%; text-align: center; font-size: 24px; font-weight: bold; background-color: white">Loading... <img src="images/largespinner.gif" alt="" /></div>
 </div>
 
 <script type="text/javascript">
@@ -106,7 +106,7 @@ function getSubordinates(positionID, level) {
                     && subData[<!--{$rootID}-->].hideSubordinates != undefined
                     && subData[<!--{$rootID}-->].hideSubordinates == 1) {
 
-                    //positionControls = '<div class="button" onclick="showSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="Show" title="Show" /> Show Subordinates</div>';
+                    //positionControls = '<div class="button" onclick="showSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Show" /> Show Subordinates</div>';
                     loadSubordinates = 0;
                 }
             }
@@ -141,8 +141,8 @@ function getSubordinates(positionID, level) {
 
             positions[subordinate[key].positionID].emptyControls();
 
-            positions[subordinate[key].positionID].addControl('<div class="button" onclick="window.location=\'?a=view_position&amp;positionID='+this.positionID+'\';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Edit" title="Edit" /> View Details</div>');
-            positions[subordinate[key].positionID].addControl('<div class="button" onclick="window.location=\'?a=navigator&amp;rootID='+this.positionID+'\'"><img src="dynicons/?img=system-search.svg&amp;w=32" alt="Focus" title="Focus" /> Focus on This</div>');
+            positions[subordinate[key].positionID].addControl('<div class="button" onclick="window.location=\'?a=view_position&amp;positionID='+this.positionID+'\';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" title="View Details" /> View Details</div>');
+            positions[subordinate[key].positionID].addControl('<div class="button" onclick="window.location=\'?a=navigator&amp;rootID='+this.positionID+'\'"><img src="dynicons/?img=system-search.svg&amp;w=32" alt="" title="Focus" /> Focus on This</div>');
 
             setPositionStyle(positions[subordinate[key].positionID].prefixID + positions[subordinate[key].positionID].positionID, positions[subordinate[key].positionID].positionID);
 
@@ -223,7 +223,7 @@ $(function() {
     };
 
     positions[<!--{$rootID}-->].emptyControls();
-    positions[<!--{$rootID}-->].addControl('<div class="button" onclick="window.location=\'?a=view_position&amp;positionID=<!--{$rootID}-->\';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Edit" title="Edit" /> View Details</div>');
+    positions[<!--{$rootID}-->].addControl('<div class="button" onclick="window.location=\'?a=view_position&amp;positionID=<!--{$rootID}-->\';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" title="View Details" /> View Details</div>');
     positions[<!--{$rootID}-->].draw();
     setPositionStyle(positions[<!--{$rootID}-->].prefixID + <!--{$rootID}-->, <!--{$rootID}-->);
 

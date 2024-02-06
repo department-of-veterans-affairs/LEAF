@@ -206,8 +206,8 @@ class FormWorkflow
                     $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
                     
                     if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $dRecords[$v['recordID']]['name'] . ')';
-                        $srcRecords[$i]['approverName'] = $dRecords[$v['recordID']]['name'];
+                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' ( *NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'] . ')';
+                        $srcRecords[$i]['approverName'] = '*NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'];
                         $srcRecords[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
                     }
                     else {
@@ -1274,6 +1274,26 @@ class FormWorkflow
     {
         $errors = array();
 
+        $varEvents = array(':workflowID' => $workflowID,
+                           ':stepID' => $stepID,
+                           ':actionType' => $actionType,
+        );
+        $strSQL = 'SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt
+            LEFT JOIN events as et USING (eventID)
+            WHERE workflowID = :workflowID
+            AND stepID = :stepID
+            AND actionType = :actionType
+            ORDER BY eventID ASC';
+        $resEvents = $this->db->prepared_query($strSQL, $varEvents);
+
+        $fields = array();
+        $emailAddresses = array();
+        if(count($resEvents) > 0 || $actionType == 'sendback') {
+            $formattedData = $this->getFields();
+            $fields = $formattedData["content"];
+            $emailAddresses = $formattedData["to_cc_content"];
+        }
+
         // Take care of special events (sendback)
         if ($actionType == 'sendback')
         {
@@ -1312,8 +1332,12 @@ class FormWorkflow
                 "service" => $record[0]['service'],
                 "stepTitle" => $groupName[0]['stepTitle'],
                 "comment" => $comment,
-                "siteRoot" => $this->siteRoot
+                "siteRoot" => $this->siteRoot,
+                "field" => $fields
             ));
+            $email->addSmartyVariables(array(
+                "field" => $emailAddresses
+            ), true);
             $email->setTemplateByID(Email::SEND_BACK);
 
             $dir = $this->getDirectory();
@@ -1349,25 +1373,12 @@ class FormWorkflow
         }
 
         // Handle Events
-        $varEvents = array(':workflowID' => $workflowID,
-                           ':stepID' => $stepID,
-                           ':actionType' => $actionType,
-        );
-        $strSQL = 'SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt
-            LEFT JOIN events as et USING (eventID)
-            WHERE workflowID = :workflowID
-            AND stepID = :stepID
-            AND actionType = :actionType
-            ORDER BY eventID ASC';
-        $res = $this->db->prepared_query($strSQL, $varEvents);
-
-        foreach ($res as $event)
+        foreach ($resEvents as $event)
         {
             $customEvent = '';
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
-            $fields = $this->getFields();
 
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
@@ -1422,6 +1433,9 @@ class FormWorkflow
                             "siteRoot" => $this->siteRoot,
                             "field" => $fields
                         ));
+                        $email->addSmartyVariables(array(
+                            "field" => $emailAddresses
+                        ), true);
                         $email->setTemplateByID(Email::NOTIFY_COMPLETE);
 
                         $dir = $this->getDirectory();
@@ -1487,7 +1501,9 @@ class FormWorkflow
                             "siteRoot" => $this->siteRoot,
                             "field" => $fields
                         ));
-
+                        $email->addSmartyVariables(array(
+                            "field" => $emailAddresses
+                        ), true);
                         $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
                         $email->setTemplateByID($emailTemplateID);
 
@@ -1582,55 +1598,62 @@ class FormWorkflow
         $fields = $this->db->prepared_query($strSQL, $vars);
 
         $formattedFields = array();
+        $formattedFields["content"] = array();
+        $formattedFields["to_cc_content"] = array();
 
         foreach($fields as $field)
         {
             if ($field["is_sensitive"] == 1) {
-                $formattedFields[$field['indicatorID']] = "**********";
+                $formattedFields["content"][$field['indicatorID']] = "**********";
+                $formattedFields["to_cc_content"][$field['indicatorID']] = "";
                 continue;
             }
 
-            $format = strtolower($field["format"]);
             $data = $field["data"];
+            $emailValue = "";
 
-            switch(true) {
-                case (str_starts_with($format, "grid") != false):
+            $format = strtolower(explode(PHP_EOL, $field["format"])[0] ?? "");
+            switch($format) {
+                case "grid":
                     if(!empty($data) && is_array(unserialize($data))){
                         $data = $this->buildGrid(unserialize($data));
                     }
                     break;
-                case (str_starts_with($format, "checkboxes") != false):
+                case "checkboxes":
+                case "multiselect":
                     if(!empty($data) && is_array(unserialize($data))){
-                        $data = $this->buildCheckboxes(unserialize($data));
+                        $formatted = $this->buildMultiOption(unserialize($data));
+                        $data = $formatted["content"];
                     }
                     break;
-                case (str_starts_with($format, "multiselect") != false):
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $data = $this->buildMultiselect(unserialize($data));
-                    }
-                    break;
-                case (str_starts_with($format, "radio") != false):
-                case (str_starts_with($format, "checkbox") != false):
+                case "radio":
+                case "checkbox":
+                case "dropdown":
                     if ($data == "no") {
                         $data = "";
                     }
                     break;
-                case ($format == "fileupload"):
-                case ($format == "image"):
+                case "fileupload":
+                case "image":
                     $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
                     break;
-                case ($format == "orgchart_group"):
+                case "orgchart_group":
                     $data = $this->getOrgchartGroup((int) $data);
                     break;
-                case ($format == "orgchart_position"):
+                case "orgchart_position":
                     $data = $this->getOrgchartPosition((int) $data);
                     break;
-                case ($format == "orgchart_employee"):
-                    $data = $this->getOrgchartEmployee((int) $data);
+                case "orgchart_employee":
+                    $employeeData = $this->getOrgchartEmployee((int) $data);
+                    $data = $employeeData["employeeName"];
+                    $emailValue = $employeeData["employeeEmail"];
                     break;
+                default:
+                break;
             }
 
-            $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+            $formattedFields["content"][$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+            $formattedFields["to_cc_content"][$field['indicatorID']] = $emailValue;
         }
 
         return $formattedFields;
@@ -1672,24 +1695,19 @@ class FormWorkflow
         return $grid;
     }
 
-    private function buildMultiselect(array $data): string
+    private function buildMultiOption(array $data): array
     {
         // filter out non-selected selections
         $data = array_filter($data, function($x) { return $x !== "no"; });
-        // comma separate to be readable in email
-        $formattedData = "- " . implode("\r\n- ", $data);
-
-        return $formattedData;
-    }
-
-    private function buildCheckboxes(array $data): string
-    {
-        // filter out non-selected selections
-        $data = array_filter($data, function($x) { return $x !== "no"; });
-        // comma separate to be readable in email
-        $formattedData = implode(",", $data);
-
-        return $formattedData;
+        // list to be readable in email
+        $formattedData = "<ul>";
+        $formattedEmails = "";
+        foreach($data as $item) {
+            $formattedData .= "<li>".$item."</li>";
+            $formattedEmails .= $item."\r\n";
+        }
+        $formattedData .= "</ul>";
+        return array("content" => $formattedData, "to_cc_content" => $formattedEmails);
     }
 
     private function buildFileLink(string $data, string $id, string $series): string
@@ -1726,13 +1744,14 @@ class FormWorkflow
         return $positionName;
     }
 
-    private function getOrgchartEmployee(int $data): string
+    private function getOrgchartEmployee(int $data): array
     {
         $employee = new \Orgchart\Employee($this->oc_db, $this->login);
         $employeeData = $employee->lookupEmpUID($data)[0];
+        $employeeEmail = $employeeData["email"];
         $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
 
-        return $employeeName;
+        return array("employeeName" => $employeeName,"employeeEmail" => $employeeEmail);
     }
 
     /**

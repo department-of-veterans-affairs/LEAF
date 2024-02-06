@@ -37,7 +37,7 @@ $tabText = '';
 $action = isset($_GET['a']) ? XSSHelpers::xscrub($_GET['a']) : '';
 
 // HQ logo
-$main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
+$main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
 
 function customTemplate($tpl)
 {
@@ -103,7 +103,6 @@ switch ($action) {
                 APP_JS_PATH . '/LEAF/XSSHelpers.js',
                 APP_JS_PATH . '/nexus/LEAFNexusAPI.js',
                 APP_JS_PATH . '/portal/LEAFPortalAPI.js',
-                APP_JS_PATH . '/portal/model/FormQuery.js',
                 APP_JS_PATH . '/choicesjs/choices.min.js'
             ));
 

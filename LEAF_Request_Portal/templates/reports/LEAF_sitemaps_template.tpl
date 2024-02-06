@@ -90,7 +90,7 @@
         $('ul.usa-sidenav').append('<li class="usa-sidenav__item" id="li_buttonID_' + button.id +
             ' "><a href="#" onClick="editButtonDialog(\'' + button.id + '\');" title="Edit Site">' + button.title +
             '</a></li>');
-        const icon = button.icon ? '<img style="float: left; margin-right: 1rem; height: 48px; width: 48px;" src="' +
+        const icon = button.icon ? '<img alt="" style="float: left; margin-right: 1rem; height: 48px; width: 48px;" src="' +
             button.icon + '">' : '';
         $('div#sortable').append(
             '<div tabindex="0" class="edit-card leaf-sitemap-card draggable="true" style="cursor: pointer; background-color: ' +
@@ -174,9 +174,9 @@
         var dialog = createNewButtonDialog();
         dialog.setTitle('Add Site');
         dialog.setContent('<div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Title</div><input id="button-title" size="48" maxlength="27"></input></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"></input></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Title</div><input id="button-title" size="48" maxlength="27"/></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Description</div><input aria-label="Enter group name" id="button-description" size="48" maxlength="48"/></div>' +
+            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input id="button-target" size="48"/></div>' +
             '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
             '<label for="btnColor" class="leaf-bold" style="display: block;">Site Color</label>' +
             '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
@@ -245,24 +245,24 @@
         });
         dialog.setTitle('Edit Site');
         dialog.setContent('<div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Title</div><input id="button-title" value="' +
-            title + '"size="48" maxlength="27"></input></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Site Description</div><input aria-label="Enter group name" id="button-description" value="' +
-            description + '" size="48" maxlength="48"></input></div>' +
-            '<div class="leaf-marginAll-1rem"><div role="heading" class="leaf-bold">Target Site Address</div><input aria-label="" id="button-target" value="' +
-            target + '"size="48"></input></div>' +
+            '<div class="leaf-marginAll-1rem"><label for="button-title" style="display:block;">Site Title</label><input id="button-title" value="' +
+            title + '"size="48" maxlength="27"/></div>' +
+            '<div class="leaf-marginAll-1rem"><label for="button-description" style="display:block;">Site Description</label><input id="button-description" value="' +
+            description + '" size="48" maxlength="48"/></div>' +
+            '<div class="leaf-marginAll-1rem"><label for="button-target" style="display:block;">Target Site Address</label><input id="button-target" value="' +
+            target + '"size="48"/></div>' +
             '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
             '<label for="btnColor" class="leaf-bold" style="display: block;">Site Color</label>' +
-            '<input type="color" name="btnColor" style="display: block;" value="#ffffff" />' +
+            '<input type="color" id="btnColor" name="btnColor" style="display: block;" value="#ffffff" />' +
             '</div>' +
             '<div class="leaf-marginAll-1rem" style="width: 30%; float: left;">' +
             '<label for="btnFntColor" class="leaf-bold" style="display: block;">Font Color</label>' +
-            '<input type="color" name="btnFntColor" style="display: block;" value="#000000" />' +
+            '<input type="color" id="btnFntColor" name="btnFntColor" style="display: block;" value="#000000" />' +
             '</div>' +
             '<div class="leaf-marginAll-1rem" style="width: 90%; float: left;">' +
             '<label for="iconpicker" class="leaf-bold" style="display: inline-block;">Icon (Optional)</label>' +
             '<div id="picked-icon" class="icon-picked" style="display: inline-block;">' + (icon ?
-                '<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=' + icon + '>' : '') +
+                '<img alt="" class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=' + icon + '>' : '') +
             '</div>' +
             '</div>' +
             '<div id="iconpicker" tabindex="0" style="border: 1px solid grey; width: 100%; height: 10rem; overflow: auto; float: left; margin-bottom: 1rem;"></div>' +
@@ -342,7 +342,7 @@
         const selectedIcon = document.querySelector(`.icon[src="${src}"]`);
         selectedIcon.classList.add('icon-selected');
 
-        document.getElementById('picked-icon').innerHTML = `<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src=${src}>`;
+        document.getElementById('picked-icon').innerHTML = `<img class="icon leaf-marginLeft-1rem" style="vertical-align: middle;" src="${src}" alt="" />`;
     }
 
     // saves sitemap json into the custom report
@@ -404,7 +404,7 @@
         </div>
         <div style="border: 2px solid black; text-align: center; font-size: 16px; font-weight: bold; background: white; padding: 16px; width: 95%"
             id="spinner">
-            Loading... <img src="./images/largespinner.gif" alt="loading..." />
+            Loading... <img src="./images/largespinner.gif" alt="" />
         </div>
 
     </div>

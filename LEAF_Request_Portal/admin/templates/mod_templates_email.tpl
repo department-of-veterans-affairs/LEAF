@@ -8,7 +8,7 @@
     <div class="page-title-container">
         <h2>Email Template Editor</h2>
         <div class="mobileToolsNav">
-            <button class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
+            <button type="button" class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
         </div>
     </div>
     <div class="page-main-content">
@@ -16,7 +16,7 @@
             <aside class="sidenav">
                 <div id="fileBrowser">
 
-                    <button
+                    <button type="button"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         id="btn_history" onclick="viewHistory()">View History</button>
                 </div>
@@ -33,24 +33,27 @@
                         <legend>Email To and CC</legend>
                         <p>
                             Enter email addresses, one per line. Users will be
-                            emailed each time this template is used in any workflow.
+                            emailed each time this template is used in any workflow.&nbsp;
+                            <div id="field_use_notice" style="display: none; color:#c00000;">
+                            Please note that only orgchart employee formats are supported in this section.
+                            </div>
                         </p>
-                        <div id="emailTo" class="emailToCc">Email To:</div>
+                        <label for="emailToCode" id="emailTo" class="emailToCc">Email To:</label>
                         <div id="divEmailTo">
-                            <textarea id="emailToCode" style="width: 95%;" rows="5"></textarea>
+                            <textarea id="emailToCode" style="width: 95%;" rows="5" onchange="checkFieldEntries()"></textarea>
                         </div>
-                        <div id="emailCc" class="emailToCc">Email CC:</div>
+                        <label for="emailCcCode" id="emailCc" class="emailToCc">Email CC:</label>
                         <div id="divEmailCc">
-                            <textarea id="emailCcCode" style="width: 95%;" rows="5"></textarea>
+                            <textarea id="emailCcCode" style="width: 95%;" rows="5" onchange="checkFieldEntries()"></textarea>
                         </div>
                     </fieldset>
                 </div>
-                <div id="subject" style="padding: 8px; font-size: 140%; font-weight: bold">Subject</div>
+                <label for="subjectCode" id="subject" style="padding: 8px; font-size: 140%; font-weight: bold">Subject</label>
                 <div id="divSubject">
                     <textarea id="subjectCode"></textarea>
                     <div id="subjectCompare"></div>
                 </div>
-                <div id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Body</div>
+                <label for="code" id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Body</label>
                 <div id="divCode">
                     <div class="compared-label-content">
                         <div class="CodeMirror-merge-pane-label">(Old File)</div>
@@ -95,7 +98,7 @@
                             <tr>
                                 <td><b>{{$field.&lt;fieldID&gt;}}</fieldID>
                                 </td>
-                                <td>The value of the field by ID. <span style="color: red;">Sensitive data fields may
+                                <td>The value of the field by ID. <span style="color:#c00000;">Sensitive data fields may
                                         not be included in email templates.</span></td>
                             </tr>
                         </table>
@@ -105,18 +108,18 @@
                     <legend>Quick Field Search</legend>
                     <div id="quick_field_search">
                         <div id="form-select">
-                            <span>Select Form:</span>
+                            <label for="form-select-dropdown">Select Form:</label>
                             <select id="form-select-dropdown" onchange="getIndicators(this.value)"></select>
                         </div>
                         <div id="indicator-select">
-                            <span>Select Question:</span>
+                            <label for="indicator-select-dropdown">Select Question:</label>
                             <select id="indicator-select-dropdown"
                                 onchange="showIndicator(this.value, this.options[this.selectedIndex].dataset.isSensitive)"></select>
                         </div>
                         <div id="indicator-id-label">
                             <span>Your field ID is: </span><span id="indicator-id"
                                 style="font-weight: 700; margin-right: 1rem;"></span>
-                            <button id="copy-field-id" style="width: auto; display: inline-block;"
+                            <button type="button" id="copy-field-id" style="width: auto; display: inline-block;"
                                 class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med"><i
                                     class="fas fa-copy"></i> Copy</button>
                         </div>
@@ -199,21 +202,21 @@
             </div>
         </main>
         <div class="leaf-right-nav">
-            <div id="closeMobileToolsNavBtnContainer"><button id="closeMobileToolsNavBtn"
+            <div id="closeMobileToolsNavBtnContainer"><button type="button" id="closeMobileToolsNavBtn" aria-label="close tools menu"
                     onclick="closeRightNavTools('leaf-right-nav')">X</button></div>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right">
                 <div id="controls">
-                    <button id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
+                    <button type="button" id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
                         onclick="save();">
                         Save Changes<span id="saveStatus"
                             class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
-                    <button id="restore_original"
+                    <button type="button" id="restore_original"
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
                         onclick="restore();">Restore Original</button>
-                    <button
+                    <button type="button"
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         id="btn_compareStop" style="display: none" onclick="loadContent();">Stop Comparing</button>
                     <!-- <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
@@ -222,8 +225,8 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button class="file_replace_file_btn">Use Old File</button>
-                    <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
+                    <button type="button" class="file_replace_file_btn">Use Old File</button>
+                    <button type="button" class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
             <div class="file-history">
@@ -244,6 +247,33 @@
         nav.css({
             'right': '0'
         });
+    }
+
+    function checkFieldEntries() {
+        const elTextareaTo = document.getElementById("emailToCode");
+        const elTextareaCc = document.getElementById("emailCcCode");
+        const elTextInput = (elTextareaTo?.value || "") + "\r\n" + (elTextareaCc?.value || "");
+        if(elTextInput !== "") {
+            const fieldReg = /field\.\d*/g;
+            const fieldMatches = elTextInput.match(fieldReg);
+            let elNotice = document.getElementById("field_use_notice");
+            if (elNotice !== null) {
+                if(fieldMatches?.length > 0) {
+                    const ids = fieldMatches.map(m => +m.slice(m.indexOf(".") + 1));
+                    let includesNonOrgchartEmp = false;
+                    for(let i = 0; i < ids.length; i++) {
+                        const id = ids[i];
+                        if(allowedToCcFormats?.[indicatorFormats[id]] !== 1) {
+                            includesNonOrgchartEmp = true;
+                            break;
+                        }
+                    }
+                    elNotice.style.display = includesNonOrgchartEmp ? "block" : "none";
+                } else {
+                    elNotice.style.display = "none";
+                }
+            }
+        }
     }
 
     function closeRightNavTools(option) {
@@ -477,6 +507,10 @@
 
     var ignoreUnsavedChanges = false;
     var ignorePrompt = true;
+    let indicatorFormats = {};
+    const allowedToCcFormats = {
+        "orgchart_employee": 1,
+    }
 
     // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {
@@ -894,6 +928,7 @@
 
                 $("#emailToCode").val(currentEmailToContent);
                 $("#emailCcCode").val(currentEmailCcContent);
+                checkFieldEntries();
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').show();
@@ -1006,17 +1041,14 @@
      */
     function loadFormSelection(forms) {
         let sel = document.getElementById('form-select-dropdown');
-        let opt = null;
-
         // empty the selection for between loads
-        sel.innerHTML = "";
+        sel.innerHTML = `<option value="">Select a Form</option>`;
 
         // repopulate the dropdown
         forms.forEach(form => {
-            opt = document.createElement('option');
+            let opt = document.createElement('option');
             opt.value = form.categoryID;
-            opt.innerHTML = form.categoryName.length > 50 ? form.categoryName.slice(0, 47) + "..." : form
-                .categoryName;
+            opt.innerHTML = form.categoryName.length > 50 ? form.categoryName.slice(0, 47) + "..." : form.categoryName;
             sel.appendChild(opt);
         });
 
@@ -1030,20 +1062,27 @@
      * Purpose: On selecting a form via the dropdown generated by getForms(),
      * get all available indicators that exist in the selected form.
      */
-    function getIndicators(form) {
-        if (this.value === "" || typeof form === 'undefined' || typeof form === 'null') {
-            return;
-        }
-
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                type: "GET",
-                url: "../api/form/indicator/list",
-                data: {forms: form},
-                cache: false,
-                success: (res) => loadIndicatorSelection(res),
-                fail: (err) => reject(err)
-            });
+    function getIndicators(form = "") {
+        $.ajax({
+            type: "GET",
+            url: "../api/form/indicator/list",
+            data: {forms: form},
+            cache: false,
+            success: (res) => {
+                if (form === "") {
+                    loadIndicatorSelection([]);
+                } else {
+                    const filteredIndicators = res.filter(i => +i.isDisabled === 0);
+                    loadIndicatorSelection(filteredIndicators);
+                }
+                res.forEach(indicator => {
+                    const indID = indicator.indicatorID
+                    const format = (indicator.format || "").split("\n")[0];
+                    indicatorFormats[indID] = format.trim().toLowerCase();
+                });
+                checkFieldEntries();
+            },
+            error: (err) => reject(err)
         });
     }
 
@@ -1053,24 +1092,28 @@
      * for that form in the indicator dropdown.
      * @param indicators
      */
-    function loadIndicatorSelection(indicators) {
+    function loadIndicatorSelection(indicators = []) {
         let div = document.getElementById('indicator-select');
         let sel = document.getElementById("indicator-select-dropdown");
         div.style.visibility = 'visible';
         let opt = null;
 
         sel.innerHTML = "";
-
-        indicators.forEach(indicator => {
-            opt = document.createElement('option');
-            opt.value = indicator.indicatorID;
-            opt.innerHTML = indicator.name.length > 50 ? indicator.name.slice(0, 47) + "..." : indicator.name;
-            opt.dataset.isSensitive = indicator.is_sensitive;
-            sel.appendChild(opt);
-        });
-
-        if (indicators.length === 1) {
-            showIndicator(indicators[0].indicatorID, indicators[0].isSensitive);
+        if(indicators.length === 0) {
+            sel.innerHTML = `<option value="">No options available</option>`;
+            showIndicator(0, 0);
+        } else {
+            let elFilter = document.createElement('div');
+            indicators.forEach(indicator => {
+                elFilter.innerHTML = indicator.name;
+                const displayText = elFilter.textContent;
+                opt = document.createElement('option');
+                opt.value = indicator.indicatorID;
+                opt.innerHTML = (displayText.length > 50 ? displayText.slice(0, 47) + "..." : displayText) + ` (#${indicator.indicatorID})`;
+                opt.dataset.isSensitive = indicator.is_sensitive;
+                sel.appendChild(opt);
+            });
+            showIndicator(indicators[0].indicatorID, indicators[0].is_sensitive);
         }
     }
 
@@ -1081,9 +1124,9 @@
      * @param indicator: the ID of the indicator being selected
      * @param isSensitive: If the indicator is sensitive, warn the user.
      */
-    function showIndicator(indicator, isSensitive) {
+    function showIndicator(indicator = 0, isSensitive = 0) {
         let warning = document.getElementById('sensitive-warning');
-        warning.style.visibility = isSensitive == 1 ? "visible" : "hidden";
+        warning.style.visibility = +isSensitive === 1 && +indicator > 0 ? "visible" : "hidden";
 
         let sel = document.getElementById('indicator-id-label');
         let id = document.getElementById('indicator-id');
@@ -1097,8 +1140,8 @@
         copyFieldButton.onclick = () => copyField(copyFieldButton, fieldValue);
 
         id.textContent = fieldValue;
-        sel.style.visibility = "visible";
-        copyFieldButton.style.visibility = "visible";
+        sel.style.visibility = +indicator > 0 ? "visible" : "hidden";
+        copyFieldButton.style.visibility = +indicator > 0 ? "visible" : "hidden";
     }
 
     /**
@@ -1244,6 +1287,7 @@
     }
     // loads components when the document loads
     $(document).ready(function() {
+        getIndicators(); //get indicators to make format table 
         $('.currentUrlLink').hide();
         $('.sidenav-right-compare').hide();
         dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
@@ -1263,17 +1307,17 @@
                     type: 'GET',
                     url: '../api/emailTemplates/custom',
                     dataType: 'json',
-                    success: function (result) {
-                        let res_array = $.parseJSON(result);
+                    success: function (customTemplates) {
                         let buffer = '<ul class="leaf-ul">';
-                        let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
+                        let filesMobile = `<label for="template_file_select">Template Files:</label>
+                            <div class="template_select_container"><select id="template_file_select" class="templateFiles">`;
 
-                        if (res_array.status['code'] === 2) {
+                        if (Array.isArray(customTemplates)) {
                             for (let i in res) {
                                 let custom = '';
 
-                                if (result.includes(res[i].fileName)) {
-                                    custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
+                                if (customTemplates.includes(res[i].fileName)) {
+                                    custom = '<span class=\'custom_file\' style=\'color: #c00000; font-size: .75em\'>(custom)</span>';
                                 }
 
                                 // Construct the option element with data- attributes for filesMobile
@@ -1291,9 +1335,6 @@
 
                             filesMobile += '</select></div>';
                             buffer += '</ul>';
-                        } else if (res_array.status['code'] === 4) {
-                            buffer += '<li>' + res_array.status['message'] + '</li>';
-                            filesMobile += '<select><option>' + res_array.status['message'] + '</option></select>';
                         } else {
                             buffer += '<li>Internal error occurred. If this persists, contact your Primary Admin.</li>';
                             filesMobile += '<div>Internal error occurred. If this persists, contact your Primary Admin.</div>';

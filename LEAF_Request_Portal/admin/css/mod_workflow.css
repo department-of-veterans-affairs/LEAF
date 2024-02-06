@@ -1,3 +1,28 @@
+#workflow_editor {
+  margin-top:0.5rem;
+  display:flex;
+  gap:0.25rem;
+  padding:0.25rem;
+}
+#sideBar {
+  width:182px;
+  display:flex;
+  gap:0.5rem;
+  flex-direction:column;
+}
+#sideBar button.buttonNorm {
+  font-size:1.1rem;
+  text-align:start;
+  padding:4px;
+  height:36px;
+}
+#workflow {
+  background-color: #444446;
+  overflow-x: auto;
+  overflow-y: auto;
+  width: 100%;
+}
+
 .workflowStep {
   position: absolute;
   width: 172px;
@@ -9,7 +34,6 @@
   border: 4px solid #555;
   cursor: pointer;
 }
-
 .workflowAction {
   background-color: white;
   border: 4px solid black;
@@ -18,14 +42,19 @@
   border-radius: 200px / 100px;
   font-size: 0.8rem;
 }
-
 .workflowAction:hover {
   z-index: 2000;
 }
-
 .workflowEndpoint {
   background-image: url("../../dynicons/?img=network-wired.svg&w=48");
   cursor: pointer;
+}
+
+ul#step_requirements > li {
+  margin-bottom: 0.5rem;
+}
+ul#step_requirements > li li {
+  margin-top: 2px;
 }
 
 .workflowStepInfo {
@@ -39,9 +68,43 @@
   z-index: 5000;
   min-width: 300px;
 }
-
+#closeModal {
+  padding:2px;
+  background-color:#fff;
+  border-color:#eee;
+  margin-left:auto;
+}
 .workflowStepInfo > h2 {
   margin: 0px;
+}
+.workflowStepInfo label {
+  font-family: "Source Sans Pro Web";
+  display:block;
+}
+.workflowStepInfo button:not(.icon), #create-event, #create-action-type {
+  font-size:1rem;
+  padding:0.25em;
+}
+.workflowStepInfo button.icon{
+  border: 0;
+  background-color: inherit
+}
+
+ul.workflow_actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 2px;
+  padding-left: 0.5rem;
+  margin: 0.5rem 0;
+}
+ul.workflow_actions li {
+  display:flex;
+  gap: 2px;
+  align-items: center;
+}
+ul.workflow_actions button:not(.icon) {
+  padding: 2px 4px;
 }
 
 #createEvent {
