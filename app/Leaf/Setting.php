@@ -67,6 +67,7 @@ class Setting
      */
     public static function parseJson(string $data): string|array
     {
+        $data = XSSHelpers::sanitizeHTMLRich($data);
         $return_value = json_decode($data, true) ?? $data;
 
         return $return_value;
