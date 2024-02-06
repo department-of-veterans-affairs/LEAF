@@ -21,7 +21,7 @@ CREATE TABLE `sites` (
 
  /**** Revert DB *****
  START TRANSACTION;
- DROP TABLE IF EXISTS `process_query`;
- UPDATE `settings` SET `data` = '2023091100' WHERE `settings`.`setting` = 'dbversion';
+ DROP TABLE IF EXISTS `sites`;
+ UPDATE `settings` SET `data` = '2023100500' WHERE `settings`.`setting` = 'dbversion';
  COMMIT;
  */
