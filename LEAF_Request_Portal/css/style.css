@@ -912,8 +912,7 @@ div[id*="xhrDialog"] {
 
 .comments_time {
   float: right;
-  color: #8c8c8c;
-  font-size: 80%;
+  color: #707070;
 }
 
 .comments_message {
@@ -1171,7 +1170,8 @@ div.workflowbox {
 
 span.browsecounter a { /*keeping for compat with custom view_search pages*/
   padding: 4px;
-  font-size: 1rem;
+  padding-right: 6px;
+  font-size: 1.125rem;
   font-weight: bold;
   background-color: black;
   color: white;
@@ -1180,8 +1180,10 @@ span.browsecounter a { /*keeping for compat with custom view_search pages*/
 }
 span.browsecounter {
   padding: 4px;
+  padding-right: 5px;
   margin-right: 4px;
-  font-size: 1rem;
+  border-radius: 2px;
+  font-size: 1.125rem;
   font-weight: bold;
   color: white;
   float: left;

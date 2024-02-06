@@ -38,7 +38,7 @@ var LeafFormSearch = function (containerID) {
 					<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" class="status" role="status"></span>\
 			    <input style="border: 1px solid black; padding: 4px" type="text" id="' +
                 prefixID +
-                'searchtxt" name="searchtxt" size="50" title="Enter your search text" value="" />\
+                'searchtxt" name="searchtxt" size="50" aria-label="Enter your search text" value="" />\
 			    <button type="button" class="buttonNorm" id="' +
                 prefixID +
                 'advancedSearchButton">Advanced Options</button>\

@@ -40,10 +40,10 @@ function renderResult(leafSearch, res) {
                 types = types.substr(0, types.length - 3);
 
                 let priority = '';
-                let priorityStyle = ' style="background-color:black;color:white";';
+                let priorityStyle = ' style="background-color:black;color:white;margin-top:4px;"';
                 if(blob[data.recordID].priority == -10) {
                     priority = '<span style="color:#d00000;"> (&nbsp;Emergency&nbsp;)</span>';
-                    priorityStyle = ' style="background-color:#FF4040;color:black";';
+                    priorityStyle = ' style="background-color:#FF4040;color:black;margin-top:4px;"';
                 }
 
                 document.querySelector(`#${data.cellContainerID}`).innerHTML =

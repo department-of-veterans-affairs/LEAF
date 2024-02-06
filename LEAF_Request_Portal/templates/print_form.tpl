@@ -90,7 +90,7 @@
             <form id='note_form'>
                 <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
                 <input type='text' id='note' name='note' placeholder='Enter a note!' />
-                <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
+                <button type="button" id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</button>
             </form>
         </div>
         <!--{section name=i loop=$comments}-->

@@ -120,7 +120,7 @@ $(function() {
                 <tr>
                     <td><label for="title">Title of Request</label></td>
                     <td>
-                        <span style="font-size: 80%">Please enter keywords to describe this request.</span><br />
+                        <span>Please enter keywords to describe this request.</span><br />
                         <input class="input" id="title" type="text" name="title" maxlength="100" style="width: 90%" />
                     </td>
                 </tr>

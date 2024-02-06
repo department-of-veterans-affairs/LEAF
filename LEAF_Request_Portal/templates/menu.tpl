@@ -29,8 +29,6 @@
         {/if}
     </ul>
 </nav>
-{if $hide_main_control == 1}
-{/if}
 
 <script>
     function hideElement(element = null) {
