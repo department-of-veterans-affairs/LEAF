@@ -56,24 +56,6 @@ $main->assign('app_js_path', APP_JS_PATH);
 
 $main->assign('useUI', false);
 
-/* 
-Because LEAF_SETTINGS is now a defined const it cannot be changed on the fly
-This will be moved to the class that gets the settings so that it is always 
-sanitized before being sent out to the various pages. I will delete this comment
-on the next commit, this is only here to explain why it's being deleted.
-
-foreach (array_keys(LEAF_SETTINGS) as $key)
-{
-    
-    if (!is_array(LEAF_SETTINGS[$key])) {
-        error_log(print_r(LEAF_SETTINGS[$key], true));
-        //LEAF_SETTINGS[$key] = XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS[$key]);
-    } else {
-        error_log(print_r(LEAF_SETTINGS[$key], true));
-        error_log(print_r('this is an array', true));
-    }
-} */
-
 switch ($action) {
     case 'showServiceFTEstatus':
         $main->assign('useUI', true);
