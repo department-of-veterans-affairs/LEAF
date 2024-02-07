@@ -187,6 +187,34 @@
                 }
             }
         },
+        'priority': function(site) {
+            return {
+                name: 'Priority',
+                indicatorID: 'priority',
+                editable: false,
+                callback: function(data, blob) {
+                    const recordBlob = blob[data.recordID];
+                    const priority = recordBlob.priority;
+                    const priorityText = priority === -10 ? '<b style="color:#c00;">EMERGENCY</b>' : 'standard';
+                    $('#' + data.cellContainerID).html(priority + `&nbsp;${priorityText}`);
+                }
+            }
+        },
+        'dateSubmitted': function(site) {
+            return {
+                name: 'Date Submitted',
+                indicatorID: 'dateSubmitted',
+                editable: false,
+                callback: function(data, blob) {
+                    const recordBlob = blob[data.recordID];
+                    let submittedText = "Not Submitted";
+                    if (recordBlob.submitted > 0) {
+                        submittedText = new Date(recordBlob.submitted * 1000).toLocaleDateString();
+                    }
+                    $('#' + data.cellContainerID).html(submittedText);
+                }
+            }
+        },
     };
 
     function scrubHTML(input) {
@@ -484,7 +512,12 @@
             formGrid.setHeaders(tHeaders);
         }
         formGrid.setData(tGridData);
-        formGrid.sort('recordID', 'asc');
+        const priorityHeader = formGrid.headers().find(h => h.indicatorID === 'priority') || null;
+        if (priorityHeader === null) {
+            formGrid.sort('recordID', 'asc');
+        } else {
+            formGrid.sort('priority', 'asc');
+        }
         formGrid.renderBody();
         //formGrid.loadData(tGridData.map(v => v.recordID).join(','));
         $('#' + formGrid.getPrefixID() + 'table').css('width', '99%');
@@ -544,7 +577,7 @@
         let query = new LeafFormQuery();
         query.setRootURL(site.url);
         query.setExtraParams(
-            '&x-filterData=recordID,categoryIDs,categoryNames,date,title,service,submitted,stepID,blockingStepID,lastStatus,stepTitle,action_history.time,unfilledDependencyData' +
+            '&x-filterData=recordID,categoryIDs,categoryNames,date,title,service,submitted,priority,stepID,blockingStepID,lastStatus,stepTitle,action_history.time,unfilledDependencyData' +
             nonAdminParam);
         query.onProgress(progress => {
             $('#progressCount').html(`~${progress} `);

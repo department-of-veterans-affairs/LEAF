@@ -2,22 +2,27 @@ const CombinedInboxEditor = Vue.createApp({
     data() {
         return {
             sites: [],
+            otherSitemapSites: [],
             choices: [],
             CSRFToken: CSRFToken,
-            allColumns: 'service,title,status,dateInitiated,days_since_last_action',
+            allColumns: 'service,title,status,dateInitiated,days_since_last_action,priority,dateSubmitted',
             frontEndColumns: {
                 'service': 'Service',
                 'title': 'Title',
                 'status': 'Status',
                 'dateInitiated': 'Date Initiated',
-                'days_since_last_action': 'Days Since Last Action'
+                'days_since_last_action': 'Days Since Last Action',
+                'priority': 'Priority',
+                'dateSubmitted': 'Date Submitted'
             },
             backEndColumns: {
                 'Service': 'service',
                 'Title': 'title',
                 'Status': 'status',
                 "Date Initiated": 'dateInitiated',
-                "Days Since Last Action": 'days_since_last_action'
+                "Days Since Last Action": 'days_since_last_action',
+                'Priority': 'priority',
+                'Date Submitted': 'dateSubmitted',
             },
         };
     },
@@ -67,26 +72,52 @@ const CombinedInboxEditor = Vue.createApp({
                     type: 'GET',
                     url: '../api/site/settings/sitemap_json',
                     success: (res) => {
-                        let siteMap = Object.values(JSON.parse(res[0].data))[0];
-                        let formattedSiteMap = siteMap.map((site) => ({
+                        const siteMap = Object.values(JSON.parse(res[0].data))[0];
+                        let inboxSites = [];
+                        let otherSitemapSites = [];
+                        siteMap.forEach(s => {
+                            if(s.target.includes(window.location.hostname)) {
+                                inboxSites.push(s);
+                            } else {
+                                otherSitemapSites.push(s);
+                            }
+                        });
+                        this.otherSitemapSites = otherSitemapSites;
+
+                        const formattedSiteMap = inboxSites.map((site) => ({
                             ...site,
                             columns: site.columns ?? 'service,title,status',
                             show: site.show ?? true
-                        })).filter((site) => site.target.includes(window.location.hostname));
+                        }));
                         this.sites = formattedSiteMap.sort((a, b) => a.order - b.order);
                         this.sites.forEach((site) => {
-                            this.choices.push({id: site.id, choices: []})
+                            this.choices.push({
+                                id: site.id,
+                                choices: []
+                            });
                             let tmp = [];
-                            if (site.columns.split(',')[0] !== '') {
-                                site.columns.split(',').forEach((col, index) => {
-                                    if (isNaN(col)) {
-                                        tmp.push({value: col, label: this.frontEndColumns[col], selected: true, customProperties: { header: this.frontEndColumns[col] }});
-                                    }
-                                });
-                            }
+                            const siteCols = (site.columns || "").split(',').filter(c => c !== "");
+                            siteCols.forEach((col) => {
+                                if (isNaN(col)) {
+                                    tmp.push({
+                                        value: col,
+                                        label: this.frontEndColumns[col],
+                                        selected: true,
+                                        customProperties: {
+                                            header: this.frontEndColumns[col]
+                                        }
+                                    });
+                                }
+                            });
                             this.allColumns.split(',').forEach((col) => {
                                 if (!site.columns.includes(col)) {
-                                    tmp.push({value: col, label: this.frontEndColumns[col], selected: false, customProperties: { header: this.frontEndColumns[col] }});
+                                    tmp.push({
+                                        value: col,
+                                        label: this.frontEndColumns[col],
+                                        selected: false, customProperties: {
+                                            header: this.frontEndColumns[col]
+                                        }
+                                    });
                                 }
                             });
                             this.choices.find((choice) => choice.id == site.id).choices = tmp;
@@ -101,28 +132,29 @@ const CombinedInboxEditor = Vue.createApp({
         },
 
         saveSettings() { 
-            new Promise((resolve, reject) => {
-                // sort the sites by order
-                let sendObj = {buttons:[]};
-                for (let key in this.sites) {
-                    sendObj.buttons.push(this.sites[key]);
+            // sort the edited sites by order
+            let sendObj = {
+                buttons:[]
+            };
+            for (let key in this.sites) {
+                sendObj.buttons.push(this.sites[key]);
+            }
+            //re-add other sitemap sites
+            sendObj.buttons = sendObj.buttons.concat(this.otherSitemapSites);
+            $.ajax({
+                type: 'POST',
+                url: '../api/site/settings/sitemap_json',
+                data: {
+                    CSRFToken: CSRFToken,
+                    sitemap_json: JSON.stringify(sendObj)
+                },
+                success: (res) => {
+                    //1 if ok
+                },
+                error: (err) => {
+                    console.log(err);
                 }
-        
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/site/settings/sitemap_json',
-                    data: {
-                        CSRFToken: CSRFToken,
-                        sitemap_json: JSON.stringify(sendObj)
-                    },
-                    success: (res) => {
-                        resolve();
-                    },
-                    error: (err) => {
-                        reject(err);
-                    }
-                });
-            })
+            });
         },
 
         sortSites() {
@@ -130,32 +162,30 @@ const CombinedInboxEditor = Vue.createApp({
         },
 
         setupChoices(site) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    let selectElement = document.getElementById('choice-' + site.id);
-                    let allCols = this.allColumns.split(',');
-                    let choicejs = new Choices(selectElement, {
-                        allowHTML: false,
-                        removeItemButton: true,
-                        editItems: true,
-                        maxItemCount: 7,
-                        shouldSort: false,
-                        placeholderValue: "Click to search. Limit 7 columns.",
-                        choices: this.choices.find((choice) => choice.id == site.id).choices,
-                    });
-                    
-                    selectElement.addEventListener('change', (event) => {
-                        let selectedValue = Array.prototype.slice.call(event.target.children).map((child) => child.value).join(',');
-                        site.columns = selectedValue;
-                        this.saveSettings();
-                    });
+            setTimeout(() => {
+                let selectElement = document.getElementById('choice-' + site.id);
+                new Choices(selectElement, {
+                    allowHTML: false,
+                    removeItemButton: true,
+                    editItems: true,
+                    maxItemCount: 7,
+                    shouldSort: false,
+                    placeholderValue: "Click to search. Limit 7 columns.",
+                    choices: this.choices.find((choice) => choice.id == site.id).choices,
                 });
-                resolve();
+                selectElement.addEventListener('change', (event) => {
+                    let selectedValue = Array.prototype.slice.call(event.target.children).map((child) => child.value).join(',');
+                    site.columns = selectedValue;
+                    this.saveSettings();
+                });
             });
         },
         async getIndicators(portalURL = '') {
             if (portalURL === '') {
                 return [];
+            }
+            if(!portalURL.endsWith('/')) {
+                portalURL += '/';
             }
             const indicators = await fetch(portalURL + "api/form/indicator/list", {
                 headers: {
@@ -184,15 +214,19 @@ const CombinedInboxEditor = Vue.createApp({
                     portalURL = portalURL.substring(0, portalURL.indexOf('/open.php?') + 1);
                 }
                 this.getIndicators(portalURL).then((indicators) => {
-                    this.choices.find((choice) => choice.id == site.id).choices.push(...indicators.map((indicator => ({
-                        label: indicator.categoryName + ': ' + indicator.name + " (ID: " + indicator.indicatorID + ")",
-                        selected: site.columns.includes(indicator.indicatorID),
-                        value: indicator.indicatorID,
-                        customProperties: {
-                            header: indicator.name
+                    let siteChoices = this.choices.find((choice) => choice.id === site.id);
+                    const choicesInfo = indicators.map(i => {
+                        const indName = XSSHelpers.stripAllTags(i.description || i.name);
+                        return {
+                            label: i.categoryName + ': ' + indName + " (ID: " + i.indicatorID + ")",
+                            selected: site.columns.includes(i.indicatorID),
+                            value: i.indicatorID,
+                            customProperties: {
+                                header: indName
+                            }
                         }
-                    }))));
-                }).then(() => {
+                    });
+                    siteChoices.choices.push(...choicesInfo);
                     this.setupChoices(site);
                 });
             });
