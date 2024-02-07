@@ -59,7 +59,7 @@ function syncServices() {
         success: function(response) {
             dialog_simple.setContent(response);
         },
-        fail: function(error) {
+        error: function(error) {
             console.log(error);
         },
         cache: false
@@ -86,7 +86,7 @@ function getMembers(groupID = -1) {
                     populateMembers(groupID, response);
                     $('#members' + groupID).fadeIn();
                 },
-                fail: function(error) {
+                error: function(error) {
                     console.log(error);
                 },
                 cache: false
@@ -156,7 +156,7 @@ function removeUser(groupID = -1, userID = '') {
             type: 'POST',
             url: "../api/service/" + groupID + "/members/_" + userID,
             data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-            fail: function(err) {
+            error: function(err) {
                 console.log(err);
             },
             cache: false
@@ -184,7 +184,7 @@ function importUser(serviceID = 0, selectedUserName = '') {
                     alert(res);
                 }
             },
-            fail: function(err) {
+            error: function(err) {
                 console.log(err);
             },
             cache: false
@@ -207,7 +207,7 @@ function deleteService(serviceID = 0) {
             success: function(response) {
                 location.reload();
             },
-            fail: function(error) {
+            error: function(error) {
                 console.log(error);
             },
             cache: false
@@ -361,7 +361,7 @@ function initiateModal(serviceID = 0, serviceName = '') {
 
                 dialog.show();
             },
-            fail: function(error) {
+            error: function(error) {
                 console.log(error);
             },
             cache: false
@@ -378,7 +378,7 @@ function pruneMember(groupID, userID) {
             type: 'POST',
             url: "../api/service/" + groupID + "/members/_" + userID + "/prune",
             data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-            fail: function(err) {
+            error: function(err) {
                 console.log(err);
             },
             cache: false
@@ -396,7 +396,7 @@ function reactivateMember(groupID, userID) {
             type: 'POST',
             url: "../api/service/" + groupID + "/members/_" + userID + "/reactivate",
             data: {'CSRFToken': '<!--{$CSRFToken}-->'},
-            fail: function(err) {
+            error: function(err) {
                 console.log(err);
             },
             cache: false
@@ -452,6 +452,13 @@ function getGroupList() {
 	    	initiateWidget(services[i].serviceID, services[i].service);
 	    	populateMembers(services[i].serviceID, services[i].members);
 	    }
+        for(let i in quadrads) {
+            const id = quadrads[i].groupID
+            const eltCard = document.getElementById(`${id}`);
+            if(eltCard === null) {
+                console.log("ELT card not present for group", id);
+            }
+        }
 	});
 }
 
@@ -476,7 +483,7 @@ function viewHistory(groupID = -1){
             dialog_simple.setContent(res);
             dialog_simple.indicateIdle();
         },
-        fail: function(error) {
+        error: function(error) {
             console.log(error);
         },
         cache: false
