@@ -16,12 +16,12 @@ $totalfilecount = 0;
 $totalfilesize = 0;
 $totalmaxfilesize = 0;
 $totalminfilesize = 999999999;
-$fp = fopen('filehistogram.csv', 'w');
-fputcsv($fp, ['path', 'max (KB)', 'min (KB)', 'average (KB)', 'count']);
+$fp = fopen('check_user_upload_sizes.csv', 'w');
+fputcsv($fp, ['path', 'min (KB)', 'max (KB)', 'average (KB)', 'count']);
 foreach ($portals as $portal) {
 
     // setup our initial array
-    $filesizes = ['path' => $portal['site_path'], 'max' => 0, 'min' => 999999999, 'average' => 0, 'count' => 0];
+    $filesizes = ['path' => $portal['site_path'], 'min' => 999999999, 'max' => 0, 'average' => 0, 'count' => 0];
 
     // look at the erm uploads, if looking at multiple dirs, will need to decouple filecounts, since we mainly want to look at erm I will just look at erm.
     $path = $portal['site_uploads'] . '*.*';
@@ -70,7 +70,7 @@ if ($totalminfilesize > $totalmaxfilesize) {
     $totalminfilesize = 0;
 }
 
-fputcsv($fp, ['total', $totalmaxfilesize, $totalminfilesize, $totalfilesize / $totalfilecount, $totalfilecount]);
+fputcsv($fp, ['total', $totalminfilesize, $totalmaxfilesize, $totalfilesize / $totalfilecount, $totalfilecount]);
 fclose($fp);
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
