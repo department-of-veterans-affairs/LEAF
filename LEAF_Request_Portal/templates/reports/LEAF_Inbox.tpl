@@ -98,7 +98,7 @@
                                         $('#requestTitle').attr('tabindex', '0');
                                         $('#requestInfo').attr('tabindex', '0');
                                     },
-                                    fail: function() {
+                                    error: function() {
                                         triggerGenericLoadError();
                                     }
                                 })
@@ -419,7 +419,9 @@
 
     function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
         let customColumns = false;
+        let categoryID = null;
         if (categoryIDs != undefined) {
+            categoryID = categoryIDs[0];
             categoryIDs.forEach(categoryID => {
                 if (site.columns != undefined &&
                     Array.isArray(site.columns) &&
@@ -445,8 +447,14 @@
         }
 
         let customCols = [];
-        if (customColumns == false) {
-            site.columns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+        if (customColumns === false) {
+            const baseColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+            const formColumns = site.formColumns[categoryID] || null;
+            if (formColumns !== null) {
+                site.columns = formColumns;
+            } else {
+                site.columns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+            }
         }
         site.columns.split(',').forEach(col => {
             if (isNaN(col)) {
@@ -529,8 +537,10 @@
     function buildDepInboxByStep(res, stepID, stepName, recordIDs, site) {
         let hash = Sha1.hash(site.url);
 		let categoryName = '';
+        let categoryID = '';
         if(Object.keys(recordIDs).length > 0) {
             categoryName = `${res[recordIDs[0]].categoryName} - ${res[recordIDs[0]].stepTitle}`;
+            categoryID = res[recordIDs[0]].categoryID;
         }
 
         let icon = getIcon(site.icon, site.name);
@@ -594,20 +604,30 @@
 
         // get data for any custom fields
         let getData = [];
-        if (site.columns != undefined && Array.isArray(site.columns.split(','))) {
-            let cols = site.columns.split(',');
-            for (let i in site.columns.split(',')) {
-                if (!isNaN(parseInt(cols[i]))) {
-                    getData.push(parseInt(cols[i]));
-                } else {
-                    switch (cols[i].toLowerCase()) {
-                        case 'days_since_last_action':
-                        case 'email_reminder':
-                            query.join('action_history');
-                            break;
-                        default:
-                            break;
-                    }
+
+        const siteColumns = (site?.columns || "").split(',').filter(c => c !== "");
+        const formColumns = site?.formColumns || {};
+        let arrFormColumns = [];
+        for (let key in formColumns) {
+            let cols = formColumns[key];
+            cols = cols.split(',');
+            arrFormColumns = arrFormColumns.concat(cols)
+        }
+        let allColumns = siteColumns.concat(arrFormColumns);
+        allColumns = Array.from(new Set(allColumns));
+
+        for (let i in allColumns) {
+            const col = allColumns[i];
+            if (!isNaN(parseInt(col))) {
+                getData.push(parseInt(col));
+            } else {
+                switch (col.toLowerCase()) {
+                    case 'days_since_last_action':
+                    case 'email_reminder':
+                        query.join('action_history');
+                        break;
+                    default:
+                    break;
                 }
             }
         }
@@ -652,7 +672,7 @@
                     dataWorkflowCategories[w.categoryID] = 1;
                 });
             },
-            fail: function() {
+            error: function() {
                 triggerGenericLoadError();
             }
         });
@@ -696,6 +716,7 @@
                         nonAdmin: nonAdmin,
                         order: site.order,
                         columns: 'UID' + (site.columns?.length > 0 ? ',' + site.columns : ''),
+                        formColumns: site.formColumns,
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 
@@ -730,7 +751,7 @@
                 sites.push(...Object.values(uniqueSites));
                 resolve();
             },
-            fail: function(err) {
+            error: function(err) {
                 console.log(err);
                 reject();
             }
