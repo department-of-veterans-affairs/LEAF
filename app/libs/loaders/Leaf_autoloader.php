@@ -30,7 +30,7 @@ if ($site->error) {
     if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . trim($my_path) . '/');
     $site_paths = $site->getSitePath();
 
-    if ($site_paths['decommission'] > 0) {
+    if ($site_paths['decommissionTimestamp'] > 0) {
         http_response_code(404);
         die();        
     }
