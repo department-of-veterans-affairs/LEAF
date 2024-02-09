@@ -446,17 +446,19 @@
             });
         }
 
-        let customCols = [];
+        let headerColumns = "";
         if (customColumns === false) {
             const baseColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
             const formColumns = site.formColumns[categoryID] || null;
             if (formColumns !== null) {
-                site.columns = formColumns;
+                headerColumns = formColumns;
             } else {
-                site.columns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+                headerColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
             }
+            headerColumns = headerColumns.split(",")
         }
-        site.columns.split(',').forEach(col => {
+        let customCols = [];
+        headerColumns.forEach(col => {
             if (isNaN(col)) {
                 customCols.push(headerDefinitions[col](site));
             } else {

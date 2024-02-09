@@ -2,10 +2,11 @@ const CombinedInboxEditor = Vue.createApp({
     data() {
         return {
             loading: true,
+            updateKey: 0,
             sites: [],
             otherSitemapSites: [],
-            portalData: {},
-            choices: [],
+            portalForms: {},
+            choices: {},
             CSRFToken: CSRFToken,
             allColumns: ['service','title','status','dateInitiated','days_since_last_action','priority','dateSubmitted'],
             frontEndColumns: {
@@ -27,6 +28,16 @@ const CombinedInboxEditor = Vue.createApp({
                 'Date Submitted': 'dateSubmitted',
             },
         };
+    },
+    computed: {
+        siteForms() {
+            let data = {};
+            this.sites.forEach(site => {
+                const portalURL = this.getPortalURL(site.target);
+                data[site.id] = this.portalForms[portalURL]?.forms || [];
+            });
+            return data;
+        },
     },
     methods: {
         startDrag(evt, site) {
@@ -60,14 +71,12 @@ const CombinedInboxEditor = Vue.createApp({
             this.saveSettings();
         },
         
-        getIcon(icon, name) {
+        getIcon(icon) {
             if (icon != '') {
                 if (icon.indexOf('/') != -1) {
-                    icon = '<img src="' + icon + '" alt="icon for ' + name +
-                        '" style="vertical-align: middle; width: 76px; height:76px;" />';
+                    icon = '<img src="' + icon + '" alt="" style="vertical-align: middle; width: 76px; height:76px;" />';
                 } else {
-                    icon = '<img src="../libs/dynicons/?img=' + icon + '&w=76" alt="icon for ' + name +
-                        '" style="vertical-align: middle" />';
+                    icon = '<img src="../libs/dynicons/?img=' + icon + '&w=76" alt="" style="vertical-align: middle" />';
                 }
             }
             return icon;
@@ -76,89 +85,95 @@ const CombinedInboxEditor = Vue.createApp({
          * get sitemap JSON. setup base column values for LEAF cards.  save non-LEAF cards
         */
         runSetup() {
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    type: 'GET',
-                    url: '../api/site/settings/sitemap_json',
-                    success: (res) => {
-                        const siteMap = Object.values(JSON.parse(res[0].data))[0];
-                        let inboxSites = [];
-                        let otherSitemapSites = [];
-                        siteMap.forEach(s => {
-                            if(s.target.includes(window.location.hostname)) {
-                                inboxSites.push(s);
-                            } else {
-                                otherSitemapSites.push(s);
+            $.ajax({
+                type: 'GET',
+                url: '../api/site/settings/sitemap_json',
+                success: (res) => {
+                    const siteMap = Object.values(JSON.parse(res[0].data))[0];
+                    let inboxSites = [];
+                    let otherSitemapSites = [];
+                    siteMap.forEach(s => {
+                        if(s.target.includes(window.location.hostname)) {
+                            inboxSites.push(s);
+                        } else {
+                            otherSitemapSites.push(s);
+                        }
+                    });
+                    this.otherSitemapSites = otherSitemapSites;
+
+                    const formattedSiteMap = inboxSites.map((site) => ({
+                        ...site,
+                        columns: site?.columns || 'service,title,status',
+                        formColumns: site?.formColumns || {},
+                        show: site.show ?? true
+                    }));
+                    this.sites = formattedSiteMap.sort((a, b) => a.order - b.order);
+
+                    let portalURLs = {};
+                    this.sites.forEach((site) => {
+                        const portalURL = this.getPortalURL(site.target);
+                        portalURLs[portalURL] = 1;
+
+                        this.choices[site.id] = {
+                            portalURL,
+                            choices: []
+                        };
+                        let tmp = [];
+                        //add selected cols first to retain their order
+                        const siteCols = (site.columns || "").split(',').filter(c => c !== "");
+                        siteCols.forEach((col) => {
+                            if (this.allColumns.includes(col)) {
+                                tmp.push({
+                                    value: col,
+                                    label: this.frontEndColumns[col],
+                                    selected: true,
+                                    customProperties: {
+                                        header: this.frontEndColumns[col]
+                                    }
+                                });
                             }
                         });
-                        this.otherSitemapSites = otherSitemapSites;
-
-                        const formattedSiteMap = inboxSites.map((site) => ({
-                            ...site,
-                            columns: site?.columns || 'service,title,status',
-                            formColumns: site?.formColumns || {},
-                            show: site.show ?? true
-                        }));
-                        this.sites = formattedSiteMap.sort((a, b) => a.order - b.order);
-
-                        let count = 0; //TODO: try to optimize once per portal
-                        this.sites.forEach((site) => {
-                            this.choices.push({
-                                id: site.id,
-                                choices: []
-                            });
-                            let tmp = [];
-                            //add selected cols first to retain their order
-                            const siteCols = (site.columns || "").split(',').filter(c => c !== "");
-                            siteCols.forEach((col) => {
-                                if (this.allColumns.includes(col)) {
-                                    tmp.push({
-                                        value: col,
-                                        label: this.frontEndColumns[col],
-                                        selected: true,
-                                        customProperties: {
-                                            header: this.frontEndColumns[col]
-                                        }
-                                    });
-                                }
-                            });
-                            this.allColumns.forEach((col) => {
-                                if (!site.columns.includes(col)) {
-                                    tmp.push({
-                                        value: col,
-                                        label: this.frontEndColumns[col],
-                                        selected: false,
-                                        customProperties: {
-                                            header: this.frontEndColumns[col]
-                                        }
-                                    });
-                                }
-                            });
-                            this.choices.find((choice) => choice.id == site.id).choices = tmp;
-
-                            const portalURL = this.getPortalURL(site.target);
-
-                            this.getPortalData(site.id, portalURL)
-                            .then(() => {
-                                count += 1;
-                                if (count === this.sites.length) {
-                                    resolve();
-                                }
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                reject(err);
-                            });
+                        this.allColumns.forEach((col) => {
+                            if (!site.columns.includes(col)) {
+                                tmp.push({
+                                    value: col,
+                                    label: this.frontEndColumns[col],
+                                    selected: false,
+                                    customProperties: {
+                                        header: this.frontEndColumns[col]
+                                    }
+                                });
+                            }
                         });
-                    },
-                    error: (err) => {
-                        reject(err);
+                        this.choices[site.id].choices = tmp;
+                    });
+
+                    const totalURLs = Object.keys(portalURLs).length;
+                    let count = 0;
+                    for (let key in portalURLs) {
+                        this.getPortalForms(key)
+                        .then(() => {
+                            count += 1;
+                            if (count === totalURLs) {
+                                this.loading = false;
+
+                                this.sites.forEach((site) => {
+                                    this.setupChoices(site);
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
                     }
-                });
-            })
+                },
+                error: (err) => {
+                    reject(err);
+                }
+            });
         },
 
-        saveSettings() { 
+        saveSettings() {
             // sort the edited sites by order
             let sendObj = {
                 buttons:[]
@@ -176,7 +191,18 @@ const CombinedInboxEditor = Vue.createApp({
                     sitemap_json: JSON.stringify(sendObj)
                 },
                 success: (res) => {
-                    //1 if ok
+                    if(+res === 1) {
+                        this.sites.forEach(site => {
+                            const formID = document.getElementById('form_select_' + site.id)?.value || null;
+                            let columns = formID !== null ? site.formColumns[formID] || "service,title,status" : site.columns;
+                            columns = columns.split(",");
+
+                            this.choices[site.id].choices.map(c => {
+                                c.selected = columns.includes(c.value);
+                            });
+                            this.updateChoiceSelections(site.id, columns);
+                        });
+                    }
                 },
                 error: (err) => {
                     console.log(err);
@@ -187,11 +213,27 @@ const CombinedInboxEditor = Vue.createApp({
         sortSites() {
             this.sites.sort((a, b) => a.order - b.order);
         },
-
+        updateChoiceSelections(siteID, arrColumns) {
+            const choices = this.choices[siteID]?.choices || [];
+            const elChoicesSelect = document.getElementById('choice-' + siteID);
+            if(typeof elChoicesSelect?.choicesjs !== undefined) {
+                elChoicesSelect.choicesjs.clearChoices();
+                elChoicesSelect.choicesjs.setChoices(choices);
+                elChoicesSelect.choicesjs.removeActiveItems();
+                arrColumns.forEach(col => {
+                    const val = this.allColumns.includes(col) ? col : +col;
+                    const choice = choices.find(choice => choice.value === val) || null;
+                    if(choice !== null) {
+                        elChoicesSelect.choicesjs.setChoiceByValue(val);
+                    }
+                });
+                this.updateKey += 1;
+            }
+        },
         setupChoices(site) {
             setTimeout(() => {
                 let selectElement = document.getElementById('choice-' + site.id);
-                const siteChoices = this.choices.find((choice) => choice.id == site.id)?.choices || [];
+                const siteChoices = this.choices[site.id]?.choices || [];
 
                 const selChoices = new Choices(selectElement, {
                     allowHTML: false,
@@ -211,6 +253,15 @@ const CombinedInboxEditor = Vue.createApp({
                     } else {
                         site.formColumns[selectedForm] = selectedValue;
                     }
+                    //update columns and formColumns properties of sites with the same portalURL
+                    const portalURL = this.getPortalURL(site.target);
+                    this.sites.forEach(s => {
+                        const sitePortalURL = this.getPortalURL(s.target);
+                        if(s.id !== site.id && sitePortalURL === portalURL) {
+                            s.columns = site.columns;
+                            s.formColumns = site.formColumns;
+                        }
+                    })
                     this.saveSettings();
                 });
             });
@@ -235,7 +286,7 @@ const CombinedInboxEditor = Vue.createApp({
             }
             return portalURL;
         },
-        async getPortalData(siteID, portalURL) {
+        async getPortalForms(portalURL) {
             const resForms = await fetch(`${portalURL}api/form/categories`, {
                 headers: {
                     "Content-Type": "application/json",
@@ -244,72 +295,71 @@ const CombinedInboxEditor = Vue.createApp({
             });
             const forms = await resForms.json();
 
-            const resIndicators = await fetch(portalURL + "api/form/indicator/list", {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                cache: "no-cache"
-            });
-            const indicators = await resIndicators.json();
-            const enabledIndicators = indicators.filter(i => i.isDisabled === 0);
-
-            this.portalData[siteID] = {
-                id: siteID,
-                portalURL: portalURL,
+            this.portalForms[portalURL] = {
                 forms: forms,
-                indicators: enabledIndicators,
             };
         },
-        setIndicatorChoices(event, site) {
-            let elChoicesSelect = document.getElementById('choice-' + site.id);
+
+        /** Used when a form selection is made.  Updates options and selection status.
+         * @param {object} event form select element onchange event
+         * @param {object} site object containing information about the specific card
+         * @returns removes encoded chars by passing through div and then strips all tags
+         */
+        async setIndicatorChoices(event, site) {
             const siteID = site.id;
-            const formID = event.currentTarget.value;
-            const indicators = this.portalData[siteID]?.indicators || [];
-            const formIndicators = indicators.filter(i => i.categoryID === formID);
+            const portalURL = this.getPortalURL(site.target);
+            const formID = event.currentTarget.value || null;
 
-            let siteChoices = this.choices.find(choice => choice.id === siteID);
-            siteChoices.choices = siteChoices.choices.filter(c => !Number.isInteger(+c.value));
+            let enabledIndicators = [];
+            if(formID !== null) {
+                const resIndicators = await fetch(portalURL + `api/form/indicator/list?forms=${formID}`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    cache: "no-cache"
+                });
+                const indicators = await resIndicators.json();
+                enabledIndicators = indicators.filter(i => i.isDisabled === 0);
+            }
+            const formColumns = (site.formColumns?.[formID] || "service,title,status").split(",");
 
-            const choicesInfo = formIndicators.map(i => {
+            //rm prior indicators and re-add new
+            let siteChoices = this.choices[siteID];
+            siteChoices.choices = siteChoices.choices.filter(c => this.allColumns.includes(c.value));
+            siteChoices.choices.map(c => {
+                c.selected = formColumns.includes(c.value);
+            });
+            const indicatorChoices = enabledIndicators.map(i => {
                 const indName = XSSHelpers.stripAllTags(i.description || i.name);
+                const strIndID = String(i.indicatorID);
                 return {
                     label: i.categoryName + ': ' + indName + " (ID: " + i.indicatorID + ")",
-                    selected: site.columns.includes(i.indicatorID),
+                    selected: formColumns.includes(strIndID),
                     value: i.indicatorID,
                     customProperties: {
                         header: indName
                     }
                 }
             });
-            siteChoices.choices.push(...choicesInfo);
-            if(typeof elChoicesSelect?.choicesjs !== undefined) {
-                elChoicesSelect.choicesjs.clearChoices();
-                elChoicesSelect.choicesjs.setChoices(siteChoices.choices);
-                elChoicesSelect.choicesjs.removeActiveItems();
-                const formColumns = site?.formColumns?.[formID] || null;
-                const baseColumns = site?.columns || 'service,title,status';
-                const columns = (formColumns || baseColumns).split(',');
+            siteChoices.choices.push(...indicatorChoices);
 
-                let choices = [];
-                columns.forEach(c => {
-                    const val = isNaN(c) ? c : +c;
-                    let choice = siteChoices.choices.find(choice => choice.value === val) || null;
-                    if(choice !== null) {
-                        choices.push({ ...choice });
-                    }
-                });
-                elChoicesSelect.choicesjs.setValue(choices);
-            }
+            this.updateChoiceSelections(site.id, formColumns);
         },
+
         getHeaderHTML(site) {
-            let html = `<th class="col-header">UID</th>`;
+            console.log("called get html")
+            const formID = document.getElementById('form_select_' + site.id)?.value || null;
+            let html = `<tr><th class="col-header">UID</th>`;
             let indChoices = [];
             let filteredIndChoices = [];
 
-            const siteCols = site.columns.split(',').filter(c => c !== "");
+            const siteCols = formID === null ?
+                (site.columns || "").split(',').filter(c => c !== "") :
+                (site.formColumns[formID] || "service,title,status").split(',');
+
             const numericCols = siteCols.filter(str => +str > 0);
             if(numericCols.length > 0) { //don't bother getting and filtering if there aren't any indicator columns
-                indChoices = this.choices.find(choice => choice.id == site.id)?.choices || [];
+                indChoices = this.choices?.[site.id]?.choices || [];
                 filteredIndChoices = indChoices.filter(c => numericCols.includes(String(c.value)));
             }
             siteCols.forEach(col => {
@@ -319,18 +369,12 @@ const CombinedInboxEditor = Vue.createApp({
                 }
                 html += `<th class="col-header">${header}</th>`;
             });
-            html += `<th class="col-header">Action</th>`;
+            html += `<th class="col-header">Action</th></tr>`;
             return html;
         }
     },
     created() {
-        this.runSetup().then(() => {
-            this.loading = false;
-
-            this.sites.forEach((site) => {
-                this.setupChoices(site);
-            });
-        });
+        this.runSetup();
     },
     template: `
     <h1 style="margin: 3rem;">Combined Inbox Editor</h1>
@@ -366,24 +410,26 @@ const CombinedInboxEditor = Vue.createApp({
                     }"
                 >
                     <div class="site-title" :style="{backgroundColor: site.color, color: site.fontColor}">
-                        <span v-html="getIcon(site.icon, site.title)"></span>
+                        <span v-html="getIcon(site.icon)"></span>
                         {{site.title}}
                     </div>
                     <div class="inbox">
-                        <table style="width: 100%;" cellspacing=0>
-                            <tr v-html="getHeaderHTML(site)"></tr>
-                        </table>
+                        <table style="width: 100%;" cellspacing=0 v-html="getHeaderHTML(site)" :key="'headers_' + site.id + updateKey"></table>
                         <select :id="'choice-' + site.id" placeholder="select some options" multiple></select>
 
-                        <template v-if="portalData[site.id]?.forms">
-                            <label :for="'form_select_' + site.id">Select a form to add question headers</label><br/>
+                        <template v-if="siteForms[site.id]?.length > 0">
+                            <label :for="'form_select_' + site.id">Select a form for specific settings</label><br/>
                             <select :id="'form_select_' + site.id" placeholder="select a form" @change="setIndicatorChoices($event, site)">
                                 <option value="">Select a form</option>
-                                <option v-for="form in portalData[site.id].forms" :value="form.categoryID" :key="'form_' + site.id + '_' + form.categoryID">
+                                <option v-for="form in siteForms[site.id]" :value="form.categoryID" :key="'form_' + site.id + '_' + form.categoryID">
                                     {{form.categoryName}} ({{form.categoryID}})
                                 </option>
                             </select>
                         </template>
+                        <div v-if="Object.keys(site.formColumns).length > 0" style="margin-top: 1rem;">
+                            <h3>Form specific settings are set for the forms listed below (TODO:)</h3>
+                            <div v-for="val, key in site.formColumns">{{key}} | {{val}}</div>
+                        </div>
                     </div>
                 </div>
             </template>
