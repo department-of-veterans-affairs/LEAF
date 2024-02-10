@@ -1195,6 +1195,17 @@ button.buttonNorm {
   cursor: pointer;
   font-size: 12px;
 }
+button.depInbox {
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  width:100%;
+  padding: 0.5rem;
+  border:0;
+  display:flex;
+  gap: 0.25rem;
+  justify-content:space-between;
+}
 
 .checkable {
   cursor: pointer;

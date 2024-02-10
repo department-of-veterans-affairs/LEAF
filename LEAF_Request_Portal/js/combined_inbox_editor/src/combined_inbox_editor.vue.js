@@ -33,8 +33,24 @@ const CombinedInboxEditor = Vue.createApp({
         siteForms() {
             let data = {};
             this.sites.forEach(site => {
+                data[site.id] = {
+                    forms: [],
+                    formTable: {},
+                }
                 const portalURL = this.getPortalURL(site.target);
-                data[site.id] = this.portalForms[portalURL]?.forms || [];
+                const forms = this.portalForms[portalURL]?.forms || [];
+                data[site.id].forms = forms;
+                forms.forEach(f => {
+                    const formColumns = (site.formColumns?.[f.categoryID] || "").split(",");
+                    let inboxHeaders = "";
+                    formColumns.forEach(col => {
+                        inboxHeaders += (+col > 0 ? `id#${col}` : this.frontEndColumns[col] || "") + ", ";
+                    });
+                    if (inboxHeaders !== "") {
+                        inboxHeaders = inboxHeaders.slice(0, inboxHeaders.length - 2);
+                    }
+                    data[site.id].formTable[f.categoryID] = {...f, inboxHeaders, categoryName: f.categoryName || 'Untitled'};
+                });
             });
             return data;
         },
@@ -287,14 +303,13 @@ const CombinedInboxEditor = Vue.createApp({
             return portalURL;
         },
         async getPortalForms(portalURL) {
-            const resForms = await fetch(`${portalURL}api/form/categories`, {
+            const resForms = await fetch(`${portalURL}api/formStack/categoryList`, {
                 headers: {
                     "Content-Type": "application/json",
                 },
                 cache: "no-cache"
             });
             const forms = await resForms.json();
-
             this.portalForms[portalURL] = {
                 forms: forms,
             };
@@ -347,7 +362,6 @@ const CombinedInboxEditor = Vue.createApp({
         },
 
         getHeaderHTML(site) {
-            console.log("called get html")
             const formID = document.getElementById('form_select_' + site.id)?.value || null;
             let html = `<tr><th class="col-header">UID</th>`;
             let indChoices = [];
@@ -417,18 +431,23 @@ const CombinedInboxEditor = Vue.createApp({
                         <table style="width: 100%;" cellspacing=0 v-html="getHeaderHTML(site)" :key="'headers_' + site.id + updateKey"></table>
                         <select :id="'choice-' + site.id" placeholder="select some options" multiple></select>
 
-                        <template v-if="siteForms[site.id]?.length > 0">
-                            <label :for="'form_select_' + site.id">Select a form for specific settings</label><br/>
+                        <template v-if="siteForms[site.id]?.forms?.length > 0">
+                            <label :for="'form_select_' + site.id">Select a form to add specific settings</label><br/>
                             <select :id="'form_select_' + site.id" placeholder="select a form" @change="setIndicatorChoices($event, site)">
                                 <option value="">Select a form</option>
-                                <option v-for="form in siteForms[site.id]" :value="form.categoryID" :key="'form_' + site.id + '_' + form.categoryID">
+                                <option v-for="form in siteForms[site.id].forms" :value="form.categoryID" :key="'form_' + site.id + '_' + form.categoryID">
                                     {{form.categoryName}} ({{form.categoryID}})
                                 </option>
                             </select>
                         </template>
-                        <div v-if="Object.keys(site.formColumns).length > 0" style="margin-top: 1rem;">
-                            <h3>Form specific settings are set for the forms listed below (TODO:)</h3>
-                            <div v-for="val, key in site.formColumns">{{key}} | {{val}}</div>
+                        <div v-if="Object.keys(site.formColumns).length > 0" class="custom_forms">
+                            <h3>Form specific settings exist for the forms listed below</h3>
+                            <template v-for="val, key in site.formColumns">
+                                <div v-if="siteForms[site.id]?.formTable?.[key]" style="display:flex; gap: 0.5rem;">
+                                    <div><b>{{siteForms[site.id]?.formTable?.[key].categoryName}}</b><span style="font-size: 85%;"> ({{key}})</span></div>
+                                    <div>{{siteForms[site.id]?.formTable?.[key].inboxHeaders}}</div>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>

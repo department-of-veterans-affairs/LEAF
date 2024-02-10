@@ -76,7 +76,7 @@
                         $('#' + data.cellContainerID).html('<a href="' + site.url +
                             'index.php?a=printview&recordID=' + data.recordID + '" target="_blank">' +
                             blob[data.recordID].title + '</a>' +
-                            ' <button id="' + data.cellContainerID +
+                            ' <button type="button" id="' + data.cellContainerID +
                             '_preview" class="buttonNorm">Quick View</button>' +
                             '<div id="inboxForm' + hash + '_' + data.recordID +
                             '" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>'
@@ -398,14 +398,15 @@
             $('#inbox').append(`<a name="${hash}"></a>
 				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
-				<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
+				<div style="padding:0.5rem;font-weight:bold;font-size:200%;line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
     			</div>`);
         }
         $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${depID}" class="depContainer">
-            <div id="depLabel${hash}_${depID}" class="depInbox" style="padding: 8px; background-color: ${site.backgroundColor}">
-			<span style="float: right; text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
-			<span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${categoryName}</span></div>
+            <button type="button" id="depLabel${hash}_${depID}" class="depInbox" style="background-color: ${site.backgroundColor}">
+                <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${categoryName}</span>
+                <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
+            </button>
 			<div id="depList${hash}_${depID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + depID).on('click', function() {
             buildInboxGridView(res, depID, categoryName, recordIDs, site, hash, categoryIDs);
@@ -476,7 +477,7 @@
             callback: function(data, blob) {
                 let depDescription = 'Take Action';
                 $('#' + data.cellContainerID).css('text-align', 'center');
-                $('#' + data.cellContainerID).html('<button id="btn_action' + hash + '_' + stepID + '_' +
+                $('#' + data.cellContainerID).html('<button type="button" id="btn_action' + hash + '_' + stepID + '_' +
                                                    data.recordID +
                                                    '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal">' +
                                                    depDescription + '</button>');
@@ -551,15 +552,18 @@
             $('#inbox').append(`<a name="${hash}"></a>
 				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
-				<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
+				<div style="padding:0.5rem;font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
     			</div>`);
         }
         $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}" class="depContainer">
-            <div id="depLabel${hash}_${stepID}" class="depInbox" style="padding: 8px; background-color: ${site.backgroundColor}">
-			<span style="float: right; text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
-			<span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
-            <span style="color: ${site.fontColor}">${categoryName}</span></div>
+            <button type="button" id="depLabel${hash}_${stepID}" class="depInbox" style="background-color: ${site.backgroundColor}">
+                <div>
+                    <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
+                    <span style="color: ${site.fontColor}">${categoryName}</span>
+                </div>
+                <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
+            </button>
 			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + stepID).on('click', function() {
             buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);
@@ -938,13 +942,15 @@
     <h1>Loading...</h1>
     <div id="progressbar"></div>
     <h2 id="progressDetail"></h2>
-    <button id="btn_progressStop" class="buttonNorm">Stop and show results</button>
+    <button type="button" id="btn_progressStop" class="buttonNorm">Stop and show results</button>
 </div>
 
 <div id="viewport" style="visibility: hidden">
-<button id="btn_adminView" class="buttonNorm" style="float: right; <!--{if !$empMembership['groupID'][1]}-->display: none<!--{/if}-->">View as Admin</button>
-<button id="btn_organize" class="buttonNorm" style="float: right">Organize by Roles</button>
-<button id="btn_expandAll" class="buttonNorm" style="float: right">Toggle sections</button>
+<div style="display:flex;gap:0.25rem;justify-content:flex-end;">
+    <button type="button" id="btn_expandAll" class="buttonNorm">Toggle sections</button>
+    <button type="button" id="btn_organize" class="buttonNorm">Organize by Roles</button>
+    <button type="button" id="btn_adminView" class="buttonNorm" style="<!--{if !$empMembership['groupID'][1]}-->display: none<!--{/if}-->">View as Admin</button>
+</div>
 <br />
 <div id="inboxContainer">
     <div id="index" class="inbox">Jump to section:
