@@ -24,15 +24,16 @@ $site = new App\Leaf\Site($file_paths_db, $_SERVER['SCRIPT_FILENAME']);
 
 if ($site->error) {
     http_response_code(404);
+    die();
 } else {
     $my_path = $site->getPortalPath();
     if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $my_path);
     if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . trim($my_path) . '/');
     $site_paths = $site->getSitePath();
 
-    if ($site_paths['decommissionTimestamp'] > 0) {
+    if (isset($site_paths['decommissionTimestamp']) && $site_paths['decommissionTimestamp'] > 0) {
         http_response_code(404);
-        die();        
+        die();
     }
 }
 
