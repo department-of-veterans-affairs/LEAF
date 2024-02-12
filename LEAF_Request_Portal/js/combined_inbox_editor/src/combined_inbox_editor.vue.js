@@ -336,7 +336,9 @@ const CombinedInboxEditor = Vue.createApp({
                 const indicators = await resIndicators.json();
                 enabledIndicators = indicators.filter(i => i.isDisabled === 0);
             }
-            const formColumns = (site.formColumns?.[formID] || "service,title,status").split(",");
+            const formColumns = formID === null ?
+                (site.columns || "service,title,status").split(",") :
+                (site.formColumns?.[formID] || "service,title,status").split(",");
 
             //rm prior indicators and re-add new
             let siteChoices = this.choices[siteID];
@@ -391,7 +393,7 @@ const CombinedInboxEditor = Vue.createApp({
         this.runSetup();
     },
     template: `
-    <h1 style="margin: 3rem;">Combined Inbox Editor</h1>
+    <h1 style="margin: 3rem;">Combined Inbox Editor (beta)</h1>
 
     <h2 v-if="loading">Loading Site Data ...</h2>
     <div v-else id="editor-container">
@@ -430,7 +432,7 @@ const CombinedInboxEditor = Vue.createApp({
                     <div class="inbox">
                         <table style="width: 100%;" cellspacing=0 v-html="getHeaderHTML(site)" :key="'headers_' + site.id + updateKey"></table>
                         <select :id="'choice-' + site.id" placeholder="select some options" multiple></select>
-
+                        <p>If no form is selected, choices will be applied to the 'organize by role' view and to all forms without specific settings.</p>
                         <template v-if="siteForms[site.id]?.forms?.length > 0">
                             <label :for="'form_select_' + site.id">Select a form to add specific settings</label><br/>
                             <select :id="'form_select_' + site.id" placeholder="select a form" @change="setIndicatorChoices($event, site)">

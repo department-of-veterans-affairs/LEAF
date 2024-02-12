@@ -195,8 +195,8 @@
                 callback: function(data, blob) {
                     const recordBlob = blob[data.recordID];
                     const priority = recordBlob.priority;
-                    const priorityText = priority === -10 ? '<b style="color:#c00;">EMERGENCY</b>' : 'standard';
-                    $('#' + data.cellContainerID).html(priority + `&nbsp;${priorityText}`);
+                    const priorityText = priority === -10 ? '<b style="color:#c00;">EMERGENCY</b>' : 'normal';
+                    $('#' + data.cellContainerID).html(priorityText);
                 }
             }
         },
