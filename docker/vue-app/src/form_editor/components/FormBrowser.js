@@ -100,7 +100,7 @@ export default {
                     :key="'inactive_' + c.categoryID">
                 </category-item>
             </table>
-            <p v-else style="margin-bottom: 2rem;">No Inctive Forms</p>
+            <p v-else style="margin-bottom: 2rem;">No Inactive Forms</p>
 
             <h3>Supplemental Forms:</h3>
             <table v-if="supplementalForms.length > 0" id="supplemental_forms">
