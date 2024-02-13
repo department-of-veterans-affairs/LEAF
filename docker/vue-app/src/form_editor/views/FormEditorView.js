@@ -100,6 +100,7 @@ export default {
             focusedFormRecord: computed(() => this.focusedFormRecord),
             focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             noForm: computed(() => this.noForm),
+            mainFormID: computed(() => this.mainFormID),
 
             getFormByCategoryID: this.getFormByCategoryID,
             editAdvancedOptions: this.editAdvancedOptions,
@@ -125,6 +126,10 @@ export default {
         },
         noForm() {
             return !this.appIsLoadingForm && this.focusedFormID === '';
+        },
+        mainFormID() {
+            return this.focusedFormRecord?.parentID === '' ?
+                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
         },
         /**
          * @returns {Object} current query from categories object from url query id.
@@ -232,18 +237,6 @@ export default {
             }
             return indsToUpdate;
         },
-        /**
-         * @returns string to display at top of form index.
-         */
-        indexHeaderText() {
-            let text = '';
-            if(this.focusedFormRecord.parentID !== '') {
-                text = 'Internal Form';
-            } else {
-                text = this.currentFormCollection.length > 1 ? 'Form Layout' : 'Primary Form'
-            }
-            return text;
-        }
     },
     methods: {
         /**
@@ -730,15 +723,11 @@ export default {
             <div id="form_index_and_editing" :data-focus="focusedIndicatorID">
                 <!-- NOTE: INDEX (main + stapled forms, internals) -->
                 <div id="form_index_display">
-                    <div class="index_info">
-                        <h3>{{ indexHeaderText }}</h3>
-                        <button type="button" id="indicator_toolbar_toggle" class="btn-general"
-                            style="margin-left:auto;"
-                            @click.stop="toggleToolbars()">
-                            {{previewMode ? 'Edit this Form' : 'Preview this Form'}}
-                        </button>
-                    </div>
-                    <!-- LAYOUTS (FORMS AND INTERNAL/STAPLE OPTIONS ). -->
+                    <button type="button" id="indicator_toolbar_toggle" class="btn-general preview"
+                        @click.stop="toggleToolbars()">
+                        {{previewMode ? 'Edit this Form' : 'Preview this Form'}}
+                    </button>
+                    <!-- LAYOUTS (FORMS AND INTERNAL/STAPLE OPTIONS) -->
                     <ul v-if="!previewMode && currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID" :class="{preview: previewMode}">
                         <template v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID">
                             <li :class="{selected: form.categoryID === focusedFormID}">
@@ -753,14 +742,8 @@ export default {
                                     <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
                                         {{shortFormNameStripped(form.categoryID, 30)}}&nbsp;
                                     </span>
-                                    <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
-                                        (selected)
-                                    </em>
-                                    <em v-show="form.categoryID === focusedFormRecord.parentID" style="font-weight: normal; text-decoration: none;">
-                                        (parent)
-                                    </em>
                                 </button>
-                                <!-- INTERNAL FORMS AND STAPLE OPTIONS -->
+                                <!-- INTERNAL FORMS -->
                                 <div v-show="!previewMode || form.categoryID === focusedFormID || form.categoryID === focusedFormRecord.parentID" class="internal_forms">
                                     <ul v-if="form.internalForms.length > 0" :id="'internalFormRecords_' + form.categoryID">
                                         <li v-for="i in form.internalForms" :key="'internal_' + i.categoryID">
@@ -771,27 +754,26 @@ export default {
                                             </button>
                                         </li>
                                     </ul>
-                                    <template v-if="form.categoryID===focusedFormID">
-                                        <button v-if="!previewMode && form?.parentID === ''"
-                                            type="button" class="btn-general"
-                                            :id="'addInternalUse_' + form.categoryID"
-                                            @click="openNewFormDialog(form.categoryID)"
-                                            title="New Internal-Use Form" >
-                                            <span role="img" aria="" alt="">➕&nbsp;</span>
-                                            Add Internal-Use
-                                        </button>
-                                        <!-- staple options if not itself a staple and not an internal form -->
-                                        <button v-if="!previewMode && !allStapledFormCatIDs.includes(form.categoryID) && form.parentID === ''"
-                                            type="button" class="btn-general"
-                                            :id="'addStaple_' + form.categoryID"
-                                            @click="openStapleFormsDialog(form.categoryID)" title="Staple other form">
-                                            <span role="img" aria="" alt="">📌&nbsp;</span>Staple other form 
-                                        </button>
-                                    </template>
                                 </div>
                             </li>
                         </template>
                     </ul>
+                    <template v-if="!previewMode && mainFormID">
+                        <button type="button" class="btn-general"
+                            :id="'addInternalUse_' + mainFormID"
+                            @click="openNewFormDialog(mainFormID)"
+                            :title="'New Internal-Use Form for ' + mainFormID">
+                            <span role="img" aria="" alt="">➕&nbsp;</span>
+                            Add Internal-Use
+                        </button>
+                        <!-- staple options if main form is not itself a staple -->
+                        <button v-if="!allStapledFormCatIDs.includes(mainFormID)"
+                            type="button" class="btn-general"
+                            :id="'addStaple_' + mainFormID"
+                            @click="openStapleFormsDialog(mainFormID)" :title="'Staple other form to ' + mainFormID">
+                            <span role="img" aria="" alt="">📌&nbsp;</span>Staple other form 
+                        </button>
+                    </template>
                     <!-- FORM MENU PREVIEW -->
                     <ul v-if="previewMode && fullFormTree.length > 0">
                         <li v-for="(page, i) in fullFormTree" :key="'preview_' + page.indicatorID + '_' + page.categoryID"

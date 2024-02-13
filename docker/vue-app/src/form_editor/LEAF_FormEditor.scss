@@ -335,23 +335,10 @@ table[class$="SelectorTable"] th {
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     max-height: 90vh;
     overflow-y: auto;
-    .index_info {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-        height: 28px;
-        margin-bottom: 0.5rem;
-        button {
-            width: 134px;
-            justify-self: flex-end;
-        }
-    }
-    h3 {
-        margin: 0;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        color: black;
+
+    button.preview {
+        width: 134px;
+        margin-bottom: 1rem;
     }
 
     /* form menu list preview */
@@ -370,12 +357,6 @@ table[class$="SelectorTable"] th {
         &:not(:last-child) {
             margin-bottom: 1rem;
         }
-        &.selected {
-            border: 2px solid $LEAF_CSS_outline;
-            button.layout-listitem {
-                background-color: $lt_cyan;
-            }
-        }
         button.layout-listitem {
             padding: 0.25rem;
             display: flex;
@@ -389,10 +370,6 @@ table[class$="SelectorTable"] th {
             padding: 0 0.5rem;
             color: $charcoal;
             background-color: $BG_Pearl;
-            
-            &:hover, &:focus, &:active {
-                background-color: $lt_cyan;
-            }
         }
         /* button for the selected form */
         &.selected button.layout-listitem {
@@ -427,7 +404,6 @@ table[class$="SelectorTable"] th {
                     background-color: $BG_Pearl;
                     &.selected {
                         cursor: auto;
-                        background-color: $lt_cyan;
                         border: 2px solid $LEAF_CSS_outline;
                     }
                 }
@@ -557,7 +533,8 @@ table[class$="SelectorTable"] th {
         font-weight: bold;
         color: white;
         background-color: black;
-        height: 28px;
+        font-size: 1.5rem;
+        height: 2.25rem;
         padding: 0.2em 9px;
         border-radius: 3px;
         margin-right: 0.4rem;
