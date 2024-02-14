@@ -82,7 +82,6 @@ body {
 }
 #condition_editor_content div.if-then-setup {
   display: flex;
-  justify-content: space-between;
   gap: 0.5rem;
   align-items: center;
 }
