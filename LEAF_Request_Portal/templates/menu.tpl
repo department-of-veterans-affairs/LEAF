@@ -34,7 +34,7 @@
     function hideElement(element = null) {
         if(element !== null && element.style !== undefined) {
             element.style.zIndex = 0;
-            element.style.display = 'none';
+            element.classList.remove('is-shown');
             let controllerBtn = document.querySelector('button[aria-controls="' + element.id + '"]');
             if(controllerBtn !== null) {
                 controllerBtn.setAttribute('aria-expanded', "false");
@@ -71,7 +71,7 @@
             if(priorValue === "true") {
                 hideElement(popupEl);
             } else {
-                popupEl.style.display = 'block';
+                popupEl.classList.add('is-shown');
                 popupEl.style.zIndex = 10;
                 e.currentTarget.setAttribute('aria-expanded', "true");
             }

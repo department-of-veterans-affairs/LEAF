@@ -245,9 +245,19 @@ span#headerMenu {
   gap: 0.25rem 0.75rem;
 }
 #headerMenu > nav > ul > li {
+  position: relative;
   box-sizing: border-box;
   height: 24px;
   margin: 0;
+}
+#headerMenu .controlled-element {
+  position: absolute;
+  top: calc(100% - 2px);
+  left: 50%;
+  transform: translate(-50%,0);
+}
+#headerMenu .controlled-element.is-shown {
+  display: block;
 }
 #headerMenuNav > ul > li > button,
 #headerMenuNav > ul > li > a {
