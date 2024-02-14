@@ -1178,23 +1178,12 @@ div.workflowbox {
 .openlate {
 }
 
-span.browsecounter a { /*keeping for compat with custom view_search pages*/
+span.browsecounter a {
   padding: 4px;
-  padding-right: 6px;
+  margin-right: 4px;
   font-size: 1.125rem;
   font-weight: bold;
   background-color: black;
-  color: white;
-  float: left;
-  text-decoration: none;
-}
-span.browsecounter {
-  padding: 4px;
-  padding-right: 5px;
-  margin-right: 4px;
-  border-radius: 2px;
-  font-size: 1.125rem;
-  font-weight: bold;
   color: white;
   float: left;
   text-decoration: none;
