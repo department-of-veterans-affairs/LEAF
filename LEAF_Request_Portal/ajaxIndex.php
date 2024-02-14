@@ -398,6 +398,7 @@ switch ($action) {
             $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+            $t_form->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {
