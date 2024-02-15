@@ -121,7 +121,7 @@ export default {
                     CSRFToken: this.CSRFToken
                 },
                 success: (res) => {
-                    if (res === false) { //1 on success
+                    if (+res === 0) { //1 on success
                         alert('The workflow could not be set because this form is stapled to another form');
                     } else {
                         this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
@@ -268,12 +268,12 @@ export default {
                         </select>
                     </label>
                     <div style="display:flex; align-items: center; column-gap: 1rem;">
-                        <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age (Years)
+                        <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age
                             <select id="destructionAgeYears" v-model="destructionAgeYears"
                                 title="resolved request destruction age in years" 
                                 @change="updateDestructionAge">
                                 <option :value="null" :selected="destructionAgeYears===null">never</option>
-                                <option v-for="i in 30" :value="i">{{i}}</option>
+                                <option v-for="i in 30" :value="i">{{i}} year{{ i === 1 ? "" : "s"}}</option>
                             </select>
                         </label>
                     </div>

@@ -1,5 +1,5 @@
 export default {
-    name: 'browser-and-restore-menu',
+    name: 'browser-menu',
     inject: [
         'siteSettings',
         'openNewFormDialog',

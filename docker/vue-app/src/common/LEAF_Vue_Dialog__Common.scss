@@ -78,7 +78,7 @@ input[type="color"] {
     }
 }
 button.btn-general, button.btn-confirm {
-    background-color: white;
+    background-color: $lt_cyan;
     color: $base_navy;
     border: 2px solid $base_navy;
     &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {

@@ -30,6 +30,11 @@ export default {
         if(this.mergeableForms.length > 0) {
             const focusEl = document.getElementById('select-form-to-staple');
             if(focusEl !== null) focusEl.focus();
+        } else {
+            const btnAdd = document.getElementById('button_save');
+            if(btnAdd !== null) {
+                btnAdd.style.display = 'none';
+            }
         }
     },
     computed: {

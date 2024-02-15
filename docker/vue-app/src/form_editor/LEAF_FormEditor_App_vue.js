@@ -472,7 +472,7 @@ export default {
                 title = `<h2>Adding new Section</h2>`;
             } else {
                 title = indicatorID === null ?
-                `<h2>Adding question to ${parentID}</h2>` : `<h2>Editing indicator ${indicatorID}</h2>`;
+                `<h2>Adding question to ${parentID}</h2>` : `<h2>Editing indicatorID ${indicatorID}</h2>`;
             }
             this.dialogData = {
                 indicatorID,

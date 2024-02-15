@@ -86,10 +86,6 @@ export default {
                         </div>
                     </div>
                 </button>
-                <!-- NAME -->
-                <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
-                    class="indicator-name-preview" :id="'format_label_' + indicatorID">
-                </div>
 
                 <!-- TOOLBAR -->
                 <div v-show="!previewMode"
@@ -122,6 +118,10 @@ export default {
                         @click="newQuestion(indicatorID)">
                         + Add sub-question
                     </button>
+                </div>
+                <!-- NAME -->
+                <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
+                    class="indicator-name-preview" :id="'format_label_' + indicatorID">
                 </div>
             </div>
 

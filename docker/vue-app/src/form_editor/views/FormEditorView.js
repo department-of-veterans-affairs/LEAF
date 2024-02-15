@@ -631,6 +631,8 @@ export default {
                 } else {
                     this.updateKey += 1;
                 }
+            } else {
+                this.editQuestion(indicatorID);
             }
         },
         /**
@@ -712,7 +714,7 @@ export default {
         <template v-else>
             <!-- admin home link, browser link, page title -->
             <h2 id="page_breadcrumbs">
-                <a href="../admin" class="leaf-crumb-link" target="_blank" title="to Admin Home">Admin</a>
+                <a href="../admin" class="leaf-crumb-link" title="to Admin Home">Admin</a>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>
                 <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Editor
@@ -744,7 +746,7 @@ export default {
                                     </span>
                                 </button>
                                 <!-- INTERNAL FORMS -->
-                                <div v-show="!previewMode || form.categoryID === focusedFormID || form.categoryID === focusedFormRecord.parentID" class="internal_forms">
+                                <div v-show="form.categoryID === focusedFormID || form.categoryID === focusedFormRecord.parentID" class="internal_forms">
                                     <ul v-if="form.internalForms.length > 0" :id="'internalFormRecords_' + form.categoryID">
                                         <li v-for="i in form.internalForms" :key="'internal_' + i.categoryID">
                                             <button type="button" @click="getFormByCategoryID(i.categoryID)"
