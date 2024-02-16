@@ -565,6 +565,7 @@ table[class$="SelectorTable"] th {
             }
             &.preview {
                 border: 0;
+                padding-left: 0;
             }
             &:not(.form-header):not(.preview) {
                 margin-left: 0.5rem;

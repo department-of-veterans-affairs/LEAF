@@ -550,12 +550,21 @@ export default {
             this.listTracker[indID] = item;
         },
         startDrag(event = {}) {
-            if(!this.previewMode && event?.dataTransfer) {
-                event.dataTransfer.dropEffect = 'move';
-                event.dataTransfer.effectAllowed = 'move';
-                event.dataTransfer.setData('text/plain', event.target.id);
-                const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
-                this.focusIndicator(+indID);
+            if (event?.offsetX > 20) {
+                event.preventDefault();
+            } else {
+                if(!this.previewMode && event?.dataTransfer) {
+                    event.dataTransfer.dropEffect = 'move';
+                    event.dataTransfer.effectAllowed = 'move';
+                    event.dataTransfer.setData('text/plain', event.target.id);
+                    //prevent ghosting of various dragged and non-dragged elements.
+                    const dragIcon = new Image();
+                    dragIcon.src = this.libsPath + 'dynicons/svg/go-next.svg';
+                    event.dataTransfer.setDragImage(dragIcon, -10, -10);
+
+                    const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
+                    this.focusIndicator(+indID);
+                }
             }
         },
         onDrop(event = {}) {
