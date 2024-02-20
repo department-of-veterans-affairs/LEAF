@@ -233,26 +233,30 @@ export default {
             </div>
             <template v-if="!isSubForm">
                 <div class="panel-properties">
-                    <template v-if="!isStaple && workflowRecords.length > 0">
+                    <div id="workflow_info" v-if="!isStaple && workflowRecords.length > 0">
                         <label for="workflowID">Workflow
-                        <select id="workflowID" name="select-workflow" @change="updateWorkflow"
-                            title="select workflow"
-                            v-model.number="workflowID"
-                            style="width:280px;"
-                            :style="{color: workflowID === 0 ? '#a00' : 'black'}"
-                            :disabled="isStaple">
-                            <option value="0" :selected="workflowID === 0">
-                                No Workflow.  Users cannot submit requests
-                            </option>
-                            <template v-for="r in workflowRecords" :key="'workflow_' + r.workflowID">
-                                <option v-if="parseInt(r.workflowID) > 0"
-                                    :value="r.workflowID"
-                                    :selected="workflowID === parseInt(r.workflowID)">
-                                    ID#{{r.workflowID}}: {{truncateText(r.description,32)}}
+                            <select id="workflowID" name="select-workflow" @change="updateWorkflow"
+                                title="select workflow"
+                                v-model.number="workflowID"
+                                style="width:280px;"
+                                :style="{color: workflowID === 0 ? '#a00' : 'black'}"
+                                :disabled="isStaple">
+                                <option value="0" :selected="workflowID === 0">
+                                    No Workflow.  Users cannot submit requests
                                 </option>
-                            </template>
-                        </select></label>
-                    </template>
+                                <template v-for="r in workflowRecords" :key="'workflow_' + r.workflowID">
+                                    <option v-if="parseInt(r.workflowID) > 0"
+                                        :value="r.workflowID"
+                                        :selected="workflowID === parseInt(r.workflowID)">
+                                        ID#{{r.workflowID}}: {{truncateText(r.description,32)}}
+                                    </option>
+                                </template>
+                            </select>
+                        </label>
+                        <button id="view_workflow" v-if="+focusedFormRecord.workflowID > 0" type="button" class="btn-general">
+                            <a :href="'./?a=workflow&workflowID='+ focusedFormRecord.workflowID" target="_blank">View Workflow</a>
+                        </button>
+                    </div>
                     <div v-if="!workflowsLoading && workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
                     <label for="availability" title="When hidden, users will not be able to select this form">Availability

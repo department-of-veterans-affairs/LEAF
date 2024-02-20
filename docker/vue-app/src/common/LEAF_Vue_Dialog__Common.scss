@@ -94,6 +94,10 @@ button.btn-general, button.btn-confirm {
             border: 2px solid $base_navy !important;
         }
     }
+    a, a:visited, a:active, a:focus {
+        text-decoration: none;
+        color: inherit;
+    }
 }
 button.btn-confirm {
     color: white;

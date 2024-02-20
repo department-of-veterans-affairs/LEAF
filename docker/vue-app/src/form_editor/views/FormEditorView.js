@@ -124,6 +124,9 @@ export default {
         queryID() {
             return this.$route.query.formID;
         },
+        internalID() {
+            return this.$route.query.internalID || null;
+        },
         noForm() {
             return !this.appIsLoadingForm && this.focusedFormID === '';
         },
@@ -279,7 +282,13 @@ export default {
                     if (parID === '') {
                         this.getFormByCategoryID(formID, true);
                     } else {
-                        this.$router.push({name:'category', query:{formID: parID}});
+                        this.$router.push({
+                            name:'category',
+                            query:{
+                                formID: parID,
+                                internalID: formID
+                            }
+                        });
                     }
                 }
 
@@ -303,12 +312,42 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res) => {
+                        let query = {
+                            formID: this.queryID,
+                        }
+                        let internalID = null;
+                        //if initial load and internalID is in URL
+                        if (this.appIsLoadingForm === true && this.internalID !== null) {
+                            internalID = this.internalID;
+                        //user clicked internal btn for an internal form
+                        } else if (this.categories[catID]?.parentID !== '') {
+                            internalID = catID;
+                        }
+                        if (internalID !== null) {
+                            query = { ... query, internalID, };
+                        }
+                        this.$router.push({
+                            name:'category',
+                            query,
+                        });
+
                         if(this.focusedFormID === catID) {
                             this.updateKey += 1; //ensures that the form editor view updates if the form ID does not change
                         }
                         this.focusedFormID = catID || '';
                         this.focusedFormTree = res || [];
                         this.appIsLoadingForm = false;
+
+                        //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
+                        //loading is false at this point, so not sure why clear is needed but btn is null otherwise
+                        if(this.internalID !== null && this.focusedFormID !== this.internalID) {
+                            setTimeout(() => {
+                                const elBtnInternal = document.getElementById('internal_form_' + this.internalID);
+                                if(elBtnInternal !== null) {
+                                    elBtnInternal.dispatchEvent(new Event("click"));
+                                }
+                            });
+                        }
                     },
                     error: (err)=> console.log(err)
                 });
@@ -559,7 +598,7 @@ export default {
                     event.dataTransfer.setData('text/plain', event.target.id);
                     //prevent ghosting of various dragged and non-dragged elements.
                     const dragIcon = new Image();
-                    dragIcon.src = this.libsPath + 'dynicons/svg/go-next.svg';
+                    dragIcon.src = this.libsPath + 'dynicons/svg/go-jump.svg';
                     event.dataTransfer.setDragImage(dragIcon, -10, -10);
 
                     const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
@@ -755,10 +794,11 @@ export default {
                                     </span>
                                 </button>
                                 <!-- INTERNAL FORMS -->
-                                <div v-show="form.categoryID === focusedFormID || form.categoryID === focusedFormRecord.parentID" class="internal_forms">
-                                    <ul v-if="form.internalForms.length > 0" :id="'internalFormRecords_' + form.categoryID">
+                                <div v-if="form.internalForms.length > 0"
+                                    class="internal_forms">
+                                    <ul :id="'internalFormRecords_' + form.categoryID">
                                         <li v-for="i in form.internalForms" :key="'internal_' + i.categoryID">
-                                            <button type="button" @click="getFormByCategoryID(i.categoryID)"
+                                            <button type="button" :id="'internal_form_' + i.categoryID" @click="getFormByCategoryID(i.categoryID)"
                                                 :class="{selected: i.categoryID === focusedFormID}">
                                                 <span role="img" aria="" alt="">📃&nbsp;</span>
                                                 {{shortFormNameStripped(i.categoryID, 30)}}

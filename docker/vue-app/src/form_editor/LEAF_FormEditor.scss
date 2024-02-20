@@ -298,6 +298,17 @@ table[class$="SelectorTable"] th {
         input[type="number"] {
             width: 50px;
         }
+        label {
+            margin-bottom: 0;
+        }
+        #workflow_info {
+            display:flex;gap:2px;
+            align-items: center;
+            #view_workflow {
+                font-size: 14px;
+                height: 26px;
+            }
+        }
     }
 }
 #form_properties_last_update {
@@ -386,7 +397,7 @@ table[class$="SelectorTable"] th {
     }
     ul[id^="internalFormRecords_"] {
         border-left: 4px solid $BG_Pearl;
-        padding-top: 0.6rem;
+        padding-top: 0.75rem;
         
         > li  {
             &:not(:last-child) {
@@ -418,10 +429,9 @@ table[class$="SelectorTable"] th {
         }
     }
     button[id^="addInternalUse_"], button[id^="addStaple_"] {
-        margin-top: 1.25rem;
-        height: 2rem;
+        margin-top: 1.125rem;
+        height: 2.25rem;
         width: 100%;
-        padding: 2px 0.25rem;
         border: 2px solid $base-navy;
         justify-content: flex-start;
     }
@@ -553,15 +563,20 @@ table[class$="SelectorTable"] th {
             position: relative;
             padding: 0;
             padding-left: 1rem;
-            min-height: 50px;
             float: none; /* style.css style collision */
             border-radius: 4px;
             background-color: white;
             &.form-header, &.preview.form-header {
-                border-top: 6px solid black;
+                border-top: 0.5rem solid black;
                 > .form_editing_area {
                     border-radius: 4px;
                 }
+            }
+            &.preview.form-header > ul {
+                padding: 0.5em;
+            }
+            &.preview.form-header li {
+                margin: 0;
             }
             &.preview {
                 border: 0;
@@ -608,7 +623,7 @@ table[class$="SelectorTable"] th {
                 background-color: #e0e0e0;
                 border-radius: 0;
                 .indicator-name-preview {
-                    padding: 0.5rem 0.25rem 0.75rem 0.375rem;
+                    padding: 0.5em;
                 }
             }
             &:not(.preview) {
