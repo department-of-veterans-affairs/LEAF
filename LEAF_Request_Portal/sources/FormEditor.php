@@ -455,7 +455,7 @@ class FormEditor
     								SET categoryName=:input
                                     WHERE categoryID=:categoryID', $vars);
 
-        if(!empty($input)){
+        if(isset($input)){
             $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::FORM,[
                 new LogItem("categories", "categoryID", $categoryID),
                 new LogItem("categories", "categoryName", $input)
@@ -475,7 +475,7 @@ class FormEditor
     								SET categoryDescription=:input
                                     WHERE categoryID=:categoryID', $vars);
 
-        if(!empty($input)){
+        if(isset($input)){
             $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::FORM,[
                 new LogItem("categories", "categoryID", $categoryID),
                 new LogItem("categories", "categoryDescription", $input)
@@ -505,7 +505,7 @@ class FormEditor
 		    								SET workflowID=:input
 		    								WHERE categoryID=:categoryID', $vars);
 
-            if(!empty($input)){
+            if(isset($input)){
                 $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::FORM,[
                     new LogItem("categories", "categoryID", $categoryID),
                     new LogItem("categories", "workflowID", $input)
@@ -527,7 +527,7 @@ class FormEditor
                         SET needToKnow=:input
                         WHERE categoryID=:categoryID', $vars);
 
-        if(!empty($input)){
+        if(isset($input)){
             $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::FORM,[
                 new LogItem("categories", "categoryID", $categoryID),
                 new LogItem("categories", "needToKnow", $input)
@@ -547,7 +547,7 @@ class FormEditor
     								SET sort=:input
                                     WHERE categoryID=:categoryID', $vars);
 
-        if(!empty($input)){
+        if(isset($input)){
             $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::FORM,[
                 new LogItem("categories", "categoryID", $categoryID),
                 new LogItem("categories", "sort", $input)
@@ -567,7 +567,7 @@ class FormEditor
     								SET visible=:input
                                     WHERE categoryID=:categoryID', $vars);
 
-        if(!empty($input)){
+        if(isset($input)){
             $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::FORM,[
                 new LogItem("categories", "categoryID", $categoryID),
                 new LogItem("categories", "visible", $input)
