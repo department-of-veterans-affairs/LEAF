@@ -1066,7 +1066,7 @@ function doSubmit(recordID) {
 
         async function admin_changeStep() {
             dialog.setTitle('Change Step');
-            dialog.setContent('Set to this step: <br />' +
+            dialog.setContent('<label id="newStep_label" for="newStep">Set to this step:</label> <br />' +
                 '<div id="changeStep"></div><br /><br />' +
                 'Comments:<br />' +
                 '<textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px" aria-label="Comments"></textarea>' +
@@ -1118,7 +1118,7 @@ function doSubmit(recordID) {
                 url: 'api/workflow/steps',
                 dataType: 'json',
                 success: function(res) {
-                    let steps = '<select id="newStep" class="chosen" style="width: 250px">';
+                    let steps = '<select id="newStep" class="chosen">';
                     let steps2 = '';
                     let stepCounter = 0;
                     let allStepsData = res;
@@ -1155,7 +1155,12 @@ function doSubmit(recordID) {
                         newstep.trigger('chosen:updated');
                     });
 
-                    $('.chosen').chosen({ disable_search_threshold: 6 });
+                    $('.chosen').chosen({
+                        width: '100%',
+                        disable_search_threshold: 6
+                    });
+                    $(`#newStep_chosen input.chosen-search-input`).attr('role', 'combobox');
+                    $(`#newStep_chosen input.chosen-search-input`).attr('aria-labelledby', 'newStep_label');
                     dialog.indicateIdle();
                     dialog.setSaveHandler(function() {
                         $.ajax({
