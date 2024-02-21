@@ -23,7 +23,7 @@ export default {
             appIsLoadingCategories: true,
 
             categories: {},
-            allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
+            allStapledFormCatIDs: {},    //table of cat IDs of forms stapled to anything, val is num times used
             advancedMode: false,
 
             /* modal properties */
@@ -217,13 +217,13 @@ export default {
                 type: 'GET',
                 url: `${this.APIroot}formStack/categoryList/allWithStaples`,
                 success: (res) => {
+                    this.allStapledFormCatIDs = {};
                     this.categories = {};
                     for(let i in res) {
                         this.categories[res[i].categoryID] = res[i];
                         res[i].stapledFormIDs.forEach(id => {
-                            if (!this.allStapledFormCatIDs.includes(id)) {
-                                this.allStapledFormCatIDs.push(id);
-                            }
+                            this.allStapledFormCatIDs[id] = this.allStapledFormCatIDs[id] === undefined ?
+                                1 : this.allStapledFormCatIDs[id] + 1;
                         });
                     }
                     this.appIsLoadingCategories = false;
@@ -355,8 +355,14 @@ export default {
             const formID = catID;
             if(removeStaple === true) {
                 this.categories[formID].stapledFormIDs = this.categories[formID].stapledFormIDs.filter(id => id !== stapledCatID);
+                if(this.allStapledFormCatIDs?.[stapledCatID] > 0) {
+                    this.allStapledFormCatIDs[stapledCatID] = this.allStapledFormCatIDs[stapledCatID] - 1;
+                } else {
+                    console.log("check staple calc")
+                }
             } else {
-                this.allStapledFormCatIDs = Array.from(new Set([...this.allStapledFormCatIDs, stapledCatID]));
+                this.allStapledFormCatIDs[stapledCatID] = this.allStapledFormCatIDs[stapledCatID] === undefined ?
+                    1 : this.allStapledFormCatIDs[stapledCatID] + 1;
                 this.categories[formID].stapledFormIDs = Array.from(new Set([...this.categories[formID].stapledFormIDs, stapledCatID]));
             }
         },

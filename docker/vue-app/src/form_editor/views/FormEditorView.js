@@ -183,7 +183,7 @@ export default {
 
                 const focusedFormType = this.currentCategoryQuery.parentID !== '' ?
                         'internal' :
-                        this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
+                        this.allStapledFormCatIDs?.[this.currentCategoryQuery?.categoryID || ''] > 0 ?
                         'staple' : 'main form';
                 allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType, internalForms: mainInternals});
             }
@@ -818,7 +818,7 @@ export default {
                             Add Internal-Use
                         </button>
                         <!-- staple options if main form is not itself a staple -->
-                        <button v-if="!allStapledFormCatIDs.includes(mainFormID)"
+                        <button v-if="!allStapledFormCatIDs?.[mainFormID] > 0"
                             type="button" class="btn-general"
                             :id="'addStaple_' + mainFormID"
                             @click="openStapleFormsDialog(mainFormID)" :title="'Staple other form to ' + mainFormID">

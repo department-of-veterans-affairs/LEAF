@@ -52,7 +52,7 @@ export default {
             return this.focusedFormRecord.parentID !== '';
         },
         isStaple() {
-            return this.allStapledFormCatIDs.includes(this.formID);
+            return this.allStapledFormCatIDs?.[this.formID] > 0;
         },
         isNeedToKnow(){
             return parseInt(this.focusedFormRecord.needToKnow) === 1;
