@@ -596,8 +596,8 @@ class Email
             "LEFT JOIN records AS rec USING (recordID) ".
             "LEFT JOIN step_dependencies AS sd USING (stepID) ".
             "LEFT JOIN dependency_privs USING (dependencyID) ".
-            "LEFT JOIN users USING (groupID) ".
             "LEFT JOIN services AS ser USING (serviceID) ".
+            "LEFT JOIN users ON ser.groupID=users.groupID".
             "WHERE recordID=:recordID AND (active=1 OR active IS NULL)";
         $approvers = $this->portal_db->prepared_query($strSQL, $vars);
 
