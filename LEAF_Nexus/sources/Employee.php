@@ -35,11 +35,7 @@ class Employee extends Data
 
     private $tableName = 'employee';    // Table of employee contact info
 
-    private $groupTableName = 'relation_group_employee';
-
     private $limit = 'LIMIT 3';       // Limit number of returned results "TOP 100"
-
-    private $sortBy = 'lastName';          // Sort by... ?
 
     private $sortDir = 'ASC';           // Sort ascending/descending?
 
@@ -958,7 +954,7 @@ class Employee extends Data
                 FROM {$this->tableName}
                 WHERE lastName LIKE :lastName
                 AND deleted = 0
-                ORDER BY {$this->sortBy} {$this->sortDir}
+                ORDER BY lastName {$this->sortDir}
                 {$this->limit}";
 
         $vars = array(':lastName' => $lastName);
@@ -969,7 +965,7 @@ class Employee extends Data
                     FROM {$this->tableName}
                     WHERE phoneticLastName LIKE :lastName
                     AND deleted = 0
-                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    ORDER BY phoneticLastName {$this->sortDir}
                     {$this->limit}";
 
             $vars = array(':lastName' => metaphone($lastName));
@@ -1006,7 +1002,7 @@ class Employee extends Data
                 FROM {$this->tableName}
                 WHERE firstName LIKE :firstName
                 AND deleted = 0
-                ORDER BY {$this->sortBy} {$this->sortDir}
+                ORDER BY lastName {$this->sortDir}
                 {$this->limit}";
 
         $vars = array(':firstName' => $firstName);
@@ -1017,7 +1013,7 @@ class Employee extends Data
                     FROM {$this->tableName}
                     WHERE phoneticFirstName LIKE :firstName
                     AND deleted = 0
-                    ORDER BY {$this->sortBy} {$this->sortDir}
+                    ORDER BY lastName {$this->sortDir}
                     {$this->limit}";
 
             $vars = array(':firstName' => metaphone($firstName));
@@ -1053,7 +1049,7 @@ class Employee extends Data
                 AND lastName LIKE :lastName
                 AND middleName LIKE :middleName
                 AND deleted = 0
-                ORDER BY {$this->sortBy} {$this->sortDir}
+                ORDER BY lastName {$this->sortDir}
                 {$this->limit}";
         }
         else
@@ -1063,7 +1059,7 @@ class Employee extends Data
                 WHERE firstName LIKE :firstName
                 AND lastName LIKE :lastName
                 AND deleted = 0
-                ORDER BY {$this->sortBy} {$this->sortDir}
+                ORDER BY lastName {$this->sortDir}
                 {$this->limit}";
         }
         $result = $this->db->prepared_query($sql, $vars);
@@ -1074,7 +1070,7 @@ class Employee extends Data
                         WHERE phoneticFirstName LIKE :firstName
                         AND phoneticLastName LIKE :lastName
                         AND deleted = 0
-                        ORDER BY {$this->sortBy} {$this->sortDir}
+                        ORDER BY lastName, phoneticLastName {$this->sortDir}
                         {$this->limit}";
 
             $vars = array(':firstName' => $this->metaphone_query($firstName), ':lastName' => $this->metaphone_query($lastName));

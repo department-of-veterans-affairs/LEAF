@@ -2,7 +2,7 @@
         <!--{if $indicator.is_sensitive == 1}-->
             <div class="sensitiveIndicatorMaskToggle">
                 <input type="checkbox" id="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" onClick="toggleStayVisible_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->(); toggleSensitiveIndicator(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->, this.checked);">
-                <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" alt="Show Sensitive Data"  tabindex="0" onkeydown="if (event.keyCode==13){ this.click();}"></label>
+                <label for="sensitiveIndicatorMaskCheckbox_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" title="Show Sensitive Data" tabindex="0" onkeydown="if (event.keyCode==13){ this.click();}"></label>
             </div>
             <span class="sensitiveIndicator-masked" id="<!--{$indicator.indicatorID|strip_tags}-->_masked">
                 **********
@@ -119,7 +119,7 @@
             <ul style="list-style: none">
             <!--{foreach from=$indicator.value item=option}-->
                     <input type="hidden" name="<!--{$indicator.indicatorID}-->[<!--{$idx}-->]" value="no" />
-                    <!--{if $indicator.value[$idx] != 'no'}-->
+                    <!--{if $indicator.value[$idx] != 'no' && $indicator.value[$idx] !== ''}-->
                         <li><img class="print" src="dynicons/?img=dialog-apply.svg&w=16" style="vertical-align: middle" alt="checked" />
                         <!--{$option|sanitize}--></li>
                     <!--{/if}-->
@@ -134,7 +134,8 @@
             <!--{if $indicator.value[0] != ''}-->
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.value item=file}-->
-            <a href="file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse"><img src="dynicons/?img=mail-attachment.svg&amp;w=24" alt="file" /><!--{$file}--></a><br />
+            <a href="<!--{$abs_portal_path}-->/file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse">
+                <img src="dynicons/?img=mail-attachment.svg&amp;w=24" alt="" /><!--{$file}--></a><br />
             <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
             <!--{else}-->
@@ -149,7 +150,10 @@
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.value item=file}-->
                 <!--{if $indicator.value != '[protected data]'}-->
-                <img src="image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" style="max-width: 200px" onclick="window.open('image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" />
+                <img alt="image upload: <!--{$file}-->"
+                    src="<!--{$abs_portal_path}-->/image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->"
+                    style="max-width: 200px"
+                    onclick="window.open('<!--{$abs_portal_path}-->/image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" />
                 <!--{assign var='idx' value=$idx+1}-->
                 <!--{else}-->
                 [protected data]
@@ -185,7 +189,7 @@
                     success: function(data) {
                         if(data.title != false) {
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').append('<div style="border: 1px solid black" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos">\
-                                    <img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="View Position Details" style="float: left; padding: 4px" /><b>' + data.title + '</b><br />' + data[2].data + '-' + data[13].data + '-' + data[14].data + '</div>');
+                                    <img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="" style="float: left; padding: 4px" /><b>' + data.title + '</b><br />' + data[2].data + '-' + data[13].data + '-' + data[14].data + '</div>');
                             $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->_pos').on('click', function() {
                                 window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.value|escape}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');
                             });

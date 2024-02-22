@@ -132,7 +132,7 @@ $(function() {
     </div>
 
     <div style="width: 70%; margin: auto; text-align: center; margin-top: 16px">
-        <button class="buttonNorm" id="startRequest" style="font-size: 140%; padding: 8px"><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="Icon of pen and paper" /> I understand and accept</button>
+        <button class="buttonNorm" id="startRequest" style="font-size: 140%; padding: 8px"><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="" /> I understand and accept</button>
     </div>
 
 </div>

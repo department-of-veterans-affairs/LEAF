@@ -70,53 +70,6 @@ function syncServices() {
 }
 
 /**
- * Create new service. [DEPRECATED]
- */
-function createGroup() {
-	/*
-	dialog.clear();
-    dialog.setTitle('Create new service');
-    dialog.setContent('<b><span style="color: red">Before you proceed</span>, You should contact your Org Chart Administrators to determine whether the service needs to be added to the Org. Chart.</b>\
-    		<br /><br />If the service is created in the Org. Chart, DO NOT create it here. Instead, click on "Sync Services" in the Admin Panel.\
-    		<br /><br />Select Division: <select id="division"></select>\
-    		<br /><br />Service Name: <input id="service" type="text"></input>');
-
-    $.ajax({
-    	type: 'GET',
-    	url: '../api/service/quadrads',
-    	success: function(res) {
-    		for(let i in res) {
-                $('#division').append('<option value="'+ res[i].groupID+'">'+ res[i].name +'</option>');
-    		}
-    	},
-        cache: false
-    });
-
-    dialog.setSaveHandler(function() {
-         $.ajax({
-             type: 'POST',
-             url: '../api/service',
-             data: {'service': $('#service').val(),
-            	 'groupID': $('#division').val(),
-                 'CSRFToken': '<!--{$CSRFToken}-->'},
-             success: function(res) {
-                 location.reload();
-             },
-             cache: false
-         });
-
-        dialog.hide();
-    });
-
-    dialog.show();*/
-
-    dialog_simple.setTitle('Create new service');
-    dialog_simple.setContent('Changes to services must be made through Links->Nexus at the moment.');
-
-    dialog_simple.show();
-}
-
-/**
  * Get members for given service.
  * @param {int} groupID - ID for group
  */

@@ -10,9 +10,11 @@
 
 <script>
 const orgchartPath = '<!--{$orgchartPath}-->';
-let vueData = {
-    indicatorID: 0,
-    updateIndicatorList: false
+let ifThenIndicatorID = 0; //used by conditions editor app.  set to specific indicatorID when the app is used, and reset to 0 when closed
+/* update ifThen indicator ID and dispatch a click event to a hidden button on the conditions editor app to update the childID */
+function updateVueData(indicatorID = 0) {
+    ifThenIndicatorID = parseInt(indicatorID);
+    document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
 }
 
 //variables used within this scope, type, and approx. locations of def/redef (if applicable)
@@ -65,32 +67,32 @@ function editProperties(isSubForm) {
     dialog.setTitle('Edit Properties');
     dialog.setContent('<table>\
                              <tr>\
-                                 <td>Name</td>\
-                                 <td><input id="name" type="text" maxlength="50"></input></td>\
+                                 <td><label for="name">Name</label></td>\
+                                 <td><input id="name" type="text" maxlength="50"/></td>\
                              </tr>\
                              <tr>\
-                                 <td>Description</td>\
+                                 <td><label for="description">Description</label></td>\
                                  <td><textarea id="description" maxlength="255"></textarea></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Workflow</td>\
+                                 <td><label for="workflowID">Workflow</label></td>\
                                  <td id="container_workflowID"></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Need to Know mode <img src="../dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information."></td>\
+                                 <td><label for="needToKnow">Need to Know mode </label><img src="../dynicons/?img=emblem-notice.svg&w=16" title="When turned on, the people associated with the workflow are the only ones who have access to view the form.  Forced on if form contains sensitive information." alt="" /></td>\
                                  <td><select id="needToKnow"><option value="0">Off</option><option value="1">On</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Availability <img src="../dynicons/?img=emblem-notice.svg&w=16" title="When hidden, users will not be able to select this form as an option."></td>\
+                                 <td><label for="visible">Availability </label><img src="../dynicons/?img=emblem-notice.svg&w=16" title="When hidden, users will not be able to select this form as an option." alt="" /></td>\
                                  <td><select id="visible"><option value="1">Available</option><option value="0">Hidden</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                                 <td>Sort Priority</td>\
-                                 <td><input id="sort" type="number"></input></td>\
+                                 <td><label for="sort">Sort Priority </label></td>\
+                                 <td><input id="sort" type="number" style="width: 50px;"/></td>\
                              </tr>\
                              <tr class="isSubForm">\
-                            	 <td>Type <img src="../dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form."></td>\
-                            	 <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
+                                <td><label for="formType">Type </label><img src="../dynicons/?img=emblem-notice.svg&w=16" title="Changes type of form." alt="" /></td>\
+                                <td><select id="formType"><option value="">Standard</option><option value="parallel_processing">Parallel Processing</option></select></td>\
                              </tr>\
                            </table>');
     $.ajax({
@@ -115,8 +117,8 @@ function editProperties(isSubForm) {
     if(isSubForm) {
         $('.isSubForm').css('display', 'none');
     }
-    //ie11 fix
-    setTimeout(function () {dialog.show();}, 0);
+
+    dialog.show();
 
     // load workflow data
     dialog.indicateBusy();
@@ -305,14 +307,14 @@ function openContent(url) {
         workflow = '<span style="color: red">No workflow. Users will not be able to select this form.</span>';
     }
     $("#formEditor_content").html('<div style="padding: 8px; border: 1px solid black; background-color: white">' +
-    		                      '<div style="float: right"><div id="editFormData" tabindex="0" onkeypress="onKeyPressClick(event)" class="buttonNorm">Edit Properties</div><br /><div tabindex="0" id="editFormPermissions" onkeypress="onKeyPressClick(event)" onclick="editPermissions();" class="buttonNorm">Edit Collaborators</div></div>' +
+    		                      '<div style="float: right"><div id="editFormData" tabindex="0" onkeydown="onKeyPressClick(event)" class="buttonNorm">Edit Properties</div><br /><div tabindex="0" id="editFormPermissions" onkeydown="onKeyPressClick(event)" onclick="editPermissions();" class="buttonNorm">Edit Collaborators</div></div>' +
     		                      '<div style="padding: 8px">' +
     		                          '<b aria-label="'+ formTitle +'" tabindex="0" title="categoryID: '+ currCategoryID +'">' + formTitle + '</b><br /><span tabindex="0">' +
     		                          categories[currCategoryID].categoryDescription +
     		                          '</span><br /><span tabindex="0" class="isSubForm">Workflow: ' + workflow + '</span>' +
     		                          '<br /><span tabindex="0"class="isSubForm">Need to Know mode: ' + (categories[currCategoryID].needToKnow == 1 ? 'On' : 'Off') + '</span>' +
     		                      '</div>' +
-                                  '</div><br /><div id="formEditor_form" style="background-color: white"><div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="loading..." /></div></div>');
+                                  '</div><br /><div id="formEditor_form" style="background-color: white"><div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="" /></div></div>');
     if(isSubForm) {
         $('.isSubForm').css('display', 'none');
     }
@@ -331,8 +333,7 @@ function openContent(url) {
         dataType: 'text',  // IE9 issue
         success: function(res) {
             $('#formEditor_form').empty().html(res);
-            vueData.indicatorID = 0;
-            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
+            updateVueData(0);
         },
         error: function(res) {
             $('#formEditor_form').empty().html(res);
@@ -381,10 +382,8 @@ function addPermission(categoryID) {
             cache: false
         });
     });
-    //ie11 fix
-    setTimeout(function () {
-        dialog.show();
-    }, 0);
+
+    dialog.show();
 }
 
 /**
@@ -422,19 +421,17 @@ function editPermissions() {
 		success: function(res) {
 			let buffer = '<ul>';
 			for(let i in res) {
-				buffer += '<li>' + res[i].name + ' [ <a href="#" tabindex="0" onkeypress="onKeyPressClick(event);" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
+				buffer += '<li>' + res[i].name + ' [ <a href="#" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="removePermission(\''+ res[i].groupID +'\');">Remove</a> ]</li>';
 			}
 			buffer += '</ul>';
-			buffer += '<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addPermission(currCategoryID);" role="button">Add Group</span>';
+			buffer += '<span tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="addPermission(currCategoryID);" role="button">Add Group</span>';
 			$('#formPrivs').html(buffer);
 			dialog_simple.indicateIdle();
 		},
 		cache: false
 	});
-	//ie11 fix
-	setTimeout(function () {
-		dialog_simple.show();
-	}, 0);
+
+	dialog_simple.show();
 
 }
 
@@ -527,12 +524,12 @@ function editIndicatorPrivileges(indicatorID) {
                     let count = 0;
                     for (let group in groups) {
                         if (groups[group].id !== undefined) {
-                            buffer += '<li>' + groups[group].name + ' [ <a href="#" tabindex="0" onkeypress="onKeyPressClick(event);" onclick="removeIndicatorPrivilege(' + indicatorID + ',' + groups[group].id + ');">Remove</a> ]</li>';
+                            buffer += '<li>' + groups[group].name + ' [ <a href="#" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="removeIndicatorPrivilege(' + indicatorID + ',' + groups[group].id + ');">Remove</a> ]</li>';
                             count++;
                         }
                     }
                     buffer += '</ul>';
-                    buffer += `<span tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="addIndicatorPrivilege(${indicatorID},'${indicatorName}');">Add Group</span>`;
+                    buffer += `<span tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="addIndicatorPrivilege(${indicatorID},'${indicatorName}');">Add Group</span>`;
                     let statusMessage = "Special access restrictions are not enabled. Normal access rules apply.";
                     if(count > 0) {
                         statusMessage = "Special access restrictions are enabled!";
@@ -564,11 +561,6 @@ function makeColumnID(){
 /**
  * Purpose: common listener methods
  */
-function preventEnterDefault(event) {
-    if(event.keyCode === 13) {
-        event.preventDefault();
-    }
-}
 function onKeyPressClick(event){
     if(event.keyCode === 13) {
         $(event.target).trigger('click');
@@ -582,12 +574,12 @@ function onKeyPressClick(event){
  */
 function getIndicatorModalTemplate(isEditingModal = false) {
     const parentArchDel = `<tr>
-            <td>Parent Question ID</td>
-            <td colspan="2"><div id="container_parentID"></div></td>
+            <td><label for="parentID">Parent Question ID</label></td>
+            <td><div id="container_parentID"></div></td>
         </tr>
         <tr>
-            <td>Archive</td>
-            <td colspan="1"><input id="archived" name="disable_or_delete" type="checkbox" value="archived" onkeypress="onKeyPressClick(event)" /></td>
+            <td><label for="archived">Archive</label></td>
+            <td><input id="archived" name="disable_or_delete" type="checkbox" value="archived" onkeydown="onKeyPressClick(event)" /></td>
             <td style="width: 275px;">
                 <span id="archived-warning" style="color: red; visibility: hidden;">
                 This field will be archived.  It can be<br/>re-enabled by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.
@@ -595,15 +587,15 @@ function getIndicatorModalTemplate(isEditingModal = false) {
             </td>
         </tr>
         <tr>
-            <td>Delete</td>
-            <td colspan="1"><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" onkeypress="onKeyPressClick(event)" /></td>
+            <td><label for="deleted">Delete</label></td>
+            <td><input id="deleted" name="disable_or_delete" type="checkbox" value="deleted" onkeydown="onKeyPressClick(event)" /></td>
             <td style="width: 275px;">
                 <span id="deletion-warning" style="color: red; visibility: hidden;">
                 Deleted items can only be re-enabled<br/>within 30 days by using <a href="?a=disabled_fields" target="_blank">Restore Fields</a>.
                 </span>
             </td>
         </tr>`;
-    const advancedOptions = `<span id="button_advanced" class="buttonNorm" tabindex="0" onkeypress="onKeyPressClick(event)">Advanced Options</span>
+    const advancedOptions = `<span id="button_advanced" class="buttonNorm" tabindex="0" onkeydown="onKeyPressClick(event)">Advanced Options</span>
         <div>
             <fieldset id="advanced" style="visibility: collapse; height: 0;"><legend>Advanced Options</legend>
                 Template Variables:<br />
@@ -623,28 +615,28 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 </table><br />
                 html (for pages where the user can edit data):
                 <button id="btn_codeSave_html" class="buttonNorm" title="Save Code">
-                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="" />
                     Save Code<span id="codeSaveStatus_html"></span>
                 </button>
                 <textarea id="html"></textarea><br />
                 htmlPrint (for pages where the user can only read data):
                 <button id="btn_codeSave_htmlPrint" class="buttonNorm" title="Save Code">
-                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="Save" />
+                    <img id="saveIndicator" src="../dynicons/?img=media-floppy.svg&w=16" alt="" />
                     Save Code<span id="codeSaveStatus_htmlPrint"></span>
                 </button>
                 <textarea id="htmlPrint"></textarea>
             </fieldset>
         </div>`;
-    return `<fieldset><legend>Field Name</legend>
-            <textarea id="name" style="width: 99%"></textarea>
+    return `<fieldset><legend id="name_label">Field Name</legend>
+            <textarea id="name" aria-labelledby="name_label" style="width: 99%"></textarea>
             <button class="buttonNorm" id="rawNameEditor" style="display: none">Show formatted code</button>
             <button class="buttonNorm" id="advNameEditor">Advanced Formatting</button>
         </fieldset>
-        <fieldset><legend>Short Label (Describe this field in 1-2 words)</legend>
-            <input type="text" id="description" maxlength="50" />
+        <fieldset><legend id="description_label">Short Label (Describe this field in 1-2 words)</legend>
+            <input type="text" id="description" aria-labelledby="description_label" maxlength="50" />
         </fieldset>
-        <fieldset><legend>Input Format</legend>
-            <select id="indicatorType" style="margin-bottom:1em;">
+        <fieldset><legend id="format_label">Input Format</legend>
+            <select id="indicatorType" style="margin-bottom:1em;" aria-labelledby="format_label">
                 <option value="">None</option>
                 <option value="text">Single line text</option>
                 <option value="textarea">Multi-line text</option>
@@ -665,7 +657,7 @@ function getIndicatorModalTemplate(isEditingModal = false) {
                 <option value="raw_data">Raw Data (for programmers)</option>
                 <!-- <option value="signature">Signature</option> -->
             </select>
-            <div id="container_indicatorSingleAnswer" style="display: none">Text for checkbox:<br/>
+            <div id="container_indicatorSingleAnswer" style="display: none"><label for="indicatorSingleAnswer">Text for checkbox: </label><br/>
                 <input type="text" id="indicatorSingleAnswer" />
             </div>
             <div id="container_indicatorMultiAnswer" style="display: none">One option per line:<br/>
@@ -674,27 +666,27 @@ function getIndicatorModalTemplate(isEditingModal = false) {
             </div>
             <div id="container_indicatorGrid" style="display: none">
                 <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span><br/>
-                <button class="buttonNorm" onclick="addCells(\'column\')"><img src="../dynicons/?img=list-add.svg&w=16" style="height: 25px;"/>Add column</button><br/><br/>
+                <button class="buttonNorm" onclick="addCells(\'column\')"><img src="../dynicons/?img=list-add.svg&w=16" style="height: 25px;" alt="" />Add column</button><br/><br/>
                 Columns:
                 <div border="1" style="overflow-x: scroll; max-width: 100%;"></div>
             </div>
-            <fieldset><legend>Default Answer</legend>
+            <fieldset><legend id="default_answer_label">Default Answer</legend>
                 <div id="default-answer"></div>
             </fieldset>
         </fieldset>
         <fieldset><legend>Attributes</legend>
             <table>
                 <tr>
-                    <td>Required</td>
-                    <td colspan="2" style="width: 300px;"><input id="required" name="required" type="checkbox" onkeypress="onKeyPressClick(event)" /></td>
+                    <td><label for="required">Required</label></td>
+                    <td><input id="required" name="required" type="checkbox" onkeydown="onKeyPressClick(event)" /></td>
                 </tr>
                 </tr>
-                    <td>Sensitive Data (PHI/PII)</td>
-                    <td colspan="2"><input id="sensitive" name="sensitive" type="checkbox" onkeypress="onKeyPressClick(event)" /></td>
+                    <td><label for="sensitive">Sensitive Data (PHI/PII)</label></td>
+                    <td><input id="sensitive" name="sensitive" type="checkbox" onkeydown="onKeyPressClick(event)" /></td>
                 </tr>
                 <tr>
-                    <td>Sort Priority</td>
-                    <td colspan="2"><input id="sort" name="sort" type="number" style="width: 40px" /></td>
+                    <td><label for="sort">Sort Priority</label></td>
+                    <td><input id="sort" name="sort" type="number" style="width: 50px" /></td>
                 </tr>
                 ${isEditingModal ? parentArchDel : ''}
             </table>
@@ -712,7 +704,7 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
     $('#container_indicatorGrid').css('display', 'none');
     $('#container_indicatorMultiAnswer').css('display', 'none');
     $('#container_indicatorSingleAnswer').css('display', 'none');
-    $('#default-answer').html('<textarea id="default" style="width: 50%;"></textarea>');
+    $('#default-answer').html('<textarea aria-labelledby="default_answer_label" id="default" style="width: 50%;"></textarea>');
     switch(indFormat?.toLowerCase()) {
         case 'grid':
             $('#container_indicatorGrid').css('display', 'block');
@@ -798,15 +790,12 @@ function renderFormatEntryUI(indFormat, formatOptionsStr = '', gridCols = 0) {
 function addIndicatorModalListeners(isEditingModal = false) {
     //all indicator modals have format render, description, required, sensitive and raw/adv (text formatter)
     $('#indicatorType').on('change', event => renderFormatEntryUI(event.target.value));
-    $('#description').on('keypress', preventEnterDefault);
-    $('#required').on('keypress', preventEnterDefault);
     $('#required').on('click', function() {
         if($('#indicatorType').val() == '') {
             $('#required').prop('checked', false);
             alert('You can\'t mark a field as required if the Input Format is "None".');
         }
     });
-    $('#sensitive').on('keypress', preventEnterDefault);
     $('#sensitive').on('click', function() {
         if($('#indicatorType').val() == '') {
             $('#sensitive').prop('checked', false);
@@ -838,7 +827,6 @@ function addIndicatorModalListeners(isEditingModal = false) {
         });
     });
     if (isEditingModal === true) {  //archive, delete, advanced options
-        $('#archived').on('keypress', preventEnterDefault);
         $('#archived').on('change', function(event) {
             if($(this).is(':checked')) {
                 $('#deleted').prop('checked', false);
@@ -849,7 +837,6 @@ function addIndicatorModalListeners(isEditingModal = false) {
                 $('#archived-warning').css('visibility','hidden');
             }
         });
-        $('#deleted').keypress(preventEnterDefault);
         $('#deleted').on("change", function(event) {
             if($(this).is(':checked')) {
                 $('#archived').prop('checked', false);
@@ -937,10 +924,7 @@ function newQuestion(parentIndicatorID = null) {
     dialog.setTitle(title);
     dialog.setContent(getIndicatorModalTemplate(false));
     addIndicatorModalListeners(false);
-    //ie11 fix
-    setTimeout(function () {
-        dialog.show();
-    }, 0);
+    dialog.show();
     dialog.setSaveHandler(function() {
     	let isRequired = $('#required').is(':checked') ? 1 : 0;
         let isSensitive = $('#sensitive').is(':checked') ? 1 : 0;
@@ -971,8 +955,6 @@ function newQuestion(parentIndicatorID = null) {
                 CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(res) {
                 if(res != null) {
-                    vueData.updateIndicatorList = true;
-                    document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
                     if($('#sort').val() != '') {
                         $.ajax({
                             type: 'POST',
@@ -1012,7 +994,8 @@ function gridCellBasicInputs(name = '', columnNumber = '', id = makeColumnID(), 
       <span class="columnNumber">Column #${columnNumber}: </span>
       <img role="button" tabindex="0" onkeydown="onKeyPressClick(event);" onclick="deleteColumn(event)" src="../dynicons/?img=process-stop.svg&w=16" title="Delete column" alt="Delete column" style="cursor: pointer; vertical-align: middle;" />
       </br>&nbsp;
-      <input type="text" value="${name}" onchange="updateNames();" />
+      <label for="column_name_${columnNumber}" style="display: block; margin-top: 0.5rem; text-align: left;">Column Name:</label>
+      <input type="text" id="column_name_${columnNumber}" value="${name}" onchange="updateNames();" />
       </br>&nbsp;</br>
       <label for="grid_cell_type_${columnNumber}" style="display: block; text-align: left;">Type: </label>
       <select id="grid_cell_type_${columnNumber}" style="width: 185px;" onchange="toggleDropDown(this.value, this, ${columnNumber});">
@@ -1065,7 +1048,12 @@ function makeGrid(columns) {
                 }
                 $(gridBodyElement + ' > div:eq(' + i + ')').css('padding-bottom', '11px');
                 if($(gridBodyElement + ' > div:eq(' + i + ') > span.dropdown').length === 0){
-                    $(gridBodyElement + ' > div:eq(' + i + ')').append('<span class="dropdown"><div>One option per line</div><textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">' + options + '</textarea></span>');
+                    $(gridBodyElement + ' > div:eq(' + i + ')').append(
+                        `<span class="dropdown">
+                            <div>One option per line</div>
+                            <textarea aria-label="Dropdown options, one option per line" style="width: 153px; resize: none;"value="">${options}</textarea>
+                        </span>`
+                    );
                 }
             }
             if(gridJSON[i].type.toString() === 'dropdown_file') {
@@ -1241,7 +1229,7 @@ function deleteColumn(event){
     columns = columns - 1;
     $('#tableStatus').attr('aria-label', 'Row ' + columnDeleted + ' removed, ' + $(tbody).children().length + ' total.');
 
-    //ie11 fix
+    //stack clear
     setTimeout(function () {
         focus.focus();
     }, 0);
@@ -1389,11 +1377,15 @@ function getForm(indicatorID, series) {
             type: 'GET',
             url: '../api/form/_' + currCategoryID + '/flat',
             success: function(res) {
-                let buffer = '<select id="parentID" style="width: 300px">';
+                const shortName = (name = "", len = 50) => {
+                    const displayName = XSSHelpers.stripAllTags(name || "").trim();
+                    return displayName.length <= len ? displayName : displayName.slice(0, len) + '...';
+                }
+                let buffer = '<select id="parentID" style="width:300px;">';
                 buffer += '<option value="">None</option>';
                 for(let i in res) {
                     if(indicatorID != i) {
-                        buffer += '<option value="'+ i +'">' + i + ': ' + res[i][1].name +'</option>';
+                        buffer += '<option value="'+ i +'">' + i + ': ' + shortName(res[i][1].name) +'</option>';
                     }
                 }
                 buffer += '</select>';
@@ -1678,8 +1670,6 @@ function getForm(indicatorID, series) {
         }
 
     	$.when.apply(undefined, calls).then(function() {
-            vueData.updateIndicatorList = true;
-            document.getElementById('btn-vue-update-trigger').dispatchEvent(new Event("click"));
    	    	openContent('ajaxIndex.php?a=printview&categoryID='+ currCategoryID);
    	    	dialog.hide();
    	     });
@@ -1696,31 +1686,6 @@ function gridDropdown(dropDownOptions){
         return dropDownOptions;
     }
     let uniqueNames = dropDownOptions.split("\n");
-    let returnArray = [];
-    uniqueNames = uniqueNames.filter(function(elem, index, self) {
-        return index == self.indexOf(elem);
-    });
-
-    $.each(uniqueNames, function(i, el){
-        if(el === "no") {
-            uniqueNames[i] = "No";
-        }
-        returnArray.push(uniqueNames[i]);
-    });
-
-    return returnArray;
-}
-
-/**
- * Purpose: Create Array for Multi-Select Options
- * @param multiSelectOptions
- * @returns {[]|*}
- */
-function gridMultiselect(multiSelectOptions){
-    if(multiSelectOptions == null || multiSelectOptions.length === 0){
-        return multiSelectOptions;
-    }
-    let uniqueNames = multiSelectOptions.split("\n");
     let returnArray = [];
     uniqueNames = uniqueNames.filter(function(elem, index, self) {
         return index == self.indexOf(elem);
@@ -1807,10 +1772,7 @@ function mergeForm(categoryID) {
         });
     });
 
-		//ie11 fix
-		setTimeout(function () {
-			dialog.show();
-		}, 0);
+	dialog.show();
 
 }
 
@@ -1845,20 +1807,17 @@ function mergeFormDialog(categoryID) {
         success: function(res) {
             let buffer = '<ul>';
             for(let i in res) {
-                buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onkeypress="onKeyPressClick(event)" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
+                buffer += '<li>' + res[i].categoryName + ' [ <a href="#" onkeydown="onKeyPressClick(event)" onclick="unmergeForm(\''+ categoryID +'\', \''+ res[i].stapledCategoryID +'\');">Remove</a> ]</li>';
             }
             buffer += '</ul>';
-            buffer += '<span class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="mergeForm(\''+ categoryID +'\');" tabindex="0" role="button">Select a form to merge</span>';
+            buffer += '<span class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="mergeForm(\''+ categoryID +'\');" tabindex="0" role="button">Select a form to merge</span>';
             $('#mergedForms').html(buffer);
             dialog_simple.indicateIdle();
         },
         cache: false
     });
-		//ie11 fix
-		setTimeout(function () {
-				dialog_simple.show();
-		}, 0);
 
+	dialog_simple.show();
 }
 
 /**
@@ -1947,10 +1906,7 @@ function deleteForm() {
 		});
 	});
 
-	//ie11 fix
-	setTimeout(function () {
-		dialog_confirm.show();
-	}, 0);
+	dialog_confirm.show();
 
 }
 
@@ -1959,8 +1915,8 @@ function deleteForm() {
  * @param categoryID
  */
 function buildMenu(categoryID) {
-	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="View All Forms" /> View All Forms</div><br />');
-	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" onkeypress="onKeyPressClick(event)" role="button"><img src="../dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
+	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="" /> View All Forms</div><br />');
+	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" onkeydown="onKeyPressClick(event)" role="button"><img src="../dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
     $('#' + categoryID).on('click', function(categoryID) {
         return function() {
             $('#menu>div').removeClass('buttonNormSelected');
@@ -1972,7 +1928,7 @@ function buildMenu(categoryID) {
 
 	for(let i in categories) {
 		if(categories[i].parentID == categoryID) {
-			$('#menu').append('<div tabindex="0" id="'+ categories[i].categoryID +'" onkeypress="onKeyPressClick(event)" class="buttonNorm" role="button"><img src="../dynicons/?img=text-x-generic.svg&w=32" alt="Open Form" /> '+ categories[i].categoryName +'</div>');
+			$('#menu').append('<div tabindex="0" id="'+ categories[i].categoryID +'" onkeydown="onKeyPressClick(event)" class="buttonNorm" role="button"><img src="../dynicons/?img=text-x-generic.svg&w=32" alt="Open Form" /> '+ categories[i].categoryName +'</div>');
             $('#' + categories[i].categoryID).on('click', function(categoryID) {
                 return function() {
                     $('#menu>div').removeClass('buttonNormSelected');
@@ -1984,12 +1940,12 @@ function buildMenu(categoryID) {
 		}
 	}
 
-	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="createForm(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=list-add.svg&w=32" alt="Create Form" /> Add Internal-Use</div><br />');
+	$('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="createForm(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=list-add.svg&w=32" alt="" /> Add Internal-Use</div><br />');
 
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="mergeFormDialog(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=tab-new.svg&w=32" alt="Staple Form" /> Staple other form</div>\
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="mergeFormDialog(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=tab-new.svg&w=32" alt="" /> Staple other form</div>\
                           <div id="stapledArea"></div><br />');
 
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="View History" /> View History</div>\
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event);" onclick="viewHistory(\''+ categoryID +'\');" role="button"><img src="../dynicons/?img=appointment.svg&amp;w=32" alt="" /> View History</div>\
                         <div id="viewHistory"></div><br />');
 
 
@@ -2010,9 +1966,9 @@ function buildMenu(categoryID) {
     });
 
 
-	$('#menu').append('<br /><div tabindex="0"class="buttonNorm" onkeypress="onKeyPressClick(event)"onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../dynicons/?img=network-wireless.svg&w=32" alt="Export Form" /> Export Form</div><br />');
-    $('#menu').append('<br /><div class="buttonNorm" onclick="deleteForm();"><img src="../dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../dynicons/?img=network-wireless.svg&w=32" alt="" /> Export Form</div><br />');
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="deleteForm();"><img src="../dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="" /> Restore Fields</div>');
 	$('#' + categoryID).addClass('buttonNormSelected');
 }
 
@@ -2031,10 +1987,10 @@ function selectForm(categoryID) {
  */
 function showFormBrowser() {
     window.location = '#';
-    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeypress="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../dynicons/?img=document-new.svg&w=32" alt="Create Form" /> Create Form</div><br />');
-    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="Import Form" /> LEAF Library</div><br />');
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../dynicons/?img=package-x-generic.svg&w=32" alt="Import Form" /> Import Form</div><br />');
-    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeypress="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="Restore fields" /> Restore Fields</div>');
+    $('#menu').html('<div tabindex="0" role="button" class="buttonNorm" onkeydown="onKeyPressClick(event)" id="createFormButton" onclick="createForm();"><img src="../dynicons/?img=document-new.svg&w=32" alt="" /> Create Form</div><br />');
+    $('#menu').append('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="formLibrary();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="" /> LEAF Library</div><br />');
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="importForm();" role="button"><img src="../dynicons/?img=package-x-generic.svg&w=32" alt="" /> Import Form</div><br />');
+    $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="" /> Restore Fields</div>');
     $.ajax({
         type: 'GET',
         url: '../api/formStack/categoryList/all',
@@ -2058,7 +2014,7 @@ function showFormBrowser() {
                         formActiveID = '#forms_inactive';
                     }
                     const workflow = res[i].description != null ? 'Workflow: ' + res[i].description : '';
-                    $(formActiveID).append('<div tabindex="0"  onkeypress="onKeyPressClick(event)" class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
+                    $(formActiveID).append('<div tabindex="0"  onkeydown="onKeyPressClick(event)" class="formPreview formLibraryID_'+ res[i].formLibraryID +'" id="'+ res[i].categoryID +'" title="'+ res[i].categoryID +'">\
                             <div class="formPreviewTitle">'+ formTitle + needToKnow + '</div>\
                             <div class="formPreviewDescription">'+ res[i].categoryDescription +'</div>\
                             <div class="formPreviewStatus">'+ availability +'</div>\
@@ -2256,19 +2212,16 @@ function createForm(parentID) {
     }
     dialog.setContent('<table>\
                             <tr>\
-                                <td>Form Label</td>\
-                                <td><input tabindex="0" id="name" type="text" maxlength="50"></input></td>\
+                                <td><label for="name">Form Label </label></td>\
+                                <td><input tabindex="0" id="name" type="text" maxlength="50"/></td>\
                             </tr>\
                             <tr>\
-                                <td>Form Description</td>\
+                                <td><label for="description">Form Description </label></td>\
                                 <td><textarea tabindex="0" id="description" maxlength="255"></textarea></td>\
                             </tr>\
                         </table>');
-            //ie11 fix
-        setTimeout(function () {
-            dialog.show();
-        }, 0);
 
+    dialog.show();
 
     dialog.setSaveHandler(function() {
         let categoryName = $('#name').val();

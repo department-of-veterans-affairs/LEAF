@@ -9,7 +9,7 @@ $app_dir = '/var/www/html/app';
 
 require_once $app_dir . '/libs/globals.php';
 require_once $app_dir . '/Leaf/Psr4AutoloaderClass.php';
-require_once $app_dir . '/libs/smarty/bootstrap.php';
+require_once $curr_dir . '/libs/smarty/bootstrap.php';
 
 $loader = new Psr4AutoloaderClass;
 $loader->register();
@@ -23,16 +23,21 @@ $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'nationa
 $site = new App\Leaf\Site($file_paths_db, $_SERVER['SCRIPT_FILENAME']);
 
 if ($site->error) {
-    throw new Exception("Sorry the page you are looking for could not be found, please check the url and try again.");
+    http_response_code(404);
+    die();
 } else {
     $my_path = $site->getPortalPath();
     if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $my_path);
     if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . trim($my_path) . '/');
     $site_paths = $site->getSitePath();
+
+    if (isset($site_paths['decommissionTimestamp']) && $site_paths['decommissionTimestamp'] > 0) {
+        http_response_code(404);
+        die();
+    }
 }
 
 /** Here down is old loader stuff, will be deprecated once we can verify that they are no longer being used. */
-$working_dir = $curr_dir;
 
 $loader->addNamespace('Leaf', $curr_dir . '/libs/logger');
 $loader->addNamespace('Leaf', $curr_dir . '/libs/php-commons');
@@ -57,7 +62,6 @@ if (is_dir($working_dir . $site_paths['orgchart_path'])) {
 }
 
 /* This ends the deprecation area
-
     below this point can be refactored once the code above is removed.
     just needs to be cleaned up as much as possible.
 */
@@ -144,6 +148,8 @@ if (!defined('ABSOLUTE_PORT_PATH')) define('ABSOLUTE_PORT_PATH', 'https://' . ge
 if (!defined('DOMAIN_PATH')) define('DOMAIN_PATH', 'https://' . getenv('APP_HTTP_HOST'));
 if (!defined('ORGCHART_DB')) define('ORGCHART_DB', $site_paths['orgchart_database']);
 if (!defined('OC_DB')) define('OC_DB', $oc_db);
+if (!defined('LEAF_SETTINGS')) define('LEAF_SETTINGS', $settings);
+if (!defined('OC_SETTINGS')) define('OC_SETTINGS', $oc_settings);
 
 if (!empty($site_paths['portal_database'])) {
     if (!defined('PORTAL_DB')) define('PORTAL_DB', $site_paths['portal_database']);

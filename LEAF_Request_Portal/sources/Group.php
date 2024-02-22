@@ -392,7 +392,7 @@ class Group
             $vars = array(':userID' => $member,
                           ':groupID' => $groupID, );
 
-            $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::EMPLOYEE, [
+            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EMPLOYEE, [
                 new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
                 new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
@@ -419,21 +419,22 @@ class Group
      *
      * @return void
      */
-    public function removeMember($member, $groupID): void
+    public function removeMember($member, $groupID, $backupID = ''): void
     {
         if (is_numeric($groupID) && $member != '') {
-            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EMPLOYEE, [
+            $this->dataActionLogger->logAction(DataActions::PRUNE, LoggableTypes::EMPLOYEE, [
                 new LogItem("users", "userID", $member, $this->getEmployeeDisplay($member)),
                 new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
             $vars = array(':userID' => $member,
-                          ':groupID' => $groupID);
+                          ':groupID' => $groupID,
+                          ':backupID' => $backupID);
             $sql = 'DELETE
                     FROM `users`
                     WHERE (`userID` = :userID
                         AND `groupID` = :groupID
-                        AND `backupID` = "")
+                        AND `backupID` = :backupID)
                     OR (`groupID` = :groupID
                         AND `backupID` = :userID)';
 

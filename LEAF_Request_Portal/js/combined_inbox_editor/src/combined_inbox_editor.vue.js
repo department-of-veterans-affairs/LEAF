@@ -93,7 +93,7 @@ const CombinedInboxEditor = Vue.createApp({
                             resolve();
                         });
                     },
-                    fail: (err) => {
+                    error: (err) => {
                         reject(err);
                     }
                 });
@@ -118,7 +118,7 @@ const CombinedInboxEditor = Vue.createApp({
                     success: (res) => {
                         resolve();
                     },
-                    fail: (err) => {
+                    error: (err) => {
                         reject(err);
                     }
                 });
@@ -153,24 +153,37 @@ const CombinedInboxEditor = Vue.createApp({
                 resolve();
             });
         },
-        async getIndicators(site) {
-            if (typeof site == 'undefined' || typeof site.target == 'undefined') {
+        async getIndicators(portalURL = '') {
+            if (portalURL === '') {
                 return [];
             }
-            const indicators = await fetch(site.target + "api/form/indicator/list", {
+            const indicators = await fetch(portalURL + "api/form/indicator/list", {
                 headers: {
                     "Content-Type": "application/json",
                 },
                 cache: "no-cache"
             });
-    
-            return indicators.json();
+            return await indicators.json();
         }
     },
     created() {
         this.getMapSites().then(() => {
             this.sites.forEach((site) => {
-                this.getIndicators(site).then((indicators) => {
+                let portalURL = site.target;
+                if(portalURL.indexOf('/admin/') != -1) {
+                    portalURL = portalURL.substring(0, portalURL.indexOf('/admin/') + 1);
+                } else if(portalURL.indexOf('/?') != -1) {
+                    portalURL = portalURL.substring(0, portalURL.indexOf('/?') + 1);
+                } else if(portalURL.indexOf('/index.php?') != -1) {
+                    portalURL = portalURL.substring(0, portalURL.indexOf('/index.php?') + 1);
+                } else if(portalURL.indexOf('/report.php?') != -1) {
+                    portalURL = portalURL.substring(0, portalURL.indexOf('/report.php?') + 1);
+                } else if(portalURL.indexOf('/api/open/form/query/') != -1) {
+                    portalURL = portalURL.substring(0, portalURL.indexOf('/api/open/form/query/') + 1);
+                } else if(portalURL.indexOf('/open.php?') != -1) {
+                    portalURL = portalURL.substring(0, portalURL.indexOf('/open.php?') + 1);
+                }
+                this.getIndicators(portalURL).then((indicators) => {
                     this.choices.find((choice) => choice.id == site.id).choices.push(...indicators.map((indicator => ({
                         label: indicator.categoryName + ': ' + indicator.name + " (ID: " + indicator.indicatorID + ")",
                         selected: site.columns.includes(indicator.indicatorID),

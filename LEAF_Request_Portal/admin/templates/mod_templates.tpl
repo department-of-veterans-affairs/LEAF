@@ -280,7 +280,6 @@
             },
             url: '../api/templateFileHistory/_' + currentFile,
             success: function(res) {
-                console.log("File history has been saved.");
                 getFileHistory(currentFile);
             }
         })
@@ -471,7 +470,6 @@
             dataType: 'json',
             success: function(res) {
                 if (res.length === 0) {
-                    console.log('There are no files in the directory');
                     var contentMessage = '<p class="contentMessage">There are no history files.</p>';
                     $('.file-history-res').html(contentMessage);
                     return;
@@ -482,7 +480,6 @@
                 });
 
                 if (fileNames.indexOf(template) === -1) {
-                    console.log('Template file not found in directory');
                     return;
                 }
 
@@ -741,7 +738,6 @@
             type: 'GET',
             url: '../api/template/_' + file,
             success: function(res) {
-                currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
 
                 // Check if codeEditor is already defined and has a setValue method
@@ -750,6 +746,7 @@
                 } else {
                     console.error('codeEditor is not properly initialized.');
                 }
+                currentFileContent = codeEditor.getValue();
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').css('display', 'block');
@@ -859,8 +856,6 @@
 
         if (windowWidth < 1024) {
             $('.leaf-right-nav').css('right', '-100%');
-        } else {
-            console.log('Please check the width of the window');
         }
         $.ajax({
             type: 'GET',
@@ -895,34 +890,28 @@
                     type: 'GET',
                     url: '../api/template/custom',
                     dataType: 'json',
-                    success: function (result) {
+                    success: function (customTemplates) {
                         let template_excluded = 'import_from_webHR.tpl';
-                        let res_array = $.parseJSON(result);
                         let buffer = '<ul class="leaf-ul">';
                         let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
                         
-                        if (res_array.status['code'] === 2) {
+                        if (Array.isArray(customTemplates)) {
                             for (let i in res) {
                                 if (res[i] === template_excluded) {
                                     // Will skip the excluded template, until further notice.
                                     continue;
                                 }
 
-                                if (result.includes(res[i])) {
+                                let custom = '';
+                                if (customTemplates.includes(res[i])) {
                                     custom = '<span class=\'custom_file\' style=\'color: red; font-size: .75em\'>(custom)</span>';
-                                } else {
-                                    custom = '';
                                 }
-
                                 let file = res[i].replace('.tpl', '');
 
                                 buffer += '<li><div class="template_files"><a href="#" data-file="' + res[i] + '">' + file + '</a> ' + custom + '</div></li>';
 
                                 filesMobile += '<option value="' + res[i] + '">' + file + ' ' + custom + '</option>';
                             }
-                        } else if (res_array.status['code'] === 4) {
-                            buffer += '<li><div class="template_files">' + res_array.status['message'] + '</div></li>';
-                            filesMobile += '<select><option>' + res_array.status['message'] + '</option></select>';
                         } else {
                             buffer += '<li>Internal error occurred, if this persists contact your Primary Admin.</li>';
                         }

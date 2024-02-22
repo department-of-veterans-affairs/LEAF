@@ -189,6 +189,11 @@
         },
     };
 
+    function scrubHTML(input) {
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        return t.textContent;
+    }
+
     function interfaceReady() {
         document.querySelector('#viewport').style.visibility = 'visible';
         $('#progressContainer').slideUp();
@@ -268,7 +273,7 @@
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     roleID = Sha1.hash(uDD.approverUID);
-                    description = uDD.approverName;
+                    description = scrubHTML(uDD.approverName);
                 }
 
                 let stepHash = `${description}:;ROLEID${roleID}`;
@@ -371,8 +376,8 @@
         }
         $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${depID}" class="depContainer">
             <div id="depLabel${hash}_${depID}" class="depInbox" style="padding: 8px; background-color: ${site.backgroundColor}">
-			<span style="float: right; text-decoration: underline; font-weight: bold">View ${recordIDs.length} requests</span>
-			<span style="font-size: 130%; font-weight: bold">${categoryName}</span></div>
+			<span style="float: right; text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
+			<span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${categoryName}</span></div>
 			<div id="depList${hash}_${depID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + depID).on('click', function() {
             buildInboxGridView(res, depID, categoryName, recordIDs, site, hash, categoryIDs);
@@ -413,7 +418,7 @@
 
         let customCols = [];
         if (customColumns == false) {
-            site.columns = site.columns ?? 'UID,service,title,status';
+            site.columns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
         }
         site.columns.split(',').forEach(col => {
             if (isNaN(col)) {
@@ -507,9 +512,9 @@
         }
         $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}" class="depContainer">
             <div id="depLabel${hash}_${stepID}" class="depInbox" style="padding: 8px; background-color: ${site.backgroundColor}">
-			<span style="float: right; text-decoration: underline; font-weight: bold">View ${recordIDs.length} requests</span>
-			<span style="font-size: 130%; font-weight: bold">${stepName}</span><br />
-            <span>${categoryName}</span></div>
+			<span style="float: right; text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
+			<span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
+            <span style="color: ${site.fontColor}">${categoryName}</span></div>
 			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + stepID).on('click', function() {
             buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);
@@ -678,6 +683,9 @@
                     else if(site.url.indexOf('/api/open/form/query/') != -1) {
                         site.url = site.url.substring(0, site.url.indexOf('/api/open/form/query/') + 1);
                     }
+                    else if(site.url.indexOf('/open.php?') != -1) {
+                        site.url = site.url.substring(0, site.url.indexOf('/open.php?') + 1);
+                    }
                 });
 
                 // Remove duplicate URLs
@@ -715,6 +723,8 @@
     // Script Start
     $(function() {
         document.title = 'Inbox - ' + document.title;
+
+        dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
 
         let urlParams = new URLSearchParams(window.location.search);
         if(urlParams.get('adminView') != null) {
@@ -852,6 +862,7 @@
 </style>
 
 <!--{include file="site_elements/generic_OkDialog.tpl"}-->
+<!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <div id="genericDialog" style="visibility: hidden; display: none">
     <div>

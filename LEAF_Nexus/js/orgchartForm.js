@@ -23,10 +23,10 @@ orgchartForm.prototype.initialize = function () {
 				    <div>\
 				        <button id="' +
       this.prefixID +
-      'button_cancelchange" class="buttonNorm" style="position: absolute; left: 10px"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="cancel" /> Cancel</button>\
+      'button_cancelchange" class="buttonNorm" style="position: absolute; left: 10px"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="" /> Cancel</button>\
 				        <button id="' +
       this.prefixID +
-      'button_save" class="buttonNorm" style="position: absolute; right: 10px"><img src="dynicons/?img=media-floppy.svg&amp;w=16" alt="save" /> Save Change</button>\
+      'button_save" class="buttonNorm" style="position: absolute; right: 10px"><img src="dynicons/?img=media-floppy.svg&amp;w=16" alt="" /> Save Change</button>\
 				        <div style="border-bottom: 2px solid black; line-height: 30px"><br /></div>\
 				        <div id="' +
       this.prefixID +
@@ -63,7 +63,7 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
         success: function (response) {
           dialog.setContent(response);
           $("input:visible:first, select:visible:first").focus();
-          $("input:visible:first, select:visible:first").keypress(function (
+          $("input:visible:first, select:visible:first").on("keydown", function (
             event
           ) {
             if (event.which == 13) {
@@ -100,11 +100,17 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
         success: function (response) {
           dialog.setContent(response);
           $("input:visible:first, select:visible:first").focus();
-          $("input:visible:first, select:visible:first").keypress(function (
+          $("input:visible:first, select:visible:first").on("keydown", function (
             event
           ) {
             if (event.which == 13) {
-              $("#" + dialog.btnSaveID).trigger("click");
+              let elChosenDrop = null;
+              if(event.target.classList.contains('chosen-search-input')) {
+                elChosenDrop = document.querySelector('.chosen-with-drop');
+              }
+              if(elChosenDrop === null) { //if a chosen dropdown box is still open, the first enter will just close it.
+                $("#" + dialog.btnSaveID).trigger("click");
+              }
             }
           });
         },
@@ -137,7 +143,7 @@ orgchartForm.prototype.getForm = function (UID, categoryID, indicatorID) {
         success: function (response) {
           dialog.setContent(response);
           $("input:visible:first, select:visible:first").focus();
-          $("input:visible:first, select:visible:first").keypress(function (
+          $("input:visible:first, select:visible:first").on("keydown", function (
             event
           ) {
             if (event.which == 13) {

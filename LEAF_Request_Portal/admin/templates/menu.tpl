@@ -1,8 +1,8 @@
 <ul>
 
     <!-- Menu tooggle on smaller screens  -->
-    <li id="toggleMenu" role="button" aria-haspopup="true">
-        <a href="javascript:void(0);"><span class="leaf-menu"><button>MENU</button></span><i aria-hidden="true" class="fas fa-times"></i></a>
+    <li id="toggleMenu">
+        <a href="javascript:void(0);"><span class="leaf-menu"><button type="button">MENU</button></span><i aria-hidden="true" class="fas fa-times"></i></a>
     </li>
 
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>

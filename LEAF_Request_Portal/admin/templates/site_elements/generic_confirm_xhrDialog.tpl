@@ -5,7 +5,7 @@
         <div role="document">
             
              <div id="confirm_loadIndicator" class="leaf-dialog-loader">
-                Loading...<img src="../images/largespinner.gif" alt="loading..." />
+                Loading...<img src="../images/largespinner.gif" alt="" />
             </div>
 
             <main id="confirm_xhr" class="leaf-dialog-content" role="main"></main>

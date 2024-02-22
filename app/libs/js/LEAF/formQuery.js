@@ -1,7 +1,13 @@
 /**
  * Form Query Helper
+ * 
+ * LeafFormQuery is a globally available object on LEAF sites, and is an interface for ./api/form/query
+ * Key features include:
+ *  - Automatically splits large queries into multiple small ones, to improve UX
+ *  - Mechanism to report progress (onProgress)
+ *  - Programmatically build query
  */
-var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code imports it in unexpected places.
+var LeafFormQuery = function () {
   let query = {};
   let successCallback = null;
   let progressCallback = null;
@@ -10,6 +16,9 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   let extraParams = "";
   let results = {};
   let batchSize = 500;
+  let abortSignal;
+  let firstRun = true; // keep track of query limit state, to align with user intent
+  let origLimit, origLimitOffset;
 
   clearTerms();
 
@@ -90,6 +99,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
    * @memberOf LeafFormQuery
    */
   function setLimit(offset = 50, limit = 0) {
+    firstRun = true;
     if (limit === 0) {
       query.limit = offset;
     } else {
@@ -119,13 +129,19 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
-   * @param {string|number} indicatorID
+   * getData includes data associated with $indicatorID in the result set
+   * @param {string|number|array} indicatorID
    * @memberOf LeafFormQuery
    */
   function getData(indicatorID = "") {
-    if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
-      query.getData.push(indicatorID);
-    }
+	if(Array.isArray(indicatorID)) {
+		indicatorID.forEach(id => {
+			getData(id);
+		});
+	}
+	else if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
+	    query.getData.push(indicatorID);
+	}
   }
 
   /**
@@ -207,6 +223,23 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
   }
 
   /**
+   * setAbortSignal assigns a DOM AbortSignal to determine whether further getBulkData() iterations should be cancelled
+   * @param {AbortSignal} signal
+   * @memberOf LeafFormQuery
+   */
+  function setAbortSignal(signal) {
+    abortSignal = signal;
+  }
+
+  /**
+   * encodeReadableURI provides minimal character URI encoding, prioritizing readable URLs
+   */
+  function encodeReadableURI(url) {
+    url = url.replaceAll('+', '%2b');
+    return url;
+  }
+
+  /**
    * Execute search query in chunks
    * @param {number} limitOffset Used in subsequent recursive calls to track current offset
    * @returns Promise resolving to query response
@@ -228,13 +261,15 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     const urlParamJSONP = useJSONP ? "&format=jsonp" : "";
     return $.ajax({
       type: "GET",
-      url: `${rootURL}api/form/query?q=${queryUrl + extraParams + urlParamJSONP}`,
+      url: `${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`,
       dataType: dataType,
       error: (err) => console.log(err)
     }).then((res, resStatus, resJqXHR) => {
       results = Object.assign(results, res);
 
-      if (Object.keys(res).length == batchSize || resJqXHR.getResponseHeader("leaf-query") == "continue") {
+      if ((Object.keys(res).length == batchSize
+                || resJqXHR.getResponseHeader("leaf-query") == "continue")
+            && !abortSignal?.aborted) {
         let newOffset = limitOffset + batchSize;
         if (typeof progressCallback == "function") {
           progressCallback(newOffset);
@@ -255,10 +290,19 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
    * @memberOf LeafFormQuery
    */
   function execute() {
+    if(firstRun) {
+        firstRun = false;
+        origLimit = query.limit;
+        origLimitOffset = query.limitOffset;
+    } else {
+        query.limit = origLimit;
+        query.limitOffset = origLimitOffset;
+    }
+
     if (query.getData != undefined && query.getData.length == 0) {
       delete query.getData;
     }
-    if (query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 9999) {
+    if (query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 1000) {
       return getBulkData();
     }
 
@@ -270,7 +314,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     const urlParamJSONP = useJSONP ? "&format=jsonp" : "";
     return $.ajax({
       type: "GET",
-      url: `${rootURL}api/form/query?q=${queryUrl + extraParams + urlParamJSONP}`,
+      url: `${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`,
       dataType: dataType,
       success: successCallback,
       error: (err) => console.log(err)
@@ -297,6 +341,7 @@ var LeafFormQuery = function () { //NOTE: keeping this a var in case custom code
     sort,
     onSuccess,
     onProgress,
+    setAbortSignal,
     execute
   };
 };

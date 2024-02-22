@@ -78,6 +78,7 @@ switch ($action) {
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
                 $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
+                $t_form->assign('max_filesize', ini_get('upload_max_filesize'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
             }
             else
@@ -240,7 +241,7 @@ switch ($action) {
         //$approval = new Action($db, $login, $_GET['recordID']);
         //$approval->addApproval($_POST['groupID'], $_POST['status'], $_POST['comment'], $_POST['dependencyID']);
         break;
-    case 'doupload': // handle file upload
+    case 'doupload': // legacy handle file upload (retained for older custom files)
         $uploadOk = true;
         $uploadedFilename = '';
         foreach ($_FILES as $file)
@@ -397,6 +398,7 @@ switch ($action) {
             $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+            $t_form->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {
@@ -438,7 +440,7 @@ switch ($action) {
                 $tabText = 'Request #' . (int)$_GET['recordID'];
                 $main->assign('tabText', $tabText);
 
-                $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo" />');
+                $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
 
                 $main->assign('login', $t_login->fetch('login.tpl'));
                 $main->assign('app_js_path', APP_JS_PATH);

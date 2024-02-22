@@ -65,6 +65,7 @@ class Site
     private function stripLast(): void
     {
         $path_array = explode('/', $this->match);
+
         array_shift($path_array);
         array_pop($path_array);
 
@@ -80,8 +81,16 @@ class Site
     private function checkPath(): array
     {
         $vars = array(':site_path' => $this->match);
-        $sql = 'SELECT `site_path`, `site_uploads`, `portal_database`, `orgchart_path`,
-                    `orgchart_database`
+        // this needs to be this way until we release 4204, the two new fields won't
+        // be available until after the db_update is run which means several sites
+        // could be down for several minutes. Getting * will prevent this from
+        // happening and we can switch it back once we know everything is working as
+        // intended.
+        /* $sql = 'SELECT `site_path`, `site_uploads`, `portal_database`, `orgchart_path`,
+                    `orgchart_database`, `launchpadID`, `decommissionTimestamp`
+                FROM `sites`
+                WHERE `site_path` = BINARY :site_path'; */
+        $sql = 'SELECT *
                 FROM `sites`
                 WHERE `site_path` = BINARY :site_path';
 

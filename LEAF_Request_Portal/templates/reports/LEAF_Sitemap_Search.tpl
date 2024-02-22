@@ -22,7 +22,7 @@
     <div style="padding: 8px">
         <div id="indicatorList" class="section group" style="padding: 8px">Loading...</div>
         <br style="clear: both" />
-        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Multi-site Report <img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="generate report" /></button>
+        <button id="generateReport" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black">Generate Multi-site Report <img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="" /></button>
     </div>
 </div>
 
@@ -625,11 +625,11 @@ function editLabels() {
             buffer += `<tr id="sortID_${resSelectList[i]}">
                 <td>
                     <input type="color" id="colorPicker${resSelectList[i]}" value="#d1dfff" style="height: 26px;" />
-                    <input type="text" style="min-width: 400px" id="id_${resSelectList[i]}" value="${resIndicatorList[resSelectList[i]]}"></input>
+                    <input type="text" style="min-width: 400px" id="id_${resSelectList[i]}" value="${resIndicatorList[resSelectList[i]]}"/>
                 </td>
                 <td>
-                    <button class="buttonNorm" onclick="editLabels_down(${resSelectList[i]});"><img src="./dynicons/?img=go-down_red.svg&w=16" /></button>
-                    <button class="buttonNorm" onclick="editLabels_up(${resSelectList[i]});"><img src="./dynicons/?img=go-up.svg&w=16" /></button>
+                    <button class="buttonNorm" onclick="editLabels_down(${resSelectList[i]});"><img src="./dynicons/?img=go-down_red.svg&w=16" alt="move down" /></button>
+                    <button class="buttonNorm" onclick="editLabels_up(${resSelectList[i]});"><img src="./dynicons/?img=go-up.svg&w=16" alt="move up" /></button>
                 </td>
                 </tr>`;
         }
@@ -716,7 +716,7 @@ function openShareDialog() {
     dialog_message.setTitle('Share Report');
     dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
                             + '<br /><textarea id="reportLink" style="width: 95%; height: 100px">'+ pwd + reportLink +'</textarea>'
-                            + '<button id="prepareEmail" type="button" class="buttonNorm"><img src="dynicons/?img=internet-mail.svg&w=32" alt="Email report" /> Email Report</button> '
+                            + '<button id="prepareEmail" type="button" class="buttonNorm"><img src="dynicons/?img=internet-mail.svg&w=32" alt="" /> Email Report</button> '
                             + '<br /><br /><p>Access rules are automatically applied based on the form and workflow configuration.</p>');
     dialog_message.show();
     $('#reportLink').on('click', function() {
@@ -831,10 +831,7 @@ function showJSONendpoint() {
 
  function changeTitle(form_data, current_title) {
     dialog.setContent('<label for="recordTitle"><b>Report Title</b></label><br/><input type="text" id="recordTitle" style="width: 250px" name="recordTitle" value="' + current_title + '" /><input type="hidden" id="CSRFToken" name="CSRFToken" value="<!--{$CSRFToken}-->" />');
-  //ie11 fix
-  setTimeout(function () {
     dialog.show();
-  }, 0);
     dialog.setSaveHandler(function() {
         $.ajax({
             type: 'POST',
@@ -981,6 +978,24 @@ function buildURLComponents(baseURL, update){
     window.history.pushState('', '', url);
 }
 
+function getPortalURL(url = '') {
+    let portalURL = url;
+    if(portalURL.indexOf('/admin/') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/admin/') + 1);
+    } else if(portalURL.indexOf('/?') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/?') + 1);
+    } else if(portalURL.indexOf('/index.php?') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/index.php?') + 1);
+    } else if(portalURL.indexOf('/report.php?') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/report.php?') + 1);
+    } else if(portalURL.indexOf('/api/open/form/query/') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/api/open/form/query/') + 1);
+    } else if(portalURL.indexOf('/open.php?') != -1) {
+        portalURL = portalURL.substring(0, portalURL.indexOf('/open.php?') + 1);
+    }
+    return portalURL;
+}
+
 async function getSubordinateSites() {
     return $.ajax({
         type: 'GET',
@@ -990,20 +1005,20 @@ async function getSubordinateSites() {
     .then(function(res) {
         let sites = [];
 		try {
+            const siteReg = new RegExp(`^https://${window.location.hostname}/`, "i");
             let data = JSON.parse(res.sitemap_json);
-
             data.buttons.forEach(site => {
-                if(site.target.indexOf('leaf.va.gov') != -1
-                    && site.target.indexOf('?') == -1) {
-                    sites.push(site.target);
+                const url = getPortalURL(site?.target || '');
+                if(siteReg.test(url)
+                    && url.indexOf('?') === -1) {
+                    sites.push(url);
                 }
             });
         }
         catch(e) {
             alert('Error parsing Sitemap, please review the Sitemap Editor');
         }
-
-        return sites;
+        return Array.from(new Set(sites));
     });
 }
 
@@ -1031,7 +1046,7 @@ $(async function() {
     $('#' + leafSearch.getPrefixID() + 'advancedOptions').css('border', '0');
     $('#' + leafSearch.getPrefixID() + 'advancedOptionsClose').css('visibility', 'hidden');
     $('#' + leafSearch.getPrefixID() + 'advancedOptions>legend').css('display', 'none');
-    $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="dynicons/?img=go-next.svg&w=32" alt="next step" />');
+    $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').html('Next Step <img src="dynicons/?img=go-next.svg&w=32" alt="" />');
 
     $('#' + leafSearch.getPrefixID() + 'advancedSearchApply').off();
 
@@ -1268,13 +1283,13 @@ $(async function() {
 
         // create save link once
         if(!extendedToolbar) {
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="dynicons/?img=internet-mail.svg&w=32" alt="share report" /> Share Report</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="dynicons/?img=internet-mail.svg&w=32" alt="" /> Share Report</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="" /> Edit Labels</button> ');
 
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="dynicons/?img=gnome-applications-science.svg&w=32" alt="Modify search" /> Modify Search</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="dynicons/?img=applications-other.svg&w=16" alt="Icon for JSON endpoint viewer" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="Next" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="dynicons/?img=gnome-applications-science.svg&w=32" alt="" /> Modify Search</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="dynicons/?img=applications-other.svg&w=16" alt="" /> JSON</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
             extendedToolbar = true;
 
 

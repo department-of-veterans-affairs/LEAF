@@ -218,7 +218,6 @@
             },
             url: '../api/applet/fileHistory/_' + currentFile,
             success: function(res) {
-                console.log("File history has been saved.");
                 getFileHistory(currentFile);
             }
         });
@@ -344,7 +343,7 @@
     // creates a new report
     function newReport() {
         dialog.setTitle('New File');
-        dialog.setContent('Filename: <input type="text" id="newFilename">');
+        dialog.setContent('<label for="newFilename">Filename: </label><input type="text" id="newFilename">');
 
         $('#newFilename').on('keyup', function(e) {
             $(this).val($(this).val().replace(/[^a-z0-9\.\/]/gi, '_'));
@@ -404,7 +403,6 @@
             url: '../api/applet/deleteHistoryFileReport/_' + templateFile + '?' +
                 $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                 success: function() {
-                    console.log(templateFile + ', was deleted');
                     location.reload();
                 }
         });
@@ -438,7 +436,6 @@
             dataType: 'json',
             success: function(res) {
                 if (res.length === 0) {
-                    console.log('There are no files in the directory');
                     var contentMessage = '<p class="contentMessage">There are no history files.</p>';
                     $('.file-history-res').html(contentMessage);
                     return;
@@ -449,7 +446,7 @@
                 });
 
                 if (fileNames.indexOf(template) === -1) {
-                    console.log('Template file not found in directory');
+                    alert('Template file not found in directory');
                     return;
                 }
 
@@ -682,7 +679,6 @@
             type: 'GET',
             url: `../api/applet/_${file}`,
             success: function(res) {
-                currentFileContent = res.file;
                 $('#codeContainer').fadeIn();
 
                 // Check if codeEditor is already defined and has a setValue method
@@ -691,6 +687,7 @@
                 } else {
                     console.error('codeEditor is not properly initialized.');
                 }
+                currentFileContent = codeEditor.getValue();
 
                 if (res.modified === 1) {
                     $('.modifiedTemplate').css('display', 'block');
@@ -854,8 +851,6 @@
 
         if (windowWidth < 1024) {
             $('.leaf-right-nav').css('right', '-100%');
-        } else {
-            console.log('Please check the width of the window');
         }
         $.ajax({
             type: 'GET',

@@ -39,6 +39,15 @@ function dialogController(containerID, contentID, loadIndicatorID, btnSaveID, bt
     $('#' + this.btnCancelID).on('click', function() {
     	t.hide();
     });
+    $('button.ui-dialog-titlebar-close').on('click', function() {
+        t.hide();
+    });
+    const preventCloseOnEnter = (e) => {
+        if(e?.keyCode === 13 && (e?.target?.nodeName || '').toLowerCase() === "input" && e?.target?.type !== 'color') {
+            e.preventDefault();
+        }
+    };
+    $(`#${t.contentID}`).on('keydown', preventCloseOnEnter);
 }
 
 dialogController.prototype.clear = function() {
@@ -54,6 +63,8 @@ dialogController.prototype.clearDialog = function() {
 
 dialogController.prototype.setTitle = function(title) {
 	$('#' + this.containerID).dialog('option', 'title', title);
+	const parentLabelledBy = $('#' + this.containerID).parent().attr('aria-labelledBy');
+	$('#' + this.containerID).attr('aria-labelledby', parentLabelledBy);
 };
 
 dialogController.prototype.hide = function() {
@@ -62,11 +73,14 @@ dialogController.prototype.hide = function() {
 };
 
 dialogController.prototype.show = function() {
-	if($('#' + this.contentID).html() == '') {
-		$('#' + this.loadIndicatorID).css('visibility', 'visible');
-	}
-	$('#' + this.containerID).dialog('open');
-	$('#' + this.containerID).css('visibility', 'visible');
+    //Stack clear for some events.  This helps ensure modal content is mounted before trying to set styles.
+    setTimeout(() => {
+        if($('#' + this.contentID).html() == '') {
+            $('#' + this.loadIndicatorID).css('visibility', 'visible');
+        }
+        $('#' + this.containerID).dialog('open');
+        $('#' + this.containerID).css('visibility', 'visible');
+    });
 };
 
 dialogController.prototype.setContent = function(content) {
@@ -77,11 +91,13 @@ dialogController.prototype.setContent = function(content) {
 
 dialogController.prototype.indicateBusy = function() {
     $('#' + this.loadIndicatorID).css('visibility', 'visible');
+    $('#' + this.loadIndicatorID).css('height', 'auto');
     $('#' + this.btnSaveID).css('visibility', 'hidden');
 };
 
 dialogController.prototype.indicateIdle = function() {
     $('#' + this.loadIndicatorID).css('visibility', 'hidden');
+    $('#' + this.loadIndicatorID).css('height', '1px');
     $('#' + this.btnSaveID).css('visibility', 'visible');
 };
 
@@ -190,7 +206,7 @@ dialogController.prototype.setCancelHandler = function(funct) {
     $('#' + this.containerID).on('dialogbeforeclose', function() {
         if(t.isValid() == 1 && t.isComplete() == 1) {        	
         	funct();
-        	$('#' + this.containerID).off('dialogbeforeclose');
+            $('#' + t.containerID).off('dialogbeforeclose');
         }
         else {
         	t.indicateIdle();
@@ -215,7 +231,7 @@ dialogController.prototype.clearValidators = function() {
 	this.validatorErrors = {};
 	this.requirements = {};
 	this.requirementErrors = {};
-	$('input[type="text"]').off();
+	$('#' + this.containerID + ' input[type="text"]').off();
 };
 
 dialogController.prototype.setSubmitValid = function(id, func) {

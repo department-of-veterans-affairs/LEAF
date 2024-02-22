@@ -140,7 +140,7 @@ class FormWorkflow
     }
 
     /**
-     * includePersonDesignatedApproverData efficiently merges approver data to $srcRecords, for a
+     * includePersonDesignatedData efficiently merges approver data to $srcRecords, for a
      * given list of $pdRecordList and $pdIndicators.
      * 
      * When $skipNames is false, $srcRecords is expected to contain dependencyIDs
@@ -151,12 +151,12 @@ class FormWorkflow
      *          that are related to a "person designated" field AND workflow that utilizes the "person 
      *          designated" feature.
      * @param array $srcRecords list of records
-     * @param array $pdRecords list of record IDs that utilize "person designated"
+     * @param array $pdRecordsMap map of record IDs => indicatorID that utilize "person designated"
      * @param array $pdIndicator list of indicator IDs mapped to "person designated" fields
      * @param bool $skipNames set true to exclude employee lookups
      * @return array Amended records
      */
-    private function includePersonDesignatedData(array $srcRecords, array $pdRecords, array $pdIndicators, bool $skipNames = false): array
+    private function includePersonDesignatedData(array $srcRecords, array $pdRecordsMap, array $pdIndicators, bool $skipNames = false): array
     {
         // sanitize for use in query
         $pdIndicators = array_map(function($x) {
@@ -164,15 +164,17 @@ class FormWorkflow
                         }, $pdIndicators);
         $pdIndicators = implode(',', $pdIndicators);
 
-        $pdRecords = array_map(function($x) {
+        $pdRecordIDs = array_keys($pdRecordsMap);
+        $pdRecordIDs = array_map(function($x) {
                         return (int)$x;
-                    }, $pdRecords);
-        $pdRecords = implode(',', $pdRecords);
+                    }, $pdRecordIDs);
 
-        $query = "SELECT recordID, `data`, `name` FROM `data`
+        $pdRecordIDs = implode(',', $pdRecordIDs);
+
+        $query = "SELECT recordID, `data`, `name`, indicatorID FROM `data`
                     LEFT JOIN indicators USING (indicatorID)
                     WHERE indicatorID IN ({$pdIndicators}) 
-                        AND recordID IN ({$pdRecords})
+                        AND recordID IN ({$pdRecordIDs})
                         AND series=1
                         AND `disabled`=0";
         $res = $this->db->prepared_query($query, []);
@@ -180,8 +182,10 @@ class FormWorkflow
         // create map of recordIDs with "person designated"
         $dRecords = [];
         foreach($res as $record) {
-            $dRecords[$record['recordID']]['data'] = $record['data'];
-            $dRecords[$record['recordID']]['name'] = $record['name'];
+            if(isset($pdRecordsMap[$record['recordID']][$record['indicatorID']])) {
+                $dRecords[$record['recordID']]['data'] = $record['data'];
+                $dRecords[$record['recordID']]['name'] = $record['name'];
+            }
         }
 
         $dir = $this->getDirectory();
@@ -202,8 +206,8 @@ class FormWorkflow
                     $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
                     
                     if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $dRecords[$v['recordID']]['name'] . ')';
-                        $srcRecords[$i]['approverName'] = $dRecords[$v['recordID']]['name'];
+                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' ( *NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'] . ')';
+                        $srcRecords[$i]['approverName'] = '*NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'];
                         $srcRecords[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
                     }
                     else {
@@ -211,6 +215,99 @@ class FormWorkflow
                         $srcRecords[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
                         $srcRecords[$i]['approverUID'] = $approver[0]['Email'];
                     }
+                }
+            }
+        }
+
+        return $srcRecords;
+    }
+
+    /**
+     * includeGroupDesignatedData efficiently merges approver data to $srcRecords, for a
+     * given list of $gdRecordList and $gdIndicators.
+     * 
+     * When $skipNames is false, $srcRecords is expected to contain dependencyIDs
+     * 
+     * WARNING: This function should only be used to support getRecordsDependencyData() and getActionable().
+     *          Usage in other areas must be carefully reviewed as this retrieves data without
+     *          checking for valid access. The $gdIndicators variable must only contain indicator IDs
+     *          that are related to a "group designated" field AND workflow that utilizes the "group 
+     *          designated" feature.
+     * @param array $srcRecords list of records
+     * @param array $gdRecordsMap map of record IDs => indicatorID that utilize "group designated"
+     * @param array $gdIndicator list of indicator IDs mapped to "group designated" fields
+     * @param bool $skipNames set true to exclude employee lookups
+     * @return array Amended records
+     */
+    private function includeGroupDesignatedData(array $srcRecords, array $gdRecordsMap, array $gdIndicators, bool $skipNames = false): array
+    {
+        // sanitize for use in query
+        $gdIndicators = array_map(function($x) {
+                            return (int)$x;
+                        }, $gdIndicators);
+        $gdIndicators = implode(',', $gdIndicators);
+
+        $gdRecordIDs = array_keys($gdRecordsMap);
+        $gdRecordIDs = array_map(function($x) {
+                        return (int)$x;
+                    }, $gdRecordIDs);
+
+        $gdRecordIDs = implode(',', $gdRecordIDs);
+
+        $query = "SELECT recordID, `data`, `name`, indicatorID FROM `data`
+                    LEFT JOIN indicators USING (indicatorID)
+                    WHERE indicatorID IN ({$gdIndicators}) 
+                        AND recordID IN ({$gdRecordIDs})
+                        AND series=1
+                        AND `disabled`=0";
+        $res = $this->db->prepared_query($query, []);
+
+        $groupIDs = [];
+        // create map of recordIDs with "group designated"
+        $dRecords = [];
+        foreach($res as $record) {
+            if(isset($gdRecordsMap[$record['recordID']][$record['indicatorID']])) {
+                $dRecords[$record['recordID']]['data'] = $record['data'];
+                $dRecords[$record['recordID']]['name'] = $record['name'];
+                $groupIDs[$record['data']] = 1;
+            }
+        }
+
+        $groupNames = [];
+        if(!$skipNames) {
+            $groupIDs = array_keys($groupIDs);
+            $groupIDs = array_map(function($x) {
+                            return (int)$x;
+                        }, $groupIDs);
+    
+            $groupIDs = implode(',', $groupIDs);
+            if($groupIDs != "") {
+                $res = $this->db->prepared_query("SELECT groupID, name FROM `groups`
+                                                   WHERE groupID IN ({$groupIDs})", []);
+                foreach($res as $group) {
+                    $groupNames[$group['groupID']] = $group['name'];
+                }
+            }
+        }
+
+        // loop through all srcRecords
+        foreach($srcRecords as $i => $v) {
+            // amend actionable status
+            if(isset($dRecords[$v['recordID']])) {
+                if($srcRecords[$i]['isActionable'] == 0) {
+                    $srcRecords[$i]['isActionable'] = $this->login->checkGroup($dRecords[$v['recordID']]['data']);
+                }
+
+                if($skipNames) {
+                    continue;
+                }
+
+                // Only amend group name for group designated records
+                if($v['dependencyID'] == -3) {      
+                    $groupName = isset($groupNames[$group['groupID']]) ? $groupNames[$group['groupID']] : 'Warning: Group has not been imported into the User Access Group';
+                    $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $groupName . ')';
+                    $srcRecords[$i]['approverName'] = $groupName;
+                    $srcRecords[$i]['approverUID'] = 'groupID:' . $dRecords[$v['recordID']]['data'];
                 }
             }
         }
@@ -254,8 +351,10 @@ class FormWorkflow
             $res = $this->db->prepared_query($strSQL, []);
         }
 
-        $personDesignatedRecords = []; // map of records using "person designated"
+        $personDesignatedRecords = []; // map of records using "person designated" => associated indicatorID
         $personDesignatedIndicators = []; // map of indicators using "person designated"
+        $groupDesignatedRecords = []; // map of records using "group designated" => associated indicatorID
+        $groupDesignatedIndicators = []; // map of indicators using "group designated"
         foreach ($res as $depRecord) {
             $depRecordID = $depRecord['recordID'];
             if(!isset($records[$depRecordID]['isActionable'])) {
@@ -279,7 +378,7 @@ class FormWorkflow
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
-                    $personDesignatedRecords[$depRecord['recordID']] = 1;
+                    $personDesignatedRecords[$depRecord['recordID']][$depRecord['indicatorID_for_assigned_empUID']] = 1;
                     $personDesignatedIndicators[$depRecord['indicatorID_for_assigned_empUID']] = 1;
                     break;
 
@@ -295,11 +394,8 @@ class FormWorkflow
                     break;
 
                 case -3: // dependencyID -3 is for a group designated by the requestor
-                    $resGroupID = $form->getIndicator($depRecord['indicatorID_for_assigned_groupID'], 1, $depRecord['recordID'], null, true);
-                    $groupID = $resGroupID[$depRecord['indicatorID_for_assigned_groupID']]['value'];
-
-                    // make sure the right person has access
-                    $records[$depRecordID]['isActionable'] = $this->login->checkGroup($groupID);
+                    $groupDesignatedRecords[$depRecord['recordID']][$depRecord['indicatorID_for_assigned_groupID']] = 1;
+                    $groupDesignatedIndicators[$depRecord['indicatorID_for_assigned_groupID']] = 1;
                     break;
 
                 default:
@@ -318,7 +414,10 @@ class FormWorkflow
         }
 
         if(count($personDesignatedRecords) > 0) {
-            $records = $this->includePersonDesignatedData($records, array_keys($personDesignatedRecords), array_keys($personDesignatedIndicators), true);
+            $records = $this->includePersonDesignatedData($records, $personDesignatedRecords, array_keys($personDesignatedIndicators), true);
+        }
+        if(count($groupDesignatedRecords) > 0) {
+            $records = $this->includeGroupDesignatedData($records, $groupDesignatedRecords, array_keys($groupDesignatedIndicators), true);
         }
 
         return $records;
@@ -373,6 +472,8 @@ class FormWorkflow
 
         $personDesignatedRecords = []; // map of records using "person designated"
         $personDesignatedIndicators = []; // map of indicators using "person designated"
+        $groupDesignatedRecords = []; // map of records using "group designated"
+        $groupDesignatedIndicators = []; // map of indicators using "group designated"
         foreach ($res as $i => $record) {
             // override access if user is in the admin group
             $res[$i]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable
@@ -384,7 +485,7 @@ class FormWorkflow
             if ($res[$i]['isActionable']) {
                 switch($res[$i]['dependencyID']) {
                     case -1: // dependencyID -1 is for a person designated by the requestor
-                        $personDesignatedRecords[$res[$i]['recordID']] = 1;
+                        $personDesignatedRecords[$res[$i]['recordID']][$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                         $personDesignatedIndicators[$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                         break;
                     case -2: // dependencyID -2 is for requestor followup
@@ -403,13 +504,8 @@ class FormWorkflow
                         }
                         break;
                     case -3: // dependencyID -3 is for a group designated by the requestor
-                        $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID'], null, true);
-                        $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-
-                        // get actual group name
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $this->getActionableGroupName($groupID) . ')';
-                        $res[$i]['approverName'] = $this->getActionableGroupName($groupID);
-                        $res[$i]['approverUID'] = 'groupID:'. $groupID;
+                        $groupDesignatedRecords[$res[$i]['recordID']][$res[$i]['indicatorID_for_assigned_groupID']] = 1;
+                        $groupDesignatedIndicators[$res[$i]['indicatorID_for_assigned_groupID']] = 1;
                         break;
                     default:
                         break;
@@ -429,7 +525,7 @@ class FormWorkflow
                     break;
 
                 case -1: // dependencyID -1 is for a person designated by the requestor
-                    $personDesignatedRecords[$res[$i]['recordID']] = 1;
+                    $personDesignatedRecords[$res[$i]['recordID']][$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                     $personDesignatedIndicators[$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                     break;
 
@@ -458,16 +554,8 @@ class FormWorkflow
                     break;
 
                 case -3: // dependencyID -3 is for a group designated by the requestor
-                    $resGroupID = $form->getIndicator($res[$i]['indicatorID_for_assigned_groupID'], 1, $res[$i]['recordID'], null, true);
-                    $groupID = $resGroupID[$res[$i]['indicatorID_for_assigned_groupID']]['value'];
-
-                    // make sure the right person has access
-                    $res[$i]['isActionable'] = $this->login->checkGroup($groupID);
-
-                    // get actual group name
-                    $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $this->getActionableGroupName($groupID) . ')';
-                    $res[$i]['approverName'] = $this->getActionableGroupName($groupID);
-                    $res[$i]['approverUID'] = 'groupID:' . $groupID;
+                    $groupDesignatedRecords[$res[$i]['recordID']][$res[$i]['indicatorID_for_assigned_groupID']] = 1;
+                    $groupDesignatedIndicators[$res[$i]['indicatorID_for_assigned_groupID']] = 1;
                     break;
 
                 default:
@@ -486,7 +574,10 @@ class FormWorkflow
         }
 
         if(count($personDesignatedRecords) > 0) {
-            $res = $this->includePersonDesignatedData($res, array_keys($personDesignatedRecords), array_keys($personDesignatedIndicators));
+            $res = $this->includePersonDesignatedData($res, $personDesignatedRecords, array_keys($personDesignatedIndicators));
+        }
+        if(count($groupDesignatedRecords) > 0) {
+            $res = $this->includeGroupDesignatedData($res, $groupDesignatedRecords, array_keys($groupDesignatedIndicators));
         }
 
         return $res;
@@ -1183,6 +1274,26 @@ class FormWorkflow
     {
         $errors = array();
 
+        $varEvents = array(':workflowID' => $workflowID,
+                           ':stepID' => $stepID,
+                           ':actionType' => $actionType,
+        );
+        $strSQL = 'SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt
+            LEFT JOIN events as et USING (eventID)
+            WHERE workflowID = :workflowID
+            AND stepID = :stepID
+            AND actionType = :actionType
+            ORDER BY eventID ASC';
+        $resEvents = $this->db->prepared_query($strSQL, $varEvents);
+
+        $fields = array();
+        $emailAddresses = array();
+        if(count($resEvents) > 0 || $actionType == 'sendback') {
+            $formattedData = $this->getFields();
+            $fields = $formattedData["content"];
+            $emailAddresses = $formattedData["to_cc_content"];
+        }
+
         // Take care of special events (sendback)
         if ($actionType == 'sendback')
         {
@@ -1221,8 +1332,12 @@ class FormWorkflow
                 "service" => $record[0]['service'],
                 "stepTitle" => $groupName[0]['stepTitle'],
                 "comment" => $comment,
-                "siteRoot" => $this->siteRoot
+                "siteRoot" => $this->siteRoot,
+                "field" => $fields
             ));
+            $email->addSmartyVariables(array(
+                "field" => $emailAddresses
+            ), true);
             $email->setTemplateByID(Email::SEND_BACK);
 
             $dir = $this->getDirectory();
@@ -1258,30 +1373,20 @@ class FormWorkflow
         }
 
         // Handle Events
-        $varEvents = array(':workflowID' => $workflowID,
-                           ':stepID' => $stepID,
-                           ':actionType' => $actionType,
-        );
-        $strSQL = 'SELECT rt.eventID, eventData, eventDescription FROM route_events AS rt
-            LEFT JOIN events as et USING (eventID)
-            WHERE workflowID = :workflowID
-            AND stepID = :stepID
-            AND actionType = :actionType
-            ORDER BY eventID ASC';
-        $res = $this->db->prepared_query($strSQL, $varEvents);
-
-        foreach ($res as $event)
+        foreach ($resEvents as $event)
         {
             $customEvent = '';
             if (preg_match('/CustomEvent_/', $event['eventID'])) {
                 $customEvent = $event['eventID'];
             }
+
             switch ($event['eventID']) {
                 case 'std_email_notify_next_approver': // notify next approver
                     $email = new Email();
 
                     $email->addSmartyVariables(array(
-                        "comment" => $comment
+                        "comment" => $comment,
+                        "field" => $fields
                     ));
 
                     $dir = $this->getDirectory();
@@ -1325,8 +1430,12 @@ class FormWorkflow
                             "service" => $requestRecords[0]['service'],
                             "lastStatus" => $requestRecords[0]['lastStatus'],
                             "comment" => $comment,
-                            "siteRoot" => $this->siteRoot
+                            "siteRoot" => $this->siteRoot,
+                            "field" => $fields
                         ));
+                        $email->addSmartyVariables(array(
+                            "field" => $emailAddresses
+                        ), true);
                         $email->setTemplateByID(Email::NOTIFY_COMPLETE);
 
                         $dir = $this->getDirectory();
@@ -1381,7 +1490,6 @@ class FormWorkflow
                         $email = new Email();
 
                         $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
-                        $fields = $this->getFields();
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $title,
@@ -1393,7 +1501,9 @@ class FormWorkflow
                             "siteRoot" => $this->siteRoot,
                             "field" => $fields
                         ));
-
+                        $email->addSmartyVariables(array(
+                            "field" => $emailAddresses
+                        ), true);
                         $emailTemplateID = $email->getTemplateIDByLabel($event['eventDescription']);
                         $email->setTemplateByID($emailTemplateID);
 
@@ -1451,7 +1561,9 @@ class FormWorkflow
                                            'workflowID' => $workflowID,
                                            'stepID' => $stepID,
                                            'actionType' => $actionType,
-                                           'comment' => $comment, );
+                                           'comment' => $comment,
+                                           "field" => $fields
+                        );
 
                         $customClassName = "Portal\\CustomEvent_{$event['eventID']}";
 
@@ -1486,51 +1598,62 @@ class FormWorkflow
         $fields = $this->db->prepared_query($strSQL, $vars);
 
         $formattedFields = array();
+        $formattedFields["content"] = array();
+        $formattedFields["to_cc_content"] = array();
 
         foreach($fields as $field)
         {
             if ($field["is_sensitive"] == 1) {
-                $formattedFields[$field['indicatorID']] = "**********";
+                $formattedFields["content"][$field['indicatorID']] = "**********";
+                $formattedFields["to_cc_content"][$field['indicatorID']] = "";
                 continue;
             }
 
-            $format = strtolower($field["format"]);
             $data = $field["data"];
+            $emailValue = "";
 
-            switch(true) {
-                case (str_starts_with($format, "grid") != false):
+            $format = strtolower(explode(PHP_EOL, $field["format"])[0] ?? "");
+            switch($format) {
+                case "grid":
                     if(!empty($data) && is_array(unserialize($data))){
                         $data = $this->buildGrid(unserialize($data));
                     }
                     break;
-                case (str_starts_with($format, "checkboxes") != false):
-                case (str_starts_with($format, "multiselect") != false):
-                    if ($this->isJsonString($data) && is_array(json_decode($data))) {
-                        $data = $this->buildMultiselect(json_decode($data));
+                case "checkboxes":
+                case "multiselect":
+                    if(!empty($data) && is_array(unserialize($data))){
+                        $formatted = $this->buildMultiOption(unserialize($data));
+                        $data = $formatted["content"];
                     }
                     break;
-                case (str_starts_with($format, "radio") != false):
-                case (str_starts_with($format, "checkbox") != false):
+                case "radio":
+                case "checkbox":
+                case "dropdown":
                     if ($data == "no") {
                         $data = "";
                     }
                     break;
-                case ($format == "fileupload"):
-                case ($format == "image"):
+                case "fileupload":
+                case "image":
                     $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
                     break;
-                case ($format == "orgchart_group"):
+                case "orgchart_group":
                     $data = $this->getOrgchartGroup((int) $data);
                     break;
-                case ($format == "orgchart_position"):
+                case "orgchart_position":
                     $data = $this->getOrgchartPosition((int) $data);
                     break;
-                case ($format == "orgchart_employee"):
-                    $data = $this->getOrgchartEmployee((int) $data);
+                case "orgchart_employee":
+                    $employeeData = $this->getOrgchartEmployee((int) $data);
+                    $data = $employeeData["employeeName"];
+                    $emailValue = $employeeData["employeeEmail"];
                     break;
+                default:
+                break;
             }
 
-            $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+            $formattedFields["content"][$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+            $formattedFields["to_cc_content"][$field['indicatorID']] = $emailValue;
         }
 
         return $formattedFields;
@@ -1572,14 +1695,19 @@ class FormWorkflow
         return $grid;
     }
 
-    private function buildMultiselect(array $data): string
+    private function buildMultiOption(array $data): array
     {
         // filter out non-selected selections
         $data = array_filter($data, function($x) { return $x !== "no"; });
-        // comma separate to be readable in email
-        $formattedData = implode(",", $data);
-
-        return $formattedData;
+        // list to be readable in email
+        $formattedData = "<ul>";
+        $formattedEmails = "";
+        foreach($data as $item) {
+            $formattedData .= "<li>".$item."</li>";
+            $formattedEmails .= $item."\r\n";
+        }
+        $formattedData .= "</ul>";
+        return array("content" => $formattedData, "to_cc_content" => $formattedEmails);
     }
 
     private function buildFileLink(string $data, string $id, string $series): string
@@ -1616,13 +1744,14 @@ class FormWorkflow
         return $positionName;
     }
 
-    private function getOrgchartEmployee(int $data): string
+    private function getOrgchartEmployee(int $data): array
     {
         $employee = new \Orgchart\Employee($this->oc_db, $this->login);
         $employeeData = $employee->lookupEmpUID($data)[0];
+        $employeeEmail = $employeeData["email"];
         $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
 
-        return $employeeName;
+        return array("employeeName" => $employeeName,"employeeEmail" => $employeeEmail);
     }
 
     /**

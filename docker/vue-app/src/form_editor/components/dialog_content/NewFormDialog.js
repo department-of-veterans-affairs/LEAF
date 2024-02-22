@@ -2,51 +2,58 @@ export default {
     name: 'new-form-dialog',
     data() {
         return {
+            requiredDataProperties: ['parentID'],
             categoryName: '',
-            categoryDescription: ''
+            categoryDescription: '',
+            newFormParentID: this.dialogData.parentID,
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
-        'focusedFormRecord',
+        'decodeAndStripHTML',
+        'setDialogSaveFunction',
+        'dialogData',
+        'checkRequiredData',
         'addNewCategory',
-        'selectNewCategory',
         'closeFormDialog'
 	],
+    created() {
+        this.checkRequiredData(this.requiredDataProperties);
+        this.setDialogSaveFunction(this.onSave);
+    },
     mounted() {
         document.getElementById('name').focus();
     },
+    emits: ['get-form'],
     computed: {
         nameCharsRemaining(){
             return Math.max(50 - this.categoryName.length, 0);
         },
         descrCharsRemaining(){
             return Math.max(255 - this.categoryDescription.length, 0);
-        },
-        newFormParentID() {
-            //if the focused form does not have a parent, it's a main form - the new form should have that as its parent
-            return this.focusedFormRecord?.parentID === '' ? this.focusedFormRecord.categoryID : '';
         }
     },
     methods: {
         onSave() {
+            const name = XSSHelpers.stripAllTags(this.categoryName);
+            const description = XSSHelpers.stripAllTags(this.categoryDescription);
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/new`,
                 data: {
-                    name: this.categoryName,
-                    description: this.categoryDescription,
+                    name,
+                    description,
                     parentID: this.newFormParentID,
                     CSRFToken: this.CSRFToken
                 },
                 success: (res)=> {
-                    let newCatID = res;
+                    const newCatID = res;
                     let temp = {};
                     //specified values
                     temp.categoryID = newCatID;
-                    temp.categoryName = this.categoryName;
-                    temp.categoryDescription = this.categoryDescription;
+                    temp.categoryName = name;
+                    temp.categoryDescription = description;
                     temp.parentID = this.newFormParentID;
                     //default values
                     temp.workflowID = 0;
@@ -58,16 +65,15 @@ export default {
                     temp.destructionAge = null;
                     this.addNewCategory(newCatID, temp);
 
-                    if(!this.focusedFormRecord?.categoryID) { //browser page, new main form
+                    if(this.newFormParentID === '') { //new main form
                         this.$router.push({name: 'category', query: { formID: newCatID }});
-                    } else { //from existing form, new internal
-                        this.selectNewCategory(newCatID)
+                    } else { //new internal
+                        this.$emit('get-form', newCatID);
                     }
                     this.closeFormDialog();
                 },
                 error: err => {
                     console.log('error posting new form', err);
-                    reject(err);
                 }
             });
         }
@@ -82,8 +88,8 @@ export default {
                 <div><b>Form Description</b><span style="font-size:80%"> (up to 255 characters)</span></div>
                 <div>{{descrCharsRemaining}}</div>
             </div>
-            <textarea id="description" maxlength="255" v-model="categoryDescription" 
-                style="width: 100%; height: 90px;">
+            <textarea id="description" maxlength="255" rows="5" v-model="categoryDescription" 
+                style="width: 100%; resize:none;">
             </textarea>
         </div>`
 };

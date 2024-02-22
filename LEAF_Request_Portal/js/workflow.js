@@ -16,6 +16,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
     var actionPreconditionFunc;
     var actionSuccessCallback;
     var rootURL = "";
+    let extraParams;
 
     /**
      * @memberOf LeafWorkflow
@@ -99,7 +100,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             $("#workflowbox_dep" + data["dependencyID"]).html(
                 '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Applying action... <img src="' +
                     rootURL +
-                    'images/largespinner.gif" alt="loading..." /></div>'
+                    'images/largespinner.gif" alt="" /></div>'
             );
             $.ajax({
                 type: "POST",
@@ -157,7 +158,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             $("#workflowbox_dep" + data["dependencyID"]).html(
                                 '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' +
                                     rootURL +
-                                    'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" /> ' +
+                                    'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="" /> ' +
                                     errors +
                                     '<br /><span style="font-size: 14px; font-weight: normal">After resolving the errors, <button id="workflowbtn_tryagain" class="buttonNorm">click here to try again</button>.</span></div>'
                             );
@@ -169,7 +170,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         $("#workflowbox_dep" + data["dependencyID"]).html(
                             '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%"><img src="' +
                                 rootURL +
-                                'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="error icon" />Session has expired.<br /><span style="font-size: 14px; font-weight: normal"><button id="workflowbtn_tryagain" class="buttonNorm">Click here to try again</button></span></div>'
+                                'dynicons/?img=dialog-error.svg&w=48" style="vertical-align: middle" alt="" />Session has expired.<br /><span style="font-size: 14px; font-weight: normal"><button id="workflowbtn_tryagain" class="buttonNorm">Click here to try again</button></span></div>'
                         );
                         $("#workflowbtn_tryagain").on("click", function () {
                             getWorkflow(currRecordID);
@@ -265,16 +266,17 @@ var LeafWorkflow = function (containerID, CSRFToken) {
             padding: "4px",
             resize: "vertical",
         });
-        $("#comment_dep" + step.dependencyID).on('input', function() {
-            let lines = $("#comment_dep" + step.dependencyID).val()?.match(/\n/g);
-            if(lines != null && lines.length > 0) {
+        $("#comment_dep" + step.dependencyID).on("input", function () {
+            let lines = $("#comment_dep" + step.dependencyID)
+                .val()
+                ?.match(/\n/g);
+            if (lines != null && lines.length > 0) {
                 $("#comment_dep" + step.dependencyID).css({
-                    height: (40 + (lines.length - 1) * 16) + "px"
+                    height: 40 + (lines.length - 1) * 16 + "px",
                 });
-            }
-            else {
+            } else {
                 $("#comment_dep" + step.dependencyID).css({
-                    height: "40px"
+                    height: "40px",
                 });
             }
         });
@@ -285,14 +287,14 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         <div class="actions_alignment_left" style="display:flex; flex-wrap:wrap;"></div>
         <div class="actions_alignment_right" style="display:flex; flex-wrap:wrap; justify-content:flex-end"></div>
       </div>`
-    );
-    
-    // draw buttons
-    for (let i in step.dependencyActions) {
-      const icon =
-        step.dependencyActions[i].actionIcon != ""
-          ? `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
-            alt="${step.dependencyActions[i].actionText}" style="vertical-align: middle" />`
+        );
+
+        // draw buttons
+        for (let i in step.dependencyActions) {
+            const icon =
+                step.dependencyActions[i].actionIcon != ""
+                    ? `<img src="${rootURL}dynicons/?img=${step.dependencyActions[i].actionIcon}&amp;w=22"
+            alt="" style="vertical-align: middle" />`
                     : "";
             const alignment =
                 step.dependencyActions[i].actionAlignment.toLowerCase();
@@ -389,7 +391,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         applyAction(data);
                     }
                 };
-              
+
                 if (actionPreconditionFunc !== undefined) {
                     actionPreconditionFunc(e.data, completeAction);
                 } else {
@@ -519,7 +521,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         ] == null
                     ) {
                         name =
-                            "Warning: User not selected for currennt action (Contact Administrator)";
+                            "Warning: User not selected for current action (Contact Administrator)";
                     } else {
                         name =
                             "Pending action from " +
@@ -584,6 +586,14 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 color: step.stepFontColor,
             });
         }
+    }
+
+    /**
+     * Add extra parameters to the end of the query API URL
+     * @param {string} params
+     */
+    function setExtraParams(params = "") {
+        extraParams = params;
     }
 
     /**
@@ -794,7 +804,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         currRecordID = recordID;
 
         let masquerade = "";
-        if (window.location.href.indexOf("masquerade=nonAdmin") != -1) {
+        if (extraParams === "masquerade=nonAdmin") {
             masquerade = "?masquerade=nonAdmin";
         }
 
@@ -852,5 +862,6 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         setRootURL: function (url) {
             rootURL = url;
         },
+        setExtraParams,
     };
 };

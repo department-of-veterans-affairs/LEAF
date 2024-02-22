@@ -205,6 +205,7 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['POST']->register('workflow/step/[digit]/dependencies', function ($args) use ($workflow) {
+            $workflow->setWorkflowID((int)$_POST['workflowID']);
             return $workflow->linkDependency((int)$args[0], (int)$_POST['dependencyID']);
         });
 
@@ -281,6 +282,7 @@ class WorkflowController extends RESTfulResponse
         });
 
         $this->index['DELETE']->register('workflow/step/[digit]/dependencies', function ($args) use ($workflow) {
+            $workflow->setWorkflowID((int)$_GET['workflowID']);
             return $workflow->unlinkDependency((int)$args[0], (int)$_GET['dependencyID']);
         });
 

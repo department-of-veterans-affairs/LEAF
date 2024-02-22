@@ -222,7 +222,7 @@ class Form
 
     /**
      * Retrieves a form based on categoryID
-     * @param int $recordID
+     * @param string $categoryID
      * @param bool $parseTemplate - see getIndicator()
      * @return array
      */
@@ -243,6 +243,30 @@ class Form
         }
 
         return $fullForm;
+    }
+
+    /**
+     * Retrieves a list of form pages based on provided categoryIDs
+     * @param string $categoryIDs of the forms to retrieve
+     * @param bool $parseTemplate - see getIndicator()
+     * @return array
+     */
+    public function getSpecifiedForms($categoryIDs = '', $parseTemplate = true): array
+    {
+        $categories = explode(',', $categoryIDs);
+        $fullFormPages = array();
+        $catReg = "/^form_[0-9a-f]{5}$/i";
+
+        foreach($categories as $catID) {
+            if(preg_match($catReg, $catID)) {
+                $form = $this->getFormByCategory($catID, $parseTemplate);
+                $fullFormPages = array_merge($fullFormPages, $form);
+            }
+        }
+        $return_value['status']['code'] = 2;
+        $return_value['status']['message'] = "Success";
+        $return_value['data'] = $fullFormPages;
+        return $return_value;
     }
 
     /**
@@ -488,6 +512,7 @@ class Form
         if (!empty($data)) {
             $idx = $data[0]['indicatorID'];
             $form[$idx]['indicatorID'] = $data[0]['indicatorID'];
+            $form[$idx]['categoryID'] = $data[0]['categoryID'];
             $form[$idx]['series'] = $series;
             $form[$idx]['name'] = $data[0]['name'];
             $form[$idx]['description'] = $data[0]['description'];
@@ -602,21 +627,16 @@ class Form
             }
 
             if($parseTemplate) {
-                /* putting this here to see what this value is
-                    the error is Array to string conversion and it gives the
-                    location, so I checked the database that it is pulling this
-                    from and I don't see any arrays in their data
-                */
-                if (is_array($data[0]['html'])) {
-                    error_log(print_r($data[0]['html'], true));
+                if($data[0]['html'] != null) {
+                    $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                                            [$idx, $recordID, $form[$idx]['value']],
+                                            $data[0]['html']);
                 }
-
-                $form[$idx]['html'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
-                                                [$idx, $recordID, $form[$idx]['value']],
-                                                $data[0]['html']);
-                $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
+                if($data[0]['htmlPrint'] != null) {
+                    $form[$idx]['htmlPrint'] = str_replace(['{{ iID }}', '{{ recordID }}', '{{ data }}'],
                                                 [$idx, $recordID, $form[$idx]['value']],
                                                 $data[0]['htmlPrint']);
+                }
             }
 
             $form[$idx]['format'] = trim($inputType[0]);
@@ -916,13 +936,12 @@ class Form
             $categoryData[$cat['categoryID']] = $cat['categoryID'];
             $categoryNames[$cat['categoryID']] = $cat['categoryName'];
         }
+        $parentIDs = implode(',', array_values($categoryData));
 
-        //Check for Internal Forms of Main categoryID
-        $vars = array(':parentID' => $resCategory[0]['categoryID']);
-
+        //Check for forms with these parentIDs (Internal Forms)
+        $vars = array(':parentIDs' => $parentIDs);
         $resInternal = $this->db->prepared_query('SELECT * FROM categories
-                                            WHERE parentID=:parentID', $vars);
-
+                                            WHERE FIND_IN_SET(parentID, :parentIDs) AND `disabled`=0', $vars);
         $count = count($resInternal);
         $internalIDs = array();
         for ($i = 0; $i < $count;$i++) {
@@ -1184,7 +1203,7 @@ class Form
                     $filenameParts = explode('.', $_FILES[$indicator]['name']);
                     $fileExtension = array_pop($filenameParts);
                     $fileExtension = strtolower($fileExtension);
-                    if (in_array($fileExtension, $fileExtensionWhitelist))
+                    if (in_array($fileExtension, $fileExtensionWhitelist) && $_FILES[$indicator]['error'] === UPLOAD_ERR_OK)
                     {
                         $uploadDir = isset(Config::$uploadDir) ? Config::$uploadDir : UPLOAD_DIR;
                         if (!is_dir($uploadDir))
@@ -1541,7 +1560,7 @@ class Form
                 } else {
                     //finally, check if there are conditions that result in required questions being in a hidden state, and adjust count and percentage
                     $multiChoiceParentFormats = array('multiselect', 'checkboxes');
-                    $singleChoiceParentFormats = array('radio', 'dropdown');
+                    $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency');
 
                     foreach ($resRequestRequired as $ind) {
                         //if question is not complete, and there are conditions (conditions could potentially have the string null due to a past import issue) ...
@@ -1567,9 +1586,9 @@ class Form
                                     }
 
                                     $operator = $c->selectedOp;
-
                                     switch ($operator) {
                                         case '==':
+                                        case '!=':
                                             if (in_array($parentFormat, $multiChoiceParentFormats)) {
                                                 //true if the current data value includes any of the condition values
                                                 foreach ($currentParentDataValue as $v) {
@@ -1581,22 +1600,51 @@ class Form
                                             } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
                                                 $conditionMet = true;
                                             }
+                                            if($operator === "!=") {
+                                                $conditionMet = !$conditionMet;
+                                            }
                                             break;
-                                        case '!=':
-                                            if (
-                                                (in_array($parentFormat, $multiChoiceParentFormats) && !array_intersect($currentParentDataValue, $conditionParentValue)) ||
-                                                (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] !== $conditionParentValue[0])
-                                            ) {
-                                                $conditionMet = true;
+                                        case 'gt':
+                                        case 'gte':
+                                        case 'lt':
+                                        case 'lte':
+                                            $arrNumVals = array();
+                                            $arrNumComp = array();
+                                            foreach($currentParentDataValue as $v) {
+                                                if(is_numeric($v)) {
+                                                    $arrNumVals[] = (float) $v;
+                                                }
+                                            }
+                                            foreach($conditionParentValue as $cval) {
+                                                if(is_numeric($cval)) {
+                                                    $arrNumComp[] = (float) $cval;
+                                                }
+                                            }
+                                            $useOrEqual = str_contains($operator, 'e');
+                                            $useGreaterThan = str_contains($operator, 'g');
+                                            $lenValues = count(array_values($arrNumVals));
+                                            $lenCompare = count(array_values($arrNumComp));
+                                            if($lenCompare > 0) {
+                                                for ($i = 0; $i < $lenValues; $i++) {
+                                                    $currVal = $arrNumVals[$i];
+                                                    if($useGreaterThan === true) {
+                                                        $conditionMet = $useOrEqual === true ? $currVal >= max($arrNumComp) : $currVal > max($arrNumComp);
+                                                    } else {
+                                                        $conditionMet = $useOrEqual === true ? $currVal <= min($arrNumComp) : $currVal < min($arrNumComp);
+                                                    }
+                                                    if($conditionMet === true) {
+                                                        break;
+                                                    }
+                                                }
                                             }
                                             break;
                                         default:
                                             break;
                                     }
-
                                 }
                                 //if the question is not being shown due to its conditions, do not count it as a required question
-                                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') || ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
+                                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
+                                    ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
                                     $countRequestRequired--;
                                     break;
                                 }
@@ -1685,7 +1733,7 @@ class Form
 
         // give the requestor access if the record explictly gives them write access
         if ($resRecords[0]['isWritableUser'] == 1 &&
-            ($this->login->getUserID() == $resRecords[0]['userID'] || $this->checkIfBackup($this->getEmpUID($resRecords[0]['userID'])))
+            (strtolower($this->login->getUserID()) == strtolower($resRecords[0]['userID']) || $this->checkIfBackup($this->getEmpUID($resRecords[0]['userID'])))
         )
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
@@ -1895,7 +1943,7 @@ class Form
 
                 break;
             case -2: // dependencyID -2 : requestor followup
-                 if ($details['userID'] == $this->login->getUserID())
+                 if (strtolower($details['userID']) == strtolower($this->login->getUserID()))
                  {
                      return true;
                  }
@@ -1947,7 +1995,7 @@ class Form
 
     /**
      * batchUpdateDependencyAccess amends $accessList for specific dependencyIDs to optimize
-     * performance related to dynamic assignments, such as "person designated by requestor"
+     * performance related to dynamic assignments, such as "person/group designated by requestor"
      *
      * @param array $accessList Map of recordID->int of the current user's access. 1 = has access
      * @param array $records List of records to process
@@ -1956,19 +2004,26 @@ class Form
     private function batchUpdateDependencyAccess(array $accessList, array $records): array
     {
         // get sanitized lists for DB query
-        $indicatorIDs = [];
-        $recordIDs = [];
+        $indicatorIDs_pd = [];
+        $recordIDs_pd = [];
+        $indicatorIDs_gd = [];
+        $recordIDs_gd = [];
         foreach($records as $dep) {
             if($accessList[$dep['recordID']] == 0 && $dep['dependencyID'] == -1) {
-                $indicatorIDs[] = (int)$dep['indicatorID_for_assigned_empUID'];
-                $recordIDs[] = (int)$dep['recordID'];
+                $indicatorIDs_pd[] = (int)$dep['indicatorID_for_assigned_empUID'];
+                $recordIDs_pd[] = (int)$dep['recordID'];
+            }
+
+            if($accessList[$dep['recordID']] == 0 && $dep['dependencyID'] == -3) {
+                $indicatorIDs_gd[] = (int)$dep['indicatorID_for_assigned_groupID'];
+                $recordIDs_gd[] = (int)$dep['recordID'];
             }
         }
 
         // get the list of records related to dependencyID -1 (person designated by requestor)
-        if(count($recordIDs) > 0) {
-            $indicators = implode(',', $indicatorIDs);
-            $records = implode(',', $recordIDs);
+        if(count($recordIDs_pd) > 0) {
+            $indicators = implode(',', array_unique($indicatorIDs_pd));
+            $records = implode(',', $recordIDs_pd);
             $query = "SELECT recordID, `data` FROM `data`
                         WHERE indicatorID IN ({$indicators})
                             AND recordID IN ({$records})
@@ -1982,6 +2037,24 @@ class Form
                 }
                 // check if the current user is a backup of the designated person
                 else if($this->checkIfBackup($record['data'])) {
+                    $accessList[$record['recordID']] = 1;
+                }
+            }
+        }
+
+        // get the list of records related to dependencyID -3 (group designated by requestor)
+        if(count($recordIDs_gd) > 0) {
+            $indicators = implode(',', array_unique($indicatorIDs_gd));
+            $records = implode(',', $recordIDs_gd);
+            $query = "SELECT recordID, `data` FROM `data`
+                        WHERE indicatorID IN ({$indicators})
+                            AND recordID IN ({$records})
+                            AND series=1";
+            $res = $this->db->prepared_query($query, []);
+
+            foreach($res as $record) {
+                // check if the current users is a member of the designated group
+                if($this->login->checkGroup($record['data'])) {
                     $accessList[$record['recordID']] = 1;
                 }
             }
@@ -2172,12 +2245,14 @@ class Form
                         $temp[$dep['recordID']] = 0;
 
                         // Use optimized path for certain dependencyIDs. See batchUpdateDependencyAccess.
-                        if($dep['dependencyID'] != -1) {
+                        if($dep['dependencyID'] != -1 // person designated by requestor
+                            && $dep['dependencyID'] != -3) // group designated by requestor
+                        {
                             $temp[$dep['recordID']] = $this->hasDependencyAccess($dep['dependencyID'], $dep) ? 1 : 0;
                         }
 
                         // request initiator
-                        if ($dep['userID'] == $this->login->getUserID()) {
+                        if (strtolower($dep['userID']) == strtolower($this->login->getUserID())) {
                             $temp[$dep['recordID']] = 1;
                         }
 
@@ -3225,6 +3300,26 @@ class Form
     }
 
     /**
+     * parseBooleanQuery transforms a user's query to add implied "+" prefixes when
+     * a "MATCH ALL" condition is selected.
+     * 
+     * @param $query
+     * @return string Transformed query
+     */
+    private function parseBooleanQuery(string $query): string
+    {
+        $words = explode(' ', $query);
+        foreach($words as $k => $word) {
+            $firstChar = substr($word, 0, 1);
+            if($firstChar != '+' && $firstChar != '-') {
+                $words[$k] = '+' . $words[$k];
+            }
+        }
+
+        return implode(' ', $words);
+    }
+
+    /**
      * query parses a JSON formatted user query defined in formQuery.js.
      * 
      * Returns an array on success, and string/int for malformed queries
@@ -3259,6 +3354,7 @@ class Form
         $joinSearchAllData = false;
         $joinSearchOrgchartEmployeeData = false;
         $filterActionable = false;
+        $usingFulltextIndex = false;
         $vars = array();
         $conditions = '';
         $joins = '';
@@ -3303,6 +3399,18 @@ class Form
                     }
 
                     break;
+                case 'MATCH ALL': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'MATCH ALL';
+                    $usingFulltextIndex = true;
+                    break;
+                case 'NOT MATCH': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'NOT MATCH';
+                    $usingFulltextIndex = true;
+                    break;
+                case 'MATCH': // Only usable when a fulltext index exists AND logic has been implemented
+                    $operator = 'MATCH';
+                    $usingFulltextIndex = true;
+                    break;
                 case 'RIGHT JOIN':
                     break;
                 default:
@@ -3315,7 +3423,7 @@ class Form
             $vars[':' . $q['id'] . $count] = $q['match'];
             switch ($q['id']) {
                 case 'recordID':
-                    $conditions .= "{$gate}recordID {$operator} :recordID{$count}";
+                    $conditions .= "{$gate}records.recordID {$operator} :recordID{$count}";
 
                     break;
                 case 'recordIDs':
@@ -3329,7 +3437,7 @@ class Form
                     }
                     $validRecordIDs = trim($validRecordIDs, ',');
 
-                    $conditions .= "{$gate}recordID IN ({$validRecordIDs})";
+                    $conditions .= "{$gate}records.recordID IN ({$validRecordIDs})";
 
                     unset($vars[":recordIDs{$count}"]);
 
@@ -3592,31 +3700,53 @@ class Form
                             ) {
                                 $dataTerm = 'lj_data.data';
                             }
+                            $dataTermSql = '';
 
                             $dataMatch = ":data{$count}";
-                            switch (strtolower($tResTypeHint[0]['format'])) {
+
+                            switch ($tResTypeHint[0]['format']) {
                                 case 'number':
                                 case 'currency':
-                                    $dataTerm = "CAST({$dataTerm} as DECIMAL(21,5))";
+                                    $dataTermSql = "CAST({$dataTerm} as DECIMAL(21,5))";
 
                                     break;
                                 case 'date':
-                                    $dataTerm = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
+                                    $dataTermSql = "STR_TO_DATE({$dataTerm}, '%m/%d/%Y')";
                                     $dataMatch = "STR_TO_DATE(:data{$count}, '%m/%d/%Y')";
 
                                     break;
                                 default:
+                                    if($operator == 'MATCH ALL') {
+                                        $vars[":data{$count}"] = $this->parseBooleanQuery($vars[":data{$count}"]);
+                                    }
+
+                                    if(strpos($operator, 'MATCH') !== false) {
+                                        if($operator == 'NOT MATCH') {
+                                            $dataTermSql = "NOT MATCH ({$dataTerm})";
+                                        }
+                                        else {
+                                            $dataTermSql = "MATCH ({$dataTerm})";
+                                        }
+
+                                        $operator = 'AGAINST';
+                                        $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                    }
                                     break;
                             }
 
+                            if($dataTermSql == '') {
+                                $dataTermSql = $dataTerm;
+                            }
                             // catch default data
-                            if (
-                                isset($tResTypeHint[0]['default'])
-                                && $tResTypeHint[0]['default'] == $vars[':data' . $count]
-                            ) {
-                                $conditions .= "{$gate}({$dataTerm} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
-                            } else {
-                                $conditions .= "{$gate}{$dataTerm} {$operator} $dataMatch";
+
+                            if (isset($tResTypeHint[0]['default'])
+                                    && $tResTypeHint[0]['default'] == $vars[':data' . $count])
+                            {
+                                $conditions .= "{$gate}({$dataTermSql} {$operator} $dataMatch OR {$dataTerm} IS NULL)";
+                            }
+                            else
+                            {
+                                $conditions .= "{$gate}{$dataTermSql} {$operator} $dataMatch";
                             }
                         }
                     }
@@ -3748,6 +3878,11 @@ class Form
                     break;
             }
         }
+        
+        // avoid extra sort when using fulltext index
+        if($usingFulltextIndex) {
+            $sort = '';
+        }
 
         // join tables for queries on data fields without filtering by indicatorID
         if (
@@ -3862,6 +3997,7 @@ class Form
                     ];
                     $processQueryUpdateSQL = 'UPDATE process_query SET lastProcess=:lastProcess WHERE `url`=:url';
                     $this->db->prepared_query($processQueryUpdateSQL, $vars);
+
                 }
             }
 
@@ -4162,12 +4298,15 @@ class Form
         }
         $indicatorList = trim($indicatorList, ',');
 
-        $res = $this->db->query(
-            'SELECT indicatorID, name, format
-                FROM indicators
-                WHERE indicatorID IN ('. $indicatorList .')'
-            );
-        return $res;
+        $return = [];
+        if($indicatorList != '') {
+            $return = $this->db->query(
+                'SELECT indicatorID, name, format
+                    FROM indicators
+                    WHERE indicatorID IN ('. $indicatorList .')'
+                );
+        }
+        return $return;
     }
 
     /**

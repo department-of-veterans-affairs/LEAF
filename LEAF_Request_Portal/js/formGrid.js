@@ -842,7 +842,7 @@ let LeafFormGrid = function (containerID, options) {
           colspan +
           ' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="' +
           rootURL +
-          'images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>'
+'images/indicator.gif" style="vertical-align: middle" alt="" /> Loading more results...</td></tr>'
         );
       }
 
@@ -906,10 +906,10 @@ let LeafFormGrid = function (containerID, options) {
     let colspan = showIndex ? headers.length + 1 : headers.length;
     $("#" + prefixID + "tbody").html(
       '<tr><td colspan="' +
-      colspan +
-      '" style="text-align: left; padding: 8px">Building report... <img src="' +
-      rootURL +
-      'images/largespinner.gif" alt="loading..." /></td></tr>'
+        colspan +
+        '" style="text-align: left; padding: 8px">Building report... <img src="' +
+        rootURL +
+        'images/largespinner.gif" alt="" /></td></tr>'
     );
 
     let headerIDList = "";
@@ -999,10 +999,10 @@ let LeafFormGrid = function (containerID, options) {
     $("#" + containerID).css("display", "block");
     $("#" + containerID).html(
       '<br/><button type="button" id="' +
-      prefixID +
-      'getExcel" class="buttonNorm"><img src="' +
-      rootURL +
-      'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="Icon of Spreadsheet" /> Export</button>'
+        prefixID +
+        'getExcel" class="buttonNorm"><img src="' +
+        rootURL +
+        'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="" /> Export</button>'
     );
 
     $("#" + prefixID + "getExcel").on("click", function () {
