@@ -614,16 +614,17 @@
         const siteColumns = (site?.columns || "").split(',').filter(c => c !== "");
         const formColumns = site?.formColumns || {};
         let arrFormColumns = [];
+        let cols = '';
         for (let key in formColumns) {
-            let cols = formColumns[key];
+            cols = formColumns[key] ?? '';
             cols = cols.split(',');
             arrFormColumns = arrFormColumns.concat(cols)
         }
         let allColumns = siteColumns.concat(arrFormColumns);
         allColumns = Array.from(new Set(allColumns));
-
+        let col = '';
         for (let i in allColumns) {
-            const col = allColumns[i];
+            col = allColumns[i] ?? '';
             if (!isNaN(parseInt(col))) {
                 getData.push(parseInt(col));
             } else {
