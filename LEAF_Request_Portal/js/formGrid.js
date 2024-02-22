@@ -4,7 +4,6 @@
 
 // The options arg (type: object) is currently only used for a "read only" type of grid
 let LeafFormGrid = function (containerID, options) {
-  let containerID = containerID
   let prefixID = "LeafFormGrid" + Math.floor(Math.random() * 1000) + "_"
   let showIndex = true
   let form
