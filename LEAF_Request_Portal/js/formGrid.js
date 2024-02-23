@@ -1028,9 +1028,10 @@ var LeafFormGrid = function (containerID, options) {
 
           line[i] =
             (dataFormat !== null &&
-              dataFormat !== "date" &&
+              dataFormat !== 'date' &&
               testDateFormat.test(line[i])) ||
-            (isNumber.test(line[i]) && line[i].length > 9)
+            (isNumber.test(line[i]) &&
+              dataFormat === 'text')
               ? `="${line[i]}"`
               : line[i];
           if (i == 0 && headers[i] == "UID") {
