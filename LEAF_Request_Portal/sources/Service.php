@@ -269,23 +269,49 @@ class Service
 
             $vars = array(':userID' => $member,
                           ':serviceID' => $groupID, );
-            $sql = 'UPDATE `service_chiefs`
-                    SET `active` = 0,
-                    `locallyManaged` = 1
-                    WHERE `serviceID` = :serviceID
-                    AND (`userID` = :userID
-                        OR `backupID` = :userID)';
 
-            $this->db->prepared_query($sql, $vars);
+            $sql = 'SELECT userID, serviceID, locallyManaged FROM `service_chiefs`
+                    WHERE `userID` = :userID
+                        AND `serviceID` = :serviceID
+                        AND locallyManaged = 1';
 
-            $sql = 'UPDATE `users`
-                    SET `active` = 0,
-                    `locallyManaged` = 1
-                    WHERE `groupID` = :serviceID
-                    AND (`userID` = :userID
-                        OR `backupID` = :userID)';
+            $res = $this->db->prepared_query($sql, $vars);
+            // If the users are locally managed, we can simply delete them
+            if(count($res) > 0) {
+                $sql = 'DELETE FROM `service_chiefs`
+                        WHERE `serviceID` = :serviceID
+                        AND (`userID` = :userID
+                            OR `backupID` = :userID)';
 
-            $this->db->prepared_query($sql, $vars);
+                $this->db->prepared_query($sql, $vars);
+
+                $sql = 'DELETE FROM `users`
+                        WHERE `groupID` = :serviceID
+                        AND (`userID` = :userID
+                            OR `backupID` = :userID)';
+
+                $this->db->prepared_query($sql, $vars);
+            }
+            // otherwise we flag it as a local override
+            else {
+                $sql = 'UPDATE `service_chiefs`
+                        SET `active` = 0,
+                        `locallyManaged` = 1
+                        WHERE `serviceID` = :serviceID
+                        AND (`userID` = :userID
+                            OR `backupID` = :userID)';
+
+                $this->db->prepared_query($sql, $vars);
+
+                $sql = 'UPDATE `users`
+                        SET `active` = 0,
+                        `locallyManaged` = 1
+                        WHERE `groupID` = :serviceID
+                        AND (`userID` = :userID
+                            OR `backupID` = :userID)';
+
+                $this->db->prepared_query($sql, $vars);
+            }
 
             $return_value = array(
                 'status' => array(
@@ -361,7 +387,8 @@ class Service
         $vars = array(':serviceID' => $serviceID,
                 ':userID' => $member);
         $sql = 'UPDATE `service_chiefs`
-                SET `active` = 1
+                SET `active` = 1,
+                    locallyManaged = 0
                 WHERE `serviceID` = :serviceID
                 AND (`userID` = :userID
                     OR `backupID` = :userID)';
@@ -371,7 +398,8 @@ class Service
         $vars = array(':serviceID' => $serviceID,
                 ':userID' => $member);
         $sql = 'UPDATE `users`
-                SET `active` = 1
+                SET `active` = 1,
+                    locallyManaged = 0
                 WHERE `groupID` = :serviceID
                 AND (`userID` = :userID
                     OR `backupID` = :userID)';
@@ -379,82 +407,6 @@ class Service
         $return_value = $this->db->pdo_update_query($sql, $vars);
 
         return $return_value;
-    }
-
-    public function removeMember($groupID, $member)
-    {
-        $oc_db = OC_DB;
-        $employee = new \Orgchart\Employee($oc_db, $this->login);
-
-        if (is_numeric($groupID) && $member != '') {
-            $sql_vars = array(':userID' => $member,
-                          ':groupID' => $groupID, );
-
-            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::SERVICE_CHIEF, [
-                new LogItem("service_chiefs", "serviceID", $groupID, $this->getServiceName($groupID)),
-                new LogItem("service_chiefs", "userID", $member, $this->getEmployeeDisplay($member))
-            ]);
-
-            $sql = 'UPDATE service_chiefs
-                    SET active = 0, locallyManaged = 1
-                    WHERE userID=:userID
-                    AND serviceID=:groupID';
-
-            $this->db->prepared_query($sql, $sql_vars);
-
-            // check if this service is also an ELT
-            $sql_vars = array(':groupID' => $groupID);
-            $sql = 'SELECT groupID
-                    FROM services
-                    WHERE serviceID = :groupID
-                    AND groupID = :groupID';
-
-            $res = $this->db->prepared_query($sql, $sql_vars);
-
-            // if so, update groups table
-            if (is_array($res) && isset($res[0]['groupID'])) {
-                $sql_vars = array(':userID' => $member,
-                        ':groupID' => $groupID, );
-
-                $sql = 'UPDATE users
-                        SET active = 0, locallyManaged = 1
-                        WHERE userID=:userID
-                        AND groupID=:groupID';
-
-                $this->db->prepared_query($sql, $sql_vars);
-            }
-
-            // include the backups of employee
-            $emp = $employee->lookupLogin($member);
-            $backups = $employee->getBackups($emp[0]['empUID']);
-            foreach ($backups as $backup) {
-                $sql_vars = array(':userID' => $backup['userName'],
-                    ':serviceID' => $groupID,
-                    ':backupID' => $member,);
-
-                $sql = 'SELECT locallyManaged
-                        FROM service_chiefs
-                        WHERE userID=:userID
-                        AND serviceID=:serviceID
-                        AND backupID=:backupID
-                        AND locallyManaged = 0';
-
-                $res = $this->db->prepared_query($sql, $sql_vars);
-
-                // Check for locallyManaged users
-                if (isset($res[0]['locallyManaged'])) {
-                    $sql2 = 'DELETE
-                             FROM service_chiefs
-                             WHERE userID=:userID
-                             AND serviceID=:serviceID
-                             AND backupID=:backupID';
-
-                    $this->db->prepared_query($sql2, $sql_vars);
-                }
-            }
-        }
-
-        return 1;
     }
 
     /**
@@ -506,17 +458,10 @@ class Service
 
         if (count($res) > 0) {
             foreach ($res as $member) {
-                $dirRes = $dir->lookupLogin($member['userID'], false, true);
+                $dirRes = $dir->lookupLogin($member['userID'], true, false);
 
                 if (isset($dirRes[0])) {
                     $temp = $dirRes[0];
-                    $temp['regionallyManaged'] = 'no';
-
-                    foreach ($dirRes[0]['groups'] as $group) {
-                        if ($groupID == $group['groupID']) {
-                            $temp['regionallyManaged'] = 'yes';
-                        }
-                    }
 
                     $temp['backupID'] = $member['backupID'];
                     $temp['locallyManaged'] = $member['locallyManaged'];

@@ -48,6 +48,7 @@ class GroupController extends RESTfulResponse
             return $group->getGroupsAndMembers(true);
         });
 
+        // Deprecated, see group/[digit]/members
         $this->index['GET']->register('group/[digit]/membersWBackups', function ($args) use ($group) {
             $members = $group->getMembers($args[0], false, true);
             return $members;
@@ -55,16 +56,11 @@ class GroupController extends RESTfulResponse
 
         $this->index['GET']->register('group/[digit]/members', function ($args) use ($group) {
             $members = $group->getMembers($args[0]);
-            $users = array();
 
-            foreach ($members['data'] as $key => $value) {
-                if ($members['data'][$key]['backupID'] == '') {
-                    $members['data'][$key]['backupID'] = null;
-                }
-            }
             return $members['data'];
         });
 
+        // Deprecated, see group/[digit]/members
         $this->index['GET']->register('group/[digit]/list_members', function ($args) use ($group) {
             return $group->getMembers($args[0]);
         });
@@ -100,6 +96,7 @@ class GroupController extends RESTfulResponse
                 return $group->reActivateMember($args[1], $args[0]);
             });
 
+            // Deprecated. Likely no-longer needed.
             $this->index['POST']->register('group/[digit]/members/[text]/prune', function ($args) use ($group) {
                 return $group->removeMember($args[1], $args[0]);
             });
