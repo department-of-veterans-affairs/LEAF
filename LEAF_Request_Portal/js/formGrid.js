@@ -909,7 +909,7 @@ const LeafFormGrid = function (containerID, options) {
       data: {
         recordList: recordIDs,
         indicatorList: headerIDList,
-        CSRFToken: CSRFToken
+        CSRFToken
       },
       success: function (res) {
         isDataLoaded = true

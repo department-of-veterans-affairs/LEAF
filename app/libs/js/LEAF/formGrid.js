@@ -55,7 +55,7 @@ const LeafFormGrid = function (containerID, options) {
    * Do not show UID index column
    * @memberOf LeafFormGrid
    */
-  function hideIndex() {
+  function hideIndex () {
     showIndex = false
   }
 
@@ -65,13 +65,13 @@ const LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    * Returns copy of values with cells property html entities decoded
    */
-  function decodeCellHTMLEntities(values, showScriptTags = false) {
+  function decodeCellHTMLEntities (values, showScriptTags = false) {
     const gridInfo = { ...values }
     if (gridInfo?.cells) {
       const cells = gridInfo.cells.slice()
       cells.forEach((arrRowVals, ci) => {
         arrRowVals = arrRowVals.map((v) => {
-          v = v.replaceAll('<', '&lt;') //handle old data values
+          v = v.replaceAll('<', '&lt;') // handle old data values
           v = v.replaceAll('>', '&gt;')
           const elDiv = document.createElement('div')
           elDiv.innerHTML = v
@@ -95,7 +95,7 @@ const LeafFormGrid = function (containerID, options) {
    * @param values (required) object of cells and names to generate grid
    * @memberOf LeafFormGrid
    */
-  function printTableReportBuilder(values, columnValues) {
+  function printTableReportBuilder (values, columnValues) {
     // remove unused columns
     values = decodeCellHTMLEntities(values)
     if (columnValues !== null && columnValues !== undefined) {
@@ -113,7 +113,7 @@ const LeafFormGrid = function (containerID, options) {
     const delimLF = '\r\n'
     let tDelim = ''
 
-    //finds and displays column names
+    // finds and displays column names
     for (let i = 0; i < columns; i++) {
       tDelim = i === columns - 1 ? '' : delim
       gridHeadBuffer +=
@@ -121,17 +121,17 @@ const LeafFormGrid = function (containerID, options) {
       columnOrder.push(values.format[i].id)
     }
 
-    //populates table
+    // populates table
     for (let i = 0; i < rows; i++) {
       let gridRow = '<tr>'
       const rowBuffer = []
 
-      //makes array of cells
+      // makes array of cells
       for (let j = 0; j < columns; j++) {
         rowBuffer.push('<td style="width:100px"></td>')
       }
 
-      //for all values with matching column id, replaces cell with value
+      // for all values with matching column id, replaces cell with value
       for (let j = 0; j < values.columns.length; j++) {
         tDelim = j === values.columns.length - 1 ? '' : delim
         if (columnOrder.indexOf(values.columns[j]) !== -1) {
@@ -147,7 +147,7 @@ const LeafFormGrid = function (containerID, options) {
         }
       }
 
-      //combines cells into html and pushes row to body buffer
+      // combines cells into html and pushes row to body buffer
       gridRow += rowBuffer.join('') + delimLF + '</tr>'
       gridBodyBuffer += gridRow
     }
@@ -164,7 +164,7 @@ const LeafFormGrid = function (containerID, options) {
   /**
    * @memberOf LeafFormGrid
    */
-  function getIndicator(indicatorID, series) {
+  function getIndicator (indicatorID, series) {
     $.ajax({
       type: 'GET',
       url:
@@ -224,7 +224,7 @@ const LeafFormGrid = function (containerID, options) {
   /**
    * @memberOf LeafFormGrid
    */
-  function setHeaders(headersIn) {
+  function setHeaders (headersIn) {
     headers = headersIn
     let temp = '<tr id="' + prefixID + 'thead_tr' + '">'
     let virtualHeader = '<tr id="' + prefixID + 'tVirt_tr' + '">'
@@ -302,7 +302,7 @@ const LeafFormGrid = function (containerID, options) {
             renderBody(0, Infinity)
           }
         )
-        //using enter key to sort the the table heads for 508 compliance
+        // using enter key to sort the the table heads for 508 compliance
         $('#' + prefixID + 'header_' + headers[i].indicatorID).on(
           'keydown',
           null,
@@ -389,7 +389,7 @@ const LeafFormGrid = function (containerID, options) {
    * @param callback (optional)
    * @memberOf LeafFormGrid
    */
-  function sort(key, order, callback) {
+  function sort (key, order, callback) {
     if (key !== 'recordID' && currLimit !== Infinity) {
       renderBody(0, Infinity)
     }
@@ -450,7 +450,7 @@ const LeafFormGrid = function (containerID, options) {
         if (currentData[i].sDate === undefined) {
           currentData[i].sDate = {}
         }
-        //Workaround for sorting manually created grid
+        // Workaround for sorting manually created grid
         currentData[i].s1[idKey] = !isNaN(currentData[i][key])
           ? currentData[i][key]
           : ''
@@ -561,7 +561,7 @@ const LeafFormGrid = function (containerID, options) {
   /**
    * @memberOf LeafFormGrid
    */
-  function renderVirtualHeader() {
+  function renderVirtualHeader () {
     if (!isRenderingVirtualHeader) {
       return false
     }
@@ -605,7 +605,7 @@ const LeafFormGrid = function (containerID, options) {
    * @param limit (optional) number of rows to render
    * @memberOf LeafFormGrid
    */
-  function renderBody(startIdx, limit) {
+  function renderBody (startIdx, limit) {
     isRenderingBody = true
     if (preRenderFunc != null) {
       preRenderFunc()
@@ -837,7 +837,7 @@ const LeafFormGrid = function (containerID, options) {
     $('#' + prefixID + 'tbody td[data-clickable=true]').addClass(
       'table_editable'
     )
-    $('#' + prefixID + 'tbody').unbind('click') //prevents multiple firing on same report builder element, which causes subsequent problems with icheck
+    $('#' + prefixID + 'tbody').unbind('click') // prevents multiple firing on same report builder element, which causes subsequent problems with icheck
     $('#' + prefixID + 'tbody').on(
       'click',
       'td[data-editable=true]',
@@ -869,7 +869,7 @@ const LeafFormGrid = function (containerID, options) {
   /**
    * @memberOf LeafFormGrid
    */
-  function announceResults() {
+  function announceResults () {
     const term = $('[name="searchtxt"]').val()
 
     if (currentData.length === 0) {
@@ -884,7 +884,7 @@ const LeafFormGrid = function (containerID, options) {
   /**
    * @memberOf LeafFormGrid
    */
-  function loadData(recordIDs, callback) {
+  function loadData (recordIDs, callback) {
     currentData = []
     const colspan = showIndex ? headers.length + 1 : headers.length
     $('#' + prefixID + 'tbody').html(
@@ -909,7 +909,7 @@ const LeafFormGrid = function (containerID, options) {
       data: {
         recordList: recordIDs,
         indicatorList: headerIDList,
-        CSRFToken: CSRFToken
+        CSRFToken
       },
       success: function (res) {
         isDataLoaded = true
@@ -917,8 +917,8 @@ const LeafFormGrid = function (containerID, options) {
           if (dataBlob[i] !== undefined) {
             for (const j in dataBlob[i]) {
               if (typeof dataBlob[i][j] === 'object') {
-                //ECMA6
-                //Object.assign(res[i][j], dataBlob[i][j]);
+                // ECMA6
+                // Object.assign(res[i][j], dataBlob[i][j]);
                 for (const tAttr in dataBlob[i][j]) {
                   res[i][j] = res[i][j] || {}
                   res[i][j][tAttr] = dataBlob[i][j][tAttr]
@@ -949,7 +949,7 @@ const LeafFormGrid = function (containerID, options) {
    * @params array - Expects format: [{recordID}, ...]
    * @memberOf LeafFormGrid
    */
-  function setData(data) {
+  function setData (data) {
     isDataLoaded = true
     currentData = data
   }
@@ -957,7 +957,7 @@ const LeafFormGrid = function (containerID, options) {
   /**
    * @memberOf LeafFormGrid
    */
-  function setDataBlob(data) {
+  function setDataBlob (data) {
     dataBlob = data
   }
 
@@ -965,7 +965,7 @@ const LeafFormGrid = function (containerID, options) {
    * Imports LEAF Query result
    * @memberOf LeafFormGrid
    */
-  function importQueryResult(res) {
+  function importQueryResult (res) {
     const tGridData = []
     for (const i in res) {
       tGridData.push(res[i])
@@ -977,7 +977,7 @@ const LeafFormGrid = function (containerID, options) {
   /**
    * @memberOf LeafFormGrid
    */
-  function enableToolbar() {
+  function enableToolbar () {
     containerID = prefixID + 'gridToolbar'
     $('#' + containerID).css('display', 'block')
     $('#' + containerID).html(
@@ -1001,7 +1001,7 @@ const LeafFormGrid = function (containerID, options) {
       $('#' + prefixID + 'thead>tr>th').each(function (idx, val) {
         headers.push($(val).text().trim())
       })
-      output.push(headers) //first row will be headers
+      output.push(headers) // first row will be headers
 
       let line = []
       let i = 0
@@ -1017,7 +1017,7 @@ const LeafFormGrid = function (containerID, options) {
 
           const trimmedText = val.innerText.trim()
           line[i] = trimmedText
-          //prevent some values from being interpretted as dates by excel
+          // prevent some values from being interpretted as dates by excel
           const dataFormat = val.getAttribute('data-format')
           const testDateFormat = /^\d+[/-]\d+([/-]\d+)?$/
           const isNumber = /^\d+$/
@@ -1042,7 +1042,7 @@ const LeafFormGrid = function (containerID, options) {
           }
           i++
           if (i > numColumns) {
-            output.push(line) //add new row
+            output.push(line) // add new row
             line = []
             i = 0
           }
@@ -1050,11 +1050,11 @@ const LeafFormGrid = function (containerID, options) {
 
       let rows = ''
       output.forEach(function (thisRow) {
-        //escape double quotes
+        // escape double quotes
         thisRow.forEach(function (col, idx) {
           thisRow[idx] = col.replace(/"/g, '""')
         })
-        //add to csv string
+        // add to csv string
         rows += '"' + thisRow.join('","') + '",\r\n'
       })
 
@@ -1085,7 +1085,7 @@ const LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    * Set callback function to post process data. Returns currentData blob
    */
-  function setPostProcessDataFunc(func) {
+  function setPostProcessDataFunc (func) {
     postProcessDataFunc = func
   }
 
@@ -1093,7 +1093,7 @@ const LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    * Set callback function to run before rendering the body
    */
-  function setPreRenderFunc(func) {
+  function setPreRenderFunc (func) {
     preRenderFunc = func
   }
 
@@ -1101,7 +1101,7 @@ const LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    * Set callback function to run after rendering the body
    */
-  function setPostRenderFunc(func) {
+  function setPostRenderFunc (func) {
     postRenderFunc = func
   }
 
@@ -1110,7 +1110,7 @@ const LeafFormGrid = function (containerID, options) {
    * Set callback function to run after the user requests a sort.
    * The function takes two parameters: key, sort direction (asc/desc)
    */
-  function setPostSortRequestFunc(func) {
+  function setPostSortRequestFunc (func) {
     postSortRequestFunc = func
   }
 
@@ -1118,7 +1118,7 @@ const LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    * Return data row from loadData() using the array's index
    */
-  function getDataByIndex(index) {
+  function getDataByIndex (index) {
     return currentData[index]
   }
 
@@ -1126,7 +1126,7 @@ const LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    * Return data row from loadData() using recordID as the index
    */
-  function getDataByRecordID(recordID) {
+  function getDataByRecordID (recordID) {
     for (const i in currentData) {
       if (currentData[i].recordID === recordID) {
         return currentData[i]
