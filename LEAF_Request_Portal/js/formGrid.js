@@ -908,8 +908,8 @@ const LeafFormGrid = function (containerID, options) {
       dataType: 'json',
       data: {
         recordList: recordIDs,
-        indicatorList: headerIDList
-        // CSRFToken: CSRFToken it is never assigned
+        indicatorList: headerIDList,
+        CSRFToken: CSRFToken
       },
       success: function (res) {
         isDataLoaded = true
