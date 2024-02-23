@@ -134,7 +134,7 @@
             <!--{if $indicator.value[0] != ''}-->
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.value item=file}-->
-            <a href="<!--{$abs_portal_path}-->/file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse">
+            <a href="<!--{$abs_portal_filepath}-->file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse">
                 <img src="dynicons/?img=mail-attachment.svg&amp;w=24" alt="" /><!--{$file}--></a><br />
             <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
@@ -151,9 +151,9 @@
             <!--{foreach from=$indicator.value item=file}-->
                 <!--{if $indicator.value != '[protected data]'}-->
                 <img alt="image upload: <!--{$file}-->"
-                    src="<!--{$abs_portal_path}-->/image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->"
+                    src="<!--{$abs_portal_filepath}-->image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->"
                     style="max-width: 200px"
-                    onclick="window.open('<!--{$abs_portal_path}-->/image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" />
+                    onclick="window.open('<!--{$abs_portal_filepath}-->image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" />
                 <!--{assign var='idx' value=$idx+1}-->
                 <!--{else}-->
                 [protected data]
