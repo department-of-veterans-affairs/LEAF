@@ -314,13 +314,8 @@ function initiateModal(serviceID = 0, serviceName = '') {
                                 dialog_confirm.show();
                             });
                             $('#reactivateMember_' + counter).on('click', function () {
-                                dialog_confirm.setContent('Are you sure you want to reactivate this member?');
-                                dialog_confirm.setSaveHandler(function () {
-                                    reactivateMember(serviceID, res[i].userName);
-                                    dialog_confirm.hide();
-                                    dialog.hide();
-                                });
-                                dialog_confirm.show();
+                                reactivateMember(serviceID, res[i].userName);
+                                dialog.hide();
                             });
                         }
                         counter++;
