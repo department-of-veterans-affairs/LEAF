@@ -337,9 +337,9 @@ table[class$="SelectorTable"] th {
 #form_index_display {
     margin-top: 0.5rem; //matches drag-drop spacer for top of form area
     position: relative;
-    padding: 0.75rem;
-    width: 360px;
-    flex: 0 0 360px;
+    padding: 0.875rem 0.75rem;
+    width: 330px;
+    flex: 0 0 330px;
     align-self:flex-start;
     background-color: white;
     border-radius: 4px;
@@ -428,15 +428,14 @@ table[class$="SelectorTable"] th {
             }
         }
     }
-    button[id^="addInternalUse_"], button[id^="addStaple_"] {
-        margin-top: 1.125rem;
+    button#indicator_toolbar_toggle,
+    button[id^="addInternalUse_"],
+    button[id^="addStaple_"] {
+        margin-bottom: 1rem;
         height: 2.25rem;
         width: 100%;
         border: 2px solid $base-navy;
         justify-content: flex-start;
-    }
-    button[id^="addStaple_"] {
-        margin-top: 1rem;
     }
 }
 
@@ -567,7 +566,7 @@ table[class$="SelectorTable"] th {
             border-radius: 4px;
             background-color: white;
             &.form-header, &.preview.form-header {
-                border-top: 0.5rem solid black;
+                border-top: 0.625rem solid black;
                 > .form_editing_area {
                     border-radius: 4px;
                 }
@@ -647,15 +646,14 @@ table[class$="SelectorTable"] th {
         }
         div[id^="form_editing_toolbar_"] {
             float: right;
-            padding: 3px;
+            margin-left: 0.25rem;
+            padding: 0.25rem;
             border-radius: 3px;
             display: flex;
             flex-direction:column;
             align-items: stretch;
-            align-self: flex-start;
             font-size: 90%;
-            color: black;
-            gap: 2px;
+            gap: 3px 2px;
             > div {
                 display: flex; 
                 align-items: center;
