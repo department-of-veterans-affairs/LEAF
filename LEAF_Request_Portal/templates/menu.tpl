@@ -33,7 +33,7 @@
 <script>
     function hideElement(element = null) {
         if(element !== null && element.style !== undefined) {
-            element.style.zIndex = 0;
+            element.style.zIndex = 1;
             element.classList.remove('is-shown');
             let controllerBtn = document.querySelector('button[aria-controls="' + element.id + '"]');
             if(controllerBtn !== null) {
@@ -65,7 +65,7 @@
         let popupEl = document.getElementById(controlledID);
         if (popupEl !== null) {
             let controlledEls = Array.from(document.querySelectorAll(".controlled-element"));
-            controlledEls.forEach(el => el.style.zIndex = 0);
+            controlledEls.forEach(el => el.style.zIndex = 1);
 
             const priorValue = e.currentTarget.getAttribute('aria-expanded') || "false";
             if(priorValue === "true") {
