@@ -31,7 +31,6 @@ font-weight: 300;
 }
 
 #side-bar {
-    min-width: 200px;
     text-align: left;
     position: sticky;
     top: 0;

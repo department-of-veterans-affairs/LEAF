@@ -119,38 +119,24 @@ const CombinedInboxEditor = Vue.createApp({
 
                     const formattedSiteMap = inboxSites.map((site) => ({
                         ...site,
-                        columns: site?.columns || '',
+                        columns: site?.columns || 'service,title,status',
                         formColumns: site?.formColumns || {},
                         show: site.show ?? true
                     }));
                     this.sites = formattedSiteMap.sort((a, b) => a.order - b.order);
 
                     let portalURLs = {};
-                    let portalColumns = {};
-                    /* Initial pass to get URL and columns for each portal (no other great way to get columns at the moment).
-                    If there are multiple cards for a portal, the one with the most cols is used.  This is to prevent newly created cards
-                    without columns from overriding existing setup values */
                     this.sites.forEach((site) => {
-                        const siteCols = (site.columns || "").split(',').filter(c => c !== "");
                         const portalURL = this.getPortalURL(site.target);
                         portalURLs[portalURL] = 1;
-                        if (portalColumns[portalURL] === undefined) {
-                            portalColumns[portalURL] = siteCols;
-                        }
-                        if (siteCols.length > portalColumns[portalURL].length) {
-                            portalColumns[portalURL] = siteCols;
-                        }
+
                         this.choices[site.id] = {
                             portalURL,
-                            choices: [],
+                            choices: []
                         };
-                    });
-                    this.sites.forEach((site) => {
-                        const portalURL = this.choices[site.id].portalURL;
                         let tmp = [];
-                        //Add selected cols first to retain their order.  Add defaults if no columns exist across all cards.
-                        const siteCols = portalColumns[portalURL].length > 0 ? portalColumns[portalURL] : ['service','title','status'];
-                        site.columns = siteCols.join();
+                        //add selected cols first to retain their order
+                        const siteCols = (site.columns || "").split(',').filter(c => c !== "");
                         siteCols.forEach((col) => {
                             if (this.allColumns.includes(col)) {
                                 tmp.push({
@@ -164,7 +150,7 @@ const CombinedInboxEditor = Vue.createApp({
                             }
                         });
                         this.allColumns.forEach((col) => {
-                            if (!siteCols.includes(col)) {
+                            if (!site.columns.includes(col)) {
                                 tmp.push({
                                     value: col,
                                     label: this.frontEndColumns[col],
@@ -190,7 +176,6 @@ const CombinedInboxEditor = Vue.createApp({
                                 this.sites.forEach((site) => {
                                     this.setupChoices(site);
                                 });
-                                this.saveSettings(); //save any column updates from initial sync
                             }
                         })
                         .catch(err => {
@@ -227,6 +212,7 @@ const CombinedInboxEditor = Vue.createApp({
                             const formID = document.getElementById('form_select_' + site.id)?.value || null;
                             let columns = formID !== null ? site.formColumns[formID] || "service,title,status" : site.columns;
                             columns = columns.split(",");
+
                             this.choices[site.id].choices.map(c => {
                                 c.selected = columns.includes(c.value);
                             });
@@ -424,7 +410,7 @@ const CombinedInboxEditor = Vue.createApp({
                 @dragstart="startDrag($event, site)"
                 @drop="onDrop($event)"
                 :value="site.id"
-                :key="site.id + '_' + site.order + 'site.title'">
+                :key="site.order + 'site.title'">
                     &#x2630; {{site.title}}
                 </div>
             </div>
@@ -459,7 +445,7 @@ const CombinedInboxEditor = Vue.createApp({
                         <div v-if="Object.keys(site.formColumns).length > 0" class="custom_forms">
                             <h3>Form specific settings exist for the forms listed below</h3>
                             <template v-for="val, key in site.formColumns">
-                                <div v-if="siteForms[site.id]?.formTable?.[key]" :key="'site_form_table_' + key + val" style="display:flex; gap: 0.5rem;">
+                                <div v-if="siteForms[site.id]?.formTable?.[key]" style="display:flex; gap: 0.5rem;">
                                     <div><b>{{siteForms[site.id]?.formTable?.[key].categoryName}}</b><span style="font-size: 85%;"> ({{key}})</span></div>
                                     <div>{{siteForms[site.id]?.formTable?.[key].inboxHeaders}}</div>
                                 </div>
