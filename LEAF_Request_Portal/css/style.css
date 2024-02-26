@@ -269,6 +269,16 @@ span#headerMenu {
   display: flex;
   gap: 2px;
   align-items: center;
+  text-decoration: none;
+  color: black;
+}
+#headerMenuNav > ul > li > button:hover,
+#headerMenuNav > ul > li > button:focus,
+#headerMenuNav > ul > li > button:active,
+#headerMenuNav > ul > li > a:hover,
+#headerMenuNav > ul > li > a:focus,
+#headerMenuNav > ul > li > a:active {
+  color: white;
 }
 #headerMenu_links a {
   display: block;
