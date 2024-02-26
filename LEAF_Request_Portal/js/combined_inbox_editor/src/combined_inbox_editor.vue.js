@@ -150,7 +150,7 @@ const CombinedInboxEditor = Vue.createApp({
                             }
                         });
                         this.allColumns.forEach((col) => {
-                            if (!site.columns.includes(col)) {
+                            if (!siteCols.includes(col)) {
                                 tmp.push({
                                     value: col,
                                     label: this.frontEndColumns[col],
@@ -269,15 +269,6 @@ const CombinedInboxEditor = Vue.createApp({
                     } else {
                         site.formColumns[selectedForm] = selectedValue;
                     }
-                    //update columns and formColumns properties of sites with the same portalURL
-                    const portalURL = this.getPortalURL(site.target);
-                    this.sites.forEach(s => {
-                        const sitePortalURL = this.getPortalURL(s.target);
-                        if(s.id !== site.id && sitePortalURL === portalURL) {
-                            s.columns = site.columns;
-                            s.formColumns = site.formColumns;
-                        }
-                    })
                     this.saveSettings();
                 });
             });
@@ -410,7 +401,7 @@ const CombinedInboxEditor = Vue.createApp({
                 @dragstart="startDrag($event, site)"
                 @drop="onDrop($event)"
                 :value="site.id"
-                :key="site.order + 'site.title'">
+                :key="site.id + '_' + site.order + 'site.title'">
                     &#x2630; {{site.title}}
                 </div>
             </div>
@@ -445,7 +436,7 @@ const CombinedInboxEditor = Vue.createApp({
                         <div v-if="Object.keys(site.formColumns).length > 0" class="custom_forms">
                             <h3>Form specific settings exist for the forms listed below</h3>
                             <template v-for="val, key in site.formColumns">
-                                <div v-if="siteForms[site.id]?.formTable?.[key]" style="display:flex; gap: 0.5rem;">
+                                <div v-if="siteForms[site.id]?.formTable?.[key]" :key="'site_form_table_' + key + val" style="display:flex; gap: 0.5rem;">
                                     <div><b>{{siteForms[site.id]?.formTable?.[key].categoryName}}</b><span style="font-size: 85%;"> ({{key}})</span></div>
                                     <div>{{siteForms[site.id]?.formTable?.[key].inboxHeaders}}</div>
                                 </div>

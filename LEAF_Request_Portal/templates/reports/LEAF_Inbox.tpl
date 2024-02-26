@@ -431,7 +431,7 @@
                     site.columns[categoryID].split(',').forEach(col => {
                         // assign standard headers
                         if (isNaN(parseInt(col)) &&
-                            headerDefinitions[col] != undefined) {
+                            headerDefinitions[col] != undefined && typeof headerDefinitions[col] === 'function') {
                             customCols.push(headerDefinitions[col](site));
                         } else if (parseInt(col) > 0) { // assign custom data headers
                             let label = dataDictionary[site.url]?.[col]?.description;
@@ -460,7 +460,7 @@
         }
         let customCols = [];
         headerColumns.forEach(col => {
-            if (isNaN(col)) {
+            if (isNaN(col) && typeof headerDefinitions[col] === 'function') {
                 customCols.push(headerDefinitions[col](site));
             } else {
                 customCols.push({
