@@ -2921,7 +2921,7 @@ class Form
      * @param array $query - this is the decoded string used for query
      * @return bool
      */
-    private function isProcessQuery(array $query): bool
+    private function isLargeQuery(array $query): bool
     {
         
         $externalProcessQuery = false;
@@ -2932,7 +2932,7 @@ class Form
                
                 $externalProcessQuery = true;
                 // limit is <= 10,000 records AND more than 10 indicators are requested
-            } else if ($query['limit'] > 10000 || (!isset($query['limit']) && (!empty($query['getData']) && count($query['getData']) >= 10))) {
+            } else if (!isset($query['limit']) && (!empty($query['getData']) && count($query['getData']) >= 10)) {
                 
                 $externalProcessQuery = true;
             }
@@ -3337,7 +3337,7 @@ class Form
         }
 
         // check to see if we need to break this down
-        $externalProcessQuery = $this->isProcessQuery($query);
+        $externalProcessQuery = $this->isLargeQuery($query);
 
         if ($externalProcessQuery === true && $processQuery === false) {
 
