@@ -24,13 +24,14 @@ font-weight: 300;
 }
 
 .site-title {
-    margin-bottom: 1rem;
+    padding: 0.25rem 0;
     font-weight: bold;
     font-size: 200%;
     line-height: 240%;
 }
 
 #side-bar {
+    min-width: 200px;
     text-align: left;
     position: sticky;
     top: 0;
@@ -43,9 +44,14 @@ font-weight: 300;
 }
 
 .inbox {
-    margin-bottom: 1rem;
+    padding:0.5rem;
+    line-height:1.6;
 }
-
+.custom_forms {
+  margin-top: 1rem;
+  background-color:whitesmoke;
+  padding: 0 7.5px;
+}
 .drag-el {
     background-color: #eee;
     margin-bottom: 10px;
