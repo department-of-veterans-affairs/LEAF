@@ -37,8 +37,8 @@ function renderResult(leafSearch, res) {
             priority = '';
             priorityStyle = '';
             if(blob[data.recordID].priority == -10) {
-                priority = '<span style="color: red"> ( Emergency ) </span>';
-                priorityStyle = ' style="background-color: red; color: black"';
+                priority = '<span style="color:#c00000;"> (&nbsp;Emergency&nbsp;)</span>';
+                priorityStyle = ' style="background-color:#FF4040; color: black"';
             }
 
             document.querySelector(`#${data.cellContainerID}`).innerHTML =
