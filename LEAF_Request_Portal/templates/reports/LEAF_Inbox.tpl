@@ -450,7 +450,7 @@
         let headerColumns = "";
         if (customColumns === false) {
             const baseColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
-            const formColumns = site.formColumns[categoryID] || null;
+            const formColumns = site?.formColumns?.[categoryID] || null;
             if (formColumns !== null) {
                 headerColumns = formColumns;
             } else {
