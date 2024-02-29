@@ -1264,7 +1264,6 @@ button.buttonNorm {
 button.depInbox {
   cursor: pointer;
   text-align: left;
-  white-space: nowrap;
   width:100%;
   padding: 0.5rem;
   border:0;

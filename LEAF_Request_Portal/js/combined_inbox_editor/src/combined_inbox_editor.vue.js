@@ -165,22 +165,25 @@ const CombinedInboxEditor = Vue.createApp({
                     });
 
                     const totalURLs = Object.keys(portalURLs).length;
-                    let count = 0;
-                    for (let key in portalURLs) {
-                        this.getPortalForms(key)
-                        .then(() => {
-                            count += 1;
-                            if (count === totalURLs) {
-                                this.loading = false;
-
-                                this.sites.forEach((site) => {
-                                    this.setupChoices(site);
-                                });
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        });
+                    if (totalURLs === 0) {
+                        this.loading = false;
+                    } else {
+                        let count = 0;
+                        for (let key in portalURLs) {
+                            this.getPortalForms(key)
+                            .then(() => {
+                                count += 1;
+                                if (count === totalURLs) {
+                                    this.loading = false;
+                                    this.sites.forEach((site) => {
+                                        this.setupChoices(site);
+                                    });
+                                }
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            });
+                        }
                     }
                 },
                 error: (err) => {
@@ -387,6 +390,7 @@ const CombinedInboxEditor = Vue.createApp({
     <h1 style="margin: 3rem;">Combined Inbox Editor (beta)</h1>
 
     <h2 v-if="loading">Loading Site Data ...</h2>
+    <div v-else-if="sites.length === 0" style="margin-left:48px;">Cards can be created in the <a href="../report.php?a=LEAF_sitemaps_template">Sitemap Editor</a></div>
     <div v-else id="editor-container">
         <div id="side-bar" class="inbox" style="display: block;">
             Edit Columns 
