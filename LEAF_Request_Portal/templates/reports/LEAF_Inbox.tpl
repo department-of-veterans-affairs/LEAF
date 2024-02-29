@@ -452,9 +452,9 @@
             const baseColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
             const formColumns = site?.formColumns?.[categoryID] || null;
             if (formColumns !== null) {
-                headerColumns = formColumns;
+                headerColumns = 'UID,' + formColumns;
             } else {
-                headerColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+                headerColumns = baseColumns;
             }
             headerColumns = headerColumns.split(",")
         }
