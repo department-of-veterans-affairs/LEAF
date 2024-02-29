@@ -156,7 +156,24 @@ function updateLocalOrgchartBatch()
         updateEmployeeDataBatch($localEmployeeUsernames);
     }
 }
+/**
+ * @param getEmployeeUIDs array $localEmployeeUsernames
+ * @return [$localEmpUIDs,$localEmpArray]
+ */
+function getEmployeeUIDs(array $localEmployeeUsernames): array {
+    global $oc_db;
 
+    // get local empuids, need to gather employees that have been added. 
+    $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
+    $localEmpUIDs = $oc_db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
+
+    $localEmpArray = [];
+    foreach ($localEmpUIDs as $localUsername) {
+        $localEmpArray[$localUsername['userName']] = $localUsername['empUID'];
+    }
+
+    return [$localEmpUIDs,$localEmpArray];
+}
 
 function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 {
@@ -184,13 +201,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     $orgEmployeeRes = $globalDB->prepared_query($orgEmployeeSql, $localEmployeeUsernames);
 
     // get local empuids
-    $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
-    $localEmpUIDs = $oc_db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
-
-    $localEmpArray = [];
-    foreach ($localEmpUIDs as $localUsername) {
-        $localEmpArray[$localUsername['userName']] = $localUsername['empUID'];
-    }
+    list($localEmpUIDs,$localEmpArray) = getEmployeeUIDs($localEmployeeUsernames);
 
     //if for some reason there is no data, we need to stop right there.
     if (empty($orgEmployeeRes)) {
@@ -243,20 +254,33 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     if (empty($orgEmployeeDataRes)) {
         return FALSE;
     }
+
+    // regather employee data since we may have inserted items
+    list($localEmpUIDs,$localEmpArray) = getEmployeeUIDs($localEmployeeUsernames);
+
     foreach ($orgEmployeeDataRes as $orgEmployeeData) {
 
-        $localEmployeeDataArray[] = [
-            // this will need to be checked into further I cannot silence this warning without possibly breaking things.
-            'empUID' => $localEmpArray[$orgEmployeeData['userName']],
-            'indicatorID' => $orgEmployeeData['indicatorID'],
-            'data' => $orgEmployeeData['data'],
-            'author' => $orgEmployeeData['author'],
-            'timestamp' => $orgEmployeeData['timestamp'],
-        ];
+        // if this user is not found, we will skip adding data for them.
+        if(empty($localEmpArray[$orgEmployeeData['userName']]) == true ){
+            continue;
+        }
+        else{
+            $localEmployeeDataArray[] = [
+                'empUID' => $localEmpArray[$orgEmployeeData['userName']],
+                'indicatorID' => $orgEmployeeData['indicatorID'],
+                'data' => $orgEmployeeData['data'],
+                'author' => $orgEmployeeData['author'],
+                'timestamp' => $orgEmployeeData['timestamp'],
+            ];
+        }
+
+        
     }
 
-    $oc_db->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
-
+    // make sure data array has data before attempting to insert data
+    if(empty($localEmployeeDataArray) == false){
+        $oc_db->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
+    }
 
 }
 
