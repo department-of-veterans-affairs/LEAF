@@ -6,6 +6,7 @@ const CombinedInboxEditor = Vue.createApp({
             sites: [],
             otherSitemapSites: [],
             portalForms: {},
+            portalErrors: [],
             choices: {},
             CSRFToken: CSRFToken,
             allColumns: ['service','title','status','dateInitiated','days_since_last_action','priority','dateSubmitted'],
@@ -297,16 +298,21 @@ const CombinedInboxEditor = Vue.createApp({
             return portalURL;
         },
         async getPortalForms(portalURL) {
-            const resForms = await fetch(`${portalURL}api/formStack/categoryList`, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                cache: "no-cache"
-            });
-            const forms = await resForms.json();
-            this.portalForms[portalURL] = {
-                forms: forms,
-            };
+            try {
+                const resForms = await fetch(`${portalURL}api/formStack/categoryList`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    cache: "no-cache"
+                });
+                const forms = await resForms.json();
+                this.portalForms[portalURL] = {
+                    forms: forms,
+                };
+
+            } catch(e) {
+                this.portalErrors.push(portalURL);
+            }
         },
 
         /** Used when a form selection is made.  Updates options and selection status.
@@ -388,7 +394,10 @@ const CombinedInboxEditor = Vue.createApp({
     },
     template: `
     <h1 style="margin: 3rem;">Combined Inbox Editor (beta)</h1>
-
+    <div v-if="portalErrors.length > 0" style="background-color:#ffffff; color: #b00000; padding: 0.5em;">
+        <p>Error getting site forms.  Please check spelling and capitalization for sites listed below.</p>
+        <div v-for="portal in portalErrors" :key="'form_error_' + portal">{{ portal }}</div>
+    </div>
     <h2 v-if="loading">Loading Site Data ...</h2>
     <div v-else-if="sites.length === 0" style="margin-left:48px;">Cards can be created in the <a href="../report.php?a=LEAF_sitemaps_template">Sitemap Editor</a></div>
     <div v-else id="editor-container">
