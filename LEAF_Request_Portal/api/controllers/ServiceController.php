@@ -39,11 +39,15 @@ class ServiceController extends RESTfulResponse
         });
 
         $this->index['GET']->register('service', function ($args) use ($db, $login, $service) {
-            return $service->getGroupsAndMembers();
+            return $service->getGroups();
         });
 
         $this->index['GET']->register('service/quadrads', function ($args) use ($db, $login, $service) {
             return $service->getQuadrads();
+        });
+
+        $this->index['GET']->register('service/members', function ($args) use ($db, $login, $service) {
+            return $service->getGroupsAndMembers();
         });
 
         $this->index['GET']->register('service/[digit]/members', function ($args) use ($db, $login, $service) {
@@ -72,6 +76,7 @@ class ServiceController extends RESTfulResponse
                     return $service->addMember($args[0], $_POST['userID']);
                 });
 
+                // Deprecated. See: DELETE service/[digit]/members/[text]
                 $this->index['POST']->register('service/[digit]/members/[text]', function ($args) use ($service) {
                     return $service->deactivateChief($args[0], $args[1]);
                 });
@@ -81,6 +86,7 @@ class ServiceController extends RESTfulResponse
                     return $service->reactivateChief($args[1], $args[0]);
                 });
 
+                // Deprecated. Likely no-longer needed.
                 $this->index['POST']->register('service/[digit]/members/[text]/prune', function ($args) use ($service) {
                     return $service->pruneChief($args[0], $args[1]);
                 });
@@ -109,7 +115,7 @@ class ServiceController extends RESTfulResponse
                 });
 
                 $this->index['DELETE']->register('service/[digit]/members/[text]', function ($args) use ($service) {
-                    return $service->removeMember($args[0], $args[1]);
+                    return $service->deactivateChief($args[0], $args[1]);
                 });
 
                 return $this->index['DELETE']->runControl($act['key'], $act['args']);
