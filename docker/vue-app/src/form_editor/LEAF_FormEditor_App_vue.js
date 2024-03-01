@@ -55,7 +55,6 @@ export default {
             hasDevConsoleAccess: this.hasDevConsoleAccess,
             getSiteSettings: this.getSiteSettings,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
-            editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
             updateCategoriesProperty: this.updateCategoriesProperty,
             updateStapledFormsInfo: this.updateStapledFormsInfo,
@@ -213,23 +212,24 @@ export default {
          */
         getEnabledCategories() {
             this.appIsLoadingCategories = true;
-            $.ajax({
-                type: 'GET',
-                url: `${this.APIroot}formStack/categoryList/allWithStaples`,
-                success: (res) => {
-                    this.allStapledFormCatIDs = {};
-                    this.categories = {};
-                    for(let i in res) {
-                        this.categories[res[i].categoryID] = res[i];
-                        res[i].stapledFormIDs.forEach(id => {
-                            this.allStapledFormCatIDs[id] = this.allStapledFormCatIDs[id] === undefined ?
-                                1 : this.allStapledFormCatIDs[id] + 1;
-                        });
-                    }
-                    this.appIsLoadingCategories = false;
-                },
-                error: (err)=> console.log(err)
-            });
+            try {
+                fetch(`${this.APIroot}formStack/categoryList/allWithStaples`).then(res => {
+                    res.json().then(data => {
+                        this.allStapledFormCatIDs = {};
+                        this.categories = {};
+                        for(let i in data) {
+                            this.categories[data[i].categoryID] = data[i];
+                            data[i].stapledFormIDs.forEach(id => {
+                                this.allStapledFormCatIDs[id] = this.allStapledFormCatIDs[id] === undefined ?
+                                    1 : this.allStapledFormCatIDs[id] + 1;
+                            });
+                        }
+                        this.appIsLoadingCategories = false;
+                    });
+                });
+            } catch(error) {
+                console.log('error getting categories', error);
+            }
         },
         /**
          * @returns {Object} of all records from the portal's settings table.  Followup Leaf Secure check if leafSecure date exists

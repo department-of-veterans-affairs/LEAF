@@ -212,9 +212,6 @@ export default {
         fullFormTree() {
             return this.usePreviewTree ? this.previewTree : this.focusedFormTree;
         },
-        firstEditModeIndicator() {
-            return this.focusedFormTree?.[0]?.indicatorID || 0
-        },
         /**
          * @returns boolean.  used to watch for index or parentID changes.  triggers sorting update if true
          */
@@ -258,12 +255,6 @@ export default {
                     const newTop = Math.round(-previewBoundTop - 8); //margin spacer
                     elIndex.style.top =  newTop < 0 ? 0 : newTop + 'px';
                 }
-            }
-        },
-        focusFirstIndicator() {
-            const elEdit = document.getElementById(`edit_indicator_${this.firstEditModeIndicator}`);
-            if(elEdit !== null) {
-                elEdit.focus();
             }
         },
         /**
@@ -778,7 +769,7 @@ export default {
                         <span role="img" aria="" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>
                         {{previewMode ? 'Edit this Form' : 'Preview this Form'}}
                     </button>
-                    <template v-if="!previewMode && mainFormID">
+                    <template v-if="!previewMode">
                         <button type="button" class="btn-general"
                             :id="'addInternalUse_' + mainFormID"
                             @click="openNewFormDialog(mainFormID)"
@@ -801,7 +792,6 @@ export default {
                                 <button type="button" :id="'main_form_' + form.categoryID"
                                     @click="form.stapledFormIDs.length > 0 && previewMode && form.categoryID === queryID ?
                                         getPreviewTree(form.categoryID) : getFormByCategoryID(form.categoryID)"
-                                    @click.ctrl.exact="focusFirstIndicator"
                                     class="layout-listitem"
                                     :title="'form ' + form.categoryID">
                                     <span v-if="form.formContextType === 'staple'" role="img" aria="" alt="">📌&nbsp;</span>
