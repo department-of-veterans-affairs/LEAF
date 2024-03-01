@@ -592,9 +592,6 @@ table.table {
   margin: 2px;
   color: black;
 }
-#searchContainer table {
-  font-size: 14px;
-}
 
 .table > thead {
   background-color: #e0e0e0;
@@ -1208,7 +1205,7 @@ span.browsetitle a {
 }
 
 span.browsetypes {
-  font-size: 80%;
+  font-size: 11px;
   color: #707070;
 }
 
