@@ -185,9 +185,6 @@ legend {
     height: 60vh !important;
 }
 
-.CodeMirror-merge-2pane .CodeMirror-merge-pane {
-    height: 100%;
-}
 
 .page-title-container {
     width: 98%;

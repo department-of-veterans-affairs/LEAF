@@ -28,7 +28,7 @@
 
 .CodeMirror,
 .cm-s-default {
-    height: 85vh !important;
+    height: 100vh !important;
     border-radius: 0 0 0 5px;
 }
 
@@ -84,11 +84,7 @@
 
 .CodeMirror-merge,
 .CodeMirror-merge {
-    height: 85vh !important;
-}
-
-.CodeMirror-merge-2pane .CodeMirror-merge-pane {
-    height: 100%;
+    height: 100vh !important;
 }
 
 .page-title-container {
@@ -415,6 +411,7 @@
 
 #save_button,
 #btn_history,
+#btn_history_mobile,
 #restore_original,
 #open_file_button,
 #deleteButton {

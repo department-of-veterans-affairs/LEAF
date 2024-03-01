@@ -27,7 +27,7 @@
 
 .CodeMirror,
 .cm-s-default {
-    height: 85vh !important;
+    height: 100vh !important;
     border-radius: 0 0 0 5px;
 }
 
@@ -69,12 +69,9 @@
 
 .CodeMirror-merge,
 .CodeMirror-merge .CodeMirror {
-    height: 85vh !important;
+    height: 100vh !important;
 }
 
-.CodeMirror-merge-2pane .CodeMirror-merge-pane {
-    height: 100%;
-}
 
 .page-title-container {
     width: 98%;
@@ -357,7 +354,9 @@
 
 #save_button,
 #btn_history,
+#btn_history_mobile,
 #restore_original,
+#restore_original_mobile,
 #icon_library {
     width: 100%;
     font-weight: 500;

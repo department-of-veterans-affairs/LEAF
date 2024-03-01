@@ -8,14 +8,14 @@
     <div class="page-title-container">
         <h2>LEAF Programmer</h2>
         <div class="mobileToolsNav">
-            <button class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
+            <button type="button" class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
         </div>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
             <aside class="sidenav" id="fileBrowser">
-                <button class="new-report" onclick="newReport();">New File</button>
-                <button
+                <button type="button" class="new-report" onclick="newReport();">New File</button>
+                <button type="button"
                     class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                     id="btn_history" onclick="viewHistory()">
                     View History
@@ -99,29 +99,29 @@
         </main>
 
         <div class="leaf-right-nav">
-            <div id="closeMobileToolsNavBtnContainer"><button id="closeMobileToolsNavBtn"
+            <div id="closeMobileToolsNavBtnContainer"><button type="button" id="closeMobileToolsNavBtn" aria-label="close"
                     onclick="closeRightNavTools('leaf-right-nav')">X</button></div>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right" id="controls">
-                <button id="save_button" class="usa-button leaf-btn-med leaf-display-block leaf-width-14rem"
+                <button type="button" id="save_button" class="usa-button leaf-btn-med leaf-display-block leaf-width-14rem"
                     onclick="save();">Save Changes<span id="saveStatus"
                         class="leaf-display-block leaf-font0-5rem"></span>
                 </button>
-                <button id="open_file_button"
-                    class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="
+                <button type="button" id="open_file_button"
+                    class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem" onclick="
                     runReport();">Open File</button>
-                <button class="new-report mobile_new_report_btn" onclick="newReport();">New File</button>
-                <button id="deleteButton"
-                    class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem"" onclick="
+                <button type="button" class="new-report mobile_new_report_btn" onclick="newReport();">New File</button>
+                <button type="button" id="deleteButton"
+                    class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem" onclick="
                     deleteReport();">Delete File
                 </button>
-                <button
+                <button type="button"
                     class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem mobileHistory"
-                    id="btn_history" onclick="viewHistory()">
+                    id="btn_history_mobile" onclick="viewHistory()">
                     View History
                 </button>
-                <button
+                <button type="button"
                     class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                     id="btn_compareStop" style="display: none" onclick="stop_comparing();">
                     Stop Comparing
@@ -129,8 +129,8 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button class="file_replace_file_btn">Use Old File</button>
-                    <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
+                    <button type="button" class="file_replace_file_btn">Use Old File</button>
+                    <button type="button" class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
             <div class="file-history">

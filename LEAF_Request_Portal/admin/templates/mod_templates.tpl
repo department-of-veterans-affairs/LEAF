@@ -8,7 +8,7 @@
     <div class="page-title-container">
         <h2>Template Editor</h2>
         <div class="mobileToolsNav">
-            <button class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
+            <button type="button" class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
         </div>
     </div>
     <div class="page-main-content">
@@ -16,7 +16,7 @@
             <aside class="sidenav">
                 <div id="fileBrowser">
 
-                    <button
+                    <button type="button"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         id="btn_history" onclick="viewHistory()">
                         View History
@@ -98,58 +98,57 @@
             </div>
         </main>
         <div class="leaf-right-nav">
-            <div id="closeMobileToolsNavBtnContainer"><button id="closeMobileToolsNavBtn"
+            <div id="closeMobileToolsNavBtnContainer"><button type="button" id="closeMobileToolsNavBtn" aria-label="close"
                     onclick="closeRightNavTools('leaf-right-nav')">X</button></div>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right">
                 <div id="controls" style="visibility: hidden">
 
-                    <button id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
+                    <button type="button" id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
                         onclick="save();">
                         Save Changes<span id="saveStatus"
                             class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
 
-                    <button id="restore_original"
+                    <button type="button" id="restore_original_mobile"
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
                         onclick="restore();">
                         Restore Original
                     </button>
 
-                    <button
+                    <button type="button"
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
                         id="btn_compareStop" style="display: none" onclick="stop_comparing();">
                         Stop Comparing
                     </button>
 
-                    <button
+                    <button type="button"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
                         id="btn_compare" onclick="compare();">
-                        Compare to Original
+                        Compare with Original
                     </button>
 
-                    <button id="icon_library"
-                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
-                        target="_blank">
-                        <a href="<!--{$domain_path}-->/libs/dynicons/gallery.php">Icon Library</a>
+                    <button id="icon_library" type="button"
+                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem">
+                        <a href="<!--{$domain_path}-->/libs/dynicons/gallery.php" target="_blank">Icon Library</a>
                     </button>
-                    <button
+                    <button type="button"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem mobileHistory"
-                        id="btn_history" onclick="viewHistory()">
+                        id="btn_history_mobile" onclick="viewHistory()">
                         View History
                     </button>
                 </div>
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button id="restore_original"
+                    <button id="restore_original" type="button"
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
                         onclick="restore();">
                         Restore Original
                     </button>
-                    <button class="file_replace_file_btn">Use Old File</button>
-                    <button class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
+                    <button type="button" class="file_replace_file_btn">Use Old File</button>
+                    <button type="button" class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
             <div class="file-history">
