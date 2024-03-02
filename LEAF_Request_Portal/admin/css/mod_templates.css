@@ -7,7 +7,7 @@
     overflow: initial;
 }
 
-.CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy {
+.CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy {
     visibility: hidden;
 }
 
@@ -16,14 +16,11 @@
     overflow: auto;
 }
 
-.CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy::before {
+.CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy::before {
     visibility: visible;
     content: '\25ba\25ba\25ba';
 }
 
-.CodeMirror-merge-copy {
-    display: none !important;
-}
 
 .CodeMirror,
 .cm-s-default {
@@ -452,7 +449,9 @@
     min-height: 563px;
 }
 
-.CodeMirror-merge-pane-label {
+.CodeMirror-merge-pane-label,
+.CodeMirror-merge-pane-label-right,
+.CodeMirror-merge-pane-label-left {
     width: 50%;
     text-align: center;
     font-weight: bold;

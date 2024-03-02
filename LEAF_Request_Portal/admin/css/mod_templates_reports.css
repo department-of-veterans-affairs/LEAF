@@ -22,9 +22,6 @@
     content: '\25ba\25ba\25ba';
 }
 
-.CodeMirror-merge-copy {
-    display: none !important;
-}
 
 .CodeMirror,
 .cm-s-default {

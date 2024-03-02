@@ -31,8 +31,8 @@
                 <div id="filename"></div>
                 <div>
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label">(Old File)</div>
-                        <div class="CodeMirror-merge-pane-label">(Current File)</div>
+                        <div class="CodeMirror-merge-pane-label-left">(Old File)</div>
+                        <div class="CodeMirror-merge-pane-label-right">(Current File)</div>
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
@@ -131,7 +131,7 @@
 
                     <button id="icon_library" type="button"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem">
-                        <a href="<!--{$domain_path}-->/libs/dynicons/gallery.php" target="_blank">Icon Library</a>
+                        <a href="<!--{$domain_path}-->/app/libs/dynicons/gallery.php" target="_blank">Icon Library</a>
                     </button>
                     <button type="button"
                         class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem mobileHistory"
@@ -800,7 +800,7 @@
             if (event.ctrlKey && event.key === 'b') {
                 changeThemeToDracula();
             }
-            if (event.ctrlKey && event.key === 'n') {
+            if (event.ctrlKey && event.key === 'o') {
                 revertToOriginalTheme();
             }
         });

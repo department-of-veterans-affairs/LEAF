@@ -88,9 +88,6 @@ fieldset {
     overflow: auto;
 }
 
-.CodeMirror-merge-copy {
-    display: none !important;
-}
 
 .CodeMirror,
 .cm-s-default {
