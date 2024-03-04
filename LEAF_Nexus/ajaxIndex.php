@@ -15,30 +15,25 @@ error_reporting(E_ERROR);
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-//$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if (isset($settings['timeZone']))
-{
-    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
+if (isset(LEAF_SETTINGS['timeZone'])) {
+    date_default_timezone_set(XSSHelpers::xscrub(LEAF_SETTINGS['timeZone']));
 }
 
 
 $oc_login->loginUser();
-if ($oc_login)
-{
-}
 
 $type = null;
 switch ($_GET['categoryID']) {
     case 1:    // employee
-        $type = new Orgchart\Employee($oc_db, $oc_login);
+        $type = new Orgchart\Employee(OC_DB, $oc_login);
 
         break;
     case 2:    // position
-        $type = new Orgchart\Position($oc_db, $oc_login);
+        $type = new Orgchart\Position(OC_DB, $oc_login);
 
         break;
     case 3:    // group
-        $type = new Orgchart\Group($oc_db, $oc_login);
+        $type = new Orgchart\Group(OC_DB, $oc_login);
 
         break;
     default:
@@ -133,12 +128,9 @@ switch ($action) {
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
         if($tz == null){
-            //$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
-            if(isset($settings['timeZone']))
-            {
-                $tz = $settings['timeZone'];
-            }
-            else{
+            if (isset(LEAF_SETTINGS['timeZone'])) {
+                $tz = LEAF_SETTINGS['timeZone'];
+            } else {
                 $tz = 'America/New_York';
             }
         }

@@ -9,7 +9,7 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $login->loginUser();
 
-$form = new Portal\Form($db, $login);
+$form = new Portal\Form(DB, $login);
 
 $data = $form->getIndicator(
     XSSHelpers::xscrub($_GET['id']),

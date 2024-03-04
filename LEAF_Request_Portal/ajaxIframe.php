@@ -61,10 +61,8 @@ $main->assign('app_js_path', APP_JS_PATH);
 $main->assign('emergency', '');
 $main->assign('useUI', false);
 
-//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if (isset($settings['timeZone']))
-{
-    date_default_timezone_set(XSSHelpers::xscrub($settings['timeZone']));
+if (isset(LEAF_SETTINGS['timeZone'])) {
+    date_default_timezone_set(XSSHelpers::xscrub(LEAF_SETTINGS['timeZone']));
 }
 
 switch ($action) {
@@ -94,7 +92,7 @@ switch ($action) {
         $main->assign('useUI', true);
         $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', 'js/jsdiff.js'));
 
-        $form = new Portal\Form($db, $login);
+        $form = new Portal\Form(DB, $login);
         $t_menu->assign('recordID', (int)$_GET['recordID']);
         $t_menu->assign('action', $action);
         $o_login = $t_login->fetch('login.tpl');
@@ -159,7 +157,7 @@ switch ($action) {
                 break;
         }
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
+        $requestLabel = LEAF_SETTINGS['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML(LEAF_SETTINGS['requestLabel']);
         $tabText = $requestLabel . ' #' . (int)$_GET['recordID'];
 
         break;
@@ -190,8 +188,8 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-$main->assign('title', $settings['heading'] == '' ? $config->title : XSSHelpers::sanitizeHTML($settings['heading']));
-$main->assign('city', $settings['subHeading'] == '' ? $config->city : XSSHelpers::sanitizeHTML($settings['subHeading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTML(LEAF_SETTINGS['subHeading']));
+$main->assign('revision', XSSHelpers::xscrub(LEAF_SETTINGS['version']));
 
 $main->display('main_iframe.tpl');

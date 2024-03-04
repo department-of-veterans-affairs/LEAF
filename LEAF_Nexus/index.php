@@ -54,7 +54,7 @@ $main->assign('app_css_path', APP_CSS_PATH);
 
 switch ($action) {
     case 'navigator_service':
-        $group = new Orgchart\Group($oc_db, $oc_login);
+        $group = new Orgchart\Group(OC_DB, $oc_login);
         $_GET['rootID'] = $group->getGroupLeader((int)$_GET['groupID']);
         // no break
     case 'navigator':
@@ -66,7 +66,7 @@ switch ($action) {
 
         $main->assign('javascripts', array('https://' . HTTP_HOST . '/app/libs/js/jsPlumb/dom.jsPlumb-min.js',
                                            'js/ui/position.js', ));
-        $position = new Orgchart\Position($oc_db, $oc_login);
+        $position = new Orgchart\Position(OC_DB, $oc_login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : $position->getTopSupervisorID(1);
         $t_form->assign('rootID', $rootID);
@@ -97,7 +97,7 @@ switch ($action) {
                                            'js/dialogController.js',
                                            'js/ui/position.js',
                                            'js/positionSelector.js', ));
-        $position = new Orgchart\Position($oc_db, $oc_login);
+        $position = new Orgchart\Position(OC_DB, $oc_login);
 
         $rootID = isset($_GET['rootID']) ? (int)$_GET['rootID'] : 0;
         $t_form->assign('rootID', $rootID);
@@ -142,7 +142,7 @@ switch ($action) {
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
         if ($empUID != 0)
         {
-            $employee = new Orgchart\Employee($oc_db, $oc_login);
+            $employee = new Orgchart\Employee(OC_DB, $oc_login);
             $summary = $employee->getSummary($empUID);
 
             $t_form->assign('empUID', $empUID);
@@ -154,7 +154,7 @@ switch ($action) {
             $main->assign('CSRFToken', $_SESSION['CSRFToken']);
 
 
-            $t_form->assign('ERM_site_resource_management', $oc_settings['ERM_Sites']['resource_management']);
+            $t_form->assign('ERM_site_resource_management', OC_SETTINGS['ERM_Sites']['resource_management']);
 
             if (count($summary['employee']) > 0)
             {
@@ -189,7 +189,7 @@ switch ($action) {
         $positionID = isset($_GET['positionID']) ? (int)$_GET['positionID'] : 0;
         if ($positionID != 0)
         {
-            $position = new Orgchart\Position($oc_db, $oc_login);
+            $position = new Orgchart\Position(OC_DB, $oc_login);
 
             $summary = $position->getSummary($positionID);
             $t_form->assign('positionID', $positionID);
@@ -201,7 +201,7 @@ switch ($action) {
             $t_form->assign('userID', $_SESSION['userID']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $oc_login->getDomain());
-            $t_form->assign('ERM_site_resource_management', $oc_settings['ERM_Sites']['resource_management']);
+            $t_form->assign('ERM_site_resource_management', OC_SETTINGS['ERM_Sites']['resource_management']);
 
             if (count($summary) > 0)
             {
@@ -241,8 +241,8 @@ switch ($action) {
 
         if ($groupID != 0)
         {
-            $group = new Orgchart\Group($oc_db, $oc_login);
-            $tag = new Orgchart\Tag($oc_db, $oc_login);
+            $group = new Orgchart\Group(OC_DB, $oc_login);
+            $tag = new Orgchart\Tag(OC_DB, $oc_login);
             $resGroup = $group->getGroup($groupID);
             $t_form->assign('groupID', $groupID);
             $t_form->assign('group', $resGroup);
@@ -278,7 +278,7 @@ switch ($action) {
                                            'css/view_employee.css', ));
         $empUID = isset($_GET['empUID']) ? (int)$_GET['empUID'] : 0;
 
-        $employee = new Orgchart\Employee($oc_db, $oc_login);
+        $employee = new Orgchart\Employee(OC_DB, $oc_login);
 
         $t_form->assign('empUID', $empUID);
         $t_form->assign('summary', $employee->getSummary($empUID));
@@ -342,7 +342,7 @@ switch ($action) {
 
         break;
     case 'view_permissions':
-        $indicators = new Orgchart\Indicators($oc_db, $oc_login);
+        $indicators = new Orgchart\Indicators(OC_DB, $oc_login);
 
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -381,7 +381,7 @@ switch ($action) {
 
         break;
     case 'view_group_permissions':
-        $group = new Orgchart\Group($oc_db, $oc_login);
+        $group = new Orgchart\Group(OC_DB, $oc_login);
 
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -411,7 +411,7 @@ switch ($action) {
 
         break;
     case 'view_position_permissions':
-        $position = new Orgchart\Position($oc_db, $oc_login);
+        $position = new Orgchart\Position(OC_DB, $oc_login);
 
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -487,8 +487,7 @@ switch ($action) {
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
 
-        $rev = $oc_db->prepared_query("SELECT * FROM settings WHERE setting='dbversion'", array());
-        $t_form->assign('dbversion', XSSHelpers::xscrub($rev[0]['data']));
+        $t_form->assign('dbversion', XSSHelpers::xscrub(OC_SETTINGS['dbversion']));
 
         $main->assign('hideFooter', true);
         $main->assign('body', $t_form->fetch('view_about.tpl'));
@@ -504,8 +503,8 @@ switch ($action) {
             $t_form->left_delimiter = '<!--{';
             $t_form->right_delimiter = '}-->';
 
-            $employee = new Orgchart\Employee($oc_db, $oc_login);
-            $position = new Orgchart\Position($oc_db, $oc_login);
+            $employee = new Orgchart\Employee(OC_DB, $oc_login);
+            $position = new Orgchart\Position(OC_DB, $oc_login);
 
             $currentEmployee = $employee->lookupLogin($oc_login->getUserID());
             $t_form->assign('employee', $currentEmployee);
@@ -518,7 +517,7 @@ switch ($action) {
             $groupLeader = '';
             if (count($resolvedService) > 0)
             {
-                $group = new Orgchart\Group($oc_db, $oc_login);
+                $group = new Orgchart\Group(OC_DB, $oc_login);
 
                 $groupLeader = $group->getGroupLeader($resolvedService[0]['groupID']);
             }
@@ -566,10 +565,9 @@ $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
 
-//$settings = $oc_db->query_kv('SELECT * FROM settings', 'setting', 'data');
-$main->assign('title', XSSHelpers::sanitizeHTMLRich($settings['heading'] == '' ? $config->title : $settings['heading']));
-$main->assign('city', XSSHelpers::sanitizeHTMLRich($settings['subheading'] == '' ? $config->city : $settings['subheading']));
-$main->assign('revision', XSSHelpers::xscrub($settings['version']));
+$main->assign('title', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['heading']));
+$main->assign('city', XSSHelpers::sanitizeHTMLRich(LEAF_SETTINGS['subheading']));
+$main->assign('revision', XSSHelpers::xscrub(LEAF_SETTINGS['version']));
 
 if (!isset($_GET['iframe']))
 {

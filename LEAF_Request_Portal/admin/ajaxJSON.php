@@ -30,7 +30,7 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'mod_groups_getMembers':
-        $group = new Portal\Group($db, $login);
+        $group = new Portal\Group(DB, $login);
 
         echo $group->getMembers($_GET['groupID'])['data'];
 

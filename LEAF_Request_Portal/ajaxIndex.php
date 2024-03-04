@@ -21,7 +21,7 @@ function customTemplate($tpl)
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-$dataActionLogger = new DataActionLogger($db, $login);
+$dataActionLogger = new DataActionLogger(DB, $login);
 
 $login->loginUser();
 if ($login)
@@ -30,17 +30,16 @@ if ($login)
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
-//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if (isset($settings['timeZone']))
-{
-    date_default_timezone_set($settings['timeZone']);
+if (isset(LEAF_SETTINGS['timeZone'])) {
+    date_default_timezone_set(LEAF_SETTINGS['timeZone']);
 }
 $main = new Smarty;
 $main->assign('emergency', '');
 
+$form = new Portal\Form(DB, $login);
+
 switch ($action) {
     case 'newform':
-        $form = new Portal\Form($db, $login);
         $recordID = $form->newForm($_SESSION['userID']);
         if (is_numeric($recordID))
         {   session_write_close();
@@ -54,7 +53,6 @@ switch ($action) {
 
         break;
     case 'getindicator':
-        $form = new Portal\Form($db, $login);
         if (is_numeric($_GET['indicatorID']))
         {
             $t_form = new Smarty;
@@ -76,7 +74,7 @@ switch ($action) {
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
-                $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
+                $t_form->assign('orgchartImportTag', LEAF_SETTINGS['orgchartImportTags'][0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->assign('max_filesize', ini_get('upload_max_filesize'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
@@ -89,7 +87,6 @@ switch ($action) {
 
         break;
     case 'getprintindicator':
-        $form = new Portal\Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = XSSHelpers::xscrub($_GET['series']);
         $recordID = (int)$_GET['recordID'];
@@ -114,7 +111,6 @@ switch ($action) {
 
         break;
     case 'getindicatorlog':
-        $form = new Portal\Form($db, $login);
         $indicatorID = (int)$_GET['indicatorID'];
         $series = XSSHelpers::xscrub($_GET['series']);
         $recordID = (int)$_GET['recordID'];
@@ -132,7 +128,6 @@ switch ($action) {
 
         break;
     case 'domodify':
-        $form = new Portal\Form($db, $login);
         echo $form->doModify((int)$_POST['recordID']);
 
         break;
@@ -142,7 +137,7 @@ switch ($action) {
 
         $vars = array('recordID' => $recordID);
         // check if request has a workflow
-        $res = $db->prepared_query('SELECT * FROM category_count
+        $res = DB->prepared_query('SELECT * FROM category_count
                                              LEFT JOIN categories USING (categoryID)
                                              LEFT JOIN workflows USING (workflowID)
                                              WHERE recordID=:recordID
@@ -164,7 +159,7 @@ switch ($action) {
             // show normal submit control if a parallel request has been sent back
             // a request is assumed to sent back if a matching entry exists in the records_dependencies table
             $vars = array('recordID' => $recordID);
-            $res = $db->prepared_query('SELECT * FROM records_dependencies
+            $res = DB->prepared_query('SELECT * FROM records_dependencies
                                              WHERE recordID=:recordID
                                                AND dependencyID = 5
         									   AND filled = 0', $vars);
@@ -173,13 +168,13 @@ switch ($action) {
             }
         }
 
-        $res = $db->prepared_query('SELECT time FROM action_history
+        $res = DB->prepared_query('SELECT time FROM action_history
                 WHERE recordID = :recordID
                 LIMIT 1', $vars);
 
         $lastActionTime = isset($res[0]['time']) ? $res[0]['time'] : 0;
 
-        $requestLabel = $settings['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML($settings['requestLabel']);
+        $requestLabel = LEAF_SETTINGS['requestLabel'] == '' ? 'Request' : XSSHelpers::sanitizeHTML(LEAF_SETTINGS['requestLabel']);
 
         $t_form->assign('recordID', $recordID);
         $t_form->assign('lastActionTime', $lastActionTime);
@@ -198,7 +193,6 @@ switch ($action) {
 
         break;
     case 'dosubmit': // legacy action
-        $form = new Portal\Form($db, $login);
         $recordID = (int)$_GET['recordID'];
         if (is_numeric($recordID) && $form->getProgress($recordID) >= 100)
         {
@@ -222,7 +216,6 @@ switch ($action) {
         /* This endpoint has been deprecated as of 8/31/2023 */
         if (is_numeric($_POST['cancel']))
         {
-            $form = new Portal\Form($db, $login);
             echo $form->deleteRecord((int)$_POST['cancel']);
         }
 
@@ -230,7 +223,6 @@ switch ($action) {
     case 'restore':
         if (is_numeric($_POST['restore']))
         {
-            $form = new Portal\Form($db, $login);
             echo $form->restoreRecord((int)$_POST['restore']);
         }
 
@@ -238,7 +230,7 @@ switch ($action) {
     case 'doapproval':
         // old
         //require 'Action.php';
-        //$approval = new Action($db, $login, $_GET['recordID']);
+        //$approval = new Action(DB, $login, $_GET['recordID']);
         //$approval->addApproval($_POST['groupID'], $_POST['status'], $_POST['comment'], $_POST['dependencyID']);
         break;
     case 'doupload': // legacy handle file upload (retained for older custom files)
@@ -264,7 +256,6 @@ switch ($action) {
 
         if ($uploadOk)
         {
-            $form = new Portal\Form($db, $login);
             if ($form->doModify($_GET['recordID']))
             {
                 $recordID = (int)$_GET['recordID'];
@@ -336,14 +327,11 @@ switch ($action) {
 
         break;
     case 'deleteattachment':
-        $form = new Portal\Form($db, $login);
-
         echo $form->deleteAttachment((int)$_POST['recordID'], (int)$_POST['indicatorID'], XSSHelpers::xscrub($_POST['series']), XSSHelpers::xscrub($_POST['file']));
 
         break;
     case 'getstatus':
-        $form = new Portal\Form($db, $login);
-        $view = new Portal\View($db, $login);
+        $view = new Portal\View(DB, $login);
 
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -367,7 +355,6 @@ switch ($action) {
     case 'printview':
         if ($login->isLogin())
         {
-            $form = new Portal\Form($db, $login);
             $recordIDToPrint = (int)$_GET['recordID'];
 
             $recordInfo = $form->getRecordInfo($recordIDToPrint);
@@ -451,7 +438,6 @@ switch ($action) {
 
         break;
     case 'gettags':
-        $form = new Portal\Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
@@ -465,7 +451,6 @@ switch ($action) {
 
         break;
     case 'getformtags':
-        $form = new Portal\Form($db, $login);
         if (is_numeric($_GET['recordID']))
         {
             $t_form = new Smarty;
@@ -479,7 +464,6 @@ switch ($action) {
 
         break;
     case 'gettagmembers':
-        $form = new Portal\Form($db, $login);
         $t_form = new Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -493,7 +477,6 @@ switch ($action) {
 
         break;
     case 'updatetags':
-        $form = new Portal\Form($db, $login);
         $form->parseTags((int)$_POST['recordID'], XSSHelpers::xscrub($_POST['taginput']));
 
         break;
@@ -502,7 +485,6 @@ switch ($action) {
         {
             exit();
         }
-        $form = new Portal\Form($db, $login);
         $form->addTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
         break;
@@ -511,7 +493,6 @@ switch ($action) {
         {
             exit();
         }
-        $form = new Portal\Form($db, $login);
         $form->deleteTag((int)$_GET['recordID'], 'bookmark_' . XSSHelpers::xscrub($login->getUserID()));
 
         break;

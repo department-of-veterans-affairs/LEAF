@@ -34,7 +34,7 @@ if (isset($_SERVER['REMOTE_USER']))
 
     // see if user is valid
     $vars = array(':userName' => $user);
-    $res = $oc_db->prepared_query('SELECT * FROM employee
+    $res = OC_DB->prepared_query('SELECT * FROM employee
     										WHERE userName=:userName
 												AND deleted=0', $vars);
 
@@ -67,15 +67,15 @@ if (isset($_SERVER['REMOTE_USER']))
                     ':domain' => $res[0]['domain'],
                     ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
-            $oc_db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+            OC_DB->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
     								ON DUPLICATE KEY UPDATE deleted=0', $vars);
-            $empUID = $oc_db->getLastInsertID();
+            $empUID = OC_DB->getLastInsertID();
 
             if ($empUID == 0)
             {
                 $vars = array(':userName' => $res[0]['userName']);
-                $empUID = $oc_db->prepared_query('SELECT empUID FROM employee
+                $empUID = OC_DB->prepared_query('SELECT empUID FROM employee
                                                             WHERE userName=:userName', $vars)[0]['empUID'];
             }
 
@@ -85,7 +85,7 @@ if (isset($_SERVER['REMOTE_USER']))
                     ':author' => 'viaLogin',
                     ':timestamp' => time(),
             );
-            $oc_db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+            OC_DB->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
 											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
                                             ON DUPLICATE KEY UPDATE data=:data', $vars);
 

@@ -20,10 +20,8 @@ error_reporting(E_ERROR);
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-if (isset($settings['timeZone']))
-{
-    date_default_timezone_set($settings['timeZone']);
+if (isset(LEAF_SETTINGS['timeZone'])) {
+    date_default_timezone_set(LEAF_SETTINGS['timeZone']);
 }
 
 $login->setBaseDir('../');
@@ -46,11 +44,12 @@ function checkToken()
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 
+$group = new Portal\Group(DB, $login);
+
 switch ($action) {
     case 'add_user_old':
         checkToken();
 
-        $group = new Portal\Group($db, $login);
         $group->addMember($_POST['userID'], $_POST['groups']);
 
         break;
@@ -60,7 +59,6 @@ switch ($action) {
 
         $deleteList = XSSHelpers::scrubObjectOrArray(json_decode($_POST['json'], true));
 
-        $group = new Portal\Group($db, $login);
         foreach ($deleteList as $del)
         {
             $group->removeMember(XSSHelpers::xscrub($del['userID']), $del['groupID']);
@@ -70,7 +68,6 @@ switch ($action) {
     case 'add_user':
           checkToken();
 
-           $group = new Portal\Group($db, $login);
            $group->addMember($_POST['userID'], $_POST['groupID']);
 
            break;
@@ -78,14 +75,13 @@ switch ($action) {
         // this should be deprecated as of 8/18/2023
            checkToken();
 
-           $group = new Portal\Group($db, $login);
            $group->removeMember($_POST['userID'], $_POST['groupID']);
 
            break;
     case 'printview':
         if ($login->isLogin())
         {
-            $form = new Portal\Form($db, $login);
+            $form = new Portal\Form(DB, $login);
 
             $t_form = new Smarty;
             $t_form->left_delimiter = '<!--{';
@@ -100,14 +96,14 @@ switch ($action) {
 
         break;
     case 'importForm':
-        $formStack = new Portal\FormStack($db, $login);
+        $formStack = new Portal\FormStack(DB, $login);
         $result = $formStack->importForm();
 
         echo $result;
 
         break;
     case 'manualImportForm':
-           $formStack = new Portal\FormStack($db, $login);
+           $formStack = new Portal\FormStack(DB, $login);
            $result = $formStack->importForm();
 
         if ($result === true)
@@ -122,7 +118,7 @@ switch ($action) {
 
            break;
     case 'uploadFile':
-           $system = new Portal\System($db, $login);
+           $system = new Portal\System(DB, $login);
            $result = $system->newFile();
            if ($result === true)
            {
@@ -143,12 +139,9 @@ switch ($action) {
         $tz = isset($_GET['tz']) ? $_GET['tz'] : null;
 
         if($tz == null){
-            //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-            if(isset($settings['timeZone']))
-            {
-                $tz = $settings['timeZone'];
-            }
-            else{
+            if(isset(LEAF_SETTINGS['timeZone'])) {
+                $tz = LEAF_SETTINGS['timeZone'];
+            } else {
                 $tz = 'America/New_York';
             }
         }
@@ -166,17 +159,17 @@ switch ($action) {
         switch ($typeName) {
             case 'service':
                 $dataName = "All Services";
-                $type = new Portal\Service($db, $login);
+                $type = new Portal\Service(DB, $login);
                 break;
             case 'form':
                 $dataName = "All Forms";
-                $type = new Portal\FormEditor($db, $login);
+                $type = new Portal\FormEditor(DB, $login);
                 break;
             case 'group':
                 $dataName = "All Groups";
-                $type = new Portal\Group($db, $login);
+                $type = new Portal\Group(DB, $login);
 
-                $orgchartGroup = new Orgchart\Group($oc_db, $login);
+                $orgchartGroup = new Orgchart\Group(OC_DB, $login);
                 break;
         }
 
@@ -227,12 +220,9 @@ switch ($action) {
         $gethistoryslice = isset($_GET['gethistoryslice']) ? XSSHelpers::xscrub((int)$_GET['gethistoryslice']) : 0;
 
         if($tz == null){
-            //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-            if(isset($settings['timeZone']))
-            {
-                $tz = $settings['timeZone'];
-            }
-            else{
+            if(isset(LEAF_SETTINGS['timeZone'])) {
+                $tz = LEAF_SETTINGS['timeZone'];
+            } else {
                 $tz = 'America/New_York';
             }
         }
@@ -248,47 +238,47 @@ switch ($action) {
         $type = null;
         switch ($typeName) {
             case 'service':
-                $type = new Portal\Service($db, $login);
+                $type = new Portal\Service(DB, $login);
                 $title = $type->getServiceName($itemID);
                 break;
             case 'form':
-                $type = new Portal\FormEditor($db, $login);
+                $type = new Portal\FormEditor(DB, $login);
                 $title = $type->getFormName($itemID);
                 break;
             case 'group':
-                $type = new Portal\Group($db, $login);
+                $type = new Portal\Group(DB, $login);
                 $title = $type->getGroupName($itemID);
                 break;
             case 'workflow':
-                $type = new Portal\Workflow($db, $login);
+                $type = new Portal\Workflow(DB, $login);
                 $title = $type->getDescription($itemID);
                 break;
             case 'primaryAdmin':
-                $type = new Portal\System($db, $login);
+                $type = new Portal\System(DB, $login);
                 $itemID = null;
                 $title = 'Primary Admin';
                 $t_form->assign('titleOverride', "Primary Admin History");
                 break;
             case 'emailTemplate':
-                $type = new Portal\EmailTemplate($db, $login);
+                $type = new Portal\EmailTemplate(DB, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
             case 'templateEditor':
                 // this is depricated and should be removed once it has not been used in over 30 days
-                $type = new Portal\Template($db, $login);
+                $type = new Portal\Template(DB, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
             case 'TemplateReports':
                 // this is depricated and should be removed once it has not been used in over 30 days
-                $type = new Portal\Applet($db, $login);
+                $type = new Portal\Applet(DB, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
             case 'template':
-                $type = new Portal\Template($db, $login);
+                $type = new Portal\Template(DB, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
             case 'applet':
-                $type = new Portal\Applet($db, $login);
+                $type = new Portal\Applet(DB, $login);
                 $t_form->assign('titleOverride', ' ');
                 break;
         }

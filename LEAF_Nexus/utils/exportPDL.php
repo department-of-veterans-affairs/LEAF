@@ -12,15 +12,15 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 $login->setBaseDir('../');
 $login->loginUser();
 
-$position = new Orgchart\Position($db, $login);
-$tag = new Orgchart\Tag($db, $login);
+$position = new Orgchart\Position(OC_DB, $login);
+$tag = new Orgchart\Tag(OC_DB, $login);
 
 header('Content-type: text/csv');
 header('Content-Disposition: attachment; filename="Exported_' . time() . '.csv"');
 
 echo "LEAF Position ID, HR Smart Position Number, Service, Position Title, Classification Title, Employee Name, Employee Username, Supervisor Name, Pay Plan, Series, Pay Grade, FTE Ceiling / Total Headcount, Current FTE, PD Number, Note\r\n";
 
-$res = $db->prepared_query('SELECT * FROM positions', array());
+$res = OC_DB->prepared_query('SELECT * FROM positions', array());
 
 //$pos = $res[15]; // for testing
 foreach ($res as $pos)

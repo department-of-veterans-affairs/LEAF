@@ -26,7 +26,7 @@ switch ($action) {
         {
             $vars = array(':stepID' => $stepID,
                           ':moduleName' => $script);
-            $res = $db->prepared_query('SELECT * FROM step_modules
+            $res = DB->prepared_query('SELECT * FROM step_modules
                                             WHERE stepID=:stepID
                                                 AND moduleName=:moduleName', $vars);
             if(count($res) > 0) {

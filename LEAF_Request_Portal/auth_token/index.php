@@ -31,7 +31,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
     }
 
     $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
-    $res = $oc_db->prepared_query('SELECT * FROM employee_data
+    $res = OC_DB->prepared_query('SELECT * FROM employee_data
 											LEFT JOIN employee USING (empUID)
 											WHERE indicatorID = 6
 												AND data = :email
@@ -66,15 +66,15 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
                     ':domain' => $res[0]['domain'],
                     ':lastUpdated' => time(),
                     ':new_empUUID' => $res[0]['new_empUUID'] );
-            $oc_db->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+            OC_DB->prepared_query('INSERT INTO employee (firstName, lastName, middleName, userName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                                   VALUES (:firstName, :lastName, :middleName, :userName, :phoFirstName, :phoLastName, :domain, :lastUpdated, :new_empUUID)
 									ON DUPLICATE KEY UPDATE deleted=0', $vars);
-            $empUID = $oc_db->getLastInsertID();
+            $empUID = OC_DB->getLastInsertID();
 
             if ($empUID == 0)
             {
                 $vars = array(':userName' => $res[0]['userName']);
-                $empUID = $oc_db->prepared_query('SELECT empUID FROM employee
+                $empUID = OC_DB->prepared_query('SELECT empUID FROM employee
                                                             WHERE userName=:userName', $vars)[0]['empUID'];
             }
 
@@ -84,7 +84,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
                           ':author' => 'viaLogin',
                           ':timestamp' => time(),
             );
-            $oc_db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+            OC_DB->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
 											VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
 											ON DUPLICATE KEY UPDATE data=:data', $vars);
 

@@ -114,10 +114,4 @@ class Site
         $status['message'] = "success";
         return $status;
     }
-	public function getSitemapJSON()
-	{
-        $settings = $this->db->prepared_query('SELECT data from settings WHERE setting="sitemap_json"', null);
-
-		return $settings;
-	}
 }

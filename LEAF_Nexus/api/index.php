@@ -8,7 +8,7 @@ error_reporting(E_ERROR);
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-$oc_db = $oc_db;
+$oc_db = OC_DB;
 $oc_login->setBaseDir('../');
 
 if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {

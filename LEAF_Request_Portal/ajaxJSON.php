@@ -21,13 +21,13 @@ $action = isset($_GET['a']) ? $_GET['a'] : '';
 
 switch ($action) {
     case 'getform':
-        $form = new Portal\Form($db, $login);
+        $form = new Portal\Form(DB, $login);
         header('Content-type: application/json');
         echo $form->getFormJSON($_GET['recordID']);
 
         break;
     case 'getprogress': // support legacy customizations
-           $form = new Portal\Form($db, $login);
+           $form = new Portal\Form(DB, $login);
            header('Content-type: application/json');
            // this method does not exist in Form class
            // echo $form->getProgressJSON($_GET['recordID']);
@@ -41,7 +41,7 @@ switch ($action) {
             exit();
         }
         $vars = array(':lastStatusTime' => $_GET['lastStatusTime']);
-        $res = $db->prepared_query('SELECT recordID FROM action_history
+        $res = DB->prepared_query('SELECT recordID FROM action_history
         								WHERE time > :lastStatusTime
         								GROUP BY recordID', $vars);
         echo json_encode($res);
@@ -54,7 +54,7 @@ switch ($action) {
         }
 
         $vars = array(':recordID' => $_GET['recordID']);
-        $res = $db->prepared_query('SELECT * FROM records_dependencies
+        $res = DB->prepared_query('SELECT * FROM records_dependencies
     									LEFT JOIN category_count USING (recordID)
     									LEFT JOIN categories USING (categoryID)
     									LEFT JOIN step_dependencies USING (dependencyID)

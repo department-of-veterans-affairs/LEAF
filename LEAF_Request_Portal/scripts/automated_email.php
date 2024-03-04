@@ -21,7 +21,7 @@ $comment = '';
 
 $getWorkflowStepsSQL = 'SELECT workflowID, stepID,stepTitle,stepData
 FROM workflow_steps WHERE stepData LIKE \'%"AutomateEmailGroup":"true"%\';';
-$getWorkflowStepsRes = $db->prepared_query($getWorkflowStepsSQL, []);
+$getWorkflowStepsRes = DB->prepared_query($getWorkflowStepsSQL, []);
 
 // do we have automated notification setup here
 if (empty($getWorkflowStepsRes)) {
@@ -82,7 +82,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         AND initialNotificationSent = 0
         AND deleted = 0;';
 
-    $getRecordResInitial = $db->prepared_query($getRecordSql, $getRecordVar);
+    $getRecordResInitial = DB->prepared_query($getRecordSql, $getRecordVar);
 
     foreach($getRecordResInitial as $getRecordResInitialKey=>$getRecordResInitialValue) {
         $getRecordResInitial[$getRecordResInitialKey]['daysSince'] = $daysago;
@@ -117,7 +117,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         AND initialNotificationSent = 1
         AND deleted = 0;';
 
-    $getRecordResAfter = $db->prepared_query($getRecordSql, $getRecordVar);
+    $getRecordResAfter = DB->prepared_query($getRecordSql, $getRecordVar);
 
     foreach($getRecordResAfter as $getRecordResAfterKey=>$getRecordResAfterValue){
         $getRecordResAfter[$getRecordResAfterKey]['daysSince'] = $addldaysago;
@@ -137,7 +137,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         // get the last action
         $getLastActionVar = [':recordID' => $record['recordID']];
         $getLastActionSql = "SELECT `time` FROM action_history WHERE recordID = :recordID ORDER BY `time` DESC LIMIT 1;";
-        $getLastActionRes = $db->prepared_query($getLastActionSql, $getLastActionVar);
+        $getLastActionRes = DB->prepared_query($getLastActionSql, $getLastActionVar);
 
         if(!empty($getLastActionRes[0])){
             // if this is not empty use the time of the action
@@ -195,7 +195,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $updateRecordsWorkflowStateSql = 'UPDATE records_workflow_state
                                             SET lastNotified=:lastNotified, initialNotificationSent=1
                                             WHERE recordID=:recordID';
-        $db->prepared_query($updateRecordsWorkflowStateSql, $updateRecordsWorkflowStateVars);
+        DB->prepared_query($updateRecordsWorkflowStateSql, $updateRecordsWorkflowStateVars);
 
         echo "Email sent for {$record['recordID']} ({$daysSinceText}) \r\n";
     }

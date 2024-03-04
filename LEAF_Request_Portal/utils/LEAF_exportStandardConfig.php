@@ -9,14 +9,12 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $debug = false;
 
-$res = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
-
-if($res['siteType'] != 'national_primary') {
+if(LEAF_SETTINGS['siteType'] != 'national_primary') {
     exit();
 }
 
 if ($debug) {
-    $db->enableDebug();
+    DB->enableDebug();
 }
 echo "Running Package Builder...<br />\n";
 array_map('unlink', glob($tempFolder . '*.sql'));

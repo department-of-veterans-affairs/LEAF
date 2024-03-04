@@ -6,7 +6,7 @@ use App\Leaf\DbUpdate;
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-$update = new DbUpdate($db, $setting_up, 'orgchart', PORTAL_PATH);
+$update = new DbUpdate(DB, $setting_up, 'orgchart', PORTAL_PATH);
 
 $update->run();
 
