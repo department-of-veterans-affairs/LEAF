@@ -76,6 +76,7 @@ switch ($action) {
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+                $t_form->assign('abs_portal_filepath', ABSOLUTE_PORT_PATH.'/');
                 $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->assign('max_filesize', ini_get('upload_max_filesize'));
@@ -108,6 +109,7 @@ switch ($action) {
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+                $t_form->assign('abs_portal_filepath', ABSOLUTE_PORT_PATH.'/');
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
