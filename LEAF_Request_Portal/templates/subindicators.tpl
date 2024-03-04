@@ -725,7 +725,7 @@
                             formData.append('series', series);
                             $.ajax({
                                 type: 'POST',
-                                url: `<!--{$abs_portal_filepath}-->api/form/${recordID}`,
+                                url: `<!--{$portal_url}-->api/form/${recordID}`,
                                 data: formData,
                                 success: (res) => {
                                     loaderEl.style.display = 'none';
@@ -773,7 +773,7 @@
                         <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" 
                             style="background-color:<!--{if $counter % 2 == 1}-->#e4f2ff<!--{else}-->#d7e5ff<!--{/if}-->; padding: 4px; display: flex; align-items: center" >
                             <img src="dynicons/?img=mail-attachment.svg&amp;w=16" alt="" /> 
-                            <a href="<!--{$abs_portal_filepath}-->file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
+                            <a href="<!--{$portal_url}-->file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
                             <span style="display: inline-block; margin-left: auto; padding: 4px">
                                 <button type="button" class="link"
                                     title="delete file <!--{$file|sanitize}-->"
@@ -789,7 +789,7 @@
                                 dialog_confirm.setSaveHandler(function() {
                                     $.ajax({
                                         type: 'POST',
-                                        url: "<!--{$abs_portal_filepath}-->ajaxIndex.php?a=deleteattachment&recordID=<!--{$recordID|strip_tags}-->&indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&series=<!--{$indicator.series|strip_tags}-->",
+                                        url: "<!--{$portal_url}-->ajaxIndex.php?a=deleteattachment&recordID=<!--{$recordID|strip_tags}-->&indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&series=<!--{$indicator.series|strip_tags}-->",
                                         data: {
                                             recordID: <!--{$recordID|strip_tags}-->,
                                             indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,
