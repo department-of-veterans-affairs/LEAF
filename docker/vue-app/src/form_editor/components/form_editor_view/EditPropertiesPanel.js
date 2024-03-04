@@ -271,7 +271,7 @@ export default {
                             <option value="parallel_processing" :selected="type === 'parallel_processing'">Parallel Processing</option>
                         </select>
                     </label>
-                    <div style="display:flex; align-items: center; column-gap: 1rem;">
+                    <div v-if="false" style="display:flex; align-items: center; column-gap: 1rem;">
                         <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age
                             <select id="destructionAgeYears" v-model="destructionAgeYears"
                                 title="resolved request destruction age in years" 

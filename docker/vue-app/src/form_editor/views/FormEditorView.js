@@ -757,6 +757,7 @@ export default {
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>
                 <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Editor
+                <a href="./?a=form#" class="leaf-crumb-link" style="margin-left: auto; font-size:80%;">Back to old Form Editor</a>
             </h2>
             <!-- TOP INFO PANEL -->
             <edit-properties-panel :key="'panel_' + focusedFormID" :hasCollaborators="hasCollaborators"></edit-properties-panel>

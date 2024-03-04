@@ -53,6 +53,13 @@ nav#top-menu-nav {
     }
 }
 
+#page_breadcrumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.125rem;
+}
+
 
 #form_browser_tables {
     h3 {
@@ -566,7 +573,7 @@ table[class$="SelectorTable"] th {
             border-radius: 4px;
             background-color: white;
             &.form-header, &.preview.form-header {
-                border-top: 0.625rem solid black;
+                border-top: 0.3125rem solid black;
                 > .form_editing_area {
                     border-radius: 4px;
                 }
@@ -583,6 +590,7 @@ table[class$="SelectorTable"] th {
             }
             &:not(.form-header):not(.preview) {
                 margin-left: 0.5rem;
+                border-top: 1px solid #e8e8e8;
             }
         }
     }
