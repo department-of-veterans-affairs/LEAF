@@ -8,7 +8,7 @@
     <div class="page-title-container">
         <h2>Template Editor</h2>
         <div class="mobileToolsNav">
-            <button type="button" class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
+            <button type="button" class="mobileToolsNavBtn" onclick="rightNavVisible(true)">Template Tools</button>
         </div>
     </div>
     <div class="page-main-content">
@@ -99,7 +99,7 @@
         </main>
         <div class="leaf-right-nav">
             <div id="closeMobileToolsNavBtnContainer"><button type="button" id="closeMobileToolsNavBtn" aria-label="close"
-                    onclick="closeRightNavTools('leaf-right-nav')">X</button></div>
+                    onclick="rightNavVisible(false)">X</button></div>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right">
@@ -111,7 +111,7 @@
                             class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
 
-                    <button type="button" id="restore_original_mobile"
+                    <button type="button" id="restore_original"
                         class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
                         onclick="restore();">
                         Restore Original
@@ -142,13 +142,18 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button id="restore_original" type="button"
-                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
-                        onclick="restore();">
-                        Restore Original
+                    <button type="button" id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
+                        onclick="save();">
+                        Save Changes<span id="saveStatus"
+                            class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
-                    <button type="button" class="file_replace_file_btn">Use Old File</button>
-                    <button type="button" class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
+                    <button type="button" class="file_replace_file_btn usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem">
+                        Use Old File
+                    </button>
+                    <button type="button" class="close_expand_mode_screen usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
+                        onclick="exitExpandScreen()">
+                        Stop Comparing
+                    </button>
                 </div>
             </aside>
             <div class="file-history">
@@ -165,17 +170,11 @@
 
 
 <script>
-    function openRightNavTools(option) {
-        let nav = $('.' + option + '');
+    function rightNavVisible(visible = false) {
+        let nav = $('.leaf-right-nav');
         nav.css({
-            'right': '0'
-        });
-    }
-
-    function closeRightNavTools(option) {
-        let nav = $('.' + option + '');
-        nav.css({
-            'right': '-100%'
+            'right': visible ? '0' : '-100%',
+            'visibility': visible ? 'visible' : 'hidden',
         });
     }
 
@@ -220,50 +219,6 @@
         });
     }
 
-    function save_compare() {
-        $('#saveIndicator').attr('src', '../images/indicator.gif');
-        var data = '';
-        if (codeEditor.getValue() == undefined) {
-            data = codeEditor.edit.getValue();
-        } else {
-            data = codeEditor.getValue();
-        }
-
-        // Check if the content has changed
-        if (data === currentFileContent) {
-            alert('There are no changes to save.');
-            return;
-        }
-
-        $.ajax({
-            type: 'POST',
-            data: {
-                CSRFToken: '<!--{$CSRFToken}-->',
-                file: data
-            },
-            url: '../api/template/_' + currentFile,
-            success: function(res) {
-                $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
-                $('.modifiedTemplate').css('display', 'block');
-                if ($('#btn_compareStop').css('display') != 'none') {
-                    $('#btn_compare').css('display', 'none');
-                }
-
-                var time = new Date().toLocaleTimeString();
-                $('#saveStatusCompared').html('<br /> Last saved: ' + time);
-                setTimeout(function() {
-                    $('#saveStatusCompared').fadeOut(1000, function() {
-                        $(this).html('').fadeIn();
-                    });
-                }, 3000);
-                currentFileContent = data;
-                if (res != null) {
-                    alert(res);
-                }
-                saveFileHistory();
-            }
-        });
-    }
     // creates a copy of the current file content
     function saveFileHistory() {
         var data = '';
@@ -563,7 +518,6 @@
         $('#btn_compareStop').css('display', 'none');
         $('#btn_merge').css('display', 'block');
         $('#word-wrap-button').css('display', 'block');
-        $('.save_button').css('display', 'none');
         $('.file_replace_file_btn').css('display', 'block');
         var wordWrapEnabled = false; // default to false
 

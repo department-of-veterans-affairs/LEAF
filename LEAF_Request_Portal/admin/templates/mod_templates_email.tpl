@@ -8,7 +8,7 @@
     <div class="page-title-container">
         <h2>Email Template Editor</h2>
         <div class="mobileToolsNav">
-            <button type="button" class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
+            <button type="button" class="mobileToolsNavBtn" onclick="rightNavVisible(true)">Template Tools</button>
         </div>
     </div>
     <div class="page-main-content">
@@ -203,7 +203,7 @@
         </main>
         <div class="leaf-right-nav">
             <div id="closeMobileToolsNavBtnContainer"><button type="button" id="closeMobileToolsNavBtn" aria-label="close tools menu"
-                    onclick="closeRightNavTools('leaf-right-nav')">X</button></div>
+                    onclick="rightNavVisible(false)">X</button></div>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right">
@@ -225,8 +225,8 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button type="button" class="file_replace_file_btn">Use Old File</button>
-                    <button type="button" class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
+                    <button type="button" class="file_replace_file_btn usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem">Use Old File</button>
+                    <button type="button" class="close_expand_mode_screen usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
             <div class="file-history">
@@ -242,10 +242,11 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
-    function openRightNavTools(option) {
-        let nav = $('.' + option + '');
+    function rightNavVisible(visible = false) {
+        let nav = $('.leaf-right-nav');
         nav.css({
-            'right': '0'
+            'right': visible ? '0' : '-100%',
+            'visibility': visible ? 'visible' : 'hidden',
         });
     }
 
@@ -276,12 +277,6 @@
         }
     }
 
-    function closeRightNavTools(option) {
-        let nav = $('.' + option + '');
-        nav.css({
-            'right': '-100%'
-        });
-    }
     var codeEditor;
     // saves current file content changes
     function save() {

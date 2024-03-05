@@ -391,20 +391,6 @@ legend {
     width: 80%;
 }
 
-.file_compare_file_btn,
-.file_replace_file_btn,
-.close_expand_mode_screen {
-    width: 100%;
-    padding: 10px 0;
-    border: none;
-    color: #fff;
-    font-weight: 700;
-    margin-top: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 5px;
-}
-
 .template_link {
     font-size: 0.8rem;
     border: 1px solid #eee;
@@ -416,60 +402,14 @@ legend {
     background-color: #ccc;
 }
 
-.file_replace_file_btn {
-    width: 100%;
-    padding: 10px 0;
-    border: none;
-    background-color: #B50909;
-    color: #fff;
-    font-weight: 700;
-    margin-top: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 5px;
-}
-
-.file_replace_file_btn:hover {
-    background-color: #960707;
-}
-
-.file_replace_file_btn,
-.close_expand_mode_screen {
-    width: 100%;
-    padding: 10px 0;
-    border: none;
-    color: #fff;
-    font-weight: 700;
-    margin-top: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 5px;
-}
-
-.close_expand_mode_screen {
+#save_button {
     background-color: #1a4480;
-    font-size: 1rem;
-}
-
-.close_expand_mode_screen:hover {
-    background-color: #143461;
 }
 
 .page-title-container>h2 {
     width: 100%;
     margin: 15px 0;
     text-align: left;
-}
-
-.page-title-container>.file_replace_file_btn {
-    display: none;
-    width: 20%;
-}
-
-.page-title-container>.close_expand_mode_screen {
-    display: none;
-    width: 10%;
-    min-width: 200px;
 }
 
 #save_button_compare {
