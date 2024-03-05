@@ -680,7 +680,7 @@ table[class$="SelectorTable"] th {
         }
         /* 2nd section of editing_area (format preview) */
         .format_preview {
-            padding: 0.5rem 0 0.75rem 0.5rem;
+            padding: 0.5rem 0.25rem 0.75rem 0.5rem;
             .text_input_preview {
                 display: inline-block;
                 width: 75%;
@@ -926,7 +926,7 @@ table[class$="SelectorTable"] th {
                 flex: 0 0 100%;
             }
             .tableinput {
-                max-width: 400px;
+                max-width: 580px;
             }
         }
     }
