@@ -1,1 +1,1 @@
-Action for {{$truncatedTitle}} (#{{$recordID}}) in {{$service}}
+Action needed: {{$truncatedTitle}} (#{{$recordID}}) in {{$service}}
