@@ -76,6 +76,7 @@ switch ($action) {
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+                $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
                 $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->assign('max_filesize', ini_get('upload_max_filesize'));
@@ -108,6 +109,7 @@ switch ($action) {
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+                $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
@@ -398,7 +400,7 @@ switch ($action) {
             $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
-            $t_form->assign('abs_portal_path', ABSOLUTE_PORT_PATH);
+            $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {

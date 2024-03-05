@@ -436,7 +436,10 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('app_css_path', APP_CSS_PATH);
         $t_form->assign('app_js_path', APP_JS_PATH);
-        $main->assign('javascripts', array(APP_JS_PATH . '/choicesjs/choices.min.js'));
+        $main->assign('javascripts', array(
+            APP_JS_PATH . '/choicesjs/choices.min.js',
+            APP_JS_PATH . '/LEAF/XSSHelpers.js',
+        ));
         $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox.tpl')));
