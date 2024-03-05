@@ -59,8 +59,8 @@ class Db
             );
 
             // make sure there are no active transactions on script termination
-            register_shutdown_function(function() {
-                if($this->db->inTransaction()) {
+            register_shutdown_function(function () {
+                if ($this->db->inTransaction()) {
                     $this->db->rollBack();
                 }
             });
@@ -111,7 +111,7 @@ class Db
         try {
             $this->db = null;
         } catch (\Exception $e) {
-            $this->logError('Connection normal closed: '.$e);
+            $this->logError('Connection normal closed: ' . $e);
         }
     }
 
@@ -123,8 +123,7 @@ class Db
 
     public function beginTransaction()
     {
-        if ($this->debug)
-        {
+        if ($this->debug) {
             $this->log[] = 'Beginning Transaction';
         }
         if ($this->db->inTransaction()) {
@@ -136,8 +135,7 @@ class Db
 
     public function commitTransaction()
     {
-        if ($this->debug)
-        {
+        if ($this->debug) {
             $this->log[] = 'Committing Transaction';
         }
 
@@ -155,8 +153,7 @@ class Db
         $offset = (int)$offset;
         $quantity = (int)$quantity;
 
-        if ($quantity > 0)
-        {
+        if ($quantity > 0) {
             $this->limit = "LIMIT {$offset},{$quantity}";
         }
     }
@@ -164,33 +161,30 @@ class Db
     // Raw Queries the database and returns an associative array
     public function query($sql)
     {
-        if ($this->limit != '')
-        {
+        if ($this->limit != '') {
             $sql = "{$sql} {$this->limit}";
             $this->limit = '';
         }
 
         $time1 = microtime(true);
-        if ($this->debug)
-        {
+        if ($this->debug) {
             $this->log[] = $sql;
-            if ($this->debug >= 2)
-            {
+            if ($this->debug >= 2) {
                 $query = $this->db->query('EXPLAIN ' . $sql);
                 $this->log[] = $query->fetchAll(\PDO::FETCH_ASSOC);
             }
         }
 
+
+
         $res = $this->db->query($sql);
-        if ($res !== false)
-        {
+        if ($res !== false) {
             return $res->fetchAll(\PDO::FETCH_ASSOC);
         }
         $err = $this->db->errorInfo();
         $this->logError($err[2]);
 
-        if ($this->debug)
-        {
+        if ($this->debug) {
             $this->time += microtime(true) - $time1;
         }
     }
@@ -243,8 +237,8 @@ class Db
 
         // using a loop since large datasets seem to be slower than a loop
         $executeData = [];
-        foreach($batchData as $row){
-            foreach($row as $datum) {
+        foreach ($batchData as $row) {
+            foreach ($row as $datum) {
                 $executeData[] = $datum;
             }
         }
@@ -276,15 +270,29 @@ class Db
             }
         }
 
+        // if we are looking at a ajax request we will want to not want that request go into the queue. This may need some tweaking
+        if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'XMLHttpRequest') {
+            ini_set('display_errors', '1');
+            ini_set('display_startup_errors', '1');
+            error_reporting(E_ALL);
+
+            if (stristr($sql, 'records')) {
+$this->db->query("SET SESSION MAX_EXECUTION_TIME=2000;");
+           
+                var_dump($sql);
+            }
+        }
+
         if ($dry_run == false && $this->dryRun == false) {
             $query = $this->db->prepare($sql);
 
             try {
                 $query->execute($vars);
             } catch (\PDOException $e) {
-                if ($this->runErrors)
-                {
-                    $this->show_data(["sql"=>$sql,"exception"=>$e]);
+                var_dump($e->getMessage());
+                exit('ded');
+                if ($this->runErrors) {
+                    $this->show_data(["sql" => $sql, "exception" => $e]);
                 }
             }
         } else {
@@ -294,8 +302,18 @@ class Db
         if ($this->debug) {
             $this->time += microtime(true) - $time1;
         }
-
-        return $query->fetchAll(\PDO::FETCH_ASSOC);
+        try {
+            $returndata = $query->fetchAll(\PDO::FETCH_ASSOC);
+            $this->db->query("SELECT SLEEP(3000);");
+            if (stristr($sql, 'records')) {
+                var_dump($returndata);
+            }
+            return $returndata;
+        } catch (\PDOException $e) {
+            exit('noooooooo');
+            var_dump($e->getMessage());
+            exit();
+        }
     }
 
     public function pdo_select_query($sql, $vars): array
@@ -311,24 +329,24 @@ class Db
 
         try {
             if ($query->execute($vars)) {
-                $return_value = array (
-                    'status' => array (
+                $return_value = array(
+                    'status' => array(
                         'code' => 2,
                         'message' => ''
                     ),
                     'data' => $query->fetchAll(\PDO::FETCH_ASSOC)
                 );
             } else {
-                $return_value = array (
-                    'status' => array (
+                $return_value = array(
+                    'status' => array(
                         'code' => 4,
                         'message' => 'Query failed to execute'
                     )
                 );
             }
         } catch (\PDOException $e) {
-            $return_value = array (
-                'status' => array (
+            $return_value = array(
+                'status' => array(
                     'code' => 4,
                     'message' => 'PDO exception error'
                 )
@@ -352,23 +370,23 @@ class Db
 
         try {
             if ($query->execute($vars)) {
-                $return_value = array (
-                    'status' => array (
+                $return_value = array(
+                    'status' => array(
                         'code' => 2,
                         'message' => 'Insert was successful'
                     )
                 );
             } else {
-                $return_value = array (
-                    'status' => array (
+                $return_value = array(
+                    'status' => array(
                         'code' => 4,
                         'message' => 'Query failed to execute'
                     )
                 );
             }
         } catch (\PDOException $e) {
-            $return_value = array (
-                'status' => array (
+            $return_value = array(
+                'status' => array(
                     'code' => 4,
                     'message' => 'PDO exception error'
                 )
@@ -392,23 +410,23 @@ class Db
 
         try {
             if ($query->execute($vars)) {
-                $return_value = array (
-                    'status' => array (
+                $return_value = array(
+                    'status' => array(
                         'code' => 2,
                         'message' => 'Update was successful'
                     )
                 );
             } else {
-                $return_value = array (
-                    'status' => array (
+                $return_value = array(
+                    'status' => array(
                         'code' => 4,
                         'message' => 'Query failed to execute'
                     )
                 );
             }
         } catch (\PDOException $e) {
-            $return_value = array (
-                'status' => array (
+            $return_value = array(
+                'status' => array(
                     'code' => 4,
                     'message' => 'PDO exception error'
                 )
@@ -432,23 +450,23 @@ class Db
 
         try {
             if ($query->execute($vars)) {
-                $return_value = array (
-                    'status' => array (
+                $return_value = array(
+                    'status' => array(
                         'code' => 2,
                         'message' => 'Delete was successful'
                     )
                 );
             } else {
-                $return_value = array (
-                    'status' => array (
+                $return_value = array(
+                    'status' => array(
                         'code' => 4,
                         'message' => 'Query failed to execute'
                     )
                 );
             }
         } catch (\PDOException $e) {
-            $return_value = array (
-                'status' => array (
+            $return_value = array(
+                'status' => array(
                     'code' => 4,
                     'message' => 'PDO exception error'
                 )
@@ -459,11 +477,12 @@ class Db
         return $return_value;
     }
 
-    private function show_data(array $dataIn = []) {
+    private function show_data(array $dataIn = [])
+    {
         echo "<pre>";
-        echo "Host: " . $this->dbHost."\n";
-        echo "User: " . $this->dbUser ."\n";
-        echo "DB Name: " . $this->dbName."\n";
+        echo "Host: " . $this->dbHost . "\n";
+        echo "User: " . $this->dbUser . "\n";
+        echo "DB Name: " . $this->dbName . "\n";
         print_r($dataIn);
         die("full stop");
     }
@@ -481,19 +500,13 @@ class Db
         $out = array();
         $res = $this->prepared_query($sql, $vars);
 
-        if (!is_array($value))
-        {
-            foreach ($res as $result)
-            {
+        if (!is_array($value)) {
+            foreach ($res as $result) {
                 $out[$result[$key]] = $result[$value];
             }
-        }
-        else
-        {
-            foreach ($res as $result)
-            {
-                foreach ($value as $column)
-                {
+        } else {
+            foreach ($res as $result) {
+                foreach ($value as $column) {
                     $out[$result[$key]][$column] = $result[$column];
                 }
             }
@@ -550,14 +563,15 @@ class Db
         $this->dryRun = true;
     }
 
-    private function checkLastModified() {
+    private function checkLastModified()
+    {
         //get the last build time
         $defaultTime = "Thur, January 1, 1970 00:00:00 GMT";
         $lastBuildTime = getenv('LAST_BUILD_DATE', true) ? getenv('LAST_BUILD_DATE') : $defaultTime;
 
         // set last-modified header
         // header('Cache-Control: no-cache, must-revalidate');
-        header('Last-Modified: ' . $lastBuildTime );
+        header('Last-Modified: ' . $lastBuildTime);
 
         // Check if last build time is exactly the same (if so, use cache)
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
