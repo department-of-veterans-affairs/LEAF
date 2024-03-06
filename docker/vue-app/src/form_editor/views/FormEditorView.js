@@ -53,7 +53,6 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'libsPath',
         'getSiteSettings',
         'setDefaultAjaxResponseMessage',
         'appIsLoadingCategories',
@@ -587,11 +586,12 @@ export default {
                     event.dataTransfer.dropEffect = 'move';
                     event.dataTransfer.effectAllowed = 'move';
                     event.dataTransfer.setData('text/plain', event.target.id);
-                    //prevent ghosting of various dragged and non-dragged elements.
-                    const dragIcon = new Image();
-                    dragIcon.src = this.libsPath + 'dynicons/svg/go-jump.svg';
-                    event.dataTransfer.setDragImage(dragIcon, -10, -10);
-
+                    const btn = document.getElementById(`${event.target.id}_button`);
+                    if(btn !== null) {
+                        const x = btn.offsetWidth/2;
+                        const y = btn.offsetHeight/2;
+                        event.dataTransfer.setDragImage(btn, x, y);
+                    }
                     const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
                     this.focusIndicator(+indID);
                 }
