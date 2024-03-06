@@ -34,6 +34,12 @@ class Db
     private $limit = '';
 
     private $isConnected = false;
+    
+    /** @var bool $isAjaxCall sets if this is an ajax call, used for isolating ajax calls from direct calls */
+    private $isAjaxCall = false;
+    
+    /** @var bool $canDeferLargeQueries environment configuration to allow or disallow large queries */
+    private $canDeferLargeQueries = true;
 
     // Connect to the database
     public function __construct($host, $user, $pass, $database, $abortOnError = false)
@@ -76,6 +82,10 @@ class Db
             }
 
             $this->isConnected = false;
+        }
+
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            $this->isAjaxCall = true;
         }
 
         unset($pass);
@@ -271,26 +281,36 @@ class Db
         }
 
         // if we are looking at a ajax request we will want to not want that request go into the queue. This may need some tweaking
-        if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'XMLHttpRequest') {
+        if (!$this->isAjaxCall && stristr($sql, 'records') !== FALSE) {
+            
             ini_set('display_errors', '1');
             ini_set('display_startup_errors', '1');
-            error_reporting(E_ALL);
-
-            if (stristr($sql, 'records')) {
-$this->db->query("SET SESSION MAX_EXECUTION_TIME=2000;");
-           
-                var_dump($sql);
-            }
+            error_reporting(E_ALL ^ E_WARNING);
+            // this is only for testing, this should be removed before flight
+            $this->db->query("SET SESSION MAX_EXECUTION_TIME=1;");   
+                    
         }
 
         if ($dry_run == false && $this->dryRun == false) {
+            
             $query = $this->db->prepare($sql);
 
             try {
                 $query->execute($vars);
             } catch (\PDOException $e) {
-                var_dump($e->getMessage());
-                exit('ded');
+                if (!$this->isAjaxCall && stristr($sql, 'records') !== FALSE) {
+                    //var_dump($e->getCode());
+                }
+
+                // we want to only do this if we are getting an errorcode (need more looking) and that we are able to defer
+                if ($e->getCode() === 'HY000' && $this->canDeferLargeQueries ) {
+
+                    // dump query off to process_query
+                    http_response_code(202);
+                    exit("The data you are requesting is taking a bit longer than expected.");
+                    
+                }
+
                 if ($this->runErrors) {
                     $this->show_data(["sql" => $sql, "exception" => $e]);
                 }
@@ -302,17 +322,20 @@ $this->db->query("SET SESSION MAX_EXECUTION_TIME=2000;");
         if ($this->debug) {
             $this->time += microtime(true) - $time1;
         }
+
         try {
-            $returndata = $query->fetchAll(\PDO::FETCH_ASSOC);
-            $this->db->query("SELECT SLEEP(3000);");
-            if (stristr($sql, 'records')) {
-                var_dump($returndata);
-            }
-            return $returndata;
+
+            return $query->fetchAll(\PDO::FETCH_ASSOC);
+            
         } catch (\PDOException $e) {
-            exit('noooooooo');
-            var_dump($e->getMessage());
-            exit();
+
+            // we want to only do this if we are getting an errorcode (need more looking) and that we are able to defer
+            if ($e->getCode() === 'HY000' && $this->canDeferLargeQueries ) {
+                // dump query off to process_query
+                http_response_code(202);
+                exit("The data you are requesting is taking a bit longer than expected.");
+            }
+
         }
     }
 
