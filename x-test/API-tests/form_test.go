@@ -47,6 +47,17 @@ func TestForm_NonadminCannotEditData(t *testing.T) {
 	}
 }
 
+func TestForm_NeedToKnowDataReadAccess(t *testing.T) {
+	got, res := httpGet(rootURL + "api/form/505/data?masquerade=nonAdmin")
+	if !cmp.Equal(res.StatusCode, 200) {
+		t.Errorf("./api/form/505/data?masquerade=nonAdmin Status Code = %v, want = %v", res.StatusCode, 200)
+	}
+	want := `[]`
+	if !cmp.Equal(got, want) {
+		t.Errorf("Non-admin, non actor should not have read access to need to know record. got = %v, want = %v", got, want)
+	}
+}
+
 func TestForm_RequestFollowupAllowCaseInsensitiveUserID(t *testing.T) {
 	postData := url.Values{}
 	postData.Set("CSRFToken", csrfToken)

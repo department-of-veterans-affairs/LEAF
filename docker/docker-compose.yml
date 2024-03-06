@@ -171,6 +171,8 @@ services:
             - leaf-sql
         working_dir: /app
         entrypoint: go run .
+        extra_hosts:
+            - host.docker.internal:host-gateway
 
 volumes:
     leaf-php-data:
