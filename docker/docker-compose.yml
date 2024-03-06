@@ -155,6 +155,23 @@ services:
         volumes:
             - leaf-mysql-data:/var/lib/mysql
 
+    leaf-api-test-helper:
+        image: golang
+        container_name: leaf-api-test-helper
+        volumes:
+          - "../x-test/api-test-helper/:/app"
+          - "../x-test/API-tests/:/API-tests"
+        ports:
+          - "8000:8000"
+        env_file:
+            - ./env_files/mysql_local.env
+            - ./env_files/secrets.env
+        networks:
+          - leaf
+          - leaf-sql
+        working_dir: /app
+        entrypoint: go run .
+
 volumes:
     leaf-php-data:
         external: true
