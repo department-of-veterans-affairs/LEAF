@@ -153,7 +153,7 @@ function removeUser(groupID = -1, userID = '') {
     } else {
         $.ajax({
             async: false,
-            type: 'POST',
+            type: 'DELETE',
             url: "../api/service/" + groupID + "/members/_" + userID,
             data: {'CSRFToken': '<!--{$CSRFToken}-->'},
             fail: function(err) {
@@ -238,8 +238,8 @@ function initiateModal(serviceID = 0, serviceName = '') {
                     '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + serviceID + '" title="groupID: ' + serviceID + '" target="_blank"><h2 role="heading" tabindex="-1">' + serviceName + '</h2></a><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div></br><div id="employees"></div>');
 
                 $('#employees').html('<div id="employee_table" style="display: table-header-group"></div><br /><div id="showInactive" class="fas fa-angle-right" style="cursor: pointer;"></div><div id="inactive_table" style="display: none"></div>');
-                let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Actions</th></tr></thead><tbody>';
-                let inactive_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Actions</th></tr></thead><tbody>';
+                let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th title="Inherited from Nexus">Inherited</th><th>Actions</th></tr></thead><tbody>';
+                let inactive_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Actions</th></tr></thead><tbody>';
 
                 let counter = 0;
                 for(let i in res) {
@@ -247,8 +247,7 @@ function initiateModal(serviceID = 0, serviceName = '') {
                         let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
                         let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
                         let backups = `<td style="font-size: 0.8em">`;
-                        let isLocal = `<td style="font-size: 0.8em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
-                        let isRegional = `<td style="font-size: 0.8em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                        let isInherited = `<td style="font-size: 0.8em;">${res[i].locallyManaged == 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
                         let removeButton = `<td style="font-size: 0.8em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Remove this user from this group">Remove</button>`;
 
                         // Check for Backups
@@ -264,19 +263,13 @@ function initiateModal(serviceID = 0, serviceName = '') {
                             let actions = `${removeButton}`;
 
                             actions += '</td>';
-                            employee_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${actions}</tr>`;
+                            employee_table += `<tr>${employeeName}${employeeUserName}${backups}${isInherited}${actions}</tr>`;
                         } else {
-                            let pruneMemberButton = '';
-
-                            if (res[i].locallyManaged == 1) {
-                                pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="pruneMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Prune this user from this group">Prune</button>`;
-                            } else {
-                                pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="reactivateMember_${counter}" class="usa-button usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Reactivate this user for this group">Reactivate</button>`;
-                            }
+                            let pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="reactivateMember_${counter}" class="usa-button usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Reactivate this user for this group">Reactivate</button>`;
 
                             let actions = `${pruneMemberButton}`;
                             actions += '</td>';
-                            inactive_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${actions}</tr>`;
+                            inactive_table += `<tr>${employeeName}${employeeUserName}${backups}${actions}</tr>`;
                         }
                         counter++;
                     }
@@ -321,13 +314,8 @@ function initiateModal(serviceID = 0, serviceName = '') {
                                 dialog_confirm.show();
                             });
                             $('#reactivateMember_' + counter).on('click', function () {
-                                dialog_confirm.setContent('Are you sure you want to reactivate this member?');
-                                dialog_confirm.setSaveHandler(function () {
-                                    reactivateMember(serviceID, res[i].userName);
-                                    dialog_confirm.hide();
-                                    dialog.hide();
-                                });
-                                dialog_confirm.show();
+                                reactivateMember(serviceID, res[i].userName);
+                                dialog.hide();
                             });
                         }
                         counter++;
@@ -423,7 +411,7 @@ function initiateWidget(serviceID = 0, serviceName = '') {
 }
 
 /**
- * Get list of present services in portal.
+ * Get list of services and their members
  */
 function getGroupList() {
 	$.when(
@@ -434,7 +422,7 @@ function getGroupList() {
 	    }),
         $.ajax({
             type: 'GET',
-            url: '../api/service',
+            url: '../api/service/members',
             cache: false
         })
      )

@@ -76,7 +76,7 @@
                         $('#' + data.cellContainerID).html('<a href="' + site.url +
                             'index.php?a=printview&recordID=' + data.recordID + '" target="_blank">' +
                             blob[data.recordID].title + '</a>' +
-                            ' <button id="' + data.cellContainerID +
+                            ' <button type="button" id="' + data.cellContainerID +
                             '_preview" class="buttonNorm">Quick View</button>' +
                             '<div id="inboxForm' + hash + '_' + data.recordID +
                             '" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>'
@@ -98,7 +98,7 @@
                                         $('#requestTitle').attr('tabindex', '0');
                                         $('#requestInfo').attr('tabindex', '0');
                                     },
-                                    fail: function() {
+                                    error: function() {
                                         triggerGenericLoadError();
                                     }
                                 })
@@ -184,6 +184,34 @@
                         daysSinceAction = Math.round((today.getTime() - dateSubmitted.getTime()) / 86400000);
                     }
                     $('#' + data.cellContainerID).html('TBD');
+                }
+            }
+        },
+        'priority': function(site) {
+            return {
+                name: 'Priority',
+                indicatorID: 'priority',
+                editable: false,
+                callback: function(data, blob) {
+                    const recordBlob = blob[data.recordID];
+                    const priority = recordBlob.priority;
+                    const priorityText = priority === -10 ? '<b style="color:#c00;">EMERGENCY</b>' : 'normal';
+                    $('#' + data.cellContainerID).html(priorityText);
+                }
+            }
+        },
+        'dateSubmitted': function(site) {
+            return {
+                name: 'Date Submitted',
+                indicatorID: 'dateSubmitted',
+                editable: false,
+                callback: function(data, blob) {
+                    const recordBlob = blob[data.recordID];
+                    let submittedText = "Not Submitted";
+                    if (recordBlob.submitted > 0) {
+                        submittedText = new Date(recordBlob.submitted * 1000).toLocaleDateString();
+                    }
+                    $('#' + data.cellContainerID).html(submittedText);
                 }
             }
         },
@@ -370,14 +398,15 @@
             $('#inbox').append(`<a name="${hash}"></a>
 				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
-				<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
+				<div style="padding:0.5rem;font-weight:bold;font-size:200%;line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
     			</div>`);
         }
         $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${depID}" class="depContainer">
-            <div id="depLabel${hash}_${depID}" class="depInbox" style="padding: 8px; background-color: ${site.backgroundColor}">
-			<span style="float: right; text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
-			<span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${categoryName}</span></div>
+            <button type="button" id="depLabel${hash}_${depID}" class="depInbox" style="background-color: ${site.backgroundColor}">
+                <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${categoryName}</span>
+                <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
+            </button>
 			<div id="depList${hash}_${depID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + depID).on('click', function() {
             buildInboxGridView(res, depID, categoryName, recordIDs, site, hash, categoryIDs);
@@ -391,7 +420,9 @@
 
     function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
         let customColumns = false;
+        let categoryID = null;
         if (categoryIDs != undefined) {
+            categoryID = categoryIDs[0];
             categoryIDs.forEach(categoryID => {
                 if (site.columns != undefined &&
                     Array.isArray(site.columns) &&
@@ -400,7 +431,7 @@
                     site.columns[categoryID].split(',').forEach(col => {
                         // assign standard headers
                         if (isNaN(parseInt(col)) &&
-                            headerDefinitions[col] != undefined) {
+                            headerDefinitions[col] != undefined && typeof headerDefinitions[col] === 'function') {
                             customCols.push(headerDefinitions[col](site));
                         } else if (parseInt(col) > 0) { // assign custom data headers
                             let label = dataDictionary[site.url]?.[col]?.description;
@@ -416,12 +447,20 @@
             });
         }
 
-        let customCols = [];
-        if (customColumns == false) {
-            site.columns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+        let headerColumns = "";
+        if (customColumns === false) {
+            const baseColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+            const formColumns = site?.formColumns?.[categoryID] || null;
+            if (formColumns !== null) {
+                headerColumns = 'UID,' + formColumns;
+            } else {
+                headerColumns = baseColumns;
+            }
+            headerColumns = headerColumns.split(",")
         }
-        site.columns.split(',').forEach(col => {
-            if (isNaN(col)) {
+        let customCols = [];
+        headerColumns.forEach(col => {
+            if (isNaN(col) && typeof headerDefinitions[col] === 'function') {
                 customCols.push(headerDefinitions[col](site));
             } else {
                 customCols.push({
@@ -438,7 +477,7 @@
             callback: function(data, blob) {
                 let depDescription = 'Take Action';
                 $('#' + data.cellContainerID).css('text-align', 'center');
-                $('#' + data.cellContainerID).html('<button id="btn_action' + hash + '_' + stepID + '_' +
+                $('#' + data.cellContainerID).html('<button type="button" id="btn_action' + hash + '_' + stepID + '_' +
                                                    data.recordID +
                                                    '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal">' +
                                                    depDescription + '</button>');
@@ -484,7 +523,12 @@
             formGrid.setHeaders(tHeaders);
         }
         formGrid.setData(tGridData);
-        formGrid.sort('recordID', 'asc');
+        const priorityHeader = formGrid.headers().find(h => h.indicatorID === 'priority') || null;
+        if (priorityHeader === null) {
+            formGrid.sort('recordID', 'asc');
+        } else {
+            formGrid.sort('priority', 'asc');
+        }
         formGrid.renderBody();
         //formGrid.loadData(tGridData.map(v => v.recordID).join(','));
         $('#' + formGrid.getPrefixID() + 'table').css('width', '99%');
@@ -496,8 +540,10 @@
     function buildDepInboxByStep(res, stepID, stepName, recordIDs, site) {
         let hash = Sha1.hash(site.url);
 		let categoryName = '';
+        let categoryID = '';
         if(Object.keys(recordIDs).length > 0) {
             categoryName = `${res[recordIDs[0]].categoryName} - ${res[recordIDs[0]].stepTitle}`;
+            categoryID = res[recordIDs[0]].categoryID;
         }
 
         let icon = getIcon(site.icon, site.name);
@@ -506,15 +552,18 @@
             $('#inbox').append(`<a name="${hash}"></a>
 				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
-				<div style="font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
+				<div style="padding:0.5rem;font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
     			</div>`);
         }
         $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}" class="depContainer">
-            <div id="depLabel${hash}_${stepID}" class="depInbox" style="padding: 8px; background-color: ${site.backgroundColor}">
-			<span style="float: right; text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
-			<span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
-            <span style="color: ${site.fontColor}">${categoryName}</span></div>
+            <button type="button" id="depLabel${hash}_${stepID}" class="depInbox" style="background-color: ${site.backgroundColor}">
+                <div>
+                    <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
+                    <span style="color: ${site.fontColor}">${categoryName}</span>
+                </div>
+                <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
+            </button>
 			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + stepID).on('click', function() {
             buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);
@@ -544,7 +593,7 @@
         let query = new LeafFormQuery();
         query.setRootURL(site.url);
         query.setExtraParams(
-            '&x-filterData=recordID,categoryIDs,categoryNames,date,title,service,submitted,stepID,blockingStepID,lastStatus,stepTitle,action_history.time,unfilledDependencyData' +
+            '&x-filterData=recordID,categoryIDs,categoryNames,date,title,service,submitted,priority,stepID,blockingStepID,lastStatus,stepTitle,action_history.time,unfilledDependencyData' +
             nonAdminParam);
         query.onProgress(progress => {
             $('#progressCount').html(`~${progress} `);
@@ -561,20 +610,31 @@
 
         // get data for any custom fields
         let getData = [];
-        if (site.columns != undefined && Array.isArray(site.columns.split(','))) {
-            let cols = site.columns.split(',');
-            for (let i in site.columns.split(',')) {
-                if (!isNaN(parseInt(cols[i]))) {
-                    getData.push(parseInt(cols[i]));
-                } else {
-                    switch (cols[i].toLowerCase()) {
-                        case 'days_since_last_action':
-                        case 'email_reminder':
-                            query.join('action_history');
-                            break;
-                        default:
-                            break;
-                    }
+
+        const siteColumns = (site?.columns || "").split(',').filter(c => c !== "");
+        const formColumns = site?.formColumns || {};
+        let arrFormColumns = [];
+        let cols = '';
+        for (let key in formColumns) {
+            cols = formColumns[key] ?? '';
+            cols = cols.split(',');
+            arrFormColumns = arrFormColumns.concat(cols)
+        }
+        let allColumns = siteColumns.concat(arrFormColumns);
+        allColumns = Array.from(new Set(allColumns));
+        let col = '';
+        for (let i in allColumns) {
+            col = allColumns[i] ?? '';
+            if (!isNaN(parseInt(col))) {
+                getData.push(parseInt(col));
+            } else {
+                switch (col.toLowerCase()) {
+                    case 'days_since_last_action':
+                    case 'email_reminder':
+                        query.join('action_history');
+                        break;
+                    default:
+                    break;
                 }
             }
         }
@@ -619,7 +679,7 @@
                     dataWorkflowCategories[w.categoryID] = 1;
                 });
             },
-            fail: function() {
+            error: function() {
                 triggerGenericLoadError();
             }
         });
@@ -663,6 +723,7 @@
                         nonAdmin: nonAdmin,
                         order: site.order,
                         columns: 'UID' + (site.columns?.length > 0 ? ',' + site.columns : ''),
+                        formColumns: site.formColumns,
                     };
                 }).filter((site) => site.url.includes(window.location.hostname));
 
@@ -697,7 +758,7 @@
                 sites.push(...Object.values(uniqueSites));
                 resolve();
             },
-            fail: function(err) {
+            error: function(err) {
                 console.log(err);
                 reject();
             }
@@ -882,13 +943,15 @@
     <h1>Loading...</h1>
     <div id="progressbar"></div>
     <h2 id="progressDetail"></h2>
-    <button id="btn_progressStop" class="buttonNorm">Stop and show results</button>
+    <button type="button" id="btn_progressStop" class="buttonNorm">Stop and show results</button>
 </div>
 
 <div id="viewport" style="visibility: hidden">
-<button id="btn_adminView" class="buttonNorm" style="float: right; <!--{if !$empMembership['groupID'][1]}-->display: none<!--{/if}-->">View as Admin</button>
-<button id="btn_organize" class="buttonNorm" style="float: right">Organize by Roles</button>
-<button id="btn_expandAll" class="buttonNorm" style="float: right">Toggle sections</button>
+<div style="display:flex;gap:0.25rem;justify-content:flex-end;">
+    <button type="button" id="btn_expandAll" class="buttonNorm">Toggle sections</button>
+    <button type="button" id="btn_organize" class="buttonNorm">Organize by Roles</button>
+    <button type="button" id="btn_adminView" class="buttonNorm" style="<!--{if !$empMembership['groupID'][1]}-->display: none<!--{/if}-->">View as Admin</button>
+</div>
 <br />
 <div id="inboxContainer">
     <div id="index" class="inbox">Jump to section:
