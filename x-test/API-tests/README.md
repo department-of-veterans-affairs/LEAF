@@ -27,8 +27,9 @@ docker compose up --remove-orphans
 - Install Go
 
 ## Run tests
+-v is verbose output, will show more information on all the test.
 ```
-go test
+go test -v
 ```
 
 ## Run benchmarks
