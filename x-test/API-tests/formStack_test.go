@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"net/url"
 	"io"
 	"log"
 	"testing"
@@ -19,6 +20,19 @@ func TestFormStack_Version(t *testing.T) {
 	}
 }
 
+func postNewForm() string {
+	postData := url.Values{}
+	postData.Set("CSRFToken", csrfToken)
+	postData.Set("name", "Test New Form")
+	postData.Set("description", "Test New Form Description")
+	postData.Set("parentID", "")
+
+	res, _ := client.PostForm(rootURL+`api/formEditor/new`, postData)
+	bodyBytes, _ := io.ReadAll(res.Body)
+	got := string(bodyBytes)
+	return got
+}
+
 func getFormStack(url string) FormStackResponse {
 	res, _ := client.Get(url)
 	b, _ := io.ReadAll(res.Body)
@@ -32,15 +46,28 @@ func getFormStack(url string) FormStackResponse {
 	return m
 }
 
-func TestFormStack_FormProperties(t *testing.T) {
+
+func TestFormStack_NewFormProperties(t *testing.T) {
+	gotCatID := postNewForm()
+	gotLen := len(gotCatID)
+	wantLen := 12
+	if !cmp.Equal(gotLen, wantLen) {
+		t.Errorf("new form return value length, got = %v, want = %v", gotLen, wantLen)
+	}
+
+	catID := gotCatID[1:11]
 	res := getFormStack(rootURL + `api/formStack/categoryList/all`)
 
-	var category FormStackCategory
+	categoryTable := map[string]*FormStackCategory{}
 	for _, v := range res {
-		if v.CategoryID == "form_5ea07" {
-			category = v
-			break
-		}
+		tmp := v
+		categoryTable[v.CategoryID] = &tmp
+	}
+
+	category := categoryTable[catID]
+	if(category == nil) {
+		t.Errorf("New Form not found in table")
+		return
 	}
 
 	got := category.ParentID
@@ -50,19 +77,19 @@ func TestFormStack_FormProperties(t *testing.T) {
 	}
 
 	got = category.CategoryName
-	want = "General Form"
+	want = "Test New Form"
 	if !cmp.Equal(got, want) {
 		t.Errorf("Category Name = %v, want = %v", got, want)
 	}
 
 	got = category.CategoryDescription
-	want = ""
+	want = "Test New Form Description"
 	if !cmp.Equal(got, want) {
 		t.Errorf("Category Description = %v, want = %v", got, want)
 	}
 
 	got = strconv.Itoa(category.WorkflowID)
-	want = "1"
+	want = "0"
 	if !cmp.Equal(got, want) {
 		t.Errorf("WorkflowID = %v, want = %v", got, want)
 	}
@@ -74,7 +101,7 @@ func TestFormStack_FormProperties(t *testing.T) {
 	}
 
 	got = strconv.Itoa(category.NeedToKnow)
-	want = "1"
+	want = "0"
 	if !cmp.Equal(got, want) {
 		t.Errorf("Need to Know = %v, want = %v", got, want)
 	}
@@ -110,7 +137,7 @@ func TestFormStack_FormProperties(t *testing.T) {
 	}
 
 	got = category.Description
-	want = "General Workflow"
+	want = ""
 	if !cmp.Equal(got, want) {
 		t.Errorf("Workflow Description = %v, want = %v", got, want)
 	}
