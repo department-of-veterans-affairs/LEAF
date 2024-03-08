@@ -29,8 +29,13 @@ func postNewForm() string {
 
 	res, _ := client.PostForm(rootURL+`api/formEditor/new`, postData)
 	bodyBytes, _ := io.ReadAll(res.Body)
-	got := string(bodyBytes)
-	return got
+
+	var c string
+	err := json.Unmarshal(bodyBytes, &c)
+	if err != nil {
+		log.Printf("JSON parsing error, couldn't parse: %v", string(bodyBytes))
+	}
+	return c
 }
 
 func getFormStack(url string) FormStackResponse {
@@ -48,14 +53,14 @@ func getFormStack(url string) FormStackResponse {
 
 
 func TestFormStack_NewFormProperties(t *testing.T) {
-	gotCatID := postNewForm()
-	gotLen := len(gotCatID)
-	wantLen := 12
+	catID := postNewForm()
+
+	gotLen := len(catID)
+	wantLen := 10
 	if !cmp.Equal(gotLen, wantLen) {
 		t.Errorf("new form return value length, got = %v, want = %v", gotLen, wantLen)
 	}
 
-	catID := gotCatID[1:11]
 	res := getFormStack(rootURL + `api/formStack/categoryList/all`)
 
 	categoryTable := map[string]*FormStackCategory{}
