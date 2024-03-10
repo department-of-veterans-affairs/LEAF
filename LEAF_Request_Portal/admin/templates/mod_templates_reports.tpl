@@ -8,16 +8,18 @@
     <div class="page-title-container">
         <h2>LEAF Programmer</h2>
         <div class="mobileToolsNav">
-            <button type="button" class="mobileToolsNavBtn" onclick="openRightNavTools('leaf-right-nav')">Template Tools</button>
+            <button type="button" class="mobileToolsNavBtn" onclick="useRightShowClass(true)">
+                Template Tools
+            </button>
         </div>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
             <aside class="sidenav" id="fileBrowser">
-                <button type="button" class="new-report" onclick="newReport();">New File</button>
-                <button type="button"
-                    class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
-                    id="btn_history" onclick="viewHistory()">
+                <button type="button" class="new-report usa-button" onclick="newReport();">
+                    New File
+                </button>
+                <button type="button" id="btn_history" class="usa-button usa-button--outline" onclick="viewHistory()">
                     View History
                 </button>
                 <div id="fileList"></div>
@@ -30,8 +32,8 @@
                 <div id="reportURL"></div>
                 <div>
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label">(Old File)</div>
-                        <div class="CodeMirror-merge-pane-label">(Current File)</div>
+                        <div class="CodeMirror-merge-pane-label-left">(Old File)</div>
+                        <div class="CodeMirror-merge-pane-label-right">(Current File)</div>
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
@@ -99,38 +101,41 @@
         </main>
 
         <div class="leaf-right-nav">
-            <div id="closeMobileToolsNavBtnContainer"><button type="button" id="closeMobileToolsNavBtn" aria-label="close"
-                    onclick="closeRightNavTools('leaf-right-nav')">X</button></div>
+            <button type="button" id="closeMobileToolsNavBtn" aria-label="close"
+                    onclick="useRightShowClass(false)">X</button>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right" id="controls">
-                <button type="button" id="save_button" class="usa-button leaf-btn-med leaf-display-block leaf-width-14rem"
+                <button type="button" id="save_button" class="usa-button"
                     onclick="save();">Save Changes<span id="saveStatus"
                         class="leaf-display-block leaf-font0-5rem"></span>
                 </button>
                 <button type="button" id="open_file_button"
-                    class="usa-button usa-button--accent-cool leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem" onclick="
+                    class="usa-button usa-button--accent-cool leaf-btn-med" onclick="
                     runReport();">Open File</button>
-                <button type="button" class="new-report mobile_new_report_btn" onclick="newReport();">New File</button>
+                <button type="button" class="new-report mobile_new_report_btn usa-button" onclick="newReport();">
+                    New File
+                </button>
                 <button type="button" id="deleteButton"
-                    class="usa-button usa-button--secondary leaf-btn-med leaf-display-block leaf-marginTop-1rem leaf-width-14rem" onclick="
+                    class="usa-button usa-button--secondary" onclick="
                     deleteReport();">Delete File
                 </button>
                 <button type="button"
-                    class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem mobileHistory"
+                    class="usa-button usa-button--outline mobileHistory"
                     id="btn_history_mobile" onclick="viewHistory()">
                     View History
                 </button>
                 <button type="button"
-                    class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
+                    class="usa-button usa-button--secondary"
                     id="btn_compareStop" style="display: none" onclick="stop_comparing();">
                     Stop Comparing
                 </button>
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button type="button" class="file_replace_file_btn">Use Old File</button>
-                    <button type="button" class="close_expand_mode_screen" onclick="exitExpandScreen()">Stop Comparing</button>
+                    <button type="button" class="file_replace_file_btn usa-button usa-button--secondary">Use Old File</button>
+                    <button type="button" type="button" onclick="exitExpandScreen()"
+                        class="close_expand_mode_screen usa-button usa-button--outline">Stop Comparing</button>
                 </div>
             </aside>
             <div class="file-history">
@@ -149,18 +154,9 @@
 
 
 <script>
-    function openRightNavTools(option) {
-        let nav = $('.' + option + '');
-        nav.css({
-            'right': '0'
-        });
-    }
-
-    function closeRightNavTools(option) {
-        let nav = $('.' + option + '');
-        nav.css({
-            'right': '-100%'
-        });
+    function useRightShowClass(showNav = false) {
+        let nav = $('.leaf-right-nav');
+        showNav ? nav.addClass('show') : nav.removeClass('show');
     }
 
     // saves current file content changes
@@ -238,6 +234,13 @@
         } else {
             loadContent('example');
         }
+        // A shortcut for changing the theme
+        $(document).on('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'b' && typeof codeEditor.setOption === 'function') {
+                const newTheme = codeEditor.options.theme === 'default' ? 'lucario' : 'default';
+                codeEditor.setOption('theme', newTheme);
+            }
+        });
     }
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
@@ -250,24 +253,7 @@
             'text-align': 'left'
         });
         $('.page-title-container>h2').html('LEAF Programmer > Compare Code');
-        let windowWidth = $(window).width();
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-            $('.main-content').css({
-                'width': '95%',
-                'transition': 'all .5s ease',
-                'justify-content': 'flex-start'
-            });
-        } else {
-            $('.main-content').css({
-                'width': '85%',
-                'transition': 'all .5s ease',
-                'justify-content': 'flex-start'
-            });
-        }
-        $('.leaf-code-container').css({
-            width: '100% !important'
-        });
+        useRightShowClass(false);
         $('.usa-table').hide();
         $('.leaf-left-nav').css({
             position: 'fixed',
@@ -294,34 +280,15 @@
             'text-align': 'left'
         });
         $('.page-title-container>h2').html('LEAF Programmer');
-
-        let windowWidth = $(window).width();
-
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-            $('.main-content').css({
-                'width': '95%',
-                'transition': 'all .5s ease',
-                'justify-content': 'center'
-            });
-        } else {
-            $('.main-content').css({
-                'width': '65%',
-                'transition': 'all .5s ease',
-                'justify-content': 'center'
-            });
-        }
+        useRightShowClass(false);
         $('#codeContainer').css({
-            display: 'block',
-            height: '95%',
-            'width': '90% !important'
+            display: 'block'
         });
         $('.usa-table').show();
 
         $('.leaf-left-nav').css({
             position: 'relative',
-            left: '0',
-            transition: 'all .5s ease'
+            left: '0'
         });
         $('.page-title-container').css({
             'flex-direction': 'row'
@@ -722,13 +689,7 @@
                 cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
             },
             'F11': function(cm) {
-                if (cm.getOption('fullScreen')) {
-                    cm.setOption('fullScreen', false);
-                    $('.CodeMirror-scroll').css('height', '60vh');
-                } else {
-                    cm.setOption('fullScreen', true);
-                    $('.CodeMirror-scroll').css('height', '100vh');
-                }
+                cm.setOption('fullScreen', !cm.getOption('fullScreen'));
             }
         });
 
@@ -740,24 +701,6 @@
                 data = codeEditor.getValue();
             }
             return currentFileContent !== data;
-        }
-
-        // A shortcut for changing the theme
-        $(document).on('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'b') {
-                changeThemeToDracula();
-            }
-            if (event.ctrlKey && event.key === 'n') {
-                revertToOriginalTheme();
-            }
-        });
-
-        function changeThemeToDracula() {
-            codeEditor.setOption('theme', 'lucario');
-        }
-
-        function revertToOriginalTheme() {
-            codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
         }
 
         if (!isLeafFile && file !== undefined) {
@@ -792,7 +735,7 @@
 
     function updateEditorSize() {
         codeWidth = $('#codeArea').width() - 30;
-        $('#codeContainer').css('width', codeWidth + 'px');
+       // $('#codeContainer').css('width', codeWidth + 'px');
         $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
     }
     // example report templates
@@ -802,9 +745,9 @@
             type: 'GET',
             url: '../api/applet',
             success: function (res) {
-                let buffer = '<ul class="leaf-ul">';
+                let buffer = '<ul class="leaf-ul reports">';
                 let bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
-                let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
+                let filesMobile = '<label for="template_file_select">Template Files:</label><select id="template_file_select">';
                 
                 for (let i in res) {
                     let file = res[i].replace('.tpl', '');
@@ -819,21 +762,21 @@
                 
                 buffer += '</ul>';
                 bufferExamples += '</ul>';
-                filesMobile += '</select></div>';
+                filesMobile += '</select>';
                 
                 $('#fileList').html(buffer + bufferExamples);
                 $('.filesMobile').html(filesMobile);
                 
                 // Attach click event handler to template links in the buffer
-                $('#fileList a').on('click', function (e) {
+                $('#fileList a').on('click', function(e) {
                     e.preventDefault();
                     let selectedFile = $(this).data('file');
                     loadContent(selectedFile);
+                    window.scrollTo(0,0);
                 });
                 
-                // Attach onchange event handler to templateFiles select element
-                $('.template_select_container').on('change', 'select.templateFiles', function () {
-                    let selectedFile = $(this).val();
+                $('#template_file_select').on('change', function () {
+                    let selectedFile = event.currentTarget.value
                     loadContent(selectedFile);
                 });
             },
@@ -847,11 +790,7 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
-        var windowWidth = $(window).width();
-
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-        }
+        useRightShowClass(false);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=applet&id=' + currentFile,

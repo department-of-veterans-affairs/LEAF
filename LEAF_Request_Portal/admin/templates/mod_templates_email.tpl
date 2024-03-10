@@ -1,6 +1,6 @@
 <link rel=stylesheet href="<!--{$app_js_path}-->/codemirror/addon/merge/merge.css">
 <link rel="stylesheet" href="<!--{$app_js_path}-->/codemirror/theme/lucario.css">
-<link rel="stylesheet" href="./css/mod_templates_email.css">
+<link rel="stylesheet" href="./css/mod_templates_reports.css">
 <script src="<!--{$app_js_path}-->/diff-match-patch/diff-match-patch.js"></script>
 <script src="<!--{$app_js_path}-->/codemirror/addon/merge/merge.js"></script>
 
@@ -8,26 +8,24 @@
     <div class="page-title-container">
         <h2>Email Template Editor</h2>
         <div class="mobileToolsNav">
-            <button type="button" class="mobileToolsNavBtn" onclick="rightNavVisible(true)">Template Tools</button>
+            <button type="button" class="mobileToolsNavBtn" onclick="useRightShowClass(true)">
+            Template Tools</button>
         </div>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
-            <aside class="sidenav">
-                <div id="fileBrowser">
-
-                    <button type="button"
-                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
-                        id="btn_history" onclick="viewHistory()">View History</button>
-                </div>
+            <aside class="sidenav" id="fileBrowser">
+                <button type="button" id="btn_history" class="usa-button usa-button--outline" onclick="viewHistory()">
+                    View History
+                </button>
                 <div id="fileList"></div>
             </aside>
         </div>
 
         <main id="codeArea" class="main-content">
-            <div id="codeContainer" class="leaf-code-container">
+            <div id="codeContainer" class="leaf-code-container email_templates">
                 <h2 id="emailTemplateHeader">Default Email Template</h2>
-                <div id="emailNotificationInfo" style="display: none; padding-top: 3px; gap: 0.25rem; flex-wrap:wrap; font-size:90%;"></div>
+                <div id="emailNotificationInfo"></div>
                 <div id="emailLists">
                     <fieldset>
                         <legend>Email To and CC</legend>
@@ -48,13 +46,13 @@
                         </div>
                     </fieldset>
                 </div>
-                <label for="subjectCode" id="subject" style="padding: 8px; font-size: 140%; font-weight: bold">Subject</label>
+                <label for="subjectCode" id="subject">Subject</label>
                 <div id="divSubject">
                     <textarea id="subjectCode"></textarea>
                     <div id="subjectCompare"></div>
                 </div>
-                <label for="code" id="filename" style="padding: 8px; font-size: 140%; font-weight: bold">Body</label>
-                <div id="divCode">
+                <label for="code" id="filename" class="email">Body</label>
+                <div id="emailBodyCode">
                     <div class="compared-label-content">
                         <div class="CodeMirror-merge-pane-label">(Old File)</div>
                         <div class="CodeMirror-merge-pane-label">(Current File)</div>
@@ -65,7 +63,6 @@
                 <div class="email-template-variables">
                     <fieldset>
                         <legend>Template Variables</legend>
-                        <br />
                         <table class="table">
                             <tr>
                                 <td><b>{{$recordID}}</b></td>
@@ -104,30 +101,31 @@
                         </table>
                     </fieldset>
                 </div>
-                <fieldset id="quick_field_search_container">
-                    <legend>Quick Field Search</legend>
-                    <div id="quick_field_search">
-                        <div id="form-select">
-                            <label for="form-select-dropdown">Select Form:</label>
-                            <select id="form-select-dropdown" onchange="getIndicators(this.value)"></select>
+                <div id="quick_field_search_container">
+                    <fieldset>
+                        <legend>Quick Field Search</legend>
+                        <div id="quick_field_search">
+                            <div id="form-select">
+                                <label for="form-select-dropdown">Select Form:</label>
+                                <select id="form-select-dropdown" onchange="getIndicators(this.value)"></select>
+                            </div>
+                            <div id="indicator-select">
+                                <label for="indicator-select-dropdown">Select Question:</label>
+                                <select id="indicator-select-dropdown"
+                                    onchange="showIndicator(this.value, this.options[this.selectedIndex].dataset.isSensitive)"></select>
+                            </div>
+                            <div id="indicator-id-label">
+                                <span>Your field ID is: </span><span id="indicator-id"
+                                    style="font-weight: 700; margin-right: 1rem;"></span>
+                                <button type="button" id="copy-field-id" style="width: auto; display: inline-block;"
+                                    class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med"><i
+                                        class="fas fa-copy"></i> Copy</button>
+                            </div>
+                            <div id="sensitive-warning">*This field is marked as sensitive! The field value will not show
+                                in sent emails*</div>
                         </div>
-                        <div id="indicator-select">
-                            <label for="indicator-select-dropdown">Select Question:</label>
-                            <select id="indicator-select-dropdown"
-                                onchange="showIndicator(this.value, this.options[this.selectedIndex].dataset.isSensitive)"></select>
-                        </div>
-                        <div id="indicator-id-label">
-                            <span>Your field ID is: </span><span id="indicator-id"
-                                style="font-weight: 700; margin-right: 1rem;"></span>
-                            <button type="button" id="copy-field-id" style="width: auto; display: inline-block;"
-                                class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med"><i
-                                    class="fas fa-copy"></i> Copy</button>
-                        </div>
-                        <span id="sensitive-warning">*This field is marked as sensitive! The field value will not show
-                            in sent emails*</span>
-                    </div>
-                </fieldset>
-
+                    </fieldset>
+                </div>
                 <div class="keyboard_shortcuts">
                     <div class="keboard_shortcuts_main_title">
                         <h3>Keyboard Shortcuts within the Code Editor:</h3>
@@ -202,31 +200,28 @@
             </div>
         </main>
         <div class="leaf-right-nav">
-            <div id="closeMobileToolsNavBtnContainer"><button type="button" id="closeMobileToolsNavBtn" aria-label="close tools menu"
-                    onclick="rightNavVisible(false)">X</button></div>
+            <button type="button" id="closeMobileToolsNavBtn" aria-label="close tools menu"
+                    onclick="useRightShowClass(false)">X</button>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right">
                 <div id="controls">
-                    <button type="button" id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
-                        onclick="save();">
-                        Save Changes<span id="saveStatus"
-                            class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
+                    <button type="button" id="save_button" class="usa-button" onclick="save();">
+                        Save Changes
+                        <span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
                     <button type="button" id="restore_original"
-                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
+                        class="usa-button usa-button--secondary modifiedTemplate"
                         onclick="restore();">Restore Original</button>
                     <button type="button"
-                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
+                        class="usa-button usa-button--secondary"
                         id="btn_compareStop" style="display: none" onclick="loadContent();">Stop Comparing</button>
-                    <!-- <button class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem modifiedTemplate"
-                    id="btn_compare" onclick="compare();">Compare to Original</button> -->
                 </div>
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button type="button" class="file_replace_file_btn usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem">Use Old File</button>
-                    <button type="button" class="close_expand_mode_screen usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem" onclick="exitExpandScreen()">Stop Comparing</button>
+                    <button type="button" class="file_replace_file_btn usa-button usa-button--secondary">Use Old File</button>
+                    <button type="button" class="close_expand_mode_screen usa-button usa-button--outline" onclick="exitExpandScreen()">Stop Comparing</button>
                 </div>
             </aside>
             <div class="file-history">
@@ -242,12 +237,9 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
-    function rightNavVisible(visible = false) {
+    function useRightShowClass(showNav = false) {
         let nav = $('.leaf-right-nav');
-        nav.css({
-            'right': visible ? '0' : '-100%',
-            'visibility': visible ? 'visible' : 'hidden',
-        });
+        showNav ? nav.addClass('show') : nav.removeClass('show');
     }
 
     function checkFieldEntries() {
@@ -691,6 +683,13 @@
         } else {
             loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
         }
+        // A shortcut for changing the theme
+        $(document).on('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'b' && typeof codeEditor.setOption === 'function') {
+                const newTheme = codeEditor.options.theme === 'default' ? 'lucario' : 'default';
+                codeEditor.setOption('theme', newTheme);
+            }
+        });
     }
 
     // compares the current file to the default file content
@@ -753,29 +752,12 @@
             'text-align': 'left'
         });
         $('.page-title-container>h2').html('Email Template Editor > Compare Code');
-        let windowWidth = $(window).width();
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-            $('.main-content').css({
-                'width': '95%',
-                'transition': 'all .5s ease',
-                'justify-content': 'flex-start'
-            });
-        } else {
-            $('.main-content').css({
-                'width': '85%',
-                'transition': 'all .5s ease',
-                'justify-content': 'flex-start'
-            });
-        }
-        $('.leaf-code-container').css({
-            'width': '100% !important'
-        });
+        useRightShowClass(false);
+
         $('.usa-table').hide();
         $('.leaf-left-nav').css({
             'position': 'fixed',
-            'left': '-100%',
-            'transition': 'all .5s ease'
+            'left': '-100%'
         });
         $('.keyboard_shortcuts').css('display', 'none');
         $('.keyboard_shortcuts_merge').show();
@@ -790,40 +772,17 @@
         $('.sidenav-right-compare').hide();
         $('.sidenav-right').show();
         $('#quick_field_search_container').show();
-        $('.page-title-container h2').css({
-            'width': '100%',
-            'text-align': 'left'
-        });
+        useRightShowClass(false);
         $('.page-title-container>h2').html('Email Template Editor');
 
-        let windowWidth = $(window).width();
-
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-            $('.main-content').css({
-                'width': '95%',
-                'transition': 'all .5s ease',
-                'justify-content': 'center'
-            });
-        } else {
-            $('.main-content').css({
-                'width': '65%',
-                'transition': 'all .5s ease',
-                'justify-content': 'center'
-            });
-        }
-
         $('#codeContainer').css({
-            'display': 'block',
-            'height': '95%',
-            'width': '90% !important'
+            'display': 'block'
         });
         $('.usa-table').show();
 
         $('.leaf-left-nav').css({
             'position': 'relative',
-            'left': '0',
-            'transition': 'all .5s ease'
+            'left': '0'
         });
         $('.page-title-container').css({
             'flex-direction': 'row'
@@ -952,13 +911,7 @@
                 cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
             },
             'F11': function(cm) {
-                if (cm.getOption('fullScreen')) {
-                    cm.setOption('fullScreen', false);
-                    $('.CodeMirror-scroll').css('height', '60vh');
-                } else {
-                    cm.setOption('fullScreen', true);
-                    $('.CodeMirror-scroll').css('height', '100vh');
-                }
+                cm.setOption('fullScreen', !cm.getOption('fullScreen'));
             }
         });
 
@@ -972,26 +925,7 @@
             return currentFileContent !== data;
         }
 
-        // A shortcut for changing the theme
-        $(document).on('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'b') {
-                changeThemeToDracula();
-            }
-            if (event.ctrlKey && event.key === 'n') {
-                revertToOriginalTheme();
-            }
-        });
-
-        function changeThemeToDracula() {
-            codeEditor.setOption('theme', 'lucario');
-        }
-
-        function revertToOriginalTheme() {
-            codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
-        }
-
         // (name, file, subjectFile, emailToFile, emailCcFile)
-
         if (file !== null) {
             let url = new URL(window.location.href);
             url.searchParams.set('file', file);
@@ -1005,8 +939,6 @@
     }
 
     function updateEditorSize() {
-        codeWidth = $('#codeArea').width() - 30;
-        $('#codeContainer').css('width', codeWidth + 'px');
         // Refresh CodeMirror
         $('.CodeMirror').each(function(i, el) {
             el.CodeMirror.refresh();
@@ -1200,11 +1132,7 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
-        var windowWidth = $(window).width();
-
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-        }
+        useRightShowClass(false);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=emailTemplate&id=' + currentFile,
@@ -1374,8 +1302,12 @@
             el.CodeMirror.refresh();
         });
         $('#xhrDialog').hide();
-        dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
+        dialog_message = new dialogController(
+            'genericDialog',
+            'genericDialogxhr',
             'genericDialogloadIndicator',
-            'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+            'genericDialogbutton_save',
+            'genericDialogbutton_cancelchange'
+        );
     });
 </script>

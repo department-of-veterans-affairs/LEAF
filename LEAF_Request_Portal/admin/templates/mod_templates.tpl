@@ -1,6 +1,6 @@
 <link rel=stylesheet href="<!--{$app_js_path}-->/codemirror/addon/merge/merge.css">
 <link rel="stylesheet" href="<!--{$app_js_path}-->/codemirror/theme/lucario.css">
-<link rel="stylesheet" href="./css/mod_templates.css">
+<link rel="stylesheet" href="./css/mod_templates_reports.css">
 <script src="<!--{$app_js_path}-->/diff-match-patch/diff-match-patch.js"></script>
 <script src="<!--{$app_js_path}-->/codemirror/addon/merge/merge.js"></script>
 
@@ -8,21 +8,18 @@
     <div class="page-title-container">
         <h2>Template Editor</h2>
         <div class="mobileToolsNav">
-            <button type="button" class="mobileToolsNavBtn" onclick="rightNavVisible(true)">Template Tools</button>
+            <button type="button" class="mobileToolsNavBtn" onclick="useRightShowClass(true)">Template Tools</button>
         </div>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
-            <aside class="sidenav">
-                <div id="fileBrowser">
-
-                    <button type="button"
-                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
-                        id="btn_history" onclick="viewHistory()">
-                        View History
-                    </button>
-                    <div id="fileList"></div>
-                </div>
+            <aside class="sidenav" id="fileBrowser">
+                <button type="button"
+                    class="usa-button usa-button--outline"
+                    id="btn_history" onclick="viewHistory()">
+                    View History
+                </button>
+                <div id="fileList"></div>
             </aside>
         </div>
 
@@ -98,43 +95,41 @@
             </div>
         </main>
         <div class="leaf-right-nav">
-            <div id="closeMobileToolsNavBtnContainer"><button type="button" id="closeMobileToolsNavBtn" aria-label="close"
-                    onclick="rightNavVisible(false)">X</button></div>
-            <aside class="filesMobile">
-            </aside>
+            <button type="button" id="closeMobileToolsNavBtn" aria-label="close" onclick="useRightShowClass(false)">X</button>
+            <aside class="filesMobile"></aside>
             <aside class="sidenav-right">
                 <div id="controls" style="visibility: hidden">
 
-                    <button type="button" id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
+                    <button type="button" id="save_button" class="usa-button"
                         onclick="save();">
-                        Save Changes<span id="saveStatus"
-                            class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
+                        Save Changes
+                        <span class="saveStatus leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
 
                     <button type="button" id="restore_original"
-                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
+                        class="usa-button usa-button--secondary modifiedTemplate"
                         onclick="restore();">
                         Restore Original
                     </button>
 
                     <button type="button"
-                        class="usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
+                        class="usa-button usa-button--secondary"
                         id="btn_compareStop" style="display: none" onclick="stop_comparing();">
                         Stop Comparing
                     </button>
 
                     <button type="button"
-                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem  modifiedTemplate"
+                        class="usa-button usa-button--outline modifiedTemplate"
                         id="btn_compare" onclick="compare();">
                         Compare with Original
                     </button>
 
-                    <button id="icon_library" type="button"
-                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem">
-                        <a href="<!--{$domain_path}-->/app/libs/dynicons/gallery.php" target="_blank">Icon Library</a>
-                    </button>
+                    <a href="<!--{$domain_path}-->/app/libs/dynicons/gallery.php" id="icon_library"
+                        class="usa-button usa-button--outline"
+                        target="_blank">Icon Library</a>
+                    
                     <button type="button"
-                        class="usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem mobileHistory"
+                        class="usa-button usa-button--outline mobileHistory"
                         id="btn_history_mobile" onclick="viewHistory()">
                         View History
                     </button>
@@ -142,15 +137,15 @@
             </aside>
             <aside class="sidenav-right-compare">
                 <div class="controls-compare">
-                    <button type="button" id="save_button" class="usa-button leaf-display-block leaf-btn-med leaf-width-14rem"
+                    <button type="button" id="save_button" class="usa-button"
                         onclick="save();">
-                        Save Changes<span id="saveStatus"
-                            class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
+                        Save Changes
+                        <span class="saveStatus leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
                     </button>
-                    <button type="button" class="file_replace_file_btn usa-button usa-button--secondary leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem">
+                    <button type="button" class="file_replace_file_btn usa-button usa-button--secondary">
                         Use Old File
                     </button>
-                    <button type="button" class="close_expand_mode_screen usa-button usa-button--outline leaf-marginTop-1rem leaf-display-block leaf-btn-med leaf-width-14rem"
+                    <button type="button" class="close_expand_mode_screen usa-button usa-button--outline"
                         onclick="exitExpandScreen()">
                         Stop Comparing
                     </button>
@@ -170,12 +165,9 @@
 
 
 <script>
-    function rightNavVisible(visible = false) {
+    function useRightShowClass(showNav = false) {
         let nav = $('.leaf-right-nav');
-        nav.css({
-            'right': visible ? '0' : '-100%',
-            'visibility': visible ? 'visible' : 'hidden',
-        });
+        showNav ? nav.addClass('show') : nav.removeClass('show');
     }
 
     // saves current file content changes
@@ -208,8 +200,8 @@
                     $('#btn_compare').css('display', 'none');
                 }
 
-                var time = new Date().toLocaleTimeString();
-                $('#saveStatus').html('<br /> Last saved: ' + time);
+                const time = new Date().toLocaleTimeString();
+                $('.saveStatus').html('<br /> Last saved: ' + time);
                 currentFileContent = data;
                 if (res != null) {
                     alert(res);
@@ -292,9 +284,9 @@
                 updateEditorSize();
                 editorExpandScreen();
                 $('.file_replace_file_btn').hide();
-                $('.CodeMirror-linebackground').css({
-                    'background-color': '#8ce79b !important'
-                });
+            },
+            error: function(err) {
+                console.log(err)
             },
             cache: false
         });
@@ -325,32 +317,11 @@
             'text-align': 'left'
         });
         $('.page-title-container>h2').html('Template Editor > Compare Code');
-        var windowWidth = $(window).width();
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-            $('.main-content').css({
-                'width': '95%',
-                'transition': 'all .5s ease',
-                'justify-content': 'flex-start'
-            });
-        } else {
-            $('.main-content').css({
-                'width': '85%',
-                'transition': 'all .5s ease',
-                'justify-content': 'flex-start'
-            });
-        }
-        $('.leaf-code-container').css({
-            'width': '100% !important'
-        });
+        useRightShowClass(false);
         $('.usa-table').hide();
         $('.leaf-left-nav').css({
             'position': 'fixed',
-            'left': '-100%',
-            'transition': 'all .5s ease'
-        });
-        $('.page-title-container').css({
-            'flex-direction': 'coloumn'
+            'left': '-100%'
         });
         $('.keyboard_shortcuts').css('display', 'none');
         $('.keyboard_shortcuts_merge').show();
@@ -365,33 +336,14 @@
         $('.sidenav-right-compare').hide();
         $('.sidenav-right').show();
         $('.file-history').show();
-        $('.page-title-container>h2').css({
+        $('.page-title-container > h2').css({
             'width': '100%',
             'text-align': 'left'
         });
-        $('.page-title-container>h2').html('Template Editor');
-
-        var windowWidth = $(window).width();
-
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-            $('.main-content').css({
-                'width': '95%',
-                'transition': 'all .5s ease',
-                'justify-content': 'center'
-            });
-        } else {
-            $('.main-content').css({
-                'width': '65%',
-                'transition': 'all .5s ease',
-                'justify-content': 'center'
-            });
-        }
-
+        $('.page-title-container > h2').html('Template Editor');
+        useRightShowClass(false);
         $('#codeContainer').css({
-            'display': 'block',
-            'height': '95%',
-            'width': '90% !important'
+            'display': 'block'
         })
         $('.usa-table').show();
 
@@ -482,6 +434,13 @@
         } else {
             loadContent('view_homepage.tpl');
         }
+        // A shortcut for changing the theme
+        $(document).on('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'b' && typeof codeEditor.setOption === 'function') {
+                const newTheme = codeEditor.options.theme === 'default' ? 'lucario' : 'default';
+                codeEditor.setOption('theme', newTheme);
+            }
+        });
     }
 
     var codeEditor = null;
@@ -534,9 +493,6 @@
                 codeEditor.leftOriginal().setOption('lineWrapping', false);
                 $(this).removeClass('on').addClass('off').text('Word Wrap: Off');
             }
-            $('.CodeMirror-linebackground').css({
-                'background-color': '#8ce79b !important'
-            });
         });
 
         $.ajax({
@@ -570,16 +526,12 @@
                                 autoFormatOnMode: true
                             });
 
-                            $('.CodeMirror-linebackground').css({
-                                'background-color': '#8ce79b !important'
-                            });
-
                             // Add a shortcut for exit from the merge screen
                             $(document).on('keydown', function(event) {
                                 if (event.ctrlKey && event.key === 'm') {
                                     mergeFile();
                                 }
-                                if (event.ctrlKey && event.key === 'w') {
+                                if (event.ctrlKey && event.key === 'n') {
                                     toggleWordWrap();
                                 }
                             });
@@ -614,11 +566,9 @@
                             });
 
                             function toggleWordWrap() {
-                                let lineWrapping = codeEditor.editor().getOption(
-                                    'lineWrapping');
+                                let lineWrapping = codeEditor.editor().getOption('lineWrapping');
                                 codeEditor.editor().setOption('lineWrapping', !lineWrapping);
-                                codeEditor.leftOriginal().setOption('lineWrapping', !
-                                    lineWrapping);
+                                codeEditor.leftOriginal().setOption('lineWrapping', !lineWrapping);
                             }
                         }
                     });
@@ -713,7 +663,7 @@
             },
             cache: false
         });
-        $('#saveStatus').html('');
+        $('.saveStatus').html('');
 
         editorCurrentContent();
 
@@ -729,13 +679,7 @@
                 cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
             },
             'F11': function(cm) {
-                if (cm.getOption('fullScreen')) {
-                    cm.setOption('fullScreen', false);
-                    $('.CodeMirror-scroll').css('height', '60vh');
-                } else {
-                    cm.setOption('fullScreen', true);
-                    $('.CodeMirror-scroll').css('height', '100vh');
-                }
+                cm.setOption('fullScreen', !cm.getOption('fullScreen'));
             }
         });
 
@@ -749,24 +693,6 @@
             return currentFileContent !== data;
         }
 
-        // A shortcut for changing the theme
-        $(document).on('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'b') {
-                changeThemeToDracula();
-            }
-            if (event.ctrlKey && event.key === 'o') {
-                revertToOriginalTheme();
-            }
-        });
-
-        function changeThemeToDracula() {
-            codeEditor.setOption('theme', 'lucario');
-        }
-
-        function revertToOriginalTheme() {
-            codeEditor.setOption('theme', 'default'); // Replace 'default' with your original theme name
-        }
-
         if (file !== null) {
             let url = new URL(window.location.href);
             url.searchParams.set('file', file);
@@ -776,7 +702,6 @@
 
     function updateEditorSize() {
         codeWidth = $('#codeArea').width() - 66;
-        $('#codeContainer').css('width', codeWidth + 'px');
         $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
     }
     // initiates  the loadContent()
@@ -805,11 +730,7 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
-        let windowWidth = $(window).width();
-
-        if (windowWidth < 1024) {
-            $('.leaf-right-nav').css('right', '-100%');
-        }
+        useRightShowClass(false);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=template&id=' + currentFile,
@@ -819,7 +740,7 @@
                 dialog_message.indicateIdle();
                 dialog_message.show();
             },
-            fail: function() {
+            error: function() {
                 dialog_message.setContent('Loading failed.');
                 dialog_message.show();
             },
@@ -846,7 +767,7 @@
                     success: function (customTemplates) {
                         let template_excluded = 'import_from_webHR.tpl';
                         let buffer = '<ul class="leaf-ul">';
-                        let filesMobile = '<h3>Template Files:</h3><div class="template_select_container"><select class="templateFiles">';
+                        let filesMobile = '<label for="template_file_select">Template Files:</label><select id="template_file_select">';
                         
                         if (Array.isArray(customTemplates)) {
                             for (let i in res) {
@@ -879,11 +800,12 @@
                             e.preventDefault();
                             let selectedFile = $(this).data('file');
                             loadContent(selectedFile);
+                            window.scrollTo(0,0);
                         });
 
                         // Attach onchange event handler to templateFiles select element
-                        $('.template_select_container').on('change', 'select.templateFiles', function () {
-                            let selectedFile = $(this).val();
+                        $('#template_file_select').on('change', function () {
+                            let selectedFile = event.currentTarget.value
                             loadContent(selectedFile);
                         });
                     },
@@ -897,10 +819,12 @@
         
         initializePage();
 
-
-        dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
+        dialog_message = new dialogController(
+            'genericDialog',
+            'genericDialogxhr',
             'genericDialogloadIndicator',
-            'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
-
+            'genericDialogbutton_save',
+            'genericDialogbutton_cancelchange'
+        );
     });
 </script>
