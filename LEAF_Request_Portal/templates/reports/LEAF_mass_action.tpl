@@ -50,6 +50,7 @@
             <option value="restore">Restore</option>
             <option value="submit">Submit</option>
             <option value="email">Email Reminder</option>
+            <option value="step">Change Step</option>
         </select>
     </div>
 
@@ -59,6 +60,14 @@
         <label for="lastAction">Days Since Last Action</label>
         <input type="number" id="lastAction" name="lastAction" value="7" maxlength="3" />
         <button class="buttonNorm buttonDaySearch" id="submitSearchByDays">Search Requests</button>
+    </div>
+
+    <div id="stepSection">
+        <br/>
+        <label id="newStep_label" for="newStep">Change Step To:</label>
+        <div id="changeStep"></div>
+        <br/>Comments:<br/>
+        <textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px" aria-label="Comments"></textarea>
     </div>
 
     <img id="iconBusy" src="./images/indicator.gif" class="employeeSelectorIcon" alt="busy" />

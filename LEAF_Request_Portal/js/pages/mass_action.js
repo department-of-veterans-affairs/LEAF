@@ -77,15 +77,16 @@ $(document).ready(function () {
 function chooseAction() {
     // If nothing selected and action selected is not 'Email Reminder'
     let actionValue = $("#action").val();
-    if (actionValue !== "" && actionValue !== "email") {
+    if (actionValue !== "" && actionValue !== "email" && actionValue !== "step") {
         // Hide the email reminder and reset then show other options search and perform
-        $("#emailSection").hide();
+        $("#emailSection, #stepSection").hide();
         $("#searchRequestsContainer").show();
         leafSearch.init();
         doSearch();
     }
     // If selected 'Email Reminder' then hide searches, show last action select
     else if (actionValue === "email") {
+        $('#stepSection').hide();
         $(
             "#emailSection, #searchRequestsContainer, #searchResults, #errorMessage"
         ).show();
@@ -99,12 +100,42 @@ function chooseAction() {
         leafSearch.init();
         reminderDaysSearch();
     }
+    else if (actionValue === "step") {
+        $("#emailSection").hide();
+        $("#stepSection, #searchRequestsContainer").show();
+        // Get list of all steps
+        loadSteps();
+        leafSearch.init();
+        doSearch();
+    }
     // Nothing selected so hide search and email sections
     else {
         $(
-            "#emailSection, #searchRequestsContainer, #searchResults, #errorMessage"
+            "#stepSection, #emailSection, #searchRequestsContainer, #searchResults, #errorMessage"
         ).hide();
     }
+}
+
+function loadSteps() {
+    $.ajax({
+        type: 'GET',
+        url: 'api/workflow/steps',
+        dataType: 'json',
+        success: function(res) {
+            let steps = '<select id="newStep" class="chosen" style="width: 250px">';
+            let allStepsData = res;
+            for (let i in allStepsData) {
+                steps += `<option value="${allStepsData[i].stepID}">${allStepsData[i].description} - ${allStepsData[i].stepTitle}</option>`;
+            }
+            steps += '</select>';
+            $('#changeStep').html(steps);
+            $('.chosen').chosen({ disable_search_threshold: 6 });
+        },
+        error: function() {
+            console.log('There was an error getting workflow steps!');
+        },
+        cache: false
+    });
 }
 
 /**
@@ -122,6 +153,7 @@ function doSearch() {
     let getCancelled = false;
     let getSubmitted = true;
     let getReminder = 0;
+    let getOnlySubmitted = false;
 
     $("input#selectAllRequests").prop("checked", false);
     setProgress("");
@@ -137,9 +169,12 @@ function doSearch() {
         case "restore":
             getCancelled = true;
             break;
+        case "step":
+            getOnlySubmitted = true;
+            break;
     }
 
-    let queryObj = buildQuery(getCancelled, getSubmitted, getReminder);
+    let queryObj = buildQuery(getCancelled, getSubmitted, getReminder, getOnlySubmitted);
     searchID = Math.floor(Math.random() * 1000000000);
     listRequests(queryObj, searchID, getReminder);
 }
@@ -153,7 +188,7 @@ function doSearch() {
  *
  * @return {Object} query object to pass to form/query.
  */
-function buildQuery(getCancelled, getSubmitted, getReminder) {
+function buildQuery(getCancelled, getSubmitted, getReminder, getOnlySubmitted) {
     let requestQuery = {
         terms: [],
         joins: ["service", "recordsDependencies", "categoryName", "status"],
@@ -188,6 +223,14 @@ function buildQuery(getCancelled, getSubmitted, getReminder) {
             id: "stepID",
             operator: "!=",
             match: "resolved",
+        });
+    }
+
+    if (getOnlySubmitted) {
+        requestQuery.terms.push({
+            id: "submitted",
+            operator: ">",
+            match: "0",
         });
     }
 
@@ -282,6 +325,31 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
                                 (value.service == null ? "" : value.service) +
                                 "</td>";
                             requestsRow += "<td>" + value.title + "</td>";
+                            let waitText = value.blockingStepID == 0 ? 'Pending ' : 'Waiting for ';
+                            requestsRow += "<td>";
+                            if(value.stepID == null && value.submitted == '0') {
+                                if(value.lastStatus == null) {
+                                    requestsRow += '<span style="color: #e00000">Not Submitted</span>';
+                                }
+                                else {
+                                    requestsRow += '<span style="color: #e00000">Pending Re-submission</span>';
+                                }
+                            }
+                            else if(value.stepID == null) {
+                                let lastStatus = value.lastStatus;
+                                if(lastStatus == '') {
+                                    lastStatus = '<a href="index.php?a=printview&recordID='+ data.recordID +'">Check Status</a>';
+                                }
+                                requestsRow += '<span style="font-weight: bold">' + lastStatus + '</span>';
+                            }
+                            else {
+                                requestsRow += waitText + value.stepTitle;
+                            }
+                
+                            if(value.deleted > 0) {
+                                requestsRow += ', Cancelled';
+                            }
+                            requestsRow += "</td>";
                             requestsRow +=
                                 '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="' +
                                 value.recordID +
@@ -349,6 +417,11 @@ function executeMassAction() {
             case "email":
                 ajaxPath =
                     "./api/form/" + recordID + "/reminder/" + reminderDaysSince;
+                break;
+            case "step":
+                ajaxPath = "./api/formWorkflow/" + recordID + "/step";
+                ajaxData["stepID"] = $('#newStep').val();
+                ajaxData["comment"] = $('#changeStep_comment').val();
                 break;
         }
 
