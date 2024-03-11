@@ -20,7 +20,7 @@
         <a href="javascript:void(0);">Admin</a>
         <ul>
 
-            <li><a href="./">Admin Home<i class="leaf-nav-icon-space"></i></a></li>
+            <li><a href="./">Admin Panel<i class="leaf-nav-icon-space"></i></a></li>
             <li><a href="https://leaf.va.gov/platform/service_requests_launchpad/" target="_blank">Get Help<i class="leaf-nav-icon-space"></i></a></li>
 
             <li class="lev3">

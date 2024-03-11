@@ -87,7 +87,7 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 
 //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
-$main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
+$main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA seal, U.S. Department of Veterans Affairs" />');
 
 $t_login->assign('name', $login->getName());
 

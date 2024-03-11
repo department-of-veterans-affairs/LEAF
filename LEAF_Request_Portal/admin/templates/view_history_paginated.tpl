@@ -52,16 +52,26 @@
 function adjustPageButtons(page) {
     if(<!--{$totalPages}--> < 2 || page == <!--{$totalPages}-->) {
         $('#next').hide();
-    }
-    else {
+        if($('#prev').css('display') === 'block') {
+            $('#prev').focus();
+        } else {
+            $('.ui-dialog-titlebar-close').focus();
+        }
+    } else {
         $('#next').show();
     }
 
     if(page == 1) {
         $('#prev').hide();
+        if($('#next').css('display') === 'block') {
+            $('#next').focus();
+        } else {
+            $('.ui-dialog-titlebar-close').focus();
+        }
     }
-    else{
+    else {
         $('#prev').show();
     }
+
 }
 </script>
