@@ -24,9 +24,12 @@ func getEmployee(url string) (EmployeeResponse, error) {
 	return m, err
 }
 
-func updateEmployees(url string) error {
-	_, err := client.Get(url)
+func updateEmployees(postUrl string) error {
+	postData := url.Values{}
+	postData.Set("CSRFToken", csrfToken)
 
+	// Send POST request
+	_, err := client.PostForm(postUrl, postData)
 	if err != nil {
 		return err
 	}
@@ -63,11 +66,11 @@ func disableEmployee(postUrl string) error {
 
 	resp, err := client.Do(req)
 
-	defer resp.Body.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
 
 	return nil
 
@@ -106,7 +109,7 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 	}
 
 	// run the script to refresh orgchart employees
-	err = updateEmployees(orgURL + `scripts/refreshOrgchartEmployees.php`)
+	err = updateEmployees(orgURL + `api/employee/refresh/batch`)
 	if err != nil {
 		t.Error(err)
 	}
@@ -114,23 +117,35 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 	// does our local have it
 	localEmployeeRes, _ := getEmployee(orgURL + `api/employee/search?q=username:testuser`)
 
-	got := localEmployeeRes[0].UserName
+	var localEmployeeKey int
+	for key := range localEmployeeRes {
+		localEmployeeKey = key
+		break
+	}
+
+	got := localEmployeeRes[localEmployeeKey].UserName
 	want := m.UserName
+
 	if !cmp.Equal(got, want) {
-		t.Errorf("Description = %v, want = %v", got, want)
+		t.Errorf("got = %v, want = %v", got, want)
 	}
 
 	// does our national still exist.
 	natEmpoyeeRes, _ := getEmployee(natOrgURL + `api/employee/search?q=username:testuser`)
 
-	got = natEmpoyeeRes[0].UserName
+	var natEmployeeKey int
+	for key := range natEmpoyeeRes {
+		natEmployeeKey = key
+		break
+	}
+	got = natEmpoyeeRes[natEmployeeKey].UserName
 	if !cmp.Equal(got, want) {
-		t.Errorf("Description = %v, want = %v", got, want)
+		t.Errorf("got = %v, want = %v", got, want)
 	}
 
 	// local and nat employee ids we are looking at.
-	natEmpoyeeResEmployeeId := natEmpoyeeRes[0].EmployeeId
-	localEmpoyeeResEmployeeId := localEmployeeRes[0].EmployeeId
+	natEmpoyeeResEmployeeId := natEmpoyeeRes[natEmployeeKey].EmployeeId
+	localEmpoyeeResEmployeeId := localEmployeeRes[localEmployeeKey].EmployeeId
 
 	// delete remote employee
 	err = disableEmployee(fmt.Sprintf("%sapi/employee/%d", natOrgURL, natEmpoyeeResEmployeeId))
@@ -151,7 +166,7 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 	gotId := res[0].EmployeeId
 	wantId := localEmpoyeeResEmployeeId
 	if !cmp.Equal(gotId, wantId) {
-		t.Errorf("Description = %v, want = %v", got, want)
+		t.Errorf("got = %v, want = %v", gotId, wantId)
 	}
 
 	// run script again, make sure it deletes locally
