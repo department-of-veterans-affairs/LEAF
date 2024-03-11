@@ -115,19 +115,14 @@ class Login
 
         if(defined('AUTH_TYPE') && AUTH_TYPE == 'cookie') {
             $authType = '/auth_cookie/?r=';
-            $nonBrowserAuth = '/auth_cookie/?r=';
+            $nonBrowserAuth = '/auth_cert/?r=';
         }
 
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
         {
             if (php_sapi_name() != 'cli')
             {
-                // For Jira Ticket:LEAF-2471/remove-all-http-redirects-from-code
-//                $protocol = 'http://';
-//                if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-//                {
-//                    $protocol = 'https://';
-//                }
+
                 $protocol = 'https://';
 
                 // try to browser detect, since SSO implementation varies
