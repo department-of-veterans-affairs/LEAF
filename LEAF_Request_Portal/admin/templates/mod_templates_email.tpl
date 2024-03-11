@@ -534,11 +534,6 @@
                                 rightTitle: "Comparison File"
                             });
 
-                            updateEditorSize();
-                            $('.CodeMirror-linebackground').css({
-                                'background-color': '#8ce79b !important'
-                            });
-
                             // Add a shortcut for exit from the merge screen
                             $(document).on('keydown', function(event) {
                                 if (event.ctrlKey && event.key === 'm') {
@@ -708,7 +703,6 @@
                         }
                     }
                 });
-                updateEditorSize();
             },
             cache: false
         });
@@ -871,22 +865,6 @@
 
         editorCurrentContent()
 
-        // Keyboard shortcuts
-        codeEditor.setOption("extraKeys", {
-            'Ctrl-Z': function(cm) {
-                cm.undo();
-            },
-            'Ctrl-S': function(cm) {
-                save();
-            },
-            'Ctrl-W': function(cm) {
-                cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
-            },
-            'F11': function(cm) {
-                cm.setOption('fullScreen', !cm.getOption('fullScreen'));
-            }
-        });
-
         function hasUnsavedChanges() {
             let data = '';
             if (codeEditor.getValue === undefined) {
@@ -908,13 +886,6 @@
             window.history.replaceState(null, null, url.toString());
         }
 
-    }
-
-    function updateEditorSize() {
-        // Refresh CodeMirror
-        $('.CodeMirror').each(function(i, el) {
-            el.CodeMirror.refresh();
-        });
     }
 
     /**
@@ -1094,7 +1065,6 @@
                 }
             }
         });
-        updateEditorSize();
     }
     // Displays  user's history when creating, merge, and so on
     function viewHistory() {
@@ -1190,9 +1160,7 @@
             'confirm_button_cancelchange'
         );
         initEditor();
-        $(window).on('resize', function() {
-            updateEditorSize();
-        });
+
         // Get forms for quick search and indicator format info
         getForms();
         // Get initial email tempates for page from database

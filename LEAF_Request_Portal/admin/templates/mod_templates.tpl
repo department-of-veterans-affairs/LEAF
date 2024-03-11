@@ -256,7 +256,6 @@
         $('#save_button_compare').css('display', 'block');
         $('.file-history').hide();
 
-
         $.ajax({
             type: 'GET',
             url: '../api/template/_' + currentFile + '/standard',

@@ -478,10 +478,6 @@
                                 leftTitle: "Current File",
                                 rightTitle: "Comparison File"
                             });
-                            updateEditorSize();
-                            $('.CodeMirror-linebackground').css({
-                                'background-color': '#8ce79b !important'
-                            });
 
                             // Add a shortcut for exit from the merge screen
                             $(document).on('keydown', function(event) {
@@ -662,22 +658,6 @@
             unsavedChanges = true;
         });
 
-        // Shortcuts for undo, save, and full screen functionality
-        codeEditor.setOption('extraKeys', {
-            'Ctrl-Z': function(cm) {
-                cm.undo();
-            },
-            'Ctrl-S': function(cm) {
-                save();
-            },
-            'Ctrl-W': function(cm) {
-                cm.setOption('lineWrapping', !cm.getOption('lineWrapping'));
-            },
-            'F11': function(cm) {
-                cm.setOption('fullScreen', !cm.getOption('fullScreen'));
-            }
-        });
-
         function hasUnsavedChanges() {
             let data = '';
             if (codeEditor.getValue === undefined) {
@@ -710,19 +690,14 @@
                 "Ctrl-S": function(cm) {
                     save();
                 },
-                "Ctrl-W": function(cm) {
-                    cm.setOption("lineWrapping", !cm.getOption("lineWrapping"));
-                }
+                'Ctrl-Z': function(cm) {
+                    cm.undo();
+                },
             }
         });
-        updateEditorSize();
     }
 
-    function updateEditorSize() {
-        codeWidth = $('#codeArea').width() - 30;
-       // $('#codeContainer').css('width', codeWidth + 'px');
-        $('.CodeMirror, .CodeMirror-merge').css('height', $(window).height() - 160 + 'px');
-    }
+
     // example report templates
     function updateFileList() {
 
