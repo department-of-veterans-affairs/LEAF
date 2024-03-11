@@ -7,10 +7,9 @@
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>Email Template Editor</h2>
-        <div class="mobileToolsNav">
-            <button type="button" class="mobileToolsNavBtn" onclick="useRightShowClass(true)">
-            Template Tools</button>
-        </div>
+        <button type="button" id="mobileToolsNavBtn" onclick="applyRightNavShowClass(true)">
+            Template Tools
+        </button>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
@@ -127,9 +126,7 @@
                     </fieldset>
                 </div>
                 <div class="keyboard_shortcuts">
-                    <div class="keboard_shortcuts_main_title">
-                        <h3>Keyboard Shortcuts within the Code Editor:</h3>
-                    </div>
+                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
                     <div class="keyboard_shortcuts_section">
                         <div class="keboard_shortcuts_box">
                             <div class="keyboard_shortcuts_title">
@@ -162,9 +159,7 @@
                 </div>
 
                 <div class="keyboard_shortcuts_merge">
-                    <div class="keboard_shortcuts_main_title_merge">
-                        <h3>Keyboard Shortcuts For Compare Code:</h3>
-                    </div>
+                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
                         <div class="keboard_shortcuts_box_merge">
                             <div class="keyboard_shortcuts_title_merge">
@@ -201,14 +196,14 @@
         </main>
         <div class="leaf-right-nav">
             <button type="button" id="closeMobileToolsNavBtn" aria-label="close tools menu"
-                    onclick="useRightShowClass(false)">X</button>
+                    onclick="applyRightNavShowClass(false)">X</button>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right">
                 <div id="controls">
                     <button type="button" id="save_button" class="usa-button" onclick="save();">
                         Save Changes
-                        <span id="saveStatus" class="leaf-display-block leaf-font-normal leaf-font0-5rem"></span>
+                        <span class="saveStatus"></span>
                     </button>
                     <button type="button" id="restore_original"
                         class="usa-button usa-button--secondary modifiedTemplate"
@@ -237,7 +232,7 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
-    function useRightShowClass(showNav = false) {
+    function applyRightNavShowClass(showNav = false) {
         let nav = $('.leaf-right-nav');
         showNav ? nav.addClass('show') : nav.removeClass('show');
     }
@@ -272,7 +267,6 @@
     var codeEditor;
     // saves current file content changes
     function save() {
-        $('#saveIndicator').attr('src', '../images/indicator.gif');
         const divEmailTo = document.getElementById('divEmailTo');
         const emailToData = document.getElementById('emailToCode').value;
         const emailCcData = document.getElementById('emailCcCode').value;
@@ -340,13 +334,12 @@
         }
 
         function updateUIAfterSave() {
-            $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
             $('.modifiedTemplate').css('display', 'block');
             if ($('#btn_compareStop').css('display') !== 'none') {
                 $('#btn_compare').css('display', 'none');
             }
-            var time = new Date().toLocaleTimeString();
-            $('#saveStatus').html('<br /> Last saved: ' + time);
+            const time = new Date().toLocaleTimeString();
+            $('.saveStatus').html('<br /> Last saved: ' + time);
             currentFileContent = data;
             currentSubjectContent = subject;
             currentEmailToContent = emailToData;
@@ -355,7 +348,6 @@
     }
     // creates a copy of the current file content
     function saveFileHistory() {
-        $('#saveIndicator').attr('src', '../images/indicator.gif');
         let data = '';
         let subject = '';
         // If any changes made to emailTo, emailCc, body or subject
@@ -387,14 +379,13 @@
             },
             url: '../api/emailTemplateFileHistory/_' + currentFile,
             success: function(res) {
-                $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
                 $('.modifiedTemplate').css('display', 'block');
                 if ($('#btn_compareStop').css('display') !== 'none') {
                     $('#btn_compare').css('display', 'none');
                 }
                 // Show saved time in "Save Changes" button and set current content
                 var time = new Date().toLocaleTimeString();
-                $('#saveStatus').html('<br /> Last saved: ' + time);
+                $('.saveStatus').html('<br /> Last saved: ' + time);
                 currentFileContent = data;
                 currentSubjectContent = subject;
                 currentEmailToContent = emailToData;
@@ -507,25 +498,7 @@
         $('#save_button').css('display', 'none');
         $('#btn_compareStop').css('display', 'none');
         $('#btn_merge').css('display', 'block');
-        $('#word-wrap-button').css('display', 'block');
         $('.file_replace_file_btn').css('display', 'block');
-        let wordWrapEnabled = false; // default to false
-
-        $('#word-wrap-button').click(function() {
-            wordWrapEnabled = !wordWrapEnabled;
-            if (wordWrapEnabled) {
-                codeEditor.editor().setOption('lineWrapping', true);
-                codeEditor.leftOriginal().setOption('lineWrapping', true);
-                $(this).removeClass('off').addClass('on').text('Word Wrap: On');
-            } else {
-                codeEditor.editor().setOption('lineWrapping', false);
-                codeEditor.leftOriginal().setOption('lineWrapping', false);
-                $(this).removeClass('on').addClass('off').text('Word Wrap: Off');
-            }
-            $('.CodeMirror-linebackground').css({
-                'background-color': '#8ce79b !important'
-            });
-        });
 
         $.ajax({
             type: 'GET',
@@ -752,7 +725,7 @@
             'text-align': 'left'
         });
         $('.page-title-container>h2').html('Email Template Editor > Compare Code');
-        useRightShowClass(false);
+        applyRightNavShowClass(false);
 
         $('.usa-table').hide();
         $('.leaf-left-nav').css({
@@ -765,14 +738,13 @@
     // exits the current and history comparison
     function exitExpandScreen() {
         $(".compared-label-content").hide();
-        $('#word-wrap-button').hide();
         $('.page-title-container .file_replace_file_btn').hide();
         $('.page-title-container .close_expand_mode_screen').hide();
         $('#save_button_compare').hide();
         $('.sidenav-right-compare').hide();
         $('.sidenav-right').show();
         $('#quick_field_search_container').show();
-        useRightShowClass(false);
+        applyRightNavShowClass(false);
         $('.page-title-container>h2').html('Email Template Editor');
 
         $('#codeContainer').css({
@@ -895,7 +867,7 @@
             },
             cache: false
         });
-        $('#saveStatus').html('');
+        $('.saveStatus').html('');
 
         editorCurrentContent()
 
@@ -950,14 +922,12 @@
      * Purpose: On loading document, get all available forms on the portal for quick search
      */
     function getForms() {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                type: "GET",
-                url: "../api/formStack/categoryList",
-                cache: false,
-                success: (res) => loadFormSelection(res),
-                fail: (err) => reject(err)
-            });
+        $.ajax({
+            type: "GET",
+            url: "../api/formStack/categoryList",
+            cache: false,
+            success: (res) => loadFormSelection(res),
+            error: (err) => console.log(err)
         });
     }
 
@@ -1132,7 +1102,7 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
-        useRightShowClass(false);
+        applyRightNavShowClass(false);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=emailTemplate&id=' + currentFile,
@@ -1208,19 +1178,23 @@
             }
         }
     }
-    // loads components when the document loads
+    //loads components when the document loads
     $(document).ready(function() {
         getIndicators(); //get indicators to make format table 
-        $('.currentUrlLink').hide();
         $('.sidenav-right-compare').hide();
-        dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator',
-            'confirm_button_save', 'confirm_button_cancelchange');
+        dialog = new dialogController(
+            'confirm_xhrDialog',
+            'confirm_xhr',
+            'confirm_loadIndicator',
+            'confirm_button_save',
+            'confirm_button_cancelchange'
+        );
         initEditor();
         $(window).on('resize', function() {
             updateEditorSize();
         });
-        // Get forms for quick search
-        getForms().then((res) => console.log(res));
+        // Get forms for quick search and indicator format info
+        getForms();
         // Get initial email tempates for page from database
         $.ajax({
             type: 'GET',
@@ -1297,10 +1271,7 @@
 
         // Load content from those templates to the current main template
         initializePage();
-        // Refresh CodeMirror
-        $('.CodeMirror').each(function(i, el) {
-            el.CodeMirror.refresh();
-        });
+
         $('#xhrDialog').hide();
         dialog_message = new dialogController(
             'genericDialog',

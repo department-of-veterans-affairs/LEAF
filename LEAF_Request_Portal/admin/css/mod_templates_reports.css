@@ -1,8 +1,23 @@
 /* TODO: Consolidate Further */
+
+/* dialog modal adjustment */
 .ui-dialog .ui-dialog-content {
     box-sizing: border-box;
 }
+/* some overrides to help with history modal specifically */
+#genericDialogxhr {
+    display: flex;
+    flex-direction: column;
+}
+#genericDialogxhr .leaf-buttonBar {
+    margin-top: auto;
+}
+#genericDialogxhr .leaf-buttonBar button {
+    margin: 0;
+}
 
+
+/* CodeMirror related style adjustments */
 .CodeMirror-merge-pane-rightmost {
     border: 2px solid #083;
     overflow: auto;
@@ -16,19 +31,20 @@
     visibility: visible;
     content: '\25ba\25ba\25ba';
 }
-
-.CodeMirror-linebackground {  /* TODO: ASK */
+.CodeMirror-linebackground {
     background-color: #8ce79b;
 }
 
-.CodeMirror.cm-s-default, .CodeMirror-merge,
-#codeContainer.email_templates .CodeMirror-merge.CodeMirror-merge-2pane .CodeMirror.cm-s-default {
+.CodeMirror, .CodeMirror-merge,
+#codeContainer.email_templates .CodeMirror-merge.CodeMirror-merge-2pane .CodeMirror {
     height: 100vh !important;
 }
-#codeContainer.email_templates .CodeMirror.cm-s-default  {
+#codeContainer.email_templates .CodeMirror  {
     height: auto !important;
 }
-
+.CodeMirror-code {
+    font-size: .7rem;
+}
 .CodeMirror pre {
     padding: 2px 12px;
 }
@@ -41,6 +57,23 @@
 .CodeMirror-gutters {
     left: 0 !important;
 }
+.CodeMirror-scroll {
+    margin-right: 0;
+}
+.CodeMirror-sizer {
+    margin-left: 30px !important;
+}
+.CodeMirror-merge-pane-label {
+    width: 50%;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px 0;
+}
+.CodeMirror-merge-pane-label:nth-child(2) {
+    color: #083;
+}
+
+
 
 #reportURL {
     text-align: left;
@@ -107,13 +140,11 @@ fieldset {
 
 #codeArea.main-content {
     margin: 0;
-    flex: 1 1 60%;
     min-width: 400px;
-    max-width: 75vw;
 }
 #filename {
     padding: 0.75rem;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     background-color: #252f3e;
     font-weight: bold;
     color: #fff;
@@ -184,10 +215,8 @@ fieldset {
     margin: 0;
 }
 
-.keboard_shortcuts_main_title,
-.keboard_shortcuts_main_title_merge {
-    width: 100%;
-    margin-bottom: 10px;
+h3.keboard_shortcuts_main_title {
+    margin: 0 0 10px 0;
 }
 
 
@@ -277,6 +306,11 @@ button.new-report {
 #save_button {
     background-color: #1a4480;
 }
+.saveStatus {
+    padding-top: 0.25rem;
+    font-family: "PublicSans Regular", sans-serif;
+    font-size: 10px;
+}
 
 .contentMessage {
     width: 100%;
@@ -308,22 +342,24 @@ button.new-report {
     color: #000;
     text-decoration: none;
     font-size: .8rem;
-    border-bottom: 2px solid #005ea200;
+    border-bottom: 2px solid #00000000;
     transition: all 0.3s ease;
+    padding-bottom: 2px;
 }
-.leaf-ul>li>a:hover {
+.leaf-ul > li a:hover {
     border-bottom: 2px solid #005ea2;
     color: #005EA2;
 }
 
 .template_files {
     width: 100%;
-    display: flex;
-    gap: 4px;
-    align-items: center;
     font-size: .8rem !important;
-    line-height: 2;
+    line-height: 1.9;
     list-style: circle;
+}
+.custom_file {
+    color: #C00000;
+    font-size: 0.75rem;
 }
 
 .compared-label-content {
@@ -336,24 +372,8 @@ button.new-report {
     border: 2px solid #252f3e;
 }
 
-.CodeMirror-scroll {
-    margin-right: 0;
-}
 
-.CodeMirror-sizer {
-    margin-left: 30px !important;
-}
 
-.CodeMirror-merge-pane-label {
-    width: 50%;
-    text-align: center;
-    font-weight: bold;
-    padding: 10px 0;
-}
-
-.CodeMirror-merge-pane-label:nth-child(2) {
-    color: #083;
-}
 
 /*File History Contents*/
 
@@ -470,14 +490,12 @@ label[for="template_file_select"] {
     border-radius: 5px;
 }
 
-.mobileToolsNav {
+#mobileToolsNavBtn {
+    cursor: pointer;
     display: none;
     justify-content: flex-end;
     align-items: center;
-    width: 45%;
-}
-.mobileToolsNavBtn {
-    background-color: none;
+    background-color: #e8f2ff;
     border: 2px solid #1A4480;
     padding: 5px;
     border-radius: 5px;
@@ -619,7 +637,7 @@ label[for="template_file_select"] {
         font-size: 1.3rem;
     }
 
-    .mobileToolsNav {
+    #mobileToolsNavBtn {
         display: flex;
     }
 
@@ -635,9 +653,7 @@ label[for="template_file_select"] {
         max-width: none;
     }
 
-    .CodeMirror-code {
-        font-size: .7rem;
-    }
+
 
     .leaf-right-nav {
         display: flex;

@@ -7,11 +7,9 @@
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>LEAF Programmer</h2>
-        <div class="mobileToolsNav">
-            <button type="button" class="mobileToolsNavBtn" onclick="useRightShowClass(true)">
-                Template Tools
-            </button>
-        </div>
+        <button type="button" id="mobileToolsNavBtn" onclick="applyRightNavShowClass(true)">
+            Template Tools
+        </button>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
@@ -39,9 +37,7 @@
                     <div id="codeCompare"></div>
                 </div>
                 <div class="keyboard_shortcuts">
-                    <div class="keboard_shortcuts_main_title">
-                        <h3>Keyboard Shortcuts within the Code Editor:</h3>
-                    </div>
+                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
                     <div class="keyboard_shortcuts_section">
                         <div class="keboard_shortcuts_box">
                             <div class="keyboard_shortcuts_title">
@@ -74,9 +70,7 @@
                 </div>
 
                 <div class="keyboard_shortcuts_merge">
-                    <div class="keboard_shortcuts_main_title_merge">
-                        <h3>Keyboard Shortcuts For Compare Code:</h3>
-                    </div>
+                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
                         <div class="keboard_shortcuts_box_merge">
                             <div class="keyboard_shortcuts_title_merge">
@@ -102,13 +96,12 @@
 
         <div class="leaf-right-nav">
             <button type="button" id="closeMobileToolsNavBtn" aria-label="close"
-                    onclick="useRightShowClass(false)">X</button>
+                    onclick="applyRightNavShowClass(false)">X</button>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right" id="controls">
                 <button type="button" id="save_button" class="usa-button"
-                    onclick="save();">Save Changes<span id="saveStatus"
-                        class="leaf-display-block leaf-font0-5rem"></span>
+                    onclick="save();">Save Changes<span class="saveStatus"></span>
                 </button>
                 <button type="button" id="open_file_button"
                     class="usa-button usa-button--accent-cool leaf-btn-med" onclick="
@@ -154,14 +147,13 @@
 
 
 <script>
-    function useRightShowClass(showNav = false) {
+    function applyRightNavShowClass(showNav = false) {
         let nav = $('.leaf-right-nav');
         showNav ? nav.addClass('show') : nav.removeClass('show');
     }
 
     // saves current file content changes
     function save() {
-        $('#saveIndicator').attr('src', '../images/indicator.gif');
         let data = '';
         if (typeof codeEditor.edit !== 'undefined' && typeof codeEditor.edit.getValue === 'function') {
             data = codeEditor.edit.getValue();
@@ -182,14 +174,13 @@
             },
             url: '../api/applet/_' + currentFile,
             success: function(res) {
-                $('#saveIndicator').attr('src', '../dynicons/?img=media-floppy.svg&w=32');
                 $('.modifiedTemplate').css('display', 'block');
                 if ($('#btn_compareStop').css('display') != 'none') {
                     $('#btn_compare').css('display', 'none');
                 }
 
                 var time = new Date().toLocaleTimeString();
-                $('#saveStatus').html('<br /> Last saved: ' + time);
+                $('.saveStatus').html('<br /> Last saved: ' + time);
                 currentFileContent = data;
                 if (res != null) {
                     alert(res);
@@ -198,9 +189,6 @@
             },
             error: function() {
                 alert('An error occurred while saving the file.');
-            },
-            complete: function() {
-                $('#saveIndicator').attr('src', '');
             }
         });
     }
@@ -253,7 +241,7 @@
             'text-align': 'left'
         });
         $('.page-title-container>h2').html('LEAF Programmer > Compare Code');
-        useRightShowClass(false);
+        applyRightNavShowClass(false);
         $('.usa-table').hide();
         $('.leaf-left-nav').css({
             position: 'fixed',
@@ -269,7 +257,6 @@
     // exits the current and history comparison
     function exitExpandScreen() {
         $('.compared-label-content').css('display', 'none');
-        $('#word-wrap-button').hide();
         $('.page-title-container > .file_replace_file_btn').hide();
         $('.page-title-container > .close_expand_mode_screen').hide();
         $('#save_button_compare').css('display', 'none');
@@ -280,7 +267,7 @@
             'text-align': 'left'
         });
         $('.page-title-container>h2').html('LEAF Programmer');
-        useRightShowClass(false);
+        applyRightNavShowClass(false);
         $('#codeContainer').css({
             display: 'block'
         });
@@ -397,6 +384,7 @@
 
     // request's copies of the current file content in an accordion layout
     function getFileHistory(template) {
+        console.log(template)
         $.ajax({
             type: 'GET',
             url: '../api/templateFileHistory/_' + template,
@@ -456,11 +444,8 @@
         $('#save_button').css('display', 'none');
         $('#btn_compareStop').css('display', 'none');
         $('#btn_merge').css('display', 'block');
-        $('#word-wrap-button').css('display', 'block');
         $('.save_button').css('display', 'none');
         $('.file_replace_file_btn').css('display', 'block');
-        var wordWrapEnabled = false; // default to false
-
 
         $.ajax({
             type: 'GET',
@@ -669,7 +654,7 @@
             },
             cache: false
         });
-        $('#saveStatus').html('');
+        $('.saveStatus').html('');
 
         editorCurrentContent();
 
@@ -790,7 +775,7 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
-        useRightShowClass(false);
+        applyRightNavShowClass(false);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=applet&id=' + currentFile,
@@ -811,7 +796,6 @@
     // loads components when the document loads
     $(document).ready(function() {
         initEditor();
-        $('.currentUrlLink').hide();
         $('.sidenav-right-compare').hide();
         dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save',
             'button_cancelchange');
