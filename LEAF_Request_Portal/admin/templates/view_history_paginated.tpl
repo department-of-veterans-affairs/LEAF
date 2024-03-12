@@ -22,34 +22,40 @@
 
     $('#prev').on('click', function() {
         page = page - 1;
-
+        let btn = $(this);
+        btn.prop('disabled', true);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&page=' + page +'&id='+itemId,
             dataType: 'text',
             success: function(res) {
                 $('#history-slice').html(res);
-                adjustPageButtons(page);
+                btn.prop('disabled', false);
+                adjustPageButtons(page, btn.id || 'prev');
             },
             cache: false
         });
+
     });
 
     $('#next').on('click', function() {
         page = page + 1;
+        let btn = $(this);
+        btn.prop('disabled', true);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=<!--{$dataType}-->&gethistoryslice=1&id='+itemId+'&page=' + page,
             dataType: 'text',
             success: function(res) {
                 $('#history-slice').html(res);
-                adjustPageButtons(page);
+                btn.prop('disabled', false);
+                adjustPageButtons(page, btn.id ||'next');
             },
             cache: false
         });
     });
 
-function adjustPageButtons(page) {
+function adjustPageButtons(page, lastBtnID = '') {
     if(<!--{$totalPages}--> < 2 || page == <!--{$totalPages}-->) {
         $('#next').hide();
         if($('#prev').css('display') === 'block') {
@@ -71,7 +77,9 @@ function adjustPageButtons(page) {
     }
     else {
         $('#prev').show();
+        if($(`#${lastBtnID}`).css('display') === 'block') {
+            $(`#${lastBtnID}`).focus();
+        }
     }
-
 }
 </script>

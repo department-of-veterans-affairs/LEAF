@@ -1,10 +1,8 @@
+<!-- Menu toggle on smaller screens  -->
+<div id="toggleMenu" role="button">
+    <a href="javascript:void(0);" aria-label="open mobile navigation"><span class="leaf-menu">MENU</span><i aria-hidden="true" class="fas fa-times"></i></a>
+</div>
 <ul>
-
-    <!-- Menu tooggle on smaller screens  -->
-    <li id="toggleMenu">
-        <a href="javascript:void(0);"><span class="leaf-menu"><button type="button">MENU</button></span><i aria-hidden="true" class="fas fa-times"></i></a>
-    </li>
-
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
 
     <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports&v=3">Report Builder</a></li>
@@ -109,11 +107,13 @@ $('#toggleMenu').on('click', function() {
 
     if ( $(this).hasClass('js-open') ) {
         $('#nav > ul > li:not(#toggleMenu)').removeClass('js-showElement');
+        $('#toggleMenu a').attr('aria-label', 'open mobile navigation');
         $(this).removeClass('js-open');
         $(this).attr('aria-expanded', false);
 
     } else {
         $('#nav > ul > li:not(#toggleMenu)').addClass('js-showElement');
+        $('#toggleMenu a').attr('aria-label', 'close mobile navigation');
         $(this).addClass('js-open');
         $(this).attr('aria-expanded', true);
     }
