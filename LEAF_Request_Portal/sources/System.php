@@ -122,9 +122,7 @@ class System
                             if ($backups['status']['code'] == 2) {
                                 // check if this service is also an ELT
                                 // if so, update groups table
-                                $tagged = $tag->groupIsTagged($serviceID, Config::$orgchartImportTags[0]);
-
-                                if ($serviceID == $quadID && $tagged['status']['code'] == 2 && !empty($tagged['data'])) {
+                                if ($serviceID == $quadID) {
                                     $this->updateGroup($serviceID, $oc_db);
                                 } else {
                                     // make sure this is not in the groups table?
@@ -804,7 +802,7 @@ class System
     /**
      *
      * @return void
-     * 
+     *
      */
     private function cleanupSystemAdmin(): void
     {
@@ -905,6 +903,13 @@ class System
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
+        $sql = 'DELETE
+                FROM `groups`
+                WHERE `parentGroupID = -1';
+
+        $return_value = $this->db->pdo_delete_query($sql, $vars);
+
+
         return $return_value;
     }
 
@@ -931,7 +936,8 @@ class System
         $vars = array();
         $sql = 'DELETE
                 FROM `groups`
-                WHERE `groupID` > 1';
+                WHERE `groupID` > 1
+                AND parentGroupID <> -1';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 

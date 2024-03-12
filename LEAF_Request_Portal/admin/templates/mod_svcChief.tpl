@@ -429,10 +429,12 @@ function getGroupList() {
 	.done(function(res1, res2) {
 		let quadrads = res1[0];
 		let services = res2[0];
-	    for(let i in quadrads) {
-	    	$('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
-	    }
-	    for(let i in services) {
+
+	    for (let i in quadrads) {
+            $('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
+
+        }
+	    for (let i in services) {
             $('#group_' + services[i].groupID).append('<div tabindex="0" id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
                     + '<h2 id="groupTitle'+ services[i].serviceID +'">'+ services[i].service +'</h2>'
                     + '<div id="members'+ services[i].serviceID +'"></div>'
