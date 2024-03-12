@@ -30,6 +30,11 @@ export default {
         if(this.mergeableForms.length > 0) {
             const focusEl = document.getElementById('select-form-to-staple');
             if(focusEl !== null) focusEl.focus();
+        } else {
+            const btnAdd = document.getElementById('button_save');
+            if(btnAdd !== null) {
+                btnAdd.style.display = 'none';
+            }
         }
     },
     computed: {
@@ -58,7 +63,7 @@ export default {
             $.ajax({
                 type: 'DELETE',
                 url: `${this.APIroot}formEditor/_${this.mainFormID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
-                success: res => {
+                success: () => {
                     this.updateStapledFormsInfo(this.mainFormID, stapledCatID, true);
                 },
                 error: err => console.log(err)
@@ -84,6 +89,18 @@ export default {
                     error: err => console.log(err),
                     cache: false
                 });
+            }
+        }
+    },
+    watch: {
+        mergeableForms(newVal, oldVal) {
+            const newLen = newVal.length;
+            const oldLen = oldVal.length;
+            if (newLen === 0 || oldLen === 0 && newLen > 0) {
+                const btnAdd = document.getElementById('button_save');
+                if(btnAdd !== null) {
+                    btnAdd.style.display = newLen === 0 ? 'none' : 'flex';
+                }
             }
         }
     },

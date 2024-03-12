@@ -71,7 +71,7 @@ export default {
     template:`<div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
                 <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
-                <button v-show="!previewMode" type="button"
+                <button v-show="!previewMode" type="button" :id="'index_listing_' + indicatorID + '_button'"
                 :title="'drag to move question (' + indicatorID + ')'"
                 class="drag_question_button" @click="focusIndicator(indicatorID)">
                     <div class="icon_move_container">
@@ -86,10 +86,6 @@ export default {
                         </div>
                     </div>
                 </button>
-                <!-- NAME -->
-                <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
-                    class="indicator-name-preview" :id="'format_label_' + indicatorID">
-                </div>
 
                 <!-- TOOLBAR -->
                 <div v-show="!previewMode"
@@ -122,6 +118,10 @@ export default {
                         @click="newQuestion(indicatorID)">
                         + Add sub-question
                     </button>
+                </div>
+                <!-- NAME -->
+                <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
+                    class="indicator-name-preview" :id="'format_label_' + indicatorID">
                 </div>
             </div>
 

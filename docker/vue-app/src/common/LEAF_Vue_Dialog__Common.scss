@@ -78,7 +78,7 @@ input[type="color"] {
     }
 }
 button.btn-general, button.btn-confirm {
-    background-color: white;
+    background-color: $lt_cyan;
     color: $base_navy;
     border: 2px solid $base_navy;
     &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
@@ -93,6 +93,10 @@ button.btn-general, button.btn-confirm {
         &:active {
             border: 2px solid $base_navy !important;
         }
+    }
+    a, a:visited, a:active, a:focus {
+        text-decoration: none;
+        color: inherit;
     }
 }
 button.btn-confirm {
@@ -217,6 +221,7 @@ td a.router-link {
     width: fit-content;
     max-width: 600px;
     margin-bottom: 0.2em;
+    white-space: normal;
 }
 input[class*="icheck"][class*="leaf_check"], 
 input[class*="ischecked"][class*="leaf_check"] { 
