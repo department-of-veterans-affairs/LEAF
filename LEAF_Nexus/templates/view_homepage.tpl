@@ -1,7 +1,7 @@
 <div class="menu2" style="width: 315px; float: left">
 
-<a href="?a=navigator" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: #ffefa5" tabindex="0">
+<a href="?a=navigator">
+    <span class="menuButtonSmall" style="background-color: #ffefa5">
         <img class="menuIconSmall" src="dynicons/?img=applications-internet.svg&amp;w=76" style="position: relative" alt="" />
         <span class="menuTextSmall">Browser</span><br />
         <span class="menuDescSmall">View Organizational Charts</span>
@@ -9,8 +9,8 @@
 </a>
 
 <!--{if $groupLeader != ''}-->
-<a href="?a=navigator&amp;rootID=<!--{$groupLeader|strip_tags}-->" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: #b3ceff" tabindex="0">
+<a href="?a=navigator&amp;rootID=<!--{$groupLeader|strip_tags}-->">
+    <span class="menuButtonSmall" style="background-color: #b3ceff">
         <img class="menuIconSmall" src="dynicons/?img=preferences-system-windows.svg&amp;w=76" style="position: relative" alt="" />
         <span class="menuTextSmall">Service Org. Chart</span><br />
         <span class="menuDescSmall">View your service's Org. Chart</span>
@@ -18,16 +18,16 @@
 </a>
 <!--{/if}-->
 
-<a href="./utils/exportPDL.php" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
+<a href="./utils/exportPDL.php">
+    <span class="menuButtonSmall" style="background-color: black">
         <img class="menuIconSmall" src="dynicons/?img=x-office-spreadsheet.svg&amp;w=76" style="position: relative" alt=""  />
         <span class="menuTextSmall" style="color: white">Export PDL</span><br />
         <span class="menuDescSmall" style="color: white">Download the Position Description List</span>
     </span>
 </a>
 
-<a href="?a=summary" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
+<a href="?a=summary">
+    <span class="menuButtonSmall" style="background-color: black">
         <img class="menuIconSmall" src="dynicons/?img=x-office-presentation.svg&amp;w=76" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Vacancy Summary</span><br />
         <span class="menuDescSmall" style="color: white">View vacancies by Service</span>

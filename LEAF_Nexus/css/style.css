@@ -119,8 +119,22 @@ span#headerMenu {
     text-align: right;
 }
 
-
 /* updated nav */
+#nav-skip-link {
+    position: absolute;
+    opacity: 0;
+    color: black;
+    background-color: #e0e0e0;
+    padding: 0.1em 0.2em;
+    border-radius: 2px;
+    left: -9999px;
+}
+#nav-skip-link:focus,
+#nav-skip-link:active {
+    opacity: 1;
+    left: 0;
+    z-index: 100;
+}
 #headerMenuNav {
     font-size: 12px;
 }

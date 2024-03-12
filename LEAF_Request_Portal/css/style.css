@@ -946,7 +946,7 @@ div[id*="xhrDialog"] {
   background-color: #c0dbff;
 }
 
-button.tools {
+button.tools, button#showSinglePage {
   background-color: #e8f2ff;
   padding: 2px;
   margin: 0px;
@@ -960,6 +960,10 @@ button.tools {
   font-size: 14px;
   text-align: left;
   width: 99%;
+}
+button#showSinglePage {
+    display: flex;
+    align-items: center;
 }
 
 button.tools:hover,

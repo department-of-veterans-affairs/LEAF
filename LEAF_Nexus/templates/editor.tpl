@@ -5,12 +5,20 @@ placeholder<br />
 <span id="editor_toolbar" class="noprint">
     <span id="editor_tools">
         <!-- <div onclick="alert('placeholder')"><img src="dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="" title="Add Sub-Group" /> Add Sub-Group</div> -->
-        <span onclick="zoomIn();"><img src="dynicons/?img=gnome-zoom-in.svg&amp;w=32" style="vertical-align: middle" alt="" title="Zoom In" /> Zoom In</span>
-        <span onclick="zoomOut();"><img src="dynicons/?img=gnome-zoom-out.svg&amp;w=32" style="vertical-align: middle" alt="" title="Zoom Out" /> Zoom Out</span>
+        <button type="button" class="buttonNorm" onclick="zoomIn();">
+            <img src="dynicons/?img=gnome-zoom-in.svg&amp;w=24" style="vertical-align: middle" alt="" title="Zoom In" /> Zoom In
+        </button>
+        <button type="button" class="buttonNorm" onclick="zoomOut();">
+            <img src="dynicons/?img=gnome-zoom-out.svg&amp;w=24" style="vertical-align: middle" alt="" title="Zoom Out" /> Zoom Out
+        </button>
         <!--{if $rootID != $topPositionID}-->
-        <span onclick="viewSupervisor();"><img src="dynicons/?img=go-up.svg&amp;w=32" style="vertical-align: middle" alt="" title="Zoom Out" /> Go Up One Level</span>
+        <button type="button" class="buttonNorm" onclick="viewSupervisor();">
+            <img src="dynicons/?img=go-up.svg&amp;w=24" style="vertical-align: middle" alt="" title="Zoom Out" /> Go Up One Level
+        </button>
         <!--{/if}-->
-        <span onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="dynicons/?img=mail-forward.svg&amp;w=32" style="vertical-align: middle" alt="" title="Forward as Email" /> Forward as Email</span>
+        <button type="button" class="buttonNorm" onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'">
+            <img src="dynicons/?img=mail-forward.svg&amp;w=24" style="vertical-align: middle" alt="" title="Forward as Email" /> Forward as Email
+        </button>
     </span>
 </span>
 
