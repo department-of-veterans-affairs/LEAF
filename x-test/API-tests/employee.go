@@ -1,9 +1,9 @@
 package main
 
-type EmployeeResponse map[int]Employee
+type EmployeeResponse map[string]Employee
 
 type Employee struct {
-	EmployeeId int    `json:"employeeId"`
+	EmployeeId int    `json:"empUID"`
 	FirstName  string `json:"firstName"`
 	LastName   string `json:"lastName"`
 	MiddleName string `json:"middleName"`

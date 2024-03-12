@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -24,12 +25,8 @@ func getEmployee(url string) (EmployeeResponse, error) {
 	return m, err
 }
 
-func updateEmployees(postUrl string) error {
-	postData := url.Values{}
-	postData.Set("CSRFToken", csrfToken)
-
-	// Send POST request
-	_, err := client.PostForm(postUrl, postData)
+func updateEmployees(url string) error {
+	_, err := client.Get(url)
 	if err != nil {
 		return err
 	}
@@ -57,12 +54,22 @@ func postEmployee(postUrl string, data Employee) (string, error) {
 	if err != nil {
 		log.Printf("JSON parsing error, couldn't parse: %v", string(bodyBytes))
 	}
+
 	return c, nil
 }
 
 func disableEmployee(postUrl string) error {
 
-	req, err := http.NewRequest("DELETE", postUrl, nil)
+	data := url.Values{}
+	data.Set("CSRFToken", csrfToken)
+
+	req, err := http.NewRequest("DELETE", postUrl, strings.NewReader(data.Encode()))
+
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := client.Do(req)
 
@@ -70,28 +77,23 @@ func disableEmployee(postUrl string) error {
 		return err
 	}
 
+	bodyBytes, _ := io.ReadAll(resp.Body)
+
 	defer resp.Body.Close()
+
+	var c string
+	err = json.Unmarshal(bodyBytes, &c)
+	if err != nil {
+		log.Printf("JSON parsing error, couldn't parse: %v", string(bodyBytes))
+	}
 
 	return nil
 
 }
 
 func TestEmployee_CheckNationalEmployee(t *testing.T) {
-	// make sure our test user is not on the nat already
-	res, _ := getEmployee(natOrgURL + `api/employee/search?q=username:testuser`)
 
-	if len(res) > 0 {
-		t.Error("User Exists in national")
-	}
-
-	// make sure the test user is not on the orgchart already
-	res, _ = getEmployee(orgURL + `api/employee/search?q=username:testuser`)
-
-	if len(res) > 0 {
-		t.Error("User Exists in local")
-	}
-
-	// create the test user on the nat oc
+	// make sure the users are in place before we start.
 	m := Employee{
 		FirstName: "test",
 		LastName:  "user",
@@ -108,16 +110,31 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 		t.Error("no user id returned")
 	}
 
-	// run the script to refresh orgchart employees
-	err = updateEmployees(orgURL + `api/employee/refresh/batch`)
+	employeeId, err = postEmployee(orgURL+`api/employee/new`, m)
+
 	if err != nil {
 		t.Error(err)
 	}
 
-	// does our local have it
-	localEmployeeRes, _ := getEmployee(orgURL + `api/employee/search?q=username:testuser`)
+	if employeeId == "" {
+		t.Error("no user id returned")
+	}
 
-	var localEmployeeKey int
+	var localEmployeeKey string
+	var natEmployeeKey string
+
+	natEmpoyeeRes, err := getEmployee(natOrgURL + `api/employee/search?q=username:testuser`)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	for key := range natEmpoyeeRes {
+		natEmployeeKey = key
+		break
+	}
+
+	localEmployeeRes, _ := getEmployee(orgURL + `api/employee/search?q=username:testuser`)
 	for key := range localEmployeeRes {
 		localEmployeeKey = key
 		break
@@ -130,43 +147,33 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 		t.Errorf("got = %v, want = %v", got, want)
 	}
 
-	// does our national still exist.
-	natEmpoyeeRes, _ := getEmployee(natOrgURL + `api/employee/search?q=username:testuser`)
-
-	var natEmployeeKey int
-	for key := range natEmpoyeeRes {
-		natEmployeeKey = key
-		break
-	}
 	got = natEmpoyeeRes[natEmployeeKey].UserName
 	if !cmp.Equal(got, want) {
 		t.Errorf("got = %v, want = %v", got, want)
 	}
 
-	// local and nat employee ids we are looking at.
-	natEmpoyeeResEmployeeId := natEmpoyeeRes[natEmployeeKey].EmployeeId
-	localEmpoyeeResEmployeeId := localEmployeeRes[localEmployeeKey].EmployeeId
-
 	// delete remote employee
-	err = disableEmployee(fmt.Sprintf("%sapi/employee/%d", natOrgURL, natEmpoyeeResEmployeeId))
+	err = disableEmployee(fmt.Sprintf("%sapi/employee/%s", natOrgURL, natEmployeeKey))
 	if err != nil {
 		t.Error(err)
 	}
 
-	// make sure the national entry was deleted
-	res, _ = getEmployee(natOrgURL + `api/employee/search?q=username:testuser`)
+	// make sure the national is disabled
+	res, _ := getEmployee(natOrgURL + `api/employee/search?q=username:testuser`)
 
-	if len(res) > 0 {
-		t.Error("User Exists on national")
+	gotId := fmt.Sprintf("%d", res[natEmployeeKey].EmployeeId)
+	wantId := natEmployeeKey
+	if cmp.Equal(gotId, wantId) {
+		t.Errorf("User was not disabled on national - got = %s, want = %s", gotId, wantId)
 	}
 
-	// make sure the local has not been deleted.
+	// make sure the local is not disabled
 	res, _ = getEmployee(orgURL + `api/employee/search?q=username:testuser`)
 
-	gotId := res[0].EmployeeId
-	wantId := localEmpoyeeResEmployeeId
+	gotId = fmt.Sprintf("%d", res[localEmployeeKey].EmployeeId)
+	wantId = localEmployeeKey
 	if !cmp.Equal(gotId, wantId) {
-		t.Errorf("got = %v, want = %v", gotId, wantId)
+		t.Errorf("User was disabled on local - got = %s, want = %s", gotId, wantId)
 	}
 
 	// run script again, make sure it deletes locally
@@ -188,4 +195,5 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 	if len(res) > 0 {
 		t.Error("User Exists on local")
 	}
+
 }
