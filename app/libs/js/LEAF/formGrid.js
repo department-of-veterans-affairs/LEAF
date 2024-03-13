@@ -405,7 +405,7 @@ var LeafFormGrid = function (containerID, options) {
         '<div style="position: absolute" aria-label="Sorting by ascending ' +
           key +
           '"></div>' +
-          " &#9650;"
+          ' <span role="img" aria="" alt="">▲</span>'
       );
       $("#" + prefixID + "header_" + key + "_sort").css(
         "vertical-align",
@@ -421,7 +421,7 @@ var LeafFormGrid = function (containerID, options) {
         '<div style="position: absolute" aria-label="Sorting by descending ' +
           key +
           '"></div>' +
-          " &#9660;"
+          ' <span role="img" aria="" alt="">▼</span>'
       );
       $("#" + prefixID + "header_" + key + "_sort").css(
         "vertical-align",
