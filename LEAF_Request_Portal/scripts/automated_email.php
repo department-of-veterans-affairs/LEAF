@@ -195,7 +195,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $updateRecordsWorkflowStateSql = 'UPDATE records_workflow_state
                                             SET lastNotified=:lastNotified, initialNotificationSent=1
                                             WHERE recordID=:recordID';
-        $db->prepared_query($updateRecordsWorkflowStateSql, $updateRecordsWorkflowStateVars);
+        //$db->prepared_query($updateRecordsWorkflowStateSql, $updateRecordsWorkflowStateVars);
 
         echo "Email sent for {$record['recordID']} ({$daysSinceText}) \r\n";
     }
