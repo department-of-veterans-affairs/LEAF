@@ -17,9 +17,10 @@
     <li class="leaf-width-8rem leaf-mob-menu lev2">
         <a href="javascript:void(0);">Admin</a>
         <ul>
-
+            <!--{if $action != ''}-->
             <li><a href="./">Admin Panel<i class="leaf-nav-icon-space"></i></a></li>
-            <li><a href="https://leaf.va.gov/platform/service_requests_launchpad/" target="_blank">Get Help<i class="leaf-nav-icon-space"></i></a></li>
+            <!--{/if}-->
+            <li><a href="https://leaf.va.gov/platform/service_requests_launchpad/" target="_blank">LEAF Support<i class="leaf-nav-icon-space"></i></a></li>
 
             <li class="lev3">
                 <a href="javascript:void(0);">User Access</a>
@@ -124,37 +125,33 @@ $('#toggleMenu').on('click', function() {
 // Add plus mark to li that have a sub menu
 $('li.lev2:has(ul) > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
 $('li.lev3:has(ul) > a').append('<i class="fas fa-angle-left leaf-nav-icon"></i>');
+$('li.lev3:has(ul) > a').append('<i class="fas fa-angle-down leaf-nav-icon"></i>');
 
 
 // sub menu
 // ------------------------
 
 // When interacting with a li that has a sub menu
-$('li:has(ul)').on('mouseover keyup click mouseleave', function(e) {
-
-    //console.log("test")
-
-    // If either -
-        // tabbing into the li that has a sub menu
-        // hovering over the li that has a sub menu
-    if ( e.keyCode === 9 | e.type === 'mouseover' ) {
-
+$('li:has(ul)').on('mouseover click mouseleave focusout', function(e) {
+    // hovering over the li that has a sub menu
+    if (e.type === 'mouseover') {
         // Show sub menu
+        $(this).children('a').addClass('js-openSubMenu');
         $(this).children('ul').removeClass('js-hideElement');
         $(this).children('ul').addClass('js-showElement');
     }
 
     // If mouse leaves li that has sub menu
-    if ( e.type === 'mouseleave' ) {
-
+    if (e.type === 'mouseleave') {
         // hide sub menu
+        $(this).children('a').removeClass('js-openSubMenu');
         $(this).children('ul').removeClass('js-showElement');
         $(this).children('ul').addClass('js-hideElement');
     }
 
-
     // If clicking on li that has a sub menu
-    if ( e.type === 'click' ) {
+    if (e.type === 'click') {
+        e.stopPropagation();
 
         // If sub menu is already open
         if ( $(this).children('a').hasClass('js-openSubMenu') ) {
@@ -179,7 +176,28 @@ $('li:has(ul)').on('mouseover keyup click mouseleave', function(e) {
 
         }
 
-    } // end click event
+    }
+    if(e.type === 'focusout') {
+        e.stopPropagation();
+        const curTarget = e.currentTarget || null;
+        const newTarget = e.relatedTarget || null;
+        if(curTarget !== null && newTarget !== null) {
+            const prevLev2Li = curTarget.closest('li.lev2');
+            const newLev2Li = newTarget.closest('li.lev2');
+            const prevLev3Li = curTarget.closest('li.lev3');
+            const newLev3Li = newTarget.closest('li.lev3');
+            if(prevLev2Li !== null && prevLev2Li !== newLev2Li) {
+                $(prevLev2Li).children('a').removeClass('js-openSubMenu');
+                $(prevLev2Li).children('ul').removeClass('js-showElement');
+                $(prevLev2Li).children('ul').addClass('js-hideElement');
+            }
+            if(prevLev3Li !== null && prevLev3Li !== newLev3Li) {
+                $(prevLev3Li).children('a').removeClass('js-openSubMenu');
+                $(prevLev3Li).children('ul').removeClass('js-showElement');
+                $(prevLev3Li).children('ul').addClass('js-hideElement');
+            }
+        }
+    }
 
 });
 
