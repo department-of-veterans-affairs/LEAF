@@ -1,1 +1,1 @@
-LEAF {{$daysSince}} Reminder - {{$truncatedTitle}} (#{{$recordID}})
+Reminder for {{$truncatedTitle}} (#{{$recordID}})
