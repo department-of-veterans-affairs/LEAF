@@ -1,6 +1,8 @@
 <!-- Menu toggle on smaller screens  -->
-<div id="toggleMenu" role="button">
-    <a href="javascript:void(0);" aria-label="open mobile navigation"><span class="leaf-menu">MENU</span><i aria-hidden="true" class="fas fa-times"></i></a>
+<div id="toggleMenu">
+    <a href="javascript:void(0);" aria-label="open mobile navigation" aria-expanded="false">
+        <span class="leaf-menu">MENU</span><i aria-hidden="true" class="fas fa-times"></i>
+    </a>
 </div>
 <ul>
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
@@ -8,14 +10,14 @@
     <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports&v=3">Report Builder</a></li>
 
     <li class="leaf-width-8rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);">Site Links</a>
+        <a href="javascript:void(0);" aria-label="site links submenu" aria-expanded="false">Site Links</a>
         <ul>
             <li><a href="{$orgchartPath}" target="_blank">Nexus: Org Charts</a></li>
         </ul>
     </li>
 
     <li class="leaf-width-8rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);">Admin</a>
+        <a href="javascript:void(0);" aria-label="admin submenu" aria-expanded="false">Admin</a>
         <ul>
             <!--{if $action != ''}-->
             <li><a href="./">Admin Panel<i class="leaf-nav-icon-space"></i></a></li>
@@ -23,7 +25,7 @@
             <li><a href="https://leaf.va.gov/platform/service_requests_launchpad/" target="_blank">LEAF Support<i class="leaf-nav-icon-space"></i></a></li>
 
             <li class="lev3">
-                <a href="javascript:void(0);">User Access</a>
+                <a href="javascript:void(0);" aria-label="user access submenu" aria-expanded="false">User Access</a>
                 <ul>
                     <li><a href="?a=mod_groups">User Access Groups</a></li>
                     <li><a href="?a=mod_svcChief">Service Chiefs</a></li>
@@ -34,7 +36,7 @@
             </li>
 
             <li class="lev3">
-                <a href="javascript:void(0);">Site Configuration</a>
+                <a href="javascript:void(0);" aria-label="site configuration submenu" aria-expanded="false">Site Configuration</a>
                 <ul>
                 <!--{if $siteType != 'national_subordinate'}-->
                     <li><a href="?a=workflow">Workflow Editor<i class="leaf-nav-icon-space"></i></a></li>
@@ -50,7 +52,7 @@
             </li>
 
             <li class="lev3">
-                <a href="javascript:void(0);">Admin Oversight Tools</a>
+                <a href="javascript:void(0);" aria-label="admin oversight tools submenu" aria-expanded="false">Admin Oversight Tools</a>
                 <ul>
                     <li><a href="../?a=reports&v=3&query=N4IgLgpgTgtgziAXAbVASwCZJHSAHASQBEQAaEAez2gEMwKpsBCAXjJBjoGMALbKCHAoAbAG4Qs5AOZ0I2AIIA5EgF9S6LIhAYIwiJEmVqUOg2xtynMLyQAGabIXKQKgLrkAVhTQA7BChxoUTQuOXIuWSkGAE9FGhgwnDA6AFcEchouMDQKHwB9HjRcGPZcCDwAMRThADM0YWEEnzAAeR9haJB3HAYwJGA1EGE0GDQ%2BxABGW2nyYdHWmpq4fTsVIA%3D%3D%3D&indicators=NobwRAlgdgJhDGBDALgewE4EkAiYBcYyEyANgKZgA0YUiAthQVWAM4bL4AMAvpeNHCRosuAsgCeABwrVaDfGGZt0HPDz6RYCFBhwKWyFAFcWzOY0XVlq9fy1DdosInhFUUAPoALCAYzizegsldi5eO0EdEQUYRHEWDxZoeDIPEkQDDxc3KED5JitQtW4AXSA&sort=N4Ig1gpgniBcIBMCGUDOBlAlgOwMYQBklUAXAQVxMwHtsQAaEagJwQmbkQlVxAF8gA%3D%3D&title=VW5yZXNvbHZlZCByZXF1ZXN0cw%3D%3D">Unresolved Requests</a></li>
                     <li><a href="../report.php?a=LEAF_Timeline_Explorer">Timeline Explorer</a></li>
@@ -59,7 +61,7 @@
             </li>
 
             <li class="lev3">
-                <a href="javascript:void(0);">LEAF Developer Console</a>
+                <a href="javascript:void(0);" aria-label="LEAF Developer console submenu" aria-expanded="false">LEAF Developer Console</a>
                 <ul>
                     <li><a href="?a=mod_templates">Template Editor</a></li>
                     <li><a href="?a=mod_templates_email">Email Template Editor</a></li>
@@ -72,7 +74,7 @@
             </li>
 
             <li class="lev3">
-                <a href="javascript:void(0);">Toolbox</a>
+                <a href="javascript:void(0);" aria-label="toolbox submenu" aria-expanded="false">Toolbox</a>
                 <ul>
                 <li><a href="../report.php?a=LEAF_import_data">Import Spreadsheet</a></li>
                 <li><a href="../report.php?a=LEAF_mass_action">Mass Action</a></li>
@@ -88,10 +90,10 @@
     </li>
 
     <li class="leaf-width-4rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);" title="user account menu"><i class='fas fa-user-circle leaf-usericon' alt='User Account Menu'></i></a>
+        <a href="javascript:void(0);" aria-label="user account menu" aria-expanded="false"><i class='fas fa-user-circle leaf-usericon'></i></a>
         <ul class="leaf-usernavmenu">
-            <li><a href="javascript:void(0);">User:<br/><span class="leaf-user-menu-name">{$name}</span></a></li>
-            <li><a href="javascript:void(0);">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name"></span></a></li>
+            <li tabindex="0">User:<br/><span class="leaf-user-menu-name">{$name}</span></li>
+            <li tabindex="0">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name"></span></li>
             <li><a href="../?a=logout">Sign Out</a></li>
         </ul>
     </li>
@@ -107,16 +109,16 @@ $('html').removeClass('no-js');
 $('#toggleMenu').on('click', function() {
 
     if ( $(this).hasClass('js-open') ) {
-        $('#nav > ul > li:not(#toggleMenu)').removeClass('js-showElement');
+        $('#nav > ul > li').removeClass('js-showElement');
         $('#toggleMenu a').attr('aria-label', 'open mobile navigation');
         $(this).removeClass('js-open');
-        $(this).attr('aria-expanded', false);
+        $('#toggleMenu a').attr('aria-expanded', false);
 
     } else {
-        $('#nav > ul > li:not(#toggleMenu)').addClass('js-showElement');
+        $('#nav > ul > li').addClass('js-showElement');
         $('#toggleMenu a').attr('aria-label', 'close mobile navigation');
         $(this).addClass('js-open');
-        $(this).attr('aria-expanded', true);
+        $('#toggleMenu a').attr('aria-expanded', true);
     }
 
     return false;
@@ -136,6 +138,7 @@ $('li:has(ul)').on('mouseover click mouseleave focusout', function(e) {
     // hovering over the li that has a sub menu
     if (e.type === 'mouseover') {
         // Show sub menu
+        $(this).children('a').attr('aria-expanded', true);
         $(this).children('a').addClass('js-openSubMenu');
         $(this).children('ul').removeClass('js-hideElement');
         $(this).children('ul').addClass('js-showElement');
@@ -144,6 +147,7 @@ $('li:has(ul)').on('mouseover click mouseleave focusout', function(e) {
     // If mouse leaves li that has sub menu
     if (e.type === 'mouseleave') {
         // hide sub menu
+        $(this).children('a').attr('aria-expanded', false);
         $(this).children('a').removeClass('js-openSubMenu');
         $(this).children('ul').removeClass('js-showElement');
         $(this).children('ul').addClass('js-hideElement');
@@ -157,6 +161,7 @@ $('li:has(ul)').on('mouseover click mouseleave focusout', function(e) {
         if ( $(this).children('a').hasClass('js-openSubMenu') ) {
 
             // remove Open class
+            $(this).children('a').attr('aria-expanded', false);
             $(this).children('a').removeClass('js-openSubMenu');
 
             // Hide sub menu
@@ -168,6 +173,7 @@ $('li:has(ul)').on('mouseover click mouseleave focusout', function(e) {
         } else {
 
             // add Open class
+            $(this).children('a').attr('aria-expanded', true);
             $(this).children('a').addClass('js-openSubMenu');
 
             // Show sub menu
@@ -187,50 +193,23 @@ $('li:has(ul)').on('mouseover click mouseleave focusout', function(e) {
             const prevLev3Li = curTarget.closest('li.lev3');
             const newLev3Li = newTarget.closest('li.lev3');
             if(prevLev2Li !== null && prevLev2Li !== newLev2Li) {
+                $(prevLev2Li).children('a').attr('aria-expanded', false);
                 $(prevLev2Li).children('a').removeClass('js-openSubMenu');
                 $(prevLev2Li).children('ul').removeClass('js-showElement');
                 $(prevLev2Li).children('ul').addClass('js-hideElement');
             }
             if(prevLev3Li !== null && prevLev3Li !== newLev3Li) {
+                $(prevLev3Li).children('a').attr('aria-expanded', false);
                 $(prevLev3Li).children('a').removeClass('js-openSubMenu');
                 $(prevLev3Li).children('ul').removeClass('js-showElement');
                 $(prevLev3Li).children('ul').addClass('js-hideElement');
             }
         }
     }
-
 });
 
 
-// Tabbing through Levels of sub menu
-// ------------------------
-
-// If key is pressed while on the last link in a sub menu
-$('li > ul > li:last-child > a').on('keydown', function(e) {
-
-
-    // If tabbing out of the last link in a sub menu AND not tabbing into another sub menu
-    if ( (e.keyCode == 9) && $(this).parent('li').children('ul').length == 0 ) {
-
-            // Close this sub menu
-            $(this).parent('li').parent('ul').removeClass('js-showElement');
-            $(this).parent('li').parent('ul').addClass('js-hideElement');
-
-
-        // If tabbing out of a third level sub menu and there are no other links in the parent (level 2) sub menu
-        if ( $(this).parent('li').parent('ul').parent('li').parent('ul').parent('li').children('ul').length > 0
-             && $(this).parent('li').parent('ul').parent('li').is(':last-child') ) {
-
-                // Close the parent sub menu (level 2) as well
-                $(this).parent('li').parent('ul').parent('li').parent('ul').removeClass('js-showElement');
-                $(this).parent('li').parent('ul').parent('li').parent('ul').addClass('js-hideElement');
-        }
-
-    }
-
-})
-
-})
+});
 </script>
 
 <script type="text/javascript">
