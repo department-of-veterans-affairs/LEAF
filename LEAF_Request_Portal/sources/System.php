@@ -905,7 +905,7 @@ class System
 
         $sql = 'DELETE
                 FROM `groups`
-                WHERE `parentGroupID = -1';
+                WHERE `parentGroupID` = -1';
 
         $return_value = $this->db->pdo_delete_query($sql, $vars);
 
