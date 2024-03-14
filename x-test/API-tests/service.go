@@ -1,6 +1,12 @@
 package main
 
 type ServiceResponse []Service
+type QuadResponse []Quad
+
+type Quad struct {
+	GroupID	int	   `json:"groupID"`
+	Name	string `json:"name"`
+}
 
 type Service struct {
 	ServiceID          int      `json:"serviceID"`

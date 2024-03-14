@@ -23,19 +23,70 @@ func getService(url string) ServiceResponse {
 	return m
 }
 
-func TestService_getMembers(t *testing.T) {
-	res := getService(rootURL + `api/service/members`)
+func getQuad(url string) QuadResponse {
+	res, _ := client.Get(url)
+	b, _ := io.ReadAll(res.Body)
 
-	count := len(res)
+	var m QuadResponse
+	err := json.Unmarshal(b, &m)
+
+	if err != nil {
+		log.Printf("JSON parsing error, couldn't parse: %v", string(b))
+		log.Printf("JSON parsing error: %v", err.Error())
+	}
+	return m
+}
+
+func TestService_getMembers(t *testing.T) {
+	quads := getQuad(rootURL + `api/service/quadrads`)
+	members := getService(rootURL + `api/service/members`)
+
+	count := len(members)
 	retrieved := 28
 
 	if !cmp.Equal(count, retrieved) {
 		t.Errorf("Array size = %v, wanted = %v", count, retrieved)
 	}
 
-	got := res[9].Service
-	want := "Cotton Computers"
+	got := quads[0].Name
+	want := members[0].Service
 	if !cmp.Equal(got, want) {
-		t.Errorf("Service = %v, want = %v", res, want)
+		t.Errorf("Service = %v, want = %v", got, want)
+	}
+
+	got = quads[1].Name
+	want = members[4].Service
+	if !cmp.Equal(got, want) {
+		t.Errorf("Service = %v, want = %v", got, want)
+	}
+
+	got = quads[2].Name
+	want = members[6].Service
+	if !cmp.Equal(got, want) {
+		t.Errorf("Service = %v, want = %v", got, want)
+	}
+
+	got = quads[3].Name
+	want = members[10].Service
+	if !cmp.Equal(got, want) {
+		t.Errorf("Service = %v, want = %v", got, want)
+	}
+
+	got = quads[4].Name
+	want = members[11].Service
+	if !cmp.Equal(got, want) {
+		t.Errorf("Service = %v, want = %v", got, want)
+	}
+
+	got = quads[5].Name
+	want = members[17].Service
+	if !cmp.Equal(got, want) {
+		t.Errorf("Service = %v, want = %v", got, want)
+	}
+
+	got = quads[6].Name
+	want = members[20].Service
+	if !cmp.Equal(got, want) {
+		t.Errorf("Service = %v, want = %v", got, want)
 	}
 }

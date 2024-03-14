@@ -430,6 +430,9 @@ function getGroupList() {
 		let quadrads = res1[0];
 		let services = res2[0];
 
+        console.log(quadrads);
+        console.log(services);
+
 	    for (let i in quadrads) {
             $('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
 
