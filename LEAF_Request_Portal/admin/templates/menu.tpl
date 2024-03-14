@@ -1,6 +1,6 @@
 <!-- Menu toggle on smaller screens  -->
 <div id="toggleMenu">
-    <a href="javascript:void(0);" aria-label="open mobile navigation" aria-expanded="false">
+    <a href="javascript:void(0);" aria-label="open mobile navigation" aria-expanded="false" role="button">
         <span class="leaf-menu">MENU</span><i aria-hidden="true" class="fas fa-times"></i>
     </a>
 </div>
@@ -10,14 +10,14 @@
     <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports&v=3">Report Builder</a></li>
 
     <li class="leaf-width-8rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);" aria-label="site links submenu" aria-expanded="false">Site Links</a>
+        <a href="javascript:void(0);" aria-label="site links submenu" aria-expanded="false" role="button">Site Links</a>
         <ul>
             <li><a href="{$orgchartPath}" target="_blank">Nexus: Org Charts</a></li>
         </ul>
     </li>
 
     <li class="leaf-width-8rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);" aria-label="admin submenu" aria-expanded="false">Admin</a>
+        <a href="javascript:void(0);" aria-label="admin submenu" aria-expanded="false" role="button">Admin</a>
         <ul>
             <!--{if $action != ''}-->
             <li><a href="./">Admin Panel<i class="leaf-nav-icon-space"></i></a></li>
@@ -25,7 +25,7 @@
             <li><a href="https://leaf.va.gov/platform/service_requests_launchpad/" target="_blank">LEAF Support<i class="leaf-nav-icon-space"></i></a></li>
 
             <li class="lev3">
-                <a href="javascript:void(0);" aria-label="user access submenu" aria-expanded="false">User Access</a>
+                <a href="javascript:void(0);" aria-label="user access submenu" aria-expanded="false" role="button">User Access</a>
                 <ul>
                     <li><a href="?a=mod_groups">User Access Groups</a></li>
                     <li><a href="?a=mod_svcChief">Service Chiefs</a></li>
@@ -36,7 +36,7 @@
             </li>
 
             <li class="lev3">
-                <a href="javascript:void(0);" aria-label="site configuration submenu" aria-expanded="false">Site Configuration</a>
+                <a href="javascript:void(0);" aria-label="site configuration submenu" aria-expanded="false" role="button">Site Configuration</a>
                 <ul>
                 <!--{if $siteType != 'national_subordinate'}-->
                     <li><a href="?a=workflow">Workflow Editor<i class="leaf-nav-icon-space"></i></a></li>
@@ -52,7 +52,7 @@
             </li>
 
             <li class="lev3">
-                <a href="javascript:void(0);" aria-label="admin oversight tools submenu" aria-expanded="false">Admin Oversight Tools</a>
+                <a href="javascript:void(0);" aria-label="admin oversight tools submenu" aria-expanded="false" role="button">Admin Oversight Tools</a>
                 <ul>
                     <li><a href="../?a=reports&v=3&query=N4IgLgpgTgtgziAXAbVASwCZJHSAHASQBEQAaEAez2gEMwKpsBCAXjJBjoGMALbKCHAoAbAG4Qs5AOZ0I2AIIA5EgF9S6LIhAYIwiJEmVqUOg2xtynMLyQAGabIXKQKgLrkAVhTQA7BChxoUTQuOXIuWSkGAE9FGhgwnDA6AFcEchouMDQKHwB9HjRcGPZcCDwAMRThADM0YWEEnzAAeR9haJB3HAYwJGA1EGE0GDQ%2BxABGW2nyYdHWmpq4fTsVIA%3D%3D%3D&indicators=NobwRAlgdgJhDGBDALgewE4EkAiYBcYyEyANgKZgA0YUiAthQVWAM4bL4AMAvpeNHCRosuAsgCeABwrVaDfGGZt0HPDz6RYCFBhwKWyFAFcWzOY0XVlq9fy1DdosInhFUUAPoALCAYzizegsldi5eO0EdEQUYRHEWDxZoeDIPEkQDDxc3KED5JitQtW4AXSA&sort=N4Ig1gpgniBcIBMCGUDOBlAlgOwMYQBklUAXAQVxMwHtsQAaEagJwQmbkQlVxAF8gA%3D%3D&title=VW5yZXNvbHZlZCByZXF1ZXN0cw%3D%3D">Unresolved Requests</a></li>
                     <li><a href="../report.php?a=LEAF_Timeline_Explorer">Timeline Explorer</a></li>
@@ -61,7 +61,7 @@
             </li>
 
             <li class="lev3">
-                <a href="javascript:void(0);" aria-label="LEAF Developer console submenu" aria-expanded="false">LEAF Developer Console</a>
+                <a href="javascript:void(0);" aria-label="LEAF Developer console submenu" aria-expanded="false" role="button">LEAF Developer Console</a>
                 <ul>
                     <li><a href="?a=mod_templates">Template Editor</a></li>
                     <li><a href="?a=mod_templates_email">Email Template Editor</a></li>
@@ -74,7 +74,7 @@
             </li>
 
             <li class="lev3">
-                <a href="javascript:void(0);" aria-label="toolbox submenu" aria-expanded="false">Toolbox</a>
+                <a href="javascript:void(0);" aria-label="toolbox submenu" aria-expanded="false" role="button">Toolbox</a>
                 <ul>
                 <li><a href="../report.php?a=LEAF_import_data">Import Spreadsheet</a></li>
                 <li><a href="../report.php?a=LEAF_mass_action">Mass Action</a></li>
@@ -90,7 +90,7 @@
     </li>
 
     <li class="leaf-width-4rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);" aria-label="user account menu" aria-expanded="false"><i class='fas fa-user-circle leaf-usericon'></i></a>
+        <a href="javascript:void(0);" aria-label="user account menu" aria-expanded="false" role="button"><i class='fas fa-user-circle leaf-usericon'></i></a>
         <ul class="leaf-usernavmenu">
             <li tabindex="0">User:<br/><span class="leaf-user-menu-name">{$name}</span></li>
             <li tabindex="0">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name"></span></li>

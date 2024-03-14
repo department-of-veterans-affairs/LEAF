@@ -141,8 +141,8 @@ function getSubordinates(positionID, level) {
 
             positions[subordinate[key].positionID].emptyControls();
 
-            positions[subordinate[key].positionID].addControl('<div class="button" onclick="window.location=\'?a=view_position&amp;positionID='+this.positionID+'\';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" title="View Details" /> View Details</div>');
-            positions[subordinate[key].positionID].addControl('<div class="button" onclick="window.location=\'?a=navigator&amp;rootID='+this.positionID+'\'"><img src="dynicons/?img=system-search.svg&amp;w=32" alt="" title="Focus" /> Focus on This</div>');
+            positions[subordinate[key].positionID].addControl('<a class="button buttonNorm" href="?a=view_position&amp;positionID='+this.positionID+'"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" /> View Details</a>');
+            positions[subordinate[key].positionID].addControl('<a class="button buttonNorm" href="?a=navigator&amp;rootID='+this.positionID+'"><img src="dynicons/?img=system-search.svg&amp;w=32" alt="" /> Focus on This</a>');
 
             setPositionStyle(positions[subordinate[key].positionID].prefixID + positions[subordinate[key].positionID].positionID, positions[subordinate[key].positionID].positionID);
 
@@ -223,11 +223,11 @@ $(function() {
     };
 
     positions[<!--{$rootID}-->].emptyControls();
-    positions[<!--{$rootID}-->].addControl('<div class="button" onclick="window.location=\'?a=view_position&amp;positionID=<!--{$rootID}-->\';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" title="View Details" /> View Details</div>');
+    positions[<!--{$rootID}-->].addControl('<a class="button buttonNorm" href="?a=view_position&amp;positionID=<!--{$rootID}-->"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" title="View Details" /> View Details</a>');
     positions[<!--{$rootID}-->].draw();
     setPositionStyle(positions[<!--{$rootID}-->].prefixID + <!--{$rootID}-->, <!--{$rootID}-->);
 
-    $('#editor_toolbar').appendTo('#headerTab');
+    $('#editor_toolbar').prependTo('#body');
 });
 
 /* ]]> */

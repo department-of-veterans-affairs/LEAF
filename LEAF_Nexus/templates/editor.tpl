@@ -272,8 +272,8 @@ function addSubordinate(parentID) {
                 parentDomPosition.left += 0;
                 parentDomPosition.top += 80;
                 positions[response].setDomPosition(parentDomPosition.left, parentDomPosition.top);
-                positions[response].addControl('<div class="button" onclick="removePosition('+response+');"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" title="Remove Position" /> Remove Position</div>');
-                positions[response].addControl('<div class="button" onclick="changeSupervisor('+response+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Change Supervisor" /> Change Supervisor</div>');
+                positions[response].addControl('<button type="button" class="button buttonNorm" onclick="removePosition('+response+');"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" title="Remove Position" /> Remove Position</button>');
+                positions[response].addControl('<button type="button" class="button buttonNorm" onclick="changeSupervisor('+response+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Change Supervisor" /> Change Supervisor</button>');
                 // make position box draggable
                 draggableOptions.stop = function() {
                 	saveLayout(response);
@@ -317,14 +317,14 @@ function getSubordinates(positionID, level) {
 
         positions[subordinate[key].positionID].onLoad = function() {
         	var loadSubordinates = 1;
-        	var positionControls = '<div class="button" onclick="hideSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=gnome-system-users.svg&amp;w=32" alt="" title="Hide" /> Hide Subordinates</div>';
+        	var positionControls = '<button type="button" class="button buttonNorm" onclick="hideSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=gnome-system-users.svg&amp;w=32" alt="" title="Hide" /> Hide Subordinates</button>';
         	if(subordinate[key][15].data != '') {
                 var subData = $.parseJSON(subordinate[key][15].data);
                 if(subData[<!--{$rootID}-->] != undefined
                 	&& subData[<!--{$rootID}-->].hideSubordinates != undefined
                		&& subData[<!--{$rootID}-->].hideSubordinates == 1) {
 
-                	positionControls = '<div class="button" onclick="showSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Show" /> Show Subordinates</div>';
+                	positionControls = '<button type="button" class="button buttonNorm" onclick="showSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Show" /> Show Subordinates</button>';
                 	loadSubordinates = 0;
                 }
         	}
@@ -352,7 +352,7 @@ function getSubordinates(positionID, level) {
         		   positions[subordinate[key].positionID].addControl(positionControls);
         	}
         	else {
-        		positions[subordinate[key].positionID].addControl('<div class="button" onclick="removePosition('+subordinate[key].positionID+');"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" title="Remove Position" /> Remove Position</div>');
+        		positions[subordinate[key].positionID].addControl('<button type="button" class="button buttonNorm" onclick="removePosition('+subordinate[key].positionID+');"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" title="Remove Position" /> Remove Position</button>');
         	}
 
         	var tPID = subordinate[key].positionID;
@@ -374,8 +374,8 @@ function getSubordinates(positionID, level) {
             	$('svg.editMode path').css({'stroke': '#d0d0d0'});
             });
 
-        	positions[subordinate[key].positionID].addControl('<div class="button" onclick="changeSupervisor('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Change Supervisor" /> Change Supervisor</div>');
-        	positions[subordinate[key].positionID].addControl('<div class="button" onclick="window.location=\'?a=editor&amp;rootID='+subordinate[key].positionID+'\'"><img src="dynicons/?img=system-search.svg&amp;w=32" alt="" title="Focus" /> Focus on This</div>');
+        	positions[subordinate[key].positionID].addControl('<button type="button" class="button buttonNorm" onclick="changeSupervisor('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Change Supervisor" /> Change Supervisor</button>');
+        	positions[subordinate[key].positionID].addControl('<a class="button buttonNorm" href="?a=editor&amp;rootID='+subordinate[key].positionID+'"><img src="dynicons/?img=system-search.svg&amp;w=32" alt="" title="Focus on this" /> Focus on This</a>');
 
             applyZoomLevel();
         };
@@ -509,7 +509,7 @@ $(function() {
     positions[<!--{$rootID}-->] = new position(<!--{$rootID}-->);
     positions[<!--{$rootID}-->].initialize('bodyarea');
     positions[<!--{$rootID}-->].setRootID(<!--{$rootID}-->);
-    positions[<!--{$rootID}-->].addControl('<div class="button" onclick="addSupervisor(\'<!--{$rootID}-->\');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Add Supervisor" /> Add Supervisor</div>');
+    positions[<!--{$rootID}-->].addControl('<button type="button" class="button buttonNorm" onclick="addSupervisor(\'<!--{$rootID}-->\');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Add Supervisor" /> Add Supervisor</button>');
 
     draggableOptions.stop = function() {
         saveLayout(<!--{$rootID}-->);
@@ -532,7 +532,7 @@ $(function() {
     positions[<!--{$rootID}-->].draw();
 
     $('#header').css('background-image', "url('images/gradient_admin.png')");
-    $('#editor_toolbar').appendTo('#headerTab');
+    $('#editor_toolbar').prependTo('#body');
     $('#xhrDialog').on('keydown', function(e) {
         if(e.keyCode == 13) { // enter key
             e.preventDefault();

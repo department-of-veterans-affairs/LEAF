@@ -341,6 +341,25 @@ span#headerTab {
     background-repeat: no-repeat;*/
     background-color: #5a79a5;
 }
+/* orgchart card options.  can be buttons or links */
+.positionSmall .button.buttonNorm {
+    display: flex;
+    gap:3px;
+    align-items: center;
+    color: black;
+    padding: 2px;
+    text-decoration: none;
+    box-sizing: border-box;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid black;
+}
+.positionSmall .button.buttonNorm:hover,
+.positionSmall .button.buttonNorm:focus,
+.positionSmall .button.buttonNorm:active {
+    padding: 2px;
+    color: white;
+}
 
 .link {
     text-decoration: underline;

@@ -2165,11 +2165,6 @@
                 });
                 jsPlumb.setSuspendDrawing(false, true);
 
-                let actionOverlays = Array.from(document.querySelectorAll('div.jtk-overlay.workflowAction'));
-                actionOverlays.forEach(ao => {
-                    ao.setAttribute('tabindex', 0);
-                    ao.addEventListener('keydown', onKeyPressClick);
-                });
                 //if user came via stepinfo key nav re-open that modal
                 if(stepID !== null) {
                     showStepInfo(stepID);
@@ -2194,20 +2189,12 @@
 
         $('#workflow').html('');
         $('#workflow').append(
-            '<div tabindex="0" class="workflowStep" id="step_-1" tabindex="0">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>'
+            '<div tabindex="0" class="workflowStep" id="step_-1" aria-label="workflow step: Requestor">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>'
         );
         $('#step_-1').css({
             'left': 180 + 40 + 'px',
             'top': 80 + 40 + 'px',
             'background-color': '#e0e0e0'
-        });
-        $('#workflow').append(
-            '<div tabindex="0" class="workflowStep" id="step_0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>'
-        );
-        $('#step_0').css({
-            'left': 180 + 40 + 'px',
-            'top': 80 + 40 + 'px',
-            'background-color': '#ff8181'
         });
 
         $.ajax({
@@ -2233,7 +2220,7 @@
                         }
                     }
 
-                    $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_' + res[i]
+                    $('#workflow').append('<div tabindex="0" aria-label="workflow step:' + res[i].stepTitle + '" class="workflowStep" id="step_' + res[i]
                         .stepID + '">' + res[i].stepTitle + ' ' + emailNotificationIcon +
                         '</div><div class="workflowStepInfo" id="stepInfo_' + res[i].stepID + '"></div>'
                     );
@@ -2269,18 +2256,25 @@
                         maxY = posY;
                     }
                 }
-                // draw the last step
+                //append and draw the last step
+                $('#workflow').append(
+                    '<div tabindex="0" class="workflowStep" id="step_0" aria-label="Workflow End">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>'
+                );
                 $('#step_0').css({
                     'left': 180 + 400 + 'px',
                     'top': 160 + maxY + 'px',
                     'background-color': '#ff8181'
                 });
                 // attach click events for first and last step
-                $('#step_-1').on('click', null, -1, function(e) {
-                    showStepInfo(e.data);
+                $('#step_-1').on('click keydown', null, -1, function(e) {
+                    if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
+                        showStepInfo(e.data);
+                    }
                 });
-                $('#step_0').on('click', null, 0, function(e) {
-                    showStepInfo(e.data);
+                $('#step_0').on('click keydown', null, 0, function(e) {
+                    if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
+                        showStepInfo(e.data);
+                    }
                 });
 
                 $('#workflow').css('height', 300 + maxY + 'px');
