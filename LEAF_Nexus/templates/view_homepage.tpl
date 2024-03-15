@@ -219,7 +219,6 @@ $(function() {
     });
     grp2Sel.setSelectLink('?a=view_group');
 
-    $('#search').focus();
     $('#search').on('keyup', function() {
     	$('#searchIcon').css('display', "none");
     	$('#searchIconBusy').css('display', "inline");

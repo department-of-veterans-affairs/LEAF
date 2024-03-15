@@ -37,7 +37,7 @@ position.prototype.initialize = function (parentContainerID) {
 				<div tabindex="0" id="' +
     prefixedPID +
     "_container" +
-    '" class="positionSmall_data" role="button" aria-label="Position submenu">\
+    '" class="positionSmall_data" role="button" aria-expanded="false" aria-label="Position submenu">\
 					<div id="' +
     prefixedPID +
     '_content"></div>\

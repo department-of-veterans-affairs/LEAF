@@ -38,7 +38,7 @@
 <br style="clear: both" />
 <br />
 
-<button id="btn_programmerMode" class="buttonNorm">Other Tools</button>
+<button id="btn_programmerMode" class="buttonNorm" style="padding:0.5rem;">Other Tools</button>
 
 <div id="programmerMode" style="display: none">
 <hr />

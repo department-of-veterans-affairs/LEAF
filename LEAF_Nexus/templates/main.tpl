@@ -40,7 +40,7 @@
 </head>
 <body>
 {if $smarty.get.a == ''}
-<a href="#searchContainer" id="nav-skip-link">Skip to Search</a>
+<a href="#search" id="nav-skip-link">Skip to Search</a>
 {else}
 <a href="#bodyarea" id="nav-skip-link">Skip to main content</a>
 {/if}
