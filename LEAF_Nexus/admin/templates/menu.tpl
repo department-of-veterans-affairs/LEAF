@@ -7,7 +7,7 @@
             <button type="button" id="button_showHelp" class="buttonNorm" title="primary admin contact information"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_help">
                 <img style="vertical-align: sub;" src="../dynicons/?img=help-browser.svg&amp;w=16" alt="" />
-                Help<span role="img" aria="" alt="">▼</span>
+                Help<span aria-hidden="true">▼</span>
             </button>
             <div id="headerMenu_help" class="controlled-element">
                 For Help contact your primary admin

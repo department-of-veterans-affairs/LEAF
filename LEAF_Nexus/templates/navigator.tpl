@@ -2,7 +2,7 @@
 placeholder<br />
 </div> -->
 
-<span id="editor_toolbar" class="noprint">
+<span id="editor_toolbar" class="noprint" style="float:right;">
     <span id="editor_tools">
         <button type="button" class="buttonNorm" onclick="window.location='?a=editor&amp;rootID=<!--{$rootID}-->';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=24" style="vertical-align: middle" alt="" title="Edit Orgchart" /> Edit Orgchart</button>
         <!--{if $rootID != $topPositionID}-->

@@ -34,7 +34,7 @@ var LeafFormGrid = function (containerID, options) {
       <div id="${prefixID}gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div>
     </div>
     <div id="${prefixID}table_stickyHeader" style="display: none"></div>
-    <span id="table_sorting_info" style="position:absolute;top: -40rem"
+    <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
       aria-label="" aria-live="assertive">
     </span>
     <table id="${prefixID}table" class="leaf_grid">
@@ -223,7 +223,7 @@ var LeafFormGrid = function (containerID, options) {
         `<th scope="col"
           id="${prefixID}header_UID" style="text-align:center">
           <button type="button" class="btn_leaf_grid_sort"
-            aria-label="recordID, sortable">UID
+            aria-label="unique ID, sortable">UID
             <span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
           </button>
         </th>`;
@@ -365,11 +365,11 @@ var LeafFormGrid = function (containerID, options) {
     $(`th[id^="${prefixID}header_]`).removeAttr('aria-sort');
     const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
     if (order.toLowerCase() == "asc") {
-      $("#table_sorting_info").attr("aria-label", "sorted " + key + ", ascending.");
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", ascending.");
       $(headerSelector).attr("aria-sort", "ascending");
       $(headerSelector + "_sort").html('<span aria-hidden="true"> ▲</span>');
     } else {
-      $("#table_sorting_info").attr("aria-label", "sorted " + key + ", descending.");
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", descending.");
       $(headerSelector).attr("aria-sort", "descending");
       $(headerSelector + "_sort").html('<span aria-hidden="true"> ▼</span>')
     }

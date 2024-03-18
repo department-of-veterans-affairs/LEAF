@@ -1,19 +1,19 @@
 <div id="workflow_editor">
     <div id="sideBar">
         <div>
-            <label id="steps_label" for="workflow_steps"> Workflow Steps:</label>
-            <div id="stepList"></div>
-        </div>
-        <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();">
-            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Step
-        </button>
-
-        <div style="margin-top:0.5rem;">
             <label id="workflows_label" for="workflows"> Workflows:</label>
             <div id="workflowList"></div>
         </div>
         <button type="button" id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();">
             <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Workflow
+        </button>
+
+        <div style="margin-top:0.5rem;">
+            <label id="steps_label" for="workflow_steps"> Workflow Steps:</label>
+            <div id="stepList"></div>
+        </div>
+        <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();">
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Step
         </button>
 
         <hr />

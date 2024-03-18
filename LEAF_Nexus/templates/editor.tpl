@@ -2,7 +2,7 @@
 placeholder<br />
 </div> -->
 
-<span id="editor_toolbar" class="noprint">
+<span id="editor_toolbar" class="noprint" style="float:right;">
     <span id="editor_tools">
         <!-- <div onclick="alert('placeholder')"><img src="dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="" title="Add Sub-Group" /> Add Sub-Group</div> -->
         <button type="button" class="buttonNorm" onclick="zoomIn();">

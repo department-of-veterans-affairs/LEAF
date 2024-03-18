@@ -616,7 +616,14 @@ switch ($action) {
             $main->assign('status', 'Your login session has expired, You must log in again.');
         }
         $o_login = $t_login->fetch('login.tpl');
-        $tabText = 'System Administration';
+
+        if($action === "")
+        {
+            $tabText = 'Admin Panel';
+        } else
+        {
+            $tabText = 'System Administration';
+        }
         break;
 }
 
