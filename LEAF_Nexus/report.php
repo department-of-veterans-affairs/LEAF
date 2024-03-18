@@ -76,6 +76,7 @@ switch ($action) {
                 $t_form = new \Smarty;
                 $t_form->left_delimiter = '<!--{';
                 $t_form->right_delimiter = '}-->';
+                $t_form->assign('app_js_path', APP_JS_PATH);
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('empUID', $oc_login->getEmpUID());
                 $t_form->assign('empMembership', $oc_login->getMembership());

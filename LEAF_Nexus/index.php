@@ -83,7 +83,7 @@ switch ($action) {
         $main->assign('stylesheets_print', array('css/editor_printer.css'));
         $main->assign('body', $t_form->fetch('navigator.tpl'));
 
-        $tabText = '';
+        $tabText = 'Orgchart Navigator';
 
         break;
     case 'editor':
@@ -117,7 +117,7 @@ switch ($action) {
         $main->assign('stylesheets_print', array('css/editor_printer.css'));
         $main->assign('body', $t_form->fetch('editor.tpl'));
 
-        $tabText = '';
+        $tabText = 'Orgchart Editor';
 
         break;
     case 'view_employee':

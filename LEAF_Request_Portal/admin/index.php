@@ -320,7 +320,7 @@ switch ($action) {
                     break;
                 case 'mod_templates_reports':
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
-                    $tabText = 'Editor';
+                    $tabText = 'Report Template Editor';
 
                     break;
                 case 'mod_templates_email':
@@ -514,6 +514,7 @@ switch ($action) {
         $t_form->assign('APIroot', '../api/');
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_account_updater.tpl')));
+        $tabText = 'Account Updater';
         break;
     case 'access_matrix':
         $t_form = new Smarty;
@@ -552,7 +553,7 @@ switch ($action) {
         {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
-
+        $tabText = 'Import Data';
         break;
     case 'site_designer':
         $t_form = new Smarty;
@@ -615,7 +616,7 @@ switch ($action) {
             $main->assign('status', 'Your login session has expired, You must log in again.');
         }
         $o_login = $t_login->fetch('login.tpl');
-
+        $tabText = 'System Administration';
         break;
 }
 

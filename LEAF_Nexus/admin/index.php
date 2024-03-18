@@ -170,7 +170,7 @@ switch ($action) {
         $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/workbookhelper.js'));
 
         $main->assign('body', $t_form->fetch('orgChart_import.tpl'));
-
+        $tabText = 'Import Employees From Spreadsheet';
         break;
     case 'mod_templates':
     case 'mod_templates_reports':
