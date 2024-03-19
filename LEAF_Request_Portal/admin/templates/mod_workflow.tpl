@@ -1762,6 +1762,7 @@
     */
     function closeStepInfo(stepID = "", reopenStepID = null) {
         $('.workflowStepInfo').css('display', 'none');
+        $('.workflowStep').attr('aria-expanded', false);
         $('#stepInfo_' + stepID).html("");
         if(reopenStepID === null) {
             $(`#workflow_steps_chosen input.chosen-search-input`).focus();
@@ -1781,6 +1782,7 @@
     function modalSetup(stepID) {
         const modalEl = document.getElementById('stepInfo_' + stepID);
         if(modalEl !== null) {
+            $('#step_' + stepID).attr('aria-expanded', true);
             const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
             const first = interActiveEls[0] || null
             const last = interActiveEls[interActiveEls.length - 1] || null;
@@ -1801,6 +1803,7 @@
 
     function showStepInfo(stepID) {
         $('.workflowStepInfo').off();
+        $('.workflowStep').attr('aria-expanded', false);
         $('.workflowStepInfo').html('');
         if ($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second step click
             $('.workflowStepInfo').css('display', 'none');
@@ -2189,7 +2192,14 @@
 
         $('#workflow').html('');
         $('#workflow').append(
-            '<div tabindex="0" class="workflowStep" id="step_-1" aria-label="workflow step: Requestor">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>'
+            `<button type="button" class="workflowStep" id="step_-1"
+                aria-label="workflow step: Requestor"
+                aria-controls="stepInfo_-1"
+                aria-expanded="false"
+                onclick="showStepInfo(-1)">
+                Requestor
+            </button>
+            <div class="workflowStepInfo" id="stepInfo_-1"></div>`
         );
         $('#step_-1').css({
             'left': 180 + 40 + 'px',
@@ -2220,9 +2230,14 @@
                         }
                     }
 
-                    $('#workflow').append('<div tabindex="0" aria-label="workflow step:' + res[i].stepTitle + '" class="workflowStep" id="step_' + res[i]
-                        .stepID + '">' + res[i].stepTitle + ' ' + emailNotificationIcon +
-                        '</div><div class="workflowStepInfo" id="stepInfo_' + res[i].stepID + '"></div>'
+                    $('#workflow').append(`<button type="button" class="workflowStep" id="step_${res[i].stepID}"
+                        aria-label="workflow step: ${res[i].stepTitle}"
+                        aria-controls="stepInfo_${res[i].stepID}"
+                        aria-expanded="false"
+                        onclick="showStepInfo(${res[i].stepID})">
+                            ${res[i].stepTitle} ${emailNotificationIcon}
+                        </button>
+                        <div class="workflowStepInfo" id="stepInfo_${res[i].stepID}"></div>`
                     );
 
                     $('#step_' + res[i].stepID).css({
@@ -2245,36 +2260,24 @@
                         });
                     }
 
-                    // attach click event
-                    $('#step_' + res[i].stepID).on('click keydown', null, res[i].stepID, function(e) {
-                        if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
-                            showStepInfo(e.data);
-                        }
-                    });
-
                     if (maxY < posY) {
                         maxY = posY;
                     }
                 }
                 //append and draw the last step
-                $('#workflow').append(
-                    '<div tabindex="0" class="workflowStep" id="step_0" aria-label="Workflow End">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>'
+                $('#workflow').append(`<button type="button" class="workflowStep" id="step_0"
+                    aria-label="Workflow End"
+                    aria-controls="stepInfo_0"
+                    aria-expanded="false"
+                    onclick="showStepInfo(0)">
+                        End
+                    </button>
+                    <div class="workflowStepInfo" id="stepInfo_0"></div>`
                 );
                 $('#step_0').css({
                     'left': 180 + 400 + 'px',
                     'top': 160 + maxY + 'px',
                     'background-color': '#ff8181'
-                });
-                // attach click events for first and last step
-                $('#step_-1').on('click keydown', null, -1, function(e) {
-                    if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
-                        showStepInfo(e.data);
-                    }
-                });
-                $('#step_0').on('click keydown', null, 0, function(e) {
-                    if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
-                        showStepInfo(e.data);
-                    }
                 });
 
                 $('#workflow').css('height', 300 + maxY + 'px');
@@ -3138,6 +3141,7 @@
     $(document).on('mousedown', function(e) {
         let container = $(".workflowStepInfo");
         if (!container.is(e.target) && container.has(e.target).length === 0) {
+            $('.workflowStep').attr('aria-expanded', false);
             container.hide();
         }
     });

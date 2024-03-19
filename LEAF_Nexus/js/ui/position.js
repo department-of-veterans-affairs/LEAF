@@ -23,37 +23,26 @@ position.prototype.initialize = function (parentContainerID) {
   this.containerHeader = prefixedPID + "_title";
   var buffer = "";
   buffer =
-    '<div id="' +
-    prefixedPID +
-    '" class="positionSmall">\
-				<div id="' +
-    prefixedPID +
-    "_numFTE" +
-    '" class="fteCounter"></div>\
-				<div id="' +
-    prefixedPID +
-    "_title" +
-    '" class="positionSmall_title"></div>\
-				<div tabindex="0" id="' +
-    prefixedPID +
-    "_container" +
-    '" class="positionSmall_data" role="button" aria-expanded="false" aria-label="Position submenu">\
-					<div id="' +
-    prefixedPID +
-    '_content"></div>\
-					<div id="' +
-    prefixedPID +
-    '_controls" style="visibility: hidden; display: none"><a class="button buttonNorm" href="?a=view_position&amp;positionID=' +
-    this.positionID +
-    '"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" /> View Details</a> \
-					<button type="button" class="button buttonNorm" onclick="addSubordinate(' +
-    this.positionID +
-    ')"><img src="dynicons/?img=list-add.svg&amp;w=32" alt="" /> Add Subordinate</button></div>\
-				</div>\
-			  </div>';
+    `<div id="${prefixedPID}" class="positionSmall">` +
+      `<div id="${prefixedPID}_numFTE" class="fteCounter"></div>` +
+      `<div tabindex="0" role="button" id="${prefixedPID}_title" class="positionSmall_title"
+        aria-expanded="false" aria-controls="${prefixedPID}_controls">
+      </div>` +
+      `<div id="${prefixedPID}_container" class="positionSmall_data">
+        <div id="${prefixedPID}_content"></div>
+        <div id="${prefixedPID}_controls" style="visibility: hidden; display: none">
+          <a class="button buttonNorm" href="?a=view_position&amp;positionID=${this.positionID}">
+            <img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" /> View Details
+          </a>
+          <button type="button" class="button buttonNorm" onclick="addSubordinate(${this.positionID})">
+            <img src="dynicons/?img=list-add.svg&amp;w=32" alt="" /> Add Subordinate
+          </button>
+        </div>
+      </div>
+    </div>`;
   $("#" + parentContainerID).append(buffer);
 
-  $("#" + prefixedPID + "_container").on("click keydown mouseenter", function(ev) {
+  $("#" + prefixedPID + "_title").on("click keydown mouseenter", function(ev) {
     const currDisplay =  $("#" + prefixedPID + "_controls").css('display');
     const isToggle =  [13, 32].includes(ev?.keyCode) || ev.type === "click";
     if(ev.type === "mouseenter" || (currDisplay === 'none' && isToggle)) {
@@ -62,7 +51,7 @@ position.prototype.initialize = function (parentContainerID) {
             display: "inline",
         });
         $("#" + prefixedPID).css("zIndex", "900");
-        $("#" + prefixedPID + "_container").attr("aria-expanded", true);
+        $("#" + prefixedPID + "_title").attr("aria-expanded", true);
     }
     if(currDisplay === 'inline' && isToggle) {
         t.unsetFocus();
@@ -206,7 +195,7 @@ position.prototype.unsetFocus = function () {
   );
   $("#" + this.prefixID + this.positionID + "_controls").css("display", "none");
   $("#" + this.prefixID + this.positionID).css("zIndex", "20");
-  $("#" + this.prefixID  + this.positionID + "_container").attr("aria-expanded", false);
+  $("#" + this.prefixID  + this.positionID + "_title").attr("aria-expanded", false);
 };
 
 position.prototype.emptyControls = function () {
