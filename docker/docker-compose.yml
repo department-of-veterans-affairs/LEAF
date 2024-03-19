@@ -39,6 +39,7 @@ services:
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
             - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
+            - ../scripts:/var/www/scripts
             - ../health_checks:/var/www/html/health_checks
             - ../app:/var/www/html/app
             - ../libs:/var/www/html/libs # temp step.  Will shift to below later

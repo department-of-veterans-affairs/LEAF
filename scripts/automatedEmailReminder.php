@@ -11,7 +11,8 @@ try {
     // Until then to keep thinks straight forward this could be done in individual files to be called.
     $test = new TimeBracketCmd('automatedEmailReminder.php');
 
-    $test->setRunAtExactTime('6 am');
+    //$test->setRunAtExactTime('6 am');
+    $test->setSleepTime(10);
     $test->run();
     echo 'end';
     echo date('Y-m-d g:i:s a') . "\r\n";
