@@ -945,9 +945,9 @@ var LeafFormGrid = function (containerID, options) {
       });
       output.push(headers); //first row will be headers
 
-      var line = [];
-      var i = 0;
-      var numColumns = headers.length - 1;
+      let line = [];
+      let i = 0;
+      let numColumns = headers.length - 1;
       document
         .querySelectorAll("#" + prefixID + "tbody>tr>td")
         .forEach(function (val) {
