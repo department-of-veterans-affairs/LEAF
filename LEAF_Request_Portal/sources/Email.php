@@ -364,9 +364,6 @@ class Email
         foreach($this->emailCC as $cc) {
             $recipients.=", ".$cc;
         };
-        foreach($this->emailBCC as $bcc) {
-            $recipients.=", ".$bcc;
-        };
         $email_tracker = new EmailTracker($this->portal_db);
         $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $recipients, 'Subject: ' . $this->emailSubject);
     }
