@@ -159,7 +159,7 @@ CREATE TABLE `data` (
 DROP TABLE IF EXISTS `data_action_log`;
 CREATE TABLE `data_action_log` (
   `empUID` varchar(36) DEFAULT NULL,
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `action` varchar(45) DEFAULT NULL,
   `userID` int(11) DEFAULT NULL,
   `timestamp` datetime DEFAULT NULL,
@@ -172,7 +172,7 @@ DROP TABLE IF EXISTS `data_cache`;
 CREATE TABLE `data_cache` (
   `cacheKey` varchar(32) NOT NULL,
   `data` text NOT NULL,
-  `timestamp` int(11) NOT NULL,
+  `timestamp` int NOT NULL,
   UNIQUE KEY `cacheKey` (`cacheKey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -487,7 +487,7 @@ CREATE TABLE `services` (
   `serviceID` smallint(5) NOT NULL AUTO_INCREMENT,
   `service` varchar(100) NOT NULL,
   `abbreviatedService` varchar(25) NOT NULL,
-  `groupID` mediumint(9) DEFAULT NULL,
+  `groupID` mediumint DEFAULT NULL,
   PRIMARY KEY (`serviceID`),
   KEY `groupID` (`groupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -590,7 +590,7 @@ CREATE TABLE `step_modules` (
   `moduleName` varchar(50) NOT NULL,
   `moduleConfig` text NOT NULL,
   UNIQUE KEY `stepID_moduleName` (`stepID`,`moduleName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `tags`;
@@ -674,10 +674,10 @@ CREATE TABLE `workflow_steps` (
   `stepFontColor` varchar(10) NOT NULL DEFAULT 'black',
   `stepBorder` varchar(20) NOT NULL DEFAULT '1px solid black',
   `jsSrc` varchar(128) NOT NULL,
-  `posX` smallint(6) DEFAULT NULL,
-  `posY` smallint(6) DEFAULT NULL,
-  `indicatorID_for_assigned_empUID` smallint(6) DEFAULT NULL,
-  `indicatorID_for_assigned_groupID` smallint(6) DEFAULT NULL,
+  `posX` smallint DEFAULT NULL,
+  `posY` smallint DEFAULT NULL,
+  `indicatorID_for_assigned_empUID` smallint DEFAULT NULL,
+  `indicatorID_for_assigned_groupID` smallint DEFAULT NULL,
   `requiresDigitalSignature` tinyint(1) DEFAULT NULL,
   `stepData` text,
   PRIMARY KEY (`stepID`),
