@@ -151,7 +151,7 @@ services:
         env_file:
             - ./env_files/mysql_local.env
             - ./env_files/secrets.env
-        command: mysqld --sql_mode="NO_ENGINE_SUBSTITUTION"
+        command: mysqld --sql_mode="NO_ENGINE_SUBSTITUTION" # set same mode as prod
         restart: "always"
         networks:
             - leaf-sql
