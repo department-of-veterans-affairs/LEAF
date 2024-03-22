@@ -8,10 +8,10 @@ mysql -u tester -p$MYSQL_PASSWORD -e "create database leaf_portal"
 mysql -u tester -p$MYSQL_PASSWORD -e "create database leaf_users"
 
 mysql -u tester -p$MYSQL_PASSWORD national_leaf_launchpad < /leaf-boilerplate/resource_database_boilerplate.sql
-mysql -u tester -p$MYSQL_PASSWORD national_leaf_launchpad < /leaf-boilerplate/dev_national_leaf_launchpad.sql
+mysql -u tester -p$MYSQL_PASSWORD national_leaf_launchpad < /leaf-dev_db/dev_national_leaf_launchpad.sql
 
 mysql -u tester -p$MYSQL_PASSWORD leaf_portal < /leaf-boilerplate/resource_database_boilerplate.sql
-mysql -u tester -p$MYSQL_PASSWORD leaf_portal < /leaf-boilerplate/dev_leaf_portal.sql
+mysql -u tester -p$MYSQL_PASSWORD leaf_portal < /leaf-dev_db/dev_leaf_portal.sql
 
 mysql -u tester -p$MYSQL_PASSWORD leaf_users < /leaf-boilerplate/orgchart_boilerplate_empty.sql
-mysql -u tester -p$MYSQL_PASSWORD leaf_users < /leaf-boilerplate/dev_leaf_users.sql
+mysql -u tester -p$MYSQL_PASSWORD leaf_users < /leaf-dev_db/dev_leaf_users.sql
