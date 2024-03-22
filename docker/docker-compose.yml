@@ -48,7 +48,7 @@ services:
             # - ../test_server:/var/www/html/test_server
             # - ./docker/php/conf.d/xdebug.ini  # Not sure what this is even for.
         networks:
-# - traefik
+            # - traefik
             - leaf-sql
             - leaf
         environment:
