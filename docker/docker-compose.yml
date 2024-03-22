@@ -73,6 +73,8 @@ services:
         ports:
             - 80:${HTTP_PORT}
             - 443:${HTTPS_PORT}
+        depends_on:
+            - leaf-php-8
         networks:
             - traefik
             - leaf
@@ -149,6 +151,7 @@ services:
         env_file:
             - ./env_files/mysql_local.env
             - ./env_files/secrets.env
+        command: mysqld --sql_mode="NO_ENGINE_SUBSTITUTION"
         restart: "always"
         networks:
             - leaf-sql
