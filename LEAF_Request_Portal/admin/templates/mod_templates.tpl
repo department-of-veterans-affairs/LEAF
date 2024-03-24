@@ -7,7 +7,7 @@
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>Template Editor</h2>
-        <button type="button" id="mobileToolsNavBtn" onclick="applyRightNavShowClass(true)">Template Tools</button>
+        <button type="button" id="mobileToolsNavBtn" onclick="applyRightNavShowClass(true)" aria-expanded="false">Template Tools</button>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
@@ -90,56 +90,44 @@
             <button type="button" id="closeMobileToolsNavBtn" aria-label="close" onclick="applyRightNavShowClass(false)">X</button>
             <aside class="filesMobile"></aside>
             <aside class="sidenav-right">
-                <div id="controls" style="visibility: hidden">
-
+                <div id="controls">
                     <button type="button" id="save_button" class="usa-button" onclick="save();">
                         Save Changes
                         <span class="saveStatus"></span>
                     </button>
 
                     <button type="button" id="restore_original"
-                        class="usa-button usa-button--secondary modifiedTemplate" onclick="restore();">
+                        class="usa-button usa-button--secondary edit_only" onclick="restore();">
                         Restore Original
                     </button>
 
-                    <button type="button" id="btn_compareStop"
-                        class="usa-button usa-button--secondary"
-                        style="display: none" onclick="stop_comparing();">
-                        Stop Comparing
+                    <button type="button" id="file_replace_file_btn" class="usa-button usa-button--secondary compare_only">
+                        Use Old File
                     </button>
 
+                    <button type="button" id="btn_compareStop"
+                        class="usa-button usa-button--outline compare_only"
+                        onclick="exitExpandScreen()">
+                        Stop Comparing
+                    </button>
                     <button type="button" id="btn_compare"
-                        class="usa-button usa-button--outline modifiedTemplate" onclick="compare();">
+                        class="usa-button usa-button--outline edit_only" onclick="compare();">
                         Compare with Original
                     </button>
 
                     <a href="<!--{$domain_path}-->/app/libs/dynicons/gallery.php" id="icon_library"
-                        class="usa-button usa-button--outline" target="_blank">
+                        class="usa-button usa-button--outline edit_only" target="_blank">
                         Icon Library
                     </a>
                     
                     <button type="button"
-                        class="usa-button usa-button--outline mobileHistory"
+                        class="usa-button usa-button--outline mobileHistory edit_only"
                         id="btn_history_mobile" onclick="viewHistory()">
                         View History
                     </button>
                 </div>
             </aside>
-            <aside class="sidenav-right-compare">
-                <div class="controls-compare">
-                    <button type="button" id="save_button" class="usa-button" onclick="save();">
-                        Save Changes
-                        <span class="saveStatus"></span>
-                    </button>
-                    <button type="button" class="file_replace_file_btn usa-button usa-button--secondary">
-                        Use Old File
-                    </button>
-                    <button type="button" class="close_expand_mode_screen usa-button usa-button--outline"
-                        onclick="exitExpandScreen()">
-                        Stop Comparing
-                    </button>
-                </div>
-            </aside>
+
             <div class="file-history">
                 <h3>File History</h3>
                 <div class="file-history-res"></div>
@@ -154,6 +142,7 @@
 
 
 <script>
+    /* used to show or hide the right nav despite screen width */
     function applyRightNavShowClass(showNav = false) {
         let nav = $('.leaf-right-nav');
         showNav ? nav.addClass('show') : nav.removeClass('show');
@@ -182,11 +171,6 @@
             },
             url: '../api/template/_' + currentFile,
             success: function(res) {
-                $('.modifiedTemplate').css('display', 'block');
-                if ($('#btn_compareStop').css('display') != 'none') {
-                    $('#btn_compare').css('display', 'none');
-                }
-
                 const time = new Date().toLocaleTimeString();
                 $('.saveStatus').html('<br /> Last saved: ' + time);
                 currentFileContent = data;
@@ -194,6 +178,7 @@
                     alert(res);
                 }
                 saveFileHistory();
+                $('#restore_original, #btn_compare').addClass('modifiedTemplate');
             }
         });
     }
@@ -243,18 +228,12 @@
         });
 
         dialog.show();
-        exitExpandScreen();
     }
 
-    var dv;
-    // compares the default with the new template
+    // compares the default with the current template
     function compare() {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
-        $('#btn_compare').css('display', 'none');
-        $('#btn_compareStop').css('display', 'block');
-        $('#save_button_compare').css('display', 'block');
-        $('.file-history').hide();
 
         $.ajax({
             type: 'GET',
@@ -275,7 +254,6 @@
                     }
                 });
                 editorExpandScreen();
-                $('.file_replace_file_btn').hide();
             },
             error: function(err) {
                 console.log(err)
@@ -283,83 +261,56 @@
             cache: false
         });
     }
-    // stops comparing the default with the new template
-    function stop_comparing() {
-        loadContent(currentFile);
-    }
-    // format size of file inside getFileHistory()
-    function formatFileSize(bytes, threshold = 1024) {
-        const units = ['bytes', 'KB', 'MB', 'GB'];
-        let i = 0;
 
-        while (bytes >= threshold && i < units.length - 1) {
-            bytes /= threshold;
-            i++;
-        }
-
-        return bytes.toFixed(2) + ' ' + units[i];
-    }
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
-        $('.page-title-container>.file_replace_file_btn').show();
-        $('.page-title-container>.close_expand_mode_screen').show();
-        $('.sidenav-right').hide();
-        $('.sidenav-right-compare').show();
-        $('.page-title-container>h2').css({
-            'text-align': 'left'
-        });
-        $('.page-title-container>h2').html('Template Editor > Compare Code');
+        $('.page-title-container > h2').html('Template Editor > Compare Code');
         applyRightNavShowClass(false);
-        $('.usa-table').hide();
+        $('#controls').addClass('comparing');
+        $(".compared-label-content").css("display", "flex");
+
+        //$('.file-history').hide(); //hide/show TODO: ask - it's convenient to keep this
+        $('.leaf-left-nav').addClass('hide');
         $('.leaf-left-nav').css({
             'position': 'fixed',
-            'left': '-100%'
+            'left': '-100%',
         });
         $('.keyboard_shortcuts').css('display', 'none');
         $('.keyboard_shortcuts_merge').show();
     }
-    // exits the current and history comparison
+    // exits comparison view
     function exitExpandScreen() {
-        $(".compared-label-content").css("display", "none");
-        $('.page-title-container>.file_replace_file_btn').hide();
-        $('.page-title-container>.close_expand_mode_screen').hide();
-        $('#save_button_compare').css('display', 'none');
-        $('.sidenav-right-compare').hide();
-        $('.sidenav-right').show();
-        $('.file-history').show();
-        $('.page-title-container > h2').css({
-            'width': '100%',
-            'text-align': 'left'
-        });
+        //remove compare view listeners
+        $(document).off('keydown');
+        $('#file_replace_file_btn').off('click');
+
         $('.page-title-container > h2').html('Template Editor');
         applyRightNavShowClass(false);
-        $('#codeContainer').css({
-            'display': 'block'
-        })
-        $('.usa-table').show();
+        $('#controls').removeClass('comparing');
+        $(".compared-label-content").css("display", "none");
 
-        $('.leaf-left-nav').css({
-            'position': 'relative',
-            'left': '0',
-            'transition': 'all .5s ease'
-        });
-        $('.page-title-container').css({
-            'flex-direction': 'row'
+        $('.leaf-left-nav').removeClass('hide');
+        setTimeout(() => { //timeout needed to preserve transition effect
+            $('.leaf-left-nav').css({
+                'position': 'relative',
+                'left': '0'
+            });
         });
         $('.keyboard_shortcuts').css('display', 'flex');
-
-        $('#save_button').css('display', 'block');
         $('.keyboard_shortcuts_merge').hide();
 
         // Will reset the URL
-        var url = new URL(window.location.href);
+        let url = new URL(window.location.href);
         url.searchParams.delete('fileName');
         url.searchParams.delete('parentFile');
         window.history.replaceState(null, null, url.toString());
 
         loadContent(currentFile);
     }
-    // request's copies of the current file content in an accordion layout
+    /*
+    get records about history for a template and
+    create table with buttons that can load them
+    */
     function getFileHistory(template) {
         $.ajax({
             type: 'GET',
@@ -371,7 +322,7 @@
                     let fileParentName = '';
                     let fileName = '';
                     let whoChangedFile = '';
-                    let fileCreated = '';
+                    let fileCreated = [];
 
                     let accordion = '<div id="file_history_container">' +
                     '<div class="file_history_titles">' +
@@ -383,13 +334,15 @@
                         fileParentName = res[i].file_parent_name;
                         fileName = res[i].file_name;
                         whoChangedFile = res[i].file_modify_by;
-                        fileCreated = res[i].file_created;
+                        fileCreated = (res[i].file_created || '').split(' ');
                         accordion +=
-                            '<div class="file_history_options_wrapper" onclick="compareHistoryFile(\'' +
-                            fileName + '\', \'' + fileParentName + '\', true)">' +
-                            '<div class="file_history_options_date">' + fileCreated + '</div>' +
-                            '<div class="file_history_options_author">' + whoChangedFile + '</div>' +
-                            '</div>';
+                            `<button type="button" class="file_history_options_wrapper" onclick="compareHistoryFile('${fileName}','${fileParentName}', true)">
+                                <div class="file_history_options_date">
+                                    <div>${fileCreated?.[0] || ''}</div>
+                                    <div>${fileCreated?.[1] || ''}</div>
+                                </div>
+                                <div class="file_history_options_author">${whoChangedFile}</div>
+                            </button>`;
                     }
                     accordion += '</div></div>';
                     $('.file-history-res').html(accordion);
@@ -422,20 +375,6 @@
         } else {
             loadContent('view_homepage.tpl');
         }
-        // A shortcut for changing the theme
-        $(document).on('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'b' && typeof codeEditor.setOption === 'function') {
-                const newTheme = codeEditor.options.theme === 'default' ? 'lucario' : 'default';
-                codeEditor.setOption('theme', newTheme);
-            }
-        });
-        // Add a shortcut for exit from the merge screen
-        $(document).on('keydown', function(event) {
-            console.log($('.close_expand_mode_screen'))
-            if (event.ctrlKey && event.key === 'e') {
-                exitExpandScreen();
-            }
-        });
     }
 
     var codeEditor = null;
@@ -463,95 +402,62 @@
             }
         });
     }
-    // Compare the current file content with the history file obtained from getFileHistory()
+    //get the file contents based on path/name and set up comparison view
     function compareHistoryFile(fileName, parentFile, updateURL) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
-        $('#btn_compare').css('display', 'none');
-        $('#save_button').css('display', 'none');
-        $('#btn_compareStop').css('display', 'none');
-        $('#btn_merge').css('display', 'block');
-        $('.file_replace_file_btn').css('display', 'block');
+        const templateFilePath = `../templates_history/template_editor/${fileName}`;
 
         $.ajax({
             type: 'GET',
-            url: '../api/templateCompareFileHistory/_' + fileName,
-            dataType: 'json',
+            url: templateFilePath,
+            dataType: 'text',
             cache: false,
-            success: function(res) {
-                $(".compared-label-content").css("display", "flex");
-                var filePath = '';
-                var fileParentFile = '';
-                for (var i = 0; i < res.length; i++) {
-                    filePath = res[i].file_path;
-                    fileParentFile = res[i].file_parent_name;
-                    // Get the file dir
-                    $.ajax({
-                        type: 'GET',
-                        url: filePath,
-                        dataType: 'text',
-                        cache: false,
-                        success: function(fileContent) {
-                            codeEditor = CodeMirror.MergeView(document.getElementById(
-                                "codeCompare"), {
-                                value: currentFileContent.replace(/\r\n/g, "\n"),
-                                origLeft: fileContent.replace(/\r\n/g, "\n"),
-                                lineNumbers: true,
-                                mode: 'htmlmixed',
-                                collapseIdentical: true,
-                                lineWrapping: false, // initial value
-                                autoFormatOnStart: true,
-                                autoFormatOnMode: true
-                            });
+            success: function(fileContent) {
+                codeEditor = CodeMirror.MergeView(
+                    document.getElementById("codeCompare"),
+                    {
+                        value: currentFileContent.replace(/\r\n/g, "\n"),
+                        origLeft: fileContent.replace(/\r\n/g, "\n"),
+                        lineNumbers: true,
+                        mode: 'htmlmixed',
+                        collapseIdentical: true,
+                        lineWrapping: false,
+                        autoFormatOnStart: true,
+                        autoFormatOnMode: true
+                    }
+                );
 
-                            // Add a shortcut for exit from the merge screen
-                            $(document).on('keydown', function(event) {
-                                if (event.ctrlKey && event.key === 'm') {
-                                    mergeFile();
-                                }
-                                if (event.ctrlKey && event.key === 'n') {
-                                    toggleWordWrap();
-                                }
-                            });
-
-                            function mergeFile() {
-                                ignoreUnsavedChanges = true;
-                                let changedLines = codeEditor.leftOriginal().lineCount();
-                                let mergedContent = "";
-                                for (let i = 0; i < changedLines; i++) {
-                                    let mergeLine = codeEditor.leftOriginal().getLine(
-                                        i);
-                                    if (mergeLine !== null && mergeLine !== undefined) {
-                                        mergedContent += mergeLine + "\n";
-                                    }
-                                }
-                                saveMergedChangesToFile(fileParentFile, mergedContent);
-                            }
-
-                            $('.file_replace_file_btn').click(function() {
-                                ignoreUnsavedChanges = true;
-                                let changedLines = codeEditor.leftOriginal()
-                                    .lineCount();
-                                let mergedContent = "";
-                                for (let i = 0; i < changedLines; i++) {
-                                    let mergeLine = codeEditor.leftOriginal().getLine(
-                                        i);
-                                    if (mergeLine !== null && mergeLine !== undefined) {
-                                        mergedContent += mergeLine + "\n";
-                                    }
-                                }
-                                saveMergedChangesToFile(fileParentFile, mergedContent);
-                            });
-
-                            function toggleWordWrap() {
-                                let lineWrapping = codeEditor.editor().getOption('lineWrapping');
-                                codeEditor.editor().setOption('lineWrapping', !lineWrapping);
-                                codeEditor.leftOriginal().setOption('lineWrapping', !lineWrapping);
-                            }
+                const mergeFile = () => {
+                    ignoreUnsavedChanges = true;
+                    let changedLines = codeEditor.leftOriginal().lineCount();
+                    let mergedContent = "";
+                    for (let i = 0; i < changedLines; i++) {
+                        let mergeLine = codeEditor.leftOriginal().getLine(i);
+                        if (mergeLine !== null && mergeLine !== undefined) {
+                            mergedContent += mergeLine + "\n";
                         }
-                    });
+                    }
+                    saveMergedChangesToFile(parentFile, mergedContent);
+                }
+                const compareModeQuickKeys = (event) => {
+                    const key = event.key.toLowerCase();
+                    if (event.ctrlKey && ['e','m'].includes(key)) {
+                        event.preventDefault();
+                        if(key === 'e') {
+                            exitExpandScreen();
+                        }
+                        if(key === 'm') {
+                            mergeFile();
+                        }
+                    }
                 }
                 editorExpandScreen();
+                $(document).on('keydown', compareModeQuickKeys);
+                $('#file_replace_file_btn').on('click', mergeFile);
+            },
+            error: function(err) {
+                console.log("file not found", err)
             }
         });
 
@@ -601,39 +507,37 @@
 
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
-        $('#btn_compareStop').css('display', 'none');
         $('.keyboard_shortcuts_merge').hide();
 
         initEditor();
         currentFile = file;
         $('#codeContainer').css('display', 'none');
-        $('#controls').css('visibility', 'visible');
         $('#filename').html(file.replace('.tpl', ''));
 
+        getFileHistory(file);
         $.ajax({
             type: 'GET',
             url: '../api/template/_' + file,
             success: function(res) {
                 $('#codeContainer').fadeIn();
-
                 // Check if codeEditor is already defined and has a setValue method
                 if (codeEditor && typeof codeEditor.setValue === 'function') {
                     codeEditor.setValue(res.file);
+                    currentFileContent = codeEditor.getValue();
                 } else {
                     console.error('codeEditor is not properly initialized.');
                 }
-                currentFileContent = codeEditor.getValue();
 
                 if (res.modified === 1) {
-                    $('.modifiedTemplate').css('display', 'block');
+                    $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                 } else {
-                    $('.modifiedTemplate').css('display', 'none');
+                    $('#restore_original, #btn_compare').removeClass('modifiedTemplate');
                 }
-                getFileHistory(file);
             },
             error: function(xhr, status, error) {
                 console.log('Error loading file: ' + error);
             },
+            async: false,
             cache: false
         });
         $('.saveStatus').html('');
@@ -673,9 +577,10 @@
                 "Ctrl-S": function(cm) {
                     save();
                 },
-                'Ctrl-Z': function(cm) {
-                    cm.undo();
-                },
+                "Ctrl-B": function(cm) {
+                    const newTheme = cm.options.theme === 'default' ? 'lucario' : 'default';
+                    cm.setOption('theme', newTheme);
+                }
             }
         });
     }
@@ -706,8 +611,6 @@
 
     //loads components when the document loads
     $(document).ready(function() {
-        $('.sidenav-right-compare').hide();
-
         dialog = new dialogController(
             'confirm_xhrDialog',
             'confirm_xhr',

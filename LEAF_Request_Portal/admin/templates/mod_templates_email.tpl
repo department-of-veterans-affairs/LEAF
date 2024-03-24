@@ -205,18 +205,21 @@
                         Save Changes
                         <span class="saveStatus"></span>
                     </button>
+
                     <button type="button" id="restore_original"
-                        class="usa-button usa-button--secondary modifiedTemplate"
-                        onclick="restore();">Restore Original</button>
-                    <button type="button"
-                        class="usa-button usa-button--secondary"
-                        id="btn_compareStop" style="display: none" onclick="loadContent();">Stop Comparing</button>
-                </div>
-            </aside>
-            <aside class="sidenav-right-compare">
-                <div class="controls-compare">
-                    <button type="button" class="file_replace_file_btn usa-button usa-button--secondary">Use Old File</button>
-                    <button type="button" class="close_expand_mode_screen usa-button usa-button--outline" onclick="exitExpandScreen()">Stop Comparing</button>
+                        class="usa-button usa-button--secondary edit_only" onclick="restore();">
+                        Restore Original
+                    </button>
+
+                    <button type="button" id="file_replace_file_btn" class="usa-button usa-button--secondary compare_only">
+                        Use Old File
+                    </button>
+
+                    <button type="button" id="btn_compareStop"
+                        class="usa-button usa-button--outline compare_only"
+                        onclick="exitExpandScreen()"> <!-- loadContent ? -->
+                        Stop Comparing
+                    </button>
                 </div>
             </aside>
             <div class="file-history">
@@ -270,10 +273,10 @@
         const divEmailTo = document.getElementById('divEmailTo');
         const emailToData = document.getElementById('emailToCode').value;
         const emailCcData = document.getElementById('emailCcCode').value;
-        const data = (typeof codeEditor !== 'undefined' && codeEditor.getValue() !== undefined) ? codeEditor
-            .getValue() : codeEditor.edit.getValue();
-        const subject = (typeof subjectEditor !== 'undefined' && subjectEditor.getValue() !== undefined) ? subjectEditor
-            .getValue() : subjectEditor.edit.getValue();
+        const data = (typeof codeEditor !== 'undefined' && codeEditor.getValue !== undefined) ?
+            codeEditor.getValue() : codeEditor.edit.getValue();
+        const subject = (typeof subjectEditor !== 'undefined' && subjectEditor.getValue !== undefined) ?
+            subjectEditor.getValue() : subjectEditor.edit.getValue();
         const isContentChanged = (
             emailToData !== currentEmailToContent ||
             emailCcData !== currentEmailCcContent ||
@@ -334,10 +337,8 @@
         }
 
         function updateUIAfterSave() {
-            $('.modifiedTemplate').css('display', 'block');
-            if ($('#btn_compareStop').css('display') !== 'none') {
-                $('#btn_compare').css('display', 'none');
-            }
+            $('#restore_original').addClass('modifiedTemplate');
+
             const time = new Date().toLocaleTimeString();
             $('.saveStatus').html('<br /> Last saved: ' + time);
             currentFileContent = data;
@@ -379,10 +380,8 @@
             },
             url: '../api/emailTemplateFileHistory/_' + currentFile,
             success: function(res) {
-                $('.modifiedTemplate').css('display', 'block');
-                if ($('#btn_compareStop').css('display') !== 'none') {
-                    $('#btn_compare').css('display', 'none');
-                }
+                $('#restore_original').addClass('modifiedTemplate');
+
                 // Show saved time in "Save Changes" button and set current content
                 var time = new Date().toLocaleTimeString();
                 $('.saveStatus').html('<br /> Last saved: ' + time);
@@ -417,50 +416,49 @@
         });
         dialog.show();
     }
-    // request's copies of the current file content
+    //get the file contents based on path/name and set up comparison view
     function getFileHistory(template) {
         $.ajax({
             type: 'GET',
             url: `../api/templateFileHistory/_${template}`,
             dataType: 'json',
             success: function(res) {
-                if (res.length === 0) {
-                    var contentMessage = '<p class="contentMessage">There are no history files.</p>';
-                    $('.file-history-res').html(contentMessage);
-                    return;
-                }
-
-                var fileNames = res.map(function(item) {
-                    return item.file_parent_name;
-                });
-
-                if (!fileNames.includes(template)) {
-                    return;
-                }
-
-                let accordion = '<div id="file_history_container">' +
-                    '<div class="file_history_titles">' +
-                    '<div class="file_history_date">Date:</div>' +
-                    '<div class="file_history_author">Author:</div>' +
-                    '</div>' +
-                    '<div class="file_history_options_container">';
-                for (let i = 0; i < res.length; i++) {
-                    var fileParentName = res[i].file_parent_name;
-                    var fileName = res[i].file_name;
-                    var whoChangedFile = res[i].file_modify_by;
-                    var fileCreated = res[i].file_created;
+                if (res?.length > 0) {
                     ignoreUnsavedChanges = false;
+                    let fileParentName = '';
+                    let fileName = '';
+                    let whoChangedFile = '';
+                    let fileCreated = [];
 
-                    accordion +=
-                        '<div class="file_history_options_wrapper" onclick="compareHistoryFile(\'' +
-                        fileName + '\', \'' + fileParentName + '\', true)">' +
-                        '<div class="file_history_options_date">' + fileCreated + '</div>' +
-                        '<div class="file_history_options_author">' + whoChangedFile + '</div>' +
-                        '</div>';
+                    let accordion = '<div id="file_history_container">' +
+                        '<div class="file_history_titles">' +
+                        '<div class="file_history_date">Date:</div>' +
+                        '<div class="file_history_author">Author:</div>' +
+                        '</div>' +
+                        '<div class="file_history_options_container">';
+                    for (let i = 0; i < res.length; i++) {
+                        fileParentName = res[i].file_parent_name;
+                        fileName = res[i].file_name;
+                        whoChangedFile = res[i].file_modify_by;
+                        fileCreated = (res[i].file_created || '').split(' ');
+
+                        accordion +=
+                            `<button type="button" class="file_history_options_wrapper" onclick="compareHistoryFile('${fileName}','${fileParentName}', true)">
+                                <div class="file_history_options_date">
+                                    <div>${fileCreated?.[0] || ''}</div>
+                                    <div>${fileCreated?.[1] || ''}</div>
+                                </div>
+                                <div class="file_history_options_author">${whoChangedFile}</div>
+                            </button>`;
+                    }
+                    accordion += '</div></div>';
+                    $('.file-history-res').html(accordion);
+
+                } else {
+                    $('.file-history-res').html(
+                        '<p class="contentMessage">There are no history files.</p>'
+                    );
                 }
-                accordion += '</div>' +
-                    '</div>';
-                $('.file-history-res').html(accordion);
             },
             error: function(xhr, status, error) {
                 console.log('Error getting file history: ' + error);
@@ -469,7 +467,6 @@
         });
     }
 
-    var dv;
     // Global variables
     var currentName;
     var currentFile;
@@ -490,120 +487,72 @@
         "orgchart_employee": 1,
     }
 
-    // compares current file content with history file from getFileHistory()
+    //get the file contents based on path/name and set up comparison view
     function compareHistoryFile(fileName, parentFile, updateURL) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
-        $('#btn_compare').css('display', 'none');
-        $('#save_button').css('display', 'none');
-        $('#btn_compareStop').css('display', 'none');
-        $('#btn_merge').css('display', 'block');
-        $('.file_replace_file_btn').css('display', 'block');
+        const emailTemplateFilePath = `../templates_history/email_templates/${fileName}`
 
         $.ajax({
             type: 'GET',
-            url: `../api/templateCompareFileHistory/_${fileName}`,
-            dataType: 'json',
+            url: emailTemplateFilePath,
+            dataType: 'text',
             cache: false,
-            success: function(res) {
-                $(".compared-label-content").css("display", "flex");
-                let filePath = '';
-                let fileParentFile = '';
-                let requestCount = res.length; // Keep track of completed requests
-                for (let i = 0; i < res.length; i++) {
-                    filePath = res[i].file_path;
-                    fileParentFile = res[i].file_parent_name;
-                    $.ajax({
-                        type: 'GET',
-                        url: filePath,
-                        dataType: 'text',
-                        cache: false,
-                        success: function(fileContent) {
-                            // Assign CodeMirror.MergeView instance to codeEditor
-                            codeEditor = CodeMirror.MergeView(document.getElementById(
-                                "codeCompare"), {
-                                value: currentFileContent.replace(/\r\n/g, "\n"),
-                                origLeft: fileContent.replace(/\r\n/g, "\n"),
-                                lineNumbers: true,
-                                mode: 'htmlmixed',
-                                collapseIdentical: true,
-                                lineWrapping: false, // initial value
-                                autoFormatOnStart: true,
-                                autoFormatOnMode: true,
-                                leftTitle: "Current File",
-                                rightTitle: "Comparison File"
-                            });
+            success: function(fileContent) {
+                codeEditor = CodeMirror.MergeView(
+                    document.getElementById("codeCompare"),
+                    {
+                        value: currentFileContent.replace(/\r\n/g, "\n"),
+                        origLeft: fileContent.replace(/\r\n/g, "\n"),
+                        lineNumbers: true,
+                        mode: 'htmlmixed',
+                        collapseIdentical: true,
+                        lineWrapping: false, // initial value
+                        autoFormatOnStart: true,
+                        autoFormatOnMode: true
+                    }
+                );
 
-                            // Add a shortcut for exit from the merge screen
-                            $(document).on('keydown', function(event) {
-                                if (event.ctrlKey && event.key === 'm') {
-                                    mergeFile();
-                                }
-                                if (event.ctrlKey && event.key === 'w') {
-                                    toggleWordWrap();
-                                }
-                            });
-
-                            function mergeFile() {
-                                ignoreUnsavedChanges = true;
-                                var changedLines = codeEditor.leftOriginal()
-                                    .lineCount();
-                                var mergedContent = "";
-                                for (var i = 0; i < changedLines; i++) {
-                                    var mergeLine = codeEditor.leftOriginal().getLine(
-                                        i);
-                                    if (mergeLine !== null && mergeLine !== undefined) {
-                                        mergedContent += mergeLine + "\n";
-                                    }
-                                }
-                                saveMergedChangesToFile(fileParentFile, mergedContent);
-                            }
-                            $('.file_replace_file_btn').click(function() {
-                                ignoreUnsavedChanges = true;
-                                let changedLines = codeEditor.leftOriginal()
-                                    .lineCount();
-                                let mergedContent = "";
-                                for (let i = 0; i < changedLines; i++) {
-                                    let mergeLine = codeEditor.leftOriginal().getLine(
-                                        i);
-                                    if (mergeLine !== null && mergeLine !== undefined) {
-                                        mergedContent += mergeLine + "\n";
-                                    }
-                                }
-                                saveMergedChangesToFile(fileParentFile, mergedContent);
-                            });
-
-                            function toggleWordWrap() {
-                                let lineWrapping = codeEditor.editor().getOption('lineWrapping');
-                                codeEditor.editor().setOption('lineWrapping', !lineWrapping);
-                                codeEditor.leftOriginal().setOption('lineWrapping', !
-                                    lineWrapping);
-                            }
-
-                            requestCount--; // Decrement the request count
-                            if (requestCount === 0) {
-                                // All requests have completed
-                                editorExpandScreen();
-                            }
+                const mergeFile = () => {
+                    ignoreUnsavedChanges = true;
+                    let changedLines = codeEditor.leftOriginal().lineCount();
+                    let mergedContent = "";
+                    for (let i = 0; i < changedLines; i++) {
+                        let mergeLine = codeEditor.leftOriginal().getLine(i);
+                        if (mergeLine !== null && mergeLine !== undefined) {
+                            mergedContent += mergeLine + "\n";
                         }
-                    });
+                    }
+                    saveMergedChangesToFile(parentFile, mergedContent);
                 }
+                const compareModeQuickKeys = (event) => {
+                    const key = event.key.toLowerCase();
+                    if (event.ctrlKey && ['e','m'].includes(key)) {
+                        event.preventDefault();
+                        if(key === 'e') {
+                            exitExpandScreen();
+                        }
+                        if(key === 'm') {
+                            mergeFile();
+                        }
+                    }
+                }
+                editorExpandScreen();
+                $(document).on('keydown', compareModeQuickKeys);
+                $('#file_replace_file_btn').on('click', mergeFile);
+            },
+            error: function(err) {
+                console.log("file not found", err)
             }
         });
 
-        if (updateURL) {
+        if (updateURL !== null) {
             let url = new URL(window.location.href);
             url.searchParams.set('fileName', fileName);
             url.searchParams.set('parentFile', parentFile);
             window.history.replaceState(null, null, url.toString());
         }
     }
-    // Add a shortcut for exit from the merge screen
-    $(document).on('keydown', function(event) {
-        if (event.ctrlKey && event.key === 'e') {
-            exitExpandScreen();
-        }
-    });
     // overrites current file content after merge
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
@@ -651,22 +600,13 @@
         } else {
             loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
         }
-        // A shortcut for changing the theme
-        $(document).on('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'b' && typeof codeEditor.setOption === 'function') {
-                const newTheme = codeEditor.options.theme === 'default' ? 'lucario' : 'default';
-                codeEditor.setOption('theme', newTheme);
-            }
-        });
     }
 
     // compares the current file to the default file content
     function compare() {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
-        $('#subjectCompare').empty();
-        $('#btn_compare').css('display', 'none');
-        $('#btn_compareStop').css('display', 'block');
+
         $.ajax({
             type: 'GET',
             url: '../api/emailTemplates/_' + currentFile + '/standard',
@@ -709,53 +649,40 @@
     }
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
-        $('.page-title-container .file_replace_file_btn').show();
-        $('.page-title-container .close_expand_mode_screen').show();
-        $('.sidenav-right').hide();
-        $('#emailLists, #subject, .email-template-variables, .email-keyboard-shortcuts').hide();
-        $('.sidenav-right-compare').show();
-        $('#quick_field_search_container').hide();
-        $('.page-title-container h2').css({
-            'text-align': 'left'
-        });
-        $('.page-title-container>h2').html('Email Template Editor > Compare Code');
+        $('.page-title-container > h2').html('Email Template Editor > Compare Code');
         applyRightNavShowClass(false);
+        $('#controls').addClass('comparing');
+        $(".compared-label-content").css("display", "flex");
 
-        $('.usa-table').hide();
+        $('.leaf-left-nav').addClass('hide');
         $('.leaf-left-nav').css({
             'position': 'fixed',
-            'left': '-100%'
+            'left': '-100%',
         });
-        $('.keyboard_shortcuts').css('display', 'none');
+        $('#quick_field_search_container').hide();
+        $('#emailLists, #subject, .email-template-variables, .keyboard-shortcuts').hide();
         $('.keyboard_shortcuts_merge').show();
     }
     // exits the current and history comparison
     function exitExpandScreen() {
-        $(".compared-label-content").hide();
-        $('.page-title-container .file_replace_file_btn').hide();
-        $('.page-title-container .close_expand_mode_screen').hide();
-        $('#save_button_compare').hide();
-        $('.sidenav-right-compare').hide();
-        $('.sidenav-right').show();
-        $('#quick_field_search_container').show();
+        //remove compare view listeners
+        $(document).off('keydown');
+        $('#file_replace_file_btn').off('click');
+
+        $('.page-title-container > h2').html('Email Template Editor');
         applyRightNavShowClass(false);
-        $('.page-title-container>h2').html('Email Template Editor');
+        $('#controls').removeClass('comparing');
+        $(".compared-label-content").css("display", "none");
 
-        $('#codeContainer').css({
-            'display': 'block'
+        $('.leaf-left-nav').removeClass('hide');
+        setTimeout(() => {
+            $('.leaf-left-nav').css({
+                'position': 'relative',
+                'left': '0'
+            });
         });
-        $('.usa-table').show();
-
-        $('.leaf-left-nav').css({
-            'position': 'relative',
-            'left': '0'
-        });
-        $('.page-title-container').css({
-            'flex-direction': 'row'
-        });
-
-        $('#save_button').show();
-        $('.email-template-variables, .email-keyboard-shortcuts, #emailLists, #subject').show();
+        $('#quick_field_search_container').show();
+        $('.email-template-variables, #emailLists, #subject').show();
 
         $('.keyboard_shortcuts').css('display', 'flex');
         $('.keyboard_shortcuts_merge').hide();
@@ -809,9 +736,8 @@
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#subjectCompare').empty();
-        $('#btn_compareStop').hide();
+
         $('#codeContainer').hide();
-        $('#controls').css('visibility', 'visible');
         $('.keyboard_shortcuts_merge').hide();
         currentName = name;
         currentFile = file;
@@ -829,7 +755,7 @@
             $('#subject, #emailLists, #emailTo, #emailCc').show();
             $('#divSubject, #divEmailTo, #divEmailCc').show().prop('disabled', false);
         }
-
+        getFileHistory(file);
         $.ajax({
             type: 'GET',
             url: '../api/emailTemplates/_' + file,
@@ -851,19 +777,18 @@
                 checkFieldEntries();
 
                 if (res.modified === 1) {
-                    $('.modifiedTemplate').show();
-
+                    $('#restore_original').addClass('modifiedTemplate');
                 } else {
-                    $('.modifiedTemplate').hide();
+                    $('#restore_original').removeClass('modifiedTemplate');
                 }
-                getFileHistory(file);
                 addCustomEventInfo(currentFile);
             },
+            async: false,
             cache: false
         });
         $('.saveStatus').html('');
 
-        editorCurrentContent()
+        editorCurrentContent();
 
         function hasUnsavedChanges() {
             let data = '';
@@ -885,7 +810,6 @@
             url.searchParams.set('emailCcFile', emailCcFile);
             window.history.replaceState(null, null, url.toString());
         }
-
     }
 
     /**
@@ -1045,6 +969,10 @@
                 },
                 "Ctrl-S": function(cm) {
                     save();
+                },
+                "Ctrl-B": function(cm) {
+                    const newTheme = cm.options.theme === 'default' ? 'lucario' : 'default';
+                    cm.setOption('theme', newTheme);
                 }
             }
         });
@@ -1092,7 +1020,6 @@
     /* adds information about which users or groups are notified for custom email events */
     function addCustomEventInfo() {
         if(typeof currentFile === 'string') {
-            const bubbleAttrs = `class="bg-yellow-5v" style="border-radius: 12px / 50%; padding: 0.375rem 0.625rem 0.25rem;"`
             try {
                 fetch(`../api/workflow/customEvents`)
                 .then(res => res.json()
@@ -1105,8 +1032,8 @@
                         try {
                             const eventData = JSON.parse(currentEvent?.eventData || '{}');
                             const { NotifyRequestor, NotifyNext, NotifyGroup } = eventData;
-                            const reqText = NotifyRequestor === 'true' ? `<div ${bubbleAttrs}>Notifies Requestor</div>` : '';
-                            const nextText = NotifyNext === 'true' ? `<div ${bubbleAttrs}>Notifies Next Approver</div>` : '';
+                            const reqText = NotifyRequestor === 'true' ? `<div class="bg-yellow-5v">Notifies Requestor</div>` : '';
+                            const nextText = NotifyNext === 'true' ? `<div class="bg-yellow-5v">Notifies Next Approver</div>` : '';
                             let arrNotices = [ reqText, nextText ];
                             arrNotices = arrNotices.filter(n => n !== '');
 
@@ -1117,7 +1044,7 @@
                                     .then(data => {
                                         const groups = data;
                                         const groupName = groups.find(g => +NotifyGroup === g.groupID)?.name || '';
-                                        const groupText = +NotifyGroup > 0 && groupName !== '' ? `<div ${bubbleAttrs}>Notifies Group \'${groupName}\'</div>` : '';
+                                        const groupText = +NotifyGroup > 0 && groupName !== '' ? `<div class="bg-yellow-5v">Notifies Group \'${groupName}\'</div>` : '';
                                         if(groupText !== '') {
                                             arrNotices.push(groupText);
                                         }
@@ -1151,7 +1078,7 @@
     //loads components when the document loads
     $(document).ready(function() {
         getIndicators(); //get indicators to make format table 
-        $('.sidenav-right-compare').hide();
+
         dialog = new dialogController(
             'confirm_xhrDialog',
             'confirm_xhr',
@@ -1159,7 +1086,6 @@
             'confirm_button_save',
             'confirm_button_cancelchange'
         );
-        initEditor();
 
         // Get forms for quick search and indicator format info
         getForms();

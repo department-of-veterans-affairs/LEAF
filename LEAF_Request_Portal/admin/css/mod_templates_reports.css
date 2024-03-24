@@ -54,9 +54,6 @@
 .CodeMirror-linenumber {
     text-align: center;
 }
-.CodeMirror-gutters {
-    left: 0 !important;
-}
 .CodeMirror-scroll {
     margin-right: 0;
 }
@@ -102,13 +99,15 @@
 .leaf-right-nav {
     position: relative;
     margin: 0;
-    width: 300px;
-    flex: 0 0 300px;
-    transition: right .5s ease; 
+    width: 260px;
+    flex: 0 0 260px;
+    transition: right .5s ease, left .5s ease;
 }
 .leaf-left-nav {
     left: 0;
-    transition: left .5s ease; 
+}
+.leaf-left-nav.hide {
+    display: none;
 }
 
 fieldset {
@@ -246,7 +245,7 @@ h3.keboard_shortcuts_main_title {
     text-align: left;
 }
 #fileList {
-    padding-left: 3px;
+    padding-left: 2px;
     overflow: auto;
 }
 #fileList > ul.reports {
@@ -262,14 +261,13 @@ h3.keboard_shortcuts_main_title {
 .file-history {
     width: 100%;
     max-height: 675px;
-    overflow: auto;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: #fff;
-    margin: 10px 0;
-    padding: 0.5rem;
+    margin-top: 10px;
+    padding: 0 0.5rem 0.5rem 0.5rem;
     border-radius: 5px;
 }
 .file-history-res {
@@ -278,8 +276,7 @@ h3.keboard_shortcuts_main_title {
 
 
 
-#controls,
-.controls-compare {
+#controls {
     width: 100%;
     padding: 0.5rem;
     display: flex;
@@ -289,20 +286,31 @@ h3.keboard_shortcuts_main_title {
 
 #fileBrowser > button,
 #controls > button,
-#controls > a,
-.controls-compare > button {
+#controls > a {
     margin: 0;
     font-size: .9rem;
     width: 100%;
     border-radius: 4px;
 }
+
+#controls:not(.comparing) button.compare_only {
+    display:none !important;
+}
+#restore_original:not(.modifiedTemplate), #btn_compare:not(.modifiedTemplate) {
+    display: none;
+}
+#controls.comparing button.edit_only,
+#controls.comparing a.edit_only {
+    display:none !important;
+}
+#controls.comparing button.compare_only {
+    display:block;
+}
+
 button.new-report {
     background-color: #1a4480;
 }
-#save_button_compare {
-    display: none;
-    margin: 10px 0;
-}
+
 #save_button {
     background-color: #1a4480;
 }
@@ -320,7 +328,6 @@ button.new-report {
 }
 
 .usa-button {
-    
     margin: 5px auto;
     font-weight: 500;
 }
@@ -343,10 +350,11 @@ button.new-report {
     text-decoration: none;
     font-size: .8rem;
     border-bottom: 2px solid #00000000;
-    transition: all 0.3s ease;
+    transition: border-bottom 0.3s ease;
     padding-bottom: 2px;
 }
-.leaf-ul > li a:hover {
+.leaf-ul > li a:hover,.leaf-ul > li a:focus, .leaf-ul > li a:active {
+    font-weight: bold;
     border-bottom: 2px solid #005ea2;
     color: #005EA2;
 }
@@ -425,12 +433,14 @@ button.new-report {
 }
 
 .file_history_options_wrapper {
+    border: 0;
+    padding:0;
+    background-color: #ffffff;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     border-bottom: 2px solid #112D55;
-    border-top: #ffffff00;
     cursor: pointer;
     transition: all ease-in-out .3s;
     -webkit-transition: all ease-in-out .3s;
@@ -439,9 +449,12 @@ button.new-report {
     -o-transition: all ease-in-out .3s;
 }
 
-.file_history_options_wrapper:hover {
+.file_history_options_wrapper:hover,
+.file_history_options_wrapper:focus,
+.file_history_options_wrapper:active {
     background-color: #112D55;
     color: #fff;
+    outline: none !important;
 }
 .file_history_options_wrapper:last-child {
     border-bottom: 0;
@@ -449,10 +462,11 @@ button.new-report {
 
 .file_history_options_date,
 .file_history_options_author {
-    width: 50%;
+    width: 100%;
     font-size: .7rem;
     text-align: center;
-    padding: 0.75rem 0;
+    padding: 0.375rem 2px;
+    line-height: 1.4;
     overflow: auto;
     font-weight: 500;
     text-transform: capitalize;
@@ -493,6 +507,7 @@ label[for="template_file_select"] {
 #mobileToolsNavBtn {
     cursor: pointer;
     display: none;
+    white-space: nowrap;
     justify-content: flex-end;
     align-items: center;
     background-color: #e8f2ff;
@@ -554,7 +569,11 @@ label[for="template_file_select"] {
     flex-wrap:wrap;
     font-size:90%;
 }
-
+#emailNotificationInfo > div {
+    border-radius: 12px / 50%;
+    padding: 0.375rem 0.625rem 0.25rem;
+    box-shadow: 1px 1px 2px rgba(0,0,25,0.2);
+}
 
 .email-template-variables > fieldset {
     display: flex;
@@ -612,9 +631,6 @@ label[for="template_file_select"] {
 
 
 
-
-
-
 @media only screen and (max-width:1280px) {
     .keyboard_shortcuts_section {
         width: 90%;
@@ -628,7 +644,9 @@ label[for="template_file_select"] {
     .mobileHistory {
         display: block;
     }
-
+    .file-history {
+        margin-top: 0;
+    }
     #closeMobileToolsNavBtn {
         display: block;
     }
@@ -659,10 +677,10 @@ label[for="template_file_select"] {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
-        padding: 20px 0;
+        padding: 0.75rem 0 0 0;
         position: fixed;
         right: -100%;
-        width: 300px;
+        width: 260px;
         background-color: #fff;
         height: 100%;
         z-index: 999;
