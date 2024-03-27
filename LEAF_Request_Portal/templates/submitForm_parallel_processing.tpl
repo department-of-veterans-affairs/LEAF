@@ -45,7 +45,7 @@
     <script type="text/javascript">
         parallelProcessing({$recordID}, "{$orgchartPath}", "{$CSRFToken}");
     </script>
-	<div id="pp_banner" style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Please review your request before submitting</div>
+	<div id="pp_banner" style="background-color: #b74141; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">Please review your request before submitting</div>
 
 	<div id="pp_selector" style="width: 90%; background-color: white; border: 1px solid #0000005c; padding: 8px; margin: auto;">
 	<div id="selectDiv" style="">

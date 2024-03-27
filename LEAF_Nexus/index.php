@@ -41,7 +41,7 @@ function customTemplate($tpl)
     return file_exists("./templates/custom_override/{$tpl}") ? "custom_override/{$tpl}" : $tpl;
 }
 
-$main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
+$main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" />');
 
 $t_login->assign('name', XSSHelpers::sanitizeHTML($oc_login->getName()));
 
@@ -83,7 +83,7 @@ switch ($action) {
         $main->assign('stylesheets_print', array('css/editor_printer.css'));
         $main->assign('body', $t_form->fetch('navigator.tpl'));
 
-        $tabText = '';
+        $tabText = 'Orgchart Navigator';
 
         break;
     case 'editor':
@@ -117,7 +117,7 @@ switch ($action) {
         $main->assign('stylesheets_print', array('css/editor_printer.css'));
         $main->assign('body', $t_form->fetch('editor.tpl'));
 
-        $tabText = '';
+        $tabText = 'Orgchart Editor';
 
         break;
     case 'view_employee':

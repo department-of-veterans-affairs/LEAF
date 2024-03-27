@@ -8,7 +8,7 @@
         <li id="headerMenu_container" style="display: inline-block">
             <button type="button" id="button_showLinks" class="buttonNorm" title="site links"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_links">
-                Links<span role="img" aria="" alt="">▼</span>
+                Links<span aria-hidden="true">▼</span>
             </button>
             <div id="headerMenu_links" class="controlled-element">
             {include file={$menu_links}}
@@ -18,7 +18,7 @@
             <button type="button" id="button_showHelp" class="buttonNorm" title="primary admin contact information"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_help">
                 <img style="vertical-align: sub;" src="dynicons/?img=help-browser.svg&amp;w=16" alt="" />
-                Help<span role="img" aria="" alt="">▼</span>
+                Help<span aria-hidden="true">▼</span>
             </button>
             <div id="headerMenu_help" class="controlled-element">
             {include file={$menu_help}}

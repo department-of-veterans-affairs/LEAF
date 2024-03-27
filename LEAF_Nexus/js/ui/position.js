@@ -23,46 +23,55 @@ position.prototype.initialize = function (parentContainerID) {
   this.containerHeader = prefixedPID + "_title";
   var buffer = "";
   buffer =
-    '<div id="' +
-    prefixedPID +
-    '" class="positionSmall">\
-				<div id="' +
-    prefixedPID +
-    "_numFTE" +
-    '" class="fteCounter"></div>\
-				<div id="' +
-    prefixedPID +
-    "_title" +
-    '" class="positionSmall_title"></div>\
-				<div id="' +
-    prefixedPID +
-    "_container" +
-    '" class="positionSmall_data">\
-					<div id="' +
-    prefixedPID +
-    '_content"></div>\
-					<div id="' +
-    prefixedPID +
-    '_controls" style="visibility: hidden; display: none"><div class="button" onclick="window.location=\'?a=view_position&amp;positionID=' +
-    this.positionID +
-    '\';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="Edit" title="Edit" /> View Details</div> \
-					<div class="button" onclick="addSubordinate(' +
-    this.positionID +
-    ')"><img src="dynicons/?img=list-add.svg&amp;w=32" alt="Add Icon" title="Add Icon" /> Add Subordinate</div></div>\
-				</div>\
-			  </div>';
+    `<div id="${prefixedPID}" class="positionSmall">` +
+      `<div id="${prefixedPID}_numFTE" class="fteCounter"></div>` +
+      `<div tabindex="0" role="button" id="${prefixedPID}_title" class="positionSmall_title"
+        aria-expanded="false" aria-controls="${prefixedPID}_controls">
+      </div>` +
+      `<div id="${prefixedPID}_container" class="positionSmall_data">
+        <div id="${prefixedPID}_content"></div>
+        <div id="${prefixedPID}_controls" style="visibility: hidden; display: none">
+          <a class="button buttonNorm" href="?a=view_position&amp;positionID=${this.positionID}">
+            <img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" /> View Details
+          </a>
+          <button type="button" class="button buttonNorm" onclick="addSubordinate(${this.positionID})">
+            <img src="dynicons/?img=list-add.svg&amp;w=32" alt="" /> Add Subordinate
+          </button>
+        </div>
+      </div>
+    </div>`;
   $("#" + parentContainerID).append(buffer);
 
-  $("#" + prefixedPID + "_container").on("mouseenter", function () {
-    $("#" + prefixedPID + "_controls").css({
-      visibility: "visible",
-      display: "inline",
-    });
-    $("#" + prefixedPID).css("zIndex", "900");
+  $("#" + prefixedPID + "_title").on("click keydown mouseenter", function(ev) {
+    const currDisplay =  $("#" + prefixedPID + "_controls").css('display');
+    const isToggle =  [13, 32].includes(ev?.keyCode) || ev.type === "click";
+    if(ev.type === "mouseenter" || (currDisplay === 'none' && isToggle)) {
+        $("#" + prefixedPID + "_controls").css({
+            visibility: "visible",
+            display: "inline",
+        });
+        $("#" + prefixedPID).css("zIndex", "900");
+        $("#" + prefixedPID + "_title").attr("aria-expanded", true);
+    }
+    if(currDisplay === 'inline' && isToggle) {
+        t.unsetFocus();
+    }
   });
 
-  $("#" + prefixedPID + "_container").on("mouseleave", function () {
-    t.unsetFocus();
+  $("#" + prefixedPID + "_container").on("mouseleave focusout", function (ev) {
+    if(ev.type === "mouseleave") {
+        t.unsetFocus();
+    } else {
+        const curTarget = ev.currentTarget || null;
+        const newTarget = ev.relatedTarget || null;
+        if(curTarget !== null && newTarget !== null) {
+            const containerID = curTarget.id;
+            const newTargetContainer = newTarget.closest('#' + containerID);
+            if(newTargetContainer === null) {
+                t.unsetFocus();
+            }
+        }
+    }
   });
 
   //drag handles
@@ -186,6 +195,7 @@ position.prototype.unsetFocus = function () {
   );
   $("#" + this.prefixID + this.positionID + "_controls").css("display", "none");
   $("#" + this.prefixID + this.positionID).css("zIndex", "20");
+  $("#" + this.prefixID  + this.positionID + "_title").attr("aria-expanded", false);
 };
 
 position.prototype.emptyControls = function () {

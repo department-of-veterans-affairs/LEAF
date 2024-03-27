@@ -34,7 +34,7 @@ function setupDirector() {
 	$('.step').removeClass('buttonNormSelected');
     $('#menu_director').addClass('buttonNormSelected');
 
-    $('#setupContainer').html('<fieldset><legend style="color: black; font-size: 14px">Position</legend><div id="director" class="groupBlock">\
+    $('#setupContainer').html('<fieldset><legend style="color: black; font-size: 14px">Position</legend><div tabindex="0" id="director" class="groupBlock">\
             <h2 id="groupTitle">Medical Center Director</h2>\
             <div id="members"></div>\
             </div>\
@@ -47,15 +47,17 @@ function setupDirector() {
             </fieldset>\
             <fieldset><legend style="color: black; font-size: 14px">Service</legend><div id="service"></div></fieldset>');
 
-    $('#director').on('click', function() {
-    	dialog_large.setTitle('Site Director');
-    	dialog_large.setContent('<iframe id="directorIframe" style="border: 0px; width: 100%; height: 100%" src="../?a=view_position&positionID=1&iframe=1"></iframe>');
+    $('#director').on('click keydown', function() {
+        if(event.type === "click" || [13,32].includes(event?.keyCode)) {
+            dialog_large.setTitle('Site Director');
+            dialog_large.setContent('<iframe tabindex="0" id="directorIframe" style="border: 0px; width: 100%; height: 100%" src="../?a=view_position&positionID=1&iframe=1"></iframe>');
 
-        dialog_large.setCancelHandler(function() {
-        	setupDirector();
-        });
+            dialog_large.setCancelHandler(function() {
+                setupDirector();
+            });
 
-    	dialog_large.show();
+            dialog_large.show();
+        }
     });
 
     $.ajax({
@@ -63,31 +65,37 @@ function setupDirector() {
         url: '../api/position/1/employees',
         success: function(res) {
             if(res.length > 0) {
-            	var buffer = '';
-            	for(var i in res) {
-            		buffer += res[i].lastName + ', ' + res[i].firstName + '<br />';
-            	}
-            	$('#members').html(buffer);
+                let buffer = '';
+                for(let i in res) {
+                    buffer += res[i].lastName + ', ' + res[i].firstName + '<br />';
+                }
+                $('#members').html(buffer);
             }
             else {
-            	$('#members').html('<div class="buttonNorm">Add Director</div>');
+                $('#members').html('<div class="buttonNorm">Add Director</div>');
             }
+        },
+        error: function(err) {
+            console.log(err)
         },
         cache: false
     });
 
     $.ajax({
-    	type: 'GET',
-    	url: '../api/position/1/service',
-    	success: function(res) {
-    		if(res[0] != null) {
-    			$('#service').html('<span style="font-size: 140%">' + res[0].groupTitle + '</span>');
-    		}
-    		else {
-    			$('#service').html('The "Office of the Director" service does not exist.<br /><br /><span class="buttonNorm" onclick="createDirectorGroup();">Click here to Create the Service</span>');
-    		}
-    	},
-    	cache: false
+        type: 'GET',
+        url: '../api/position/1/service',
+        success: function(res) {
+            if(res[0] != null) {
+                $('#service').html('<span style="font-size: 140%">' + res[0].groupTitle + '</span>');
+            }
+            else {
+                $('#service').html('The "Office of the Director" service does not exist.<br /><br /><button class="buttonNorm" onclick="createDirectorGroup();">Click here to Create the Service</button>');
+            }
+        },
+        error: function(err) {
+            console.log(err)
+        },
+        cache: false
     });
 }
 
@@ -286,7 +294,7 @@ function setupLeadership() {
 	$('.step').removeClass('buttonNormSelected');
     $('#menu_leadership').addClass('buttonNormSelected');
 
-	$('#setupContainer').html('<div id="leaderHeader"><div class="buttonNorm" onclick="createGroup();" style="float: right; width: 150px; font-size: 120%"><img src="../dynicons/?img=list-add.svg&w=32" alt="" /> Create <span id="leadershipNomenclature" style="font-size: 14px">Group</span></div><br style="clear: both" /></div>\
+	$('#setupContainer').html('<div id="leaderHeader"><button class="buttonNorm" onclick="createGroup();" style="float: right; font-size: 120%"><img src="../dynicons/?img=list-add.svg&w=32" alt="" />Create <span id="leadershipNomenclature" style="font-size: 14px">Group</span></button><br style="clear: both" /></div>\
 			<div id="leaders"></div>');
 
 	var leadershipNomenclature = '';
@@ -319,47 +327,52 @@ function setupLeadership() {
         });
     }
 
-	$.ajax({
-		type: 'GET',
-		url: '../api/tag/_service/parent',
-		success: function(leadershipName) {
-			leadershipNomenclature = leadershipName;
-			$('#leadershipNomenclature').html(leadershipName);
-		    $.ajax({
-		        type: 'GET',
-		        url: '../api/group/tag/_' + leadershipName,
-		        success: function(res) {
-		        	var buffer = '';
-		            for(var i in res) {
-		                buffer += '<div id="group_'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
+    $.ajax({
+        type: 'GET',
+        url: '../api/tag/_service/parent',
+        success: function(leadershipName) {
+            leadershipNomenclature = leadershipName;
+            $('#leadershipNomenclature').html(leadershipName);
+            $.ajax({
+                type: 'GET',
+                url: '../api/group/tag/_' + leadershipName,
+                success: function(res) {
+                    let buffer = '';
+                    for(let i in res) {
+                        buffer += '<div tabindex="0" id="group_'+ res[i].groupID +'" title="groupID: '+ res[i].groupID +'" class="groupBlock">\
                                 <h2 id="groupTitle'+ res[i].groupID +'">'+ res[i].groupTitle +'</h2>\
                                 <div id="members'+ res[i].groupID +'"></div>\
                                 </div>';
-		            }
-		            $('#leaders').html(buffer);
-
-		            for(var i in res) {
-		            	$('#group_' + res[i].groupID).on('click', function(groupID) {
-		            		return function() {
-		            	        dialog_large.setTitle('Leadership Team');
-		            	        dialog_large.setContent('<iframe id="directorIframe" style="border: 0px; width: 100%; height: 100%" src="../?a=view_group&groupID=' + groupID + '&iframe=1"></iframe>');
-
-		            	        dialog_large.setCancelHandler(function() {
-		            	        	setupLeadership();
-		            	        });
-
-		            	        dialog_large.show();
-		            		};
-		            	}(res[i].groupID));
-		            	loadPositions(res[i].groupID);
                     }
-		        },
-		        cache: false
-		    });
-		},
-		cache: false
-	});
-}
+                    $('#leaders').html(buffer);
+
+                    for(let i in res) {
+                        $('#group_' + res[i].groupID).on('click keydown', function(groupID) {
+                            return function(event) {
+                                if(event.type === "click" || [13,32].includes(event?.keyCode)) {
+                                    dialog_large.setTitle('Leadership Team');
+                                    dialog_large.setContent('<iframe tabindex="0" id="directorIframe" style="border: 0px; width: 100%; height: 100%" src="../?a=view_group&groupID=' + groupID + '&iframe=1"></iframe>');
+
+                                    dialog_large.setCancelHandler(function() {
+                                        setupLeadership();
+                                    });
+
+                                    dialog_large.show();
+                                }
+                            };
+                        }(res[i].groupID));
+                        loadPositions(res[i].groupID);
+                    }
+                },
+                error: function(err) {
+                    console.log(err)
+                },
+                cache: false
+            });
+        },
+        cache: false
+    });
+    }
 
 function createService(parentGroupID) {
     dialog.setTitle('Create Service');
@@ -521,7 +534,7 @@ function setupServices() {
                     var buffer = '<ul style="font-size: 140%">';
                     for(var i in res) {
                         buffer += '<li>'+ res[i].groupTitle +'<ul id="group_'+ res[i].groupID +'" style="margin-bottom: 1rem;">\
-                            <li style="padding: 8px"><span class="buttonNorm" onclick="createService('+ res[i].groupID +');">Add Service</span></li>\
+                            <li style="padding: 8px"><button class="buttonNorm" onclick="createService('+ res[i].groupID +');">Add Service</button></li>\
                         </ul></li>';
                     }
                     buffer += '</ul>';

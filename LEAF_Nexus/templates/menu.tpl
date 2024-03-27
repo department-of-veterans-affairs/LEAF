@@ -1,40 +1,101 @@
-{if $action != ''}
-    <a href="./" class="buttonNorm"><img src="dynicons/?img=go-home.svg&amp;w=16" alt="" title="Main Page" />Main Page</a>
-{/if}
-    <div id="headerMenuHelp_container" style="display: inline-block">
-        <a id="button_showHelp" tabindex="0" class="buttonNorm" title="Help" aria-haspopup="true" aria-expanded="false" role="button"><img style="vertical-align: sub;" src="dynicons/?img=help-browser.svg&amp;w=16" alt=""/>&nbsp;Help</a>
-        <div id="headerMenu_help" tabindex="0">
-            For Help contact your primary admin:
-            <div id="help-primary-admin" style="font-weight:bold;">
+<nav id="headerMenuNav" role="navigation" aria-label="LEAF Nexus main menu">
+    <ul>
+        {if $action != ''}
+        <li>
+            <a href="./" class="buttonNorm" title="nav to Nexus homepage"><img src="dynicons/?img=go-home.svg&amp;w=16" alt="" />Main Page</a>
+        </li>
+        {/if}
+        <li id="headerMenuHelp_container" style="display: inline-block">
+            <button type="button" id="button_showHelp" class="buttonNorm" title="primary admin contact information"
+                onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_help">
+                <img style="vertical-align: sub;" src="dynicons/?img=help-browser.svg&amp;w=16" alt="" />
+                Help<span aria-hidden="true">▼</span>
+            </button>
+            <div id="headerMenu_help" class="controlled-element">
+
+                For Help contact your primary admin
+                <div id="help-primary-admin" style="font-weight:bold;">Searching...</div>
                 <script type="text/javascript">
-                    $.ajax({
-                        type: 'GET',
-                        url: "api/system/primaryadmin",
-                        success: function(res) {
-                            let emailString = res['email'] != '' ? " - " + res['email'] : '';
-                            if(res["firstName"] !== undefined)
-                            {
-                                $('#help-primary-admin').html(res['firstName'] + " " + res['lastName'] + emailString);
-                            }
-                            else if(res["userName"] !== undefined)
-                            {
-                                $('#help-primary-admin').html(res['userName']);
-                            }
-                            else
-                            {
-                                $('#help-primary-admin').html('Primary Admin has not been set.');
-                            }
-                        },
-                        fail: function(err) {
-                            console.log(err);
+                    let observPrimaryAdmin = new IntersectionObserver(function(entities) {
+                        if(entities[0].isIntersecting) {
+                            observPrimaryAdmin.disconnect();
+                            $.ajax({
+                                url: "api/system/primaryadmin",
+                                dataType: "json",
+                                success: function(response) {
+                                    const fullName = ((response['firstName'] || '') + ' ' + (response['lastName'] || '')).trim();
+                                    const userName = response["userName"] || '';
+                                    const nameDisplay = fullName || userName;
+                                    const email = response['email'] || '';
+
+                                    const adminInfo = email !== '' ?
+                                        '<div>Primary Admin:</div>' + nameDisplay + ' - <br/><a href="mailto:' + email+ '">' + email + '</a>' :
+                                        'Primary Admin has not been set.';
+
+                                    $('#help-primary-admin').html('<div id="help_admin_info">' + adminInfo + '</div>');
+                                }
+                            });
                         }
+                    }, {
+                        threshold: 1.0
                     });
+                    observPrimaryAdmin.observe(document.querySelector('#help-primary-admin'));
                 </script>
             </div>
-        </div>
-    </div>
-{if isset($isAdmin)}
-    <a href="./admin/" class="buttonNorm"><img src="dynicons/?img=applications-system.svg&amp;w=16" alt="" title="Admin Panel" />OC Admin Panel</a>
-{/if}
-<br />
-<noscript class="alert"><span>Javascript must be enabled for this version of software to work!</span></noscript>
+        </li>
+        {if isset($isAdmin)}
+        <li><a href="./admin" class="buttonNorm"><img src="dynicons/?img=applications-system.svg&amp;w=16" alt=""/>OC Admin Panel</a></li>
+        {/if}
+    </ul>
+</nav>
+
+<script>
+    function hideElement(element = null) {
+        if(element !== null && element.style !== undefined) {
+            element.style.zIndex = 1;
+            element.classList.remove('is-shown');
+            let controllerBtn = document.querySelector('button[aria-controls="' + element.id + '"]');
+            if(controllerBtn !== null) {
+                controllerBtn.setAttribute('aria-expanded', "false");
+            }
+        }
+    }
+    function focusout(e) {
+        e.stopPropagation();
+        const controlledEl = e.currentTarget || null;
+        const newTarget = e.relatedTarget || null;
+        if (newTarget === null && controlledEl !== null) {
+            hideElement(controlledEl);
+        } else {
+            const eventTarID = e.currentTarget.id || null;
+            let controlledEls = Array.from(document.querySelectorAll(".controlled-element"));
+            controlledEls.forEach(controlledEl => {
+                const newTargetControlledEl = newTarget.closest('#' + controlledEl.id) || null;
+                if (newTargetControlledEl === null) {
+                    hideElement(controlledEl);
+                }
+            });
+        }
+    }
+    function toggleMenuPopup(e){
+        e.stopPropagation();
+        e.preventDefault();
+        const controlledID = e.currentTarget.getAttribute('aria-controls') || "";
+        let popupEl = document.getElementById(controlledID);
+        if (popupEl !== null) {
+            let controlledEls = Array.from(document.querySelectorAll(".controlled-element"));
+            controlledEls.forEach(el => el.style.zIndex = 1);
+
+            const priorValue = e.currentTarget.getAttribute('aria-expanded') || "false";
+            if(priorValue === "true") {
+                hideElement(popupEl);
+            } else {
+                popupEl.classList.add('is-shown');
+                popupEl.style.zIndex = 10;
+                e.currentTarget.setAttribute('aria-expanded', "true");
+            }
+        }
+    }
+
+    $('#headerMenu_help').on('focusout', focusout);
+</script>

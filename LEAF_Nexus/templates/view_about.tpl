@@ -28,7 +28,7 @@ requesting processes.
     </tr>
 </table>
 
-<img style="position: absolute; bottom: 0px; right: 0px; width: 57%; z-index: -999" src="images/aboutlogo.png" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />
+<img style="position: absolute; bottom: 0px; right: 0px; width: 57%; z-index: -999" src="images/aboutlogo.png" alt="VA seal, U.S. Department of Veterans Affairs" />
 <script type="text/javascript">
 /* <![CDATA[ */
 

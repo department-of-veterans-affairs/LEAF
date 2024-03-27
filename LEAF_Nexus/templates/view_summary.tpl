@@ -209,7 +209,7 @@ $.ajax({
 
 <div id="reportBody" style="display: none">
 
-<span class="buttonNorm" style="float: right" onclick="dc.filterAll(); dc.renderAll(); postRender();">Reset Filters</span>
+<button class="buttonNorm" style="float: right" onclick="dc.filterAll(); dc.renderAll(); postRender();">Reset Filters</button>
 
 <h2 style="">Vacancy Report</h2>
 

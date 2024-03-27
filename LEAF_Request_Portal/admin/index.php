@@ -87,7 +87,7 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 
 //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
 
-$main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
+$main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA seal, U.S. Department of Veterans Affairs" />');
 
 $t_login->assign('name', $login->getName());
 
@@ -320,7 +320,7 @@ switch ($action) {
                     break;
                 case 'mod_templates_reports':
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
-                    $tabText = 'Editor';
+                    $tabText = 'Report Template Editor';
 
                     break;
                 case 'mod_templates_email':
@@ -514,6 +514,7 @@ switch ($action) {
         $t_form->assign('APIroot', '../api/');
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_account_updater.tpl')));
+        $tabText = 'Account Updater';
         break;
     case 'access_matrix':
         $t_form = new Smarty;
@@ -552,7 +553,7 @@ switch ($action) {
         {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
-
+        $tabText = 'Import Data';
         break;
     case 'site_designer':
         $t_form = new Smarty;
@@ -616,6 +617,13 @@ switch ($action) {
         }
         $o_login = $t_login->fetch('login.tpl');
 
+        if($action === "")
+        {
+            $tabText = 'Admin Panel';
+        } else
+        {
+            $tabText = 'System Administration';
+        }
         break;
 }
 

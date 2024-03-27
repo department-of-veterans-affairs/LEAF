@@ -45,7 +45,7 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 7 or higher.');
 }
 
-$main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
+$main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" />');
 
 $t_login->assign('name', $login->getName());
 $t_menu->assign('is_admin', $login->checkGroup(1));

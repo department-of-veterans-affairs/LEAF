@@ -13,7 +13,7 @@ div.groupBlock {
   background-color: #0c60a0;
 }
 
-div.groupBlock:hover {
+div.groupBlock:hover, div.groupBlock:focus {
   box-shadow: 2px 2px 4px #353535;
   background-color: #0a5288;
 }
