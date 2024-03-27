@@ -6,15 +6,12 @@ export default {
         'focusedFormRecord',
         'siteSettings',
         'noForm',
+        'mainFormID',
 
         'openFormHistoryDialog',
         'openConfirmDeleteFormDialog',
     ],
     computed: {
-        mainFormID() {
-            return this.focusedFormRecord?.parentID === '' ?
-                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
-        },
         /**
          * @returns {array} of categories records that are internal forms of the main form
          */

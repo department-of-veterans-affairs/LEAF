@@ -52,7 +52,7 @@ export default {
             return this.focusedFormRecord.parentID !== '';
         },
         isStaple() {
-            return this.allStapledFormCatIDs.includes(this.formID);
+            return this.allStapledFormCatIDs?.[this.formID] > 0;
         },
         isNeedToKnow(){
             return parseInt(this.focusedFormRecord.needToKnow) === 1;
@@ -121,7 +121,7 @@ export default {
                     CSRFToken: this.CSRFToken
                 },
                 success: (res) => {
-                    if (res === false) { //1 on success
+                    if (+res === 0) { //1 on success
                         alert('The workflow could not be set because this form is stapled to another form');
                     } else {
                         this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
@@ -233,26 +233,30 @@ export default {
             </div>
             <template v-if="!isSubForm">
                 <div class="panel-properties">
-                    <template v-if="!isStaple && workflowRecords.length > 0">
+                    <div id="workflow_info" v-if="!isStaple && workflowRecords.length > 0">
                         <label for="workflowID">Workflow
-                        <select id="workflowID" name="select-workflow" @change="updateWorkflow"
-                            title="select workflow"
-                            v-model.number="workflowID"
-                            style="width:280px;"
-                            :style="{color: workflowID === 0 ? '#a00' : 'black'}"
-                            :disabled="isStaple">
-                            <option value="0" :selected="workflowID === 0">
-                                No Workflow.  Users cannot submit requests
-                            </option>
-                            <template v-for="r in workflowRecords" :key="'workflow_' + r.workflowID">
-                                <option v-if="parseInt(r.workflowID) > 0"
-                                    :value="r.workflowID"
-                                    :selected="workflowID === parseInt(r.workflowID)">
-                                    ID#{{r.workflowID}}: {{truncateText(r.description,32)}}
+                            <select id="workflowID" name="select-workflow" @change="updateWorkflow"
+                                title="select workflow"
+                                v-model.number="workflowID"
+                                style="width:280px;"
+                                :style="{color: workflowID === 0 ? '#a00' : 'black'}"
+                                :disabled="isStaple">
+                                <option value="0" :selected="workflowID === 0">
+                                    No Workflow.  Users cannot submit requests
                                 </option>
-                            </template>
-                        </select></label>
-                    </template>
+                                <template v-for="r in workflowRecords" :key="'workflow_' + r.workflowID">
+                                    <option v-if="parseInt(r.workflowID) > 0"
+                                        :value="r.workflowID"
+                                        :selected="workflowID === parseInt(r.workflowID)">
+                                        ID#{{r.workflowID}}: {{truncateText(r.description,32)}}
+                                    </option>
+                                </template>
+                            </select>
+                        </label>
+                        <button id="view_workflow" v-if="+focusedFormRecord.workflowID > 0" type="button" class="btn-general">
+                            <a :href="'./?a=workflow&workflowID='+ focusedFormRecord.workflowID" target="_blank">View Workflow</a>
+                        </button>
+                    </div>
                     <div v-if="!workflowsLoading && workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
                     <label for="availability" title="When hidden, users will not be able to select this form">Availability
@@ -267,13 +271,13 @@ export default {
                             <option value="parallel_processing" :selected="type === 'parallel_processing'">Parallel Processing</option>
                         </select>
                     </label>
-                    <div style="display:flex; align-items: center; column-gap: 1rem;">
-                        <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age (Years)
+                    <div v-if="false" style="display:flex; align-items: center; column-gap: 1rem;">
+                        <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age
                             <select id="destructionAgeYears" v-model="destructionAgeYears"
                                 title="resolved request destruction age in years" 
                                 @change="updateDestructionAge">
                                 <option :value="null" :selected="destructionAgeYears===null">never</option>
-                                <option v-for="i in 30" :value="i">{{i}}</option>
+                                <option v-for="i in 30" :value="i">{{i}} year{{ i === 1 ? "" : "s"}}</option>
                             </select>
                         </label>
                     </div>

@@ -1,5 +1,5 @@
 export default {
-    name: 'browser-and-restore-menu',
+    name: 'browser-menu',
     inject: [
         'siteSettings',
         'openNewFormDialog',
@@ -8,11 +8,6 @@ export default {
     template: `<div><nav id="top-menu-nav">
         <!-- FORM BROWSER AND RESTORE FIELDS MENU -->
         <ul>
-            <li v-if="$route.name === 'restore'">
-                <router-link :to="{ name: 'browser' }" class="router-link">
-                    Form Browser
-                </router-link>                
-            </li>
             <li>
                 <button type="button" id="createFormButton" @click="openNewFormDialog()">
                     <span role="img" aria="">📄&nbsp;</span>Create Form
@@ -26,7 +21,7 @@ export default {
                     <span role="img" aria="">📦&nbsp;</span>Import Form
                 </button>
             </li>
-            <li v-if="$route.name === 'browser'">
+            <li>
                 <router-link :to="{ name: 'restore' }" class="router-link" >
                     <span role="img" aria="">♻️&nbsp;</span>Restore Fields
                 </router-link>

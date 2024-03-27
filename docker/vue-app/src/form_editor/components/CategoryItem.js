@@ -27,7 +27,7 @@ export default {
             return stapledForms;
         },
         isStapledToOtherForm() {
-            return this.allStapledFormCatIDs.includes(this.catID);
+            return this.allStapledFormCatIDs?.[this.catID] > 0;
         },
         /**
          * @returns {string} form name / description
