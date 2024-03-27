@@ -360,8 +360,12 @@ class Email
      */
     private function logEmailSent(int $recordID): void
     {
+        $recipients = $this->emailRecipient;
+        foreach($this->emailCC as $cc) {
+            $recipients.=", ".$cc;
+        };
         $email_tracker = new EmailTracker($this->portal_db);
-        $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $this->emailRecipient, 'Subject: ' . $this->emailSubject);
+        $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $recipients, 'Subject: ' . $this->emailSubject);
     }
 
     /**
