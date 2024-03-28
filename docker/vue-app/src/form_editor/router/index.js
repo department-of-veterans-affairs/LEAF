@@ -26,4 +26,11 @@ const router = createRouter({
     routes,
 });
 
+/* prevents the app from trying to route to the navskip hash link */
+router.beforeEach(to => {
+    if (to.path === '/bodyarea') {
+        return false;
+    }
+});
+
 export default router;
