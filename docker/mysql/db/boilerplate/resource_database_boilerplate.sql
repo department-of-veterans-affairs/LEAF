@@ -3,6 +3,45 @@ SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
+DROP TABLE IF EXISTS `action_history`;
+CREATE TABLE `action_history` (
+  `actionID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `recordID` mediumint unsigned NOT NULL,
+  `userID` varchar(50) NOT NULL,
+  `stepID` smallint NOT NULL DEFAULT '0',
+  `dependencyID` smallint NOT NULL,
+  `actionType` varchar(50) NOT NULL,
+  `actionTypeID` tinyint unsigned NOT NULL,
+  `time` int unsigned NOT NULL,
+  `comment` text,
+  PRIMARY KEY (`actionID`),
+  KEY `time` (`time`),
+  KEY `recordID` (`recordID`),
+  KEY `actionTypeID` (`actionTypeID`),
+  KEY `dependencyID` (`dependencyID`),
+  KEY `actionType` (`actionType`),
+  CONSTRAINT `action_history_ibfk_2` FOREIGN KEY (`actionTypeID`) REFERENCES `action_types` (`actionTypeID`),
+  CONSTRAINT `fk_records_action_history_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `action_types`;
+CREATE TABLE `action_types` (
+  `actionTypeID` tinyint unsigned NOT NULL AUTO_INCREMENT,
+  `actionTypeDesc` varchar(50) NOT NULL,
+  PRIMARY KEY (`actionTypeID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `action_types` (`actionTypeID`, `actionTypeDesc`) VALUES
+(1,	'approved'),
+(2,	'disapproved'),
+(3,	'deferred'),
+(4,	'deleted'),
+(5,	'undeleted'),
+(6,	'filled dependency'),
+(7,	'unfilled dependency'),
+(8,	'Generic');
+
 DROP TABLE IF EXISTS `actions`;
 CREATE TABLE `actions` (
   `actionType` varchar(50) NOT NULL,
@@ -10,8 +49,8 @@ CREATE TABLE `actions` (
   `actionTextPasttense` varchar(50) NOT NULL,
   `actionIcon` varchar(50) NOT NULL,
   `actionAlignment` varchar(20) NOT NULL,
-  `sort` tinyint(4) NOT NULL,
-  `fillDependency` tinyint(4) NOT NULL,
+  `sort` tinyint NOT NULL,
+  `fillDependency` tinyint NOT NULL,
   `deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`actionType`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -25,53 +64,14 @@ INSERT INTO `actions` (`actionType`, `actionText`, `actionTextPasttense`, `actio
 ('sign',	'Sign',	'Signed',	'application-certificate.svg',	'right',	0,	1,	0),
 ('submit',	'Submit',	'Submitted',	'gnome-emblem-default.svg',	'right',	0,	1,	0);
 
-DROP TABLE IF EXISTS `action_history`;
-CREATE TABLE `action_history` (
-  `actionID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `userID` varchar(50) NOT NULL,
-  `stepID` smallint(6) NOT NULL DEFAULT '0',
-  `dependencyID` smallint(6) NOT NULL,
-  `actionType` varchar(50) NOT NULL,
-  `actionTypeID` tinyint(3) unsigned NOT NULL,
-  `time` int(10) unsigned NOT NULL,
-  `comment` text,
-  PRIMARY KEY (`actionID`),
-  KEY `time` (`time`),
-  KEY `recordID` (`recordID`),
-  KEY `actionTypeID` (`actionTypeID`),
-  KEY `dependencyID` (`dependencyID`),
-  KEY `actionType` (`actionType`),
-  CONSTRAINT `action_history_ibfk_2` FOREIGN KEY (`actionTypeID`) REFERENCES `action_types` (`actionTypeID`),
-  CONSTRAINT `fk_records_action_history_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-DROP TABLE IF EXISTS `action_types`;
-CREATE TABLE `action_types` (
-  `actionTypeID` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
-  `actionTypeDesc` varchar(50) NOT NULL,
-  PRIMARY KEY (`actionTypeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `action_types` (`actionTypeID`, `actionTypeDesc`) VALUES
-(1,	'approved'),
-(2,	'disapproved'),
-(3,	'deferred'),
-(4,	'deleted'),
-(5,	'undeleted'),
-(6,	'filled dependency'),
-(7,	'unfilled dependency'),
-(8,	'Generic');
-
 DROP TABLE IF EXISTS `approvals`;
 CREATE TABLE `approvals` (
-  `approvalID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `approvalID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `recordID` mediumint unsigned NOT NULL,
   `userID` varchar(50) NOT NULL,
-  `groupID` mediumint(9) NOT NULL DEFAULT '0',
+  `groupID` mediumint NOT NULL DEFAULT '0',
   `approvalType` varchar(50) NOT NULL,
-  `time` int(10) unsigned NOT NULL,
+  `time` int unsigned NOT NULL,
   `comment` text,
   PRIMARY KEY (`approvalID`),
   KEY `time` (`time`),
@@ -79,7 +79,7 @@ CREATE TABLE `approvals` (
   KEY `groupID` (`groupID`),
   KEY `record_group` (`recordID`,`groupID`),
   KEY `record_time` (`recordID`,`time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `categories`;
@@ -88,19 +88,19 @@ CREATE TABLE `categories` (
   `parentID` varchar(50) NOT NULL,
   `categoryName` varchar(50) NOT NULL,
   `categoryDescription` varchar(255) NOT NULL,
-  `workflowID` smallint(6) NOT NULL,
-  `sort` tinyint(3) NOT NULL DEFAULT '0',
-  `needToKnow` tinyint(4) NOT NULL DEFAULT '0',
-  `formLibraryID` smallint(6) DEFAULT NULL,
-  `visible` tinyint(4) NOT NULL DEFAULT '1',
-  `disabled` tinyint(4) NOT NULL DEFAULT '0',
+  `workflowID` smallint NOT NULL,
+  `sort` tinyint NOT NULL DEFAULT '0',
+  `needToKnow` tinyint NOT NULL DEFAULT '0',
+  `formLibraryID` smallint DEFAULT NULL,
+  `visible` tinyint NOT NULL DEFAULT '1',
+  `disabled` tinyint NOT NULL DEFAULT '0',
   `type` varchar(50) NOT NULL DEFAULT '',
-  `destructionAge` mediumint(8) unsigned DEFAULT NULL,
-  `lastModified` int(10) unsigned NOT NULL DEFAULT '0',
+  `destructionAge` mediumint unsigned DEFAULT NULL,
+  `lastModified` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`categoryID`),
   KEY `parentID` (`parentID`),
   KEY `destructionAge` (`destructionAge`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `categories` (`categoryID`, `parentID`, `categoryName`, `categoryDescription`, `workflowID`, `sort`, `needToKnow`, `formLibraryID`, `visible`, `disabled`, `type`, `destructionAge`, `lastModified`) VALUES
 ('leaf_devconsole',	'',	'LEAF Developer Console',	'',	-2,	0,	0,	NULL,	1,	0,	'',	NULL,	0),
@@ -108,26 +108,26 @@ INSERT INTO `categories` (`categoryID`, `parentID`, `categoryName`, `categoryDes
 
 DROP TABLE IF EXISTS `category_count`;
 CREATE TABLE `category_count` (
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
   `categoryID` varchar(20) NOT NULL,
-  `count` tinyint(3) unsigned NOT NULL,
+  `count` tinyint unsigned NOT NULL,
   PRIMARY KEY (`recordID`,`categoryID`),
   KEY `categoryID` (`categoryID`),
   CONSTRAINT `category_count_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`),
   CONSTRAINT `fk_records_category_count_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `category_privs`;
 CREATE TABLE `category_privs` (
   `categoryID` varchar(20) NOT NULL,
-  `groupID` mediumint(9) NOT NULL,
-  `readable` tinyint(4) NOT NULL,
-  `writable` tinyint(4) NOT NULL,
+  `groupID` mediumint NOT NULL,
+  `readable` tinyint NOT NULL,
+  `writable` tinyint NOT NULL,
   UNIQUE KEY `categoryID` (`categoryID`,`groupID`),
   KEY `groupID` (`groupID`),
   CONSTRAINT `category_privs_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `category_staples`;
@@ -137,31 +137,31 @@ CREATE TABLE `category_staples` (
   UNIQUE KEY `category_stapled` (`categoryID`,`stapledCategoryID`),
   KEY `categoryID` (`categoryID`),
   CONSTRAINT `category_staples_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `data`;
 CREATE TABLE `data` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `indicatorID` smallint(5) NOT NULL,
-  `series` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `recordID` mediumint unsigned NOT NULL,
+  `indicatorID` smallint NOT NULL,
+  `series` tinyint unsigned NOT NULL DEFAULT '1',
   `data` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int unsigned NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
   UNIQUE KEY `unique` (`recordID`,`indicatorID`,`series`),
   KEY `indicator_series` (`indicatorID`,`series`),
   KEY `fastdata` (`indicatorID`,`data`(10)),
   FULLTEXT KEY `data` (`data`),
   CONSTRAINT `fk_records_data_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `data_action_log`;
 CREATE TABLE `data_action_log` (
   `empUID` varchar(36) DEFAULT NULL,
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `action` varchar(45) DEFAULT NULL,
-  `userID` int(11) DEFAULT NULL,
+  `userID` int DEFAULT NULL,
   `timestamp` datetime DEFAULT NULL,
   `userDisplay` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -172,17 +172,17 @@ DROP TABLE IF EXISTS `data_cache`;
 CREATE TABLE `data_cache` (
   `cacheKey` varchar(32) NOT NULL,
   `data` text NOT NULL,
-  `timestamp` int(11) NOT NULL,
+  `timestamp` int NOT NULL,
   UNIQUE KEY `cacheKey` (`cacheKey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 DROP TABLE IF EXISTS `data_extended`;
 CREATE TABLE `data_extended` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `indicatorID` smallint(6) NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
+  `indicatorID` smallint NOT NULL,
   `data` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL,
+  `timestamp` int unsigned NOT NULL,
   `userID` varchar(50) NOT NULL,
   KEY `recordID_indicatorID` (`recordID`,`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -190,21 +190,21 @@ CREATE TABLE `data_extended` (
 
 DROP TABLE IF EXISTS `data_history`;
 CREATE TABLE `data_history` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `indicatorID` smallint(5) NOT NULL,
-  `series` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `recordID` mediumint unsigned NOT NULL,
+  `indicatorID` smallint NOT NULL,
+  `series` tinyint unsigned NOT NULL DEFAULT '1',
   `data` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int unsigned NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
   KEY `recordID` (`recordID`,`indicatorID`,`series`),
   KEY `timestamp` (`timestamp`),
   CONSTRAINT `fk_records_data_history_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `data_log_items`;
 CREATE TABLE `data_log_items` (
-  `data_action_log_fk` int(11) NOT NULL,
+  `data_action_log_fk` int NOT NULL,
   `tableName` varchar(75) NOT NULL,
   `column` varchar(75) NOT NULL,
   `value` text NOT NULL,
@@ -215,10 +215,10 @@ CREATE TABLE `data_log_items` (
 
 DROP TABLE IF EXISTS `dependencies`;
 CREATE TABLE `dependencies` (
-  `dependencyID` smallint(6) NOT NULL AUTO_INCREMENT,
+  `dependencyID` smallint NOT NULL AUTO_INCREMENT,
   `description` varchar(50) NOT NULL,
   PRIMARY KEY (`dependencyID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES
 (-3,	'Group Designated by the Requestor'),
@@ -230,8 +230,8 @@ INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES
 
 DROP TABLE IF EXISTS `dependency_privs`;
 CREATE TABLE `dependency_privs` (
-  `dependencyID` smallint(6) NOT NULL,
-  `groupID` mediumint(9) NOT NULL,
+  `dependencyID` smallint NOT NULL,
+  `groupID` mediumint NOT NULL,
   UNIQUE KEY `dependencyID` (`dependencyID`,`groupID`),
   KEY `groupID` (`groupID`),
   CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`)
@@ -240,9 +240,9 @@ CREATE TABLE `dependency_privs` (
 
 DROP TABLE IF EXISTS `destruction_log`;
 CREATE TABLE `destruction_log` (
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
   `categoryID` varchar(20) NOT NULL,
-  `destructionTime` int(10) unsigned DEFAULT '0',
+  `destructionTime` int unsigned DEFAULT '0',
   PRIMARY KEY (`recordID`),
   KEY `destructionTime` (`destructionTime`),
   KEY `destructionForm` (`categoryID`)
@@ -251,14 +251,14 @@ CREATE TABLE `destruction_log` (
 
 DROP TABLE IF EXISTS `email_reminders`;
 CREATE TABLE `email_reminders` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `workflowID` smallint(6) NOT NULL,
-  `stepID` smallint(6) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `workflowID` smallint NOT NULL,
+  `stepID` smallint NOT NULL,
   `actionType` varchar(50) NOT NULL,
-  `frequency` smallint(5) NOT NULL,
-  `recipientGroupID` mediumint(9) NOT NULL,
+  `frequency` smallint NOT NULL,
+  `recipientGroupID` mediumint NOT NULL,
   `emailTemplate` text NOT NULL,
-  `startDateIndicatorID` smallint(5) NOT NULL,
+  `startDateIndicatorID` smallint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `routeID` (`workflowID`,`stepID`,`actionType`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -266,7 +266,7 @@ CREATE TABLE `email_reminders` (
 
 DROP TABLE IF EXISTS `email_templates`;
 CREATE TABLE `email_templates` (
-  `emailTemplateID` mediumint(8) NOT NULL AUTO_INCREMENT,
+  `emailTemplateID` mediumint NOT NULL AUTO_INCREMENT,
   `label` varchar(255) NOT NULL,
   `emailTo` text,
   `emailCc` text,
@@ -274,7 +274,7 @@ CREATE TABLE `email_templates` (
   `body` text NOT NULL,
   PRIMARY KEY (`emailTemplateID`),
   UNIQUE KEY `label` (`label`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `email_templates` (`emailTemplateID`, `label`, `emailTo`, `emailCc`, `subject`, `body`) VALUES
 (-5,	'Automated Email Reminder',	'LEAF_automated_reminder_emailTo.tpl',	'LEAF_automated_reminder_emailCc.tpl',	'LEAF_automated_reminder_subject.tpl',	'LEAF_automated_reminder_body.tpl'),
@@ -286,16 +286,16 @@ INSERT INTO `email_templates` (`emailTemplateID`, `label`, `emailTo`, `emailCc`,
 
 DROP TABLE IF EXISTS `email_tracker`;
 CREATE TABLE `email_tracker` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `recordID` mediumint unsigned NOT NULL,
   `userID` varchar(50) DEFAULT NULL,
-  `timestamp` int(10) NOT NULL,
+  `timestamp` int NOT NULL,
   `recipients` text NOT NULL,
   `subject` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `recordID` (`recordID`),
   CONSTRAINT `fk_records_email_tracker_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `events`;
@@ -315,41 +315,51 @@ INSERT INTO `events` (`eventID`, `eventDescription`, `eventType`, `eventData`) V
 
 DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
-  `groupID` mediumint(9) NOT NULL AUTO_INCREMENT,
-  `parentGroupID` mediumint(9) DEFAULT NULL,
+  `groupID` mediumint NOT NULL AUTO_INCREMENT,
+  `parentGroupID` mediumint DEFAULT NULL,
   `name` varchar(250) NOT NULL,
   `groupDescription` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`groupID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`, `groupDescription`) VALUES
 (-1,	NULL,	'Quadrad',	''),
 (1,	NULL,	'sysadmin',	'');
 
+DROP TABLE IF EXISTS `indicator_mask`;
+CREATE TABLE `indicator_mask` (
+  `indicatorID` smallint NOT NULL,
+  `groupID` mediumint NOT NULL,
+  UNIQUE KEY `indicatorID_2` (`indicatorID`,`groupID`),
+  KEY `indicatorID` (`indicatorID`),
+  KEY `groupID` (`groupID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
 DROP TABLE IF EXISTS `indicators`;
 CREATE TABLE `indicators` (
-  `indicatorID` smallint(5) NOT NULL AUTO_INCREMENT,
+  `indicatorID` smallint NOT NULL AUTO_INCREMENT,
   `name` text NOT NULL,
   `format` text NOT NULL,
   `description` varchar(50) DEFAULT NULL,
   `default` text,
-  `parentID` smallint(6) DEFAULT NULL,
+  `parentID` smallint DEFAULT NULL,
   `categoryID` varchar(20) DEFAULT NULL,
   `html` text,
   `htmlPrint` text,
   `conditions` text,
   `jsSort` varchar(255) DEFAULT NULL,
-  `required` tinyint(4) NOT NULL DEFAULT '0',
-  `sort` tinyint(4) NOT NULL DEFAULT '1',
+  `required` tinyint NOT NULL DEFAULT '0',
+  `sort` tinyint NOT NULL DEFAULT '1',
   `timeAdded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `disabled` int(10) unsigned NOT NULL DEFAULT '0',
-  `is_sensitive` tinyint(4) NOT NULL DEFAULT '0',
+  `disabled` int unsigned NOT NULL DEFAULT '0',
+  `is_sensitive` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`indicatorID`),
   KEY `categoryID` (`categoryID`),
   KEY `parentID` (`parentID`),
   KEY `sort` (`sort`),
   CONSTRAINT `indicators_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `indicators` (`indicatorID`, `name`, `format`, `description`, `default`, `parentID`, `categoryID`, `html`, `htmlPrint`, `conditions`, `jsSort`, `required`, `sort`, `timeAdded`, `disabled`, `is_sensitive`) VALUES
 (-8,	'Approval Officials',	'',	NULL,	NULL,	NULL,	'leaf_devconsole',	NULL,	NULL,	NULL,	NULL,	0,	2,	'2019-12-13 17:09:58',	0,	0),
@@ -361,94 +371,84 @@ INSERT INTO `indicators` (`indicatorID`, `name`, `format`, `description`, `defau
 (-2,	'Justification for collection of sensitive data',	'textarea',	'',	'',	NULL,	'leaf_secure',	'<div id=\"leafSecureDialogContent\"></div>\n\n<script src=\"js/LeafSecureReviewDialog.js\"></script>\n<script>\n$(function() {\n\n    LeafSecureReviewDialog(\'leafSecureDialogContent\');\n\n});\n</script>',	'<div id=\"leafSecureDialogContentPrint\"></div>\n\n<script src=\"js/LeafSecureReviewDialog.js\"></script>\n<script>\n$(function() {\n\n    LeafSecureReviewDialog(\'leafSecureDialogContentPrint\');\n\n});\n</script>',	NULL,	NULL,	1,	2,	'2019-07-30 20:25:06',	0,	0),
 (-1,	'Privacy Officer',	'orgchart_employee',	NULL,	NULL,	-3,	'leaf_secure',	NULL,	NULL,	NULL,	NULL,	1,	1,	'2019-07-30 17:11:38',	0,	0);
 
-DROP TABLE IF EXISTS `indicator_mask`;
-CREATE TABLE `indicator_mask` (
-  `indicatorID` smallint(5) NOT NULL,
-  `groupID` mediumint(9) NOT NULL,
-  UNIQUE KEY `indicatorID_2` (`indicatorID`,`groupID`),
-  KEY `indicatorID` (`indicatorID`),
-  KEY `groupID` (`groupID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
 DROP TABLE IF EXISTS `notes`;
 CREATE TABLE `notes` (
-  `noteID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `noteID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `recordID` mediumint unsigned NOT NULL,
   `note` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int unsigned NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
-  `deleted` tinyint(4) DEFAULT NULL,
+  `deleted` tinyint DEFAULT NULL,
   PRIMARY KEY (`noteID`),
   KEY `recordID` (`recordID`),
   CONSTRAINT `fk_records_notes_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `process_query`;
 CREATE TABLE `process_query` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `userID` varchar(50) DEFAULT NULL,
   `url` text,
-  `lastProcess` int(10) unsigned NOT NULL,
+  `lastProcess` int unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `lastProcess` (`lastProcess`),
   FULLTEXT KEY `url` (`url`),
   FULLTEXT KEY `userid_url` (`userID`,`url`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `records`;
 CREATE TABLE `records` (
-  `recordID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `date` int(10) unsigned NOT NULL,
-  `serviceID` smallint(5) NOT NULL DEFAULT '0',
+  `recordID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `date` int unsigned NOT NULL,
+  `serviceID` smallint NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
   `title` text,
-  `priority` tinyint(4) NOT NULL DEFAULT '0',
+  `priority` tinyint NOT NULL DEFAULT '0',
   `lastStatus` varchar(200) DEFAULT NULL,
-  `submitted` int(10) NOT NULL DEFAULT '0',
-  `deleted` int(10) NOT NULL DEFAULT '0',
-  `isWritableUser` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `isWritableGroup` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `submitted` int NOT NULL DEFAULT '0',
+  `deleted` int NOT NULL DEFAULT '0',
+  `isWritableUser` tinyint unsigned NOT NULL DEFAULT '1',
+  `isWritableGroup` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`recordID`),
   KEY `date` (`date`),
   KEY `deleted` (`deleted`),
   KEY `serviceID` (`serviceID`),
   KEY `userID` (`userID`),
   KEY `submitted` (`submitted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `records_dependencies`;
 CREATE TABLE `records_dependencies` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `dependencyID` smallint(6) NOT NULL,
-  `filled` tinyint(3) NOT NULL DEFAULT '0',
-  `time` int(10) unsigned DEFAULT NULL,
+  `recordID` mediumint unsigned NOT NULL,
+  `dependencyID` smallint NOT NULL,
+  `filled` tinyint NOT NULL DEFAULT '0',
+  `time` int unsigned DEFAULT NULL,
   UNIQUE KEY `recordID` (`recordID`,`dependencyID`),
   KEY `filled` (`dependencyID`,`filled`),
   KEY `time` (`time`),
   CONSTRAINT `fk_records_dependencies_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE,
   CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `records_step_fulfillment`;
 CREATE TABLE `records_step_fulfillment` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `stepID` smallint(6) NOT NULL,
-  `fulfillmentTime` int(10) unsigned NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
+  `stepID` smallint NOT NULL,
+  `fulfillmentTime` int unsigned NOT NULL,
   UNIQUE KEY `recordID` (`recordID`,`stepID`) USING BTREE,
   CONSTRAINT `fk_records_step_fulfillment_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `records_workflow_state`;
 CREATE TABLE `records_workflow_state` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `stepID` smallint(6) NOT NULL,
-  `blockingStepID` tinyint(4) unsigned NOT NULL DEFAULT '0',
+  `recordID` mediumint unsigned NOT NULL,
+  `stepID` smallint NOT NULL,
+  `blockingStepID` tinyint unsigned NOT NULL DEFAULT '0',
   `lastNotified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `initialNotificationSent` tinyint(1) DEFAULT '0',
   UNIQUE KEY `recordID` (`recordID`,`stepID`),
@@ -459,8 +459,8 @@ CREATE TABLE `records_workflow_state` (
 
 DROP TABLE IF EXISTS `route_events`;
 CREATE TABLE `route_events` (
-  `workflowID` smallint(6) NOT NULL,
-  `stepID` smallint(6) NOT NULL,
+  `workflowID` smallint NOT NULL,
+  `stepID` smallint NOT NULL,
   `actionType` varchar(50) NOT NULL,
   `eventID` varchar(40) NOT NULL,
   UNIQUE KEY `workflowID_2` (`workflowID`,`stepID`,`actionType`,`eventID`),
@@ -482,28 +482,28 @@ INSERT INTO `route_events` (`workflowID`, `stepID`, `actionType`, `eventID`) VAL
 (-1,	-3,	'approve',	'std_email_notify_next_approver'),
 (-1,	-1,	'submit',	'std_email_notify_next_approver');
 
-DROP TABLE IF EXISTS `services`;
-CREATE TABLE `services` (
-  `serviceID` smallint(5) NOT NULL AUTO_INCREMENT,
-  `service` varchar(100) NOT NULL,
-  `abbreviatedService` varchar(25) NOT NULL,
-  `groupID` mediumint(9) DEFAULT NULL,
-  PRIMARY KEY (`serviceID`),
-  KEY `groupID` (`groupID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
 DROP TABLE IF EXISTS `service_chiefs`;
 CREATE TABLE `service_chiefs` (
-  `serviceID` smallint(5) NOT NULL,
+  `serviceID` smallint NOT NULL,
   `userID` varchar(50) NOT NULL,
   `backupID` varchar(50) NOT NULL DEFAULT '',
   `locallyManaged` tinyint(1) DEFAULT '0',
-  `active` tinyint(4) NOT NULL DEFAULT '1',
+  `active` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`userID`,`serviceID`,`backupID`),
   KEY `serviceID` (`serviceID`),
   KEY `userID` (`userID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `services`;
+CREATE TABLE `services` (
+  `serviceID` smallint NOT NULL AUTO_INCREMENT,
+  `service` varchar(100) NOT NULL,
+  `abbreviatedService` varchar(25) NOT NULL,
+  `groupID` mediumint DEFAULT NULL,
+  PRIMARY KEY (`serviceID`),
+  KEY `groupID` (`groupID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `sessions`;
@@ -511,7 +511,7 @@ CREATE TABLE `sessions` (
   `sessionKey` varchar(40) NOT NULL,
   `variableKey` varchar(40) NOT NULL DEFAULT '',
   `data` text NOT NULL,
-  `lastModified` int(10) unsigned NOT NULL,
+  `lastModified` int unsigned NOT NULL,
   UNIQUE KEY `sessionKey` (`sessionKey`,`variableKey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -527,7 +527,7 @@ CREATE TABLE `settings` (
 
 INSERT INTO `settings` (`setting`, `data`) VALUES
 ('adPath',	'{}'),
-('dbversion',	'2023100500'),
+('dbversion',	'2024022901'),
 ('emailBCC',	'{}'),
 ('emailCC',	'{}'),
 ('heading',	'New LEAF Site'),
@@ -543,7 +543,7 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 
 DROP TABLE IF EXISTS `short_links`;
 CREATE TABLE `short_links` (
-  `shortID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `shortID` mediumint unsigned NOT NULL AUTO_INCREMENT,
   `type` varchar(20) NOT NULL,
   `hash` varchar(64) NOT NULL,
   `data` text NOT NULL,
@@ -554,25 +554,45 @@ CREATE TABLE `short_links` (
 
 DROP TABLE IF EXISTS `signatures`;
 CREATE TABLE `signatures` (
-  `signatureID` mediumint(9) NOT NULL AUTO_INCREMENT,
+  `signatureID` mediumint NOT NULL AUTO_INCREMENT,
   `signature` text NOT NULL,
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `stepID` smallint(6) NOT NULL,
-  `dependencyID` smallint(6) NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
+  `stepID` smallint NOT NULL,
+  `dependencyID` smallint NOT NULL,
   `message` longtext NOT NULL,
   `signerPublicKey` text NOT NULL,
   `userID` varchar(50) NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL,
+  `timestamp` int unsigned NOT NULL,
   PRIMARY KEY (`signatureID`),
   UNIQUE KEY `recordID_stepID_depID` (`recordID`,`stepID`,`dependencyID`),
   CONSTRAINT `fk_records_signatures_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `sites`;
+CREATE TABLE `sites` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `launchpadID` mediumint unsigned NOT NULL,
+  `site_type` varchar(8) NOT NULL,
+  `site_path` varchar(250) NOT NULL,
+  `site_uploads` varchar(250) DEFAULT NULL,
+  `portal_database` varchar(250) DEFAULT NULL,
+  `orgchart_path` varchar(250) DEFAULT NULL,
+  `orgchart_database` varchar(250) DEFAULT NULL,
+  `decommissionTimestamp` int DEFAULT '0',
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `site_path` (`site_path`),
+  KEY `site_type` (`site_type`),
+  KEY `launchpadID` (`launchpadID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `step_dependencies`;
 CREATE TABLE `step_dependencies` (
-  `stepID` smallint(6) NOT NULL,
-  `dependencyID` smallint(6) NOT NULL,
+  `stepID` smallint NOT NULL,
+  `dependencyID` smallint NOT NULL,
   UNIQUE KEY `stepID` (`stepID`,`dependencyID`),
   KEY `dependencyID` (`dependencyID`),
   CONSTRAINT `fk_step_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`),
@@ -586,68 +606,56 @@ INSERT INTO `step_dependencies` (`stepID`, `dependencyID`) VALUES
 
 DROP TABLE IF EXISTS `step_modules`;
 CREATE TABLE `step_modules` (
-  `stepID` smallint(6) NOT NULL,
+  `stepID` smallint NOT NULL,
   `moduleName` varchar(50) NOT NULL,
   `moduleConfig` text NOT NULL,
   UNIQUE KEY `stepID_moduleName` (`stepID`,`moduleName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `tags`;
 CREATE TABLE `tags` (
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
   `tag` varchar(50) NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int unsigned NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
   UNIQUE KEY `recordID` (`recordID`,`tag`),
   KEY `tag` (`tag`),
   CONSTRAINT `fk_records_tags_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `template_history_files`;
 CREATE TABLE `template_history_files` (
-  `file_id` int(11) NOT NULL AUTO_INCREMENT,
+  `file_id` int NOT NULL AUTO_INCREMENT,
   `file_parent_name` text,
   `file_name` text,
   `file_path` text,
-  `file_size` mediumint(9) DEFAULT NULL,
+  `file_size` mediumint DEFAULT NULL,
   `file_modify_by` text,
   `file_created` text,
   PRIMARY KEY (`file_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `userID` varchar(50) NOT NULL,
-  `groupID` mediumint(9) NOT NULL,
+  `groupID` mediumint NOT NULL,
   `backupID` varchar(50) NOT NULL DEFAULT '',
   `primary_admin` tinyint(1) NOT NULL DEFAULT '0',
   `locallyManaged` tinyint(1) DEFAULT '0',
-  `active` tinyint(4) NOT NULL DEFAULT '1',
+  `active` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`userID`,`groupID`,`backupID`),
   KEY `groupID` (`groupID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
-
-DROP TABLE IF EXISTS `workflows`;
-CREATE TABLE `workflows` (
-  `workflowID` smallint(6) NOT NULL AUTO_INCREMENT,
-  `initialStepID` smallint(6) NOT NULL DEFAULT '0',
-  `description` varchar(64) NOT NULL,
-  PRIMARY KEY (`workflowID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-INSERT INTO `workflows` (`workflowID`, `initialStepID`, `description`) VALUES
-(-2,	-4,	'Leaf Developer Console'),
-(-1,	-3,	'LEAF Secure Certification');
 
 DROP TABLE IF EXISTS `workflow_routes`;
 CREATE TABLE `workflow_routes` (
-  `workflowID` smallint(6) NOT NULL,
-  `stepID` smallint(6) NOT NULL,
-  `nextStepID` smallint(6) NOT NULL,
+  `workflowID` smallint NOT NULL,
+  `stepID` smallint NOT NULL,
+  `nextStepID` smallint NOT NULL,
   `actionType` varchar(50) NOT NULL,
   `displayConditional` text NOT NULL,
   UNIQUE KEY `workflowID` (`workflowID`,`stepID`,`actionType`),
@@ -667,17 +675,17 @@ INSERT INTO `workflow_routes` (`workflowID`, `stepID`, `nextStepID`, `actionType
 
 DROP TABLE IF EXISTS `workflow_steps`;
 CREATE TABLE `workflow_steps` (
-  `workflowID` smallint(6) NOT NULL,
-  `stepID` smallint(6) NOT NULL AUTO_INCREMENT,
+  `workflowID` smallint NOT NULL,
+  `stepID` smallint NOT NULL AUTO_INCREMENT,
   `stepTitle` varchar(64) NOT NULL,
   `stepBgColor` varchar(10) NOT NULL DEFAULT '#fffdcd',
   `stepFontColor` varchar(10) NOT NULL DEFAULT 'black',
   `stepBorder` varchar(20) NOT NULL DEFAULT '1px solid black',
   `jsSrc` varchar(128) NOT NULL,
-  `posX` smallint(6) DEFAULT NULL,
-  `posY` smallint(6) DEFAULT NULL,
-  `indicatorID_for_assigned_empUID` smallint(6) DEFAULT NULL,
-  `indicatorID_for_assigned_groupID` smallint(6) DEFAULT NULL,
+  `posX` smallint DEFAULT NULL,
+  `posY` smallint DEFAULT NULL,
+  `indicatorID_for_assigned_empUID` smallint DEFAULT NULL,
+  `indicatorID_for_assigned_groupID` smallint DEFAULT NULL,
   `requiresDigitalSignature` tinyint(1) DEFAULT NULL,
   `stepData` text,
   PRIMARY KEY (`stepID`),
@@ -689,3 +697,15 @@ INSERT INTO `workflow_steps` (`workflowID`, `stepID`, `stepTitle`, `stepBgColor`
 (-2,	-4,	'Supervisory Review for LEAF Developer Console',	'#82b9fe',	'black',	'1px solid black',	'',	580,	146,	-6,	NULL,	NULL,	NULL),
 (-1,	-3,	'Supervisory Review for LEAF-S Certification',	'#82b9fe',	'black',	'1px solid black',	'',	579,	146,	-4,	NULL,	NULL,	NULL),
 (-1,	-2,	'Privacy Officer Review for LEAF-S Certification',	'#82b9fe',	'black',	'1px solid black',	'',	575,	331,	-1,	NULL,	NULL,	NULL);
+
+DROP TABLE IF EXISTS `workflows`;
+CREATE TABLE `workflows` (
+  `workflowID` smallint NOT NULL AUTO_INCREMENT,
+  `initialStepID` smallint NOT NULL DEFAULT '0',
+  `description` varchar(64) NOT NULL,
+  PRIMARY KEY (`workflowID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `workflows` (`workflowID`, `initialStepID`, `description`) VALUES
+(-2,	-4,	'Leaf Developer Console'),
+(-1,	-3,	'LEAF Secure Certification');
