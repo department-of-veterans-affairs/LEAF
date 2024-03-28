@@ -146,11 +146,22 @@ var LeafForm = function (containerID) {
       }
 
       let options = uniqueList.map(o => XSSHelpers.stripAllTags(o.trim()));
-
       if (!isLevel2 && options.length> 0 && dropdownInfo[iID].crosswalkHasHeader === true) {
         dropdownInfo[iID].headerName = options[0];
       }
-      return options.filter(o => o !== dropdownInfo[iID].headerName && o !== "").sort().reverse();
+      options = options.filter(o => o !== dropdownInfo[iID].headerName && o !== "");
+      options = options.sort(
+          (a, b) => a.localeCompare(
+            b,
+            undefined,
+            {
+              numeric: true,
+              sensitivity: 'base',
+            }
+          )
+      );
+      options = options.reverse();
+      return options;
     }
 
     function setSelectOptions(arrOptions = [], iID, formdata) {
