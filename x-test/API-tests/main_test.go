@@ -15,6 +15,8 @@ import (
 )
 
 var rootURL = "https://host.docker.internal/LEAF_Request_Portal/"
+var natOrgURL = "https://host.docker.internal/LEAF_NationalNexus/"
+var orgURL = "https://host.docker.internal/LEAF_Nexus/"
 var dbHost = "leaf-mysql"
 var dbUsername = os.Getenv("MYSQL_USER")
 var dbPassword = os.Getenv("MYSQL_PASSWORD")
