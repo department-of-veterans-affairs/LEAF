@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: TestSuite
 -------------------------------------------------------------------------------
-Tests run: 8, Failures: 4, Errors: 0, Skipped: 4, Time elapsed: 40.87 s <<< FAILURE! - in TestSuite
-test.java.formWorkflow.formWorkflow_Test.setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)  Time elapsed: 10.662 s  <<< FAILURE!
+Tests run: 8, Failures: 4, Errors: 0, Skipped: 4, Time elapsed: 41.125 s <<< FAILURE! - in TestSuite
+test.java.formWorkflow.formWorkflow_Test.setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)  Time elapsed: 10.882 s  <<< FAILURE!
 org.openqa.selenium.SessionNotCreatedException: 
 Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
 Host info: host: 'docker-desktop', ip: '192.168.65.3'
@@ -50,7 +50,7 @@ Host info: host: 'docker-desktop', ip: '192.168.65.3'
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 	at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -71,7 +71,7 @@ Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -80,7 +80,7 @@ Caused by: java.net.ConnectException: HTTP connect timed out
 	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:513)
 	... 10 more
 
-test.java.formWorkflow.formWorkflow_Test.setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)  Time elapsed: 10.012 s  <<< FAILURE!
+test.java.formWorkflow.formWorkflow_Test.setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)  Time elapsed: 10.016 s  <<< FAILURE!
 org.openqa.selenium.SessionNotCreatedException: 
 Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
 Host info: host: 'docker-desktop', ip: '192.168.65.3'
@@ -128,7 +128,7 @@ Host info: host: 'docker-desktop', ip: '192.168.65.3'
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 	at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -149,7 +149,7 @@ Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -158,7 +158,7 @@ Caused by: java.net.ConnectException: HTTP connect timed out
 	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:513)
 	... 10 more
 
-test.java.formWorkflow.formWorkflow_Test.setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)  Time elapsed: 10.017 s  <<< FAILURE!
+test.java.formWorkflow.formWorkflow_Test.setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)  Time elapsed: 10.027 s  <<< FAILURE!
 org.openqa.selenium.SessionNotCreatedException: 
 Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
 Host info: host: 'docker-desktop', ip: '192.168.65.3'
@@ -206,7 +206,7 @@ Host info: host: 'docker-desktop', ip: '192.168.65.3'
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 	at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -227,7 +227,7 @@ Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -236,7 +236,7 @@ Caused by: java.net.ConnectException: HTTP connect timed out
 	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:513)
 	... 10 more
 
-test.java.formWorkflow.formWorkflow_Test.setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)  Time elapsed: 10.021 s  <<< FAILURE!
+test.java.formWorkflow.formWorkflow_Test.setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)  Time elapsed: 10.027 s  <<< FAILURE!
 org.openqa.selenium.SessionNotCreatedException: 
 Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
 Host info: host: 'docker-desktop', ip: '192.168.65.3'
@@ -284,7 +284,7 @@ Host info: host: 'docker-desktop', ip: '192.168.65.3'
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 	at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -305,7 +305,7 @@ Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)

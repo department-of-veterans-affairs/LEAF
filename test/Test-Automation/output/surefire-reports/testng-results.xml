@@ -2,12 +2,12 @@
 <testng-results ignored="0" total="4" passed="0" failed="0" skipped="4">
   <reporter-output>
   </reporter-output>
-  <suite started-at="2024-03-27T21:14:34 GMT" name="RegressionSuite" finished-at="2024-03-27T21:15:14 GMT" duration-ms="40521">
+  <suite started-at="2024-03-29T17:09:28 GMT" name="RegressionSuite" finished-at="2024-03-29T17:10:09 GMT" duration-ms="40640">
     <groups>
     </groups>
-    <test started-at="2024-03-27T21:14:34 GMT" name="Forms Workflow" finished-at="2024-03-27T21:15:14 GMT" duration-ms="40521">
+    <test started-at="2024-03-29T17:09:28 GMT" name="Forms Workflow" finished-at="2024-03-29T17:10:09 GMT" duration-ms="40640">
       <class name="test.java.formWorkflow.formWorkflow_Test">
-        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:14:34 GMT" name="setUp" finished-at="2024-03-27T21:14:44 GMT" duration-ms="10428" status="FAIL">
+        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:28 GMT" name="setUp" finished-at="2024-03-29T17:09:38 GMT" duration-ms="10500" status="FAIL">
           <params>
             <param index="0">
               <value>
@@ -77,7 +77,7 @@ at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -98,7 +98,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(
 at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -112,7 +112,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExc
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="CreateAndDeleteForm()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:14:44 GMT" name="CreateAndDeleteForm" finished-at="2024-03-27T21:14:44 GMT" duration-ms="0" status="SKIP">
+        <test-method signature="CreateAndDeleteForm()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:38 GMT" name="CreateAndDeleteForm" finished-at="2024-03-29T17:09:38 GMT" duration-ms="0" status="SKIP">
           <exception class="org.openqa.selenium.SessionNotCreatedException">
             <message>
               <![CDATA[Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
@@ -165,7 +165,7 @@ at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -186,7 +186,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(
 at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -200,11 +200,11 @@ at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExc
           <reporter-output>
           </reporter-output>
         </test-method> <!-- CreateAndDeleteForm -->
-        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:14:44 GMT" name="tearDown" finished-at="2024-03-27T21:14:44 GMT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:38 GMT" name="tearDown" finished-at="2024-03-29T17:09:38 GMT" duration-ms="0" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- tearDown -->
-        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:14:44 GMT" name="setUp" finished-at="2024-03-27T21:14:54 GMT" duration-ms="10019" status="FAIL">
+        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:38 GMT" name="setUp" finished-at="2024-03-29T17:09:49 GMT" duration-ms="10023" status="FAIL">
           <params>
             <param index="0">
               <value>
@@ -274,7 +274,7 @@ at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -295,7 +295,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(
 at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -309,7 +309,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExc
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="EditProperties()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:14:54 GMT" name="EditProperties" finished-at="2024-03-27T21:14:54 GMT" duration-ms="0" status="SKIP">
+        <test-method signature="EditProperties()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:49 GMT" name="EditProperties" finished-at="2024-03-29T17:09:49 GMT" duration-ms="0" status="SKIP">
           <exception class="org.openqa.selenium.SessionNotCreatedException">
             <message>
               <![CDATA[Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
@@ -362,7 +362,7 @@ at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -383,7 +383,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(
 at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -397,11 +397,11 @@ at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExc
           <reporter-output>
           </reporter-output>
         </test-method> <!-- EditProperties -->
-        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:14:54 GMT" name="tearDown" finished-at="2024-03-27T21:14:54 GMT" duration-ms="1" status="PASS">
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:49 GMT" name="tearDown" finished-at="2024-03-29T17:09:49 GMT" duration-ms="1" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- tearDown -->
-        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:14:54 GMT" name="setUp" finished-at="2024-03-27T21:15:04 GMT" duration-ms="10013" status="FAIL">
+        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:49 GMT" name="setUp" finished-at="2024-03-29T17:09:59 GMT" duration-ms="10025" status="FAIL">
           <params>
             <param index="0">
               <value>
@@ -471,7 +471,7 @@ at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -492,7 +492,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(
 at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -506,7 +506,11 @@ at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExc
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="addSectionHeadings()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:15:04 GMT" name="addSectionHeadings" finished-at="2024-03-27T21:15:04 GMT" duration-ms="1" status="SKIP">
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:59 GMT" name="tearDown" finished-at="2024-03-29T17:09:59 GMT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+        <test-method signature="addSectionHeadings()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:59 GMT" name="addSectionHeadings" finished-at="2024-03-29T17:09:59 GMT" duration-ms="0" status="SKIP">
           <exception class="org.openqa.selenium.SessionNotCreatedException">
             <message>
               <![CDATA[Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
@@ -559,7 +563,7 @@ at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -580,7 +584,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(
 at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -594,11 +598,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExc
           <reporter-output>
           </reporter-output>
         </test-method> <!-- addSectionHeadings -->
-        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:15:04 GMT" name="tearDown" finished-at="2024-03-27T21:15:04 GMT" duration-ms="1" status="PASS">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- tearDown -->
-        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:15:04 GMT" name="setUp" finished-at="2024-03-27T21:15:14 GMT" duration-ms="10018" status="FAIL">
+        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:09:59 GMT" name="setUp" finished-at="2024-03-29T17:10:09 GMT" duration-ms="10019" status="FAIL">
           <params>
             <param index="0">
               <value>
@@ -668,7 +668,7 @@ at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -689,7 +689,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(
 at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -703,7 +703,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExc
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setUp -->
-        <test-method signature="editCollaborators()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:15:14 GMT" name="editCollaborators" finished-at="2024-03-27T21:15:14 GMT" duration-ms="0" status="SKIP">
+        <test-method signature="editCollaborators()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:10:09 GMT" name="editCollaborators" finished-at="2024-03-29T17:10:09 GMT" duration-ms="0" status="SKIP">
           <exception class="org.openqa.selenium.SessionNotCreatedException">
             <message>
               <![CDATA[Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
@@ -756,7 +756,7 @@ at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
 Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.14'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
 Driver info: driver.version: RemoteWebDriver
 at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
 at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
@@ -777,7 +777,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(
 at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
 at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
 at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2088)
+at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
 at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
 at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
 at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
@@ -791,7 +791,7 @@ at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExc
           <reporter-output>
           </reporter-output>
         </test-method> <!-- editCollaborators -->
-        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@544fa968]" started-at="2024-03-27T21:15:14 GMT" name="tearDown" finished-at="2024-03-27T21:15:14 GMT" duration-ms="0" status="PASS">
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@37ceb1df]" started-at="2024-03-29T17:10:09 GMT" name="tearDown" finished-at="2024-03-29T17:10:09 GMT" duration-ms="1" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- tearDown -->
