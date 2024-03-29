@@ -5,7 +5,7 @@
     <parameter name="browser" value="chrome"/>
     <parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups"/>
     <classes>
-      <class name="Execution.userAccessGroupsPart3">
+      <class name="test.java.userAccessGroup.userAccessGroupsPart3">
         <methods>
           <include name="deleteUserGroup"/>
           <include name="initializeFramework"/>
@@ -14,7 +14,7 @@
           <include name="closeDown"/>
           <include name="setUp"/>
         </methods>
-      </class> <!-- Execution.userAccessGroupsPart3 -->
+      </class> <!-- test.java.userAccessGroup.userAccessGroupsPart3 -->
     </classes>
   </test> <!-- User Access Groups Part 3(failed) -->
 </suite> <!-- Failed suite [RegressionSuite] -->

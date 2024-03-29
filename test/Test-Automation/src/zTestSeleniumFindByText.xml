@@ -6,7 +6,7 @@
 		<parameter name="env" value="https://www.browserstack.com/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.zSeleniumFindByText"/>
+				<class name="test.zSeleniumFindByText"/>
 			</classes>
 			</parameter>
 	</test>

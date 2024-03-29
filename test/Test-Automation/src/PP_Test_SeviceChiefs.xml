@@ -10,7 +10,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/">
 			<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.homePageTest"/>
+				<class name="test.java.HomePage.homePageTest"/>
 			</classes>
 		</parameter>
 	</test>    
@@ -22,7 +22,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.userAccessGroups"/>
+				<class name="test.java.userAccessGroup.userAccessGroups"/>
 			</classes>
 		</parameter>
 	</test>
@@ -35,7 +35,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.userAccessGroupsTESTING"/>
+				<class name="test.userAccessGroupsTESTING"/>
 			</classes>
 		</parameter>
 	</test>
@@ -48,7 +48,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.userAccessGroupsPart2"/>
+				<class name="test.java.userAccessGroup.userAccessGroupsPart2"/>
 			</classes>
 		</parameter>
 	</test>
@@ -61,7 +61,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Nexus/admin/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.serviceChiefs"/>
+				<class name="test.java.Service_TEst.serviceChiefs"/>
 			</classes>
 		</parameter>
 	</test>    
@@ -73,7 +73,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.adminPageTest"/>
+				<class name="test.java.adminPage.adminPageTest"/>
 			</classes>
 		</parameter>
 	</test>      
@@ -86,7 +86,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.newRequestWorkflow"/>
+				<class name="test.java.Request_WorkFlow.newRequestWorkflow"/>
 			</classes>
 		</parameter>
 	</test>    
@@ -96,7 +96,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Nexus/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.orgChartWorkflow"/>
+				<class name="test.java.OrganizationChart.orgChartWorkflow"/>
 			</classes>
 		</parameter>
 	</test>    
@@ -105,7 +105,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.reportBuilderWorkflow"/>
+				<class name="test.reportBuilderWorkflow"/>
 			</classes>
 		</parameter>
 	</test>    
@@ -114,7 +114,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.formsWorkflow"/>
+				<class name="test.java.formWorkflow.formsWorkflow"/>
 			</classes>
 		</parameter>
 	</test>    
@@ -123,7 +123,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.formsWorkflowPart2"/>
+				<class name="test.java.formWorkflow.formsWorkflowPart2"/>
 			</classes>
 		</parameter>
 	</test>    
@@ -132,7 +132,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.formsWorkflowPart3"/>
+				<class name="test.java.formWorkflow.formsWorkflowPart3"/>
 			</classes>
 		</parameter>
 	</test>   

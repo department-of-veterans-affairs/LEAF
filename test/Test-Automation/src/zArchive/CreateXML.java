@@ -36,7 +36,7 @@ Remember we need to pass the parameters 'browserType' and 'appURL' for the base 
 
 The above Page Object Model framework is the simple one without using any Build tools, Loggers, Listeners 
 and Utilities. In the next coming post we will add all these things and design a Robust Page Object Model 
-Framework which are used in the Industry.
+test.java.Framework which are used in the Industry.
 
 
   

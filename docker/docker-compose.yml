@@ -174,6 +174,37 @@ services:
         extra_hosts:
             - host.docker.internal:host-gateway
 
+    leaf-selenium-test-helper:
+        container_name: leaf-selenium-test-helper
+        build:
+            context: ../
+            dockerfile: docker/selenium-tests/leaf_selenium_test_helper.dockerfile
+        volumes:
+            - ./output:/app/target
+        network_mode: host
+        command: ["test","-Dremote.url= http://192.168.86.248:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    chrome:
+        image: selenium/standalone-chrome:4.18.1-20240224
+        container_name: selenium-chrome
+        ports:
+            - "4445:4444"
+        shm_size: '2g'
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        environment:
+            - SE_NODE_MAX_INSTANCES=2
+            - SE_NODE_MAX_SESSIONS=2
+            - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+            - SE_NODE_SESSION_TIMEOUT=30
+        healthcheck:
+            test: curl --fail http://localhost:4444 || exit 1
+            interval: 5s
+            timeout: 10s
+            retries: 5
+
 volumes:
     leaf-php-data:
         external: true

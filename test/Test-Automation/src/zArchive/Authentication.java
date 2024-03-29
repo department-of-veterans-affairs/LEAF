@@ -4,11 +4,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-import Framework.AppVariables;
-
-import org.openqa.selenium.*;
-import org.openqa.selenium.WebElement;
-
 
 public class Authentication {
 	public static void main(String[] args) {
@@ -23,10 +18,10 @@ public class Authentication {
 		String Filename = "C:/Users/madma_000/Dropbox/DEV/Java/_Output/TestResultsFile.txt";
 
 		
-		System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
+		System.setProperty("webdriver.chrome.driver", test.java.Framework.AppVariables.CHROMEDRIVER);
 		WebDriver driverChrome = new ChromeDriver();
 
-//		driverChrome.get(Framework.AppVariables.NULLURL);
+//		driverChrome.get(test.java.Framework.AppVariables.NULLURL);
 		driverChrome.manage().window().maximize();
 
 		System.out.println("Chrome should be maximized and GETURL loaded");

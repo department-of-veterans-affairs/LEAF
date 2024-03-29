@@ -7,7 +7,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.homePageTest"/>
+				<class name="test.java.HomePage.homePageTest"/>
 			</classes>
 		</parameter>
 	</test>   
@@ -16,7 +16,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.adminPageTest"/>
+				<class name="test.java.adminPage.adminPageTest"/>
 			</classes>     
 			</parameter>
 	</test>        
@@ -26,7 +26,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=mod_groups">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.adminUserAccessTest"/>
+				<class name="test.java.adminPage.adminUserAccessTest"/>
 			</classes>
 			</parameter>
 	</test>
@@ -35,7 +35,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/">
 		<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="Execution.createNewRequest"/>
+				<class name="test.createNewRequest"/>
 			</classes>
 			</parameter>
 	</test>
