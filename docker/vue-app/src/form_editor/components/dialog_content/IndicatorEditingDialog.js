@@ -506,8 +506,8 @@ export default {
                     properties.options = this.formatGridDropdown(elTextarea.value || '');
                 }
                 if(type === 'dropdown_file') {
-                    properties.file = document.getElementById('dropdown_file_select_' + id)?.value;
-                    properties.hasHeader = Boolean(document.getElementById('dropdown_file_header_select_' + id)?.value);
+                    properties.file = document.getElementById('dropdown_file_select_' + id)?.value || '';
+                    properties.hasHeader = Boolean(+document.getElementById('dropdown_file_header_select_' + id)?.value);
                 }
                 gridJSON.push(properties);
             });

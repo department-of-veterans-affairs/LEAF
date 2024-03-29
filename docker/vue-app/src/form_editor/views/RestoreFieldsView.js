@@ -1,7 +1,6 @@
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
-import BrowserAndRestoreMenu from "../components/BrowserAndRestoreMenu.js";
 
 export default {
     name: 'restore-fields-view',
@@ -14,7 +13,6 @@ export default {
         LeafFormDialog,
         NewFormDialog,
         ImportFormDialog,
-        BrowserAndRestoreMenu
     },
     inject: [
         'APIroot',
@@ -64,8 +62,14 @@ export default {
             });
         },
     },
-    template: `<BrowserAndRestoreMenu />
-        <section>
+    template: `<section>
+            <h2 id="page_breadcrumbs">
+                <a href="../admin" class="leaf-crumb-link" title="to Admin Home">Admin</a>
+                <i class="fas fa-caret-right leaf-crumb-caret"></i>
+                <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
+                <i class="fas fa-caret-right leaf-crumb-caret"></i>Restore Fields
+                <a href="./?a=form#" class="leaf-crumb-link" style="margin-left: auto; font-size:80%;">Back to old Form Editor</a>
+            </h2>
             <h3>List of disabled fields available for recovery</h3>
             <div>Deleted fields and associated data will be not display in the Report Builder</div>
 
