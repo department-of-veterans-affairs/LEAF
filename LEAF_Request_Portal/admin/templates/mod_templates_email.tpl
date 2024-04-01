@@ -7,7 +7,7 @@
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>Email Template Editor</h2>
-        <button type="button" id="mobileToolsNavBtn" onclick="applyRightNavShowClass(true)">
+        <button type="button" id="mobileToolsNavBtn" onclick="showRightNav(true)">
             Template Tools
         </button>
     </div>
@@ -158,7 +158,7 @@
                     </div>
                 </div>
 
-                <div class="keyboard_shortcuts_merge">
+                <div class="keyboard_shortcuts_merge hide">
                     <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
                         <div class="keboard_shortcuts_box_merge">
@@ -171,24 +171,11 @@
                         </div>
                         <div class="keboard_shortcuts_box_merge">
                             <div class="keyboard_shortcuts_title_merge">
-                                <h3>Word Wrap: </h3>
-                            </div>
-                            <div class="keyboard_shortcut_merge">
-                                <p>Ctrl + W </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="keyboard_shortcuts_section_merge">
-                        <div class="keboard_shortcuts_box_merge">
-                            <div class="keyboard_shortcuts_title_merge">
                                 <h3>Exit Compare: </h3>
                             </div>
                             <div class="keyboard_shortcut_merge">
                                 <p>Ctrl + E </p>
                             </div>
-                        </div>
-                        <div class="keboard_shortcuts_box_merge">
-
                         </div>
                     </div>
                 </div>
@@ -196,7 +183,7 @@
         </main>
         <div class="leaf-right-nav">
             <button type="button" id="closeMobileToolsNavBtn" aria-label="close tools menu"
-                    onclick="applyRightNavShowClass(false)">X</button>
+                    onclick="showRightNav(false)">X</button>
             <aside class="filesMobile">
             </aside>
             <aside class="sidenav-right">
@@ -230,12 +217,11 @@
     </div>
 </div>
 
-<!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
-    function applyRightNavShowClass(showNav = false) {
+    function showRightNav(showNav = false) {
         let nav = $('.leaf-right-nav');
         showNav ? nav.addClass('show') : nav.removeClass('show');
     }
@@ -317,11 +303,9 @@
                 },
                 url: '../api/emailTemplates/_' + currentFile,
                 success: function(res) {
-                    updateUIAfterSave();
                     if (res != null) {
                         alert(res);
                     }
-
                     saveFileHistory();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -335,17 +319,6 @@
             dialog_message.setTitle('Alert!');
             dialog_message.show();
         }
-
-        function updateUIAfterSave() {
-            $('#restore_original').addClass('modifiedTemplate');
-
-            const time = new Date().toLocaleTimeString();
-            $('.saveStatus').html('<br /> Last saved: ' + time);
-            currentFileContent = data;
-            currentSubjectContent = subject;
-            currentEmailToContent = emailToData;
-            currentEmailCcContent = emailCcData;
-        }
     }
     // creates a copy of the current file content
     function saveFileHistory() {
@@ -353,12 +326,12 @@
         let subject = '';
         // If any changes made to emailTo, emailCc, body or subject
         // then get edits, else get default values
-        if (codeEditor.getValue() === undefined) {
+        if (codeEditor.getValue === undefined) {
             data = codeEditor.edit.getValue();
         } else {
             data = codeEditor.getValue();
         }
-        if (subjectEditor.getValue() === undefined) {
+        if (subjectEditor.getValue === undefined) {
             subject = subjectEditor.edit.getValue();
         } else {
             subject = subjectEditor.getValue();
@@ -499,19 +472,27 @@
             dataType: 'text',
             cache: false,
             success: function(fileContent) {
-                codeEditor = CodeMirror.MergeView(
-                    document.getElementById("codeCompare"),
-                    {
-                        value: currentFileContent.replace(/\r\n/g, "\n"),
-                        origLeft: fileContent.replace(/\r\n/g, "\n"),
-                        lineNumbers: true,
-                        mode: 'htmlmixed',
-                        collapseIdentical: true,
-                        lineWrapping: false, // initial value
-                        autoFormatOnStart: true,
-                        autoFormatOnMode: true
+                codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
+                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
+                    mode: 'htmlmixed',
+                    lineNumbers: true,
+                    indentUnit: 4,
+                    value: currentFileContent.replace(/\r\n/g, "\n"),
+                    origLeft: fileContent.replace(/\r\n/g, "\n"),
+                    showDifferences: true,
+                    collapseIdentical: true,
+                    autoFormatOnStart: true,
+                    autoFormatOnMode: true,
+                    extraKeys: {
+                        "Esc": function(cm) {
+                            const disableTab = { "Tab": false, "Shift-Tab": false };
+                            cm.addKeyMap(disableTab);
+                            setTimeout(() => {
+                                cm.removeKeyMap(disableTab);
+                            }, 2500);
+                        },
                     }
-                );
+                });
 
                 const mergeFile = () => {
                     ignoreUnsavedChanges = true;
@@ -603,6 +584,7 @@
     }
 
     // compares the current file to the default file content
+    // TODO: this never gets called - why is the button that uses this commented out?
     function compare() {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
@@ -613,6 +595,7 @@
             success: function(standard) {
                 // Set body changed and default content to show comparison
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
+                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
@@ -620,15 +603,19 @@
                     origLeft: standard.file.replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
-                    lineWrapping: true,
                     extraKeys: {
-                        "Ctrl-S": function(cm) {
-                            save();
-                        }
+                        "Esc": function(cm) {
+                            const disableTab = { "Tab": false, "Shift-Tab": false };
+                            cm.addKeyMap(disableTab);
+                            setTimeout(() => {
+                                cm.removeKeyMap(disableTab);
+                            }, 2500);
+                        },
                     }
                 });
                 // Set changed subject and default subject to user to show comparison
                 subjectEditor = CodeMirror.MergeView(document.getElementById("subjectCompare"), {
+                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
@@ -636,13 +623,19 @@
                     origLeft: standard.subjectFile.replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
-                    lineWrapping: true,
                     extraKeys: {
-                        "Ctrl-S": function(cm) {
-                            save();
-                        }
+                        "Esc": function(cm) {
+                            const disableTab = { "Tab": false, "Shift-Tab": false };
+                            cm.addKeyMap(disableTab);
+                            setTimeout(() => {
+                                cm.removeKeyMap(disableTab);
+                            }, 2500);
+                        },
                     }
                 });
+            },
+            error: function(err) {
+                console.log("error getting standard file", err)
             },
             cache: false
         });
@@ -650,7 +643,7 @@
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
         $('.page-title-container > h2').html('Email Template Editor > Compare Code');
-        applyRightNavShowClass(false);
+        showRightNav(false);
         $('#controls').addClass('comparing');
         $(".compared-label-content").css("display", "flex");
 
@@ -660,8 +653,9 @@
             'left': '-100%',
         });
         $('#quick_field_search_container').hide();
-        $('#emailLists, #subject, .email-template-variables, .keyboard-shortcuts').hide();
-        $('.keyboard_shortcuts_merge').show();
+        $('#emailLists, #subject, .email-template-variables').hide();
+        $('.keyboard_shortcuts').addClass('hide');
+        $('.keyboard_shortcuts_merge').removeClass('hide');
     }
     // exits the current and history comparison
     function exitExpandScreen() {
@@ -670,7 +664,7 @@
         $('#file_replace_file_btn').off('click');
 
         $('.page-title-container > h2').html('Email Template Editor');
-        applyRightNavShowClass(false);
+        showRightNav(false);
         $('#controls').removeClass('comparing');
         $(".compared-label-content").css("display", "none");
 
@@ -684,8 +678,8 @@
         $('#quick_field_search_container').show();
         $('.email-template-variables, #emailLists, #subject').show();
 
-        $('.keyboard_shortcuts').css('display', 'flex');
-        $('.keyboard_shortcuts_merge').hide();
+        $('.keyboard_shortcuts').removeClass('hide');
+        $('.keyboard_shortcuts_merge').addClass('hide');
 
         // Will reset the URL
         let url = new URL(window.location.href);
@@ -738,7 +732,7 @@
         $('#subjectCompare').empty();
 
         $('#codeContainer').hide();
-        $('.keyboard_shortcuts_merge').hide();
+
         currentName = name;
         currentFile = file;
         currentSubjectFile = subjectFile;
@@ -782,6 +776,9 @@
                     $('#restore_original').removeClass('modifiedTemplate');
                 }
                 addCustomEventInfo(currentFile);
+            },
+            error: function(err) {
+                console.log("error getting file", err)
             },
             async: false,
             cache: false
@@ -858,7 +855,7 @@
         $.ajax({
             type: "GET",
             url: "../api/form/indicator/list",
-            data: {forms: form},
+            data: { forms: form },
             cache: false,
             success: (res) => {
                 if (form === "") {
@@ -874,7 +871,7 @@
                 });
                 checkFieldEntries();
             },
-            error: (err) => reject(err)
+            error: (err) => console.log(err)
         });
     }
 
@@ -957,6 +954,7 @@
      */
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            screenReaderLabel: "Email Template Editor coding area.  Press escape then tab to navigate out.",
             mode: "htmlmixed",
             lineNumbers: true,
             indentUnit: 4,
@@ -965,7 +963,15 @@
                     cm.setOption("fullScreen", !cm.getOption("fullScreen"));
                 },
                 "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                    if (cm.getOption("fullScreen")) {
+                        cm.setOption("fullScreen", false);
+                    } else {
+                        const disableTab = { "Tab": false, "Shift-Tab": false };
+                        cm.addKeyMap(disableTab);
+                        setTimeout(() => {
+                            cm.removeKeyMap(disableTab);
+                        }, 2500);
+                    }
                 },
                 "Ctrl-S": function(cm) {
                     save();
@@ -977,6 +983,7 @@
             }
         });
         subjectEditor = CodeMirror.fromTextArea(document.getElementById("subjectCode"), {
+            screenReaderLabel: "Email Template Editor coding area.  Press escape then tab to navigate out.",
             mode: "htmlmixed",
             viewportMargin: 5,
             lineNumbers: true,
@@ -986,7 +993,15 @@
                     cm.setOption("fullScreen", !cm.getOption("fullScreen"));
                 },
                 "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                    if (cm.getOption("fullScreen")) {
+                        cm.setOption("fullScreen", false);
+                    } else {
+                        const disableTab = { "Tab": false, "Shift-Tab": false };
+                        cm.addKeyMap(disableTab);
+                        setTimeout(() => {
+                            cm.removeKeyMap(disableTab);
+                        }, 2500);
+                    }
                 },
                 "Ctrl-S": function(cm) {
                     save();
@@ -1000,7 +1015,7 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
-        applyRightNavShowClass(false);
+        showRightNav(false);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=emailTemplate&id=' + currentFile,
@@ -1078,6 +1093,7 @@
     //loads components when the document loads
     $(document).ready(function() {
         getIndicators(); //get indicators to make format table 
+        getForms(); //get forms for quick search and indicator format info
 
         dialog = new dialogController(
             'confirm_xhrDialog',
@@ -1086,9 +1102,14 @@
             'confirm_button_save',
             'confirm_button_cancelchange'
         );
+        dialog_message = new dialogController(
+            'genericDialog',
+            'genericDialogxhr',
+            'genericDialogloadIndicator',
+            'genericDialogbutton_save',
+            'genericDialogbutton_cancelchange'
+        );
 
-        // Get forms for quick search and indicator format info
-        getForms();
         // Get initial email tempates for page from database
         $.ajax({
             type: 'GET',
@@ -1165,14 +1186,5 @@
 
         // Load content from those templates to the current main template
         initializePage();
-
-        $('#xhrDialog').hide();
-        dialog_message = new dialogController(
-            'genericDialog',
-            'genericDialogxhr',
-            'genericDialogloadIndicator',
-            'genericDialogbutton_save',
-            'genericDialogbutton_cancelchange'
-        );
     });
 </script>

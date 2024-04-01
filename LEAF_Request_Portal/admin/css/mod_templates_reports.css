@@ -23,11 +23,8 @@
     overflow: auto;
 }
 
-/* hides the built in merge glyphs and adds more obvious ones */
-.CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy {
-    visibility: hidden;
-}
-.CodeMirror-merge-copybuttons-left>.CodeMirror-merge-copy::before {
+/* adds a more obvious glyph for the merge buttons */
+.CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy::before {
     visibility: visible;
     content: '\25ba\25ba\25ba';
 }
@@ -103,10 +100,18 @@
     flex: 0 0 260px;
     transition: right .5s ease, left .5s ease;
 }
+.reports.leaf-right-nav {
+    display: none;
+}
+.reports.leaf-right-nav.custom {
+    display: block;
+}
 .leaf-left-nav {
     left: 0;
 }
-.leaf-left-nav.hide {
+.leaf-left-nav.hide,
+.keyboard_shortcuts.hide,
+.keyboard_shortcuts_merge.hide {
     display: none;
 }
 
@@ -572,7 +577,7 @@ label[for="template_file_select"] {
 #emailNotificationInfo > div {
     border-radius: 12px / 50%;
     padding: 0.375rem 0.625rem 0.25rem;
-    box-shadow: 1px 1px 2px rgba(0,0,25,0.2);
+    box-shadow: 1px 1px 2px rgba(0,0,25,0.15);
 }
 
 .email-template-variables > fieldset {
@@ -690,6 +695,14 @@ label[for="template_file_select"] {
     }
     .leaf-right-nav.show {
         right: 0;
+        display: block;
+    }
+    .leaf-right-nav.reports:not(.custom) button {
+        display:none;
+    }
+    .leaf-right-nav.reports:not(.custom) button.new-report,
+    .leaf-right-nav.reports:not(.custom) button#btn_history_mobile {
+        display: block;
     }
 
     .sidenav,

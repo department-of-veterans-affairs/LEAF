@@ -7,7 +7,7 @@
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>Template Editor</h2>
-        <button type="button" id="mobileToolsNavBtn" onclick="applyRightNavShowClass(true)" aria-expanded="false">Template Tools</button>
+        <button type="button" id="mobileToolsNavBtn" onclick="showRightNav(true)" aria-expanded="false">Template Tools</button>
     </div>
     <div class="page-main-content">
         <div class="leaf-left-nav">
@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <div class="keyboard_shortcuts_merge">
+                <div class="keyboard_shortcuts_merge hide">
                     <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
                         <div class="keboard_shortcuts_box_merge">
@@ -87,7 +87,7 @@
             </div>
         </main>
         <div class="leaf-right-nav">
-            <button type="button" id="closeMobileToolsNavBtn" aria-label="close" onclick="applyRightNavShowClass(false)">X</button>
+            <button type="button" id="closeMobileToolsNavBtn" aria-label="close" onclick="showRightNav(false)">X</button>
             <aside class="filesMobile"></aside>
             <aside class="sidenav-right">
                 <div id="controls">
@@ -143,7 +143,7 @@
 
 <script>
     /* used to show or hide the right nav despite screen width */
-    function applyRightNavShowClass(showNav = false) {
+    function showRightNav(showNav = false) {
         let nav = $('.leaf-right-nav');
         showNav ? nav.addClass('show') : nav.removeClass('show');
     }
@@ -186,7 +186,7 @@
     // creates a copy of the current file content
     function saveFileHistory() {
         let data = '';
-        if (codeEditor.getValue == undefined) {
+        if (codeEditor.getValue === undefined) {
             data = codeEditor.edit.getValue();
         } else {
             data = codeEditor.getValue();
@@ -240,6 +240,7 @@
             url: '../api/template/_' + currentFile + '/standard',
             success: function(standard) {
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
+                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
@@ -248,9 +249,13 @@
                     showDifferences: true,
                     collapseIdentical: true,
                     extraKeys: {
-                        "Ctrl-S": function(cm) {
-                            save();
-                        }
+                        "Esc": function(cm) {
+                            const disableTab = { "Tab": false, "Shift-Tab": false };
+                            cm.addKeyMap(disableTab);
+                            setTimeout(() => {
+                                cm.removeKeyMap(disableTab);
+                            }, 2500);
+                        },
                     }
                 });
                 editorExpandScreen();
@@ -265,18 +270,17 @@
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
         $('.page-title-container > h2').html('Template Editor > Compare Code');
-        applyRightNavShowClass(false);
+        showRightNav(false);
         $('#controls').addClass('comparing');
         $(".compared-label-content").css("display", "flex");
 
-        //$('.file-history').hide(); //hide/show TODO: ask - it's convenient to keep this
         $('.leaf-left-nav').addClass('hide');
         $('.leaf-left-nav').css({
             'position': 'fixed',
             'left': '-100%',
         });
-        $('.keyboard_shortcuts').css('display', 'none');
-        $('.keyboard_shortcuts_merge').show();
+        $('.keyboard_shortcuts').addClass('hide');
+        $('.keyboard_shortcuts_merge').removeClass('hide');
     }
     // exits comparison view
     function exitExpandScreen() {
@@ -285,7 +289,7 @@
         $('#file_replace_file_btn').off('click');
 
         $('.page-title-container > h2').html('Template Editor');
-        applyRightNavShowClass(false);
+        showRightNav(false);
         $('#controls').removeClass('comparing');
         $(".compared-label-content").css("display", "none");
 
@@ -296,8 +300,8 @@
                 'left': '0'
             });
         });
-        $('.keyboard_shortcuts').css('display', 'flex');
-        $('.keyboard_shortcuts_merge').hide();
+        $('.keyboard_shortcuts').removeClass('hide');
+        $('.keyboard_shortcuts_merge').addClass('hide');
 
         // Will reset the URL
         let url = new URL(window.location.href);
@@ -414,19 +418,27 @@
             dataType: 'text',
             cache: false,
             success: function(fileContent) {
-                codeEditor = CodeMirror.MergeView(
-                    document.getElementById("codeCompare"),
-                    {
-                        value: currentFileContent.replace(/\r\n/g, "\n"),
-                        origLeft: fileContent.replace(/\r\n/g, "\n"),
-                        lineNumbers: true,
-                        mode: 'htmlmixed',
-                        collapseIdentical: true,
-                        lineWrapping: false,
-                        autoFormatOnStart: true,
-                        autoFormatOnMode: true
+                codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
+                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
+                    mode: 'htmlmixed',
+                    lineNumbers: true,
+                    indentUnit: 4,
+                    value: currentFileContent.replace(/\r\n/g, "\n"),
+                    origLeft: fileContent.replace(/\r\n/g, "\n"),
+                    showDifferences: true,
+                    collapseIdentical: true,
+                    autoFormatOnStart: true,
+                    autoFormatOnMode: true,
+                    extraKeys: {
+                        "Esc": function(cm) {
+                            const disableTab = { "Tab": false, "Shift-Tab": false };
+                            cm.addKeyMap(disableTab);
+                            setTimeout(() => {
+                                cm.removeKeyMap(disableTab);
+                            }, 2500);
+                        },
                     }
-                );
+                });
 
                 const mergeFile = () => {
                     ignoreUnsavedChanges = true;
@@ -507,7 +519,6 @@
 
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
-        $('.keyboard_shortcuts_merge').hide();
 
         initEditor();
         currentFile = file;
@@ -564,6 +575,7 @@
     //instantiate CodeMirror code editor on the DOM element with the 'code' id
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            screenReaderLabel: "Template Editor coding area.  Press escape then tab to navigate out.",
             mode: "htmlmixed",
             lineNumbers: true,
             indentUnit: 4,
@@ -572,7 +584,15 @@
                     cm.setOption("fullScreen", !cm.getOption("fullScreen"));
                 },
                 "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                    if (cm.getOption("fullScreen")) {
+                        cm.setOption("fullScreen", false);
+                    } else {
+                        const disableTab = { "Tab": false, "Shift-Tab": false };
+                        cm.addKeyMap(disableTab);
+                        setTimeout(() => {
+                            cm.removeKeyMap(disableTab);
+                        }, 2500);
+                    }
                 },
                 "Ctrl-S": function(cm) {
                     save();
@@ -590,7 +610,7 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
-        applyRightNavShowClass(false);
+        showRightNav(false);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=template&id=' + currentFile,

@@ -7,7 +7,7 @@
 <div class="leaf-center-content">
     <div class="page-title-container">
         <h2>LEAF Programmer</h2>
-        <button type="button" id="mobileToolsNavBtn" onclick="applyRightNavShowClass(true)">
+        <button type="button" id="mobileToolsNavBtn" onclick="showRightNav(true)">
             Template Tools
         </button>
     </div>
@@ -69,7 +69,7 @@
                     </div>
                 </div>
 
-                <div class="keyboard_shortcuts_merge">
+                <div class="keyboard_shortcuts_merge hide">
                     <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
                         <div class="keboard_shortcuts_box_merge">
@@ -94,8 +94,8 @@
             </div>
         </main>
 
-        <div class="leaf-right-nav">
-            <button type="button" id="closeMobileToolsNavBtn" aria-label="close" onclick="applyRightNavShowClass(false)">X</button>
+        <div class="reports leaf-right-nav">
+            <button type="button" id="closeMobileToolsNavBtn" aria-label="close" onclick="showRightNav(false)">X</button>
             <aside class="filesMobile"></aside>
             <aside class="sidenav-right">
                 <div id="controls">
@@ -144,7 +144,7 @@
 
 
 <script>
-    function applyRightNavShowClass(showNav = false) {
+    function showRightNav(showNav = false) {
         let nav = $('.leaf-right-nav');
         showNav ? nav.addClass('show') : nav.removeClass('show');
     }
@@ -186,11 +186,17 @@
     }
     // creates a copy of the current file content
     function saveFileHistory() {
+        let data = '';
+        if (codeEditor.getValue === undefined) {
+            data = codeEditor.edit.getValue();
+        } else {
+            data = codeEditor.getValue();
+        }
         $.ajax({
             type: 'POST',
             data: {
                 CSRFToken: '<!--{$CSRFToken}-->',
-                file: codeEditor.getValue()
+                file: data
             },
             url: '../api/applet/fileHistory/_' + currentFile,
             success: function(res) {
@@ -217,10 +223,8 @@
     }
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
-        //$('.filesMobile').hide();
-
         $('.page-title-container > h2').html('LEAF Programmer > Compare Code');
-        applyRightNavShowClass(false);
+        showRightNav(false);
         $('#controls').addClass('comparing');
         $(".compared-label-content").css("display", "flex");
 
@@ -229,8 +233,8 @@
             'position': 'fixed',
             'left': '-100%',
         });
-        $('.keyboard_shortcuts').css('display', 'none');
-        $('.keyboard_shortcuts_merge').show();
+        $('.keyboard_shortcuts').addClass('hide');
+        $('.keyboard_shortcuts_merge').removeClass('hide');
     }
     // exits the current and history comparison
     function exitExpandScreen() {
@@ -239,7 +243,7 @@
         $('#file_replace_file_btn').off('click');
 
         $('.page-title-container > h2').html('Template Editor');
-        applyRightNavShowClass(false);
+        showRightNav(false);
         $('#controls').removeClass('comparing');
         $(".compared-label-content").css("display", "none");
 
@@ -250,8 +254,8 @@
                 'left': '0'
             });
         });
-        $('.keyboard_shortcuts').css('display', 'flex');
-        $('.keyboard_shortcuts_merge').hide();
+        $('.keyboard_shortcuts').removeClass('hide');
+        $('.keyboard_shortcuts_merge').addClass('hide');
 
         // Will reset the URL
         const url = new URL(window.location.href);
@@ -334,10 +338,7 @@
     }
 
     function isExcludedFile(file) {
-        if (file === 'example' || file.substr(0, 5) === 'LEAF_') {
-            return true;
-        }
-        return false;
+        return file === 'example' || file.substr(0, 5) === 'LEAF_';
     }
     // gloabal variables
     var codeEditor;
@@ -411,21 +412,27 @@
             dataType: 'text',
             cache: false,
             success: function(fileContent) {
-                codeEditor = CodeMirror.MergeView(
-                    document.getElementById("codeCompare"),
-                    {
-                        value: currentFileContent.replace(/\r\n/g, "\n"),
-                        origLeft: fileContent.replace(/\r\n/g, "\n"),
-                        lineNumbers: true,
-                        mode: 'htmlmixed',
-                        collapseIdentical: true,
-                        lineWrapping: false,
-                        autoFormatOnStart: true,
-                        autoFormatOnMode: true,
-                        leftTitle: "Current File",
-                        rightTitle: "Comparison File"
+                codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
+                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
+                    mode: 'htmlmixed',
+                    lineNumbers: true,
+                    indentUnit: 4,
+                    value: currentFileContent.replace(/\r\n/g, "\n"),
+                    origLeft: fileContent.replace(/\r\n/g, "\n"),
+                    showDifferences: true,
+                    collapseIdentical: true,
+                    autoFormatOnStart: true,
+                    autoFormatOnMode: true,
+                    extraKeys: {
+                        "Esc": function(cm) {
+                            const disableTab = { "Tab": false, "Shift-Tab": false };
+                            cm.addKeyMap(disableTab);
+                            setTimeout(() => {
+                                cm.removeKeyMap(disableTab);
+                            }, 2500);
+                        },
                     }
-                );
+                });
 
                 const mergeFile = () => {
                     ignoreUnsavedChanges = true;
@@ -461,7 +468,6 @@
         });
 
         if (updateURL !== null) {
-            console.log("url?", updateURL)
             let url = new URL(window.location.href);
             url.searchParams.set('fileName', fileName);
             url.searchParams.set('parentFile', parentFile);
@@ -472,9 +478,10 @@
     // overrites current file content after merge
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
-                type: 'POST',
-                url: '../api/applet/mergeFileHistory/saveReportMergeTemplate/_' + fileParentName,
-                data: {CSRFToken: '<!--{$CSRFToken}-->',
+            type: 'POST',
+            url: '../api/applet/mergeFileHistory/saveReportMergeTemplate/_' + fileParentName,
+            data: {
+                CSRFToken: '<!--{$CSRFToken}-->',
                 file: mergedContent
             },
             dataType: 'json',
@@ -532,8 +539,6 @@
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
 
-        $('.keyboard_shortcuts_merge').hide();
-
         currentFile = file;
         initEditor();
         $('#codeContainer').css('display', 'none');
@@ -541,9 +546,9 @@
         $('#filename').html(file.replace('.tpl', ''));
         let reportURL = `${window.location.origin}${window.location.pathname.replace('admin/', '')}report.php?a=${file.replace('.tpl', '')}`;
         $('#reportURL').html(`URL: <a href="${reportURL}" target="_blank">${reportURL}</a>`);
-        $('.sidenav-right, .file-history').css({
-            'display': isExcludedFile(file) ? 'none' : 'flex',
-        });
+
+        isExcludedFile(file) ? $('.reports.leaf-right-nav').removeClass('custom') : $('.reports.leaf-right-nav').addClass('custom');
+
         getFileHistory(file);
         $.ajax({
             type: 'GET',
@@ -591,6 +596,7 @@
     // initiates  the loadContent()
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            screenReaderLabel: "Report Editor coding area.  Press escape then tab to navigate out.",
             mode: "htmlmixed",
             lineNumbers: true,
             indentUnit: 4,
@@ -599,10 +605,20 @@
                     cm.setOption("fullScreen", !cm.getOption("fullScreen"));
                 },
                 "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                    if (cm.getOption("fullScreen")) {
+                        cm.setOption("fullScreen", false);
+                    } else {
+                        const disableTab = { "Tab": false, "Shift-Tab": false };
+                        cm.addKeyMap(disableTab);
+                        setTimeout(() => {
+                            cm.removeKeyMap(disableTab);
+                        }, 2500);
+                    }
                 },
                 "Ctrl-S": function(cm) {
-                    save();
+                    if(!isExcludedFile(currentFile)) {
+                        save();
+                    }
                 },
                 "Ctrl-B": function(cm) {
                     const newTheme = cm.options.theme === 'default' ? 'lucario' : 'default';
@@ -664,7 +680,7 @@
         dialog_message.setTitle('Access Template History');
         dialog_message.show();
         dialog_message.indicateBusy();
-        applyRightNavShowClass(false);
+        showRightNav(false);
         $.ajax({
             type: 'GET',
             url: 'ajaxIndex.php?a=gethistory&type=applet&id=' + currentFile,
