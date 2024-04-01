@@ -242,17 +242,9 @@ class Group
                 $dir = new VAMC_Directory();
 
                foreach ($res['data'] as $member) {
-                    $dirRes = $dir->lookupLogin($member['userID'], false, true, $searchDeleted);
+                    $dirRes = $dir->lookupLogin($member['userID'], true, false, $searchDeleted);
 
                     if (isset($dirRes[0])) {
-                        $dirRes[0]['regionallyManaged'] = false;
-
-                        foreach ($dirRes[0]['groups'] as $group) {
-                            if ($groupID == $group['groupID']) {
-                                $dirRes[0]['regionallyManaged'] = true;
-                            }
-                        }
-
                         if ($groupID == 1) {
                             $dirRes[0]['primary_admin'] = $member['primary_admin'];
                         }
@@ -397,19 +389,44 @@ class Group
                 new LogItem("users", "groupID", $groupID, $this->getGroupName($groupID))
             ]);
 
-            $sql = 'UPDATE `users`
-                    SET `active` = 0
+            $sql = 'SELECT userID, groupID, locallyManaged FROM `users`
                     WHERE `userID` = :userID
-                    AND `groupID` = :groupID';
+                        AND `groupID` = :groupID
+                        AND locallyManaged = 1';
 
-            $this->db->prepared_query($sql, $vars);
+            $res = $this->db->prepared_query($sql, $vars);
+            // If the users are locally managed, we can simply delete them
+            if(count($res) > 0) {
+                $sql = 'DELETE FROM `users`
+                        WHERE `userID` = :userID
+                        AND `groupID` = :groupID';
 
-            $sql = 'UPDATE `users`
-                    SET `active` = 0
-                    WHERE `backupID` = :userID
-                    AND `groupID` = :groupID';
+                $this->db->prepared_query($sql, $vars);
 
-            $this->db->prepared_query($sql, $vars);
+                $sql = 'DELETE FROM `users`
+                        WHERE `backupID` = :userID
+                        AND `groupID` = :groupID';
+
+                $this->db->prepared_query($sql, $vars);
+            }
+            // otherwise we flag it as a local override
+            else {
+                $sql = 'UPDATE `users`
+                        SET `active` = 0,
+                        `locallyManaged` = 1
+                        WHERE `userID` = :userID
+                        AND `groupID` = :groupID';
+
+                $this->db->prepared_query($sql, $vars);
+
+                $sql = 'UPDATE `users`
+                        SET `active` = 0,
+                        `locallyManaged` = 1
+                        WHERE `backupID` = :userID
+                        AND `groupID` = :groupID';
+
+                $this->db->prepared_query($sql, $vars);
+            }
         }
     }
 
@@ -461,7 +478,8 @@ class Group
             $sql_vars = array(':userID' => $member,
                           ':groupID' => $groupID);
             $sql = 'UPDATE `users`
-                    SET `active` = 1
+                    SET `active` = 1,
+                        locallyManaged = 0
                     WHERE `groupID` = :groupID
                     AND (`userID` = :userID
                         OR `backupID` = :userID)';

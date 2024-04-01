@@ -37,6 +37,7 @@ services:
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
+            - ../LEAF_Nexus:/var/www/html/LEAF_NationalNexus
             - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
             - ../health_checks:/var/www/html/health_checks
@@ -154,6 +155,25 @@ services:
             - leaf-sql
         volumes:
             - leaf-mysql-data:/var/lib/mysql
+
+    leaf-api-test-helper:
+        image: golang
+        container_name: leaf-api-test-helper
+        volumes:
+            - "../x-test/api-test-helper/:/app"
+            - "../x-test/API-tests/:/API-tests"
+        ports:
+            - "8000:8000"
+        env_file:
+            - ./env_files/mysql_local.env
+            - ./env_files/secrets.env
+        networks:
+            - leaf
+            - leaf-sql
+        working_dir: /app
+        entrypoint: go run .
+        extra_hosts:
+            - host.docker.internal:host-gateway
 
 volumes:
     leaf-php-data:

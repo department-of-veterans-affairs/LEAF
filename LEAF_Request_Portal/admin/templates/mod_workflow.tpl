@@ -1,7 +1,7 @@
 <div id="workflow_editor">
     <div id="sideBar">
         <div>
-            <label id="steps_label"> Workflow Steps:</label>
+            <label id="steps_label" for="workflow_steps"> Workflow Steps:</label>
             <div id="stepList"></div>
         </div>
         <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();">
@@ -9,7 +9,7 @@
         </button>
 
         <div style="margin-top:0.5rem;">
-            <label id="workflows_label"> Workflows:</label>
+            <label id="workflows_label" for="workflows"> Workflows:</label>
             <div id="workflowList"></div>
         </div>
         <button type="button" id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();">
@@ -2334,7 +2334,8 @@
                 });
 
                 updateChosenAttributes("workflows", "workflows_label", "Select Workflow");
-
+                const urlParams = new URLSearchParams(window.location.search);
+                let workflowID = urlParams.get('workflowID');
                 if (workflowID == undefined) {
                     workflowDescription = firstWorkflowDescription;
                     workflowID = firstWorkflowID;

@@ -53,6 +53,13 @@ nav#top-menu-nav {
     }
 }
 
+#page_breadcrumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.125rem;
+}
+
 
 #form_browser_tables {
     h3 {
@@ -298,6 +305,17 @@ table[class$="SelectorTable"] th {
         input[type="number"] {
             width: 50px;
         }
+        label {
+            margin-bottom: 0;
+        }
+        #workflow_info {
+            display:flex;gap:2px;
+            align-items: center;
+            #view_workflow {
+                font-size: 14px;
+                height: 26px;
+            }
+        }
     }
 }
 #form_properties_last_update {
@@ -326,32 +344,19 @@ table[class$="SelectorTable"] th {
 #form_index_display {
     margin-top: 0.5rem; //matches drag-drop spacer for top of form area
     position: relative;
-    padding: 0.75rem;
-    width: 360px;
-    flex: 0 0 360px;
+    padding: 0.875rem 0.75rem;
+    width: 330px;
+    flex: 0 0 330px;
     align-self:flex-start;
     background-color: white;
     border-radius: 4px;
     box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
     max-height: 90vh;
     overflow-y: auto;
-    .index_info {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-        height: 28px;
-        margin-bottom: 0.5rem;
-        button {
-            width: 134px;
-            justify-self: flex-end;
-        }
-    }
-    h3 {
-        margin: 0;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        color: black;
+
+    button.preview {
+        width: 134px;
+        margin-bottom: 1rem;
     }
 
     /* form menu list preview */
@@ -370,12 +375,6 @@ table[class$="SelectorTable"] th {
         &:not(:last-child) {
             margin-bottom: 1rem;
         }
-        &.selected {
-            border: 2px solid $LEAF_CSS_outline;
-            button.layout-listitem {
-                background-color: $lt_cyan;
-            }
-        }
         button.layout-listitem {
             padding: 0.25rem;
             display: flex;
@@ -389,14 +388,11 @@ table[class$="SelectorTable"] th {
             padding: 0 0.5rem;
             color: $charcoal;
             background-color: $BG_Pearl;
-            
-            &:hover, &:focus, &:active {
-                background-color: $lt_cyan;
-            }
         }
         /* button for the selected form */
         &.selected button.layout-listitem {
-            color: $base_navy;
+            color: white;
+            background-color: $base-navy;
             cursor: default;
         }
     }
@@ -408,7 +404,7 @@ table[class$="SelectorTable"] th {
     }
     ul[id^="internalFormRecords_"] {
         border-left: 4px solid $BG_Pearl;
-        padding-top: 0.6rem;
+        padding-top: 0.75rem;
         
         > li  {
             &:not(:last-child) {
@@ -419,7 +415,7 @@ table[class$="SelectorTable"] th {
                 display: flex;
                 justify-content: flex-start;
                 width: 100%;
-                height: 100%;
+                height: 46px;
                 overflow: hidden;
                 border: 2px solid transparent;
                 border-radius: 1px;
@@ -427,7 +423,8 @@ table[class$="SelectorTable"] th {
                     background-color: $BG_Pearl;
                     &.selected {
                         cursor: auto;
-                        background-color: $lt_cyan;
+                        color:white;
+                        background-color: $base-navy;
                         border: 2px solid $LEAF_CSS_outline;
                     }
                 }
@@ -438,16 +435,14 @@ table[class$="SelectorTable"] th {
             }
         }
     }
-    button[id^="addInternalUse_"], button[id^="addStaple_"] {
-        margin-top: 1.5rem;
-        height: 2rem;
+    button#indicator_toolbar_toggle,
+    button[id^="addInternalUse_"],
+    button[id^="addStaple_"] {
+        margin-bottom: 1rem;
+        height: 2.25rem;
         width: 100%;
-        padding: 2px 0.25rem;
         border: 2px solid $base-navy;
         justify-content: flex-start;
-    }
-    button[id^="addStaple_"] {
-        margin-top: 1rem;
     }
 }
 
@@ -500,7 +495,7 @@ table[class$="SelectorTable"] th {
                 border-radius: 4px 0 0 4px;
                 width: 1rem;
                 height: 100%;
-                left: -1rem;
+                left: 0;
                 top: 0;
                 .icon_move_container {
                     @include flexcenter;
@@ -508,7 +503,7 @@ table[class$="SelectorTable"] th {
                     flex-direction: column;
                     gap: 0.5rem;
                     .icon_drag {
-                        opacity: 0.4;
+                        opacity: 0.6;
                     }
                     .icon_move {
                         @include flexcenter;
@@ -541,7 +536,6 @@ table[class$="SelectorTable"] th {
         }
         > li {
             background-color: white;
-            padding-bottom: 0.25rem;
             border-radius: 4px;
             box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
             margin-bottom: 1.25rem;
@@ -557,7 +551,8 @@ table[class$="SelectorTable"] th {
         font-weight: bold;
         color: white;
         background-color: black;
-        height: 28px;
+        font-size: 1.5rem;
+        height: 2.25rem;
         padding: 0.2em 9px;
         border-radius: 3px;
         margin-right: 0.4rem;
@@ -573,21 +568,29 @@ table[class$="SelectorTable"] th {
         div.printResponse {
             position: relative;
             padding: 0;
-            min-height: 50px;
+            padding-left: 1rem;
             float: none; /* style.css style collision */
             border-radius: 4px;
-            border-left: 1rem solid transparent;
             background-color: white;
             &.form-header, &.preview.form-header {
+                border-top: 0.3125rem solid black;
                 > .form_editing_area {
                     border-radius: 4px;
                 }
             }
+            &.preview.form-header > ul {
+                padding: 0.5em;
+            }
+            &.preview.form-header li {
+                margin: 0;
+            }
             &.preview {
                 border: 0;
+                padding-left: 0;
             }
             &:not(.form-header):not(.preview) {
                 margin-left: 0.5rem;
+                border-top: 1px solid #e8e8e8;
             }
         }
     }
@@ -606,8 +609,7 @@ table[class$="SelectorTable"] th {
     }
     button.new_section_question {
         height: 2rem;
-        width: calc(100% - 1.5rem);
-        margin: 0.75rem 0.75rem 0.5rem;
+        width: 100%;
         border: 2px dashed darken($BG_Pearl, 15%);
     }
     
@@ -617,18 +619,18 @@ table[class$="SelectorTable"] th {
         flex-direction: column;
         margin-bottom: 0.25rem;
         background-color: white;
-        padding: 2px;
         &.conditional {
             background-color: saturate(darken($BG_Pearl, 2%), 15%);
         }
         /* 1st section (name and toolbar) of editing_area */
         .name_and_toolbar {
             width: 100%;
-            display:flex;
             &.form-header {
                 font-weight:  bolder;
+                background-color: #e0e0e0;
+                border-radius: 0;
                 .indicator-name-preview {
-                    padding: 0.5rem 0.25rem 0.75rem 0.375rem;
+                    padding: 0.5em;
                 }
             }
             &:not(.preview) {
@@ -651,15 +653,15 @@ table[class$="SelectorTable"] th {
             }
         }
         div[id^="form_editing_toolbar_"] {
-            padding: 3px;
+            float: right;
+            margin-left: 0.25rem;
+            padding: 0.25rem;
             border-radius: 3px;
             display: flex;
             flex-direction:column;
             align-items: stretch;
-            align-self: flex-start;
             font-size: 90%;
-            color: black;
-            gap: 2px;
+            gap: 3px 2px;
             > div {
                 display: flex; 
                 align-items: center;
@@ -678,7 +680,7 @@ table[class$="SelectorTable"] th {
         }
         /* 2nd section of editing_area (format preview) */
         .format_preview {
-            padding: 0 0 0.75rem 0.5rem;
+            padding: 0.5rem 0.25rem 0.75rem 0.5rem;
             .text_input_preview {
                 display: inline-block;
                 width: 75%;
@@ -924,7 +926,7 @@ table[class$="SelectorTable"] th {
                 flex: 0 0 100%;
             }
             .tableinput {
-                max-width: 400px;
+                max-width: 580px;
             }
         }
     }

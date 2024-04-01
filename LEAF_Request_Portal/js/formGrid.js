@@ -996,8 +996,8 @@ var LeafFormGrid = function (containerID, options) {
       if (currentRenderIndex != currentData.length) {
         renderBody(0, Infinity);
       }
-      var output = [];
-      var headers = [];
+      let output = [];
+      let headers = [];
       //removes triangle symbols so that ascii chars are not present in exported headers.
       $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
         $(val).html("");
@@ -1007,28 +1007,31 @@ var LeafFormGrid = function (containerID, options) {
       });
       output.push(headers); //first row will be headers
 
-      var line = [];
-      var i = 0;
-      var thisSite = document.createElement("a");
-      var numColumns = headers.length - 1;
+      let line = [];
+      let i = 0;
+      let numColumns = headers.length - 1;
       document
         .querySelectorAll("#" + prefixID + "tbody>tr>td")
         .forEach(function (val) {
-          var foundScripts = val.querySelectorAll("script");
+          let foundScripts = val.querySelectorAll("script");
 
-          for (var tIdx = 0; tIdx < foundScripts.length; tIdx++) {
+          for (let tIdx = 0; tIdx < foundScripts.length; tIdx++) {
             foundScripts[tIdx].parentNode.removeChild(foundScripts[tIdx]);
           }
 
-          var trimmedText = val.innerText.trim();
+          let trimmedText = val.innerText.trim();
           line[i] = trimmedText;
           //prevent some values from being interpretted as dates by excel
           const dataFormat = val.getAttribute("data-format");
           const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
+          const isNumber = /^\d+$/;
+
           line[i] =
-            dataFormat !== null &&
-            dataFormat !== "date" &&
-            testDateFormat.test(line[i])
+            (dataFormat !== null &&
+              dataFormat !== 'date' &&
+              testDateFormat.test(line[i])) ||
+            (isNumber.test(line[i]) &&
+              dataFormat === 'text')
               ? `="${line[i]}"`
               : line[i];
           if (i == 0 && headers[i] == "UID") {
@@ -1060,8 +1063,8 @@ var LeafFormGrid = function (containerID, options) {
         rows += '"' + thisRow.join('","') + '",\r\n';
       });
 
-      var download = document.createElement("a");
-      var now = new Date().getTime();
+      let download = document.createElement("a");
+      let now = new Date().getTime();
       download.setAttribute(
         "href",
         "data:text/csv;charset=utf-8," + encodeURIComponent(rows)
