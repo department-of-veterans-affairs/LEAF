@@ -183,7 +183,11 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
             "comment" => $comment
         ));
 
-        // assign and send emails
+        // unset the session, apparently if this is set nothing works when trying to login the next user
+        unset($_SESSION['userID']); 
+        
+        $login->loginUser($record['userID']);
+        // assign and send emails 
         $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$login);
 
         // update the notification timestamp, this could be moved to batch, just trying to get a prototype working

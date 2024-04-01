@@ -96,6 +96,9 @@ class Login
 
     public function loginUser($userID='SYSTEM')
     {
+        ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
         $authType = '/../auth_domain/?r=';
         $nonBrowserAuth = '/../login/?r=';
 
@@ -127,6 +130,7 @@ class Login
             }
             // else lets login via user id since this is a cli process that needs specific user (think forms/groups/emails)
             else{
+
                 $_SESSION['userID'] = $userID;
             }
 

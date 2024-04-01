@@ -621,7 +621,7 @@ class Email
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
-                if (strlen($approver['approverID']) > 0) {
+                if (!empty($approver['approverID']) && strlen($approver['approverID']) > 0) {
                     $tmp = $dir->lookupLogin($approver['approverID']);
                     if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                         $this->addRecipient($tmp[0]['Email']);
