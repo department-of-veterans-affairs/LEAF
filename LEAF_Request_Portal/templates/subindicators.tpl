@@ -373,7 +373,7 @@
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
-                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
@@ -423,7 +423,7 @@
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
-                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
@@ -490,7 +490,7 @@
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
-                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
@@ -555,7 +555,7 @@
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
-                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
