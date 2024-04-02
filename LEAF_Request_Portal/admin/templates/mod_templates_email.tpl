@@ -126,7 +126,7 @@
                     </fieldset>
                 </div>
                 <div class="keyboard_shortcuts">
-                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
+                    <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
                     <div class="keyboard_shortcuts_section">
                         <div class="keboard_shortcuts_box">
                             <div class="keyboard_shortcuts_title">
@@ -159,7 +159,7 @@
                 </div>
 
                 <div class="keyboard_shortcuts_merge hide">
-                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
+                    <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
                         <div class="keboard_shortcuts_box_merge">
                             <div class="keyboard_shortcuts_title_merge">
@@ -204,8 +204,19 @@
 
                     <button type="button" id="btn_compareStop"
                         class="usa-button usa-button--outline compare_only"
-                        onclick="exitExpandScreen()"> <!-- loadContent ? -->
+                        onclick="exitExpandScreen()">
                         Stop Comparing
+                    </button>
+
+                    <button type="button" id="btn_compare"
+                        class="usa-button usa-button--outline edit_only" onclick="compare();">
+                        Compare with Original
+                    </button>
+
+                    <button type="button"
+                        class="usa-button usa-button--outline mobileHistory edit_only"
+                        id="btn_history_mobile" onclick="viewHistory()">
+                        View History
                     </button>
                 </div>
             </aside>
@@ -464,6 +475,11 @@
     function compareHistoryFile(fileName, parentFile, updateURL) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
+        $('#subjectCompare').empty();
+
+        $('#bodyarea').off('keydown');
+        $('#file_replace_file_btn').off('click');
+
         const emailTemplateFilePath = `../templates_history/email_templates/${fileName}`
 
         $.ajax({
@@ -505,6 +521,7 @@
                         }
                     }
                     saveMergedChangesToFile(parentFile, mergedContent);
+                    $('#file_replace_file_btn').off('click');
                 }
                 const compareModeQuickKeys = (event) => {
                     const key = event.key.toLowerCase();
@@ -516,10 +533,14 @@
                         if(key === 'm') {
                             mergeFile();
                         }
+                        $('#bodyarea').off('keydown');
                     }
                 }
                 editorExpandScreen();
-                $(document).on('keydown', compareModeQuickKeys);
+                $('.CodeMirror').each(function(i, el) {
+                    el.CodeMirror.refresh();
+                });
+                $('#bodyarea').on('keydown', compareModeQuickKeys);
                 $('#file_replace_file_btn').on('click', mergeFile);
             },
             error: function(err) {
@@ -546,8 +567,6 @@
             dataType: 'json',
             cache: false,
             success: function(res) {
-                loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile,
-                    currentEmailCcFile);
                 exitExpandScreen();
             },
             error: function(xhr, status, error) {
@@ -584,10 +603,10 @@
     }
 
     // compares the current file to the default file content
-    // TODO: this never gets called - why is the button that uses this commented out?
     function compare() {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
+        $('#subjectCompare').empty();
 
         $.ajax({
             type: 'GET',
@@ -619,8 +638,8 @@
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
-                    value: currentSubjectContent.replace(/\r\n/g, "\n"),
-                    origLeft: standard.subjectFile.replace(/\r\n/g, "\n"),
+                    value: (currentSubjectContent || '').replace(/\r\n/g, "\n"),
+                    origLeft: (standard.subjectFile || '').replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
                     extraKeys: {
@@ -633,6 +652,7 @@
                         },
                     }
                 });
+                editorExpandScreen();
             },
             error: function(err) {
                 console.log("error getting standard file", err)
@@ -659,10 +679,6 @@
     }
     // exits the current and history comparison
     function exitExpandScreen() {
-        //remove compare view listeners
-        $(document).off('keydown');
-        $('#file_replace_file_btn').off('click');
-
         $('.page-title-container > h2').html('Email Template Editor');
         showRightNav(false);
         $('#controls').removeClass('comparing');
@@ -686,7 +702,6 @@
         url.searchParams.delete('fileName');
         url.searchParams.delete('parentFile');
         window.history.replaceState(null, null, url.toString());
-
         loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
     }
 
@@ -701,9 +716,8 @@
                     data = codeEditor.getValue();
                 }
                 if (currentFileContent !== data) {
-                    var confirmationMessage =
-                        'You have unsaved changes. Are you sure you want to leave this page?';
-                    return confirmationMessage;
+                    e.preventDefault();
+                    return 'You have unsaved changes. Are you sure you want to leave this page?';
                 }
             }
         });
@@ -757,23 +771,28 @@
                 currentEmailToContent = res.emailToFile;
                 currentEmailCcContent = res.emailCcFile;
                 $('#codeContainer').fadeIn();
-
-                // Assuming you have initialized the codeEditor and subjectEditor objects correctly
-                codeEditor.setValue(res.file);
-                if (subjectEditor && res.subjectFile !== null) {
-                    subjectEditor.setValue(res.subjectFile);
-                    currentSubjectContent = subjectEditor.getValue();
+                // Check if codeEditor is already defined and has a setValue method
+                if (codeEditor && typeof codeEditor.setValue === 'function') {
+                    codeEditor.setValue(res.file);
+                    currentFileContent = codeEditor.getValue();
+                    if (subjectEditor && res.subjectFile !== null) {
+                        subjectEditor.setValue(res.subjectFile);
+                        currentSubjectContent = subjectEditor.getValue();
+                    }
+                    $('.CodeMirror').each(function(i, el) {
+                        el.CodeMirror.refresh();
+                    });
+                } else {
+                    console.error('codeEditor is not properly initialized.');
                 }
-                currentFileContent = codeEditor.getValue();
 
                 $("#emailToCode").val(currentEmailToContent);
                 $("#emailCcCode").val(currentEmailCcContent);
                 checkFieldEntries();
-
                 if (res.modified === 1) {
-                    $('#restore_original').addClass('modifiedTemplate');
+                    $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                 } else {
-                    $('#restore_original').removeClass('modifiedTemplate');
+                    $('#restore_original, #btn_compare').removeClass('modifiedTemplate');
                 }
                 addCustomEventInfo(currentFile);
             },
@@ -982,6 +1001,7 @@
                 }
             }
         });
+
         subjectEditor = CodeMirror.fromTextArea(document.getElementById("subjectCode"), {
             screenReaderLabel: "Email Template Editor coding area.  Press escape then tab to navigate out.",
             mode: "htmlmixed",

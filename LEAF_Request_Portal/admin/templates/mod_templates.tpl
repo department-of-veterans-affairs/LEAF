@@ -31,7 +31,7 @@
                     <div id="codeCompare"></div>
                 </div>
                 <div class="keyboard_shortcuts">
-                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
+                    <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
                     <div class="keyboard_shortcuts_section">
                         <div class="keboard_shortcuts_box">
                             <div class="keyboard_shortcuts_title">
@@ -64,7 +64,7 @@
                 </div>
 
                 <div class="keyboard_shortcuts_merge hide">
-                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
+                    <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
                         <div class="keboard_shortcuts_box_merge">
                             <div class="keyboard_shortcuts_title_merge">
@@ -100,30 +100,26 @@
                         class="usa-button usa-button--secondary edit_only" onclick="restore();">
                         Restore Original
                     </button>
-
-                    <button type="button" id="file_replace_file_btn" class="usa-button usa-button--secondary compare_only">
-                        Use Old File
-                    </button>
-
-                    <button type="button" id="btn_compareStop"
-                        class="usa-button usa-button--outline compare_only"
-                        onclick="exitExpandScreen()">
-                        Stop Comparing
-                    </button>
                     <button type="button" id="btn_compare"
                         class="usa-button usa-button--outline edit_only" onclick="compare();">
                         Compare with Original
                     </button>
-
                     <a href="<!--{$domain_path}-->/app/libs/dynicons/gallery.php" id="icon_library"
                         class="usa-button usa-button--outline edit_only" target="_blank">
                         Icon Library
                     </a>
-                    
                     <button type="button"
                         class="usa-button usa-button--outline mobileHistory edit_only"
                         id="btn_history_mobile" onclick="viewHistory()">
                         View History
+                    </button>
+
+                    <button type="button" id="file_replace_file_btn" class="usa-button usa-button--secondary compare_only">
+                        Use Old File
+                    </button>
+                    <button type="button" id="btn_compareStop"
+                        class="usa-button usa-button--outline compare_only" onclick="exitExpandScreen()">
+                        Stop Comparing
                     </button>
                 </div>
             </aside>
@@ -273,7 +269,6 @@
         showRightNav(false);
         $('#controls').addClass('comparing');
         $(".compared-label-content").css("display", "flex");
-
         $('.leaf-left-nav').addClass('hide');
         $('.leaf-left-nav').css({
             'position': 'fixed',
@@ -284,10 +279,6 @@
     }
     // exits comparison view
     function exitExpandScreen() {
-        //remove compare view listeners
-        $(document).off('keydown');
-        $('#file_replace_file_btn').off('click');
-
         $('.page-title-container > h2').html('Template Editor');
         showRightNav(false);
         $('#controls').removeClass('comparing');
@@ -399,9 +390,8 @@
                     data = codeEditor.getValue();
                 }
                 if (currentFileContent !== data) {
-                    var confirmationMessage =
-                        'You have unsaved changes. Are you sure you want to leave this page?';
-                    return confirmationMessage;
+                    e.preventDefault();
+                    return 'You have unsaved changes. Are you sure you want to leave this page?';
                 }
             }
         });
@@ -410,6 +400,9 @@
     function compareHistoryFile(fileName, parentFile, updateURL) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
+        $('#bodyarea').off('keydown');
+        $('#file_replace_file_btn').off('click');
+
         const templateFilePath = `../templates_history/template_editor/${fileName}`;
 
         $.ajax({
@@ -451,6 +444,7 @@
                         }
                     }
                     saveMergedChangesToFile(parentFile, mergedContent);
+                    $('#file_replace_file_btn').off('click');
                 }
                 const compareModeQuickKeys = (event) => {
                     const key = event.key.toLowerCase();
@@ -462,10 +456,14 @@
                         if(key === 'm') {
                             mergeFile();
                         }
+                        $('#bodyarea').off('keydown');
                     }
                 }
                 editorExpandScreen();
-                $(document).on('keydown', compareModeQuickKeys);
+                $('.CodeMirror').each(function(i, el) {
+                    el.CodeMirror.refresh();
+                });
+                $('#bodyarea').on('keydown', compareModeQuickKeys);
                 $('#file_replace_file_btn').on('click', mergeFile);
             },
             error: function(err) {
@@ -535,6 +533,9 @@
                 if (codeEditor && typeof codeEditor.setValue === 'function') {
                     codeEditor.setValue(res.file);
                     currentFileContent = codeEditor.getValue();
+                    $('.CodeMirror').each(function(i, el) {
+                        el.CodeMirror.refresh();
+                    });
                 } else {
                     console.error('codeEditor is not properly initialized.');
                 }

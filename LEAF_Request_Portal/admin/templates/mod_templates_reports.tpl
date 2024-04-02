@@ -37,7 +37,7 @@
                     <div id="codeCompare"></div>
                 </div>
                 <div class="keyboard_shortcuts">
-                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
+                    <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
                     <div class="keyboard_shortcuts_section">
                         <div class="keboard_shortcuts_box">
                             <div class="keyboard_shortcuts_title">
@@ -70,7 +70,7 @@
                 </div>
 
                 <div class="keyboard_shortcuts_merge hide">
-                    <h3 class="keboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
+                    <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
                         <div class="keboard_shortcuts_box_merge">
                             <div class="keyboard_shortcuts_title_merge">
@@ -99,31 +99,33 @@
             <aside class="filesMobile"></aside>
             <aside class="sidenav-right">
                 <div id="controls">
-                    <button type="button" id="save_button" class="usa-button"
-                        onclick="save();">Save Changes<span class="saveStatus"></span>
+                    <button type="button" id="save_button" class="usa-button" onclick="save();">
+                        Save Changes
+                        <span class="saveStatus"></span>
                     </button>
+
                     <button type="button" id="open_file_button"
-                        class="usa-button usa-button--accent-cool edit_only" onclick="
-                        runReport();">Open File</button>
-                    <button type="button" class="usa-button new-report mobile_new_report_btn edit_only" onclick="newReport();">
+                        class="usa-button usa-button--accent-cool edit_only" onclick="runReport();">
+                        Open File
+                    </button>
+                    <button type="button" id="mobile_new_report_btn"
+                        class="usa-button new-report edit_only" onclick="newReport();">
                         New File
                     </button>
-                    <button type="button" id="deleteButton" class="usa-button usa-button--secondary edit_only"
-                        onclick="deleteReport()">
+                    <button type="button" id="deleteButton"
+                        class="usa-button usa-button--secondary edit_only" onclick="deleteReport()">
                         Delete File
                     </button>
-                    <button type="button"
-                        class="usa-button usa-button--outline edit_only"
-                        id="btn_history_mobile" onclick="viewHistory()">
+                    <button type="button" id="btn_history_mobile"
+                        class="usa-button usa-button--outline edit_only" onclick="viewHistory()">
                         View History
                     </button>
+
                     <button type="button" id="file_replace_file_btn" class="usa-button usa-button--secondary compare_only">
                         Use Old File
                     </button>
-
                     <button type="button" id="btn_compareStop"
-                        class="usa-button usa-button--outline compare_only"
-                        onclick="exitExpandScreen()">
+                        class="usa-button usa-button--outline compare_only" onclick="exitExpandScreen()">
                         Stop Comparing
                     </button>
                 </div>
@@ -238,10 +240,6 @@
     }
     // exits the current and history comparison
     function exitExpandScreen() {
-        //remove compare view listeners
-        $(document).off('keydown');
-        $('#file_replace_file_btn').off('click');
-
         $('.page-title-container > h2').html('Template Editor');
         showRightNav(false);
         $('#controls').removeClass('comparing');
@@ -404,6 +402,9 @@
     function compareHistoryFile(fileName, parentFile, updateURL) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
+        $('#bodyarea').off('keydown');
+        $('#file_replace_file_btn').off('click');
+
         const programmerTemplateFilePath = `../templates_history/leaf_programmer/${fileName}`;
 
         $.ajax({
@@ -445,6 +446,7 @@
                         }
                     }
                     saveMergedChangesToFile(parentFile, mergedContent);
+                    $('#file_replace_file_btn').off('click');
                 }
                 const compareModeQuickKeys = (event) => {
                     const key = event.key.toLowerCase();
@@ -456,10 +458,14 @@
                         if(key === 'm') {
                             mergeFile();
                         }
+                        $('#bodyarea').off('keydown');
                     }
                 }
                 editorExpandScreen();
-                $(document).on('keydown', compareModeQuickKeys);
+                $('.CodeMirror').each(function(i, el) {
+                    el.CodeMirror.refresh();
+                });
+                $('#bodyarea').on('keydown', compareModeQuickKeys);
                 $('#file_replace_file_btn').on('click', mergeFile);
             },
             error: function(err) {
@@ -510,8 +516,8 @@
                     data = codeEditor.getValue();
                 }
                 if (currentFileContent !== data) {
-                    let confirmationMessage = 'You have unsaved changes. Are you sure you want to leave this page?';
-                    return confirmationMessage;
+                    e.preventDefault();
+                    return 'You have unsaved changes. Are you sure you want to leave this page?';
                 }
             }
         });
@@ -559,6 +565,9 @@
                 if (codeEditor && typeof codeEditor.setValue === 'function') {
                     codeEditor.setValue(res.file);
                     currentFileContent = codeEditor.getValue();
+                    $('.CodeMirror').each(function(i, el) {
+                        el.CodeMirror.refresh();
+                    });
                 } else {
                     console.error('codeEditor is not properly initialized.');
                 }
