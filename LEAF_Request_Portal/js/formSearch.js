@@ -976,10 +976,11 @@ var LeafFormSearch = function (containerID) {
                             $("#" + prefixID + "widgetMatch_" + widgetID).html(
                                 categories
                             );
-                            chosenOptions();
-                            if (callback != undefined) {
-                                callback();
-                            }
+                        }
+
+                        chosenOptions();
+                        if (callback != undefined) {
+                            callback();
                         }
                     },
                 });
