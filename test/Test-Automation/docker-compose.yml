@@ -1,19 +1,20 @@
 version: '2.2'
 services:
-  app:
+  selenium-tests:
     build:
       context: ./
-
-    container_name: app_test1
+    env_file:
+      - ./leaf_selenium.env
+    container_name: selenium-tests
     volumes:
       - ./output:/app/target
-
-    network_mode: host
-    #networks:
-     #- ui-test
+      - ./selenium-test-helper/index.php:/var/www/html/selenium-tests/index.php
+    # network_mode: host
+    networks:
+     - leaf
     #   should be pass during docker compose up -d app
     # SCRIPT=test.java.formWorkflow.formWorkflow_Test
-    command: ["test","-Dremote.url= http://192.168.86.248:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
+    # command: ["test","-Dremote.url= http://192.168.86.248:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -52,7 +53,6 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
-
 
 networks:
   ui-test:

@@ -68,6 +68,7 @@ services:
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
             #      - ./nginx/src:/var/www/html
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
+            - ../test/Test-Automation/selenium-test-helper/index.php:/var/www/html/selenium-tests/index.php
         volumes_from:
             - leaf-php-8
         ports:

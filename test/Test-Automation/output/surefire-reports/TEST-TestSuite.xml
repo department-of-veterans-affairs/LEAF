@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="TestSuite" time="41.125" tests="8" errors="0" skipped="4" failures="4">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="TestSuite" time="22.529" tests="8" errors="0" skipped="4" failures="4">
   <properties>
     <property name="awt.toolkit" value="sun.awt.X11.XToolkit"/>
     <property name="java.specification.version" value="11"/>
     <property name="sun.cpu.isalist" value=""/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
-    <property name="java.class.path" value="/app/target/test-classes:/app/target/classes:/root/.m2/repository/org/seleniumhq/selenium/selenium-java/4.18.0/selenium-java-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-api/4.18.0/selenium-api-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-chrome-driver/4.18.0/selenium-chrome-driver-4.18.0.jar:/root/.m2/repository/com/google/auto/service/auto-service-annotations/1.1.1/auto-service-annotations-1.1.1.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-chromium-driver/4.18.0/selenium-chromium-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-json/4.18.0/selenium-json-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-manager/4.18.0/selenium-manager-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v119/4.18.0/selenium-devtools-v119-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v120/4.18.0/selenium-devtools-v120-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v121/4.18.0/selenium-devtools-v121-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v85/4.18.0/selenium-devtools-v85-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-edge-driver/4.18.0/selenium-edge-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-firefox-driver/4.18.0/selenium-firefox-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-http/4.18.0/selenium-http-4.18.0.jar:/root/.m2/repository/dev/failsafe/failsafe/3.3.2/failsafe-3.3.2.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-ie-driver/4.18.0/selenium-ie-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-remote-driver/4.18.0/selenium-remote-driver-4.18.0.jar:/root/.m2/repository/com/google/guava/guava/33.0.0-jre/guava-33.0.0-jre.jar:/root/.m2/repository/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar:/root/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/root/.m2/repository/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar:/root/.m2/repository/org/checkerframework/checker-qual/3.41.0/checker-qual-3.41.0.jar:/root/.m2/repository/com/google/errorprone/error_prone_annotations/2.23.0/error_prone_annotations-2.23.0.jar:/root/.m2/repository/com/google/j2objc/j2objc-annotations/2.8/j2objc-annotations-2.8.jar:/root/.m2/repository/io/opentelemetry/semconv/opentelemetry-semconv/1.23.1-alpha/opentelemetry-semconv-1.23.1-alpha.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-api/1.35.0/opentelemetry-api-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-context/1.35.0/opentelemetry-context-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-exporter-logging/1.35.0/opentelemetry-exporter-logging-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-common/1.35.0/opentelemetry-sdk-common-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/1.35.0/opentelemetry-sdk-extension-autoconfigure-spi-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure/1.35.0/opentelemetry-sdk-extension-autoconfigure-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-api-events/1.35.0-alpha/opentelemetry-api-events-1.35.0-alpha.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-trace/1.35.0/opentelemetry-sdk-trace-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-extension-incubator/1.35.0-alpha/opentelemetry-extension-incubator-1.35.0-alpha.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk/1.35.0/opentelemetry-sdk-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-metrics/1.35.0/opentelemetry-sdk-metrics-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-logs/1.35.0/opentelemetry-sdk-logs-1.35.0.jar:/root/.m2/repository/net/bytebuddy/byte-buddy/1.14.12/byte-buddy-1.14.12.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-os/4.18.0/selenium-os-4.18.0.jar:/root/.m2/repository/org/apache/commons/commons-exec/1.3/commons-exec-1.3.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-safari-driver/4.18.0/selenium-safari-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-support/4.18.0/selenium-support-4.18.0.jar:/root/.m2/repository/org/testng/testng/7.1.0/testng-7.1.0.jar:/root/.m2/repository/com/beust/jcommander/1.72/jcommander-1.72.jar:/root/.m2/repository/com/google/inject/guice/4.1.0/guice-4.1.0-no_aop.jar:/root/.m2/repository/javax/inject/javax.inject/1/javax.inject-1.jar:/root/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar:/root/.m2/repository/org/yaml/snakeyaml/1.21/snakeyaml-1.21.jar:"/>
+    <property name="java.class.path" value="/app/target/test-classes:/app/target/classes:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-java/4.18.0/selenium-java-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-api/4.18.0/selenium-api-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-chrome-driver/4.18.0/selenium-chrome-driver-4.18.0.jar:/home/www-data/.m2/repository/com/google/auto/service/auto-service-annotations/1.1.1/auto-service-annotations-1.1.1.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-chromium-driver/4.18.0/selenium-chromium-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-json/4.18.0/selenium-json-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-manager/4.18.0/selenium-manager-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v119/4.18.0/selenium-devtools-v119-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v120/4.18.0/selenium-devtools-v120-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v121/4.18.0/selenium-devtools-v121-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v85/4.18.0/selenium-devtools-v85-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-edge-driver/4.18.0/selenium-edge-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-firefox-driver/4.18.0/selenium-firefox-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-http/4.18.0/selenium-http-4.18.0.jar:/home/www-data/.m2/repository/dev/failsafe/failsafe/3.3.2/failsafe-3.3.2.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-ie-driver/4.18.0/selenium-ie-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-remote-driver/4.18.0/selenium-remote-driver-4.18.0.jar:/home/www-data/.m2/repository/com/google/guava/guava/33.0.0-jre/guava-33.0.0-jre.jar:/home/www-data/.m2/repository/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar:/home/www-data/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/home/www-data/.m2/repository/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar:/home/www-data/.m2/repository/org/checkerframework/checker-qual/3.41.0/checker-qual-3.41.0.jar:/home/www-data/.m2/repository/com/google/errorprone/error_prone_annotations/2.23.0/error_prone_annotations-2.23.0.jar:/home/www-data/.m2/repository/com/google/j2objc/j2objc-annotations/2.8/j2objc-annotations-2.8.jar:/home/www-data/.m2/repository/io/opentelemetry/semconv/opentelemetry-semconv/1.23.1-alpha/opentelemetry-semconv-1.23.1-alpha.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-api/1.35.0/opentelemetry-api-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-context/1.35.0/opentelemetry-context-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-exporter-logging/1.35.0/opentelemetry-exporter-logging-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-common/1.35.0/opentelemetry-sdk-common-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/1.35.0/opentelemetry-sdk-extension-autoconfigure-spi-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure/1.35.0/opentelemetry-sdk-extension-autoconfigure-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-api-events/1.35.0-alpha/opentelemetry-api-events-1.35.0-alpha.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-trace/1.35.0/opentelemetry-sdk-trace-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-extension-incubator/1.35.0-alpha/opentelemetry-extension-incubator-1.35.0-alpha.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk/1.35.0/opentelemetry-sdk-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-metrics/1.35.0/opentelemetry-sdk-metrics-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-logs/1.35.0/opentelemetry-sdk-logs-1.35.0.jar:/home/www-data/.m2/repository/net/bytebuddy/byte-buddy/1.14.12/byte-buddy-1.14.12.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-os/4.18.0/selenium-os-4.18.0.jar:/home/www-data/.m2/repository/org/apache/commons/commons-exec/1.3/commons-exec-1.3.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-safari-driver/4.18.0/selenium-safari-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-support/4.18.0/selenium-support-4.18.0.jar:/home/www-data/.m2/repository/org/testng/testng/7.1.0/testng-7.1.0.jar:/home/www-data/.m2/repository/com/beust/jcommander/1.72/jcommander-1.72.jar:/home/www-data/.m2/repository/com/google/inject/guice/4.1.0/guice-4.1.0-no_aop.jar:/home/www-data/.m2/repository/javax/inject/javax.inject/1/javax.inject-1.jar:/home/www-data/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar:/home/www-data/.m2/repository/org/yaml/snakeyaml/1.21/snakeyaml-1.21.jar:"/>
     <property name="java.vm.vendor" value="Alpine"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.vendor.url" value="https://alpinelinux.org/"/>
@@ -15,11 +15,11 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-11-openjdk/lib"/>
-    <property name="sun.java.command" value="/app/target/surefire/surefirebooter-20240329170927813_3.jar /app/target/surefire 2024-03-29T17-09-27_660-jvmRun1 surefire-20240329170927813_1tmp surefire_0-20240329170927813_2tmp"/>
+    <property name="sun.java.command" value="/app/target/surefire/surefirebooter-20240402213331848_3.jar /app/target/surefire 2024-04-02T21-33-31_747-jvmRun1 surefire-20240402213331848_1tmp surefire_0-20240402213331848_2tmp"/>
     <property name="jdk.debug" value="release"/>
-    <property name="surefire.test.class.path" value="/app/target/test-classes:/app/target/classes:/root/.m2/repository/org/seleniumhq/selenium/selenium-java/4.18.0/selenium-java-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-api/4.18.0/selenium-api-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-chrome-driver/4.18.0/selenium-chrome-driver-4.18.0.jar:/root/.m2/repository/com/google/auto/service/auto-service-annotations/1.1.1/auto-service-annotations-1.1.1.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-chromium-driver/4.18.0/selenium-chromium-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-json/4.18.0/selenium-json-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-manager/4.18.0/selenium-manager-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v119/4.18.0/selenium-devtools-v119-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v120/4.18.0/selenium-devtools-v120-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v121/4.18.0/selenium-devtools-v121-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v85/4.18.0/selenium-devtools-v85-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-edge-driver/4.18.0/selenium-edge-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-firefox-driver/4.18.0/selenium-firefox-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-http/4.18.0/selenium-http-4.18.0.jar:/root/.m2/repository/dev/failsafe/failsafe/3.3.2/failsafe-3.3.2.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-ie-driver/4.18.0/selenium-ie-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-remote-driver/4.18.0/selenium-remote-driver-4.18.0.jar:/root/.m2/repository/com/google/guava/guava/33.0.0-jre/guava-33.0.0-jre.jar:/root/.m2/repository/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar:/root/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/root/.m2/repository/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar:/root/.m2/repository/org/checkerframework/checker-qual/3.41.0/checker-qual-3.41.0.jar:/root/.m2/repository/com/google/errorprone/error_prone_annotations/2.23.0/error_prone_annotations-2.23.0.jar:/root/.m2/repository/com/google/j2objc/j2objc-annotations/2.8/j2objc-annotations-2.8.jar:/root/.m2/repository/io/opentelemetry/semconv/opentelemetry-semconv/1.23.1-alpha/opentelemetry-semconv-1.23.1-alpha.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-api/1.35.0/opentelemetry-api-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-context/1.35.0/opentelemetry-context-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-exporter-logging/1.35.0/opentelemetry-exporter-logging-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-common/1.35.0/opentelemetry-sdk-common-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/1.35.0/opentelemetry-sdk-extension-autoconfigure-spi-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure/1.35.0/opentelemetry-sdk-extension-autoconfigure-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-api-events/1.35.0-alpha/opentelemetry-api-events-1.35.0-alpha.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-trace/1.35.0/opentelemetry-sdk-trace-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-extension-incubator/1.35.0-alpha/opentelemetry-extension-incubator-1.35.0-alpha.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk/1.35.0/opentelemetry-sdk-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-metrics/1.35.0/opentelemetry-sdk-metrics-1.35.0.jar:/root/.m2/repository/io/opentelemetry/opentelemetry-sdk-logs/1.35.0/opentelemetry-sdk-logs-1.35.0.jar:/root/.m2/repository/net/bytebuddy/byte-buddy/1.14.12/byte-buddy-1.14.12.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-os/4.18.0/selenium-os-4.18.0.jar:/root/.m2/repository/org/apache/commons/commons-exec/1.3/commons-exec-1.3.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-safari-driver/4.18.0/selenium-safari-driver-4.18.0.jar:/root/.m2/repository/org/seleniumhq/selenium/selenium-support/4.18.0/selenium-support-4.18.0.jar:/root/.m2/repository/org/testng/testng/7.1.0/testng-7.1.0.jar:/root/.m2/repository/com/beust/jcommander/1.72/jcommander-1.72.jar:/root/.m2/repository/com/google/inject/guice/4.1.0/guice-4.1.0-no_aop.jar:/root/.m2/repository/javax/inject/javax.inject/1/javax.inject-1.jar:/root/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar:/root/.m2/repository/org/yaml/snakeyaml/1.21/snakeyaml-1.21.jar:"/>
+    <property name="surefire.test.class.path" value="/app/target/test-classes:/app/target/classes:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-java/4.18.0/selenium-java-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-api/4.18.0/selenium-api-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-chrome-driver/4.18.0/selenium-chrome-driver-4.18.0.jar:/home/www-data/.m2/repository/com/google/auto/service/auto-service-annotations/1.1.1/auto-service-annotations-1.1.1.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-chromium-driver/4.18.0/selenium-chromium-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-json/4.18.0/selenium-json-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-manager/4.18.0/selenium-manager-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v119/4.18.0/selenium-devtools-v119-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v120/4.18.0/selenium-devtools-v120-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v121/4.18.0/selenium-devtools-v121-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-devtools-v85/4.18.0/selenium-devtools-v85-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-edge-driver/4.18.0/selenium-edge-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-firefox-driver/4.18.0/selenium-firefox-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-http/4.18.0/selenium-http-4.18.0.jar:/home/www-data/.m2/repository/dev/failsafe/failsafe/3.3.2/failsafe-3.3.2.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-ie-driver/4.18.0/selenium-ie-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-remote-driver/4.18.0/selenium-remote-driver-4.18.0.jar:/home/www-data/.m2/repository/com/google/guava/guava/33.0.0-jre/guava-33.0.0-jre.jar:/home/www-data/.m2/repository/com/google/guava/failureaccess/1.0.2/failureaccess-1.0.2.jar:/home/www-data/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/home/www-data/.m2/repository/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar:/home/www-data/.m2/repository/org/checkerframework/checker-qual/3.41.0/checker-qual-3.41.0.jar:/home/www-data/.m2/repository/com/google/errorprone/error_prone_annotations/2.23.0/error_prone_annotations-2.23.0.jar:/home/www-data/.m2/repository/com/google/j2objc/j2objc-annotations/2.8/j2objc-annotations-2.8.jar:/home/www-data/.m2/repository/io/opentelemetry/semconv/opentelemetry-semconv/1.23.1-alpha/opentelemetry-semconv-1.23.1-alpha.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-api/1.35.0/opentelemetry-api-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-context/1.35.0/opentelemetry-context-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-exporter-logging/1.35.0/opentelemetry-exporter-logging-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-common/1.35.0/opentelemetry-sdk-common-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/1.35.0/opentelemetry-sdk-extension-autoconfigure-spi-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure/1.35.0/opentelemetry-sdk-extension-autoconfigure-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-api-events/1.35.0-alpha/opentelemetry-api-events-1.35.0-alpha.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-trace/1.35.0/opentelemetry-sdk-trace-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-extension-incubator/1.35.0-alpha/opentelemetry-extension-incubator-1.35.0-alpha.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk/1.35.0/opentelemetry-sdk-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-metrics/1.35.0/opentelemetry-sdk-metrics-1.35.0.jar:/home/www-data/.m2/repository/io/opentelemetry/opentelemetry-sdk-logs/1.35.0/opentelemetry-sdk-logs-1.35.0.jar:/home/www-data/.m2/repository/net/bytebuddy/byte-buddy/1.14.12/byte-buddy-1.14.12.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-os/4.18.0/selenium-os-4.18.0.jar:/home/www-data/.m2/repository/org/apache/commons/commons-exec/1.3/commons-exec-1.3.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-safari-driver/4.18.0/selenium-safari-driver-4.18.0.jar:/home/www-data/.m2/repository/org/seleniumhq/selenium/selenium-support/4.18.0/selenium-support-4.18.0.jar:/home/www-data/.m2/repository/org/testng/testng/7.1.0/testng-7.1.0.jar:/home/www-data/.m2/repository/com/beust/jcommander/1.72/jcommander-1.72.jar:/home/www-data/.m2/repository/com/google/inject/guice/4.1.0/guice-4.1.0-no_aop.jar:/home/www-data/.m2/repository/javax/inject/javax.inject/1/javax.inject-1.jar:/home/www-data/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar:/home/www-data/.m2/repository/org/yaml/snakeyaml/1.21/snakeyaml-1.21.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
-    <property name="user.home" value="/root"/>
+    <property name="user.home" value="/home/www-data"/>
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="java.version.date" value="2024-01-16"/>
@@ -32,12 +32,12 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
     <property name="class.name" value="test.java.formWorkflow.formWorkflow_Test"/>
-    <property name="app.url" value="http://host.docker.internal/LEAF_Request_Portal/admin/"/>
-    <property name="surefire.real.class.path" value="/app/target/surefire/surefirebooter-20240329170927813_3.jar"/>
+    <property name="app.url" value="host.docker.internal/LEAF_Request_Portal/admin/"/>
+    <property name="surefire.real.class.path" value="/app/target/surefire/surefirebooter-20240402213331848_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
-    <property name="remote.url" value=" http://192.168.86.248:4445"/>
+    <property name="remote.url" value="http://192.168.0.16:4445"/>
     <property name="java.runtime.version" value="11.0.22+7-alpine-r0"/>
-    <property name="user.name" value="root"/>
+    <property name="user.name" value="www-data"/>
     <property name="path.separator" value=":"/>
     <property name="otel.metrics.exporter" value="none"/>
     <property name="os.version" value="6.6.16-linuxkit"/>
@@ -45,7 +45,7 @@
     <property name="otel.traces.exporter" value="none"/>
     <property name="file.encoding" value="UTF-8"/>
     <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
-    <property name="localRepository" value="/root/.m2/repository"/>
+    <property name="localRepository" value="/home/www-data/.m2/repository"/>
     <property name="java.vendor.url.bug" value="https://gitlab.alpinelinux.org/alpine/aports/issues"/>
     <property name="otel.logs.exporter" value="none"/>
     <property name="java.io.tmpdir" value="/tmp"/>
@@ -63,11 +63,29 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="55.0"/>
   </properties>
-  <testcase name="setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)" classname="test.java.formWorkflow.formWorkflow_Test" time="10.882">
-    <failure message="Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. &#10;Host info: host: &apos;docker-desktop&apos;, ip: &apos;192.168.65.3&apos;" type="org.openqa.selenium.SessionNotCreatedException"><![CDATA[org.openqa.selenium.SessionNotCreatedException: 
-Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
-Host info: host: 'docker-desktop', ip: '192.168.65.3'
-	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:537)
+  <testcase name="setUp[host.docker.internal/LEAF_Request_Portal/admin/, chrome, http://192.168.0.16:4445](0)" classname="test.java.formWorkflow.formWorkflow_Test" time="6.367">
+    <failure message="Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer&#10;  (failed to check if window was closed: disconnected: not connected to DevTools)&#10;  (Session info: chrome=122.0.6261.69) &#10;Host info: host: &apos;478fc2900459&apos;, ip: &apos;172.21.0.2&apos;&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.0&apos;, revision: &apos;b6bf9de7cc*&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;aarch64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.22&apos;&#10;Driver info: org.openqa.selenium.remote.RemoteWebDriver&#10;Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]&#10;Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}" type="org.openqa.selenium.SessionNotCreatedException"><![CDATA[org.openqa.selenium.SessionNotCreatedException: 
+Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer
+  (failed to check if window was closed: disconnected: not connected to DevTools)
+  (Session info: chrome=122.0.6261.69) 
+Host info: host: '478fc2900459', ip: '172.21.0.2'
+Build info: version: '4.18.1', revision: 'b1d3319b48'
+System info: os.name: 'Linux', os.arch: 'amd64', os.version: '6.6.16-linuxkit', java.version: '11.0.21'
+Driver info: driver.version: unknown
+Build info: version: '4.18.1', revision: 'b1d3319b48'
+System info: os.name: 'Linux', os.arch: 'amd64', os.version: '6.6.16-linuxkit', java.version: '11.0.21'
+Driver info: driver.version: unknown
+Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
+Driver info: org.openqa.selenium.remote.RemoteWebDriver
+Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]
+Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:139)
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:95)
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:67)
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:162)
+	at org.openqa.selenium.remote.TracedCommandExecutor.execute(TracedCommandExecutor.java:51)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:519)
 	at org.openqa.selenium.remote.RemoteWebDriver.startSession(RemoteWebDriver.java:233)
 	at org.openqa.selenium.remote.RemoteWebDriver.<init>(RemoteWebDriver.java:162)
 	at org.openqa.selenium.remote.RemoteWebDriver.<init>(RemoteWebDriver.java:142)
@@ -109,47 +127,34 @@ Host info: host: 'docker-desktop', ip: '192.168.65.3'
 	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
 	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
-Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
-Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
-Driver info: driver.version: RemoteWebDriver
-	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
-	at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
-	at org.openqa.selenium.remote.http.Filter.lambda$andFinally$1(Filter.java:55)
-	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute(JdkHttpClient.java:359)
-	at org.openqa.selenium.remote.tracing.TracedHttpClient.execute(TracedHttpClient.java:54)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:114)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:95)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:67)
-	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:162)
-	at org.openqa.selenium.remote.TracedCommandExecutor.execute(TracedCommandExecutor.java:51)
-	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:519)
-	... 41 more
-Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
-	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:512)
-	at java.net.http/jdk.internal.net.http.MultiExchange.getExceptionalCF(MultiExchange.java:459)
-	at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(MultiExchange.java:386)
-	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
-	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
-	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
-	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
-	at java.base/java.lang.Thread.run(Thread.java:829)
-Caused by: java.net.ConnectException: HTTP connect timed out
-	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:513)
-	... 10 more
 ]]></failure>
-    <system-err><![CDATA[Mar 29, 2024 5:09:28 PM org.openqa.selenium.remote.tracing.opentelemetry.OpenTelemetryTracer createTracer
+    <system-err><![CDATA[Apr 02, 2024 9:33:32 PM org.openqa.selenium.remote.tracing.opentelemetry.OpenTelemetryTracer createTracer
 INFO: Using OpenTelemetry for tracing
 ]]></system-err>
   </testcase>
-  <testcase name="setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)" classname="test.java.formWorkflow.formWorkflow_Test" time="10.016">
-    <failure message="Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. &#10;Host info: host: &apos;docker-desktop&apos;, ip: &apos;192.168.65.3&apos;" type="org.openqa.selenium.SessionNotCreatedException"><![CDATA[org.openqa.selenium.SessionNotCreatedException: 
-Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
-Host info: host: 'docker-desktop', ip: '192.168.65.3'
-	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:537)
+  <testcase name="setUp[host.docker.internal/LEAF_Request_Portal/admin/, chrome, http://192.168.0.16:4445](0)" classname="test.java.formWorkflow.formWorkflow_Test" time="5.263">
+    <failure message="Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer&#10;  (failed to check if window was closed: disconnected: not connected to DevTools)&#10;  (Session info: chrome=122.0.6261.69) &#10;Host info: host: &apos;478fc2900459&apos;, ip: &apos;172.21.0.2&apos;&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.0&apos;, revision: &apos;b6bf9de7cc*&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;aarch64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.22&apos;&#10;Driver info: org.openqa.selenium.remote.RemoteWebDriver&#10;Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]&#10;Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}" type="org.openqa.selenium.SessionNotCreatedException"><![CDATA[org.openqa.selenium.SessionNotCreatedException: 
+Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer
+  (failed to check if window was closed: disconnected: not connected to DevTools)
+  (Session info: chrome=122.0.6261.69) 
+Host info: host: '478fc2900459', ip: '172.21.0.2'
+Build info: version: '4.18.1', revision: 'b1d3319b48'
+System info: os.name: 'Linux', os.arch: 'amd64', os.version: '6.6.16-linuxkit', java.version: '11.0.21'
+Driver info: driver.version: unknown
+Build info: version: '4.18.1', revision: 'b1d3319b48'
+System info: os.name: 'Linux', os.arch: 'amd64', os.version: '6.6.16-linuxkit', java.version: '11.0.21'
+Driver info: driver.version: unknown
+Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
+Driver info: org.openqa.selenium.remote.RemoteWebDriver
+Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]
+Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:139)
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:95)
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:67)
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:162)
+	at org.openqa.selenium.remote.TracedCommandExecutor.execute(TracedCommandExecutor.java:51)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:519)
 	at org.openqa.selenium.remote.RemoteWebDriver.startSession(RemoteWebDriver.java:233)
 	at org.openqa.selenium.remote.RemoteWebDriver.<init>(RemoteWebDriver.java:162)
 	at org.openqa.selenium.remote.RemoteWebDriver.<init>(RemoteWebDriver.java:142)
@@ -191,44 +196,31 @@ Host info: host: 'docker-desktop', ip: '192.168.65.3'
 	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
 	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
-Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
-Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
-Driver info: driver.version: RemoteWebDriver
-	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
-	at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
-	at org.openqa.selenium.remote.http.Filter.lambda$andFinally$1(Filter.java:55)
-	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute(JdkHttpClient.java:359)
-	at org.openqa.selenium.remote.tracing.TracedHttpClient.execute(TracedHttpClient.java:54)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:114)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:95)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:67)
-	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:162)
-	at org.openqa.selenium.remote.TracedCommandExecutor.execute(TracedCommandExecutor.java:51)
-	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:519)
-	... 41 more
-Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
-	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:512)
-	at java.net.http/jdk.internal.net.http.MultiExchange.getExceptionalCF(MultiExchange.java:459)
-	at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(MultiExchange.java:386)
-	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
-	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
-	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
-	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
-	at java.base/java.lang.Thread.run(Thread.java:829)
-Caused by: java.net.ConnectException: HTTP connect timed out
-	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:513)
-	... 10 more
 ]]></failure>
   </testcase>
-  <testcase name="setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)" classname="test.java.formWorkflow.formWorkflow_Test" time="10.027">
-    <failure message="Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. &#10;Host info: host: &apos;docker-desktop&apos;, ip: &apos;192.168.65.3&apos;" type="org.openqa.selenium.SessionNotCreatedException"><![CDATA[org.openqa.selenium.SessionNotCreatedException: 
-Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
-Host info: host: 'docker-desktop', ip: '192.168.65.3'
-	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:537)
+  <testcase name="setUp[host.docker.internal/LEAF_Request_Portal/admin/, chrome, http://192.168.0.16:4445](0)" classname="test.java.formWorkflow.formWorkflow_Test" time="5.516">
+    <failure message="Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer&#10;  (failed to check if window was closed: disconnected: not connected to DevTools)&#10;  (Session info: chrome=122.0.6261.69) &#10;Host info: host: &apos;478fc2900459&apos;, ip: &apos;172.21.0.2&apos;&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.0&apos;, revision: &apos;b6bf9de7cc*&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;aarch64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.22&apos;&#10;Driver info: org.openqa.selenium.remote.RemoteWebDriver&#10;Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]&#10;Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}" type="org.openqa.selenium.SessionNotCreatedException"><![CDATA[org.openqa.selenium.SessionNotCreatedException: 
+Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer
+  (failed to check if window was closed: disconnected: not connected to DevTools)
+  (Session info: chrome=122.0.6261.69) 
+Host info: host: '478fc2900459', ip: '172.21.0.2'
+Build info: version: '4.18.1', revision: 'b1d3319b48'
+System info: os.name: 'Linux', os.arch: 'amd64', os.version: '6.6.16-linuxkit', java.version: '11.0.21'
+Driver info: driver.version: unknown
+Build info: version: '4.18.1', revision: 'b1d3319b48'
+System info: os.name: 'Linux', os.arch: 'amd64', os.version: '6.6.16-linuxkit', java.version: '11.0.21'
+Driver info: driver.version: unknown
+Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
+Driver info: org.openqa.selenium.remote.RemoteWebDriver
+Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]
+Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:139)
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:95)
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:67)
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:162)
+	at org.openqa.selenium.remote.TracedCommandExecutor.execute(TracedCommandExecutor.java:51)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:519)
 	at org.openqa.selenium.remote.RemoteWebDriver.startSession(RemoteWebDriver.java:233)
 	at org.openqa.selenium.remote.RemoteWebDriver.<init>(RemoteWebDriver.java:162)
 	at org.openqa.selenium.remote.RemoteWebDriver.<init>(RemoteWebDriver.java:142)
@@ -270,44 +262,31 @@ Host info: host: 'docker-desktop', ip: '192.168.65.3'
 	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
 	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
-Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
-Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
-Driver info: driver.version: RemoteWebDriver
-	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
-	at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
-	at org.openqa.selenium.remote.http.Filter.lambda$andFinally$1(Filter.java:55)
-	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute(JdkHttpClient.java:359)
-	at org.openqa.selenium.remote.tracing.TracedHttpClient.execute(TracedHttpClient.java:54)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:114)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:95)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:67)
-	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:162)
-	at org.openqa.selenium.remote.TracedCommandExecutor.execute(TracedCommandExecutor.java:51)
-	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:519)
-	... 41 more
-Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
-	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:512)
-	at java.net.http/jdk.internal.net.http.MultiExchange.getExceptionalCF(MultiExchange.java:459)
-	at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(MultiExchange.java:386)
-	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
-	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
-	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
-	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
-	at java.base/java.lang.Thread.run(Thread.java:829)
-Caused by: java.net.ConnectException: HTTP connect timed out
-	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:513)
-	... 10 more
 ]]></failure>
   </testcase>
-  <testcase name="setUp[http://host.docker.internal/LEAF_Request_Portal/admin/, chrome,  http://192.168.86.248:4445](0)" classname="test.java.formWorkflow.formWorkflow_Test" time="10.027">
-    <failure message="Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. &#10;Host info: host: &apos;docker-desktop&apos;, ip: &apos;192.168.65.3&apos;" type="org.openqa.selenium.SessionNotCreatedException"><![CDATA[org.openqa.selenium.SessionNotCreatedException: 
-Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. 
-Host info: host: 'docker-desktop', ip: '192.168.65.3'
-	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:537)
+  <testcase name="setUp[host.docker.internal/LEAF_Request_Portal/admin/, chrome, http://192.168.0.16:4445](0)" classname="test.java.formWorkflow.formWorkflow_Test" time="5.201">
+    <failure message="Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer&#10;  (failed to check if window was closed: disconnected: not connected to DevTools)&#10;  (Session info: chrome=122.0.6261.69) &#10;Host info: host: &apos;478fc2900459&apos;, ip: &apos;172.21.0.2&apos;&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.0&apos;, revision: &apos;b6bf9de7cc*&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;aarch64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.22&apos;&#10;Driver info: org.openqa.selenium.remote.RemoteWebDriver&#10;Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]&#10;Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}" type="org.openqa.selenium.SessionNotCreatedException"><![CDATA[org.openqa.selenium.SessionNotCreatedException: 
+Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer
+  (failed to check if window was closed: disconnected: not connected to DevTools)
+  (Session info: chrome=122.0.6261.69) 
+Host info: host: '478fc2900459', ip: '172.21.0.2'
+Build info: version: '4.18.1', revision: 'b1d3319b48'
+System info: os.name: 'Linux', os.arch: 'amd64', os.version: '6.6.16-linuxkit', java.version: '11.0.21'
+Driver info: driver.version: unknown
+Build info: version: '4.18.1', revision: 'b1d3319b48'
+System info: os.name: 'Linux', os.arch: 'amd64', os.version: '6.6.16-linuxkit', java.version: '11.0.21'
+Driver info: driver.version: unknown
+Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
+System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
+Driver info: org.openqa.selenium.remote.RemoteWebDriver
+Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]
+Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:139)
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:95)
+	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:67)
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:162)
+	at org.openqa.selenium.remote.TracedCommandExecutor.execute(TracedCommandExecutor.java:51)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:519)
 	at org.openqa.selenium.remote.RemoteWebDriver.startSession(RemoteWebDriver.java:233)
 	at org.openqa.selenium.remote.RemoteWebDriver.<init>(RemoteWebDriver.java:162)
 	at org.openqa.selenium.remote.RemoteWebDriver.<init>(RemoteWebDriver.java:142)
@@ -349,49 +328,18 @@ Host info: host: 'docker-desktop', ip: '192.168.65.3'
 	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
 	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
-Caused by: org.openqa.selenium.TimeoutException: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
-Build info: version: '4.18.0', revision: 'b6bf9de7cc*'
-System info: os.name: 'Linux', os.arch: 'aarch64', os.version: '6.6.16-linuxkit', java.version: '11.0.22'
-Driver info: driver.version: RemoteWebDriver
-	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute0(JdkHttpClient.java:393)
-	at org.openqa.selenium.remote.http.AddSeleniumUserAgent.lambda$apply$0(AddSeleniumUserAgent.java:42)
-	at org.openqa.selenium.remote.http.Filter.lambda$andFinally$1(Filter.java:55)
-	at org.openqa.selenium.remote.http.jdk.JdkHttpClient.execute(JdkHttpClient.java:359)
-	at org.openqa.selenium.remote.tracing.TracedHttpClient.execute(TracedHttpClient.java:54)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:114)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:95)
-	at org.openqa.selenium.remote.ProtocolHandshake.createSession(ProtocolHandshake.java:67)
-	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:162)
-	at org.openqa.selenium.remote.TracedCommandExecutor.execute(TracedCommandExecutor.java:51)
-	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:519)
-	... 41 more
-Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
-	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:512)
-	at java.net.http/jdk.internal.net.http.MultiExchange.getExceptionalCF(MultiExchange.java:459)
-	at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(MultiExchange.java:386)
-	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:930)
-	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:907)
-	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2094)
-	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:482)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
-	at java.base/java.lang.Thread.run(Thread.java:829)
-Caused by: java.net.ConnectException: HTTP connect timed out
-	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:513)
-	... 10 more
 ]]></failure>
   </testcase>
   <testcase name="CreateAndDeleteForm" classname="test.java.formWorkflow.formWorkflow_Test" time="0">
-    <skipped message="Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. &#10;Host info: host: &apos;docker-desktop&apos;, ip: &apos;192.168.65.3&apos;"/>
+    <skipped message="Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer&#10;  (failed to check if window was closed: disconnected: not connected to DevTools)&#10;  (Session info: chrome=122.0.6261.69) &#10;Host info: host: &apos;478fc2900459&apos;, ip: &apos;172.21.0.2&apos;&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.0&apos;, revision: &apos;b6bf9de7cc*&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;aarch64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.22&apos;&#10;Driver info: org.openqa.selenium.remote.RemoteWebDriver&#10;Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]&#10;Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}"/>
   </testcase>
   <testcase name="EditProperties" classname="test.java.formWorkflow.formWorkflow_Test" time="0">
-    <skipped message="Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. &#10;Host info: host: &apos;docker-desktop&apos;, ip: &apos;192.168.65.3&apos;"/>
+    <skipped message="Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer&#10;  (failed to check if window was closed: disconnected: not connected to DevTools)&#10;  (Session info: chrome=122.0.6261.69) &#10;Host info: host: &apos;478fc2900459&apos;, ip: &apos;172.21.0.2&apos;&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.0&apos;, revision: &apos;b6bf9de7cc*&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;aarch64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.22&apos;&#10;Driver info: org.openqa.selenium.remote.RemoteWebDriver&#10;Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]&#10;Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}"/>
   </testcase>
   <testcase name="addSectionHeadings" classname="test.java.formWorkflow.formWorkflow_Test" time="0">
-    <skipped message="Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. &#10;Host info: host: &apos;docker-desktop&apos;, ip: &apos;192.168.65.3&apos;"/>
+    <skipped message="Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer&#10;  (failed to check if window was closed: disconnected: not connected to DevTools)&#10;  (Session info: chrome=122.0.6261.69) &#10;Host info: host: &apos;478fc2900459&apos;, ip: &apos;172.21.0.2&apos;&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.0&apos;, revision: &apos;b6bf9de7cc*&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;aarch64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.22&apos;&#10;Driver info: org.openqa.selenium.remote.RemoteWebDriver&#10;Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]&#10;Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}"/>
   </testcase>
   <testcase name="editCollaborators" classname="test.java.formWorkflow.formWorkflow_Test" time="0">
-    <skipped message="Could not start a new session. Possible causes are invalid address of the remote server or browser start-up failure. &#10;Host info: host: &apos;docker-desktop&apos;, ip: &apos;192.168.65.3&apos;"/>
+    <skipped message="Could not start a new session. Response code 500. Message: Could not start a new session. Error while creating session with the driver service. Stopping driver service: Could not start a new session. Response code 500. Message: disconnected: Unable to receive message from renderer&#10;  (failed to check if window was closed: disconnected: not connected to DevTools)&#10;  (Session info: chrome=122.0.6261.69) &#10;Host info: host: &apos;478fc2900459&apos;, ip: &apos;172.21.0.2&apos;&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.1&apos;, revision: &apos;b1d3319b48&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.21&apos;&#10;Driver info: driver.version: unknown&#10;Build info: version: &apos;4.18.0&apos;, revision: &apos;b6bf9de7cc*&apos;&#10;System info: os.name: &apos;Linux&apos;, os.arch: &apos;aarch64&apos;, os.version: &apos;6.6.16-linuxkit&apos;, java.version: &apos;11.0.22&apos;&#10;Driver info: org.openqa.selenium.remote.RemoteWebDriver&#10;Command: [null, newSession {capabilities=[Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}]}]&#10;Capabilities {browserName: chrome, goog:chromeOptions: {args: [--allow-running-insecure-co..., --ignore-certificate-errors, --remote-allow-origins=*], extensions: []}}"/>
   </testcase>
 </testsuite>

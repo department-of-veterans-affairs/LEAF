@@ -2,9 +2,9 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite configfailurepolicy="continue" thread-count="1" name="Failed suite [RegressionSuite]" guice-stage="DEVELOPMENT" verbose="0">
   <test thread-count="1" name="Forms Workflow(failed)" verbose="0">
-    <parameter name="remote_url" value=" http://192.168.86.248:4445"/>
+    <parameter name="remote_url" value="http://192.168.0.16:4445"/>
     <parameter name="browser" value="chrome"/>
-    <parameter name="env" value="http://host.docker.internal/LEAF_Request_Portal/admin/"/>
+    <parameter name="env" value="host.docker.internal/LEAF_Request_Portal/admin/"/>
     <classes>
       <class name="test.java.formWorkflow.formWorkflow_Test">
         <methods>
