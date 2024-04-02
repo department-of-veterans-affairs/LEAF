@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="4" passed="4" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2024-04-02T21:43:12 GMT" name="RegressionSuite" finished-at="2024-04-02T21:45:07 GMT" duration-ms="114777">
+    <groups>
+    </groups>
+    <test started-at="2024-04-02T21:43:12 GMT" name="Forms Workflow" finished-at="2024-04-02T21:45:07 GMT" duration-ms="114777">
+      <class name="test.java.formWorkflow.formWorkflow_Test">
+        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:43:12 GMT" name="setUp" finished-at="2024-04-02T21:43:21 GMT" duration-ms="9203" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[http://host.docker.internal/LEAF_Request_Portal/admin/]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[chrome]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[ http://192.168.86.248:4445]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="CreateAndDeleteForm()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:43:21 GMT" name="CreateAndDeleteForm" finished-at="2024-04-02T21:43:38 GMT" duration-ms="16557" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- CreateAndDeleteForm -->
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:43:38 GMT" name="tearDown" finished-at="2024-04-02T21:43:38 GMT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:43:38 GMT" name="setUp" finished-at="2024-04-02T21:43:42 GMT" duration-ms="3566" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[http://host.docker.internal/LEAF_Request_Portal/admin/]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[chrome]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[ http://192.168.86.248:4445]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="EditProperties()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:43:42 GMT" name="EditProperties" finished-at="2024-04-02T21:44:04 GMT" duration-ms="22102" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- EditProperties -->
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:44:04 GMT" name="tearDown" finished-at="2024-04-02T21:44:04 GMT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:44:04 GMT" name="setUp" finished-at="2024-04-02T21:44:17 GMT" duration-ms="13104" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[http://host.docker.internal/LEAF_Request_Portal/admin/]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[chrome]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[ http://192.168.86.248:4445]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="addSectionHeadings()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:44:17 GMT" name="addSectionHeadings" finished-at="2024-04-02T21:44:33 GMT" duration-ms="16441" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- addSectionHeadings -->
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:44:33 GMT" name="tearDown" finished-at="2024-04-02T21:44:33 GMT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+        <test-method is-config="true" signature="setUp(java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:44:33 GMT" name="setUp" finished-at="2024-04-02T21:44:47 GMT" duration-ms="14295" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[http://host.docker.internal/LEAF_Request_Portal/admin/]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[chrome]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[ http://192.168.86.248:4445]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="editCollaborators()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:44:47 GMT" name="editCollaborators" finished-at="2024-04-02T21:45:07 GMT" duration-ms="19376" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- editCollaborators -->
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:test.java.formWorkflow.formWorkflow_Test@3bd82cf5]" started-at="2024-04-02T21:45:07 GMT" name="tearDown" finished-at="2024-04-02T21:45:07 GMT" duration-ms="1" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+      </class> <!-- test.java.formWorkflow.formWorkflow_Test -->
+    </test> <!-- Forms Workflow -->
+  </suite> <!-- RegressionSuite -->
+</testng-results>

@@ -27,7 +27,7 @@ public class AppVariables {
 
 		//Local environment
 
-	//public final static String LOCALURI ="http://localhost/LEAF_Request_Portal/";
+	public final static String LOCALURI ="http://localhost/LEAF_Request_Portal/";
 	//	public final static String LOCALUID = "tester";
 	//	public final static String LOCALPWD = "tester";
 
