@@ -23,6 +23,7 @@ export default {
         this.elBody = document.querySelector('body');
         this.elModal = document.getElementById(this.modalElementID);
         this.elBackground = document.getElementById(this.modalBackgroundID);
+        this.elClose = document.getElementById('leaf-vue-dialog-close');
         //helps adjust the modal background coverage
         const min = this.elModal.clientWidth > this.elBody.clientWidth ? this.elModal.clientWidth : this.elBody.clientWidth;
         this.elBackground.style.minHeight = 200 + this.elBody.clientHeight + 'px';
@@ -30,8 +31,11 @@ export default {
 
         this.makeDraggable(this.elModal);
         window.addEventListener('resize', this.checkSizes);
-        this.elClose = document.getElementById('leaf-vue-dialog-close');
-        this.elClose.focus();
+        const activeEl = document.activeElement;
+        const closestLeafDialog = activeEl !== null ? activeEl.closest('.leaf-vue-dialog-content') : null;
+        if(closestLeafDialog === null) {
+            this.elClose.focus();
+        }
     },
     beforeUnmount() {
         window.removeEventListener('resize', this.checkSizes);

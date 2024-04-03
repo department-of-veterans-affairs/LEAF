@@ -4,7 +4,6 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
 
-
 $request_uri = str_replace(['/var/www/html/','/scripts'],'',$currDir);
 
 $siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
@@ -182,9 +181,11 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
             "comment" => $comment
         ));
 
-        // need to get the emails sending to make sure this actually works!
-        // need to get login for this user, as it stands it will default to "SYSTEM" which is not what we want here. $login
+        // log out user
+        $login->logout();
+        // login the next user
         $login->loginUser($record['userID']);
+        // assign and send emails 
         $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$login);
 
         // update the notification timestamp, this could be moved to batch, just trying to get a prototype working

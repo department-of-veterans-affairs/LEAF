@@ -427,7 +427,6 @@ function initiateWidget(serviceID = 0, serviceName = '') {
 
         for (let i in quad) {
             $('#groupList').append('<h2>'+ toTitleCase(quad[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quad[i].groupID +'"></div>');
-
         }
 	    for (let i in services) {
             $('#group_' + services[i].groupID).append('<div tabindex="0" id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'

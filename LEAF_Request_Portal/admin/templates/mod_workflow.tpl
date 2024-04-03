@@ -2334,7 +2334,8 @@
                 });
 
                 updateChosenAttributes("workflows", "workflows_label", "Select Workflow");
-
+                const urlParams = new URLSearchParams(window.location.search);
+                let workflowID = urlParams.get('workflowID');
                 if (workflowID == undefined) {
                     workflowDescription = firstWorkflowDescription;
                     workflowID = firstWorkflowID;
