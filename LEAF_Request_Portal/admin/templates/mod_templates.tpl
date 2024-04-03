@@ -97,7 +97,7 @@
                     </button>
 
                     <button type="button" id="restore_original"
-                        class="usa-button usa-button--secondary edit_only" onclick="restore();">
+                        class="usa-button usa-button--secondary" onclick="restore();">
                         Restore Original
                     </button>
                     <button type="button" id="btn_compare"
@@ -191,6 +191,9 @@
                 }
                 saveFileHistory();
                 $('#restore_original, #btn_compare').addClass('modifiedTemplate');
+            },
+            error: function(err) {
+                console.log(err);
             }
         });
     }
@@ -225,7 +228,7 @@
                     $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                 success: function() {
                     saveFileHistory();
-                    loadContent(currentFile);
+                    exitExpandScreen();
                 },
                 error: function(err) {
                     console.log(err);
@@ -264,15 +267,8 @@
                         },
                     }
                 });
-                editorExpandScreen();
-                $('.CodeMirror-merge-pane textarea').attr({
-                    'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
-                });
-                $('.CodeMirror-merge-pane-rightmost textarea').attr({
-                    'id': 'code_mirror_template_editor',
-                    'role': 'textbox',
-                    'aria-multiline': true,
-                });
+                editorExpandScreen(true);
+                addCodeMirrorAria('codeCompare', true);
             },
             error: function(err) {
                 console.log(err)
@@ -282,9 +278,15 @@
     }
 
     // enters 2 pane comparison merge view of history or standard file vs current file
-    function editorExpandScreen() {
+    function editorExpandScreen(compareOriginal = false) {
         $('.page-title-container > h2').html('Template Editor > Compare Code');
         showRightNav(false);
+        $('#restore_original, #file_replace_file_btn').removeClass('comparing');
+        if(compareOriginal === true) {
+            $('#restore_original').addClass('comparing');
+        } else {
+            $('#file_replace_file_btn').addClass('comparing');
+        }
         $('#controls').addClass('comparing');
         $(".compared-label-content").css("display", "flex");
         $('.leaf-left-nav').addClass('hide');
@@ -299,7 +301,7 @@
     function exitExpandScreen() {
         $('.page-title-container > h2').html('Template Editor');
         showRightNav(false);
-        $('#controls').removeClass('comparing');
+        $('#controls, #restore_original, #file_replace_file_btn').removeClass('comparing');
         $(".compared-label-content").css("display", "none");
 
         $('.leaf-left-nav').removeClass('hide');
@@ -322,7 +324,7 @@
     }
     /*
     * Gets an array of all records that have the given file as their basis (file parent name).
-    * Creates a table that displays snapshot history and can be used to load specific files.
+    * Creates a table that displays snapshot history, which can be used to load specific files.
     * @param {string} template - base file name of a template
     */
     function getFileHistory(template) {
@@ -408,16 +410,14 @@
     * @param {bool} updateURL - whether to update URL params and add to URL history
     */
     function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
-        $('.CodeMirror').remove();
-        $('#codeCompare').empty();
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
-
-        const templateFilePath = `../templates_history/template_editor/${fileName}`;
+        $('.CodeMirror').remove();
+        $('#codeCompare').empty();
 
         $.ajax({
             type: 'GET',
-            url: templateFilePath,
+            url: `../templates_history/template_editor/${fileName}`,
             dataType: 'text',
             cache: false,
             success: function(fileContent) {
@@ -441,14 +441,7 @@
                         },
                     }
                 });
-                $('.CodeMirror-merge-pane textarea').attr({
-                    'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
-                });
-                $('.CodeMirror-merge-pane-rightmost textarea').attr({
-                    'id': 'code_mirror_template_editor',
-                    'role': 'textbox',
-                    'aria-multiline': true,
-                });
+                addCodeMirrorAria('codeCompare', true);
 
                 const mergeFile = () => {
                     ignoreUnsavedChanges = true;
@@ -583,6 +576,28 @@
         }
     }
 
+    /* adds aria attributes to editor or merge panes for screenreaders */
+    function addCodeMirrorAria(mountID = '', mergeView = false) {
+        const textareaID = mountID.includes('code') ? 'code_mirror_template_editor' : 'code_mirror_subject_editor';
+        if (mergeView === true) {
+            $('.CodeMirror-merge-pane textarea').attr({
+                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+            });
+            $(`#${mountID} .CodeMirror-merge-pane-rightmost textarea`).attr({
+                'id': textareaID,
+                'role': 'textbox',
+                'aria-multiline': true,
+            });
+        } else {
+            $(`#${mountID} + .CodeMirror textarea`).attr({
+                'id': textareaID,
+                'role': 'textbox',
+                'aria-multiline': true,
+                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+            });
+        }
+    }
+
     //instantiate CodeMirror code editor on the DOM element with the 'code' id
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -613,12 +628,7 @@
                 }
             }
         });
-        $('#code + .CodeMirror textarea').attr({
-            'id': 'code_mirror_template_editor',
-            'role': 'textbox',
-            'aria-multiline': true,
-            'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
-        });
+        addCodeMirrorAria('code');
     }
     //Open the paginated View History modal
     function viewHistory() {

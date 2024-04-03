@@ -455,15 +455,20 @@ label[for="template_file_select"] {
 #controls:not(.comparing) button.compare_only,
 #controls.comparing button.edit_only,
 #controls.comparing a.edit_only,
+#controls.comparing #restore_original,
+#controls.comparing #file_replace_file_btn,
 #restore_original:not(.modifiedTemplate),
 #btn_compare:not(.modifiedTemplate),
 #mobile_new_report_btn,
 #btn_history_mobile {
-    display: none; /* !important NOTE: not sure if needed now*/
+    display: none;
 }
-#controls.comparing button.compare_only {
+#controls.comparing button.compare_only,
+#controls.comparing #restore_original.comparing,
+#controls.comparing #file_replace_file_btn.comparing {
     display:block;
 }
+
 button.new-report, #save_button {
     background-color: #1a4480;
 }

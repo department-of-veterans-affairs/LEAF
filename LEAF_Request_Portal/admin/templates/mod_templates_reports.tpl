@@ -227,7 +227,7 @@
     function editorExpandScreen() {
         $('.page-title-container > h2').html('LEAF Programmer > Compare Code');
         showRightNav(false);
-        $('#controls').addClass('comparing');
+        $('#controls, #file_replace_file_btn').addClass('comparing');
         $(".compared-label-content").css("display", "flex");
 
         $('.leaf-left-nav').addClass('hide');
@@ -242,7 +242,7 @@
     function exitExpandScreen() {
         $('.page-title-container > h2').html('Template Editor');
         showRightNav(false);
-        $('#controls').removeClass('comparing');
+        $('#controls, #file_replace_file_btn').removeClass('comparing');
         $(".compared-label-content").css("display", "none");
 
         $('.leaf-left-nav').removeClass('hide');
@@ -400,16 +400,14 @@
     }
     // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName, parentFile, updateURL) {
-        $('.CodeMirror').remove();
-        $('#codeCompare').empty();
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
-
-        const programmerTemplateFilePath = `../templates_history/leaf_programmer/${fileName}`;
+        $('.CodeMirror').remove();
+        $('#codeCompare').empty();
 
         $.ajax({
             type: 'GET',
-            url: programmerTemplateFilePath,
+            url: `../templates_history/leaf_programmer/${fileName}`,
             dataType: 'text',
             cache: false,
             success: function(fileContent) {
@@ -433,6 +431,7 @@
                         },
                     }
                 });
+                addCodeMirrorAria('codeCompare');
 
                 const mergeFile = () => {
                     ignoreUnsavedChanges = true;
@@ -601,7 +600,29 @@
             window.history.replaceState(null, null, url.toString());
         }
     }
-    // initiates  the loadContent()
+
+    /* adds aria attributes to editor or merge panes for screenreaders */
+    function addCodeMirrorAria(mountID = '', mergeView = false) {
+        const textareaID = mountID.includes('code') ? 'code_mirror_template_editor' : 'code_mirror_subject_editor';
+        if (mergeView === true) {
+            $('.CodeMirror-merge-pane textarea').attr({
+                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+            });
+            $(`#${mountID} .CodeMirror-merge-pane-rightmost textarea`).attr({
+                'id': textareaID,
+                'role': 'textbox',
+                'aria-multiline': true,
+            });
+        } else {
+            $(`#${mountID} + .CodeMirror textarea`).attr({
+                'id': textareaID,
+                'role': 'textbox',
+                'aria-multiline': true,
+                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+            });
+        }
+    }
+    //instantiate CodeMirror code editor on the DOM element with the 'code' id
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
             mode: "htmlmixed",
@@ -633,12 +654,7 @@
                 }
             }
         });
-        $('#code + .CodeMirror textarea').attr({
-            'id': 'code_mirror_template_editor',
-            'role': 'textbox',
-            'aria-multiline': true,
-            'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
-        });
+        addCodeMirrorAria('code');
     }
 
     // example report templates
