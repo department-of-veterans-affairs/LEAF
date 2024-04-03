@@ -26,7 +26,7 @@
 
         <main id="codeArea" class="main-content">
             <div id="codeContainer" class="leaf-code-container">
-                <div id="filename"></div>
+                <label for="code_mirror_template_editor" id="filename"></label>
                 <div id="reportURL"></div>
                 <div>
                     <div class="compared-label-content">
@@ -414,7 +414,6 @@
             cache: false,
             success: function(fileContent) {
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
-                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
                     mode: 'htmlmixed',
                     lineNumbers: true,
                     indentUnit: 4,
@@ -605,7 +604,6 @@
     // initiates  the loadContent()
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            screenReaderLabel: "Report Editor coding area.  Press escape then tab to navigate out.",
             mode: "htmlmixed",
             lineNumbers: true,
             indentUnit: 4,
@@ -634,6 +632,12 @@
                     cm.setOption('theme', newTheme);
                 }
             }
+        });
+        $('#code + .CodeMirror textarea').attr({
+            'id': 'code_mirror_template_editor',
+            'role': 'textbox',
+            'aria-multiline': true,
+            'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
         });
     }
 

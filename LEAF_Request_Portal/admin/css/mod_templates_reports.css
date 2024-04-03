@@ -21,13 +21,12 @@
     content: '\25ba\25ba\25ba';
 }
 .CodeMirror-linebackground {
-    background-color: #8ce79b;
+    background-color: #8ce79b80;
 }
-.CodeMirror, .CodeMirror-merge { /*  #codeContainer.email_templates .CodeMirror-merge.CodeMirror-merge-2pane .CodeMirror*/
+.CodeMirror, .CodeMirror-merge {
     margin-bottom: 1px;
     height: 100vh !important;
 }
-
 #divSubject .CodeMirror,
 #divSubject .CodeMirror-merge {
     height: 60px !important;
@@ -47,18 +46,10 @@
 }
 .CodeMirror-linenumber {
     text-align: center;
+    color: #707074;
 }
 .CodeMirror-sizer {
     margin-left: 30px !important;
-}
-.CodeMirror-merge-pane-label {
-    width: 50%;
-    text-align: center;
-    font-weight: bold;
-    padding: 10px 0;
-}
-.CodeMirror-merge-pane-label:nth-child(2) {
-    color: #083;
 }
 
 
@@ -144,17 +135,16 @@
     background-color: transparent;
     overflow: initial;
 }
-#filename {
+label#filename {
+    display: block;
     padding: 0.75rem;
     font-size: 1.25rem;
     background-color: #252f3e;
     font-weight: bold;
     color: #fff;
-    text-align: left;
     border-radius: 5px 5px 0 0;
 }
 #reportURL {
-    text-align: left;
     background-color: white;
     padding: 12px;
     width: 100%;
@@ -164,14 +154,17 @@
     padding: 0.5rem 0.25rem;
     width: 100%;
     display: none;
-    justify-content: space-evenly;
     align-items: center;
     background-color: #fff;
 }
 div[class^="CodeMirror-merge-pane-label"] {
-    width: 100%;
+    width: 50%;
+    font-weight: bold;
     display: flex;
     justify-content: center;
+}
+div.CodeMirror-merge-pane-label-right {
+    color: #083;
 }
 
 
@@ -606,7 +599,7 @@ fieldset {
         display: none;
     }
     .leaf-right-nav {
-        display: flex;
+        display: none;
         flex-direction: column;
         justify-content: flex-start;
         padding: 0.75rem 0;

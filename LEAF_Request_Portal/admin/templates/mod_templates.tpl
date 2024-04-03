@@ -21,7 +21,7 @@
 
         <main id="codeArea" class="main-content">
             <div id="codeContainer" class="leaf-code-container">
-                <div id="filename"></div>
+                <label for="code_mirror_template_editor" id="filename"></label>
                 <div>
                     <div class="compared-label-content">
                         <div class="CodeMirror-merge-pane-label-left">(Old File)</div>
@@ -108,9 +108,8 @@
                         class="usa-button usa-button--outline edit_only" target="_blank">
                         Icon Library
                     </a>
-                    <button type="button"
-                        class="usa-button usa-button--outline mobileHistory edit_only"
-                        id="btn_history_mobile" onclick="viewHistory()">
+                    <button type="button" id="btn_history_mobile"
+                        class="usa-button usa-button--outline mobileHistory edit_only" onclick="viewHistory()">
                         View History
                     </button>
 
@@ -138,21 +137,38 @@
 
 
 <script>
-    /* used to show or hide the right nav despite screen width */
+    var codeEditor = null;
+    var currentFile = '';
+    var unsavedChanges = false;
+    var currentFileContent = "";
+    var ignoreUnsavedChanges = false;
+    var ignorePrompt = true;
+
+    /**
+    * Force show or hide the right nav despite screen width
+    * @param {bool} showNav
+    */
     function showRightNav(showNav = false) {
         let nav = $('.leaf-right-nav');
         showNav ? nav.addClass('show') : nav.removeClass('show');
     }
-
-    // saves current file content changes
-    function save() {
+    /**
+    * Return the data value of a given codeEditor instance
+    * codeEditor instances are used globally but there can be more than one.
+    * @param {object} codeEditor
+    */
+    function getCodeEditorValue(codeEditor = {}) {
         let data = '';
         if (codeEditor.getValue === undefined) {
             data = codeEditor.edit.getValue();
         } else {
             data = codeEditor.getValue();
         }
-
+        return data;
+    }
+    // saves current file content changes
+    function save() {
+        const data = getCodeEditorValue(codeEditor);
         // Check if the content has changed
         if (data === currentFileContent) {
             alert('There are no changes to save.');
@@ -181,12 +197,7 @@
 
     // creates a copy of the current file content
     function saveFileHistory() {
-        let data = '';
-        if (codeEditor.getValue === undefined) {
-            data = codeEditor.edit.getValue();
-        } else {
-            data = codeEditor.getValue();
-        }
+        const data = getCodeEditorValue(codeEditor);
         $.ajax({
             type: 'POST',
             data: {
@@ -226,7 +237,7 @@
         dialog.show();
     }
 
-    // compares the default with the current template
+    //get the standard file and enter comparison merge view (compare to original)
     function compare() {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
@@ -236,7 +247,6 @@
             url: '../api/template/_' + currentFile + '/standard',
             success: function(standard) {
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
-                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
@@ -255,6 +265,14 @@
                     }
                 });
                 editorExpandScreen();
+                $('.CodeMirror-merge-pane textarea').attr({
+                    'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+                });
+                $('.CodeMirror-merge-pane-rightmost textarea').attr({
+                    'id': 'code_mirror_template_editor',
+                    'role': 'textbox',
+                    'aria-multiline': true,
+                });
             },
             error: function(err) {
                 console.log(err)
@@ -263,7 +281,7 @@
         });
     }
 
-    // Expands the current and history file to compare both files
+    // enters 2 pane comparison merge view of history or standard file vs current file
     function editorExpandScreen() {
         $('.page-title-container > h2').html('Template Editor > Compare Code');
         showRightNav(false);
@@ -277,7 +295,7 @@
         $('.keyboard_shortcuts').addClass('hide');
         $('.keyboard_shortcuts_merge').removeClass('hide');
     }
-    // exits comparison view
+    // exits comparison view and loads the current file
     function exitExpandScreen() {
         $('.page-title-container > h2').html('Template Editor');
         showRightNav(false);
@@ -285,7 +303,7 @@
         $(".compared-label-content").css("display", "none");
 
         $('.leaf-left-nav').removeClass('hide');
-        setTimeout(() => { //timeout needed to preserve transition effect
+        setTimeout(() => {
             $('.leaf-left-nav').css({
                 'position': 'relative',
                 'left': '0'
@@ -294,7 +312,7 @@
         $('.keyboard_shortcuts').removeClass('hide');
         $('.keyboard_shortcuts_merge').addClass('hide');
 
-        // Will reset the URL
+        //remove comparison view url params
         let url = new URL(window.location.href);
         url.searchParams.delete('fileName');
         url.searchParams.delete('parentFile');
@@ -303,8 +321,9 @@
         loadContent(currentFile);
     }
     /*
-    get records about history for a template and
-    create table with buttons that can load them
+    * Gets an array of all records that have the given file as their basis (file parent name).
+    * Creates a table that displays snapshot history and can be used to load specific files.
+    * @param {string} template - base file name of a template
     */
     function getFileHistory(template) {
         $.ajax({
@@ -355,7 +374,7 @@
         });
     }
 
-    //Called once at DOM ready. load file based on URL info (home if none).  Set some listeners.
+    //Called once at DOM ready. Loads the intial file based on URL and sets beforeunload listener.
     function initializePage() {
         let urlParams = new URLSearchParams(window.location.search);
         let fileName = urlParams.get('fileName');
@@ -370,34 +389,25 @@
         } else {
             loadContent('view_homepage.tpl');
         }
-    }
-
-    var codeEditor = null;
-    var currentFile = '';
-    var unsavedChanges = false;
-    var currentFileContent = "";
-    var ignoreUnsavedChanges = false;
-    var ignorePrompt = true;
-
-    // This function displays a prompt if there are unsaved changes before leaving the page
-    function editorCurrentContent() {
+        //displays a generic prompt if navigating from page with unsaved changes
         $(window).on('beforeunload', function(e) {
-            if (!ignoreUnsavedChanges && !ignorePrompt) { // Check if ignoring unsaved changes and prompt
-                let data = '';
-                if (codeEditor.getValue === undefined) {
-                    data = codeEditor.edit.getValue();
-                } else {
-                    data = codeEditor.getValue();
-                }
+            if (!ignoreUnsavedChanges && !ignorePrompt) {
+                const data = getCodeEditorValue(codeEditor);
                 if (currentFileContent !== data) {
                     e.preventDefault();
-                    return 'You have unsaved changes. Are you sure you want to leave this page?';
+                    return true;
                 }
             }
         });
     }
-    //get the file contents based on path/name and set up comparison view
-    function compareHistoryFile(fileName, parentFile, updateURL) {
+
+    /*
+    * Get the content for a file using names from its snapshot history and enter merge view.
+    * @param {string} fileName - full file name
+    * @param {string} parentFile - parent/basis file name
+    * @param {bool} updateURL - whether to update URL params and add to URL history
+    */
+    function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#bodyarea').off('keydown');
@@ -412,7 +422,6 @@
             cache: false,
             success: function(fileContent) {
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
-                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
                     mode: 'htmlmixed',
                     lineNumbers: true,
                     indentUnit: 4,
@@ -431,6 +440,14 @@
                             }, 2500);
                         },
                     }
+                });
+                $('.CodeMirror-merge-pane textarea').attr({
+                    'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+                });
+                $('.CodeMirror-merge-pane-rightmost textarea').attr({
+                    'id': 'code_mirror_template_editor',
+                    'role': 'textbox',
+                    'aria-multiline': true,
                 });
 
                 const mergeFile = () => {
@@ -471,7 +488,7 @@
             }
         });
 
-        if (updateURL !== null) {
+        if (updateURL === true) {
             let url = new URL(window.location.href);
             url.searchParams.set('fileName', fileName);
             url.searchParams.set('parentFile', parentFile);
@@ -498,19 +515,24 @@
             }
         });
     }
-    // Load the content of a file
-    function loadContent(file) {
-        if (file === undefined) {
-            console.error('No file specified. File cannot be loaded.');
+
+    /**
+    * Used in editing view to load the content of a file and associated history records.
+    * Prepares codeEditor. Updates the display area, url, and some global variables.
+    * @param {string} file - name of the template being loaded.  eg main.tpl.
+    */
+    function loadContent(file = '') {
+        if (!file) {
             $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
             return;
         }
-
+        //Prompt for confirmation before continuing if there are unsaved changes in a current file.
         if (ignorePrompt) {
-            ignorePrompt = false; // Reset ignorePrompt flag
+            ignorePrompt = false;
         } else {
-            if (!ignoreUnsavedChanges && hasUnsavedChanges() && !confirm(
-                    'You have unsaved changes. Are you sure you want to leave this page?')) {
+            if (!ignoreUnsavedChanges &&
+                currentFileContent !== getCodeEditorValue(codeEditor) &&
+                !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
                 return;
             }
         }
@@ -554,19 +576,7 @@
         });
         $('.saveStatus').html('');
 
-        editorCurrentContent();
-
-        function hasUnsavedChanges() {
-            let data = '';
-            if (codeEditor.getValue === undefined) {
-                data = codeEditor.edit.getValue();
-            } else {
-                data = codeEditor.getValue();
-            }
-            return currentFileContent !== data;
-        }
-
-        if (file !== null) {
+        if (file) {
             let url = new URL(window.location.href);
             url.searchParams.set('file', file);
             window.history.replaceState(null, null, url.toString());
@@ -576,7 +586,6 @@
     //instantiate CodeMirror code editor on the DOM element with the 'code' id
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            screenReaderLabel: "Template Editor coding area.  Press escape then tab to navigate out.",
             mode: "htmlmixed",
             lineNumbers: true,
             indentUnit: 4,
@@ -604,8 +613,14 @@
                 }
             }
         });
+        $('#code + .CodeMirror textarea').attr({
+            'id': 'code_mirror_template_editor',
+            'role': 'textbox',
+            'aria-multiline': true,
+            'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+        });
     }
-    // Displays  user's history when creating, merge, and so on
+    //Open the paginated View History modal
     function viewHistory() {
         dialog_message.setContent('');
         dialog_message.setTitle('Access Template History');

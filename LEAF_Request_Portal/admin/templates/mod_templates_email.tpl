@@ -50,11 +50,11 @@
                     <textarea id="subjectCode"></textarea>
                     <div id="subjectCompare"></div>
                 </div>
-                <label for="code" id="filename" class="email">Body</label>
+                <label for="code_mirror_template_editor" id="filename" class="email">Body</label>
                 <div id="emailBodyCode">
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label">(Old File)</div>
-                        <div class="CodeMirror-merge-pane-label">(Current File)</div>
+                        <div class="CodeMirror-merge-pane-label-left">(Old File)</div>
+                        <div class="CodeMirror-merge-pane-label-right">(Current File)</div>
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
@@ -489,7 +489,6 @@
             cache: false,
             success: function(fileContent) {
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
-                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
                     mode: 'htmlmixed',
                     lineNumbers: true,
                     indentUnit: 4,
@@ -614,7 +613,6 @@
             success: function(standard) {
                 // Set body changed and default content to show comparison
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
-                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
@@ -634,7 +632,6 @@
                 });
                 // Set changed subject and default subject to user to show comparison
                 subjectEditor = CodeMirror.MergeView(document.getElementById("subjectCompare"), {
-                    screenReaderLabel: "Editor coding area.  Press escape then tab to navigate out.",
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
@@ -973,7 +970,6 @@
      */
     function initEditor() {
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            screenReaderLabel: "Email Template Editor coding area.  Press escape then tab to navigate out.",
             mode: "htmlmixed",
             lineNumbers: true,
             indentUnit: 4,
@@ -1001,9 +997,14 @@
                 }
             }
         });
+        $('#code + .CodeMirror textarea').attr({
+            'id': 'code_mirror_template_editor',
+            'role': 'textbox',
+            'aria-multiline': true,
+            'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+        });
 
         subjectEditor = CodeMirror.fromTextArea(document.getElementById("subjectCode"), {
-            screenReaderLabel: "Email Template Editor coding area.  Press escape then tab to navigate out.",
             mode: "htmlmixed",
             viewportMargin: 5,
             lineNumbers: true,
