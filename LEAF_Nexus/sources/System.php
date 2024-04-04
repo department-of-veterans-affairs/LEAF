@@ -94,7 +94,7 @@ class System
             return 'Admin access required';
         }
 
-        if (array_search($_POST['timeZone'], \DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, 'US')) === false)
+        if (array_search($_POST['timeZone'], \DateTimeZone::listIdentifiers(\DateTimeZone::ALL)) === false)
         {
             return 'Invalid timezone';
         }

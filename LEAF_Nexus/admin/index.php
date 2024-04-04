@@ -108,7 +108,7 @@ switch ($action) {
 
            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
 
-           $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
+           $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::ALL));
 
            //$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
            $t_form->assign('timeZone', $settings['timeZone']);

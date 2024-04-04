@@ -458,7 +458,7 @@ switch ($action) {
         $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/XSSHelpers.js',
                                            '../js/formQuery.js'));
 
-        $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
+        $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::ALL));
 
         $t_form->assign('importTags', $settings['orgchartImportTags'][0]);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
