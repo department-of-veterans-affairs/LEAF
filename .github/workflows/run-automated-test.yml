@@ -26,5 +26,3 @@ jobs:
         run: |
             cd test/Test-Automation
             SCRIPT=test.java.formWorkflow.formWorkflow_Test docker compose up
-
-
