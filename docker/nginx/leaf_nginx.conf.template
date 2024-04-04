@@ -30,7 +30,8 @@ server {
     location ~ ^/selenium-tests/ {
         location ~* \.php$ {
             # try_files $uri $uri/ /index.php =404;
-            fastcgi_pass ${LEAF_SELENIUM}:9000;
+            set $selStream ${LEAF_SELENIUM}:9000;
+            fastcgi_pass $selStream;
             fastcgi_index index.php;
             fastcgi_buffers 16 16k;
             fastcgi_buffer_size 32k;
