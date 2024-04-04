@@ -13,33 +13,38 @@ Clone this project into a directory on your computer (example: C:\Desktop\Projec
 
 # Configuration
 
-Several files need to be created/updated for LEAF to operate in your environment.
+Initial setup will require you to setup a couple networks to allow for a full build
 
-In the sections below `$dbUser` and `$dbPass` are the same values used in the mysql Dockerfile and setup script.
+`docker network create leaf`
+
+`docker network create traefik`
+
+`docker network create leaf-sql`
 
 ## Docker Compose
 
 Open up a terminal and navigate to the LEAF/docker directory.
-Run the command `docker compose -p leaf_20 up --build -d`
+Run the command `docker compose up --build -d`
 Docker will build the local environment based on the docker-compose.yml file.
 Check to see that docker is running your local environment.
 
 Adding -p before `up` allows you to name your dockers, so for example database
-moves from mariadb to mysql you can keep the two containers separate.
+moves from mariadb to mysql you can keep the two containers separate. for example `docker compose -p leaf_20 up --build -d`
 
 ## Running
 
-Navigate to https://localhost/LEAF_Nexus or https://localhost/LEAF_Request_Portal in your browser.
+Navigate to https://host.docker.internal/LEAF_Nexus or https://host.docker.internal/LEAF_Request_Portal in your browser. There is another entry point that will allow for running of testing scripts located at https://host.docker.internal/ clicking on the links for testing will run the tests within the browser.
 
-## Running without HTTPS
+## Exploring Database
 
-### Docker
+`http://localhost:8080/` this will get you into the database to allow for data adjustments and additions.
 
-In `docker/docker-compose.yml`, comment out the line `- 443:443`. Next, in `docker/php/Dockerfile`, comment out the line `EXPOSE 443`. Finally, rebuild the images with `docker compose build --no-cache` and navigate to http://localhost/LEAF_Nexus or http://localhost/LEAF_Request_Portal.
+Username: tester
+Password: tester
 
 ## Checking Email
 
-Fake SMTP server is installed as part of the Docker stack to receive email locally from the system. Navigate to http://localhost:5080/email to view emails sent from the system.
+Fake SMTP server is installed as part of the Docker stack to receive email locally from the system. Navigate to https://localhost:5080/email to view emails sent from the system.
 
 Username: tester
 Password: tester
@@ -61,3 +66,9 @@ npm run build
 
 form editor and site designer apps builds to respective folders under /libs/js/vue-dest
 sass (leaf.css and related fonts and assets) builds to /libs/css
+
+## Running without HTTPS
+
+### Docker
+
+In `docker/docker-compose.yml`, comment out the line `- 443:443`. Next, in `docker/php/Dockerfile`, comment out the line `EXPOSE 443`. Finally, rebuild the images with `docker compose build --no-cache` and navigate to http://host.docker.internal/LEAF_Nexus or http://host.docker.internal/LEAF_Request_Portal.
