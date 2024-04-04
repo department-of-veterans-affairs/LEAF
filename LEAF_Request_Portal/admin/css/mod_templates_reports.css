@@ -29,7 +29,7 @@
 }
 #divSubject .CodeMirror,
 #divSubject .CodeMirror-merge {
-    height: 60px !important;
+    height: 80px !important;
 }
 #emailBodyCode .CodeMirror,
 #emailBodyCode .CodeMirror-merge {
@@ -221,7 +221,11 @@ div.CodeMirror-merge-pane-label-right {
     line-height: 1.9;
     list-style: circle;
 }
-.custom_file {
+.template_files > span {
+    display: none;
+}
+.template_files > span.custom_file {
+    display: inline;
     color: #C00000;
     font-size: 0.75rem;
 }

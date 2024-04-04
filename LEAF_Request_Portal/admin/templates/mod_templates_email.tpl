@@ -309,26 +309,36 @@
     }
 
     /**
-     * saves content changes to email/custom_overide folder and logs changes to history
-     * (displays a message if no changes are detected).
-     */
+    * compare content for expected fields to determine if unsaved changes exist
+    */
+    function hasContentChanged(emailToData, emailCcData, subjectData, bodyData) {
+        const isDefaultTemplate = currentFile === "LEAF_main_email_template.tpl";
+        const changesDetected = (
+            isDefaultTemplate && bodyData !== currentFileContent ||
+            !isDefaultTemplate && (
+                emailToData !== currentEmailToContent ||
+                emailCcData !== currentEmailCcContent ||
+                subjectData !== currentSubjectContent ||
+                bodyData !== currentFileContent
+            )
+        )
+        return changesDetected;
+    }
+    /**
+    * saves content changes to email/custom_overide folder and logs changes to history, or
+    * displays a message if no changes are detected. updates global current content values at success.
+    */
     function save() {
-        const data = getCodeEditorValue(codeEditor);
-        const subject = getCodeEditorValue(subjectEditor);
         const emailToData = document.getElementById('emailToCode').value;
         const emailCcData = document.getElementById('emailCcCode').value;
-        const isContentChanged = (
-            emailToData !== currentEmailToContent ||
-            emailCcData !== currentEmailCcContent ||
-            data !== currentFileContent ||
-            subject !== currentSubjectContent
-        );
-        const isDefaultTemplate = currentFile === "LEAF_main_email_template.tpl";
-        if (isDefaultTemplate && data === currentFileContent ||
-            !isDefaultTemplate && !isContentChanged) {
-                dialog_message.setContent('<h2>Please make a change to the content in order to save.</h2>');
-                dialog_message.setTitle('No changes detected');
-                dialog_message.show();
+        const subject = getCodeEditorValue(subjectEditor);
+        const data = getCodeEditorValue(codeEditor);
+
+        const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+        if (!hasChanges) {
+            dialog_message.setContent('<h2>Please make a change to the content in order to save.</h2>');
+            dialog_message.setTitle('No changes detected');
+            dialog_message.show();
 
         } else {
 
@@ -349,8 +359,15 @@
                     if (res !== null) {
                         alert(res);
                     } else {
+                        const time = new Date().toLocaleTimeString();
+                        $('.saveStatus').html('<br /> Last saved: ' + time);
+                        currentFileContent = data;
+                        currentSubjectContent = subject;
+                        currentEmailToContent = emailToData;
+                        currentEmailCcContent = emailCcData;
                         saveFileHistory();
                         $('#restore_original, #btn_compare').addClass('modifiedTemplate');
+                        $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -361,7 +378,6 @@
     }
     /**
      * saves content to templates_history/email_templates and adds records to portal template_history_files
-     * updates global current content values at success.
      */
     function saveFileHistory() {
         const data = getCodeEditorValue(codeEditor);
@@ -383,12 +399,6 @@
             },
             url: '../api/emailTemplateFileHistory/_' + currentFile,
             success: function(res) {
-                const time = new Date().toLocaleTimeString();
-                $('.saveStatus').html('<br /> Last saved: ' + time);
-                currentFileContent = data;
-                currentSubjectContent = subject;
-                currentEmailToContent = emailToData;
-                currentEmailCcContent = emailCcData;
                 getFileHistory(currentFile);
             },
             error: function(err) {
@@ -469,14 +479,19 @@
         });
     }
 
-    //get the file contents based on path/name and set up comparison view
-    function compareHistoryFile(fileName, parentFile, updateURL) {
+    /*
+    * Get the content for a file using names from its snapshot history and enter merge view.
+    * @param {string} fileName - full file name
+    * @param {string} parentFile - parent/basis file name
+    * @param {bool} updateURL - whether to update URL params and add to URL history
+    */
+    function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
 
-        //subject is not currently used in file history comparisons
+        //subject editor is not currently used in file history comparisons
         $('#subjectCompare').empty();
         $('#subject, #emailLists, #emailTo, #emailCc').hide();
         $('#divSubject, #divEmailTo, #divEmailCc').hide().prop('disabled', true);
@@ -550,7 +565,7 @@
             }
         });
 
-        if (updateURL !== null) {
+        if (updateURL === true) {
             let url = new URL(window.location.href);
             url.searchParams.set('fileName', fileName);
             url.searchParams.set('parentFile', parentFile);
@@ -602,6 +617,18 @@
         } else {
             loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
         }
+        //displays a generic prompt if navigating from page with unsaved changes
+        $(window).on('beforeunload', function(e) {
+            const emailToData = document.getElementById('emailToCode').value;
+            const emailCcData = document.getElementById('emailCcCode').value;
+            const subject = getCodeEditorValue(subjectEditor);
+            const data = getCodeEditorValue(codeEditor);
+            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+            if (!ignoreUnsavedChanges && !ignorePrompt && hasChanges) {
+                e.preventDefault();
+                return 'You have unsaved changes. Are you sure you want to leave this page?';
+            }
+        });
     }
 
     // compares the current file to the default file content
@@ -715,21 +742,9 @@
         loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
     }
 
-    // This function displays a prompt if there are unsaved changes before leaving the page
-    function editorCurrentContent() {
-        $(window).on('beforeunload', function(e) {
-            if (!ignoreUnsavedChanges && !ignorePrompt) { // Check if ignoring unsaved changes and prompt
-                const data = getCodeEditorValue(codeEditor);
-                if (currentFileContent !== data) {
-                    e.preventDefault();
-                    return 'You have unsaved changes. Are you sure you want to leave this page?';
-                }
-            }
-        });
-    }
     /**
     * Used in editing view to load content and associated history records.
-    * Prepares codeEditor. Updates the display area, url, and some global variables.
+    * Prepares codeEditor. Updates the display area, url, and current content global variables.
     * @param {string} name - description of event being loaded. eg Send Back
     * @param {string} file - body template name. eg LEAF_send_back_body.tpl
     * @param {string} subjectFile - subject template name. eg LEAF_send_back_subject.tpl
@@ -748,8 +763,13 @@
         if (ignorePrompt) {
             ignorePrompt = false; // Reset ignorePrompt flag
         } else {
-            if (!ignoreUnsavedChanges && hasUnsavedChanges() && !confirm(
-                    'You have unsaved changes. Are you sure you want to leave this page?')) {
+            const emailToData = document.getElementById('emailToCode').value;
+            const emailCcData = document.getElementById('emailCcCode').value;
+            const subject = getCodeEditorValue(subjectEditor);
+            const data = getCodeEditorValue(codeEditor);
+            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+            if (!ignoreUnsavedChanges && hasChanges &&
+                !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
                 return;
             }
         }
@@ -783,12 +803,14 @@
             success: function(res) {
                 currentEmailToContent = res.emailToFile;
                 currentEmailCcContent = res.emailCcFile;
+                $("#emailToCode").val(currentEmailToContent);
+                $("#emailCcCode").val(currentEmailCcContent);
                 $('#codeContainer').fadeIn();
                 // Check if codeEditor is already defined and has a setValue method
                 if (codeEditor && typeof codeEditor.setValue === 'function') {
                     codeEditor.setValue(res.file);
                     currentFileContent = codeEditor.getValue();
-                    if (subjectEditor && res.subjectFile !== null) { //null for default email template
+                    if (subjectEditor && res.subjectFile !== null) { //subject is null for default email template
                         subjectEditor.setValue(res.subjectFile);
                         currentSubjectContent = subjectEditor.getValue();
                     }
@@ -799,13 +821,13 @@
                     console.error('codeEditor is not properly initialized.');
                 }
 
-                $("#emailToCode").val(currentEmailToContent);
-                $("#emailCcCode").val(currentEmailCcContent);
                 checkFieldEntries();
                 if (res.modified === 1) {
                     $('#restore_original, #btn_compare').addClass('modifiedTemplate');
+                    $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
                 } else {
                     $('#restore_original, #btn_compare').removeClass('modifiedTemplate');
+                    $(`.template_files a[data-file="${currentFile}"] + span`).removeClass('custom_file');
                 }
                 addCustomEventInfo(currentFile);
             },
@@ -817,14 +839,7 @@
         });
         $('.saveStatus').html('');
 
-        editorCurrentContent();
-
-        function hasUnsavedChanges() {
-            let data = getCodeEditorValue(codeEditor);
-            return currentFileContent !== data;
-        }
-
-        if (file !== null) {
+        if (file) {
             let url = new URL(window.location.href);
             url.searchParams.set('file', file);
             url.searchParams.set('name', name);
@@ -1173,12 +1188,9 @@
                             <div class="template_select_container"><select id="template_file_select" class="templateFiles">`;
 
                         if (Array.isArray(customTemplates)) {
+                            let customClass = '';
                             for (let i in res) {
-                                let custom = '';
-
-                                if (customTemplates.includes(res[i].fileName)) {
-                                    custom = '<span class=\'custom_file\' style=\'color: #c00000; font-size: .75em\'>(custom)</span>';
-                                }
+                                customClass = customTemplates.includes(res[i].fileName) ? ' class="custom_file"' : '';
 
                                 // Construct the option element with data- attributes for filesMobile
                                 filesMobile += '<option data-template-data=\'' + JSON.stringify({
@@ -1187,10 +1199,14 @@
                                     subjectFileName: res[i].subjectFileName || '',
                                     emailToFileName: res[i].emailToFileName || '',
                                     emailCcFileName: res[i].emailCcFileName || '',
-                                }) + '\'>' + res[i].displayName + custom + '</option>';
+                                }) + '\'>' + res[i].displayName + (customClass ? ' (custom)' : '') + '</option>';
 
                                 // Construct the li element for buffer
-                                buffer += '<li>' + '<div class="template_files"><a href="#" data-template-index="' + i + '">' + res[i].displayName + '</a> ' + custom + ' </div>' + '</li>';
+                                buffer += `<li>
+                                    <div class="template_files">
+                                        <a href="#" data-template-index="${i}" data-file="${res[i].fileName}">${res[i].displayName}</a> <span${customClass}>(custom)</span>
+                                    </div>
+                                </li>`;
                             }
 
                             filesMobile += '</select></div>';

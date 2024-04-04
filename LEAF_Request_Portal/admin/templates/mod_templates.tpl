@@ -183,14 +183,16 @@
             },
             url: '../api/template/_' + currentFile,
             success: function(res) {
-                const time = new Date().toLocaleTimeString();
-                $('.saveStatus').html('<br /> Last saved: ' + time);
-                currentFileContent = data;
                 if (res !== null) {
                     alert(res);
+                } else {
+                    const time = new Date().toLocaleTimeString();
+                    $('.saveStatus').html('<br /> Last saved: ' + time);
+                    currentFileContent = data;
+                    saveFileHistory();
+                    $('#restore_original, #btn_compare').addClass('modifiedTemplate');
+                    $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
                 }
-                saveFileHistory();
-                $('#restore_original, #btn_compare').addClass('modifiedTemplate');
             },
             error: function(err) {
                 console.log(err);
@@ -554,11 +556,12 @@
                 } else {
                     console.error('codeEditor is not properly initialized.');
                 }
-
                 if (res.modified === 1) {
                     $('#restore_original, #btn_compare').addClass('modifiedTemplate');
+                    $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
                 } else {
                     $('#restore_original, #btn_compare').removeClass('modifiedTemplate');
+                    $(`.template_files a[data-file="${currentFile}"] + span`).removeClass('custom_file');
                 }
             },
             error: function(xhr, status, error) {
@@ -687,21 +690,21 @@
                         let filesMobile = '<label for="template_file_select">Template Files:</label><select id="template_file_select">';
                         
                         if (Array.isArray(customTemplates)) {
+                            let customClass = '';
+                            let file = '';
                             for (let i in res) {
                                 if (res[i] === template_excluded) {
                                     // Will skip the excluded template, until further notice.
                                     continue;
                                 }
+                                customClass = customTemplates.includes(res[i]) ? ' class="custom_file"' : '';
+                                file = res[i].replace('.tpl', '');
 
-                                let custom = '';
-                                if (customTemplates.includes(res[i])) {
-                                    custom = '<span class=\'custom_file\'>(custom)</span>';
-                                }
-                                let file = res[i].replace('.tpl', '');
+                                buffer += `<li>
+                                    <div class="template_files"><a href="#" data-file="${res[i]}">${file}</a> <span${customClass}>(custom)</span></div>
+                                </li>`;
 
-                                buffer += '<li><div class="template_files"><a href="#" data-file="' + res[i] + '">' + file + '</a> ' + custom + '</div></li>';
-
-                                filesMobile += '<option value="' + res[i] + '">' + file + ' ' + custom + '</option>';
+                                filesMobile += `<option value="${res[i]}">${file}${customClass ? ' (custom)' : ''}</option>`;
                             }
                         } else {
                             buffer += '<li>Internal error occurred, if this persists contact your Primary Admin.</li>';
