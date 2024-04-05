@@ -30,7 +30,7 @@ nav#top-menu-nav {
         };
         button, a {
             margin: 0;
-            padding: 0;
+            padding-right: 0.4rem;
             @include flexcenter;
             position: relative;
             background-color: inherit;
