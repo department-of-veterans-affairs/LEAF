@@ -68,7 +68,7 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    template:`<div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
+    template:`<div class="form_editing_area">
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
                 <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
                 <button v-show="!previewMode" type="button" :id="'index_listing_' + indicatorID + '_button'"
@@ -111,6 +111,7 @@ export default {
                             :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
                             Programmer
                         </button>
+                        <img v-if="conditionalQuestion" :src="libsPath + 'dynicons/svg/go-jump.svg'" alt="" title="conditional logic is present" />
                         <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" title="advanced options are present" />
                     </div>
                     <button v-if="!isHeader" type="button" class="btn-general"

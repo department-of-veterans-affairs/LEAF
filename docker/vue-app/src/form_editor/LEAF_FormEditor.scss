@@ -619,9 +619,6 @@ table[class$="SelectorTable"] th {
         flex-direction: column;
         margin-bottom: 0.25rem;
         background-color: white;
-        &.conditional {
-            background-color: saturate(darken($BG_Pearl, 2%), 15%);
-        }
         /* 1st section (name and toolbar) of editing_area */
         .name_and_toolbar {
             width: 100%;
