@@ -334,10 +334,10 @@ function changeSupervisor() {
             data: {positionID: posSel.selection,
                       CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
-                if (Number.isInteger(response)) {
-                    window.location.reload();
-                } else {
+                if (response?.errors?.[0] !== undefined) {
                     dialog.setContent(`<strong style="display:table;margin:0 auto;"><img src="dynicons/?img=dialog-error.svg&amp;w=32" style="vertical-align:middle;float:left;" alt="" />${response.errors[0]}</strong>`);
+                } else {
+                    window.location.reload();
                 }
             },
             cache: false
