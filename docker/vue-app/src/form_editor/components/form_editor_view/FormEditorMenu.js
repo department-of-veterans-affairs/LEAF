@@ -102,7 +102,7 @@ export default {
                 </li>
                 <li>
                     <button type="button" @click="openEditCollaboratorsDialog" title="Edit Special Write Access">
-                        <span role="img" aria="" alt="">🔓︎&nbsp;</span>Customize Write Access
+                        <span role="img" aria="" alt="">🔒&nbsp;</span>Customize Write Access
                     </button>
                 </li>
                 <li>
