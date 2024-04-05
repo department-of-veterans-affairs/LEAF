@@ -233,6 +233,10 @@ div.CodeMirror-merge-pane-label-right {
 
 
 /*Keyboard Shortcuts*/
+.cm_editor_nav_help {
+    margin: 0;
+    font-size: 0.75rem;
+}
 .keyboard_shortcuts,
 .keyboard_shortcuts_merge {
     width: 100%;
@@ -608,7 +612,7 @@ fieldset {
         display: none;
     }
     .leaf-right-nav {
-        display: none;
+        display: flex;
         flex-direction: column;
         justify-content: flex-start;
         padding: 0.75rem 0;
@@ -625,6 +629,9 @@ fieldset {
     .leaf-right-nav.show {
         right: 0;
         display: flex;
+    }
+    .leaf-right-nav.hide {
+        display: none;
     }
 
     button#mobileToolsNavBtn, .filesMobile {

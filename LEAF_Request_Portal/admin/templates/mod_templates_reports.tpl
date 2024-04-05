@@ -67,6 +67,7 @@
                         </div>
                         <div class="keboard_shortcuts_box"></div>
                     </div>
+                    <p class="cm_editor_nav_help">Within the code editor, tab enters a tab character.  If using the keyboard to navigate, press escape followed by tab to exit the editor.</p>
                 </div>
 
                 <div class="keyboard_shortcuts_merge hide">
@@ -146,20 +147,45 @@
 
 
 <script>
+    // gloabal variables
+    var codeEditor;
+    var currentFile = '';
+    var currentFileContent = '';
+    var dialog, dialog_confirm;
+
+    var ignoreUnsavedChanges = false;
+    var ignorePrompt = true;
+
     function showRightNav(showNav = false) {
         let nav = $('.leaf-right-nav');
-        showNav ? nav.addClass('show') : nav.removeClass('show');
+        if(showNav === true) {
+            nav.removeClass('hide')
+            setTimeout(() => {
+                nav.addClass('show');
+                $('#mobileToolsNavBtn').attr({'aria-expanded': true});
+            });
+        } else {
+            nav.removeClass('show');
+            setTimeout(() => {
+                nav.addClass('hide');
+                $('#mobileToolsNavBtn').attr({'aria-expanded': false});
+            }, 500);
+        }
+    }
+
+    function getCodeEditorValue(codeEditor = {}) {
+        let data = '';
+        if (codeEditor.getValue === undefined) {
+            data = codeEditor.edit.getValue();
+        } else {
+            data = codeEditor.getValue();
+        }
+        return data;
     }
 
     // saves current file content changes
     function save() {
-        let data = '';
-        if (typeof codeEditor.edit !== 'undefined' && typeof codeEditor.edit.getValue === 'function') {
-            data = codeEditor.edit.getValue();
-        } else if (typeof codeEditor.getValue === 'function') {
-            data = codeEditor.getValue();
-        }
-
+        const data = getCodeEditorValue(codeEditor);
         if (data === currentFileContent) {
             alert('There are no changes to save.');
             return;
@@ -173,13 +199,14 @@
             },
             url: '../api/applet/_' + currentFile,
             success: function(res) {
-                const time = new Date().toLocaleTimeString();
-                $('.saveStatus').html('<br /> Last saved: ' + time);
-                currentFileContent = data;
                 if (res != null) {
                     alert(res);
+                } else {
+                    const time = new Date().toLocaleTimeString();
+                    $('.saveStatus').html('<br /> Last saved: ' + time);
+                    currentFileContent = data;
+                    saveFileHistory();
                 }
-                saveFileHistory();
             },
             error: function() {
                 alert('An error occurred while saving the file.');
@@ -188,12 +215,8 @@
     }
     // creates a copy of the current file content
     function saveFileHistory() {
-        let data = '';
-        if (codeEditor.getValue === undefined) {
-            data = codeEditor.edit.getValue();
-        } else {
-            data = codeEditor.getValue();
-        }
+        let data = getCodeEditorValue(codeEditor);
+
         $.ajax({
             type: 'POST',
             data: {
@@ -203,11 +226,14 @@
             url: '../api/applet/fileHistory/_' + currentFile,
             success: function(res) {
                 getFileHistory(currentFile);
+            },
+            error: function(err) {
+                console.log(err);
             }
         });
     }
 
-    // Retreave URL to display comparison of files
+    //Called once at DOM ready. Loads the intial file based on URL and sets beforeunload listener.
     function initializePage() {
         let urlParams = new URLSearchParams(window.location.search);
         let fileName = urlParams.get('fileName');
@@ -222,6 +248,19 @@
         } else {
             loadContent('example');
         }
+        //displays a generic prompt if navigating from page with unsaved changes
+        $(window).on('beforeunload', function(e) {
+            if (!ignoreUnsavedChanges && !ignorePrompt) { // Check if ignoring unsaved changes and prompt
+                if (currentFile === 'example' || /^LEAF_/.test(currentFile)) {
+                    return;
+                }
+
+                if (currentFileContent !== getCodeEditorValue(codeEditor)) {
+                    e.preventDefault();
+                    return true;
+                }
+            }
+        });
     }
     // Expands the current and history file to compare both files
     function editorExpandScreen() {
@@ -255,8 +294,8 @@
         $('.keyboard_shortcuts').removeClass('hide');
         $('.keyboard_shortcuts_merge').addClass('hide');
 
-        // Will reset the URL
-        const url = new URL(window.location.href);
+        //remove comparison view url params
+        let url = new URL(window.location.href);
         url.searchParams.delete('fileName');
         url.searchParams.delete('parentFile');
         window.history.replaceState(null, null, url.toString());
@@ -338,15 +377,6 @@
     function isExcludedFile(file) {
         return file === 'example' || file.substr(0, 5) === 'LEAF_';
     }
-    // gloabal variables
-    var codeEditor;
-    var currentFile = '';
-    var unsavedChanges = false;
-    var currentFileContent = '';
-    var dialog, dialog_confirm;
-
-    var ignoreUnsavedChanges = false;
-    var ignorePrompt = true;
 
     // request's copies of the current file content in an accordion layout
     function getFileHistory(template) {
@@ -399,7 +429,7 @@
         });
     }
     // compares current file content with history file from getFileHistory()
-    function compareHistoryFile(fileName, parentFile, updateURL) {
+    function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
         $('.CodeMirror').remove();
@@ -431,7 +461,7 @@
                         },
                     }
                 });
-                addCodeMirrorAria('codeCompare');
+                addCodeMirrorAria('codeCompare', true);
 
                 const mergeFile = () => {
                     ignoreUnsavedChanges = true;
@@ -471,7 +501,7 @@
             }
         });
 
-        if (updateURL !== null) {
+        if (updateURL === true) {
             let url = new URL(window.location.href);
             url.searchParams.set('fileName', fileName);
             url.searchParams.set('parentFile', parentFile);
@@ -498,28 +528,7 @@
             }
         });
     }
-    // This function displays a prompt if there are unsaved changes before leaving the page
-    function editorCurrentContent() {
-        $(window).on('beforeunload', function(e) {
-            if (!ignoreUnsavedChanges && !ignorePrompt) { // Check if ignoring unsaved changes and prompt
-                // Bypass the prompt if the file name contains "LEAF_"
-                if (currentFile && currentFile.includes('LEAF_')) {
-                    return;
-                }
 
-                let data = '';
-                if (codeEditor.getValue === undefined) {
-                    data = codeEditor.edit.getValue();
-                } else {
-                    data = codeEditor.getValue();
-                }
-                if (currentFileContent !== data) {
-                    e.preventDefault();
-                    return 'You have unsaved changes. Are you sure you want to leave this page?';
-                }
-            }
-        });
-    }
     //loads all files and retreave's them
     function loadContent(file) {
         if (file === undefined) {
@@ -528,14 +537,13 @@
             return;
         }
 
-        // Check if the file name contains "LEAF_"
-        const isLeafFile = file.includes('LEAF_');
-
+        const isLeafFile = currentFile === 'example' || /^LEAF_/.test(currentFile);
         if (ignorePrompt) {
             ignorePrompt = false; // Reset ignorePrompt flag
         } else {
-            // If the file is not a "LEAF_" file, and there are unsaved changes, show the prompt
-            if (!isLeafFile && !ignoreUnsavedChanges && hasUnsavedChanges() && !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
+            if (!isLeafFile && !ignoreUnsavedChanges &&
+                currentFileContent !== getCodeEditorValue(codeEditor) &&
+                !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
                 return;
             }
         }
@@ -543,8 +551,8 @@
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
 
-        currentFile = file;
         initEditor();
+        currentFile = file;
         $('#codeContainer').css('display', 'none');
 
         $('#filename').html(file.replace('.tpl', ''));
@@ -559,14 +567,16 @@
             url: `../api/applet/_${file}`,
             success: function(res) {
                 $('#codeContainer').fadeIn();
-                // Check if codeEditor is already defined and has a setValue method
-                if (codeEditor && typeof codeEditor.setValue === 'function') {
+                // Check if codeEditor is defined, has a setValue method and file property exists
+                if (codeEditor && typeof codeEditor.setValue === 'function' && res?.file !== undefined) {
                     codeEditor.setValue(res.file);
                     currentFileContent = codeEditor.getValue();
                     $('.CodeMirror').each(function(i, el) {
                         el.CodeMirror.refresh();
                     });
                 } else {
+                    res?.file === undefined ?
+                    console.error('file not found'):
                     console.error('codeEditor is not properly initialized.');
                 }
             },
@@ -578,23 +588,7 @@
         });
         $('.saveStatus').html('');
 
-        editorCurrentContent();
-
-        codeEditor.on('change', function() {
-            unsavedChanges = true;
-        });
-
-        function hasUnsavedChanges() {
-            let data = '';
-            if (codeEditor.getValue === undefined) {
-                data = codeEditor.edit.getValue();
-            } else {
-                data = codeEditor.getValue();
-            }
-            return currentFileContent !== data;
-        }
-
-        if (!isLeafFile && file !== undefined) {
+        if (file) {
             let url = new URL(window.location.href);
             url.searchParams.set('file', file);
             window.history.replaceState(null, null, url.toString());
@@ -606,7 +600,7 @@
         const textareaID = mountID.includes('code') ? 'code_mirror_template_editor' : 'code_mirror_subject_editor';
         if (mergeView === true) {
             $('.CodeMirror-merge-pane textarea').attr({
-                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+                'aria-label': 'Template Editor coding area.  Press escape twice followed by tab to navigate out.'
             });
             $(`#${mountID} .CodeMirror-merge-pane-rightmost textarea`).attr({
                 'id': textareaID,
@@ -618,7 +612,7 @@
                 'id': textareaID,
                 'role': 'textbox',
                 'aria-multiline': true,
-                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+                'aria-label': 'Template Editor coding area.  Press escape twice followed by tab to navigate out.'
             });
         }
     }
@@ -689,7 +683,7 @@
                 // Attach click event handler to template links in the buffer
                 $('#fileList a').on('click', function(e) {
                     e.preventDefault();
-                    let selectedFile = $(this).data('file');
+                    let selectedFile = String($(this).data('file'));
                     loadContent(selectedFile);
                     window.scrollTo(0,0);
                 });

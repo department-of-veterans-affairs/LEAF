@@ -61,6 +61,7 @@
                         </div>
                         <div class="keboard_shortcuts_box"></div>
                     </div>
+                    <p class="cm_editor_nav_help">Within the code editor, tab enters a tab character.  If using the keyboard to navigate, press escape followed by tab to exit the editor.</p>
                 </div>
 
                 <div class="keyboard_shortcuts_merge hide">
@@ -139,18 +140,29 @@
 <script>
     var codeEditor = null;
     var currentFile = '';
-    var unsavedChanges = false;
     var currentFileContent = "";
     var ignoreUnsavedChanges = false;
     var ignorePrompt = true;
 
     /**
-    * Force show or hide the right nav despite screen width
+    * Force show or hide the right nav despite screen width with transition effect
     * @param {bool} showNav
     */
     function showRightNav(showNav = false) {
         let nav = $('.leaf-right-nav');
-        showNav ? nav.addClass('show') : nav.removeClass('show');
+        if(showNav === true) {
+            nav.removeClass('hide')
+            setTimeout(() => {
+                nav.addClass('show');
+                $('#mobileToolsNavBtn').attr({'aria-expanded': true});
+            });
+        } else {
+            nav.removeClass('show');
+            setTimeout(() => {
+                nav.addClass('hide');
+                $('#mobileToolsNavBtn').attr({'aria-expanded': false});
+            }, 500);
+        }
     }
     /**
     * Return the data value of a given codeEditor instance
@@ -395,12 +407,10 @@
         }
         //displays a generic prompt if navigating from page with unsaved changes
         $(window).on('beforeunload', function(e) {
-            if (!ignoreUnsavedChanges && !ignorePrompt) {
-                const data = getCodeEditorValue(codeEditor);
-                if (currentFileContent !== data) {
-                    e.preventDefault();
-                    return true;
-                }
+            if (!ignoreUnsavedChanges && !ignorePrompt &&
+                currentFileContent !== getCodeEditorValue(codeEditor)) {
+                e.preventDefault();
+                return true;
             }
         });
     }
@@ -546,14 +556,16 @@
             url: '../api/template/_' + file,
             success: function(res) {
                 $('#codeContainer').fadeIn();
-                // Check if codeEditor is already defined and has a setValue method
-                if (codeEditor && typeof codeEditor.setValue === 'function') {
+                // Check if codeEditor is defined, has a setValue method and file property exists
+                if (codeEditor && typeof codeEditor.setValue === 'function' && res?.file !== undefined) {
                     codeEditor.setValue(res.file);
                     currentFileContent = codeEditor.getValue();
                     $('.CodeMirror').each(function(i, el) {
                         el.CodeMirror.refresh();
                     });
                 } else {
+                    res?.file === undefined ?
+                    console.error('file not found'):
                     console.error('codeEditor is not properly initialized.');
                 }
                 if (res.modified === 1) {
@@ -584,7 +596,7 @@
         const textareaID = mountID.includes('code') ? 'code_mirror_template_editor' : 'code_mirror_subject_editor';
         if (mergeView === true) {
             $('.CodeMirror-merge-pane textarea').attr({
-                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+                'aria-label': 'Template Editor coding area.  Press escape twice followed by tab to navigate out.'
             });
             $(`#${mountID} .CodeMirror-merge-pane-rightmost textarea`).attr({
                 'id': textareaID,
@@ -596,7 +608,7 @@
                 'id': textareaID,
                 'role': 'textbox',
                 'aria-multiline': true,
-                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+                'aria-label': 'Template Editor coding area.  Press escape twice followed by tab to navigate out.'
             });
         }
     }
@@ -718,7 +730,7 @@
                         // Attach click event handler to template links in the buffer
                         $('#fileList a').on('click', function (e) {
                             e.preventDefault();
-                            let selectedFile = $(this).data('file');
+                            let selectedFile = String($(this).data('file'));
                             loadContent(selectedFile);
                             window.scrollTo(0,0);
                         });

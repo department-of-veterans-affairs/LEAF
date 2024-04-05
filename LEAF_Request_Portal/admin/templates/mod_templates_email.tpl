@@ -156,6 +156,7 @@
                         </div>
                         <div class="keboard_shortcuts_box"></div>
                     </div>
+                    <p class="cm_editor_nav_help">Within the code editor, tab enters a tab character.  If using the keyboard to navigate, press escape followed by tab to exit the editor.</p>
                 </div>
 
                 <div class="keyboard_shortcuts_merge hide">
@@ -236,8 +237,8 @@
     var codeEditor;
     var subjectEditor;
     var dialog_message;
-    var currentName;
 
+    var currentName;
     var currentFile;
     var currentSubjectFile;
     var currentEmailToFile;
@@ -260,7 +261,19 @@
     */
     function showRightNav(showNav = false) {
         let nav = $('.leaf-right-nav');
-        showNav ? nav.addClass('show') : nav.removeClass('show');
+        if(showNav === true) {
+            nav.removeClass('hide')
+            setTimeout(() => {
+                nav.addClass('show');
+                $('#mobileToolsNavBtn').attr({'aria-expanded': true});
+            });
+        } else {
+            nav.removeClass('show');
+            setTimeout(() => {
+                nav.addClass('hide');
+                $('#mobileToolsNavBtn').attr({'aria-expanded': false});
+            }, 500);
+        }
     }
     /**
     * Return the data value of a given codeEditor instance
@@ -591,7 +604,7 @@
             }
         });
     }
-    // Retreave URL to display comparison of files
+    //Called once at DOM ready. Loads the intial file based on URL and sets beforeunload listener.
     function initializePage() {
         let urlParams = new URLSearchParams(window.location.search);
 
@@ -626,7 +639,7 @@
             const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data);
             if (!ignoreUnsavedChanges && !ignorePrompt && hasChanges) {
                 e.preventDefault();
-                return 'You have unsaved changes. Are you sure you want to leave this page?';
+                return true;
             }
         });
     }
@@ -801,13 +814,9 @@
             type: 'GET',
             url: '../api/emailTemplates/_' + file,
             success: function(res) {
-                currentEmailToContent = res.emailToFile;
-                currentEmailCcContent = res.emailCcFile;
-                $("#emailToCode").val(currentEmailToContent);
-                $("#emailCcCode").val(currentEmailCcContent);
                 $('#codeContainer').fadeIn();
-                // Check if codeEditor is already defined and has a setValue method
-                if (codeEditor && typeof codeEditor.setValue === 'function') {
+                // Check if codeEditor is defined, has a setValue method and file property exists
+                if (codeEditor && typeof codeEditor.setValue === 'function' && res?.file !== undefined) {
                     codeEditor.setValue(res.file);
                     currentFileContent = codeEditor.getValue();
                     if (subjectEditor && res.subjectFile !== null) { //subject is null for default email template
@@ -817,7 +826,13 @@
                     $('.CodeMirror').each(function(i, el) {
                         el.CodeMirror.refresh();
                     });
+                    currentEmailToContent = res.emailToFile;
+                    currentEmailCcContent = res.emailCcFile;
+                    $("#emailToCode").val(currentEmailToContent);
+                    $("#emailCcCode").val(currentEmailCcContent);
                 } else {
+                    res?.file === undefined ?
+                    console.error('file not found'):
                     console.error('codeEditor is not properly initialized.');
                 }
 
@@ -994,7 +1009,7 @@
         const textareaID = mountID.includes('code') ? 'code_mirror_template_editor' : 'code_mirror_subject_editor';
         if (mergeView === true) {
             $('.CodeMirror-merge-pane textarea').attr({
-                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+                'aria-label': 'Template Editor coding area.  Press escape twice followed by tab to navigate out.'
             });
             $(`#${mountID} .CodeMirror-merge-pane-rightmost textarea`).attr({
                 'id': textareaID,
@@ -1006,7 +1021,7 @@
                 'id': textareaID,
                 'role': 'textbox',
                 'aria-multiline': true,
-                'aria-label': 'Template Editor coding area.  Press escape followed by tab to navigate out.'
+                'aria-label': 'Template Editor coding area.  Press escape twice followed by tab to navigate out.'
             });
         }
     }
