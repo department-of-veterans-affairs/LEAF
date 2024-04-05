@@ -347,6 +347,9 @@ var LeafForm = function (containerID) {
       if (["dropdown", "currency", "number"].includes(pFormat)) {
         val = document.getElementById(pIndID)?.value || "";
       }
+      if (pFormat === "checkbox") {
+        val = document.getElementById(`${pIndID}_`)?.checked ? "1" : "0";
+      }
       return sanitize(val).trim();
     };
 
@@ -629,6 +632,7 @@ var LeafForm = function (containerID) {
               parentEl = document.querySelector(`input[id^="${c.parentIndID}_radio"]`);
               break;
             case "checkboxes":
+            case "checkbox":
               parentEl = document.querySelector(`input[id^="${c.parentIndID}_"]`);
               break;
             default: //multisel, dropdown, inputs

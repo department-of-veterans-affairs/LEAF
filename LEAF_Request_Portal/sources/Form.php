@@ -1560,7 +1560,7 @@ class Form
                 } else {
                     //finally, check if there are conditions that result in required questions being in a hidden state, and adjust count and percentage
                     $multiChoiceParentFormats = array('multiselect', 'checkboxes');
-                    $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency');
+                    $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency', 'checkbox');
 
                     foreach ($resRequestRequired as $ind) {
                         //if question is not complete, and there are conditions (conditions could potentially have the string null due to a past import issue) ...
@@ -1578,7 +1578,9 @@ class Form
                                     $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
                                     //if parent data does not exist, use an empty string, since potential 'not' comparisons would need this.
                                     $currentParentDataValue = preg_replace('/&apos;/', '&#039;', $resCompletedIndIDs[(int) $c->parentIndID] ?? '');
-
+                                    if ($parentFormat === 'checkbox') { //single checkbox ifthen is either checked or not checked
+                                        $currentParentDataValue = !empty($currentParentDataValue) && $currentParentDataValue !== 'no' ? '1' : '0';
+                                    }
                                     if (in_array($parentFormat, $multiChoiceParentFormats)) {
                                         $currentParentDataValue = @unserialize($currentParentDataValue) === false ? array($currentParentDataValue) : unserialize($currentParentDataValue);
                                     } else {

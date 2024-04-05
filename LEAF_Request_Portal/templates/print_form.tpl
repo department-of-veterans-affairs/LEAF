@@ -531,11 +531,11 @@ function doSubmit(recordID) {
                         selectedParentOptionsLI !== null)) {
 
                     if (comparison !== true) { //no need to re-assess if it has already become true
-                        let val = multiChoiceFormats.includes(parentFormat) ?
-                            arrParVals :
-                            [
-                                (elParentInd?.innerText || '').trim()
-                            ];
+                        let singleVal = (elParentInd?.innerText || '').trim();
+                        if (parentFormat === "checkbox") {
+                            singleVal = singleVal && singleVal !== "no" ? "1" : "0";
+                        }
+                        let val = multiChoiceFormats.includes(parentFormat) ? arrParVals : [ singleVal ];
                         val = val.filter(v => v !== '');
 
                         let compVal = [];
