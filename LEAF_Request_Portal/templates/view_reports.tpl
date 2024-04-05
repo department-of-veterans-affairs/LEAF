@@ -33,26 +33,9 @@
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
 
-//Object.assign for IE
-if (typeof Object.assign !== 'function') {
-    Object.assign = function(target) {
-        'use strict';
-        if (target == null) {
-            throw new TypeError('Cannot convert undefined or null to object');
-        }
-        target = Object(target);
-        for (let index = 1; index < arguments.length; index++) {
-            let source = arguments[index];
-            if (source != null) {
-                for (let key in source) {
-                    if (Object.prototype.hasOwnProperty.call(source, key)) {
-                        target[key] = source[key];
-                    }
-                }
-            }
-        }
-        return target;
-    };
+function scrubHTML(input) {
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        return t.textContent;
 }
 
 function loadWorkflow(recordID, prefixID) {
@@ -1061,6 +1044,15 @@ var version = 3;
     * v3 - uses getData() from formQuery.js
 */
 
+// Update window title
+function updateTitle(title) {
+    if(title != '') {
+        let siteName = document.querySelector('#headerDescription').innerText;
+        let siteLocation = document.querySelector('#headerLabel').innerText;
+        document.querySelector('title').innerText = scrubHTML(`${title} - ${siteName} | ${siteLocation}`);
+    }
+}
+
 /**
  * Generates a url based on the current report preferences
  * @param baseURL URL of this script, without parameters
@@ -1083,6 +1075,7 @@ function buildURLComponents(baseURL, update){
         url += '&sort=' + encodeURIComponent(urlSortPreference);
     }
     if($('#reportTitle').val() != '') {
+        updateTitle($('#reportTitle').val());
         url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
     }
     window.history.pushState('', '', url);
@@ -1428,6 +1421,8 @@ $(function() {
                 window.history.pushState('', '', url);
             });
         });
+        updateTitle(title);
+
         try {
             if(<!--{$version}--> >= 2) {
                 let query = '<!--{$query|escape:"html"}-->';
