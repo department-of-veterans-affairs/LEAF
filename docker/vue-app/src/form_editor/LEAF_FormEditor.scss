@@ -16,7 +16,6 @@ nav#top-menu-nav {
         @include flexcenter;
         position: relative;
         height: 32px;
-        width: 175px;
         font-size: 14px;
         font-weight: bolder;
         &:not(:last-child)::after {
@@ -26,7 +25,7 @@ nav#top-menu-nav {
             display: block;
             height: 50%;
             border-radius: 2px;
-            width: 1px;
+            width: 2px;
             background-color: black;
         };
         button, a {

@@ -113,8 +113,8 @@ export default {
         }
     },
     template:`<div>
-        <h3>{{formNameStripped()}}</h3>
-        <p>Collaborators have access to fill out data fields at any time in the workflow.</p>
+        <h3>Editing Form: {{formNameStripped()}}</h3>
+        <p>You can customize write access, enabling specific groups to fill out data fields at any time in the workflow.</p>
         <p>This is typically used to give groups access to fill out internal-use fields.</p>
         <div id="formPrivs" style="margin-top: 1rem;">
             <template v-if="collaborators.length > 0">
