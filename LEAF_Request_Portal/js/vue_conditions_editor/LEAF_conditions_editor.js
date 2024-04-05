@@ -18,6 +18,7 @@ const ConditionsEditor = Vue.createApp({
         "multiselect": 1,
         "radio": 1,
         "checkboxes": 1,
+        "checkbox": 1,
         "number": 1,
         "currency": 1
       },
@@ -166,7 +167,11 @@ const ConditionsEditor = Vue.createApp({
           });
           value = value.trim();
       } else {
-          value = target.value.trim();
+          if(this.parentFormat === 'checkbox') {
+            value = target.checked ? '1' : '0';
+          } else {
+            value = target.value.trim();
+          }
       }
       if (type.toLowerCase() === 'parent') {
           this.selectedParentValue = XSSHelpers.stripAllTags(value);
@@ -256,9 +261,9 @@ const ConditionsEditor = Vue.createApp({
       this.showConditionEditor = true;
       this.parentIndID = parseInt(conditionObj?.parentIndID || 0);
       this.selectedOperator = conditionObj?.selectedOp || '';
-      this.selectedParentValue = conditionObj?.selectedParentValue || '';
-      this.selectedOutcome = conditionObj?.selectedOutcome?.toLowerCase() || '';
-      this.selectedChildValue = XSSHelpers.stripAllTags(conditionObj?.selectedChildValue || '');
+      this.selectedParentValue = conditionObj?.selectedParentValue ?? '';
+      this.selectedOutcome = (conditionObj?.selectedOutcome || '').toLowerCase();
+      this.selectedChildValue = XSSHelpers.stripAllTags(conditionObj?.selectedChildValue ?? '');
       this.crosswalkFile = conditionObj?.crosswalkFile;
       this.crosswalkHasHeader = conditionObj?.crosswalkHasHeader;
       this.level2IndID = conditionObj?.level2IndID;
@@ -573,6 +578,7 @@ const ConditionsEditor = Vue.createApp({
       switch(this.parentFormat) {
         case 'multiselect':
         case 'checkboxes':
+        case 'checkbox':
         case 'dropdown':
         case 'radio':
           operators = this.multiOptionFormats.includes(this.parentFormat) ?
@@ -790,7 +796,10 @@ const ConditionsEditor = Vue.createApp({
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
                                                     If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                                    {{getOperatorText(c)}} <strong>{{ decodeAndStripHTML(c.selectedParentValue) }}</strong> 
+                                                    {{getOperatorText(c)}} <strong>
+                                                      <span v-if="c.parentFormat==='checkbox'">{{ c.selectedParentValue === '1' ? 'checked':'not checked' }}</span>
+                                                      <span v-else>{{ decodeAndStripHTML(c.selectedParentValue) }}</span>
+                                                    </strong> 
                                                     then {{c.selectedOutcome}} this question.
                                                 </div>
                                                 <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
@@ -908,6 +917,13 @@ const ConditionsEditor = Vue.createApp({
                           style="display: none;"
                           @change="updateSelectedOptionValue($event.target, 'parent')">
                       </select>
+                    </div>
+                    <div v-else-if="parentFormat==='checkbox'" style="display:flex;align-items:center;gap:0.25rem;">
+                      <input type="checkbox" id="ifthen_checkbox_compare" style="margin:0;"
+                      :checked="conditions.selectedParentValue==='1'" @change="updateSelectedOptionValue($event.target, 'parent')"/>
+                      <label for="ifthen_checkbox_compare" style="white-space:nowrap;">
+                        {{ conditions.selectedParentValue==='1' ? 'checked' : 'not checked' }}
+                      </label>
                     </div>
                   </template>
                   <!-- LOADED DROPDOWNS AND CROSSWALKS -->
