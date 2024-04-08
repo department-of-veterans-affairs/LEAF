@@ -148,7 +148,7 @@ export default {
                     <option v-for="g in availableGroups" :value="g" :key="'collab_group_' + g.groupID">{{g.name}}</option>
                 </select>
             </template>
-            <div v-else>There are no available groups to add</div>
+            <div v-else-if="collaborators.length == 0">There are no available groups to add</div>
         </div>
     </div>`
 }
