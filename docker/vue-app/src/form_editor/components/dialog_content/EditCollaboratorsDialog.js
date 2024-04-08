@@ -121,9 +121,9 @@ export default {
         <h3>The following groups can update records at any time:</h3>
         <div id="formPrivs" style="margin-top: 1rem;">
             <template v-if="collaborators.length > 0">
-                <ul style="list-style-type:circle; padding: 0; min-height: 30px;">
+                <ul style="display: list-item; list-style-type:disc; margin-left: 1rem; min-height: 30px;">
                     <li v-for="c in collaborators" :key="c.name + c.groupID">
-                        ⚬ {{c.name}}
+                        {{c.name}}
                         <button type="button"
                             style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
                             @click="removePermission(parseInt(c.groupID))" :title="'remove ' + c.name">
