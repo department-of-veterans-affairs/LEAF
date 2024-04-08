@@ -532,8 +532,11 @@ function doSubmit(recordID) {
 
                     if (comparison !== true) { //no need to re-assess if it has already become true
                         let singleVal = (elParentInd?.innerText || '').trim();
-                        if (parentFormat === "checkbox") {
-                            singleVal = singleVal && singleVal !== "no" ? "1" : "0";
+                        if(parentFormat === "currency" && singleVal.startsWith('$')) {
+                            singleVal = singleVal.slice(1);
+                        }
+                        if(parentFormat === "checkbox") {
+                            singleVal = singleVal !== "" && singleVal !== "no" ? "1" : "0";
                         }
                         let val = multiChoiceFormats.includes(parentFormat) ? arrParVals : [ singleVal ];
                         val = val.filter(v => v !== '');

@@ -216,20 +216,28 @@ var LeafForm = function (containerID) {
     /** cross walk end */
 
     let childRequiredValidators = {};
+    //store required validators for the controlled question and any subchildren on main entry and modals
     const handleChildValidators = (childID) => {
-      if (!childRequiredValidators[childID]) {
-        childRequiredValidators[childID] = {
-          validator: formRequired[`id${childID}`]?.setRequired,
-        };
-      }
-      //reset the validator, if there is one, from the stored value
-      if (
-        childRequiredValidators[childID].validator !== undefined &&
-        dialog !== null
-      ) {
-        dialog.requirements[childID] =
-          childRequiredValidators[childID].validator;
-      }
+      let arrValidatorIDs = [ childID ];
+      const arrSubchildren = Array.from(
+        document.querySelectorAll(`.response.blockIndicator_${childID} div.response[class*="blockIndicator_"]`)
+      );
+      arrSubchildren.forEach(element => {
+        const id = +element.className.match(/(\d+)$/)?.[0];
+        if(id > 0) {
+          arrValidatorIDs.push(id);
+        }
+      });
+      arrValidatorIDs.forEach(id => {
+        if (!childRequiredValidators[id]) {
+          childRequiredValidators[id] = {
+            validator: formRequired[`id${id}`]?.setRequired,
+          };
+        }
+        if (childRequiredValidators[id].validator !== undefined && dialog !== null) {
+          dialog.requirements[id] = childRequiredValidators[id].validator;
+        }
+      });
     };
     //validator ref for required question in a hidden state
     const hideShowValidator = function () {
@@ -353,7 +361,8 @@ var LeafForm = function (containerID) {
       return sanitize(val).trim();
     };
 
-    /* clear out potential entries and set validator for hidden questions */
+    /* hide the question. clear out potential entries and set validator for hidden questions */
+    //NOTE: this currently sets validator for all but only clears the controlled question
     const clearValues = (childFormat = "", childIndID = 0) => {
       $("#" + childIndID).val(""); //clears most formats
       $(`input[id^="${childIndID}_"]`).prop("checked", false); //radio and checkbox(es) formats
@@ -373,12 +382,25 @@ var LeafForm = function (containerID) {
       if (childFormat === "multiselect") {
         clearMultiSelectChild($("#" + childIndID), childIndID);
       }
-      if (
-        childRequiredValidators[childIndID].validator !== undefined &&
-        dialog !== null
-      ) {
-        dialog.requirements[childIndID] = hideShowValidator;
-      }
+
+      let arrValidatorIDs = [ childIndID ];
+      const arrSubchildren = Array.from(
+        document.querySelectorAll(`.response.blockIndicator_${childIndID} div.response[class*="blockIndicator_"]`)
+      );
+      arrSubchildren.forEach(element => {
+        const id = +element.className.match(/(\d+)$/)?.[0];
+        if(id > 0) {
+          arrValidatorIDs.push(id);
+        }
+      });
+      arrValidatorIDs.forEach(id => {
+        if (
+          childRequiredValidators[id].validator !== undefined &&
+          dialog !== null
+        ) {
+          dialog.requirements[id] = hideShowValidator;
+        }
+      })
     };
 
     /**
