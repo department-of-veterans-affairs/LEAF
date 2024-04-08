@@ -113,14 +113,17 @@ export default {
         }
     },
     template:`<div>
-        <h3>Editing Form: {{formNameStripped()}}</h3>
-        <p>You can customize write access, enabling specific groups to fill out data fields at any time in the workflow.</p>
-        <p>This is typically used to give groups access to fill out internal-use fields.</p>
+        <h3>What is this?</h3>
+        <p>With paper forms, people who have posession of the record have the ability to update it. This rule is used in LEAF, and people gain posession when a record reaches their step in the workflow. All modifications are timestamped with their respective authors.</p>
+        <br />
+        <p>To provide flexibility, specific groups can be granted permission to update information at any time in the workflow. This can be useful if you have internal-use fields, and want certain groups of people to update information at any time.</p>
+        <br />
+        <h3>The following groups can update records at any time:</h3>
         <div id="formPrivs" style="margin-top: 1rem;">
             <template v-if="collaborators.length > 0">
-                <ul style="list-style-type:none; padding: 0; min-height: 30px;">
+                <ul style="list-style-type:circle; padding: 0; min-height: 30px;">
                     <li v-for="c in collaborators" :key="c.name + c.groupID">
-                        {{c.name}}
+                        ⚬ {{c.name}}
                         <button type="button"
                             style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
                             @click="removePermission(parseInt(c.groupID))" :title="'remove ' + c.name">
@@ -129,10 +132,17 @@ export default {
                     </li>
                 </ul>
             </template>
+            <template v-else>
+                <ul style="list-style-type:none; padding: 0; min-height: 30px;">
+                    <li>
+                        None
+                    </li>
+                </ul>
+            </template>
         </div><hr/>
         <div style="min-height: 50px; margin: 1em 0;">
             <template v-if="availableGroups.length > 0">
-                <label for="selectFormCollaborators" style="display:block; margin-bottom:2px;">Select a group to add</label>
+                <label for="selectFormCollaborators" style="display:block; margin-bottom:2px;">Add groups:</label>
                 <select v-model="group" id="selectFormCollaborators" style="width:100%;">
                     <option value="">Select a Group</option>
                     <option v-for="g in availableGroups" :value="g" :key="'collab_group_' + g.groupID">{{g.name}}</option>
