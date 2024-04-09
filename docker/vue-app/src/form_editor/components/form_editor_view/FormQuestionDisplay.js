@@ -89,7 +89,6 @@ export default {
 
                 <!-- TOOLBAR -->
                 <div v-show="!previewMode"
-                    :style="{backgroundColor: required ? '#eec8c8' : '#f2f2f5'}"
                     :id="'form_editing_toolbar_' + indicatorID">
 
                     <div style="width:100%;">
