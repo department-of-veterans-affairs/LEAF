@@ -53,7 +53,7 @@ export default {
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
 
-            name: XSSHelpers.decodeHTMLEntities(this.dialogData?.indicator?.name || '', ['script']),
+            name: XSSHelpers.decodeHTMLEntities(this.dialogData?.indicator?.name || ''),
             options: this.dialogData?.indicator?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
             format: this.dialogData?.indicator?.format || '',  //base format (eg 'radio')
             description: this.dialogData?.indicator?.description || '',
