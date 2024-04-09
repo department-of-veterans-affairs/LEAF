@@ -258,6 +258,17 @@ export default {
                             <option value="0" :selected="visible === 0">Hidden</option>
                         </select>
                     </label>
+                    <div v-if="focusedFormIsSensitive" style="display:flex; color: #a00;">
+                        <div style="display:flex; align-items: center;"><b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b></div> &nbsp;
+                        <div style="display:flex; align-items: center; font-size:90%;">(forced on because sensitive fields are present)</div>
+                    </div>
+                    <label v-else for="needToKnow"
+                        title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know: 
+                        <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#a00' : 'black'}" @change="updateNeedToKnow">
+                            <option value="0" :selected="!isNeedToKnow">Off</option>
+                            <option value="1" style="color: #a00;" :selected="isNeedToKnow">On</option>
+                        </select>
+                    </label>
                     <label for="formType">Form Type: 
                         <select id="formType" title="Change type of form" v-model="type" @change="updateType">
                             <option value="" :selected="type === ''">Standard</option>
@@ -274,17 +285,6 @@ export default {
                             </select>
                         </label>
                     </div>
-                    <div v-if="focusedFormIsSensitive" style="display:flex; color: #a00;">
-                        <div style="display:flex; align-items: center;"><b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b></div> &nbsp;
-                        <div style="display:flex; align-items: center; font-size:90%;">(forced on because sensitive fields are present)</div>
-                    </div>
-                    <label v-else for="needToKnow"
-                        title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know: 
-                        <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#a00' : 'black'}" @change="updateNeedToKnow">
-                            <option value="0" :selected="!isNeedToKnow">Off</option>
-                            <option value="1" style="color: #a00;" :selected="isNeedToKnow">On</option>
-                        </select>
-                    </label>
                 </div>
             </template>
             <div v-else style="margin-top: auto;">This is an Internal Form</div>

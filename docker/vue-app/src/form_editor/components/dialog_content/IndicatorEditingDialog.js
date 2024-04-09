@@ -585,7 +585,7 @@ export default {
         </div>
         <div v-show="description !== '' || shortLabelTriggered">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label for="description">What would you call this field in a spreadsheet?</label>
+                <label for="description">Short label for spreadsheet headings</label>
                 <div>{{shortlabelCharsRemaining}}</div>
             </div>
             <input type="text" id="description" v-model="description" maxlength="50" />
@@ -611,11 +611,11 @@ export default {
                 </div>
             </div>
             <div v-show="format === 'checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
-                <label for="indicatorSingleAnswer">Text for checkbox:</label>
+                <label for="indicatorSingleAnswer">Text for checkbox</label>
                 <input type="text" id="indicatorSingleAnswer" v-model="singleOptionValue"/>
             </div>
             <div v-show="isMultiOptionQuestion" id="container_indicatorMultiAnswer" style="margin-top:0.5rem;">
-                <label for="indicatorMultiAnswer">One option per line:</label>
+                <label for="indicatorMultiAnswer">Options (One option per line)</label>
                 <textarea id="indicatorMultiAnswer" v-model="multiOptionValue" style="height: 130px;">
                 </textarea>
             </div>
