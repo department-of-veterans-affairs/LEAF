@@ -118,7 +118,7 @@ export default {
         <br />
         <p>To provide flexibility, specific groups can be granted permission to update information at any time in the workflow. This can be useful if you have internal-use fields, and want certain groups of people to update information at any time.</p>
         <br />
-        <h3>The following groups can update records at any time:</h3>
+        <h3>The following groups can update {{formNameStripped()}} records at any time:</h3>
         <div id="formPrivs" style="margin-top: 1rem;">
             <template v-if="collaborators.length > 0">
                 <ul style="display: list-item; list-style-type:disc; margin-left: 1rem; min-height: 30px;">
