@@ -111,7 +111,7 @@ export default {
                             Programmer
                         </button>
                         <img v-if="conditionalQuestion" :src="libsPath + 'dynicons/svg/go-jump.svg'" alt="" title="conditional logic is present" />
-                        <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" title="advanced options are present" />
+                        <img v-if="hasCode" :src="libsPath + 'dynicons/svg/application-x-executable.svg'" alt="" title="advanced options are present" />
                     </div>
                     <button v-if="!isHeader" type="button" class="btn-general"
                         title="Add sub-question"

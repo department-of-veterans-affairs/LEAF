@@ -119,7 +119,7 @@ export default {
         if(this.sort === null){
             this.sort = this.newQuestionSortValue;
         }
-        if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>','<h1>','<h2>','<h3>','<h4>'])) {
+        if(this.containsRichText(this.name)) {
             document.getElementById('advNameEditor').click();
             document.querySelector('.trumbowyg-editor').focus();
         } else {
@@ -158,7 +158,7 @@ export default {
             return this.parentID !== null || this.advancedMode === true || this.format !== ''
         },
         shortLabelTriggered() {
-            return this.name.trim().split(' ').length > 2;
+            return this.name.trim().split(' ').length > 2 || this.containsRichText(this.name);
         },
         formatBtnText() {
             return this.showDetailedFormatInfo ? "Hide Details" : "What's this?";
@@ -204,6 +204,9 @@ export default {
         }
     },
     methods: {
+        containsRichText(txt) {
+            return XSSHelpers.containsTags(txt, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>','<h1>','<h2>','<h3>','<h4>']);
+        },
         setOrgSelDefaultValue(orgSelector = {}) {
             if(orgSelector.selection !== undefined) {
                 this.defaultValue = orgSelector.selection.toString();
