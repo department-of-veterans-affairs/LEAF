@@ -499,6 +499,7 @@
     * @param {bool} updateURL - whether to update URL params and add to URL history
     */
     function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
+        const bodyData = getCodeEditorValue(codeEditor);
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
         $('.CodeMirror').remove();
@@ -522,7 +523,7 @@
                     mode: 'htmlmixed',
                     lineNumbers: true,
                     indentUnit: 4,
-                    value: currentFileContent.replace(/\r\n/g, "\n"),
+                    value: bodyData,
                     origLeft: fileContent.replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
@@ -765,16 +766,8 @@
     * @param {string} emailCcFile - eg LEAF_send_back_emailCc.tpl
     */
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
-        if (file === undefined) {
-            name = currentName;
-            file = currentFile;
-            subjectFile = currentSubjectFile;
-            emailToFile = currentEmailToFile;
-            emailCcFile = currentEmailCcFile;
-        }
-
         if (ignorePrompt) {
-            ignorePrompt = false; // Reset ignorePrompt flag
+            ignorePrompt = false;
         } else {
             const emailToData = document.getElementById('emailToCode').value;
             const emailCcData = document.getElementById('emailCcCode').value;
@@ -786,11 +779,17 @@
                 return;
             }
         }
+        if (file === undefined) {
+            name = currentName;
+            file = currentFile;
+            subjectFile = currentSubjectFile;
+            emailToFile = currentEmailToFile;
+            emailCcFile = currentEmailCcFile;
+        }
 
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#subjectCompare').empty();
-
         $('#codeContainer').hide();
 
         currentName = name;

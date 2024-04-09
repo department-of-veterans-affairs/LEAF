@@ -14,11 +14,10 @@
     margin: 0;
 }
 
-
 /* CodeMirror related style adjustments */
-/* adds a more obvious glyph for the merge buttons. original still shows to keep it accessible */
-.CodeMirror-merge-copybuttons-left > .CodeMirror-merge-copy::before {
-    content: '\25ba\25ba\25ba';
+.CodeMirror-merge-copy {
+    font-size: 1.25rem;
+    margin-top:  -3px;
 }
 .CodeMirror-linebackground {
     background-color: #8ce79b80;

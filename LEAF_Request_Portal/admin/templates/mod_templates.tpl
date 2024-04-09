@@ -422,6 +422,7 @@
     * @param {bool} updateURL - whether to update URL params and add to URL history
     */
     function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
+        const bodyData = getCodeEditorValue(codeEditor);
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
         $('.CodeMirror').remove();
@@ -437,7 +438,7 @@
                     mode: 'htmlmixed',
                     lineNumbers: true,
                     indentUnit: 4,
-                    value: currentFileContent.replace(/\r\n/g, "\n"),
+                    value: bodyData,
                     origLeft: fileContent.replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
@@ -531,7 +532,6 @@
             $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
             return;
         }
-        //Prompt for confirmation before continuing if there are unsaved changes in a current file.
         if (ignorePrompt) {
             ignorePrompt = false;
         } else {

@@ -430,6 +430,7 @@
     }
     // compares current file content with history file from getFileHistory()
     function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
+        const bodyData = getCodeEditorValue(codeEditor);
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
         $('.CodeMirror').remove();
@@ -445,7 +446,7 @@
                     mode: 'htmlmixed',
                     lineNumbers: true,
                     indentUnit: 4,
-                    value: currentFileContent.replace(/\r\n/g, "\n"),
+                    value: bodyData,
                     origLeft: fileContent.replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
@@ -531,21 +532,20 @@
 
     //loads all files and retreave's them
     function loadContent(file) {
-        if (file === undefined) {
-            console.error('No file specified. File cannot be loaded.');
-            $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
-            return;
-        }
-
         const isLeafFile = currentFile === 'example' || /^LEAF_/.test(currentFile);
         if (ignorePrompt) {
-            ignorePrompt = false; // Reset ignorePrompt flag
+            ignorePrompt = false;
         } else {
             if (!isLeafFile && !ignoreUnsavedChanges &&
                 currentFileContent !== getCodeEditorValue(codeEditor) &&
                 !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
                 return;
             }
+        }
+        if (file === undefined) {
+            console.error('No file specified. File cannot be loaded.');
+            $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
+            return;
         }
 
         $('.CodeMirror').remove();
