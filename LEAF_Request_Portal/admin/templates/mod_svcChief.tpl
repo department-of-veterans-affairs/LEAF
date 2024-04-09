@@ -413,26 +413,20 @@ function initiateWidget(serviceID = 0, serviceName = '') {
 /**
  * Get list of services and their members
  */
-function getGroupList() {
+ function getGroupList() {
 	$.when(
 	    $.ajax({
-	        type: 'GET',
-	        url: '../api/service/quadrads',
-	        cache: false
-	    }),
-        $.ajax({
             type: 'GET',
             url: '../api/service/members',
             cache: false
         })
      )
-	.done(function(res1, res2) {
-		let quadrads = res1[0];
-		let services = res2[0];
+	.done(function(res) {
+		let services = res;
+        let quad = getQuads(res);
 
-	    for (let i in quadrads) {
-            $('#groupList').append('<h2>'+ toTitleCase(quadrads[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quadrads[i].groupID +'"></div>');
-
+        for (let i in quad) {
+            $('#groupList').append('<h2>'+ toTitleCase(quad[i].name) +'</h2><div class="leaf-displayFlexRow" id="group_'+ quad[i].groupID +'"></div>');
         }
 	    for (let i in services) {
             $('#group_' + services[i].groupID).append('<div tabindex="0" id="'+ services[i].serviceID +'" title="serviceID: '+ services[i].serviceID +'" class="groupBlockWhite">'
@@ -443,6 +437,30 @@ function getGroupList() {
 	    	populateMembers(services[i].serviceID, services[i].members);
 	    }
 	});
+}
+
+/**
+ * getQuads extracts the quadrad services from the list of
+ * all services to be used to set the headings for the service
+ * chiefs page
+ * @param {array} members - an array of services
+ */
+function getQuads(members) {
+    let quad_list = new Array();
+    let member = new Array();
+    let x = 0;
+
+    for (let i in members) {
+        if (members[i].serviceID === members[i].groupID) {
+            member['groupID'] = members[i].groupID;
+            member['name'] = members[i].service;
+
+            quad_list[x] = Object.assign({}, member);
+            x++;
+        }
+    }
+
+    return quad_list;
 }
 
 /**
