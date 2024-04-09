@@ -53,7 +53,7 @@ export default {
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
 
-            name: XSSHelpers.stripTags(this.dialogData?.indicator?.name || '', ['script']),
+            name: XSSHelpers.decodeHTMLEntities(this.dialogData?.indicator?.name || '', ['script']),
             options: this.dialogData?.indicator?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
             format: this.dialogData?.indicator?.format || '',  //base format (eg 'radio')
             description: this.dialogData?.indicator?.description || '',
@@ -119,7 +119,7 @@ export default {
         if(this.sort === null){
             this.sort = this.newQuestionSortValue;
         }
-        if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
+        if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>','<h1>','<h2>','<h3>','<h4>'])) {
             document.getElementById('advNameEditor').click();
             document.querySelector('.trumbowyg-editor').focus();
         } else {
