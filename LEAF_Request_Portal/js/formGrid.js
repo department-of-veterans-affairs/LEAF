@@ -707,13 +707,6 @@ var LeafFormGrid = function (containerID, options) {
                                            }"
                                            data-indicator-id="${
                                              headers[j].indicatorID
-                                           }"
-                                           data-format="${
-                                             currentData[i].s1[
-                                               "id" +
-                                                 headers[j].indicatorID +
-                                                 "_format"
-                                             ]
                                            }">
                                             ${data.data}</td>`;
             }
@@ -824,6 +817,7 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
+   * @deprecated See example.tpl for more efficient formGrid usage.
    * @memberOf LeafFormGrid
    */
   function loadData(recordIDs, callback) {
@@ -930,7 +924,14 @@ var LeafFormGrid = function (containerID, options) {
         'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="" /> Export</button>'
     );
 
-    $("#" + prefixID + "getExcel").on("click", function () {
+    $("#" + prefixID + "getExcel").on("click", async function () {
+      // get indicator formats in case they need special handling (e.g. dates)
+      let iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format").then(res => res.json());
+      let indicatorFormats = {};
+      iFormatData.forEach(i => {
+        indicatorFormats[i.indicatorID] = i.format;
+      });
+
       if (currentRenderIndex != currentData.length) {
         renderBody(0, Infinity);
       }
@@ -959,8 +960,8 @@ var LeafFormGrid = function (containerID, options) {
 
           let trimmedText = val.innerText.trim();
           line[i] = trimmedText;
-          //prevent some values from being interpretted as dates by excel
-          const dataFormat = val.getAttribute("data-format");
+          //prevent some values from being interpreted as dates by excel
+          const dataFormat = indicatorFormats[val.getAttribute("data-indicator-id")];
           const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
           const isNumber = /^\d+$/;
 
