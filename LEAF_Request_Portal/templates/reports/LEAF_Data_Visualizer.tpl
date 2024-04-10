@@ -95,6 +95,25 @@ function isNumeric(x) {
     return !isNaN(parseFloat(x));
 }
 
+function scrubHTML(input) {
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        return t.textContent;
+}
+
+// Update window title
+function updateTitle(title) {
+    if(title != '') {
+        let siteName = document.querySelector('#headerDescription')?.innerText;
+        let siteLocation = document.querySelector('#headerLabel')?.innerText;
+        if(siteName == undefined) {
+            document.querySelector('title').innerText = scrubHTML(`${title}`);
+        }
+        else {
+            document.querySelector('title').innerText = scrubHTML(`${title} - ${siteName} | ${siteLocation}`);
+        }
+    }
+}
+
 // getFields returns an array of field types to display
 function getFields(form) {
     for(let i in form) {
@@ -642,7 +661,7 @@ async function getDataBuildCharts(categoryID, customSearch) {
     }
     
     document.querySelector('#chart_title').innerHTML = chartTitle;
-    document.querySelector('title').innerText = chartTitle;
+    updateTitle(`${chartTitle} Responses`);
 }
 
 function isSearchingDeleted(searchObj) {
