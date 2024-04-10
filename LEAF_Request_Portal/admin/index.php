@@ -457,8 +457,16 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/XSSHelpers.js',
                                            '../js/formQuery.js'));
-
-        $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
+        $tz_additional = array(
+            "America/Puerto_Rico",
+            "Pacific/Guam",
+            "Pacific/Saipan",
+            "Pacific/Pago_Pago",
+            "Asia/Manila",
+        );
+        $tzones = array_merge(DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'), $tz_additional);
+        sort($tzones);
+        $t_form->assign('timeZones', $tzones);
 
         $t_form->assign('importTags', $settings['orgchartImportTags'][0]);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));

@@ -518,7 +518,15 @@ class System
             return 'Admin access required';
         }
 
-        if (array_search($_POST['timeZone'], \DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, 'US')) === false)
+        $tz_additional = array(
+            "America/Puerto_Rico",
+            "Pacific/Guam",
+            "Pacific/Saipan",
+            "Pacific/Pago_Pago",
+            "Asia/Manila",
+        );
+        $tzones = array_merge(\DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, 'US'), $tz_additional);
+        if (array_search($_POST['timeZone'], $tzones) === false)
         {
             return 'Invalid timezone';
         }
