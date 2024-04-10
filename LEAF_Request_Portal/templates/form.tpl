@@ -29,9 +29,9 @@
     </div>
     <div class="col span_1_of_5" style="float: left">
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
-            <div id="showSinglePage" role="button" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View full form"><img src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt=""  /> Show single page</div>
+            <button type="button" id="showSinglePage" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View full form"><img src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt=""  /> Show single page</button>
             <br /><br />
-            <button tabindex="0" class="tools" aria-label="Cancel request" onclick="cancelRequest()"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
+            <button class="tools" onclick="cancelRequest()"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
         </div>
     </div>
 </div>

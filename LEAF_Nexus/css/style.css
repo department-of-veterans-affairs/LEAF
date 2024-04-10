@@ -119,6 +119,120 @@ span#headerMenu {
     text-align: right;
 }
 
+/* updated nav */
+#nav-skip-link {
+    position: absolute;
+    opacity: 0;
+    color: black;
+    background-color: #e0e0e0;
+    padding: 0.1em 0.2em;
+    border-radius: 2px;
+    left: -9999px;
+}
+#nav-skip-link:focus,
+#nav-skip-link:active {
+    opacity: 1;
+    left: 0;
+    z-index: 100;
+}
+#headerMenuNav {
+    font-size: 12px;
+}
+#headerMenuNav > ul {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+}
+#headerMenu > nav > ul > li {
+    box-sizing: border-box;
+    height: 24px;
+    margin: 0;
+}
+#headerMenu .controlled-element {
+    position: absolute;
+    top: calc(100% - 2px);
+}
+#headerMenu .controlled-element.is-shown {
+    display: block;
+}
+#headerMenuNav > ul > li > button,
+#headerMenuNav > ul > li > a {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0.25rem;
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    text-decoration: none;
+    color: black;
+}
+#headerMenuNav > ul > li > button:hover,
+#headerMenuNav > ul > li > button:focus,
+#headerMenuNav > ul > li > button:active,
+#headerMenuNav > ul > li > a:hover,
+#headerMenuNav > ul > li > a:focus,
+#headerMenuNav > ul > li > a:active {
+    color: white;
+}
+#help_admin_info {
+    padding: 0.5rem 0 0 0;
+    line-height: 1.6;
+}
+
+#headerMenu > a,
+#headerMenu_container > a,
+#headerMenuHelp_container > a {
+    text-decoration: none;
+    margin-left: 8px;
+    color: black;
+}
+#headerMenu > a > img {
+    padding-bottom: 2px;
+    padding-right: 4px;
+}
+#headerMenu > a:hover,
+#headerMenu_container > a:hover,
+#headerMenuHelp_container > a:hover {
+    text-decoration: underline;
+    color: white;
+}
+#headerMenu > a:focus,
+#headerMenu_container > a:focus,
+#headerMenuHelp_container > a:focus {
+    text-decoration: underline;
+    color: white;
+}
+#headerMenu_help a:focus > .menuButtonSmall {
+    outline-style: dotted;
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+}
+#headerMenu_help {
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0,0,25,0.2);
+    padding: 0.5em 0.75em;
+    border: 1px solid black;
+    right: 0px;
+    z-index: 100;
+    width: max-content;
+}
+#headerMenuHelp_container:hover #headerMenu_help {
+    display: block;
+}
+#headerMenu_help > a:focus > .menuButtonSmall {
+    box-shadow: 0 4px 6px 2px #8e8e8e;
+    margin: 12px;
+    outline-style: dotted;
+}
+
+
 #headerMenu > a, #headerMenu_container > a {
     text-decoration: none;
     margin-left: 8px;
@@ -174,10 +288,6 @@ span#headerMenu {
     outline-style: dotted;
 }
 
-#headerMenu_container > a::after, #headerMenuHelp_container > a::after {
-    content:'\25BC';
-}
-
 #headerMenu > a:hover, #headerMenu_container > a:hover{
     background-color: #2372b0;
     text-decoration: underline;
@@ -230,6 +340,25 @@ span#headerTab {
 /*    background-image: url(../images/tab.gif);
     background-repeat: no-repeat;*/
     background-color: #5a79a5;
+}
+/* orgchart card options.  can be buttons or links */
+.positionSmall .button.buttonNorm {
+    display: flex;
+    gap:3px;
+    align-items: center;
+    color: black;
+    padding: 2px;
+    text-decoration: none;
+    box-sizing: border-box;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid black;
+}
+.positionSmall .button.buttonNorm:hover,
+.positionSmall .button.buttonNorm:focus,
+.positionSmall .button.buttonNorm:active {
+    padding: 2px;
+    color: white;
 }
 
 .link {
