@@ -1047,9 +1047,14 @@ var version = 3;
 // Update window title
 function updateTitle(title) {
     if(title != '') {
-        let siteName = document.querySelector('#headerDescription').innerText;
-        let siteLocation = document.querySelector('#headerLabel').innerText;
-        document.querySelector('title').innerText = scrubHTML(`${title} - ${siteName} | ${siteLocation}`);
+        let siteName = document.querySelector('#headerDescription')?.innerText;
+        let siteLocation = document.querySelector('#headerLabel')?.innerText;
+        if(siteName == undefined) {
+            document.querySelector('title').innerText = scrubHTML(`${title}`);
+        }
+        else {
+            document.querySelector('title').innerText = scrubHTML(`${title} - ${siteName} | ${siteLocation}`);
+        }
     }
 }
 
