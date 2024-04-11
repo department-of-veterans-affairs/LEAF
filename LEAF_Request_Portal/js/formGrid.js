@@ -245,17 +245,15 @@ var LeafFormGrid = function (containerID, options) {
         renderBody(0, Infinity);
       });
     }
-
+    let divFilter = document.createElement('div');
     for (let i in headers) {
       if (headers[i].visible == false) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
-      let headerName = '';
-      if(typeof XSSHelpers !== 'undefined') {
-        headerName = XSSHelpers.stripAllTags(headers[i].name || '').trim();
-      }
-      const ariaAttr = headerName !== '' ? ` aria-label="${headerName}, sortable"` : "";
+      divFilter.innerHTML = headers[i].name || '';
+      const textName = divFilter.textContent.trim();
+      const ariaAttr = textName !== '' ? ` aria-label="${textName}, sortable"` : "";
       $("#" + prefixID + "thead_tr").append(
         `<th scope="col"
           id="${prefixID}header_${headers[i].indicatorID}" style="text-align:${align}">
