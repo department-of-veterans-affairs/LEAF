@@ -251,11 +251,15 @@ var LeafFormGrid = function (containerID, options) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
+      let headerName = '';
+      if(typeof XSSHelpers !== 'undefined') {
+        headerName = XSSHelpers.stripAllTags(headers[i].name || '').trim();
+      }
+      const ariaAttr = headerName !== '' ? ` aria-label="${headerName}, sortable"` : "";
       $("#" + prefixID + "thead_tr").append(
         `<th scope="col"
           id="${prefixID}header_${headers[i].indicatorID}" style="text-align:${align}">
-          <button type="button" class="btn_leaf_grid_sort"
-            aria-label="${headers[i].name}, sortable">${headers[i].name}
+          <button type="button" class="btn_leaf_grid_sort"${ariaAttr}>${headers[i].name}
             <span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
           </button>
         </th>`
@@ -707,13 +711,6 @@ var LeafFormGrid = function (containerID, options) {
                                            }"
                                            data-indicator-id="${
                                              headers[j].indicatorID
-                                           }"
-                                           data-format="${
-                                             currentData[i].s1[
-                                               "id" +
-                                                 headers[j].indicatorID +
-                                                 "_format"
-                                             ]
                                            }">
                                             ${data.data}</td>`;
             }
@@ -824,6 +821,7 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
+   * @deprecated See example.tpl for more efficient formGrid usage.
    * @memberOf LeafFormGrid
    */
   function loadData(recordIDs, callback) {
@@ -930,12 +928,19 @@ var LeafFormGrid = function (containerID, options) {
         'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="" /> Export</button>'
     );
 
-    $("#" + prefixID + "getExcel").on("click", function () {
+    $("#" + prefixID + "getExcel").on("click", async function () {
+      // get indicator formats in case they need special handling (e.g. dates)
+      let iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format").then(res => res.json());
+      let indicatorFormats = {};
+      iFormatData.forEach(i => {
+        indicatorFormats[i.indicatorID] = i.format;
+      });
+
       if (currentRenderIndex != currentData.length) {
         renderBody(0, Infinity);
       }
-      var output = [];
-      var headers = [];
+      let output = [];
+      let headers = [];
       //removes triangle symbols so that ascii chars are not present in exported headers.
       $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
         $(val).html("");
@@ -951,21 +956,25 @@ var LeafFormGrid = function (containerID, options) {
       document
         .querySelectorAll("#" + prefixID + "tbody>tr>td")
         .forEach(function (val) {
-          var foundScripts = val.querySelectorAll("script");
+          let foundScripts = val.querySelectorAll("script");
 
-          for (var tIdx = 0; tIdx < foundScripts.length; tIdx++) {
+          for (let tIdx = 0; tIdx < foundScripts.length; tIdx++) {
             foundScripts[tIdx].parentNode.removeChild(foundScripts[tIdx]);
           }
 
-          var trimmedText = val.innerText.trim();
+          let trimmedText = val.innerText.trim();
           line[i] = trimmedText;
-          //prevent some values from being interpretted as dates by excel
-          const dataFormat = val.getAttribute("data-format");
+          //prevent some values from being interpreted as dates by excel
+          const dataFormat = indicatorFormats[val.getAttribute("data-indicator-id")];
           const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
+          const isNumber = /^\d+$/;
+
           line[i] =
-            dataFormat !== null &&
-            dataFormat !== "date" &&
-            testDateFormat.test(line[i])
+            (dataFormat !== null &&
+              dataFormat !== 'date' &&
+              testDateFormat.test(line[i])) ||
+            (isNumber.test(line[i]) &&
+              dataFormat === 'text')
               ? `="${line[i]}"`
               : line[i];
           if (i == 0 && headers[i] == "UID") {
@@ -997,8 +1006,8 @@ var LeafFormGrid = function (containerID, options) {
         rows += '"' + thisRow.join('","') + '",\r\n';
       });
 
-      var download = document.createElement("a");
-      var now = new Date().getTime();
+      let download = document.createElement("a");
+      let now = new Date().getTime();
       download.setAttribute(
         "href",
         "data:text/csv;charset=utf-8," + encodeURIComponent(rows)

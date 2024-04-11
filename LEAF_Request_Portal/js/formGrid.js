@@ -251,11 +251,15 @@ var LeafFormGrid = function (containerID, options) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
+      let headerName = '';
+      if(typeof XSSHelpers !== 'undefined') {
+        headerName = XSSHelpers.stripAllTags(headers[i].name || '').trim();
+      }
+      const ariaAttr = headerName !== '' ? ` aria-label="${headerName}, sortable"` : "";
       $("#" + prefixID + "thead_tr").append(
         `<th scope="col"
           id="${prefixID}header_${headers[i].indicatorID}" style="text-align:${align}">
-          <button type="button" class="btn_leaf_grid_sort"
-            aria-label="${headers[i].name}, sortable">${headers[i].name}
+          <button type="button" class="btn_leaf_grid_sort"${ariaAttr}>${headers[i].name}
             <span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
           </button>
         </th>`
