@@ -110,8 +110,10 @@ export default {
                             :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
                             Programmer
                         </button>
-                        <img v-if="conditionalQuestion" :src="libsPath + 'dynicons/svg/go-jump.svg'" alt="" title="conditional logic is present" />
-                        <img v-if="hasCode" :src="libsPath + 'dynicons/svg/application-x-executable.svg'" alt="" title="advanced options are present" />
+                        <div style="margin-left: auto">
+                            <span v-if="conditionalQuestion" role="img" aria="" alt="" title="conditional logic is present" style="color: transparent; text-shadow: 0 0 0 black; cursor: help">⛓️</span>
+                            <span v-if="hasCode" role="img" aria="" alt="" title="advanced options are present" style="color: transparent; text-shadow: 0 0 0 black; cursor: help">⚙️</span>
+                        </div>
                     </div>
                     <button v-if="!isHeader" type="button" class="btn-general"
                         title="Add sub-question"
