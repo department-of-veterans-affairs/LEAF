@@ -231,15 +231,19 @@ span#headerMenu {
   font-size: 12px;
   font-weight: normal;
 }
-
+table {
+  height: 1px;  /* table will ignore, needed to set other content to 100% height */
+}
 table .btn_leaf_grid_sort {
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 2px;
   margin: 0;
   border: 0;
   width: 100%;
   height: 100%;
-  background-color: transparent;
+  background-color: inherit;
+  color: inherit;
+  font-size: inherit;
 }
 
 /* menu.tpl elements include nav and 1st level ul */

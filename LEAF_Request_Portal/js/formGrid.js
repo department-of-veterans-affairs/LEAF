@@ -251,15 +251,24 @@ var LeafFormGrid = function (containerID, options) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
-      divFilter.innerHTML = headers[i].name || '';
-      const textName = divFilter.textContent.trim();
-      const ariaAttr = textName !== '' ? ` aria-label="${textName}, sortable"` : "";
+
+      const canSort = headers[i].sortable == undefined || headers[i].sortable == true;
+      let thInnerContent = "";
+      if(canSort) {
+        divFilter.innerHTML = headers[i].name || '';
+        const textName = (divFilter.textContent.trim()).replace(/"/g, "'");
+        const ariaAttr = textName !== '' ? `${textName}, sortable` : "sortable";
+        thInnerContent = `<button type="button" class="btn_leaf_grid_sort" aria-label="${ariaAttr}">
+            ${headers[i].name}
+            <span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
+          </button>`;
+      } else {
+        thInnerContent = `<div tabindex="0" style="padding:2px;">${headers[i].name}</div>`;
+      }
       $("#" + prefixID + "thead_tr").append(
         `<th scope="col"
           id="${prefixID}header_${headers[i].indicatorID}" style="text-align:${align}">
-          <button type="button" class="btn_leaf_grid_sort"${ariaAttr}>${headers[i].name}
-            <span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
-          </button>
+            ${thInnerContent}
         </th>`
       );
       virtualHeader +=
@@ -297,7 +306,7 @@ var LeafFormGrid = function (containerID, options) {
 
     $("#" + prefixID + "table>thead>tr>th").css({
       border: "1px solid black",
-      padding: "0",
+      padding: "2px",
       "font-size": "12px",
     });
 
