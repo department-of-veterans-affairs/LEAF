@@ -44,6 +44,13 @@ label input {
     margin-left: 0.25rem;
     cursor: pointer;
 }
+table th button {
+    border: 0;
+    width: 100%;
+    color: inherit;
+    background-color: inherit;
+    cursor: pointer;
+}
 table th:not([id^="Vheader"]) {
     background-color: #252f3e;
     color: white;
