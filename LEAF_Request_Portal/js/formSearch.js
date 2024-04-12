@@ -969,17 +969,20 @@ var LeafFormSearch = function (containerID) {
                                 "</option>";
                         }
                         categories += "</select>";
-                        // quick and dirty fix to avoid a race condition related to custom
+                        // quick and dirty fix to avoid a race condition related to common
                         // implementations of formSearch. Since the new default UI will trigger
-                        // the parent ajax call, we don't want to overwrite the existing widget
+                        // the parent ajax call, we don't want to overwrite the existing widget.
+                        // This can cause a minor UX issue where changing the search term from anything
+                        // else to a "Current Status" would result in a missing dropdown of status options.
                         if($("#" + prefixID + "widgetMatch_" + widgetID).html() == "") {
                             $("#" + prefixID + "widgetMatch_" + widgetID).html(
                                 categories
                             );
-                            chosenOptions();
-                            if (callback != undefined) {
-                                callback();
-                            }
+                        }
+
+                        chosenOptions();
+                        if (callback != undefined) {
+                            callback();
                         }
                     },
                 });

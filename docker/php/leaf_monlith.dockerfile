@@ -12,6 +12,9 @@ WORKDIR /var/www/html
 COPY docker/php/ssmtp/ssmtp.conf /etc/ssmtp/ssmtp.conf
 COPY docker/php/ssmtp/revaliases /etc/ssmtp/revaliases
 
+# install minimal procps (ps aux) and cleanup afterwards
+RUN apt update && apt install --no-install-recommends -y procps && apt clean
+
 FROM base as dev 
 # xdebug
 # RUN pecl config-set php_ini "$PHP_INI_DIR/php.ini"

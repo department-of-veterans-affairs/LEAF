@@ -1064,7 +1064,7 @@ function makeGrid(columns) {
                     for (let f = 0; f < fileManagerTextFiles.length; f++) {
                         const filename = XSSHelpers.stripAllTags(fileManagerTextFiles[f]);
                         const attrSelected = gridFile === filename ? 'selected' : '';
-                        options += `<option value=${filename} ${attrSelected}>${filename}</option>`
+                        options += `<option value="${filename}" ${attrSelected}>${filename}</option>`
                     }
                     $(gridBodyElement + ' > div:eq(' + i + ')').append(`
                         <div class="dropdown_file" style="margin-top: 0.5rem;">
