@@ -242,11 +242,16 @@ export default {
          * Backward compatibility: certain properties are pre-sanitized server-side, and must be decoded before rendering
          * TODO: Migrate to markdown
          */
-        decodeHTMLEntities(obj) {
+        decodeHTMLEntities(txt) {
+            let tmp = document.createElement("textarea");
+            tmp.innerHTML = txt;
+            return tmp.value;
+        },
+        backwardCompatNames(obj) {
             for(let i in obj) {
-                obj[i].name = XSSHelpers.decodeHTMLEntities(obj[i].name);
+                obj[i].name = this.decodeHTMLEntities(obj[i].name);
                 if(obj[i].child != null) {
-                    obj[i].child = this.decodeHTMLEntities(obj[i].child);
+                    obj[i].child = this.backwardCompatNames(obj[i].child);
                 }
             }
             return obj;
@@ -315,7 +320,7 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res) => {
-                        res = this.decodeHTMLEntities(res);
+                        res = this.backwardCompatNames(res);
 
                         let query = {
                             formID: this.queryID,
@@ -372,7 +377,7 @@ export default {
                         res.json().then(data => {
                             if(data?.status?.code === 2) {
                                 this.previewTree = data.data || [];
-                                this.previewTree = this.decodeHTMLEntities(this.previewTree);
+                                this.previewTree = this.backwardCompatNames(this.previewTree);
                                 this.focusedFormID = primaryID;
                             } else {
                                 console.log(data);
