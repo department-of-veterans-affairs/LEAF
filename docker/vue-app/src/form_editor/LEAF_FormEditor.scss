@@ -589,7 +589,8 @@ table[class$="SelectorTable"] th {
             }
             &:not(.form-header):not(.preview) {
                 margin-left: 0.5rem;
-                border-top: 1px solid #e8e8e8;
+                border: 1px solid #c1c1c1;
+                box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
             }
         }
     }
