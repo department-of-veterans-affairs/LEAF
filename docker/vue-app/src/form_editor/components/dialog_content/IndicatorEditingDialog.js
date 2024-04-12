@@ -53,7 +53,7 @@ export default {
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
 
-            name: XSSHelpers.decodeHTMLEntities(this.dialogData?.indicator?.name || ''),
+            name: this.decodeHTMLEntities(this.dialogData?.indicator?.name || ''),
             options: this.dialogData?.indicator?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
             format: this.dialogData?.indicator?.format || '',  //base format (eg 'radio')
             description: this.dialogData?.indicator?.description || '',
@@ -206,6 +206,11 @@ export default {
     methods: {
         containsRichText(txt) {
             return XSSHelpers.containsTags(txt, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>','<h1>','<h2>','<h3>','<h4>']);
+        },
+        decodeHTMLEntities(txt) {
+            let tmp = document.createElement("textarea");
+            tmp.innerHTML = txt;
+            return tmp.value;
         },
         setOrgSelDefaultValue(orgSelector = {}) {
             if(orgSelector.selection !== undefined) {
