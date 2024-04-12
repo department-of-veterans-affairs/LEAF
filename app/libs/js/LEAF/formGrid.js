@@ -375,11 +375,11 @@ var LeafFormGrid = function (containerID, options) {
     if (order.toLowerCase() == "asc") {
       $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", ascending.");
       $(headerSelector).attr("aria-sort", "ascending");
-      $(headerSelector + "_sort").html('<span aria-hidden="true">▲</span>');
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▲</span>');
     } else {
       $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", descending.");
       $(headerSelector).attr("aria-sort", "descending");
-      $(headerSelector + "_sort").html('<span aria-hidden="true">▼</span>')
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▼</span>')
     }
     $(headerSelector + "_sort").css("display", "inline");
     var array = [];
@@ -946,7 +946,7 @@ var LeafFormGrid = function (containerID, options) {
       let output = [];
       let headers = [];
       //removes triangle symbols so that ascii chars are not present in exported headers.
-      $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
+      $("#" + prefixID + "thead .sort_icon_span").each(function (idx, val) {
         $(val).html("");
       });
       $("#" + prefixID + "thead>tr>th").each(function (idx, val) {
