@@ -220,9 +220,8 @@ var LeafFormGrid = function (containerID, options) {
     let virtualHeader = `<tr id="${prefixID}tVirt_tr">`;
     if (showIndex) {
       temp +=
-        `<th scope="col"
-          id="${prefixID}header_UID" style="text-align:center">
-          <button type="button" class="btn_leaf_grid_sort"
+        `<th scope="col" style="text-align:center">
+          <button id="${prefixID}header_UID" type="button" class="btn_leaf_grid_sort"
             aria-label="unique ID, sortable">UID<span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
           </button>
         </th>`;
@@ -257,14 +256,13 @@ var LeafFormGrid = function (containerID, options) {
         divFilter.innerHTML = headers[i].name || '';
         const textName = (divFilter.textContent.trim()).replace(/"/g, "'");
         const ariaAttr = textName !== '' ? `${textName}, sortable` : "sortable";
-        thInnerContent = `<button type="button" class="btn_leaf_grid_sort" aria-label="${ariaAttr}">${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
+        thInnerContent = `<button type="button" id="${prefixID}header_${headers[i].indicatorID}" class="btn_leaf_grid_sort" aria-label="${ariaAttr}">${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
           </button>`;
       } else {
-        thInnerContent = `<div tabindex="0" style="padding:2px;">${headers[i].name}</div>`;
+        thInnerContent = `<div tabindex="0" id="${prefixID}header_${headers[i].indicatorID}" style="padding:2px;">${headers[i].name}</div>`;
       }
       $("#" + prefixID + "thead_tr").append(
-        `<th scope="col"
-          id="${prefixID}header_${headers[i].indicatorID}" style="text-align:${align}">
+        `<th scope="col" style="text-align:${align}">
             ${thInnerContent}
         </th>`
       );
@@ -281,7 +279,7 @@ var LeafFormGrid = function (containerID, options) {
           "cursor",
           "pointer"
         );
-        $("#" + prefixID + "header_" + headers[i].indicatorID + ' > button').on(
+        $("#" + prefixID + "header_" + headers[i].indicatorID).on(
           "click",
           null,
           headers[i].indicatorID,
