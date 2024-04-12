@@ -238,6 +238,19 @@ export default {
         },
     },
     methods: {
+        /*
+         * Backward compatibility: certain properties are pre-sanitized server-side, and must be decoded before rendering
+         * TODO: Migrate to markdown
+         */
+        decodeHTMLEntities(obj) {
+            for(let i in obj) {
+                obj[i].name = XSSHelpers.decodeHTMLEntities(obj[i].name);
+                if(obj[i].child != null) {
+                    obj[i].child = this.decodeHTMLEntities(obj[i].child);
+                }
+            }
+            return obj;
+        },
         /**
          * updates the position of the form options area in large screen displays
          */
@@ -302,18 +315,7 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res) => {
-                        // Backward compatibility: certain properties are pre-sanitized server-side, and must be decoded before rendering
-                        // TODO: Migrate to markdown
-                        function decodeHTMLEntities(obj) {
-                            for(let i in obj) {
-                                obj[i].name = XSSHelpers.decodeHTMLEntities(obj[i].name);
-                                if(obj[i].child != null) {
-                                    obj[i].child = decodeHTMLEntities(obj[i].child);
-                                }
-                            }
-                            return obj;
-                        }
-                        res = decodeHTMLEntities(res);
+                        res = this.decodeHTMLEntities(res);
 
                         let query = {
                             formID: this.queryID,
@@ -365,24 +367,12 @@ export default {
                 this.appIsLoadingForm = true;
                 this.setDefaultAjaxResponseMessage();
 
-                // Backward compatibility: certain properties are pre-sanitized server-side, and must be decoded before rendering
-                // TODO: Migrate to markdown
-                function decodeHTMLEntities(obj) {
-                    for(let i in obj) {
-                        obj[i].name = XSSHelpers.decodeHTMLEntities(obj[i].name);
-                        if(obj[i].child != null) {
-                            obj[i].child = decodeHTMLEntities(obj[i].child);
-                        }
-                    }
-                    return obj;
-                }
-
                 try {
                     fetch(`${this.APIroot}form/specified?childkeys=nonnumeric&categoryIDs=${this.formPreviewIDs}`).then(res => {
                         res.json().then(data => {
                             if(data?.status?.code === 2) {
                                 this.previewTree = data.data || [];
-                                this.previewTree = decodeHTMLEntities(this.previewTree);
+                                this.previewTree = this.decodeHTMLEntities(this.previewTree);
                                 this.focusedFormID = primaryID;
                             } else {
                                 console.log(data);
