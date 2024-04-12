@@ -364,11 +364,25 @@ export default {
             if (primaryID !== '' && this.formPreviewIDs !== '') {
                 this.appIsLoadingForm = true;
                 this.setDefaultAjaxResponseMessage();
+
+                // Backward compatibility: certain properties are pre-sanitized server-side, and must be decoded before rendering
+                // TODO: Migrate to markdown
+                function decodeHTMLEntities(obj) {
+                    for(let i in obj) {
+                        obj[i].name = XSSHelpers.decodeHTMLEntities(obj[i].name);
+                        if(obj[i].child != null) {
+                            obj[i].child = decodeHTMLEntities(obj[i].child);
+                        }
+                    }
+                    return obj;
+                }
+
                 try {
                     fetch(`${this.APIroot}form/specified?childkeys=nonnumeric&categoryIDs=${this.formPreviewIDs}`).then(res => {
                         res.json().then(data => {
                             if(data?.status?.code === 2) {
                                 this.previewTree = data.data || [];
+                                this.previewTree = decodeHTMLEntities(this.previewTree);
                                 this.focusedFormID = primaryID;
                             } else {
                                 console.log(data);

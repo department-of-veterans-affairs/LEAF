@@ -205,7 +205,7 @@ export default {
     },
     methods: {
         containsRichText(txt) {
-            return XSSHelpers.containsTags(txt, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>','<h1>','<h2>','<h3>','<h4>']);
+            return XSSHelpers.containsTags(txt, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>','<h1>','<h2>','<h3>','<h4>','<a>','<blockquote>']);
         },
         decodeHTMLEntities(txt) {
             let tmp = document.createElement("textarea");
