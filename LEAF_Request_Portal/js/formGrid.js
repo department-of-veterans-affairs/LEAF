@@ -223,8 +223,7 @@ var LeafFormGrid = function (containerID, options) {
         `<th scope="col"
           id="${prefixID}header_UID" style="text-align:center">
           <button type="button" class="btn_leaf_grid_sort"
-            aria-label="unique ID, sortable">UID
-            <span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
+            aria-label="unique ID, sortable">UID<span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
           </button>
         </th>`;
       virtualHeader +=
@@ -258,9 +257,7 @@ var LeafFormGrid = function (containerID, options) {
         divFilter.innerHTML = headers[i].name || '';
         const textName = (divFilter.textContent.trim()).replace(/"/g, "'");
         const ariaAttr = textName !== '' ? `${textName}, sortable` : "sortable";
-        thInnerContent = `<button type="button" class="btn_leaf_grid_sort" aria-label="${ariaAttr}">
-            ${headers[i].name}
-            <span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
+        thInnerContent = `<button type="button" class="btn_leaf_grid_sort" aria-label="${ariaAttr}">${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
           </button>`;
       } else {
         thInnerContent = `<div tabindex="0" style="padding:2px;">${headers[i].name}</div>`;
@@ -378,11 +375,11 @@ var LeafFormGrid = function (containerID, options) {
     if (order.toLowerCase() == "asc") {
       $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", ascending.");
       $(headerSelector).attr("aria-sort", "ascending");
-      $(headerSelector + "_sort").html('<span aria-hidden="true"> ▲</span>');
+      $(headerSelector + "_sort").html('<span aria-hidden="true">▲</span>');
     } else {
       $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", descending.");
       $(headerSelector).attr("aria-sort", "descending");
-      $(headerSelector + "_sort").html('<span aria-hidden="true"> ▼</span>')
+      $(headerSelector + "_sort").html('<span aria-hidden="true">▼</span>')
     }
     $(headerSelector + "_sort").css("display", "inline");
     var array = [];
