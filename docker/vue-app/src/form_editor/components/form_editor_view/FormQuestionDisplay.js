@@ -122,7 +122,7 @@ export default {
                     </button>
                 </div>
                 <!-- NAME -->
-                <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
+                <div v-html="indicatorName"
                     class="indicator-name-preview" :id="'format_label_' + indicatorID">
                 </div>
             </div>

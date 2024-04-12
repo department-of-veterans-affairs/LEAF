@@ -591,6 +591,10 @@ table[class$="SelectorTable"] th {
                 margin-left: 0.5rem;
                 border: 1px solid #c1c1c1;
                 box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+                transition: box-shadow 0.5s;
+            }
+            &:not(.form-header):not(.preview):hover {
+                box-shadow: 1px 1px 10px 5px rgba(0,0,20,0.4);
             }
         }
     }
@@ -666,7 +670,8 @@ table[class$="SelectorTable"] th {
                 min-width: 260px;
             }
             button {
-                padding: 1px 6px;
+                padding: 4px;
+                margin: 2px;
                 font-weight: normal;
             }
             img {
