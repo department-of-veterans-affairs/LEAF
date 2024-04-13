@@ -47,14 +47,18 @@
                 </div>
                 <label for="code_mirror_subject_editor" id="subject">Subject</label>
                 <div id="divSubject">
+                    <div class="compared-label-content">
+                        <div class="CodeMirror-merge-pane-label-left"></div>
+                        <div class="CodeMirror-merge-pane-label-right">Current Subject</div>
+                    </div>
                     <textarea id="subjectCode"></textarea>
                     <div id="subjectCompare"></div>
                 </div>
                 <label for="code_mirror_template_editor" id="filename" class="email">Body</label>
                 <div id="emailBodyCode">
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label-left">(Old File)</div>
-                        <div class="CodeMirror-merge-pane-label-right">(Current File)</div>
+                        <div class="CodeMirror-merge-pane-label-left"></div>
+                        <div class="CodeMirror-merge-pane-label-right">Current Body</div>
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
@@ -129,56 +133,37 @@
                     <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
                     <div class="keyboard_shortcuts_section">
                         <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Save: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + S </p>
-                            </div>
+                            <h3 class="keyboard_shortcuts_title">Save:</h3>
+                            <p class="keyboard_shortcut">Ctrl + S</p>
                         </div>
                         <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Undo: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + Z </p>
-                            </div>
+                            <h3 class="keyboard_shortcuts_title">Undo:</h3>
+                            <p class="keyboard_shortcut">Ctrl + Z</p>
                         </div>
-                    </div>
-                    <div class="keyboard_shortcuts_section">
                         <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Full Screen: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>F11 </p>
-                            </div>
+                            <h3 class="keyboard_shortcuts_title">Full Screen:</h3>
+                            <p class="keyboard_shortcut">F11</p>
                         </div>
-                        <div class="keboard_shortcuts_box"></div>
+                        <div class="keboard_shortcuts_box">
+                            <h3 class="keyboard_shortcuts_title">Toggle Darkmode:</h3>
+                            <p class="keyboard_shortcut">Ctrl + B</p>
+                        </div>
                     </div>
                     <p class="cm_editor_nav_help">Within the code editor, tab enters a tab character.  If using the keyboard to navigate, press escape followed by tab to exit the editor.</p>
                 </div>
-
                 <div class="keyboard_shortcuts_merge hide">
                     <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
-                        <div class="keboard_shortcuts_box_merge">
-                            <div class="keyboard_shortcuts_title_merge">
-                                <h3>Merge Changes: </h3>
-                            </div>
-                            <div class="keyboard_shortcut_merge">
-                                <p>Ctrl + M </p>
-                            </div>
+                        <div class="keboard_shortcuts_box">
+                            <h3 class="keyboard_shortcuts_title">Merge Changes:</h3>
+                            <p class="keyboard_shortcut">Ctrl + M</p>
                         </div>
-                        <div class="keboard_shortcuts_box_merge">
-                            <div class="keyboard_shortcuts_title_merge">
-                                <h3>Exit Compare: </h3>
-                            </div>
-                            <div class="keyboard_shortcut_merge">
-                                <p>Ctrl + E </p>
-                            </div>
+                        <div class="keboard_shortcuts_box">
+                            <h3 class="keyboard_shortcuts_title">Exit Compare: </h3>
+                            <p class="keyboard_shortcut">Ctrl + E </p>
                         </div>
                     </div>
+                    <p class="cm_editor_nav_help">Within the code editor, tab enters a tab character.  If using the keyboard to navigate, press escape followed by tab to exit the editor.</p>
                 </div>
             </div>
         </main>
@@ -205,7 +190,7 @@
 
                     <button type="button" id="btn_compareStop"
                         class="usa-button usa-button--outline compare_only"
-                        onclick="exitExpandScreen()">
+                        onclick="loadContent()">
                         Stop Comparing
                     </button>
 
@@ -249,8 +234,8 @@
     var currentEmailToContent;
     var currentEmailCcContent;
 
-    var ignoreUnsavedChanges = false;
-    var ignorePrompt = true;
+    let ignoreUnsavedChanges = false;
+    let ignorePrompt = true;
     let indicatorFormats = {};
     const allowedToCcFormats = {
         "orgchart_employee": 1,
@@ -389,8 +374,10 @@
             });
         }
     }
+
     /**
-     * saves content to templates_history/email_templates and adds records to portal template_history_files
+     * saves current content for currentFile and associated fields to templates_history/email_templates
+     * and adds records to portal template_history_files.  calls getFileHistory at success
      */
     function saveFileHistory() {
         const data = getCodeEditorValue(codeEditor);
@@ -433,7 +420,10 @@
                     'CSRFToken': '<!--{$CSRFToken}-->'
                 }),
                 success: function() {
-                    saveFileHistory();
+                    const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button'))?.length;
+                    if(numRecords === 0) {
+                        saveFileHistory();
+                    }
                     exitExpandScreen();
                 }
             });
@@ -499,7 +489,7 @@
     * @param {bool} updateURL - whether to update URL params and add to URL history
     */
     function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
-        const bodyData = getCodeEditorValue(codeEditor);
+        const initialBodyData = getCodeEditorValue(codeEditor);
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
         $('.CodeMirror').remove();
@@ -519,11 +509,13 @@
             dataType: 'text',
             cache: false,
             success: function(fileContent) {
+                $('#emailBodyCode .CodeMirror-merge-pane-label-left').html(`Old Body File ${initialBodyData === fileContent ? '(No Changes)' : ''}`);
+
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
                     mode: 'htmlmixed',
                     lineNumbers: true,
                     indentUnit: 4,
-                    value: bodyData,
+                    value: initialBodyData,
                     origLeft: fileContent.replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
@@ -542,17 +534,14 @@
                 addCodeMirrorAria('codeCompare', true);
 
                 const mergeFile = () => {
-                    ignoreUnsavedChanges = true;
-                    let changedLines = codeEditor.leftOriginal().lineCount();
-                    let mergedContent = "";
-                    for (let i = 0; i < changedLines; i++) {
-                        let mergeLine = codeEditor.leftOriginal().getLine(i);
-                        if (mergeLine !== null && mergeLine !== undefined) {
-                            mergedContent += mergeLine + "\n";
-                        }
+                    const currentBodyData = getCodeEditorValue(codeEditor);
+                    const leftBodyData = codeEditor.leftOriginal().getValue();
+                    if(currentBodyData === leftBodyData) {
+                        alert('There are no changes to save.');
+                    } else {
+                        ignoreUnsavedChanges = true;
+                        saveMergedChangesToFile(parentFile, leftBodyData);
                     }
-                    saveMergedChangesToFile(parentFile, mergedContent);
-                    $('#file_replace_file_btn').off('click');
                 }
                 const compareModeQuickKeys = (event) => {
                     const key = event.key.toLowerCase();
@@ -564,7 +553,6 @@
                         if(key === 'm') {
                             mergeFile();
                         }
-                        $('#bodyarea').off('keydown');
                     }
                 }
                 editorExpandScreen();
@@ -647,6 +635,8 @@
 
     // compares the current file to the default file content
     function compare() {
+        const bodyData = getCodeEditorValue(codeEditor);
+        const subjectData = getCodeEditorValue(subjectEditor);
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
         $('#subjectCompare').empty();
@@ -655,12 +645,14 @@
             type: 'GET',
             url: '../api/emailTemplates/_' + currentFile + '/standard',
             success: function(standard) {
-                // Set body changed and default content to show comparison
+                const noBodyChanges = bodyData === standard.file; //this could potentially still happen due to manual reverts
+                $('#emailBodyCode .CodeMirror-merge-pane-label-left').html(`Original Body ${noBodyChanges === true ? '(No Changes)' : ''}`);
+                //set body and subject to their current value, origLeft to standard file values
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
-                    value: currentFileContent.replace(/\r\n/g, "\n"),
+                    value: bodyData,
                     origLeft: standard.file.replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
@@ -676,12 +668,13 @@
                 });
                 addCodeMirrorAria('codeCompare', true);
 
-                // Set changed subject and default subject to user to show comparison
+                const noSubjectChanges = subjectData === standard.subjectFile || ''; //this could potentially still happen due to manual reverts
+                $('#divSubject .CodeMirror-merge-pane-label-left').html(`Original Subject ${noSubjectChanges === true ? '(No Changes)' : ''}`);
                 subjectEditor = CodeMirror.MergeView(document.getElementById("subjectCompare"), {
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
-                    value: (currentSubjectContent || '').replace(/\r\n/g, "\n"),
+                    value: subjectData,
                     origLeft: (standard.subjectFile || '').replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
@@ -705,7 +698,7 @@
             cache: false
         });
     }
-    // Expands the current and history file to compare both files
+    //enters 2 pane comparison merge view
     function editorExpandScreen(compareOriginal = false) {
         $('.page-title-container > h2').html('Email Template Editor > Compare Code');
         showRightNav(false);
@@ -729,7 +722,9 @@
         $('.keyboard_shortcuts_merge').removeClass('hide');
     }
     // exits comparison view and loads the current files
-    function exitExpandScreen() {
+    function exitExpandScreen(load = true) {
+        $('#file_replace_file_btn').off('click');
+        $('#bodyarea').off('keydown');
         $('.page-title-container > h2').html('Email Template Editor');
         showRightNav(false);
         $('#controls, #restore_original, #file_replace_file_btn').removeClass('comparing');
@@ -753,7 +748,9 @@
         url.searchParams.delete('fileName');
         url.searchParams.delete('parentFile');
         window.history.replaceState(null, null, url.toString());
-        loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
+        if(load === true) {
+            loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
+        }
     }
 
     /**
@@ -766,7 +763,18 @@
     * @param {string} emailCcFile - eg LEAF_send_back_emailCc.tpl
     */
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
-        if (ignorePrompt) {
+        console.log("email loadC\n", name + "\n", file + "\n", subjectFile + "\n", emailToFile + "\n", emailCcFile)
+        if (file === undefined) {
+            console.log(codeEditor || 'not init')
+            name = currentName;
+            file = currentFile;
+            subjectFile = currentSubjectFile;
+            emailToFile = currentEmailToFile;
+            emailCcFile = currentEmailCcFile;
+            exitExpandScreen(false);
+        }
+
+        if (ignorePrompt) { //true on page load
             ignorePrompt = false;
         } else {
             const emailToData = document.getElementById('emailToCode').value;
@@ -778,13 +786,6 @@
                 !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
                 return;
             }
-        }
-        if (file === undefined) {
-            name = currentName;
-            file = currentFile;
-            subjectFile = currentSubjectFile;
-            emailToFile = currentEmailToFile;
-            emailCcFile = currentEmailCcFile;
         }
 
         $('.CodeMirror').remove();
@@ -853,7 +854,7 @@
         });
         $('.saveStatus').html('');
 
-        if (file) {
+        if(file) {
             let url = new URL(window.location.href);
             url.searchParams.set('file', file);
             url.searchParams.set('name', name);
@@ -1187,7 +1188,7 @@
             'genericDialogbutton_cancelchange'
         );
 
-        // Get initial email tempates for page from database
+        // Get initial email templates for page from database
         $.ajax({
             type: 'GET',
             url: '../api/emailTemplates',

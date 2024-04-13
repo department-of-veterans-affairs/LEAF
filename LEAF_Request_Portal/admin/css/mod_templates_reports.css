@@ -129,6 +129,7 @@
 
 #codeContainer {
     width: 100%;
+    min-height: 100vh;
     box-shadow: none;
     padding: 0;
     background-color: transparent;
@@ -181,7 +182,7 @@ div.CodeMirror-merge-pane-label-right {
     text-align: left;
 }
 #fileList {
-    padding-left: 2px;
+    padding-left: 1px;
     overflow: auto;
 }
 #fileList > ul.reports {
@@ -230,78 +231,62 @@ div.CodeMirror-merge-pane-label-right {
 }
 
 
-
 /*Keyboard Shortcuts*/
-.cm_editor_nav_help {
-    margin: 0;
-    font-size: 0.75rem;
-}
 .keyboard_shortcuts,
 .keyboard_shortcuts_merge {
     width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
     background-color: #fff;
     margin-top: 10px;
     padding: 0.5rem;
-    border-radius: 5px;
+    border-radius: 4px;
 }
 .keyboard_shortcuts.hide,
 .keyboard_shortcuts_merge.hide {
     display: none;
 }
+
 h3.keyboard_shortcuts_main_title {
     margin: 0 0 10px 0;
 }
 .keyboard_shortcuts_section,
 .keyboard_shortcuts_section_merge {
-    width: 70%;
     display: flex;
-    justify-content: space-evenly;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
     align-items: center;
     padding: 8px 0;
 }
-.keboard_shortcuts_box,
-.keboard_shortcuts_box_merge {
-    width: 100%;
+
+.keboard_shortcuts_box {
     display: flex;
-    justify-content: space-evenly;
+    gap: 0.25rem;
     align-items: center;
 }
-
-.keboard_shortcuts_box:last-child,
-.keboard_shortcuts_box_merge:last-child {
-    padding-left: 50px;
-}
-
-.keyboard_shortcuts_title,
-.keyboard_shortcut,
-.keyboard_shortcuts_title_merge,
-.keyboard_shortcut_merge {
-    width: 50%;
-    text-align: left;
-}
-
-.keyboard_shortcuts_title>h3,
-.keyboard_shortcuts_title_merge>h3 {
+h3.keyboard_shortcuts_title {
+    white-space: nowrap;
     font-weight: 500;
     text-transform: uppercase;
     font-size: .7rem;
     margin: 0;
 }
-
-.keyboard_shortcut>p,
-.keyboard_shortcut_merge>p {
+p.keyboard_shortcut {
+    white-space: nowrap;
     background-color: #e6e6e6;
-    border-radius: 5px;
-    padding: 8px;
+    border: 2px outset #f8f8f8;
+    box-shadow: 1px 1px 4px 2px rgba(0,0,25,0.1);
+    border-radius: 6px;
+    padding: 0.5em;
     text-align: center;
     font-size: .7rem;
     margin: 0;
 }
 
-
+.cm_editor_nav_help {
+    margin: 0.75rem 0 0 0;
+    font-size: 0.75rem;
+}
 
 
 /*right-nav File History Table */
@@ -503,7 +488,7 @@ button.new-report, #save_button {
     color: #000;
     background-color: #fff;
     padding: 0.5rem;
-    border-radius: 5px;
+    border-radius: 4px;
 }
 #subject, #filename.email {
     font-size: 1.25rem;
@@ -589,14 +574,6 @@ fieldset {
     visibility: hidden;
 }
 
-
-
-
-@media only screen and (max-width:1280px) {
-    .keyboard_shortcuts_section {
-        width: 90%;
-    }
-}
 
 
 

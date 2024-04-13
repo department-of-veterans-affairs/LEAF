@@ -24,8 +24,8 @@
                 <label for="code_mirror_template_editor" id="filename"></label>
                 <div>
                     <div class="compared-label-content">
-                        <div class="CodeMirror-merge-pane-label-left">(Old File)</div>
-                        <div class="CodeMirror-merge-pane-label-right">(Current File)</div>
+                        <div class="CodeMirror-merge-pane-label-left"></div>
+                        <div class="CodeMirror-merge-pane-label-right">Current File</div>
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
@@ -34,56 +34,37 @@
                     <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts within the Code Editor:</h3>
                     <div class="keyboard_shortcuts_section">
                         <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Save: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + S </p>
-                            </div>
+                            <h3 class="keyboard_shortcuts_title">Save:</h3>
+                            <p class="keyboard_shortcut">Ctrl + S</p>
                         </div>
                         <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Undo: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>Ctrl + Z </p>
-                            </div>
+                            <h3 class="keyboard_shortcuts_title">Undo:</h3>
+                            <p class="keyboard_shortcut">Ctrl + Z</p>
                         </div>
-                    </div>
-                    <div class="keyboard_shortcuts_section">
                         <div class="keboard_shortcuts_box">
-                            <div class="keyboard_shortcuts_title">
-                                <h3>Full Screen: </h3>
-                            </div>
-                            <div class="keyboard_shortcut">
-                                <p>F11 </p>
-                            </div>
+                            <h3 class="keyboard_shortcuts_title">Full Screen:</h3>
+                            <p class="keyboard_shortcut">F11</p>
                         </div>
-                        <div class="keboard_shortcuts_box"></div>
+                        <div class="keboard_shortcuts_box">
+                            <h3 class="keyboard_shortcuts_title">Toggle Darkmode:</h3>
+                            <p class="keyboard_shortcut">Ctrl + B</p>
+                        </div>
                     </div>
                     <p class="cm_editor_nav_help">Within the code editor, tab enters a tab character.  If using the keyboard to navigate, press escape followed by tab to exit the editor.</p>
                 </div>
-
                 <div class="keyboard_shortcuts_merge hide">
                     <h3 class="keyboard_shortcuts_main_title">Keyboard Shortcuts For Compare Code:</h3>
                     <div class="keyboard_shortcuts_section_merge">
-                        <div class="keboard_shortcuts_box_merge">
-                            <div class="keyboard_shortcuts_title_merge">
-                                <h3>Merge Changes: </h3>
-                            </div>
-                            <div class="keyboard_shortcut_merge">
-                                <p>Ctrl + M </p>
-                            </div>
+                        <div class="keboard_shortcuts_box">
+                            <h3 class="keyboard_shortcuts_title">Merge Changes:</h3>
+                            <p class="keyboard_shortcut">Ctrl + M</p>
                         </div>
-                        <div class="keboard_shortcuts_box_merge">
-                            <div class="keyboard_shortcuts_title_merge">
-                                <h3>Exit Compare: </h3>
-                            </div>
-                            <div class="keyboard_shortcut_merge">
-                                <p>Ctrl + E </p>
-                            </div>
+                        <div class="keboard_shortcuts_box">
+                            <h3 class="keyboard_shortcuts_title">Exit Compare: </h3>
+                            <p class="keyboard_shortcut">Ctrl + E </p>
                         </div>
                     </div>
+                    <p class="cm_editor_nav_help">Within the code editor, tab enters a tab character.  If using the keyboard to navigate, press escape followed by tab to exit the editor.</p>
                 </div>
             </div>
         </main>
@@ -178,10 +159,10 @@
         }
         return data;
     }
+
     // saves current file content changes
     function save() {
         const data = getCodeEditorValue(codeEditor);
-        // Check if the content has changed
         if (data === currentFileContent) {
             alert('There are no changes to save.');
             return;
@@ -212,7 +193,10 @@
         });
     }
 
-    // creates a copy of the current file content
+    /**
+    * saves current content for currentFile to templates_history/template_editor and
+    * adds records to portal template_history_files.  calls getFileHistory at success
+    */
     function saveFileHistory() {
         const data = getCodeEditorValue(codeEditor);
         $.ajax({
@@ -230,18 +214,23 @@
             }
         });
     }
-    // restores file to default
+    /**
+    * Restores currentFile to the standard template by deleting the custom_override file. If there are not any
+    * snapshots of the file being restored, calls saveFileHistory at success before reloading the default template.
+    */
     function restore() {
         dialog.setTitle('Are you sure?');
         dialog.setContent('This will restore the template to the original version.');
-
         dialog.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
                 url: '../api/template/_' + currentFile + '?' +
                     $.param({'CSRFToken': '<!--{$CSRFToken}-->'}),
                 success: function() {
-                    saveFileHistory();
+                    const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button'))?.length;
+                    if(numRecords === 0) {
+                        saveFileHistory();
+                    }
                     exitExpandScreen();
                 },
                 error: function(err) {
@@ -256,6 +245,7 @@
 
     //get the standard file and enter comparison merge view (compare to original)
     function compare() {
+        const bodyData = getCodeEditorValue(codeEditor);
         $('.CodeMirror').remove();
         $('#codeCompare').empty();
 
@@ -263,11 +253,13 @@
             type: 'GET',
             url: '../api/template/_' + currentFile + '/standard',
             success: function(standard) {
+                //these could potentially still be equal due to manual reverts
+                $('.CodeMirror-merge-pane-label-left').html(`Original ${bodyData === standard ? '(No Changes)' : ''}`);
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
                     mode: "htmlmixed",
                     lineNumbers: true,
                     indentUnit: 4,
-                    value: currentFileContent.replace(/\r\n/g, "\n"),
+                    value: bodyData,
                     origLeft: standard.file.replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
@@ -291,7 +283,7 @@
         });
     }
 
-    // enters 2 pane comparison merge view of history or standard file vs current file
+    //enters 2 pane comparison merge view
     function editorExpandScreen(compareOriginal = false) {
         $('.page-title-container > h2').html('Template Editor > Compare Code');
         showRightNav(false);
@@ -311,8 +303,10 @@
         $('.keyboard_shortcuts').addClass('hide');
         $('.keyboard_shortcuts_merge').removeClass('hide');
     }
-    // exits comparison view and loads the current file
+    //exits comparison merge view and then synchronously loads the current file
     function exitExpandScreen() {
+        $('#file_replace_file_btn').off('click');
+        $('#bodyarea').off('keydown');
         $('.page-title-container > h2').html('Template Editor');
         showRightNav(false);
         $('#controls, #restore_original, #file_replace_file_btn').removeClass('comparing');
@@ -422,7 +416,7 @@
     * @param {bool} updateURL - whether to update URL params and add to URL history
     */
     function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
-        const bodyData = getCodeEditorValue(codeEditor);
+        const currentData = getCodeEditorValue(codeEditor);
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
         $('.CodeMirror').remove();
@@ -434,11 +428,13 @@
             dataType: 'text',
             cache: false,
             success: function(fileContent) {
+                $('.CodeMirror-merge-pane-label-left').html(`Old File ${currentData === fileContent ? '(No Changes)' : ''}`);
+
                 codeEditor = CodeMirror.MergeView(document.getElementById("codeCompare"), {
                     mode: 'htmlmixed',
                     lineNumbers: true,
                     indentUnit: 4,
-                    value: bodyData,
+                    value: currentData,
                     origLeft: fileContent.replace(/\r\n/g, "\n"),
                     showDifferences: true,
                     collapseIdentical: true,
@@ -457,17 +453,14 @@
                 addCodeMirrorAria('codeCompare', true);
 
                 const mergeFile = () => {
-                    ignoreUnsavedChanges = true;
-                    let changedLines = codeEditor.leftOriginal().lineCount();
-                    let mergedContent = "";
-                    for (let i = 0; i < changedLines; i++) {
-                        let mergeLine = codeEditor.leftOriginal().getLine(i);
-                        if (mergeLine !== null && mergeLine !== undefined) {
-                            mergedContent += mergeLine + "\n";
-                        }
+                    const currentData = getCodeEditorValue(codeEditor);
+                    const leftData = codeEditor.leftOriginal().getValue();
+                    if(currentData === leftData) {
+                        alert('There are no changes to save.');
+                    } else {
+                        ignoreUnsavedChanges = true;
+                        saveMergedChangesToFile(parentFile, leftData);
                     }
-                    saveMergedChangesToFile(parentFile, mergedContent);
-                    $('#file_replace_file_btn').off('click');
                 }
                 const compareModeQuickKeys = (event) => {
                     const key = event.key.toLowerCase();
@@ -479,7 +472,6 @@
                         if(key === 'm') {
                             mergeFile();
                         }
-                        $('#bodyarea').off('keydown');
                     }
                 }
                 editorExpandScreen();
@@ -502,7 +494,11 @@
         }
     }
 
-    // overwrites current file content after merge
+    /*
+    * Set content for a template file based on merge view left pane content.
+    * @param {string} fileParentName - name of the base file, including .tpl
+    * @param {string} mergedContent - content to save
+    */
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
             type: 'POST',
@@ -523,7 +519,7 @@
     }
 
     /**
-    * Used in editing view to load the content of a file and associated history records.
+    * Used in editing view to synchronously load file content and (async) associated history records.
     * Prepares codeEditor. Updates the display area, url, and some global variables.
     * @param {string} file - name of the template being loaded.  eg main.tpl.
     */
