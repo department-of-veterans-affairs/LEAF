@@ -95,7 +95,8 @@ export default {
                         <button type="button"
                             :id="'edit_indicator_' + indicatorID"
                             class="btn-general"
-                            style="grid-area: 1 / 1 / 3 / 2; height: 100%"
+                            :style="{ 'grid-area': depth === 0 ? '1' : '1 / 1 / 3 / 2' }"
+                            :style="{ 'height': depth === 0 ? 'auto' : '100%' }"
                             @click.exact="editQuestion(parseInt(indicatorID))"
                             :title="'edit indicator ' + indicatorID">
                             <span role="img" aria="" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
