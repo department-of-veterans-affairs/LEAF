@@ -53,7 +53,7 @@ export default {
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
 
-            name: this.removeScriptTag(this.decodeHTMLEntities(this.dialogData?.indicator?.name || '')),
+            name: this.removeScriptTags(this.decodeHTMLEntities(this.dialogData?.indicator?.name || '')),
             options: this.dialogData?.indicator?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
             format: this.dialogData?.indicator?.format || '',  //base format (eg 'radio')
             description: this.dialogData?.indicator?.description || '',
@@ -212,7 +212,7 @@ export default {
             tmp.innerHTML = txt;
             return tmp.value;
         },
-        removeScriptTag(txt) {
+        removeScriptTags(txt) {
             let tmp = document.createElement('html');
             tmp.innerHTML = txt;
             let scripts = tmp.getElementsByTagName('script');
