@@ -99,7 +99,7 @@
                         Use Old File
                     </button>
                     <button type="button" id="btn_compareStop"
-                        class="usa-button usa-button--outline compare_only" onclick="exitExpandScreen()">
+                        class="usa-button usa-button--outline compare_only" onclick="loadContent(null)">
                         Stop Comparing
                     </button>
                 </div>
@@ -119,11 +119,14 @@
 
 
 <script>
-    var codeEditor = null;
-    var currentFile = '';
-    var currentFileContent = "";
-    var ignoreUnsavedChanges = false;
-    var ignorePrompt = true;
+    //global variables
+    let codeEditor = null;
+    let currentFile = "";
+    let currentFileContent = "";
+    let dialog, dialog_message;
+
+    let ignoreUnsavedChanges = false;
+    let ignorePrompt = true;
 
     /**
     * Force show or hide the right nav despite screen width with transition effect
@@ -160,42 +163,44 @@
         return data;
     }
 
-    // saves current file content changes
+    /**
+    * Saves codeEditor content to templates/custom_override if there are changes.
+    * Displays last save time, updates currentFileContent value, and calls saveFileHistory at success.
+    */
     function save() {
         const data = getCodeEditorValue(codeEditor);
         if (data === currentFileContent) {
             alert('There are no changes to save.');
-            return;
-        }
-
-        $.ajax({
-            type: 'POST',
-            data: {
-                CSRFToken: '<!--{$CSRFToken}-->',
-                file: data
-            },
-            url: '../api/template/_' + currentFile,
-            success: function(res) {
-                if (res !== null) {
-                    alert(res);
-                } else {
-                    const time = new Date().toLocaleTimeString();
-                    $('.saveStatus').html('<br /> Last saved: ' + time);
-                    currentFileContent = data;
-                    saveFileHistory();
-                    $('#restore_original, #btn_compare').addClass('modifiedTemplate');
-                    $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
+        } else {
+            $.ajax({
+                type: 'POST',
+                data: {
+                    CSRFToken: '<!--{$CSRFToken}-->',
+                    file: data
+                },
+                url: '../api/template/_' + currentFile,
+                success: function(res) {
+                    if (res !== null) {
+                        alert(res);
+                    } else {
+                        const time = new Date().toLocaleTimeString();
+                        $('.saveStatus').html('<br /> Last saved: ' + time);
+                        currentFileContent = data;
+                        saveFileHistory();
+                        $('#restore_original, #btn_compare').addClass('modifiedTemplate');
+                        $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
+                    }
+                },
+                error: function(err) {
+                    console.log(err);
                 }
-            },
-            error: function(err) {
-                console.log(err);
-            }
-        });
+            });
+        }
     }
 
     /**
     * saves current content for currentFile to templates_history/template_editor and
-    * adds records to portal template_history_files.  calls getFileHistory at success
+    * adds records to portal template_history_files. Gets updated file history at success.
     */
     function saveFileHistory() {
         const data = getCodeEditorValue(codeEditor);
@@ -222,6 +227,7 @@
         dialog.setTitle('Are you sure?');
         dialog.setContent('This will restore the template to the original version.');
         dialog.setSaveHandler(function() {
+            ignoreUnsavedChanges = true;
             $.ajax({
                 type: 'DELETE',
                 url: '../api/template/_' + currentFile + '?' +
@@ -303,8 +309,9 @@
         $('.keyboard_shortcuts').addClass('hide');
         $('.keyboard_shortcuts_merge').removeClass('hide');
     }
-    //exits comparison merge view and then synchronously loads the current file
-    function exitExpandScreen() {
+    //exits comparison merge view. If load is true, synchronously loads the current file
+    function exitExpandScreen(load = true) {
+        $('#codeCompare').empty();
         $('#file_replace_file_btn').off('click');
         $('#bodyarea').off('keydown');
         $('.page-title-container > h2').html('Template Editor');
@@ -327,8 +334,9 @@
         url.searchParams.delete('fileName');
         url.searchParams.delete('parentFile');
         window.history.replaceState(null, null, url.toString());
-
-        loadContent(currentFile);
+        if(load === true) {
+            loadContent(currentFile);
+        }
     }
     /*
     * Gets an array of all records that have the given file as their basis (file parent name).
@@ -342,7 +350,6 @@
             dataType: 'json',
             success: function(res) {
                 if(res?.length > 0) {
-                    ignoreUnsavedChanges = false;
                     let fileParentName = '';
                     let fileName = '';
                     let whoChangedFile = '';
@@ -520,15 +527,28 @@
 
     /**
     * Used in editing view to synchronously load file content and (async) associated history records.
-    * Prepares codeEditor. Updates the display area, url, and some global variables.
-    * @param {string} file - name of the template being loaded.  eg main.tpl.
+    * If file is explicity null (stop comparing), init with edit side marge view value.
+    * Otherwise, prompts prior to loading if there are unsaved changes.  Prepares codeEditor.
+    * Updates display area, url, and globals currentFile, currentFileContent, ignoreUnsavedChanges.
+    * @param {string|null} file - name of the template being loaded (eg main.tpl).
     */
-    function loadContent(file = '') {
+    function loadContent(file) {
         if (!file) {
-            $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
-            return;
+            if(file === null && currentFile && codeEditor) { //from compare view
+                const mergeViewValue = getCodeEditorValue(codeEditor);
+                exitExpandScreen(false);
+                initEditor();
+                codeEditor.setValue(mergeViewValue);
+                $('.CodeMirror').each(function(i, el) {
+                    el.CodeMirror.refresh();
+                });
+            } else {
+                $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
+            }
+            return
         }
-        if (ignorePrompt) {
+
+        if (ignorePrompt) { //true only on page load
             ignorePrompt = false;
         } else {
             if (!ignoreUnsavedChanges &&
@@ -538,8 +558,8 @@
             }
         }
 
+        $('.saveStatus').html('');
         $('.CodeMirror').remove();
-        $('#codeCompare').empty();
 
         initEditor();
         currentFile = file;
@@ -559,10 +579,11 @@
                     $('.CodeMirror').each(function(i, el) {
                         el.CodeMirror.refresh();
                     });
+                    ignoreUnsavedChanges = false;
                 } else {
                     res?.file === undefined ?
-                    console.error('file not found'):
-                    console.error('codeEditor is not properly initialized.');
+                        console.error('file not found') :
+                        console.error('codeEditor is not properly initialized.');
                 }
                 if (res.modified === 1) {
                     $('#restore_original, #btn_compare').addClass('modifiedTemplate');
@@ -578,9 +599,8 @@
             async: false,
             cache: false
         });
-        $('.saveStatus').html('');
 
-        if (file) {
+        if(file) {
             let url = new URL(window.location.href);
             url.searchParams.set('file', file);
             window.history.replaceState(null, null, url.toString());
@@ -709,7 +729,7 @@
                                 file = res[i].replace('.tpl', '');
 
                                 buffer += `<li>
-                                    <div class="template_files"><a href="#" data-file="${res[i]}">${file}</a> <span${customClass}>(custom)</span></div>
+                                    <div class="template_files"><a href="#" role="button" data-file="${res[i]}">${file}</a> <span${customClass}>(custom)</span></div>
                                 </li>`;
 
                                 filesMobile += `<option value="${res[i]}">${file}${customClass ? ' (custom)' : ''}</option>`;

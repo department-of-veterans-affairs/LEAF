@@ -254,7 +254,7 @@ h3.keyboard_shortcuts_main_title {
 .keyboard_shortcuts_section_merge {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem 2rem;
+    gap: 1rem 1.75rem;
     align-items: center;
     padding: 8px 0;
 }

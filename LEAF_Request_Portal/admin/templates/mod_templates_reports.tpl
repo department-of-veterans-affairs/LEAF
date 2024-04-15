@@ -106,7 +106,7 @@
                         Use Old File
                     </button>
                     <button type="button" id="btn_compareStop"
-                        class="usa-button usa-button--outline compare_only" onclick="exitExpandScreen()">
+                        class="usa-button usa-button--outline compare_only" onclick="loadContent(null)">
                         Stop Comparing
                     </button>
                 </div>
@@ -127,14 +127,14 @@
 
 
 <script>
-    // gloabal variables
-    var codeEditor;
-    var currentFile = '';
-    var currentFileContent = '';
-    var dialog, dialog_confirm;
+    //global variables
+    let codeEditor;
+    let currentFile = "";
+    let currentFileContent = "";
+    let dialog, dialog_confirm;
 
-    var ignoreUnsavedChanges = false;
-    var ignorePrompt = true;
+    let ignoreUnsavedChanges = false;
+    let ignorePrompt = true;
 
     function showRightNav(showNav = false) {
         let nav = $('.leaf-right-nav');
@@ -163,40 +163,42 @@
         return data;
     }
 
-    // saves current file content changes
+    /**
+    * Saves codeEditor content to templates/reports if there are changes.
+    * Displays last save time, updates currentFileContent value, and calls saveFileHistory at success.
+    */
     function save() {
         const data = getCodeEditorValue(codeEditor);
         if (data === currentFileContent) {
             alert('There are no changes to save.');
-            return;
-        }
-
-        $.ajax({
-            type: 'POST',
-            data: {
-                CSRFToken: '<!--{$CSRFToken}-->',
-                file: data
-            },
-            url: '../api/applet/_' + currentFile,
-            success: function(res) {
-                if (res !== null) {
-                    alert(res);
-                } else {
-                    const time = new Date().toLocaleTimeString();
-                    $('.saveStatus').html('<br /> Last saved: ' + time);
-                    currentFileContent = data;
-                    saveFileHistory();
+        } else {
+            $.ajax({
+                type: 'POST',
+                data: {
+                    CSRFToken: '<!--{$CSRFToken}-->',
+                    file: data
+                },
+                url: '../api/applet/_' + currentFile,
+                success: function(res) {
+                    if (res !== null) {
+                        alert(res);
+                    } else {
+                        const time = new Date().toLocaleTimeString();
+                        $('.saveStatus').html('<br /> Last saved: ' + time);
+                        currentFileContent = data;
+                        saveFileHistory();
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while saving the file.');
                 }
-            },
-            error: function() {
-                alert('An error occurred while saving the file.');
-            }
-        });
+            });
+        }
     }
 
     /**
-    * saves current content for currentFile to templates_history/leaf_programmer and
-    * adds records to portal template_history_files.  calls getFileHistory at success
+    * Saves current codeEditor content to templates_history/leaf_programmer and
+    * adds a record to portal template_history_files.  Calls getFileHistory at success
     */
     function saveFileHistory() {
         const data = getCodeEditorValue(codeEditor);
@@ -233,7 +235,7 @@
         }
         //displays a generic prompt if navigating from page with unsaved changes
         $(window).on('beforeunload', function(e) {
-            if (!ignoreUnsavedChanges && !ignorePrompt) { // Check if ignoring unsaved changes and prompt
+            if (!ignoreUnsavedChanges && !ignorePrompt) {
                 if (currentFile === 'example' || /^LEAF_/.test(currentFile)) {
                     return;
                 }
@@ -260,8 +262,9 @@
         $('.keyboard_shortcuts').addClass('hide');
         $('.keyboard_shortcuts_merge').removeClass('hide');
     }
-    // exits the current and history comparison
-    function exitExpandScreen() {
+    //exits comparison merge view. If load is true, synchronously loads the current file
+    function exitExpandScreen(load = true) {
+        $('#codeCompare').empty();
         $('#file_replace_file_btn').off('click');
         $('#bodyarea').off('keydown');
         $('.page-title-container > h2').html('LEAF Programmer');
@@ -285,7 +288,9 @@
         url.searchParams.delete('parentFile');
         window.history.replaceState(null, null, url.toString());
 
-        loadContent(currentFile);
+        if(load === true) {
+            loadContent(currentFile);
+        }
     }
     // creates a new report
     function newReport() {
@@ -325,6 +330,7 @@
         dialog_confirm.setContent('This will irreversibly delete this report.');
 
         dialog_confirm.setSaveHandler(function() {
+            ignoreUnsavedChanges = true;
             $.ajax({
                 type: 'DELETE',
                 url: '../api/applet/_' + currentFile + '?' +
@@ -375,7 +381,6 @@
             dataType: 'json',
             success: function(res) {
                 if (res?.length > 0) {
-                    ignoreUnsavedChanges = false;
                     let fileParentName = '';
                     let fileName = '';
                     let whoChangedFile = '';
@@ -504,7 +509,7 @@
     }
 
     /*
-    * Set content for report file based on merge view left pane content.
+    * Set content for report file based on merge view left pane content to templates/reports.
     * @param {string} fileParentName - name of the base file, without .tpl (for reports this is added in Applet.php)
     * @param {string} mergedContent - content to save
     */
@@ -529,37 +534,46 @@
 
     /**
     * Used in editing view to synchronously load file content and (async) associated history records.
-    * Prepares codeEditor. Updates the display area, url, and some global variables.
-    * @param {string} file - name of the template being loaded.  eg LEAF_Inbox.  Does not include .tpl
+    * If file is explicity null (stop comparing), init with edit side marge view value.
+    * Otherwise, prompts prior to loading if there are unsaved changes.  Prepares codeEditor.
+    * Updates display area, url, and globals currentFile, currentFileContent, ignoreUnsavedChanges.
+    * @param {string} file - name of the template being loaded (eg LEAF_Inbox).  Does not include .tpl
     */
     function loadContent(file) {
-        const isLeafFile = currentFile === 'example' || /^LEAF_/.test(currentFile);
-        if (ignorePrompt) {
+        if (!file) {
+            if(file === null && currentFile && codeEditor) { //from compare view
+                const mergeViewValue = getCodeEditorValue(codeEditor);
+                exitExpandScreen(false);
+                initEditor();
+                codeEditor.setValue(mergeViewValue);
+                $('.CodeMirror').each(function(i, el) {
+                    el.CodeMirror.refresh();
+                });
+            } else {
+                $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
+            }
+            return
+        }
+
+        if (ignorePrompt) { //true only on page load
             ignorePrompt = false;
         } else {
+            const isLeafFile = currentFile === 'example' || /^LEAF_/.test(currentFile);
             if (!isLeafFile && !ignoreUnsavedChanges &&
                 currentFileContent !== getCodeEditorValue(codeEditor) &&
                 !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
                 return;
             }
         }
-        if (file === undefined) {
-            console.error('No file specified. File cannot be loaded.');
-            $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
-            return;
-        }
-
+        $('.saveStatus').html('');
         $('.CodeMirror').remove();
-        $('#codeCompare').empty();
 
         initEditor();
         currentFile = file;
         $('#codeContainer').css('display', 'none');
-
         $('#filename').html(file.replace('.tpl', ''));
         let reportURL = `${window.location.origin}${window.location.pathname.replace('admin/', '')}report.php?a=${file.replace('.tpl', '')}`;
         $('#reportURL').html(`URL: <a href="${reportURL}" target="_blank">${reportURL}</a>`);
-
         isExcludedFile(file) ? $('.reports.leaf-right-nav').removeClass('custom') : $('.reports.leaf-right-nav').addClass('custom');
 
         getFileHistory(file);
@@ -575,6 +589,7 @@
                     $('.CodeMirror').each(function(i, el) {
                         el.CodeMirror.refresh();
                     });
+                    ignoreUnsavedChanges = false;
                 } else {
                     res?.file === undefined ?
                     console.error('file not found'):
@@ -587,7 +602,6 @@
             async: false,
             cache: false
         });
-        $('.saveStatus').html('');
 
         if (file) {
             let url = new URL(window.location.href);
@@ -667,10 +681,10 @@
                     let file = res[i].replace('.tpl', '');
                     
                     if (!isExcludedFile(file)) {
-                        buffer += '<li><a href="#" data-file="' + file + '">' + file + '</a></li>';
+                        buffer += '<li><a href="#" role="button" data-file="' + file + '">' + file + '</a></li>';
                         filesMobile += '<option value="' + file + '"><div class="template_files">' + file + '</div></option>';
                     } else {
-                        bufferExamples += '<li><a href="#" data-file="' + file + '">' + file + '</a></li>';
+                        bufferExamples += '<li><a href="#" role="button" data-file="' + file + '">' + file + '</a></li>';
                     }
                 }
 

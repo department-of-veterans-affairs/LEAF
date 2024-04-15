@@ -190,7 +190,7 @@
 
                     <button type="button" id="btn_compareStop"
                         class="usa-button usa-button--outline compare_only"
-                        onclick="loadContent()">
+                        onclick="loadContent(null, null)">
                         Stop Comparing
                     </button>
 
@@ -218,21 +218,21 @@
 <!--{include file="site_elements/generic_dialog.tpl"}-->
 
 <script>
-    // Global variables
-    var codeEditor;
-    var subjectEditor;
-    var dialog_message;
+    //global variables
+    let codeEditor;
+    let subjectEditor;
+    let dialog_message;
 
-    var currentName;
-    var currentFile;
-    var currentSubjectFile;
-    var currentEmailToFile;
-    var currentEmailCcFile;
+    let currentName;
+    let currentFile;
+    let currentSubjectFile;
+    let currentEmailToFile;
+    let currentEmailCcFile;
 
-    var currentFileContent;
-    var currentSubjectContent;
-    var currentEmailToContent;
-    var currentEmailCcContent;
+    let currentFileContent;
+    let currentSubjectContent;
+    let currentEmailToContent;
+    let currentEmailCcContent;
 
     let ignoreUnsavedChanges = false;
     let ignorePrompt = true;
@@ -322,9 +322,10 @@
         )
         return changesDetected;
     }
+
     /**
-    * saves content changes to email/custom_overide folder and logs changes to history, or
-    * displays a message if no changes are detected. updates global current content values at success.
+    * Saves codeEditor, subjectEditor, emailTo and emailCc content to templates/email/custom_override if there are changes.
+    * Displays last save time, updates current*Content values, and calls saveFileHistory at success.
     */
     function save() {
         const emailToData = document.getElementById('emailToCode').value;
@@ -332,14 +333,10 @@
         const subject = getCodeEditorValue(subjectEditor);
         const data = getCodeEditorValue(codeEditor);
 
-        const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data);
-        if (!hasChanges) {
-            dialog_message.setContent('<h2>Please make a change to the content in order to save.</h2>');
-            dialog_message.setTitle('No changes detected');
-            dialog_message.show();
-
+        const hasAnyChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+        if (!hasAnyChanges) {
+            alert('There are no changes to save.');
         } else {
-
             $.ajax({
                 type: 'POST',
                 data: {
@@ -439,7 +436,6 @@
             dataType: 'json',
             success: function(res) {
                 if (res?.length > 0) {
-                    ignoreUnsavedChanges = false;
                     let fileParentName = '';
                     let fileName = '';
                     let whoChangedFile = '';
@@ -574,7 +570,12 @@
             window.history.replaceState(null, null, url.toString());
         }
     }
-    // overrites current file content after merge
+
+    /*
+    * Set content for an email template body based on merge view left pane content to templates/email/custom_override.
+    * @param {string} fileParentName - name of the base body file, including .tpl
+    * @param {string} mergedContent - content to save
+    */
     function saveMergedChangesToFile(fileParentName, mergedContent) {
         $.ajax({
             type: 'POST',
@@ -721,8 +722,10 @@
         $('.keyboard_shortcuts').addClass('hide');
         $('.keyboard_shortcuts_merge').removeClass('hide');
     }
-    // exits comparison view and loads the current files
+    //exits comparison merge view. If load is true, synchronously loads the current file
     function exitExpandScreen(load = true) {
+        $('#codeCompare').empty();
+        $('#subjectCompare').empty();
         $('#file_replace_file_btn').off('click');
         $('#bodyarea').off('keydown');
         $('.page-title-container > h2').html('Email Template Editor');
@@ -738,7 +741,9 @@
             });
         });
         $('#quick_field_search_container').show();
-        $('.email-template-variables, #emailLists').show();
+        if(currentSubjectFile) {
+            $('.email-template-variables, #emailLists').show();
+        }
 
         $('.keyboard_shortcuts').removeClass('hide');
         $('.keyboard_shortcuts_merge').addClass('hide');
@@ -763,18 +768,28 @@
     * @param {string} emailCcFile - eg LEAF_send_back_emailCc.tpl
     */
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
-        console.log("email loadC\n", name + "\n", file + "\n", subjectFile + "\n", emailToFile + "\n", emailCcFile)
-        if (file === undefined) {
-            console.log(codeEditor || 'not init')
-            name = currentName;
-            file = currentFile;
-            subjectFile = currentSubjectFile;
-            emailToFile = currentEmailToFile;
-            emailCcFile = currentEmailCcFile;
-            exitExpandScreen(false);
+        if (!file) {
+            if(file === null && currentFile && codeEditor) { //from compare view
+                const mergeViewBodyValue = getCodeEditorValue(codeEditor);
+                const mergeViewSubjectValue = getCodeEditorValue(subjectEditor);
+                exitExpandScreen(false);
+                initEditor();
+                codeEditor.setValue(mergeViewBodyValue);
+                if(currentSubjectFile) {
+                    subjectEditor.setValue(mergeViewSubjectValue);
+                    $('#subject, #emailLists, #emailTo, #emailCc').show();
+                    $('#divSubject, #divEmailTo, #divEmailCc').show().prop('disabled', false);
+                }
+                $('.CodeMirror').each(function(i, el) {
+                    el.CodeMirror.refresh();
+                });
+            } else {
+                $('#codeContainer').html('Error: No file specified. File cannot be loaded.');
+            }
+            return;
         }
 
-        if (ignorePrompt) { //true on page load
+        if (ignorePrompt) { //true only on page load
             ignorePrompt = false;
         } else {
             const emailToData = document.getElementById('emailToCode').value;
@@ -787,20 +802,17 @@
                 return;
             }
         }
-
+        $('.saveStatus').html('');
         $('.CodeMirror').remove();
-        $('#codeCompare').empty();
-        $('#subjectCompare').empty();
-        $('#codeContainer').hide();
 
+        initEditor();
         currentName = name;
         currentFile = file;
         currentSubjectFile = subjectFile;
         currentEmailToFile = emailToFile;
         currentEmailCcFile = emailCcFile;
+        $('#codeContainer').css('display', 'none');
         $('#emailTemplateHeader').html(currentName);
-
-        initEditor();
         if (typeof subjectFile === 'undefined' || subjectFile === null || subjectFile === '') {
             $('#subject, #emailLists, #emailTo, #emailCc').hide();
             $('#divSubject, #divEmailTo, #divEmailCc').hide().prop('disabled', true);
@@ -809,6 +821,7 @@
             $('#subject, #emailLists, #emailTo, #emailCc').show();
             $('#divSubject, #divEmailTo, #divEmailCc').show().prop('disabled', false);
         }
+
         getFileHistory(file);
         $.ajax({
             type: 'GET',
@@ -826,18 +839,19 @@
                     $('.CodeMirror').each(function(i, el) {
                         el.CodeMirror.refresh();
                     });
+                    ignoreUnsavedChanges = false;
                     currentEmailToContent = res.emailToFile;
                     currentEmailCcContent = res.emailCcFile;
                     $("#emailToCode").val(currentEmailToContent);
                     $("#emailCcCode").val(currentEmailCcContent);
                 } else {
                     res?.file === undefined ?
-                    console.error('file not found'):
-                    console.error('codeEditor is not properly initialized.');
+                        console.error('file not found') :
+                        console.error('codeEditor is not properly initialized.');
                 }
 
                 checkFieldEntries();
-                if (res.modified === 1) {
+                if (res?.modified === 1) {
                     $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                     $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
                 } else {
@@ -852,7 +866,6 @@
             async: false,
             cache: false
         });
-        $('.saveStatus').html('');
 
         if(file) {
             let url = new URL(window.location.href);
@@ -1026,7 +1039,6 @@
         }
     }
     /**
-     * initEditor Function
      * Purpose: Initiate the CodeMirror editor functions for the body and subject fields
      */
     function initEditor() {
@@ -1219,7 +1231,7 @@
                                 // Construct the li element for buffer
                                 buffer += `<li>
                                     <div class="template_files">
-                                        <a href="#" data-template-index="${i}" data-file="${res[i].fileName}">${res[i].displayName}</a> <span${customClass}>(custom)</span>
+                                        <a href="#" role="button" data-template-index="${i}" data-file="${res[i].fileName}">${res[i].displayName}</a> <span${customClass}>(custom)</span>
                                     </div>
                                 </li>`;
                             }
@@ -1238,10 +1250,15 @@
                         $('.template_select_container').on('change', 'select.templateFiles', function () {
                             let selectedOption = $(this).find(':selected');
                             let templateData = selectedOption.data('template-data');
-
                             if (templateData) {
                                 // Call the loadContent function with the required parameters
-                                loadContent(templateData.displayName, templateData.fileName, templateData.subjectFileName, templateData.emailToFileName, templateData.emailCcFileName);
+                                loadContent(
+                                    templateData.displayName,
+                                    templateData.fileName,
+                                    templateData.subjectFileName,
+                                    templateData.emailToFileName,
+                                    templateData.emailCcFileName
+                                );
                             }
                         });
 
@@ -1250,9 +1267,14 @@
                             e.preventDefault();
                             let templateIndex = $(this).data('template-index');
                             let template = res[templateIndex];
-
                             // Call the loadContent function with the required parameters
-                            loadContent(template.displayName, template.fileName, template.subjectFileName || '', template.emailToFileName || '', template.emailCcFileName || '');
+                            loadContent(
+                                template.displayName,
+                                template.fileName,
+                                template.subjectFileName || '',
+                                template.emailToFileName || '',
+                                template.emailCcFileName || ''
+                            );
                         });
                     },
                     error: function (error) {
