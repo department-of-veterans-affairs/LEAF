@@ -79,7 +79,10 @@
             let workflowID;
 
             postWorkflow(function(workflow_id) {
-                loadWorkflowList(workflow_id);
+                let url = new URL(window.location.href);
+                url.searchParams.set('workflowID', workflow_id);
+                window.history.replaceState(null, null, url.toString());
+                loadWorkflowList();
                 dialog.hide();
             });
         });
@@ -1515,7 +1518,7 @@
             </li>`;
             output += '</ul></div>';
             output +=
-                `<hr /><div style="padding: 4px"><button type="button" class="buttonNorm" 
+                `<hr /><div style="padding: 4px"><button type="button" class="buttonNorm"
                     onclick="removeAction('${currentWorkflow}', '${stepID}', '${params.nextStepID}', '${params.action}', ${reopenStepID})">Remove Action</button></div>`;
             $('#stepInfo_' + stepID).html(output);
             $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
@@ -1755,7 +1758,7 @@
         }
     }
 
-    /** 
+    /**
     * close the step or action info modal.
     * @param {string} stepID - active modal step
     * @param {string} reopenStepID - used to reopen the stepinfo modal if viewing actions via the stepinfo modal
@@ -1843,7 +1846,7 @@
             if(stepID !== -1) {
                 routeOptions += `<option value="-1">Requestor</option>`;
                 routeOptions += `<option value="${stepID}">Self</option>`;
-            }  
+            }
             routeOptions += `${step_options}</select><div>`;
         }
         const actionList = buildRoutesList(+stepID, +currentWorkflow);
@@ -2034,7 +2037,7 @@
                     cache: false
                 });
                 break;
-        } 
+        }
     }
 
     var endPoints = [];
@@ -2292,7 +2295,7 @@
         });
     }
 
-    function loadWorkflowList(workflowID) {
+    function loadWorkflowList() {
         $.ajax({
             async: false,
             type: 'GET',
@@ -2489,7 +2492,11 @@
                         alert("Prerequisite action needed:\n\n" + res);
                         dialog.hide();
                     } else {
-                        loadWorkflowList(res);
+                        let url = new URL(window.location.href);
+                        url.searchParams.set('workflowID', res);
+                        window.history.replaceState(null, null, url.toString());
+
+                        loadWorkflowList();
                         workflowDescription = $('#workflow_rename').val();
                         dialog.hide();
                     }
@@ -2582,7 +2589,12 @@
 
             updateRoutes(workflowID, old_steps);
             updateRouteEvents(currentWorkflow, workflowID, old_steps);
-            loadWorkflowList(workflowID);
+
+            let url = new URL(window.location.href);
+            url.searchParams.set('workflowID', workflowID);
+            window.history.replaceState(null, null, url.toString());
+
+            loadWorkflowList();
         });
         dialog.show();
     }
