@@ -1651,7 +1651,7 @@ class FormWorkflow
                 default:
                 break;
             }
-
+            $data = iconv('UTF-8', 'ASCII//TRANSLIT', $data);
             $formattedFields["content"][$field['indicatorID']] = $data !== "" ? $data : $field["default"];
             $formattedFields["to_cc_content"][$field['indicatorID']] = $emailValue;
         }
