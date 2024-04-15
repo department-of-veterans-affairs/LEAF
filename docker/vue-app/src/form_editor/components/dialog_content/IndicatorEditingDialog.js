@@ -213,7 +213,7 @@ export default {
             return tmp.value;
         },
         removeScriptTags(txt) {
-            let tmp = document.createElement('html');
+            let tmp = document.createElement('div');
             tmp.innerHTML = txt;
             let scripts = tmp.getElementsByTagName('script');
             for(let i = 0; i < scripts.length; i++) {
