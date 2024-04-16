@@ -807,7 +807,7 @@ function sortHeaders(a, b) {
 }
 
 function openShareDialog() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('index.php'));
     var reportLink = document.URL.substr(document.URL.lastIndexOf('?'));
 
     dialog_message.setTitle('Share Report');
@@ -836,7 +836,7 @@ function openShareDialog() {
 }
 
 function showJSONendpoint() {
-    let pwd = document.URL.substr(0,document.URL.lastIndexOf('/') + 1);
+    let pwd = document.URL.substr(0,document.URL.lastIndexOf('index.php'));
     leafSearch.getLeafFormQuery().setLimit(0, 10000);
     let queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
     let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
