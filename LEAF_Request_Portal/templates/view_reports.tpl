@@ -807,8 +807,8 @@ function sortHeaders(a, b) {
 }
 
 function openShareDialog() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('index.php'));
-    var reportLink = document.URL.substr(document.URL.lastIndexOf('?'));
+    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
+    var reportLink = document.URL.substr(document.URL.lastIndexOf('?') - 1);
 
     dialog_message.setTitle('Share Report');
     dialog_message.setContent('<p>This link can be shared to provide a live view into this report.</p>'
@@ -836,7 +836,7 @@ function openShareDialog() {
 }
 
 function showJSONendpoint() {
-    let pwd = document.URL.substr(0,document.URL.lastIndexOf('index.php'));
+    let pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
     leafSearch.getLeafFormQuery().setLimit(0, 10000);
     let queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
     let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
