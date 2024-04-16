@@ -44,7 +44,7 @@ $authCertURL = $protocol . AUTH_CERT_URL . '/auth_token/index.php?r=' . base64_e
 <body>
 <div id="header">
     <div>
-      <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" /></span>
+      <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" /></span>
       <span id="headerLabel"><?php echo htmlentities($settings['subHeading']); ?></span>
       <span id="headerDescription"><?php echo htmlentities($settings['heading']); ?></span>
     </div>
