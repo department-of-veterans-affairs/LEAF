@@ -840,7 +840,7 @@ function showJSONendpoint() {
     leafSearch.getLeafFormQuery().setLimit(0, 10000);
     let queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
     let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
-    let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+    let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of 10,000 records has been preset</b>.</p><br />'
@@ -917,7 +917,7 @@ function showJSONendpoint() {
             $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res + '?x-filterData=recordID,'+ Object.keys(filterData).join(','));
            if($('#msCompatMode').is(':checked')) {
                 $('#expandLink').css('display', 'none');
-                $('#exportPath').html(powerQueryURL + '/api/open/form/query/_' + res + '&x-filterData=recordID,'+ Object.keys(filterData).join(','));
+                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res + '&x-filterData=recordID,'+ Object.keys(filterData).join(','));
             }
             else {
                 $('#expandLink').css('display', 'inline');
