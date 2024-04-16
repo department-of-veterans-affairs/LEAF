@@ -956,24 +956,31 @@
     }
 
     function newDependency(stepID) {
+        let saving = false;
         dialog.setTitle('Create a new requirement');
         dialog.setContent(
             '<br /><label for="description">Requirement Label: </label><input type="text" id="description"/><br /><br />Requirements determine the WHO and WHAT part of the process.<br />Example: "Fiscal Team Review"'
         );
 
         dialog.setSaveHandler(function() {
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/dependencies',
-                        data: {description: $('#description').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        dialog.hide();
-                        dependencyGrantAccess(res, stepID);
-                    },
-                    error: (err) => console.log(err),
-                });
+            saving = true;
+            $.ajax({
+                    type: 'POST',
+                    url: '../api/workflow/dependencies',
+                    data: {description: $('#description').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    dialog.hide();
+                    dependencyGrantAccess(res, stepID);
+                },
+                error: (err) => console.log(err),
+            });
+        });
+        dialog.setCancelHandler(function() {
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
         });
         dialog.show();
     }
@@ -1017,8 +1024,8 @@
 
                 buffer += '</select></div>';
                 buffer +=
-                    '<br /><br /><br /><div>If a requirement does not exist: <button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="newDependency(' + stepID +
-                    ')">Create a new requirement</button></div>';
+                    '<br /><br /><br /><div>If a requirement does not exist: ' +
+                    '<button type="button" id="btn_newDependency" class="buttonNorm" style="font-size:1rem;padding:0.25em;">Create a new requirement</button></div>';
                 $('#dependencyList').html(buffer);
                 $('#xhrDialog').css('overflow', 'visible');
                 $('#dependencyID').chosen({
@@ -1027,6 +1034,10 @@
                 updateChosenAttributes("dependencyID", "requirements_label", "Select Requirement");
 
                 let saving = false;
+                $('#btn_newDependency').on('click', ()=> {
+                    saving = true;
+                    newDependency(stepID);
+                });
                 dialog.setCancelHandler(function() {
                     if(saving === false) {
                         showStepInfo(stepID);
@@ -1941,7 +1952,7 @@
                                     tDeps[depID] = 1;
                                     output += `<li>
                                         <b tabindex=0 title="depID: ${res[i].dependencyID}"
-                                            onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess('${res[i].dependencyID},${stepID})">
+                                            onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess(${res[i].dependencyID},${stepID})">
                                             ${res[i].description}
                                         </b>
                                         ${control_editDependency} ${control_unlinkDependency}
