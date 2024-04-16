@@ -1169,6 +1169,8 @@ $(function() {
     var extendedToolbar = false;
     $('#generateReport').off();
     $('#generateReport').on('click', function() {
+        filterData = {}; // reset x-filterData params
+
         $('#results').fadeIn(700);
         $('#saveLinkContainer').fadeIn(700);
         $('#step_2').slideUp(700);
