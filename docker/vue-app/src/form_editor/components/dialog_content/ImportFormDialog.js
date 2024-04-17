@@ -18,6 +18,7 @@ export default {
     mounted() {
         document.getElementById(this.initialFocusElID).focus();
     },
+    emits: ['import-form'],
     methods: {
         onSave() {
             if (this.files !== null) {
@@ -37,7 +38,8 @@ export default {
                             alert(res);
                         }
                         this.closeFormDialog();
-                        this.$router.push({ name: 'browser' }); //TODO: update return val to ID of imported form - more ideal to route to FE view
+                        this.$emit('import-form');
+                        //TODO: update return val to ID of imported form - might be more ideal to route to FE view
                     },
                     error: err => console.log('form import error', err),
                 })
