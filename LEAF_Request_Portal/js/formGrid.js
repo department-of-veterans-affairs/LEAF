@@ -35,10 +35,10 @@ var LeafFormGrid = function (containerID, options) {
     </div>
     <div id="${prefixID}table_stickyHeader" style="display: none"></div>
     <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
-      aria-label="" aria-live="assertive">
+      aria-label="Headers with buttons are sortable" aria-live="assertive">
     </span>
     <table id="${prefixID}table" class="leaf_grid">
-      <thead id="${prefixID}thead" aria-label="Search Results"></thead>
+      <thead id="${prefixID}thead" aria-label="Search Results. Headers with buttons are sortable."></thead>
       <tbody id="${prefixID}tbody"></tbody>
       <tfoot id="${prefixID}tfoot"></tfoot>
     </table>`
@@ -243,7 +243,7 @@ var LeafFormGrid = function (containerID, options) {
         renderBody(0, Infinity);
       });
     }
-    let divFilter = document.createElement('div');
+
     for (let i in headers) {
       if (headers[i].visible == false) {
         continue;
@@ -253,11 +253,8 @@ var LeafFormGrid = function (containerID, options) {
       const canSort = headers[i].sortable == undefined || headers[i].sortable == true;
       let thInnerContent = "";
       if(canSort) {
-        divFilter.innerHTML = headers[i].name || '';
-        const textName = (divFilter.textContent.trim()).replace(/"/g, "'");
-        const ariaAttr = textName !== '' ? `${textName}, sortable` : "sortable";
         thInnerContent = `<button type="button" id="${prefixID}header_${headers[i].indicatorID}"
-            class="btn_leaf_grid_sort" aria-label="${ariaAttr}">${headers[i].name}<span
+            class="btn_leaf_grid_sort">${headers[i].name}<span
                 id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
           </button>`;
       } else {
@@ -276,7 +273,7 @@ var LeafFormGrid = function (containerID, options) {
         '">' +
         headers[i].name +
         "</th>";
-      if (headers[i].sortable == undefined || headers[i].sortable == true) {
+      if (canSort) {
         $("#" + prefixID + "header_" + headers[i].indicatorID).on(
           "click",
           null,
@@ -366,15 +363,13 @@ var LeafFormGrid = function (containerID, options) {
       renderBody(0, Infinity);
     }
     $("." + prefixID + "sort").css("display", "none");
-    $(`th[id^="${prefixID}header_]`).removeAttr('aria-sort');
     const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
-    if (order.toLowerCase() == "asc") {
-      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", ascending.");
-      $(headerSelector).attr("aria-sort", "ascending");
+    const headerText = document.querySelector(headerSelector)?.innerText || "";
+    if (order.toLowerCase() === "asc") {
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", ascending.");
       $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▲</span>');
     } else {
-      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", descending.");
-      $(headerSelector).attr("aria-sort", "descending");
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", descending.");
       $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▼</span>')
     }
     $(headerSelector + "_sort").css("display", "inline");
@@ -1130,5 +1125,3 @@ var LeafFormGrid = function (containerID, options) {
     },
   };
 };
-
-
