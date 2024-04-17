@@ -108,7 +108,7 @@ export default {
                         <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"
                             class="btn-general"
                             @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())" 
-                            :title="'Edit conditions for ' + indicatorID">
+                            :title="conditionalQuestion ? 'Edit conditions for ' + indicatorID + '. Logic present' : 'Edit conditions for ' + indicatorID">
                             Modify Logic
                         </button>
                         <button v-if="!isHeader" type="button" class="btn-general"

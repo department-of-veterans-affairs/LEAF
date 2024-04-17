@@ -42,7 +42,7 @@ export default {
         <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
-                <component :is="dialogFormContent"></component>
+                <component :is="dialogFormContent" @import-form="getEnabledCategories"></component>
             </template>
         </leaf-form-dialog>
     </section>`
