@@ -913,7 +913,7 @@ class Employee extends Data
         return $result;
     }
 
-    public function lookupEmpUID($empUID)
+    public function lookupEmpUID($empUID, bool $getInactive = false)
     {
         if (!is_numeric($empUID))
         {
@@ -923,13 +923,12 @@ class Employee extends Data
         {
             return $this->cache["lookupEmpUID_{$empUID}"];
         }
-
+        $clauseDisabled = $getInactive === true ? "" : "AND deleted = 0";
         $strSQL = "SELECT empUID, userName, lastName, firstName, middleName, domain, 
                         deleted, lastUpdated, new_empUUID, data as email FROM {$this->tableName}
                     LEFT JOIN employee_data USING (empUID)
-                    WHERE empUID = :empUID
-                        AND deleted = 0
-                        AND indicatorID = 6";
+                    WHERE empUID = :empUID ".$clauseDisabled." AND indicatorID = 6";
+
         $sqlVars = array(':empUID' => $empUID);
         $result = $this->db->prepared_query($strSQL, $sqlVars);
 

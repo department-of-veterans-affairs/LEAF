@@ -553,9 +553,10 @@ class Form
             else if ($data[0]['format'] == 'orgchart_employee'
                 && !empty($data[0]['data']))
             {
-                $empRes = $this->employee->lookupEmpUID($data[0]['data']);
+                $empRes = $this->employee->lookupEmpUID($data[0]['data'], true);
                 if (!empty($empRes)) {
-                    $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    $textDisabledAccount = $empRes[0]['deleted'] > 0 ? " (disabled account)" : "";
+                    $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}".$textDisabledAccount;
                 } else {
                     $form[$idx]['displayedValue'] = '';
                 }
@@ -2555,10 +2556,11 @@ class Form
                             }
                             break;
                         case 'orgchart_employee':
-                            $empRes = $this->employee->lookupEmpUID($item['data']);
+                            $empRes = $this->employee->lookupEmpUID($item['data'], true);
                             if (isset($empRes[0]))
                             {
-                                $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                                $textDisabledAccount = $empRes[0]['deleted'] > 0 ? " (disabled account)" : "";
+                                $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}".$textDisabledAccount;
                                 $item['dataOrgchart'] = $empRes[0];
                             }
                             else
@@ -4205,11 +4207,13 @@ class Form
                 // special handling for org chart data types
                 if ($field['format'] == 'orgchart_employee')
                 {
-                    $empRes = $this->employee->lookupEmpUID($data[$idx]['data']);
+                    $empRes = $this->employee->lookupEmpUID($data[$idx]['data'], true);
                     $child[$idx]['displayedValue'] = '';
                     if (isset($empRes[0]))
                     {
-                      $child[$idx]['displayedValue'] = ($child[$idx]['isMasked']) ? '[protected data]' : "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                      $textDisabledAccount = $empRes[0]['deleted'] > 0 ? " (disabled account)" : "";
+                      $child[$idx]['displayedValue'] = ($child[$idx]['isMasked']) ?
+                        '[protected data]' : "{$empRes[0]['firstName']} {$empRes[0]['lastName']}".$textDisabledAccount;
                     }
                 }
                 if ($field['format'] == 'orgchart_position')
