@@ -397,7 +397,7 @@ function initCharts(fields) {
                         initBoxPlot(field, dimensions, groups);
                         
                         charts[field.indicatorID].on('postRender', () => {
-                            let boxHeight = document.querySelector(`#chart_${field.indicatorID} svg g.box>rect.box`).getAttribute('height');
+                            let boxHeight = document.querySelector(`#chart_${field.indicatorID} svg g.box>rect.box`)?.getAttribute('height');
                         	if(boxHeight < 5) {
                                 dc.chartRegistry.deregister(charts[field.indicatorID]);
                                 charts[field.indicatorID].dimension().dispose();
@@ -415,6 +415,9 @@ function initCharts(fields) {
                                     document.querySelector(`#chart_${field.indicatorID}`).innerHTML = `<p>Everyone answered "${numUniques[field.indicatorID]['value']}"</p>`;
                                 }
                                 charts[field.indicatorID].render();
+                            }
+                            else if(boxHeight == undefined) {
+                                document.querySelector(`#chart_${field.indicatorID}`).innerHTML = `<p>No Responses</p>`;
                             }
                         });
 
