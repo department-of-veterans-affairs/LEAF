@@ -93,6 +93,12 @@
         <span class="leaf-admin-btntitle">Report Builder</span>
         <span class="leaf-admin-btndesc">Create custom reports</span>
     </a>
+
+    <a href="../report.php?a=LEAF_Data_Visualizer" role="button" class="leaf-admin-button bg-violet-10 lf-trans-blue">
+        <i class="leaf-admin-btnicon fas fa-chart-pie text-violet-50 leaf-icn-narrow2" title="Data Visualizer"></i>
+        <span class="leaf-admin-btntitle">Data Visualizer</span>
+        <span class="leaf-admin-btndesc">Analyze form responses</span>
+    </a>
     <br /><br />
 
     <h3 role="heading" aria-level="1" tabindex="0">LEAF Developer Console</h3>
