@@ -1,0 +1,85 @@
+version: '3.7'
+services:
+  chrome:
+    image: selenium/node-chrome
+    container_name: node-chrome
+    networks:
+      - sel-grid
+      - leaf
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    ports:
+      - "6900:5900"
+
+  edge:
+    image: selenium/node-edge
+    container_name: node-edge    
+    networks:
+      - sel-grid
+      - leaf
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    ports:
+      - "6901:5900"
+
+  firefox:
+    image: selenium/node-firefox
+    container_name: node-firefox
+    networks:
+      - sel-grid
+      - leaf
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    ports:
+      - "6902:5900"
+
+  selenium-hub:
+    image: selenium/hub
+    container_name: selenium-hub
+    networks:
+      - sel-grid
+      - leaf
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  selenium-tests:
+    image: php-maven
+    build:
+      context: ./
+    env_file:
+      - ./leaf_selenium.env
+    container_name: maven-test-container
+    volumes:
+      - ./output:/app/target
+      - ./selenium-test-helper/index.php:/var/www/html/selenium-tests/index.php
+    # network_mode: host
+    networks:
+     - leaf
+    #  - host
+    #   should be pass during docker compose up -d app
+    # SCRIPT=test.java.formWorkflow.formWorkflow_Test
+    # command: ["test","-Dremote.url= http://192.168.86.248:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+networks:
+  sel-grid:
+    external: true
+  leaf:
+    external: true
