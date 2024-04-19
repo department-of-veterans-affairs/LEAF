@@ -192,6 +192,8 @@ function buildFacts(fields, data) {
                 }
                 temp[field.indicatorID] = date;
             }
+
+            temp[field.indicatorID] = scrubHTML(temp[field.indicatorID]);
         });
         parsed.push(temp);
     }
