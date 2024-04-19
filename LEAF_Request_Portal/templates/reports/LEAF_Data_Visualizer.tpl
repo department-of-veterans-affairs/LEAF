@@ -11,6 +11,10 @@
 .table td {
     font-size: 12pt;
 }
+.table th {
+    border: 1px solid black;
+    padding: 4px;
+}
 
 .dc-chart g.row text {
     fill: black;
@@ -546,19 +550,19 @@ async function selectForm() {
             }
         );
 
-        activityCharts[form.categoryID] = dc.barChart(`#activity_${form.categoryID}`, 'activity');
+        activityCharts[form.categoryID] = dc.lineChart(`#activity_${form.categoryID}`, 'activity');
 
         activityCharts[form.categoryID]
             .width(100)
             .height(24)
             .dimension(dimActivityTime)
             .group(groupActivity[form.categoryID])
-            .valueAccessor(d => d.value[form.categoryID])
+            .valueAccessor(d => d.value[form.categoryID] == undefined ? 0 : d.value[form.categoryID])
             .brushOn(false)
             .margins({left: 0, top: 4, right: 0, bottom: 0})
             .x(d3.scaleTime().domain([minDate, maxDate]))
             .xUnits(() => 16)
-        	.gap(2);
+            .title(d => d.key.toLocaleDateString('en-us') + ': ' + d.value[form.categoryID] + ' request(s)');
         document.querySelector(`#activity_${form.categoryID}`).innerHTML = '';
     });
 
@@ -635,6 +639,7 @@ async function getDataBuildCharts(categoryID, customSearch) {
     	if(field.description != '') {
             t.name = field.description;
         }
+        t.name = scrubHTML(t.name);
         exportFields.push(t);
     });
 
