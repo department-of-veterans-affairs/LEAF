@@ -4,9 +4,9 @@
 
 
 	<test name="Forms Workflow">
-			<parameter name="env" value="host.docker.internal/LEAF_Request_Portal/admin/">
+			<parameter name="env" value="yahoo.com">
 			<parameter name="browser" value="chrome"/>
-			<parameter name="remote_url" value="http://host.docker.internal:4445"/>
+			<parameter name="remote_url" value="http://localhost:4445"/>
 			<classes>
 				<class name="test.java.formWorkflow.formWorkflow_Test"/>
 			</classes>

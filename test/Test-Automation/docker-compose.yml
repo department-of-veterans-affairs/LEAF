@@ -1,22 +1,23 @@
 version: "3.7"
 services:
-  # test-api:
-  #   image: test-api:latest
-  #   container_name: test-api
-  #   build:
-  #     context: ./
-  #     dockerfile: test-api.dockerfile
-  #   env_file:
-  #     - ./leaf_selenium.env
-  #   networks:
-  #     - leaf
-  #     - ui-test
-  #   volumes:
-  #     - ./output:/app/target
-  #     - ./selenium-test-helper/index.php:/var/www/html/selenium-tests/index.php
+  test-api:
+    image: test-api:latest
+    container_name: test-api
+    build:
+      context: ./
+      dockerfile: test-api.dockerfile
+    env_file:
+      - ./leaf_selenium.env
+    networks:
+      - leaf
+      - ui-test
+    volumes:
+      - ./output:/app/target
+      - ./selenium-test-helper/index.php:/var/www/html/selenium-tests/index.php
   app:
     build:
       context: ./
+    image: app_test1
     container_name: app_test1
     volumes:
       - ./output:/app/target
@@ -26,7 +27,9 @@ services:
      #- ui-test
     #   should be pass during docker compose up -d app
     # SCRIPT=test.java.formWorkflow.formWorkflow_Test
-    # command: ["clean", "test","-Dremote.url= http://192.168.86.248:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
+    environment: 
+      SCRIPT: test.java.formWorkflow.formWorkflow_Test
+    command: ["test","-Dremote.url= http://host.docker.internal:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
