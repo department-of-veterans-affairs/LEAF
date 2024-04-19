@@ -36,7 +36,7 @@
                     indicatorID: 'uid',
                     editable: false,
                     callback: function(data, blob) {
-                        $('#' + data.cellContainerID).html('<a href="' + site.url + '?a=printview&recordID=' +
+                        $('#' + data.cellContainerID).html('<a target="_blank" href="' + site.url + '?a=printview&recordID=' +
                             data.recordID + '">' + data.recordID + '</a>');
                     }
                 }
@@ -97,6 +97,8 @@
                                             .slideDown();
                                         $('#requestTitle').attr('tabindex', '0');
                                         $('#requestInfo').attr('tabindex', '0');
+                                        $('.printmainform > div > img[role="button"]').css('display','none');
+                                        $('button[title^="Edit"]').css('display','none');
                                     },
                                     error: function() {
                                         triggerGenericLoadError();
