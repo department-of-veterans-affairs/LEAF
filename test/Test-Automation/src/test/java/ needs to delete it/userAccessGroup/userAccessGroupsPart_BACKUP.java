@@ -1,32 +1,25 @@
-package Execution;
+package test.java.userAccessGroup;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
-import org.testng.AssertJUnit;
-import org.testng.asserts.*;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.JavascriptExecutor;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 
 import java.util.Random;
 
-import Framework.AppVariables;
-import Framework.TestData;
-import Framework.setupFramework;
-import Framework.waitMethods;
-import Framework.highlightElement;
+import test.java.Framework.AppVariables;
+import test.java.Framework.setupFramework;
+import test.java.Framework.waitMethods;
+import test.java.Framework.highlightElement;
 
 
-public class userAccessGroupsPart2 extends setupFramework {
+public class userAccessGroupsPart_BACKUP extends setupFramework {
 
 	
 	public String sRand;
@@ -34,15 +27,15 @@ public class userAccessGroupsPart2 extends setupFramework {
 	public String nexusURL = "https://localhost/LEAF_Nexus/?a=view_group&groupID=";
 	public String portalURL = "https://localhost/LEAF_Request_Portal/admin/?a=mod_groups";
 	public String id;		
-	public WebDriver driverNexus, driverPortal;
+	public WebDriver driverNexus;
 
 	
 	
 	
 	
-	private static WebDriver chromeLoginNexus(String env) {	  //Step 3 - call from createNexusDriver()
+	private static WebDriver chromeLoginNexus(String env) {	
 		System.out.println("Launching Chrome");  //Step Over until - return driver;
-		//System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
+		//System.setProperty("webdriver.chrome.driver", test.java.Framework.AppVariables.CHROMEDRIVER);
 		
 		
 			if (AppVariables.headless) {
@@ -86,31 +79,19 @@ public class userAccessGroupsPart2 extends setupFramework {
 	} 
 	
 	
-	public WebDriver getDriverNexus() {		// Called from setUp() in @BeforeClass				
+	public WebDriver getDriverNexus() {						
         return driverNexus;					//Establish ChromeDriver for Nexus
 	}							
 
 	
 	
 	 
-	public void createNexusDriver() {		// Step 2 - called by createNexusDriver1()
+	public void createNexusDriver() {
 		String NexusURL = nexusURL + id;
 		System.out.println("NexusURL: " + NexusURL);
 	
 		driverNexus = chromeLoginNexus(NexusURL);
 		//driverNexus = chromeLoginNexus("https://localhost/LEAF_Nexus/?a=view_group&groupID=" + id);
-		waitMethods.waiter(waitMethods.w2k);
-		testForNexusCertPage();
-		System.out.println("Chromedriver for Nexus created");
-	}
-	
-
-					// TODO:  parameterize method to accept String URL
-	public void createPortalDriver() {		// Step 2 - called by  a new method to be created like createNexusDriver1()
-		String NexusURL = portalURL;
-		System.out.println("NexusURL: " + NexusURL);
-	
-		driverNexus = chromeLoginNexus(NexusURL);
 		waitMethods.waiter(waitMethods.w2k);
 		testForNexusCertPage();
 		System.out.println("Chromedriver for Nexus created");
@@ -147,19 +128,18 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	@BeforeMethod
 	@BeforeClass
-	public void setUp()  {			//Starts Here
+	public void setUp()  {
 		if(driver!= null) {
-			driver=getDriver();   //   from Framework.setupFramework
+			driver=getDriver();   //   from test.java.Framework.setupFramework
 		}
 		if(driverNexus!= null) {
-			driverNexus=getDriverNexus();   
+			driverNexus=getDriverNexus();   //   from test.java.Framework.setupFramework
 		}		
 	}
 	
 
 	
 	
-	//***************** Tests Begin *******************************************************
 	
 	@Test(priority = 1) //MUST REMAIN #1 ( or zero) -test for certificate - if no, click Advanced -> Proceed
 	private void testForCertPage() /*throws InterruptedException */ {
@@ -215,7 +195,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 	    highlightElement.highLightElement(driver, ele);
 	    ele.click();
 	    waitMethods.waiter(waitMethods.w2k);
-	    System.out.println("Navigate to Admin Panel");
+	    System.out.println("Clicked SYNC SERVICES");
 	} 
 	
 	
@@ -226,21 +206,9 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	
 	
-	@Test(priority = 2040)
-	private void scrollUp() {
-		waitMethods.waiter(waitMethods.w500);
-		Actions a = new Actions(driver);
-		a.sendKeys(Keys.PAGE_UP).build().perform();
-		waitMethods.waiter(waitMethods.w1k);
-		System.out.println("Scroll UP");
-
-		
-	}
-	
-	
-	@Test(priority = 2050) //
+	@Test(priority = 2040) //
 	private void openUserAccessGroups() {
-		waitMethods.waiter(waitMethods.w2k);
+		waitMethods.waiter(waitMethods.w1500);
 		WebElement ele = driver.findElement(By.xpath("//span[contains(text(),'User Access Groups')]"));
 		//WebElement ele = driver.findElement(By.xpath("/html/body/div[1]/div/div/a[16]/span[1]"));
 	    highlightElement.highLightElement(driver, ele);
@@ -248,7 +216,23 @@ public class userAccessGroupsPart2 extends setupFramework {
 	    System.out.println("Opened User Group");
 	} 
 	
-
+	
+	@Test(priority = 2050)
+	private void scrollUp() {
+		waitMethods.waiter(waitMethods.w1k);
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		js.executeScript("window.scrollBy(0,-300)", "");
+		System.out.println("Scroll UP");
+		
+	}
+	
+	
+	
+	
+	@Test(priority = 2070) //
+	private void openAccessGroup() {
+		openUserAccessGroups();
+	} 
 	
 	
 	@Test(priority = 2080) //
@@ -271,7 +255,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 
 	@Test(priority = 2090) 
-	public void createNexusDriver1() {		// Step 1
+	public void createNexusDriver1() {
 		createNexusDriver();
 	}
 	
@@ -291,7 +275,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 	
 	@Test(priority = 2120) 
 	private void confirmYes() {			
-		waitMethods.waiter(waitMethods.w500);
+		waitMethods.waiter(waitMethods.w200);
 		WebElement ele = driverNexus.findElement(By.id("confirm_button_save"));
         highlightElement.highLightElement(driverNexus, ele);  
         ele.click();	
@@ -306,7 +290,7 @@ public class userAccessGroupsPart2 extends setupFramework {
 		waitMethods.waiter(waitMethods.w1k);	
 		WebElement ele = driverNexus.findElement(By.xpath("/html/body/div[2]/div/div/div[1]/div/div[4]/div[2]/div[5]/a[2]")); 
         highlightElement.highLightElement(driverNexus, ele);  
-        ele.click();
+        ele.click();	
         waitMethods.waiter(waitMethods.w100);
         System.out.println("Clicked Remove User - Walker, Taina");
 	}
@@ -403,45 +387,41 @@ public class userAccessGroupsPart2 extends setupFramework {
 	@Test(priority = 2230) //
 	private void DELETE_GROUP() {
 		waitMethods.waiter(waitMethods.w1k);
-		WebElement ele = driverNexus.findElement(By.xpath("//*[contains(text(),' Delete Group')]"));
-	    highlightElement.highLightElement(driverNexus, ele);
+		WebElement ele = driver.findElement(By.xpath("//*[contains(text(),' Delete Group')]"));
+	    highlightElement.highLightElement(driver, ele);
 	    ele.click();
 	    System.out.println("Clicked DELETE GROUP");
 	} 
 	
+	
+	// *********** END Note to Comment out - will leave last 3 users and Not DELTE GROUP ************
+	
+	
+//	@Test(priority = 4000)
+//	public void closeDownNexus1() {
+//		closeDownNexus();
+//	}
+	
 
-	@Test(priority = 2240) 
-	private void confirmYes6() {			
-		confirmYes();
+	
+	@Test(priority = 5000) 
+	public void createPortalDriver1() {
+		//getDriver();
+		driver.navigate().to("https://localhost/LEAF_Request_Portal/admin/?a=mod_groups");
+	}
+	
+
+	
+	@Test(priority = 6000) //
+	private void openAccessGroup2() {
+		openUserAccessGroups();
 	} 
 	
 	
-//	//  Dismiss JS Alert - 'OK' 
-//	@Test(priority = 2240) //
-//	private void dismissOKAlertNexus() {
-//		waitMethods.waiter(waitMethods.w1k);
-//		Alert alert = driverNexus.switchTo().alert();
-//		alert.accept();
-//		//driverNexus.switchTo().alert().accept();
-//		 System.out.println("Dismiss JS Alert");
-//		 
-//		 /*
-//		  * This is what I use in formsWorkflowPart2
-//		  * driver.switchTo().alert().accept();
-//		  */
-//	}
+	// getDriver();
+	//  or
+	// driver=getDriver();
 	
-	
-	// *********** END of Note to Comment out - will leave last 3 users and Not DELTE GROUP ************
-	
-	
-	@Test(priority = 4000)
-	public void closeDownNexus1() {
-		closeDownNexus();
-	}
-
-	
-
 	
 	
 }  //class userAccessGroupsPart2

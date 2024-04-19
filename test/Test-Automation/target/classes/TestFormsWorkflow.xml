@@ -6,9 +6,9 @@
 	<test name="Forms Workflow">
 			<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
 			<parameter name="browser" value="chrome"/>
-			<parameter name="remote_url" value=""/>
+			<parameter name="remote_url" value="${remote.url}"/>
 			<classes>
-				<class name="test.java.formWorkflow.formWorkflowPart3"/>
+				<class name="main.java.formWorkflow.formWorkflowPart3"/>
 			</classes>
 		</parameter>
 	</test>

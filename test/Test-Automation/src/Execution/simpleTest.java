@@ -9,7 +9,7 @@ public class simpleTest {
 		
 	
 	
-	System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
+	//System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
 	WebDriver driverChrome = new ChromeDriver();
 
 	driverChrome.get("https://localhost/LEAF_Request_Portal/");

@@ -21,7 +21,7 @@ public class TestJS extends setupFramework {
 		
 	
 	
-		System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
+		//System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
 		WebDriver driver = new ChromeDriver();
 	
 		driver.get("https://localhost/LEAF_Request_Portal/");

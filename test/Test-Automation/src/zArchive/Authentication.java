@@ -23,7 +23,7 @@ public class Authentication {
 		String Filename = "C:/Users/madma_000/Dropbox/DEV/Java/_Output/TestResultsFile.txt";
 
 		
-		System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
+		//System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
 		WebDriver driverChrome = new ChromeDriver();
 
 //		driverChrome.get(Framework.AppVariables.NULLURL);

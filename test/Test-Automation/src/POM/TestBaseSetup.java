@@ -38,7 +38,7 @@ public class TestBaseSetup {
 	private static WebDriver chromeLogin(String appURL) {						//This is all I need for now
 		//Currently version 90.0.4430.93
 		System.out.println("Launching Chrome");
-		System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
+		//System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
 		WebDriver driver = new ChromeDriver();
 		driver.manage().window().maximize();
 		driver.navigate().to(appURL);

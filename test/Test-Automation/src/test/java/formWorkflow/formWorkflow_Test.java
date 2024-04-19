@@ -1,6 +1,6 @@
 package test.java.formWorkflow;
 
-import test.java.BaseMethods.SetUpTest;
+import src.main.java.SetUpTest;
 import test.java.PageObjectClass.FormWorkflow_PageObjects;
 import org.testng.Assert;
 import org.testng.annotations.*;

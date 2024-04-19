@@ -1,9 +1,7 @@
-package Execution;
+package test.java.Service_TEst;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
-import org.testng.AssertJUnit;
-import org.testng.asserts.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -13,16 +11,14 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.JavascriptExecutor;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 
 import java.util.Random;
 
-import Framework.AppVariables;
-import Framework.TestData;
-import Framework.setupFramework;
-import Framework.waitMethods;
-import Framework.highlightElement;
+import test.java.Framework.AppVariables;
+import test.java.Framework.setupFramework;
+import test.java.Framework.waitMethods;
+import test.java.Framework.highlightElement;
 
 
 public class serviceChiefsBACKUP extends setupFramework {
@@ -57,7 +53,7 @@ public class serviceChiefsBACKUP extends setupFramework {
 	
 	private static WebDriver chromeLoginNexus(String env) {	
 		System.out.println("Launching Chrome");  //Step Over until - return driver;
-		//System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
+		//System.setProperty("webdriver.chrome.driver", test.java.Framework.AppVariables.CHROMEDRIVER);
 		
 		
 			if (AppVariables.headless) {
@@ -152,10 +148,10 @@ public class serviceChiefsBACKUP extends setupFramework {
 	@BeforeClass
 	public void setUp()  {
 		if(driver!= null) {
-			driver=getDriver();   //   from Framework.setupFramework
+			driver=getDriver();   //   from test.java.Framework.setupFramework
 		}
 		if(driverNexus!= null) {
-			driverNexus=getDriverNexus();   //   from Framework.setupFramework
+			driverNexus=getDriverNexus();   //   from test.java.Framework.setupFramework
 		}		
 	}
 	

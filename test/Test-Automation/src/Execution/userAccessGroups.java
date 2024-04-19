@@ -39,7 +39,7 @@ public class userAccessGroups extends setupFramework {
 	
 	private static WebDriver chromeLoginNexus(String env) {	
 		System.out.println("Launching Chrome");  //Step Over until - return driver;
-		System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
+		//System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
 		
 		
 			if (AppVariables.headless) {

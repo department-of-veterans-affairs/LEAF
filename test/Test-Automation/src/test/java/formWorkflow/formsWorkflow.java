@@ -2,7 +2,6 @@ package test.java.formWorkflow;
 
 import test.java.Framework.*;
 import test.java.PageObjectClass.adminUserAccess_PageObjects;
-import test.java.PageObjectClass.currentMethods_PageObjects;
 import test.java.PageObjectClass.formsWorkFlow_PageObjects;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
@@ -24,7 +23,7 @@ public class formsWorkflow extends setupFramework_Local {
 	//private static final DateFormat Calendar = null;
 	Date date = new Date();
 	adminUserAccess_PageObjects adminUserAccess = new adminUserAccess_PageObjects(driver);
-	currentMethods_PageObjects currentMethods = new currentMethods_PageObjects(driver);
+	test.java.PageObjectClass.currentMethods_PageActions currentMethods = new test.java.PageObjectClass.currentMethods_PageActions(driver);
 	formsWorkFlow_PageObjects formworkflow = new formsWorkFlow_PageObjects(driver);
 
 	@BeforeMethod

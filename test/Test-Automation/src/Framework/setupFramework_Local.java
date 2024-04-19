@@ -61,7 +61,7 @@ public class setupFramework_Local {
 	private static WebDriver chromeLogin(String env) {						//This is all I need for now
 		//Currently version 98.0.44758.102      2.16.2022
 		System.out.println("Launching Chrome");  //Step Over until - return driver;
-		System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
+		//System.setProperty("webdriver.chrome.driver", Framework.AppVariables.CHROMEDRIVER);
 		
 		
 			if (AppVariables.headless) {
