@@ -100,8 +100,11 @@ function isNumeric(x) {
 }
 
 function scrubHTML(input) {
-        let t = new DOMParser().parseFromString(input, 'text/html').body;
-        return t.textContent;
+    if(input == undefined) {
+        return '';
+    }
+    let t = new DOMParser().parseFromString(input, 'text/html').body;
+    return t.textContent;
 }
 
 // Update window title
