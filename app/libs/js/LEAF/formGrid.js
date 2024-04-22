@@ -71,12 +71,12 @@ var LeafFormGrid = function (containerID, options) {
           v = v.replaceAll(">", "&gt;");
           let elDiv = document.createElement("div");
           elDiv.innerHTML = v;
-          let text = elDiv.innerText;
-          text = text.replaceAll(
-            /(<script[\s\S]*?>)|(<\/script[\s\S]*?>)/gi,
-            ""
-          );
-          return text;
+          let scripts = elDiv.getElementsByTagName('script');
+          for(let i = 0; i < scripts.length; i++) {
+              let script = scripts[i];
+              script.remove();
+          }
+          return elDiv.innerHTML;
         });
         cells[ci] = arrRowVals.slice();
       });
