@@ -166,7 +166,7 @@ function buildFacts(fields, data) {
 
         // assign user-defined fields
         fields.forEach(field => {
-        	temp[field.indicatorID] = data[i].s1?.['id' + field.indicatorID];
+        	temp[field.indicatorID] = scrubHTML(data[i].s1?.['id' + field.indicatorID]);
             if(temp[field.indicatorID] == null || temp[field.indicatorID] == '') {
                 temp[field.indicatorID] = 'Blank';
             }
