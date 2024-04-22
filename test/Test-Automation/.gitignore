@@ -1,7 +1,5 @@
 bin/
 test-ouput/
 /target
-../.idea/
+/.idea/
 /Test-Automation.iml
-../.idea/
-../target/

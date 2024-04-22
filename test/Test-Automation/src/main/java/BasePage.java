@@ -1,5 +1,6 @@
 package main.java;
 
+/*
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
@@ -26,6 +27,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class BasePage extends Utils {
+
 
     //Created object of Loggers Class
     private static final Logger log = LogManager.getLogger(BasePage.class);
@@ -72,7 +74,7 @@ public class BasePage extends Utils {
         super();
     }
 
-     */
+
 
 
     //Initializing the driver we're using and Reading from env.properties file
@@ -97,3 +99,5 @@ public class BasePage extends Utils {
     }
 
     }
+
+    */
