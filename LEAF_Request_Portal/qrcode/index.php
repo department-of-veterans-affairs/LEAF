@@ -14,7 +14,7 @@ if(isset($_GET['encode'])) {
 
     $len = strlen($_GET['encode']);
     if($len > 0 && $len < 4000) { // check QR container limits
-        $encode = $input;
+        $encode = str_replace('&amp;', '&', $input);
     }
 
     // TODO: Replace this with centrally managed server config variable
