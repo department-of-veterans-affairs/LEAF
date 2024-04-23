@@ -277,6 +277,7 @@
                             selected: values.some(v => decodeHTMLEntities(v) === o)
                         }));
                         const choices = new Choices(elSelect, {
+                            placeholderValue: 'Type here to search',
                             allowHTML: false,
                             removeItemButton: true,
                             editItems: true,
