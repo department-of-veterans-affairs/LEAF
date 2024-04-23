@@ -1338,6 +1338,27 @@ $(function() {
                 }
                 $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
                 renderGrid(queryResult);
+                //update Checkpoint Date Step header text if still needed (should be rare)
+                if(tStepHeader.some(ele => ele === 0)) {
+                    $.ajax({
+                        type: 'GET',
+                        url: './api/workflow/steps',
+                        dataType: 'json',
+                        success: (res) => {
+                            let div = document.createElement('div');
+                            res.forEach(step => {
+                                if(tStepHeader[step.stepID] === 0) {
+                                    const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
+                                    $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
+                                    $('#Vheader_stepID_' + step.stepID).text(title);
+                                    tStepHeader[step.stepID] = 1;
+                                }
+                            });
+
+                        },
+                        error: (err) => console.log(err),
+                    });
+                }
             }
         });
 
