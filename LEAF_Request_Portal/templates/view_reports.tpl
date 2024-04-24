@@ -547,12 +547,12 @@ function loadSearchPrereqs() {
             //toggle all subcheckboxes with parent indicator checkbox
             $('.indicatorOption > label > input').on('change', function() {
                 const indicatorIsChecked = this.checked;
-                $(`input[id^="indicators_${this.value}_columns"`).prop('checked', indicatorIsChecked);
+                $(`input[id^="indicators_${this.value}_columns"]`).prop('checked', indicatorIsChecked);
             });
             //check parent if any subcheckbox is checked, uncheck if none are checked
             $('.subIndicatorOption > label > input').on('change', function() {
                 const indicatorID = this.getAttribute('gridparent');
-                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"`));
+                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"]`));
                 const atLeastOneChecked = siblings.some(sib => sib.checked === true);
                 if(atLeastOneChecked) {
                     $(`#indicators_${indicatorID}`).prop('checked', true);
