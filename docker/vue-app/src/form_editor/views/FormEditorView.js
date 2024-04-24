@@ -238,6 +238,24 @@ export default {
         },
     },
     methods: {
+        /*
+         * Backward compatibility: certain properties are pre-sanitized server-side, and must be decoded before rendering
+         * TODO: Migrate to markdown
+         */
+        decodeHTMLEntities(txt) {
+            let tmp = document.createElement("textarea");
+            tmp.innerHTML = txt;
+            return tmp.value;
+        },
+        backwardCompatNames(obj) {
+            for(let i in obj) {
+                obj[i].name = this.decodeHTMLEntities(obj[i].name);
+                if(obj[i].child != null) {
+                    obj[i].child = this.backwardCompatNames(obj[i].child);
+                }
+            }
+            return obj;
+        },
         /**
          * updates the position of the form options area in large screen displays
          */
@@ -302,6 +320,8 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res) => {
+                        res = this.backwardCompatNames(res);
+
                         let query = {
                             formID: this.queryID,
                         }
@@ -351,11 +371,13 @@ export default {
             if (primaryID !== '' && this.formPreviewIDs !== '') {
                 this.appIsLoadingForm = true;
                 this.setDefaultAjaxResponseMessage();
+
                 try {
                     fetch(`${this.APIroot}form/specified?childkeys=nonnumeric&categoryIDs=${this.formPreviewIDs}`).then(res => {
                         res.json().then(data => {
                             if(data?.status?.code === 2) {
                                 this.previewTree = data.data || [];
+                                this.previewTree = this.backwardCompatNames(this.previewTree);
                                 this.focusedFormID = primaryID;
                             } else {
                                 console.log(data);
@@ -757,7 +779,6 @@ export default {
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>
                 <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Editor
-                <a href="./?a=form#" class="leaf-crumb-link" style="margin-left: auto; font-size:80%;">Back to old Form Editor</a>
             </h2>
             <!-- TOP INFO PANEL -->
             <edit-properties-panel :key="'panel_' + focusedFormID" :hasCollaborators="hasCollaborators"></edit-properties-panel>
