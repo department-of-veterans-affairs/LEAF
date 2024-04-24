@@ -470,6 +470,8 @@ class Service
                 }
             }
         }
+        $col = array_column( $members, "lastName" );
+        array_multisort( $col, SORT_ASC, $members );
 
         return $members;
     }

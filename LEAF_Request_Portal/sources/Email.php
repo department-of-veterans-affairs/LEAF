@@ -360,8 +360,12 @@ class Email
      */
     private function logEmailSent(int $recordID): void
     {
+        $recipients = $this->emailRecipient;
+        foreach($this->emailCC as $cc) {
+            $recipients.=", ".$cc;
+        };
         $email_tracker = new EmailTracker($this->portal_db);
-        $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $this->emailRecipient, 'Subject: ' . $this->emailSubject);
+        $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $recipients, 'Subject: ' . $this->emailSubject);
     }
 
     /**
@@ -621,7 +625,7 @@ class Email
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
-                if (strlen($approver['approverID']) > 0) {
+                if (!empty($approver['approverID']) && strlen($approver['approverID']) > 0) {
                     $tmp = $dir->lookupLogin($approver['approverID']);
                     if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                         $this->addRecipient($tmp[0]['Email']);

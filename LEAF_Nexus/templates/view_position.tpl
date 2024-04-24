@@ -132,7 +132,7 @@
         <div style="border-bottom: 2px solid black; line-height: 30px"><br /></div>
         <div id="start_requestloadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 100px; width: 460px">Loading... <img src="images/largespinner.gif" alt="" /></div>
         <div id="start_requestxhr" style="width: 540px; height: 100px; overflow: auto; font-size: 12px"></div>
-        <button type="button" id="start_requestbutton_save" class="buttonNorm" style="width: 80%"><img src="dynicons/?img=go-next.svg&amp;w=32" alt="save" /> Start FTE Request to fill <b><!--{$positionSummary.employeeList[0].positionTitle|sanitize}--></b></button>
+        <button type="button" id="start_requestbutton_save" class="buttonNorm" style="width: 80%"><img src="dynicons/?img=go-next.svg&amp;w=32" alt="" /> Start FTE Request to fill <b><!--{$positionSummary.employeeList[0].positionTitle|sanitize}--></b></button>
         <br /><br />
     </div>
 </form>
@@ -334,10 +334,10 @@ function changeSupervisor() {
             data: {positionID: posSel.selection,
                       CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
-                if (Number.isInteger(response)) {
-                    window.location.reload();
-                } else {
+                if (response?.errors?.[0] !== undefined) {
                     dialog.setContent(`<strong style="display:table;margin:0 auto;"><img src="dynicons/?img=dialog-error.svg&amp;w=32" style="vertical-align:middle;float:left;" alt="" />${response.errors[0]}</strong>`);
+                } else {
+                    window.location.reload();
                 }
             },
             cache: false

@@ -159,7 +159,16 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
               let list = fileContent.split(/\n/).map(line => line.split(",")[0]) || [];
               list = list.map(o => XSSHelpers.stripAllTags(o.trim()));
               const firstRow = list[0] || '';
-              list = Array.from(new Set(list)).sort();
+              list = Array.from(new Set(list)).sort(
+                (a, b) => a.localeCompare(
+                  b,
+                  undefined,
+                  {
+                    numeric: true,
+                    sensitivity: 'base',
+                  }
+                )
+              );
               fileOptions[filename] = {
                 firstRow,
                 options: list
@@ -395,9 +404,9 @@ var gridInput = function (gridParameters, indicatorID, series, recordID) {
       );
       if (gridParameters[i].type === "dropdown") {
         $(previewElement + "> div:eq(" + i + ")").append(
-          "Options:</br><li>" +
+          "Options:</br><ul style='margin:0;padding:0.25rem 1rem;'><li>" +
             gridParameters[i].options.toString().replace(/,/g, "</li><li>") +
-            "</li></br>"
+            "</li></ul></br>"
         );
       }
       if (gridParameters[i].type === "dropdown_file" && gridParameters[i].file !== "") {
