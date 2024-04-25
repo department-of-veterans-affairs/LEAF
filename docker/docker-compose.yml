@@ -34,6 +34,9 @@ services:
         #depends_on:
         #  leaf-mysql:
         #    condition: service_healthy
+        #depends_on:
+        #  leaf-mysql:
+        #    condition: service_healthy
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
@@ -48,6 +51,7 @@ services:
             - ../app:/var/www/html/app
             - ../libs:/var/www/html/libs # temp step.  Will shift to below later
             - ../docker/mysql/db:/var/www/db
+            - ./php/dev:/var/www/html/dev
             - ./php/dev:/var/www/html/dev
             # - leaf-lib:/var/www/html/libs
             # - ../test:/var/www/html/test
@@ -71,6 +75,7 @@ services:
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+            - ./nginx/src/index.html:/var/www/html/index.html
             - ./nginx/src/index.html:/var/www/html/index.html
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
         volumes_from:
@@ -134,6 +139,11 @@ services:
             - ./env_files/secrets.env
         command: mysqld --sql_mode="NO_ENGINE_SUBSTITUTION" # set same mode as prod
         restart: "always"
+        #healthcheck:
+        #  test: "mysqladmin ping -h localhost -u $${MYSQL_USER} -p$${MYSQL_PASSWORD}"
+        #  start_interval: 1s
+        #  timeout: 1s
+        #  retries: 5
         #healthcheck:
         #  test: "mysqladmin ping -h localhost -u $${MYSQL_USER} -p$${MYSQL_PASSWORD}"
         #  start_interval: 1s
