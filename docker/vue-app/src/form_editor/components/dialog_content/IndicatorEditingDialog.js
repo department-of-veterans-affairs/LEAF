@@ -85,6 +85,7 @@ export default {
         'checkRequiredData',
         'setDialogSaveFunction',
         'advancedMode',
+        'hasDevConsoleAccess',
         'initializeOrgSelector',
         'closeFormDialog',
         'showLastUpdate',
@@ -158,7 +159,7 @@ export default {
             return this.parentID !== null || this.advancedMode === true || this.format !== ''
         },
         shortLabelTriggered() {
-            return this.name.trim().split(' ').length > 2 || this.containsRichText(this.name);
+            return this.name.trim().split(' ').length > 2 || this.containsRichText(this.name) || hasDevConsoleAccess;
         },
         formatBtnText() {
             return this.showDetailedFormatInfo ? "Hide Details" : "What's this?";
