@@ -117,8 +117,8 @@ export default {
                             + Sub-question
                         </button>
                         <div style="margin-left: auto; grid-area: 1 / 3 / 2 / 4">
-                            <span v-if="conditionalQuestion" role="img" aria="" alt="" title="conditional logic is present" style="color: transparent; text-shadow: 0 0 0 black; cursor: help">⛓️</span>
-                            <span v-if="hasCode" role="img" aria="" alt="" title="advanced options are present" style="color: transparent; text-shadow: 0 0 0 black; cursor: help">⚙️</span>
+                            <span v-if="conditionalQuestion" role="img" aria="" alt="" title="conditional logic is present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⛓️</span>
+                            <span v-if="hasCode" role="img" aria="" alt="" title="advanced options are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⚙️</span>
                         </div>
                     </div>
                 </div>

@@ -219,7 +219,7 @@ switch ($action) {
 
         $main->assign('body', $t_form->fetch('form_editor_vue.tpl'));
 
-        $tabText = 'Form Editor Testing';
+        $tabText = 'Form Editor';
         break;
     case 'form':
         $t_form = new Smarty;
