@@ -1,6 +1,6 @@
 #!/bin/sh
-mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER tester@'localhost' IDENTIFIED BY 'tester'"
-mysql -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON * . * TO 'tester'@'localhost';"
+mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER tester@'localhost' IDENTIFIED BY 'tester'; FLUSH PRIVILEGES;"
+mysql -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON * . * TO 'tester'@'localhost'; FLUSH PRIVILEGES;"
 mysql -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON * . * TO 'tester'@'%'; FLUSH PRIVILEGES;"
 
 mysql -u tester -p$MYSQL_PASSWORD -e "create database national_leaf_launchpad"

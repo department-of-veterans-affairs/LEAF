@@ -54,7 +54,6 @@ services:
             # - ../test_server:/var/www/html/test_server
             # - ./docker/php/conf.d/xdebug.ini  # Not sure what this is even for.
         networks:
-            # - traefik
             - leaf-sql
             - leaf
         environment:
@@ -82,15 +81,7 @@ services:
         depends_on:
             - leaf-php-8
         networks:
-            - traefik
             - leaf
-        labels:
-            - "traefik.enable=true"
-            - "traefik.docker.network=traefik"
-            - "traefik.http.services.leaf_8.loadbalancer.server.port=8443"
-            - "traefik.http.routers.leaf_8.rule=Host(`leaf-8.dev.vovina-tisa.net`)"
-            - "traefik.http.routers.leaf_8.entrypoints=web, web-secure"
-            - "traefik.http.routers.leaf_8.tls.certresolver=dev_http"
 
     leaf-smtp:
         #   image: kurzdigital/fake-smtp # https://hub.docker.com/r/kurzdigital/fake-smtp/
@@ -121,15 +112,7 @@ services:
             - "5080:5080"
         restart: "always"
         networks:
-            - traefik
             - leaf
-        labels:
-            - "traefik.enable=true"
-            - "traefik.docker.network=traefik"
-            - "traefik.http.services.leaf_smtp.loadbalancer.server.port=5080"
-            - "traefik.http.routers.leaf_smtp.rule=Host(`smtp.dev.vovina-tisa.net`)"
-            - "traefik.http.routers.leaf_smtp.entrypoints=web, web-secure"
-            - "traefik.http.routers.leaf_smtp.tls.certresolver=dev_http"
 
     leaf-adminer:
         container_name: leaf-adminer
@@ -139,15 +122,7 @@ services:
         ports:
             - "8080:8080"
         networks:
-            - traefik
             - leaf-sql
-        labels:
-            - "traefik.enable=true"
-            - "traefik.docker.network=traefik"
-            - "traefik.http.services.leaf_adminer.loadbalancer.server.port=8080"
-            - "traefik.http.routers.leaf_adminer.rule=Host(`leaf-adminer.dev.vovina-tisa.net`)"
-            - "traefik.http.routers.leaf_adminer.entrypoints=web, web-secure"
-            - "traefik.http.routers.leaf_adminer.tls.certresolver=dev_http"
 
     leaf-mysql:
         image: mysql:8.0
@@ -201,8 +176,6 @@ volumes:
 
 networks:
     leaf-sql:
-        external: true
-    traefik:
         external: true
     leaf:
         external: true
