@@ -30,7 +30,9 @@
                 <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: #d00;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
             </span>
             <!--{/if}-->
-            <!--{$indicator.html}-->
+            <!--{if $indicator.format == ''}-->
+                <!--{$indicator.html}-->
+            <!--{/if}-->
             </div>
         <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
