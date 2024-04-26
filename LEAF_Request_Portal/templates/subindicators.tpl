@@ -27,7 +27,7 @@
             </label>
             <!--{else}-->
             <span <!--{if $indicator.format == null || $indicator.format == 'fileupload' || $indicator.format == 'image' }-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
-                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: #d00;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
+                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><br />
             </span>
             <!--{/if}-->
             <!--{if $indicator.format == ''}-->
@@ -49,8 +49,7 @@
                     <!--{/if}-->
             </span>
             <!--{/if}-->
-            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="sensitive. Click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
-                <!--{/if}-->
+        <!--{/if}-->
         </div>
         <div class="response blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
         <!--{if $indicator.isMasked == 1 && $indicator.value != ''}-->
