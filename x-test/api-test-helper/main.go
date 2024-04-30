@@ -35,7 +35,7 @@ func handleRunTest(w http.ResponseWriter, r *http.Request) {
 		cmdClear.Dir = "../API-tests/"
 		cmdClear.Run()
 
-		cmd := exec.Command("go", "test")
+		cmd := exec.Command("go", "test", "-v")
 		cmd.Dir = "../API-tests/"
 		pipe, err := cmd.StdoutPipe()
 		if err != nil {
