@@ -7,7 +7,7 @@ export default {
             gridType: this.cell?.type || 'text',
             textareaDropOptions: this.cell?.options ? this.cell.options.join('\n') : [],
             file: this.cell?.file || "",
-            hasHeader: this.cell?.hasHeader || false
+            hasHeader: this.cell?.hasHeader ? 1 : 0,
         }
     },
     props: {
@@ -161,8 +161,8 @@ export default {
             </select>
             <label :for="'dropdown_file_header_select_' + id">Does file contain headers</label>
             <select :id="'dropdown_file_header_select_' + id" v-model="hasHeader">
-                <option :value="false">No</option>
-                <option :value="true">Yes</option>
+                <option :value="0">No</option>
+                <option :value="1">Yes</option>
             </select>
         </div>
     </div>`

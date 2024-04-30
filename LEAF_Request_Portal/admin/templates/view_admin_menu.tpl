@@ -43,7 +43,7 @@
     <!--{/if}-->
 
     <!--{if $siteType != 'national_subordinate'}-->
-        <a href="?a=form" role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue">
+        <a href="?a=form_vue" role="button" class="leaf-admin-button bg-blue-cool-10 lf-trans-blue">
             <i class="leaf-admin-btnicon fas fa-file-alt text-blue-cool-50 leaf-icn-narrow4" title="Form Editor"></i>
             <span class="leaf-admin-btntitle">Form Editor</span>
             <span class="leaf-admin-btndesc">Create and Modify Forms</span>
@@ -92,6 +92,12 @@
         <i class="leaf-admin-btnicon fas fa-file-invoice text-violet-50 leaf-icn-narrow4" title="Report Builder"></i>
         <span class="leaf-admin-btntitle">Report Builder</span>
         <span class="leaf-admin-btndesc">Create custom reports</span>
+    </a>
+
+    <a href="../report.php?a=LEAF_Data_Visualizer" role="button" class="leaf-admin-button bg-violet-10 lf-trans-blue">
+        <i class="leaf-admin-btnicon fas fa-chart-pie text-violet-50 leaf-icn-narrow2" title="Data Visualizer"></i>
+        <span class="leaf-admin-btntitle">Data Visualizer</span>
+        <span class="leaf-admin-btndesc">Analyze form responses</span>
     </a>
     <br /><br />
 

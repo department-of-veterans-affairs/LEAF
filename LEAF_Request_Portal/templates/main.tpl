@@ -55,8 +55,11 @@
 </head>
 <body>
 {if $smarty.get.a == ''}
-<a href="#searchContainer" id="nav-skip-link">Skip to Search</a>
+    <a href="#searchContainer" id="nav-skip-link">Skip to Search</a>
+{else}
+    <a href="#bodyarea" id="nav-skip-link">Skip to main content</a>
 {/if}
+
 {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
     <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
 {/if}
@@ -65,7 +68,7 @@
     <div style="float: left"><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
     {/if}
     <div style="cursor: pointer" onclick="window.location='./'">
-      <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" /></span>
+      <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" /></span>
       <span id="headerLabel">{$city|sanitize}</span>
       <h1 id="headerDescription">{$title|sanitize}</h1>
     </div>

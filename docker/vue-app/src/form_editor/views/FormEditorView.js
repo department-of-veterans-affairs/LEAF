@@ -53,7 +53,6 @@ export default {
     inject: [
         'APIroot',
         'CSRFToken',
-        'libsPath',
         'getSiteSettings',
         'setDefaultAjaxResponseMessage',
         'appIsLoadingCategories',
@@ -100,6 +99,7 @@ export default {
             focusedFormRecord: computed(() => this.focusedFormRecord),
             focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             noForm: computed(() => this.noForm),
+            mainFormID: computed(() => this.mainFormID),
 
             getFormByCategoryID: this.getFormByCategoryID,
             editAdvancedOptions: this.editAdvancedOptions,
@@ -123,8 +123,15 @@ export default {
         queryID() {
             return this.$route.query.formID;
         },
+        internalID() {
+            return this.$route.query.internalID || null;
+        },
         noForm() {
             return !this.appIsLoadingForm && this.focusedFormID === '';
+        },
+        mainFormID() {
+            return this.focusedFormRecord?.parentID === '' ?
+                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
         },
         /**
          * @returns {Object} current query from categories object from url query id.
@@ -175,7 +182,7 @@ export default {
 
                 const focusedFormType = this.currentCategoryQuery.parentID !== '' ?
                         'internal' :
-                        this.allStapledFormCatIDs.includes(this.currentCategoryQuery?.categoryID || '') ?
+                        this.allStapledFormCatIDs?.[this.currentCategoryQuery?.categoryID || ''] > 0 ?
                         'staple' : 'main form';
                 allRecords.push({...this.currentCategoryQuery, formContextType: focusedFormType, internalForms: mainInternals});
             }
@@ -204,9 +211,6 @@ export default {
         fullFormTree() {
             return this.usePreviewTree ? this.previewTree : this.focusedFormTree;
         },
-        firstEditModeIndicator() {
-            return this.focusedFormTree?.[0]?.indicatorID || 0
-        },
         /**
          * @returns boolean.  used to watch for index or parentID changes.  triggers sorting update if true
          */
@@ -232,20 +236,26 @@ export default {
             }
             return indsToUpdate;
         },
-        /**
-         * @returns string to display at top of form index.
-         */
-        indexHeaderText() {
-            let text = '';
-            if(this.focusedFormRecord.parentID !== '') {
-                text = 'Internal Form';
-            } else {
-                text = this.currentFormCollection.length > 1 ? 'Form Layout' : 'Primary Form'
-            }
-            return text;
-        }
     },
     methods: {
+        /*
+         * Backward compatibility: certain properties are pre-sanitized server-side, and must be decoded before rendering
+         * TODO: Migrate to markdown
+         */
+        decodeHTMLEntities(txt) {
+            let tmp = document.createElement("textarea");
+            tmp.innerHTML = txt;
+            return tmp.value;
+        },
+        backwardCompatNames(obj) {
+            for(let i in obj) {
+                obj[i].name = this.decodeHTMLEntities(obj[i].name);
+                if(obj[i].child != null) {
+                    obj[i].child = this.backwardCompatNames(obj[i].child);
+                }
+            }
+            return obj;
+        },
         /**
          * updates the position of the form options area in large screen displays
          */
@@ -264,12 +274,6 @@ export default {
                 }
             }
         },
-        focusFirstIndicator() {
-            const elEdit = document.getElementById(`edit_indicator_${this.firstEditModeIndicator}`);
-            if(elEdit !== null) {
-                elEdit.focus();
-            }
-        },
         /**
          * get details for the form specified in the url param.
          */
@@ -286,7 +290,13 @@ export default {
                     if (parID === '') {
                         this.getFormByCategoryID(formID, true);
                     } else {
-                        this.$router.push({name:'category', query:{formID: parID}});
+                        this.$router.push({
+                            name:'category',
+                            query:{
+                                formID: parID,
+                                internalID: formID
+                            }
+                        });
                     }
                 }
 
@@ -310,12 +320,44 @@ export default {
                     type: 'GET',
                     url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
                     success: (res) => {
+                        res = this.backwardCompatNames(res);
+
+                        let query = {
+                            formID: this.queryID,
+                        }
+                        let internalID = null;
+                        //if initial load and internalID is in URL
+                        if (this.appIsLoadingForm === true && this.internalID !== null) {
+                            internalID = this.internalID;
+                        //user clicked internal btn for an internal form
+                        } else if (this.categories[catID]?.parentID !== '') {
+                            internalID = catID;
+                        }
+                        if (internalID !== null) {
+                            query = { ... query, internalID, };
+                        }
+                        this.$router.push({
+                            name:'category',
+                            query,
+                        });
+
                         if(this.focusedFormID === catID) {
                             this.updateKey += 1; //ensures that the form editor view updates if the form ID does not change
                         }
                         this.focusedFormID = catID || '';
                         this.focusedFormTree = res || [];
                         this.appIsLoadingForm = false;
+
+                        //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
+                        //loading is false at this point, so not sure why clear is needed but btn is null otherwise
+                        if(this.internalID !== null && this.focusedFormID !== this.internalID) {
+                            setTimeout(() => {
+                                const elBtnInternal = document.getElementById('internal_form_' + this.internalID);
+                                if(elBtnInternal !== null) {
+                                    elBtnInternal.dispatchEvent(new Event("click"));
+                                }
+                            });
+                        }
                     },
                     error: (err)=> console.log(err)
                 });
@@ -329,11 +371,13 @@ export default {
             if (primaryID !== '' && this.formPreviewIDs !== '') {
                 this.appIsLoadingForm = true;
                 this.setDefaultAjaxResponseMessage();
+
                 try {
                     fetch(`${this.APIroot}form/specified?childkeys=nonnumeric&categoryIDs=${this.formPreviewIDs}`).then(res => {
                         res.json().then(data => {
                             if(data?.status?.code === 2) {
                                 this.previewTree = data.data || [];
+                                this.previewTree = this.backwardCompatNames(this.previewTree);
                                 this.focusedFormID = primaryID;
                             } else {
                                 console.log(data);
@@ -557,12 +601,22 @@ export default {
             this.listTracker[indID] = item;
         },
         startDrag(event = {}) {
-            if(!this.previewMode && event?.dataTransfer) {
-                event.dataTransfer.dropEffect = 'move';
-                event.dataTransfer.effectAllowed = 'move';
-                event.dataTransfer.setData('text/plain', event.target.id);
-                const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
-                this.focusIndicator(+indID);
+            if (event?.offsetX > 20) {
+                event.preventDefault();
+            } else {
+                if(!this.previewMode && event?.dataTransfer) {
+                    event.dataTransfer.dropEffect = 'move';
+                    event.dataTransfer.effectAllowed = 'move';
+                    event.dataTransfer.setData('text/plain', event.target.id);
+                    const btn = document.getElementById(`${event.target.id}_button`);
+                    if(btn !== null) {
+                        const x = btn.offsetWidth/2;
+                        const y = btn.offsetHeight/2;
+                        event.dataTransfer.setDragImage(btn, x, y);
+                    }
+                    const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
+                    this.focusIndicator(+indID);
+                }
             }
         },
         onDrop(event = {}) {
@@ -638,6 +692,8 @@ export default {
                 } else {
                     this.updateKey += 1;
                 }
+            } else {
+                this.editQuestion(indicatorID);
             }
         },
         /**
@@ -695,7 +751,7 @@ export default {
             if(newVal) {
                 this.checkFormCollaborators();
                 setTimeout(() => {
-                    const elFormBtn = document.querySelector(`#layoutFormRecords_${this.queryID} li.selected button`);
+                    const elFormBtn = document.querySelector(`button[id$="form_${newVal}"]`);
                     if(elFormBtn !== null) {
                         elFormBtn.focus();
                     }
@@ -719,7 +775,7 @@ export default {
         <template v-else>
             <!-- admin home link, browser link, page title -->
             <h2 id="page_breadcrumbs">
-                <a href="../admin" class="leaf-crumb-link" target="_blank" title="to Admin Home">Admin</a>
+                <a href="../admin" class="leaf-crumb-link" title="to Admin Home">Admin</a>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>
                 <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Editor
@@ -730,22 +786,34 @@ export default {
             <div id="form_index_and_editing" :data-focus="focusedIndicatorID">
                 <!-- NOTE: INDEX (main + stapled forms, internals) -->
                 <div id="form_index_display">
-                    <div class="index_info">
-                        <h3>{{ indexHeaderText }}</h3>
-                        <button type="button" id="indicator_toolbar_toggle" class="btn-general"
-                            style="margin-left:auto;"
-                            @click.stop="toggleToolbars()">
-                            {{previewMode ? 'Edit this Form' : 'Preview this Form'}}
+                    <button type="button" id="indicator_toolbar_toggle" class="btn-general preview"
+                        @click.stop="toggleToolbars()">
+                        <span role="img" aria="" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>
+                        {{previewMode ? 'Edit this Form' : 'Preview this Form'}}
+                    </button>
+                    <template v-if="!previewMode">
+                        <button type="button" class="btn-general"
+                            :id="'addInternalUse_' + mainFormID"
+                            @click="openNewFormDialog(mainFormID)"
+                            :title="'New Internal-Use Form for ' + mainFormID">
+                            <span role="img" aria="" alt="">➕&nbsp;</span>
+                            Add Internal-Use
                         </button>
-                    </div>
-                    <!-- LAYOUTS (FORMS AND INTERNAL/STAPLE OPTIONS ). -->
+                        <!-- staple options if main form is not itself a staple -->
+                        <button v-if="!allStapledFormCatIDs?.[mainFormID] > 0"
+                            type="button" class="btn-general"
+                            :id="'addStaple_' + mainFormID"
+                            @click="openStapleFormsDialog(mainFormID)" :title="'Staple other form to ' + mainFormID">
+                            <span role="img" aria="" alt="">📌&nbsp;</span>Staple other form
+                        </button>
+                    </template>
+                    <!-- LAYOUTS (FORMS AND INTERNAL/STAPLE OPTIONS) -->
                     <ul v-if="!previewMode && currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID" :class="{preview: previewMode}">
                         <template v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID">
                             <li :class="{selected: form.categoryID === focusedFormID}">
-                                <button type="button"
+                                <button type="button" :id="'main_form_' + form.categoryID"
                                     @click="form.stapledFormIDs.length > 0 && previewMode && form.categoryID === queryID ?
                                         getPreviewTree(form.categoryID) : getFormByCategoryID(form.categoryID)"
-                                    @click.ctrl.exact="focusFirstIndicator"
                                     class="layout-listitem"
                                     :title="'form ' + form.categoryID">
                                     <span v-if="form.formContextType === 'staple'" role="img" aria="" alt="">📌&nbsp;</span>
@@ -753,45 +821,24 @@ export default {
                                     <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
                                         {{shortFormNameStripped(form.categoryID, 30)}}&nbsp;
                                     </span>
-                                    <em v-show="form.categoryID === focusedFormID" style="font-weight: normal; text-decoration: none;">
-                                        (selected)
-                                    </em>
-                                    <em v-show="form.categoryID === focusedFormRecord.parentID" style="font-weight: normal; text-decoration: none;">
-                                        (parent)
-                                    </em>
                                 </button>
-                                <!-- INTERNAL FORMS AND STAPLE OPTIONS -->
-                                <div v-show="!previewMode || form.categoryID === focusedFormID || form.categoryID === focusedFormRecord.parentID" class="internal_forms">
-                                    <ul v-if="form.internalForms.length > 0" :id="'internalFormRecords_' + form.categoryID">
+                                <!-- INTERNAL FORMS -->
+                                <div v-if="form.internalForms.length > 0"
+                                    class="internal_forms">
+                                    <ul :id="'internalFormRecords_' + form.categoryID">
                                         <li v-for="i in form.internalForms" :key="'internal_' + i.categoryID">
-                                            <button type="button" @click="getFormByCategoryID(i.categoryID)"
+                                            <button type="button" :id="'internal_form_' + i.categoryID" @click="getFormByCategoryID(i.categoryID)"
                                                 :class="{selected: i.categoryID === focusedFormID}">
                                                 <span role="img" aria="" alt="">📃&nbsp;</span>
-                                                {{shortFormNameStripped(i.categoryID, 30)}}
+                                                {{shortFormNameStripped(i.categoryID, 26)}}
                                             </button>
                                         </li>
                                     </ul>
-                                    <template v-if="form.categoryID===focusedFormID">
-                                        <button v-if="!previewMode && form?.parentID === ''"
-                                            type="button" class="btn-general"
-                                            :id="'addInternalUse_' + form.categoryID"
-                                            @click="openNewFormDialog(form.categoryID)"
-                                            title="New Internal-Use Form" >
-                                            <span role="img" aria="" alt="">➕&nbsp;</span>
-                                            Add Internal-Use
-                                        </button>
-                                        <!-- staple options if not itself a staple and not an internal form -->
-                                        <button v-if="!previewMode && !allStapledFormCatIDs.includes(form.categoryID) && form.parentID === ''"
-                                            type="button" class="btn-general"
-                                            :id="'addStaple_' + form.categoryID"
-                                            @click="openStapleFormsDialog(form.categoryID)" title="Staple other form">
-                                            <span role="img" aria="" alt="">📌&nbsp;</span>Staple other form 
-                                        </button>
-                                    </template>
                                 </div>
                             </li>
                         </template>
                     </ul>
+
                     <!-- FORM MENU PREVIEW -->
                     <ul v-if="previewMode && fullFormTree.length > 0">
                         <li v-for="(page, i) in fullFormTree" :key="'preview_' + page.indicatorID + '_' + page.categoryID"

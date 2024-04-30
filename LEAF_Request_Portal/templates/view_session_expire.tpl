@@ -13,7 +13,7 @@
 <body>
     <div id="header">
         <div style="cursor: pointer" onclick="window.location='./'">
-            <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" /></span>
+            <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" /></span>
             <span id="headerDescription">{$title|sanitize}</span>
         </div>
         <span id="headerTab"></span>

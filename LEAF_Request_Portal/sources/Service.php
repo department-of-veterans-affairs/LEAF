@@ -470,6 +470,8 @@ class Service
                 }
             }
         }
+        $col = array_column( $members, "lastName" );
+        array_multisort( $col, SORT_ASC, $members );
 
         return $members;
     }
@@ -486,11 +488,15 @@ class Service
 
     public function getQuadrads()
     {
-        $res = $this->db->prepared_query('SELECT groupID, `service` AS `name` FROM services
-    								LEFT JOIN `groups` USING (groupID)
-    								WHERE groupID IS NOT NULL
-    								GROUP BY groupID
-    								ORDER BY name', array());
+        $vars = array();
+        $sql = 'SELECT `groupID`, `name`
+                FROM `services`
+                LEFT JOIN `groups` USING (`groupID`)
+                WHERE `groupID` IS NOT NULL
+                GROUP BY `groupID`
+                ORDER BY `name`';
+
+        $res = $this->db->prepared_query($sql, $vars);
 
         return $res;
     }
