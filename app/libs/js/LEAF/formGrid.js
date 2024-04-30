@@ -25,27 +25,23 @@ var LeafFormGrid = function (containerID, options) {
   let renderHistory = {}; // index of rendered recordIDs
 
   $("#" + containerID).html(
-    '<div id="' +
-      prefixID +
-      'grid"></div><div id="' +
-      prefixID +
-      'form" style="display: none"></div>'
+    `<div id="${prefixID}grid"></div>
+    <div id="${prefixID}form" style="display: none"></div>`
   );
 
   $("#" + prefixID + "grid").html(
-    '<div style="position: relative"><div id="' +
-      prefixID +
-      'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="' +
-      prefixID +
-      'table_stickyHeader" style="display: none"></div><table id="' +
-      prefixID +
-      'table" class="leaf_grid"><thead id="' +
-      prefixID +
-      'thead" aria-label="Search Results"></thead><tbody id="' +
-      prefixID +
-      'tbody"></tbody><tfoot id="' +
-      prefixID +
-      'tfoot"></tfoot></table>'
+    `<div style="position: relative">
+      <div id="${prefixID}gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div>
+    </div>
+    <div id="${prefixID}table_stickyHeader" style="display: none"></div>
+    <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
+      aria-label="Search Results" aria-live="assertive">
+    </span>
+    <table id="${prefixID}table" class="leaf_grid">
+      <thead id="${prefixID}thead"></thead>
+      <tbody id="${prefixID}tbody"></tbody>
+      <tfoot id="${prefixID}tfoot"></tfoot>
+    </table>`
   );
 
   if (options == undefined) {
@@ -122,20 +118,18 @@ var LeafFormGrid = function (containerID, options) {
     }
 
     //populates table
-    for (var i = 0; i < rows; i++) {
-      var gridRow = "<tr>";
-      var rowBuffer = [];
-
+    for (let i = 0; i < rows; i++) {
       //makes array of cells
-      for (var j = 0; j < columns; j++) {
+      let rowBuffer = [];
+      for (let j = 0; j < columns; j++) {
         rowBuffer.push('<td style="width:100px"></td>');
       }
 
       //for all values with matching column id, replaces cell with value
-      for (var j = 0; j < values.columns.length; j++) {
+      for (let j = 0; j < values.columns.length; j++) {
         tDelim = j == values.columns.length - 1 ? "" : delim;
         if (columnOrder.indexOf(values.columns[j]) !== -1) {
-          var value =
+          let value =
             values.cells[i] === undefined || values.cells[i][j] === undefined
               ? ""
               : values.cells[i][j];
@@ -148,16 +142,14 @@ var LeafFormGrid = function (containerID, options) {
       }
 
       //combines cells into html and pushes row to body buffer
-      gridRow += rowBuffer.join("") + delimLF + "</tr>";
+      const gridRow = "<tr>" + rowBuffer.join("") + delimLF + "</tr>";
       gridBodyBuffer += gridRow;
     }
     return (
-      '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' +
-      gridHeadBuffer +
-      delimLF +
-      "</thead><tbody>" +
-      gridBodyBuffer +
-      "</tbody></table>"
+      `<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;">
+        <thead>${gridHeadBuffer}${delimLF}</thead>
+        <tbody>${gridBodyBuffer}</tbody>
+      </table>`
     );
   }
 
@@ -226,13 +218,13 @@ var LeafFormGrid = function (containerID, options) {
    */
   function setHeaders(headersIn) {
     headers = headersIn;
-    var temp = '<tr id="' + prefixID + "thead_tr" + '">';
-    var virtualHeader = '<tr id="' + prefixID + "tVirt_tr" + '">';
+    let temp = `<tr id="${prefixID}thead_tr">`;
+    let virtualHeader = `<tr id="${prefixID}tVirt_tr">`;
     if (showIndex) {
       temp +=
-        '<th tabindex="0" id="' +
+        '<th scope="col" tabindex="0" id="' +
         prefixID +
-        'header_UID" style="text-align: center">UID</th>';
+        'header_UID" style="text-align: center">UID<span id="' + prefixID + 'header_UID_sort" class="' + prefixID + 'sort"></span></th>';
       virtualHeader +=
         '<th id="Vheader_UID" style="text-align: center">UID</th>';
     }
@@ -240,25 +232,27 @@ var LeafFormGrid = function (containerID, options) {
 
     if (showIndex) {
       $("#" + prefixID + "header_UID").css("cursor", "pointer");
-      $("#" + prefixID + "header_UID").on("click", null, null, function (data) {
-        if (headerToggle == 0) {
-          sort("recordID", "asc", postSortRequestFunc);
-          headerToggle = 1;
-        } else {
-          sort("recordID", "desc", postSortRequestFunc);
-          headerToggle = 0;
+      $("#" + prefixID + "header_UID").on("click keydown", null, null, function (event) {
+        if(event.type === "click" || event?.which === 13) {
+          if (headerToggle == 0) {
+            sort("recordID", "asc", postSortRequestFunc);
+            headerToggle = 1;
+          } else {
+            sort("recordID", "desc", postSortRequestFunc);
+            headerToggle = 0;
+          }
+          renderBody(0, Infinity);
         }
-        renderBody(0, Infinity);
       });
     }
 
-    for (var i in headers) {
+    for (let i in headers) {
       if (headers[i].visible == false) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
       $("#" + prefixID + "thead_tr").append(
-        '<th id="' +
+        '<th scope="col" id="' +
           prefixID +
           "header_" +
           headers[i].indicatorID +
@@ -288,32 +282,16 @@ var LeafFormGrid = function (containerID, options) {
           "pointer"
         );
         $("#" + prefixID + "header_" + headers[i].indicatorID).on(
-          "click",
+          "click keydown",
           null,
           headers[i].indicatorID,
-          function (data) {
-            if (headerToggle == 0) {
-              sort(data.data, "asc", postSortRequestFunc);
-              headerToggle = 1;
-            } else {
-              sort(data.data, "desc", postSortRequestFunc);
-              headerToggle = 0;
-            }
-            renderBody(0, Infinity);
-          }
-        );
-        //using enter key to sort the the table heads for 508 compliance
-        $("#" + prefixID + "header_" + headers[i].indicatorID).on(
-          "keydown",
-          null,
-          headers[i].indicatorID,
-          function (data) {
-            if (data.keyCode == 13) {
+          function (event) {
+            if(event.type === "click" || event?.which === 13) {
               if (headerToggle == 0) {
-                sort(data.data, "asc", postSortRequestFunc);
+                sort(event.data, "asc", postSortRequestFunc);
                 headerToggle = 1;
               } else {
-                sort(data.data, "desc", postSortRequestFunc);
+                sort(event.data, "desc", postSortRequestFunc);
                 headerToggle = 0;
               }
               renderBody(0, Infinity);
@@ -395,40 +373,19 @@ var LeafFormGrid = function (containerID, options) {
     }
 
     $("." + prefixID + "sort").css("display", "none");
+    const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
+    const headerText = document.querySelector(headerSelector)?.innerText || "";
+    $(`th[id*="${prefixID}header_"]`).removeAttr('aria-sort');
     if (order.toLowerCase() == "asc") {
-      $("#" + prefixID + "header_" + key).attr("aria-live", "assertive");
-      $("#" + prefixID + "header_" + key).attr(
-        "aria-label",
-        "Sorting by ascending " + key
-      );
-      $("#" + prefixID + "header_" + key + "_sort").html(
-        '<div style="position: absolute" aria-label="Sorting by ascending ' +
-          key +
-          '"></div>' +
-          " &#9650;"
-      );
-      $("#" + prefixID + "header_" + key + "_sort").css(
-        "vertical-align",
-        "super"
-      );
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", ascending.");
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▲</span>');
+      $(headerSelector).attr('aria-sort', 'ascending');
     } else {
-      $("#" + prefixID + "header_" + key).attr("aria-live", "assertive");
-      $("#" + prefixID + "header_" + key).attr(
-        "aria-label",
-        "Sorting by descending " + key
-      );
-      $("#" + prefixID + "header_" + key + "_sort").html(
-        '<div style="position: absolute" aria-label="Sorting by descending ' +
-          key +
-          '"></div>' +
-          " &#9660;"
-      );
-      $("#" + prefixID + "header_" + key + "_sort").css(
-        "vertical-align",
-        "sub"
-      );
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", descending.");
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▼</span>');
+      $(headerSelector).attr('aria-sort', 'descending');
     }
-    $("#" + prefixID + "header_" + key + "_sort").css("display", "inline");
+    $(headerSelector + "_sort").css("display", "inline");
     var array = [];
     var isIndicatorID = $.isNumeric(key);
     var isDate = false;
@@ -762,13 +719,6 @@ var LeafFormGrid = function (containerID, options) {
                                            }"
                                            data-indicator-id="${
                                              headers[j].indicatorID
-                                           }"
-                                           data-format="${
-                                             currentData[i].s1[
-                                               "id" +
-                                                 headers[j].indicatorID +
-                                                 "_format"
-                                             ]
                                            }">
                                             ${data.data}</td>`;
             }
@@ -886,6 +836,7 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
+   * @deprecated See example.tpl for more efficient formGrid usage.
    * @memberOf LeafFormGrid
    */
   function loadData(recordIDs, callback) {
@@ -992,7 +943,14 @@ var LeafFormGrid = function (containerID, options) {
         'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="" /> Export</button>'
     );
 
-    $("#" + prefixID + "getExcel").on("click", function () {
+    $("#" + prefixID + "getExcel").on("click", async function () {
+      // get indicator formats in case they need special handling (e.g. dates)
+      let iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format").then(res => res.json());
+      let indicatorFormats = {};
+      iFormatData.forEach(i => {
+        indicatorFormats[i.indicatorID] = i.format;
+      });
+
       if (currentRenderIndex != currentData.length) {
         renderBody(0, Infinity);
       }
@@ -1021,8 +979,8 @@ var LeafFormGrid = function (containerID, options) {
 
           let trimmedText = val.innerText.trim();
           line[i] = trimmedText;
-          //prevent some values from being interpretted as dates by excel
-          const dataFormat = val.getAttribute("data-format");
+          //prevent some values from being interpreted as dates by excel
+          const dataFormat = indicatorFormats[val.getAttribute("data-indicator-id")];
           const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
           const isNumber = /^\d+$/;
 
