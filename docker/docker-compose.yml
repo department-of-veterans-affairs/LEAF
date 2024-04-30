@@ -52,7 +52,6 @@ services:
             - ../libs:/var/www/html/libs # temp step.  Will shift to below later
             - ../docker/mysql/db:/var/www/db
             - ./php/dev:/var/www/html/dev
-            - ./php/dev:/var/www/html/dev
             # - leaf-lib:/var/www/html/libs
             # - ../test:/var/www/html/test
             # - ../test_server:/var/www/html/test_server
