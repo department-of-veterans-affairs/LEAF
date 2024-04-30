@@ -1,12 +1,13 @@
 package test.java.formWorkflow;
 
-import main.java.Base.SetUpTest;
-import test.java.PageObjectClass.FormWorkflow_PageObjects;
+import main.Base.BasePage;
 import org.testng.Assert;
-import org.testng.annotations.*;
+import org.testng.annotations.Test;
+import test.java.PageObjectClass.FormWorkflow_PageObjects;
 
 
-public class formWorkflow_Test extends SetUpTest {
+public class formWorkflow_Test extends BasePage {
+
 
     @Test
     public void CreateAndDeleteForm() {
@@ -61,5 +62,4 @@ public class formWorkflow_Test extends SetUpTest {
         Assert.assertEquals("Delete this form",Form.VerifyName());
 
     }
-
 }
