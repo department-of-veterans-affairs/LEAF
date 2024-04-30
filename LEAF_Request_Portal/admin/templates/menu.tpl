@@ -45,7 +45,7 @@
                 <ul id="site_configuration_submenu">
                 <!--{if $siteType != 'national_subordinate'}-->
                     <li><a href="?a=workflow">Workflow Editor<i class="leaf-nav-icon-space"></i></a></li>
-                    <li><a href="?a=form">Form Editor<i class="leaf-nav-icon-space"></i></a></li>
+                    <li><a href="?a=form_vue">Form Editor<i class="leaf-nav-icon-space"></i></a></li>
                     <li><a href="?a=formLibrary">LEAF Library<i class="leaf-nav-icon-space"></i></a></li>
                 <!--{/if}-->
 

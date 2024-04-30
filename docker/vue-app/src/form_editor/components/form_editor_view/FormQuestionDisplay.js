@@ -43,7 +43,7 @@ export default {
                     title="This field is sensitive" />` : '';
         },
         hasCode() {
-            return this.formNode?.html !== '' || this.formNode?.htmlPrint !== '';
+            return (this.formNode?.html !== '' && this.formNode?.html != null) || (this.formNode?.htmlPrint !== '' && this.formNode?.htmlPrint != null);
         },
         conditionalQuestion() {
             return !this.isHeader && 
@@ -68,7 +68,7 @@ export default {
             return parseInt(this.formNode.is_sensitive) === 1;
         }
     },
-    template:`<div class="form_editing_area" :class="{'conditional': conditionalQuestion}">
+    template:`<div class="form_editing_area">
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
                 <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
                 <button v-show="!previewMode" type="button" :id="'index_listing_' + indicatorID + '_button'"
@@ -89,38 +89,41 @@ export default {
 
                 <!-- TOOLBAR -->
                 <div v-show="!previewMode"
-                    :style="{backgroundColor: required ? '#eec8c8' : '#f2f2f5'}"
                     :id="'form_editing_toolbar_' + indicatorID">
 
-                    <div style="width:100%;">
+                    <div style="display: grid; grid-template-columns: 1fr auto auto; grid-template-rows: repeat(2, 1fr)">
                         <button type="button"
                             :id="'edit_indicator_' + indicatorID"
                             class="btn-general"
+                            :style="{ 'grid-area': depth === 0 ? '1' : '1 / 1 / 3 / 2', 'height': depth === 0 ? 'auto' : '100%' }"
                             @click.exact="editQuestion(parseInt(indicatorID))"
                             :title="'edit indicator ' + indicatorID">
-                            {{ depth === 0 ? 'Edit Header' : 'Edit' }}
-                        </button>
-                        <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"
-                            class="btn-general"
-                            @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())" 
-                            :title="'Edit conditions for ' + indicatorID">
-                            Modify Logic
+                            <span role="img" aria="" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
                         <button v-if="hasDevConsoleAccess === 1" type="button" class="btn-general"
                             @click="editAdvancedOptions(parseInt(indicatorID))"
                             :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
                             Programmer
                         </button>
-                        <img v-if="hasCode" :src="libsPath + 'dynicons/svg/document-properties.svg'" alt="" title="advanced options are present" />
+                        <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"
+                            class="btn-general"
+                            @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())" 
+                            :title="conditionalQuestion ? 'Edit conditions for ' + indicatorID + '. Logic present' : 'Edit conditions for ' + indicatorID">
+                            Modify Logic
+                        </button>
+                        <button v-if="!isHeader" type="button" class="btn-general"
+                            title="Add sub-question"
+                            @click="newQuestion(indicatorID)">
+                            + Sub-question
+                        </button>
+                        <div style="margin-left: auto; grid-area: 1 / 3 / 2 / 4">
+                            <span v-if="conditionalQuestion" role="img" aria="" alt="" title="conditional logic is present" style="color: transparent; text-shadow: 0 0 0 black; cursor: help">⛓️</span>
+                            <span v-if="hasCode" role="img" aria="" alt="" title="advanced options are present" style="color: transparent; text-shadow: 0 0 0 black; cursor: help">⚙️</span>
+                        </div>
                     </div>
-                    <button v-if="!isHeader" type="button" class="btn-general"
-                        title="Add sub-question"
-                        @click="newQuestion(indicatorID)">
-                        + Add sub-question
-                    </button>
                 </div>
                 <!-- NAME -->
-                <div v-html="indicatorName" @click.stop.prevent="handleNameClick(categoryID, parseInt(indicatorID))"
+                <div v-html="indicatorName"
                     class="indicator-name-preview" :id="'format_label_' + indicatorID">
                 </div>
             </div>

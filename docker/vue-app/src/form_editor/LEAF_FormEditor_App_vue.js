@@ -451,7 +451,7 @@ export default {
             this.showFormDialog = true;
         },
         openEditCollaboratorsDialog() {
-            this.setCustomDialogTitle('<h2>Editing Collaborators</h2>');
+            this.setCustomDialogTitle('<h2>Customize Write Access</h2>');
             this.setFormDialogComponent('edit-collaborators-dialog');
             this.dialogButtonText = {confirm: 'Add', cancel: 'Close'};
             this.showFormDialog = true;
