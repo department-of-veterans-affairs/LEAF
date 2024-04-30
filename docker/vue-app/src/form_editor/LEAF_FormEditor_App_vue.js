@@ -11,7 +11,7 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             CSRFToken: CSRFToken,
-            hasDevConsoleAccess: +hasDevConsoleAccess,
+            hasDevConsoleAccess: hasDevConsoleAccess,
             ajaxResponseMessage: '',
 
             siteSettings: {},

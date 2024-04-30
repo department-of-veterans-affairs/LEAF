@@ -99,7 +99,7 @@ export default {
                             :title="'edit indicator ' + indicatorID">
                             <span role="img" aria="" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
-                        <button v-if="hasDevConsoleAccess === 1" type="button" class="btn-general"
+                        <button v-if="hasDevConsoleAccess" type="button" class="btn-general"
                             @click="editAdvancedOptions(parseInt(indicatorID))"
                             :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
                             Programmer

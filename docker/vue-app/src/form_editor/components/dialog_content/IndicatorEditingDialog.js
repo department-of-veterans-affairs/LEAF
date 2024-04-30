@@ -156,7 +156,7 @@ export default {
         },
         showFormatSelect() {
             //not a header, or in advanced mode, or the format of the header is already a format other than none
-            return this.parentID !== null || this.advancedMode === true || this.format !== ''
+            return this.parentID !== null || this.advancedMode === true || this.format !== '' || hasDevConsoleAccess;
         },
         shortLabelTriggered() {
             return this.name.trim().split(' ').length > 2 || this.containsRichText(this.name) || hasDevConsoleAccess;
