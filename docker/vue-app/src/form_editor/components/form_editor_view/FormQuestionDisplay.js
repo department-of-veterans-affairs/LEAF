@@ -55,11 +55,10 @@ export default {
         indicatorName() {
             const page = this.depth === 0 ? `<div class="form_page">${this.formPage + 1}</div>`: '';
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
-            const contentSensitive = this.sensitive ? `<span class="required-sensitive">*&nbsp;Sensitive</span>&nbsp;${this.sensitiveImg}` : '';
             const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
             const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria="" alt="">📌&nbsp;</span>` : '';
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
-            return `${page}${staple}${name}${shortLabel}${contentRequired}${contentSensitive}`;
+            return `${page}${staple}${name}${shortLabel}${contentRequired}`;
         },
         required() {
             return parseInt(this.formNode.required) === 1;
@@ -100,7 +99,7 @@ export default {
                             :title="'edit indicator ' + indicatorID">
                             <span role="img" aria="" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
-                        <button v-if="hasDevConsoleAccess === 1" type="button" class="btn-general"
+                        <button v-if="hasDevConsoleAccess" type="button" class="btn-general"
                             @click="editAdvancedOptions(parseInt(indicatorID))"
                             :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
                             Programmer
@@ -117,8 +116,9 @@ export default {
                             + Sub-question
                         </button>
                         <div style="margin-left: auto; grid-area: 1 / 3 / 2 / 4">
-                            <span v-if="conditionalQuestion" role="img" aria="" alt="" title="conditional logic is present" style="color: transparent; text-shadow: 0 0 0 black; cursor: help">⛓️</span>
-                            <span v-if="hasCode" role="img" aria="" alt="" title="advanced options are present" style="color: transparent; text-shadow: 0 0 0 black; cursor: help">⚙️</span>
+                            <span v-if="sensitive"><img :src="libsPath + 'dynicons/svg/eye_invisible.svg'" style="width: 16px; vertical-align: middle; margin: 0 4px 2px 0" alt="" class="sensitive-icon" title="This field is sensitive" /></span>
+                            <span v-if="conditionalQuestion" role="img" aria="" alt="" title="conditional logic is present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⛓️</span>
+                            <span v-if="hasCode" role="img" aria="" alt="" title="advanced options are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⚙️</span>
                         </div>
                     </div>
                 </div>
