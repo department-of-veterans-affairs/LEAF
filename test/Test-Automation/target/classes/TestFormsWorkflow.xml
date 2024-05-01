@@ -6,9 +6,9 @@
 	<test name="Forms Workflow">
 			<parameter name="env" value="yahoo.com">
 			<parameter name="browser" value="chrome"/>
-			<parameter name="remote_url" value="http://localhost:4445"/>
+			<parameter name="remote_url" value="${remote.url}"/>
 			<classes>
-				<class name="test.java.formWorkflow.formWorkflow_Test"/>
+				<class name="main.java.formWorkflow.formWorkflowPart3"/>
 			</classes>
 		</parameter>
 	</test>

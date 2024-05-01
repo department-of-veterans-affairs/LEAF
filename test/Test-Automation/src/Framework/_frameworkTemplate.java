@@ -2,20 +2,11 @@ package Framework;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
-import org.testng.AssertJUnit;
-import org.testng.asserts.*;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.NoSuchElementException;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-
-import Framework.setupFramework;
-import Framework.waitMethods;
-import Framework.highlightElement;
-import Framework.dateAndTimeMethods;
-import Framework.vbsExecutor;
 
 
 public class _frameworkTemplate extends setupFramework {
