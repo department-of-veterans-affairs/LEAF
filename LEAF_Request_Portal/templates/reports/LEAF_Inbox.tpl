@@ -299,7 +299,7 @@
             // index by roles
             for(let depID in dataInboxes[sites[i].url][j].unfilledDependencyData) {
                 let uDD = dataInboxes[sites[i].url][j].unfilledDependencyData[depID];
-                let roleID = depID.concat(dataInboxes[sites[i].url][j].stepID).toString();
+                let roleID = String(depID) + dataInboxes[sites[i].url][j].stepID;
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     roleID = Sha1.hash(uDD.approverUID);
