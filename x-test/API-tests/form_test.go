@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"net/url"
 	"testing"
@@ -83,5 +84,30 @@ func TestForm_WorkflowIndicatorAssigned(t *testing.T) {
 	want := `[]`
 	if !cmp.Equal(got, want) {
 		t.Errorf("./api/form/508/workflow/indicator/assigned = %v, want = %v", got, want)
+	}
+}
+
+func TestForm_IsMaskable(t *testing.T) {
+	res, _ := httpGet(rootURL + "api/form/_form_ce46b")
+
+	var m FormCategoryResponse
+	err := json.Unmarshal([]byte(res), &m)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if m[0].IsMaskable != nil {
+		t.Errorf("./api/form/_form_ce46b isMaskable = %v, want = %v", m[0].IsMaskable, nil)
+	}
+
+	res, _ = httpGet(rootURL + "api/form/_form_ce46b?context=formEditor")
+
+	err = json.Unmarshal([]byte(res), &m)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if *m[0].IsMaskable != 0 {
+		t.Errorf("./api/form/_form_ce46b?context=formEditor isMaskable = %v, want = %v", m[0].IsMaskable, "0")
 	}
 }
