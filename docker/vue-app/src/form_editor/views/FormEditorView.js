@@ -318,7 +318,7 @@ export default {
                 this.setDefaultAjaxResponseMessage();
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
+                    url: `${this.APIroot}form/_${catID}?context=formEditor`,
                     success: (res) => {
                         res = this.backwardCompatNames(res);
 
@@ -373,7 +373,7 @@ export default {
                 this.setDefaultAjaxResponseMessage();
 
                 try {
-                    fetch(`${this.APIroot}form/specified?childkeys=nonnumeric&categoryIDs=${this.formPreviewIDs}`).then(res => {
+                    fetch(`${this.APIroot}form/specified?categoryIDs=${this.formPreviewIDs}`).then(res => {
                         res.json().then(data => {
                             if(data?.status?.code === 2) {
                                 this.previewTree = data.data || [];
