@@ -263,10 +263,8 @@ class Form
                 $fullFormPages = array_merge($fullFormPages, $form);
             }
         }
-        $return_value['status']['code'] = 2;
-        $return_value['status']['message'] = "Success";
-        $return_value['data'] = $fullFormPages;
-        return $return_value;
+
+        return $fullFormPages;
     }
 
     /**
