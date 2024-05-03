@@ -2298,7 +2298,9 @@
                 drawRoutes(workflowID, stepID);
                 buildStepList(steps);
 
-                window.history.pushState('', '', `?a=workflow&workflowID=${workflowID}`);
+                if(window.location.href.indexOf(`?a=workflow&workflowID=${workflowID}`) == -1) {
+                    window.history.pushState('', '', `?a=workflow&workflowID=${workflowID}`);
+                }
             },
             error: (err) => console.log(err),
             cache: false
