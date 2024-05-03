@@ -305,6 +305,44 @@ export default {
             }
         },
         /**
+         * Used with sortFormTree to transform objects into an ordered list based on its sort property
+         * @param {object} obj
+         * @returns {object}
+         */
+        transformFormTreeChild(obj) {
+            let arr = [];
+            for(let i in obj) {
+                arr.push(obj[i]);
+            }
+            arr.sort((a, b) => {
+                return a.sort > b.sort;
+            });
+
+            obj = {};
+            for(let i in arr) {
+                obj[i] = arr[i];
+            }
+
+            return obj;
+        },
+        /**
+         * Sorts the Form tree for rendering, transforming child objects into ordered lists
+         * 
+         * This is a workaround for an issue where the view depends on the insert order of items within the child object.
+         * @param {array} tree 
+         * @returns {array}
+         */
+        sortFormTree(tree) {
+            for(let i in tree) {
+                if(tree[i].child != null) {
+                    tree[i].child = this.transformFormTreeChild(tree[i].child);
+                    tree[i].child = this.sortFormTree(tree[i].child);
+                }
+            }
+
+            return tree;
+        },
+        /**
          * Get details for a specific form and update focused form info
          * @param {string} catID
          * @param {boolean} setFormLoading show loader
@@ -345,7 +383,7 @@ export default {
                             this.updateKey += 1; //ensures that the form editor view updates if the form ID does not change
                         }
                         this.focusedFormID = catID || '';
-                        this.focusedFormTree = res || [];
+                        this.focusedFormTree = this.sortFormTree(res) || [];
                         this.appIsLoadingForm = false;
 
                         //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
