@@ -230,7 +230,9 @@
                 <!--{if $indicator.displayedValue != ''}-->
                     <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$indicator.value|escape}-->"><!--{$indicator.displayedValue|sanitize}--></a>
                 <!--{else}-->
-                Loading...
+                    Employee #<!--{$indicator.value}--><br>
+                    entered on <!--{$indicator.timestamp|date_format}--><br>
+                    by <!--{$indicator.userID}-->
                 <!--{/if}-->
             </div>
             <!--{else}-->
