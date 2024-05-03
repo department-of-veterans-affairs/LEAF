@@ -2,7 +2,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="RegressionSuite">
 
-
 	<test name="Forms Workflow">
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
 			<parameter name="browser" value="chrome"/>
