@@ -2297,6 +2297,8 @@
                 $('#workflow').css('height', 300 + maxY + 'px');
                 drawRoutes(workflowID, stepID);
                 buildStepList(steps);
+
+                window.history.pushState('', '', `?a=workflow&workflowID=${workflowID}`);
             },
             error: (err) => console.log(err),
             cache: false
@@ -2304,6 +2306,13 @@
     }
 
     function loadWorkflowList() {
+        // Don't show built-in workflows unless 'dev' exists as a GET parameter
+        let devMode = false;
+        let urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('dev') != null) {
+            devMode = true;
+        }
+        
         $.ajax({
             async: false,
             type: 'GET',
@@ -2321,6 +2330,10 @@
                         firstWorkflowID = res[i].workflowID;
                     }
                     workflows[res[i].workflowID] = res[i];
+
+                    if(Number(res[i].workflowID) < 0 && !devMode) {
+                        continue;
+                    }
                     output += '<option value="' + res[i].workflowID + '" description = "' + res[i]
                         .description +
                         '"><b>' + res[i].description +
