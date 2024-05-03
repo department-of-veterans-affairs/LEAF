@@ -8,7 +8,7 @@
 			<parameter name="browser" value="chrome"/>
 			<parameter name="remote_url" value="${remote.url}"/>
 			<classes>
-				<class name="main.java.formWorkflow.formWorkflowPart3"/>
+				<class name="test.java.formWorkflow.formWorkflow_Test"/>
 			</classes>
 		</parameter>
 	</test>

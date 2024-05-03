@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="RegressionSuite" thread-count="1" parallel="false" configfailurepolicy="continue">
-
+<suite name="RegressionSuite">
 
 	<test name="Forms Workflow">
-			<parameter name="env" value="${app.url}">
+		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
 			<parameter name="browser" value="chrome"/>
-			<parameter name="remote_url" value="${remote.url}"/>
 			<classes>
-				<class name="test.java.formWorkflow.formWorkflow_Test"/>
+				<class name="test.java.formWorkflow.formWorkflow_Test">
+					<methods>
+						<include name="CreateAndDeleteForm"></include>
+					</methods>
+				</class>
 			</classes>
 		</parameter>
 	</test>
