@@ -4441,8 +4441,9 @@ class Form
      * @param $recordID
      * @param $days
      * @throws \SmartyException
+     * @return bool True on success, False if an email was already sent in the past 24 hrs
      */
-    function sendReminderEmail(int $recordID, $days): void
+    function sendReminderEmail(int $recordID, $days): bool
     {
         $email_tracker = new EmailTracker($this->db);
         $last_email = $email_tracker->getEmailsSentByRecordId($recordID);
@@ -4460,6 +4461,10 @@ class Form
             ));
 
             $email->attachApproversAndEmail($recordID, Email::EMAIL_REMINDER, $this->login);
+            return true;
+        }
+        else {
+            return false;
         }
 
     }
