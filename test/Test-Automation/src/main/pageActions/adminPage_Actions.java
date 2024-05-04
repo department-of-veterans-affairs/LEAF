@@ -40,13 +40,16 @@ public class adminPage_Actions extends BasePage {
     WebElement formEditor;
 
     @FindBy(linkText="Use a form made by the LEAF community")
-    WebElement formByLEAFcommunity;
+    WebElement LEAFlibrary;
 
     @FindBy(linkText="Site Settings")
     WebElement siteSettings;
 
-    @FindBy(linkText="Create custom reports")
-    WebElement createCustomReports;
+    @FindBy(linkText="Report Builder")
+    WebElement reportBuilder;
+
+    @FindBy(linkText="Unresolved Requests")
+    WebElement unresolvedRequests;
 
     @FindBy(linkText="Timeline Explorer")
     WebElement timelineExplorer;
@@ -109,7 +112,36 @@ public class adminPage_Actions extends BasePage {
      return new ServiceChiefsPageActions();
     }
 
+    public WorkflowEditorPageActions clickWorkflowEditor(){
+     setExplicitWaitForElementToBeClickable(workflowEditor,30);
+     workflowEditor.click();
+     return new WorkflowEditorPageActions();
+    }
 
+    public FormEditorPageActions clickFormEditor(){
+     setExplicitWaitForElementToBeClickable(formEditor,30);
+     formEditor.click();
+     return new FormEditorPageActions();
+    }
+
+    public LEAFLibraryPageActions clickLEAFLibrary(){
+     setExplicitWaitForElementToBeClickable(LEAFlibrary,30);
+     LEAFlibrary.click();
+     return new LEAFLibraryPageActions();
+    }
+
+    public SiteSettingsPageActions clickSiteSettings(){
+     setExplicitWaitForElementToBeClickable(siteSettings,30);
+     siteSettings.click();
+     return new SiteSettingsPageActions();
+    }
+
+   public UnresolvedRequestPageActions clickUnresolvedRequest(){
+       setExplicitWaitForElementToBeClickable(unresolvedRequests,30);
+       siteSettings.click();
+       return new UnresolvedRequestPageActions();
+
+   }
 
 }
 
