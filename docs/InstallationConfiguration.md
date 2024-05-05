@@ -2,10 +2,12 @@
 
 - Install Git
 - Install Docker for Desktop
+  - Enable setting: "Add the *.docker.internal names to the host's etc/hosts file" or associate `host.docker.internal` with localhost (127.0.0.1).
 
 # Installation
 
 1. Run the command `git config --global core.autocrlf false`
+  - Or ensure that `./docker/mysql/dev_bootstrap.sh uses the LF end-of-line sequence instead of CRLF.
 2. Copy this project into a directory on your computer `git clone https://github.com/department-of-veterans-affairs/LEAF.git`
 
 # Configuration
