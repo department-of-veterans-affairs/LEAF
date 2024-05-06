@@ -199,11 +199,6 @@ var LeafFormSearch = function (containerID) {
      * prevQuery - optional JSON object
      */
     function renderPreviousAdvancedSearch(prevQuery) {
-        if(!openedAdvancedSearch) {
-            openedAdvancedSearch = true;
-            newSearchWidget();
-        }
-
         var isJSON = true;
         var advSearch = {};
         try {
