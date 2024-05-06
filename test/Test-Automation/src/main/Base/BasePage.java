@@ -8,14 +8,12 @@ import main.Utility.Utility;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.PageLoadStrategy;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.support.PageFactory;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 
@@ -31,33 +29,36 @@ public class BasePage extends Utility {
     private static final Logger log = LogManager.getLogger(BasePage.class);
     public static ExtentReports extentReports;
     public static ExtentTest extentTest;
+    public JavascriptExecutor js = (JavascriptExecutor) driver;
 
     @Parameters({ "env", "browser"})
-    @BeforeMethod
+    @BeforeTest()
     public void setUp(@Optional("") String env, @Optional("CHROME") String browser) {
         browserInitialization(browser,env);
         log.info("Title: "+driver.getCurrentUrl()+" -->"+driver.getTitle());
     }
+
     @BeforeSuite
     public void setUpReporting(){
-        ExtentSparkReporter extentSparkReporter = new ExtentSparkReporter("TestResult.html");
+        ExtentSparkReporter extentSparkReporter = new ExtentSparkReporter(Constants.currentDir+"//TestResult.html");
         extentReports = new ExtentReports();
         extentReports.attachReporter(extentSparkReporter);
         extentReports.setSystemInfo("OS", System.getProperty("os.name"));
         extentReports.setSystemInfo("Java Version", System.getProperty("java.version"));
     }
+
     @AfterSuite
     public void generateReport() throws IOException {
         driver.quit();
         extentReports.flush();
-        Desktop.getDesktop().browse(new File("TestResult.html").toURI());
+        Desktop.getDesktop().browse(new File(Constants.currentDir+"//TestResult.html").toURI());
+        log.info("Generating extent report");
     }
 
 
     @AfterMethod
     public void checkStatus(ITestResult result) throws IOException {
-//        driver.close();
-        System.out.println("After method steps");
+        log.info("Checking status of the test case");
         if (result.getStatus() == ITestResult.SUCCESS) {
             extentTest.createNode(result.getName(), "Passed");
             String path = takeScreenshot((WebDriver) driver);
@@ -76,8 +77,9 @@ public class BasePage extends Utility {
 
 
     //Baseclass is referring to Utils class using Super() keyword
-    public BasePage(){
+    public BasePage() {
         super();
+        PageFactory.initElements(driver, this);
     }
 
     //Initializing the driver and maximize the window size
@@ -94,10 +96,12 @@ public class BasePage extends Utility {
             log.info("Fetching Remote URL : "+ Constants.getRemote_url());
         }else{
             driver.get(Constants.getEnvURL());
+            redirectURL();
             log.info("Fetching Remote URL : "+ Constants.getEnvURL());
         }
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Constants.implicitWaitTime));
     }
+
 
     public static WebDriver getDriver(String browserName){
         if(browserName.toLowerCase().equals("chrome")){
@@ -156,11 +160,14 @@ public class BasePage extends Utility {
         return pageTitle;
     }
 
-
-
-    @Test
-    public void firstTest(){
-        System.out.println("Test");
+    public static void redirectURL() {
+        WebElement advancedButton = driver.findElement(By.id("details-button"));
+        setExplicitWaitForElementToBeVisible(advancedButton, 10);
+        advancedButton.click();
+        WebElement proceedLink = driver.findElement(By.id("proceed-link"));
+        setExplicitWaitForElementToBeVisible(proceedLink, 10);
+        proceedLink.click();
+        log.info("Redirecting to URL");
     }
 }
 

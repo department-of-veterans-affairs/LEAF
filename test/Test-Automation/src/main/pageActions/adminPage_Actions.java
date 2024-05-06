@@ -36,7 +36,7 @@ public class adminPage_Actions extends BasePage {
     @FindBy(linkText="Workflow Editor")
     WebElement workflowEditor;
 
-    @FindBy(linkText="Form Editor")
+    @FindBy(xpath="//span[text()='Form Editor']")
     WebElement formEditor;
 
     @FindBy(linkText="Use a form made by the LEAF community")

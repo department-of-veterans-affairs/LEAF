@@ -1,6 +1,6 @@
 package main.Utility;
 
-import org.openqa.selenium.support.ui.WebDriverWait;
+import java.util.Random;
 
 public class Constants {
 
@@ -8,7 +8,6 @@ public class Constants {
 
     public static int implicitWaitTime = 30;
 
-    public static WebDriverWait explicitWait;
 
     private static String env_URL = "https://host.docker.internal/LEAF_Request_Portal/admin/";
 
@@ -20,6 +19,8 @@ public class Constants {
     public static String currentDir = System.getProperty("user.dir");
 
     public static final boolean headless = false;
+    Random random = new Random();
+    protected int RandomNumber = random.nextInt();
 
     public static String getEnvURL(){
         return env_URL;
