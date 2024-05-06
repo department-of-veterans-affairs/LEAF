@@ -187,11 +187,13 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 error: function (response) {
                     if (data["dependencyID"] === null) {
                         $("#workflowbox_dep" + data["dependencyID"]).html(
-                            '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Requirement from current step is missing<br/> Please contact administrator to add requirement to current step</div>'
+                            `<div style="border: 2px solid red; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error ${response.status}: ${response.responseText}</div>`
                         );
                     } else {
                         $("#workflowbox_dep" + data["dependencyID"]).html(
-                            '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Workflow Events may not have triggered</div>'
+                            `<div style="border: 2px solid red; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error ${response.status}: ${response.responseText}
+                                <p>Workflow Events may not have triggered</p>
+                            </div>`
                         );
                     }
                 },
@@ -207,7 +209,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         // draw frame and header
         let stepDescription =
             step.description == null
-                ? "Your workflow is missing a requirement. Please check your workflow."
+                ? "Error: The configuration in the Workflow Editor is incomplete."
                 : step.description;
 
         $("#" + containerID).append(

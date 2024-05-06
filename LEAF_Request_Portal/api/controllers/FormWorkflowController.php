@@ -76,7 +76,8 @@ class FormWorkflowController extends RESTfulResponse
             if(is_numeric($_POST['dependencyID'])) {
                 return $formWorkflow->handleAction($_POST['dependencyID'], XSSHelpers::xscrub($_POST['actionType']), $_POST['comment']);
             } else {
-                return array('status' => 0, 'errors' => array('Requirement from current step is missing<br/> Please contact administrator to add requirement to current step'));
+                http_response_code(400);
+                return 'The configuration for this workflow is incomplete. Please contact the administrator (missing requirement).';
             }
         });
 
