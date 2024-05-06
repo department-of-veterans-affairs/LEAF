@@ -209,13 +209,7 @@ export default {
          * @returns tree to display.  shorthand for template iterator.
          */
         fullFormTree() {
-            let baseTree = this.usePreviewTree ? this.previewTree : this.focusedFormTree;
-            baseTree.forEach(page => {
-                if(page.child !== null && !Array.isArray(page.child)) {
-                    page.child = this.transformFormTreeChild(page.child);
-                }
-            });
-            return baseTree;
+            return this.usePreviewTree ? this.previewTree : this.focusedFormTree;
         },
         /**
          * @returns boolean.  used to watch for index or parentID changes.  triggers sorting update if true
@@ -277,6 +271,21 @@ export default {
             }
             tree.sort((a, b) =>  a.sort - b.sort);
             return tree;
+        },
+        /**
+         * Sorts the Form tree for rendering, transforming child objects into ordered lists
+         * 
+         * This is a workaround for an issue where the view depends on the insert order of items within the child object.
+         * @param {array} tree 
+         * @returns {array}
+         */
+        sortFormTree(baseTree) {
+            baseTree.forEach(page => {
+                if(page.child !== null && !Array.isArray(page.child)) {
+                    page.child = this.transformFormTreeChild(page.child);
+                }
+            });
+            return baseTree;
         },
         /**
          * updates the position of the form options area in large screen displays
@@ -367,7 +376,7 @@ export default {
                             this.updateKey += 1; //ensures that the form editor view updates if the form ID does not change
                         }
                         this.focusedFormID = catID || '';
-                        this.focusedFormTree = res || [];
+                        this.focusedFormTree = this.sortFormTree(res) || [];
                         this.appIsLoadingForm = false;
 
                         //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
