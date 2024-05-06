@@ -944,8 +944,8 @@ var LeafFormSearch = function (containerID) {
                 $(`#${prefixID}widgetCod_${widgetID}`).on("change", checkDateStatus);
                 url =
                     rootURL === ""
-                        ? "./api/workflow/steps"
-                        : rootURL + "api/workflow/steps";
+                        ? "./api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description"
+                        : rootURL + "api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description";
                 if(cache['api/workflow/steps'] == undefined) {
                     await $.ajax({
                         type: "GET",
