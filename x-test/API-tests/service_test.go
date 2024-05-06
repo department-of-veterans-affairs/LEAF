@@ -38,8 +38,8 @@ func getQuad(url string) QuadResponse {
 }
 
 func TestService_getMembers(t *testing.T) {
-	quads := getQuad(rootURL + `api/service/quadrads`)
-	members := getService(rootURL + `api/service/members`)
+	quads := getQuad(RootURL + `api/service/quadrads`)
+	members := getService(RootURL + `api/service/members`)
 
 	count := len(members)
 	retrieved := 28

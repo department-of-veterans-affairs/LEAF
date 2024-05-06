@@ -9,7 +9,7 @@ import (
 )
 
 func TestForm_Version(t *testing.T) {
-	got, _ := httpGet(rootURL + "api/form/version")
+	got, _ := httpGet(RootURL + "api/form/version")
 	want := `"1"`
 
 	if !cmp.Equal(got, want) {
@@ -19,10 +19,10 @@ func TestForm_Version(t *testing.T) {
 
 func TestForm_AdminCanEditData(t *testing.T) {
 	postData := url.Values{}
-	postData.Set("CSRFToken", csrfToken)
+	postData.Set("CSRFToken", CsrfToken)
 	postData.Set("3", "12345")
 
-	res, _ := client.PostForm(rootURL+`api/form/505`, postData)
+	res, _ := client.PostForm(RootURL+`api/form/505`, postData)
 	bodyBytes, _ := io.ReadAll(res.Body)
 	got := string(bodyBytes)
 	want := `"1"`
@@ -34,10 +34,10 @@ func TestForm_AdminCanEditData(t *testing.T) {
 
 func TestForm_NonadminCannotEditData(t *testing.T) {
 	postData := url.Values{}
-	postData.Set("CSRFToken", csrfToken)
+	postData.Set("CSRFToken", CsrfToken)
 	postData.Set("3", "12345")
 
-	res, _ := client.PostForm(rootURL+`api/form/505?masquerade=nonAdmin`, postData)
+	res, _ := client.PostForm(RootURL+`api/form/505?masquerade=nonAdmin`, postData)
 	bodyBytes, _ := io.ReadAll(res.Body)
 	got := string(bodyBytes)
 	want := `"0"`
@@ -48,7 +48,7 @@ func TestForm_NonadminCannotEditData(t *testing.T) {
 }
 
 func TestForm_NeedToKnowDataReadAccess(t *testing.T) {
-	got, res := httpGet(rootURL + "api/form/505/data?masquerade=nonAdmin")
+	got, res := httpGet(RootURL + "api/form/505/data?masquerade=nonAdmin")
 	if !cmp.Equal(res.StatusCode, 200) {
 		t.Errorf("./api/form/505/data?masquerade=nonAdmin Status Code = %v, want = %v", res.StatusCode, 200)
 	}
@@ -60,10 +60,10 @@ func TestForm_NeedToKnowDataReadAccess(t *testing.T) {
 
 func TestForm_RequestFollowupAllowCaseInsensitiveUserID(t *testing.T) {
 	postData := url.Values{}
-	postData.Set("CSRFToken", csrfToken)
+	postData.Set("CSRFToken", CsrfToken)
 	postData.Set("3", "12345")
 
-	res, _ := client.PostForm(rootURL+`api/form/7?masquerade=nonAdmin`, postData)
+	res, _ := client.PostForm(RootURL+`api/form/7?masquerade=nonAdmin`, postData)
 	bodyBytes, _ := io.ReadAll(res.Body)
 	got := string(bodyBytes)
 	want := `"1"`
@@ -74,7 +74,7 @@ func TestForm_RequestFollowupAllowCaseInsensitiveUserID(t *testing.T) {
 }
 
 func TestForm_WorkflowIndicatorAssigned(t *testing.T) {
-	got, res := httpGet(rootURL + "api/form/508/workflow/indicator/assigned")
+	got, res := httpGet(RootURL + "api/form/508/workflow/indicator/assigned")
 
 	if !cmp.Equal(res.StatusCode, 200) {
 		t.Errorf("./api/form/508/workflow/indicator/assigned Status Code = %v, want = %v", res.StatusCode, 200)

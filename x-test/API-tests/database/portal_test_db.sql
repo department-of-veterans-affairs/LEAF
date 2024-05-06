@@ -6273,7 +6273,7 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (7,	1694021464,	0,	'tESTER',	'Requestor followup - Different Username case sensitivity',	0,	'Re-opened for editing',	0,	0,	1,	1),
 (8,	1694021464,	0,	'tester',	'Available for test case',	0,	'Approved',	1694021485,	0,	0,	1),
 (9,	1694021464,	0,	'tester',	'Available for test case',	0,	'Approved',	1694021485,	0,	0,	1),
-(10,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
+(10,	1694021465,	0,	'tester',	'TestFormWorkflow_ApplyAction',	0,	'Submitted',	1694021485,	0,	0,	1),
 (11,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
 (12,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
 (13,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
