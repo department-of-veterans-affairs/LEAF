@@ -1342,7 +1342,7 @@ $(function() {
                 if(tStepHeader.some(ele => ele === 0)) {
                     $.ajax({
                         type: 'GET',
-                        url: './api/workflow/steps',
+                        url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
                         dataType: 'json',
                         success: (res) => {
                             let div = document.createElement('div');
