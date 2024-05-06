@@ -407,7 +407,7 @@ export default {
                     fetch(`${this.APIroot}form/specified?categoryIDs=${this.formPreviewIDs}`).then(res => {
                         res.json().then(data => {
                             if(data?.status?.code === 2) {
-                                this.previewTree = data.data || [];
+                                this.previewTree = this.sortFormTree(data.data) || [];
                                 this.previewTree = this.backwardCompatNames(this.previewTree);
                                 this.focusedFormID = primaryID;
                             } else {
