@@ -12,24 +12,25 @@ services:
       - leaf
       - ui-test
     volumes:
-      - ./output:/app/target
+      # - ./output:/app/target
       - ./selenium-test-helper/index.php:/var/www/html/selenium-tests/index.php
-  app:
-    build:
-      context: ./
-    image: app_test1
-    container_name: app_test1
-    volumes:
-      - ./output:/app/target
+      - ./src:/app/src
+  # app:
+  #   build:
+  #     context: ./
+  #   image: app_test1
+  #   container_name: app_test1
+  #   volumes:
+  #     - ./output:/app/target
 
-    network_mode: host
-    #networks:
-     #- ui-test
-    #   should be pass during docker compose up -d app
-    # SCRIPT=test.java.formWorkflow.formWorkflow_Test
-    command: ["test","-Dremote.url= http://192.168.86.248:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+  #   network_mode: host
+  #   #networks:
+  #    #- ui-test
+  #   #   should be pass during docker compose up -d app
+  #   # SCRIPT=test.java.formWorkflow.formWorkflow_Test
+  #   command: ["test","-Dremote.url= http://192.168.86.248:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
 
     #links:
      # - "chrome"
