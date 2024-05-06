@@ -945,6 +945,7 @@ div[id*="xhrDialog"] {
 .comments_message {
   margin-left: 20px;
   padding-top: 4px;
+  word-break: break-word;
 }
 
 .tools {
