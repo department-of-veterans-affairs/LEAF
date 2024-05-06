@@ -230,9 +230,8 @@
                 <!--{if $indicator.displayedValue != ''}-->
                     <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$indicator.value|escape}-->"><!--{$indicator.displayedValue|sanitize}--></a>
                 <!--{else}-->
-                    Employee #<!--{$indicator.value}--><br>
-                    entered on <!--{$indicator.timestamp|date_format}--><br>
-                    by <!--{$indicator.userID}-->
+                    empUID #:<!--{$indicator.value|escape }--><br>
+                    Recorded on <!--{$indicator.timestamp|date_format}--> by <!--{$indicator.userID|escape}-->
                 <!--{/if}-->
             </div>
             <!--{else}-->
