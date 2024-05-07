@@ -263,10 +263,8 @@ class Form
                 $fullFormPages = array_merge($fullFormPages, $form);
             }
         }
-        $return_value['status']['code'] = 2;
-        $return_value['status']['message'] = "Success";
-        $return_value['data'] = $fullFormPages;
-        return $return_value;
+
+        return $fullFormPages;
     }
 
     /**
@@ -463,6 +461,12 @@ class Form
 
     /**
      * Get a form's indicator and all children, including data if available
+     * 
+     * Flags:
+     *  $_GET['context'] If the context is set to "formEditor", an additional "isMaskable" property indicates
+     *                   whether the field has Special Access Restrictions assigned. Used in the Form Editor
+     *                   to provide a visual indicator.
+     * 
      * @param int $indicatorID
      * @param int $series
      * @param int $recordID
@@ -530,6 +534,10 @@ class Form
             if(!$forceReadOnly) {
                 $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
                 $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
+
+                if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
+                    $form[$idx]['isMaskable'] = isset($data[0]['groupID']) ? 1 : 0;
+                }
             }
             $form[$idx]['sort'] = $data[0]['sort'];
 
@@ -4129,15 +4137,15 @@ class Form
             $indicatorList = '';
             foreach ($res as $field)
             {
-                if ($series != null && $recordID != null && is_numeric($field['indicatorID']))
+                if (is_numeric($field['indicatorID']))
                 {
                     $indicatorList .= "{$field['indicatorID']},";
                 }
             }
+            $indicatorList = trim($indicatorList, ',');
 
             if ($series != null && $recordID != null)
             {
-                $indicatorList = trim($indicatorList, ',');
                 $var = array(':series' => (int)$series,
                              ':recordID' => (int)$recordID, );
                 $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID FROM data
@@ -4152,14 +4160,21 @@ class Form
                     $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
                 }
             }
+            else if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
+                $res2 = $this->db->prepared_query('SELECT indicatorID, groupID FROM indicators
+                									LEFT JOIN indicator_mask USING (indicatorID)
+                									WHERE indicatorID IN (' . $indicatorList . ')', []);
+
+                foreach ($res2 as $resIn)
+                {
+                    $idx = $resIn['indicatorID'];
+                    $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
+                }
+            }
 
             foreach ($res as $field)
             {
-                if (isset($_GET['childkeys']) && strtolower($_GET['childkeys']) === 'nonnumeric') {
-                    $idx = "id".$field['indicatorID'];
-                } else {
-                    $idx = $field['indicatorID'];
-                }
+                $idx = $field['indicatorID'];
 
                 $child[$idx]['indicatorID'] = $field['indicatorID'];
                 $child[$idx]['series'] = $series;
@@ -4178,6 +4193,10 @@ class Form
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
                 $child[$idx]['has_code'] = trim($field['html']) != '' || trim($field['htmlPrint']) != '';
+
+                if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
+                    $child[$idx]['isMaskable'] = isset($data[$idx]['groupID']) ? 1 : 0;
+                }
 
                 $inputType = explode("\n", $field['format']);
                 $numOptions = count($inputType) > 1 ? count($inputType) : 0;
