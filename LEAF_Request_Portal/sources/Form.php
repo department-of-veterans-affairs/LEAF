@@ -1411,8 +1411,9 @@ class Form
                         LEFT JOIN workflow_steps USING (workflowID)
                         LEFT JOIN step_dependencies USING (stepID)
                         WHERE recordID=:recordID
-                        AND count > 0
-                        AND workflowID > 0';
+                            AND count > 0
+                            AND workflowID != 0
+                        GROUP BY dependencyID';
 
                 $res = $this->db->prepared_query($sql, $vars);
 
