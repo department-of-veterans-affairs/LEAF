@@ -279,6 +279,7 @@ var LeafFormSearch = function (containerID) {
                     renderWidget(i);
                 }
                 $("#" + prefixID + "widgetCod_" + i).val(advSearch[i].operator);
+                $("#" + prefixID + "widgetCod_" + i).trigger("chosen:updated");
                 if (typeof advSearch[i].match == "string" && advSearch[i].operator.indexOf('MATCH') == -1) {
                     $("#" + prefixID + "widgetMat_" + i).val(
                         advSearch[i].match.replace(/\*/g, "")
@@ -942,7 +943,7 @@ var LeafFormSearch = function (containerID) {
                         ? "./api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description"
                         : rootURL + "api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description";
                 if(cache['api/workflow/steps'] == undefined) {
-                    await $.ajax({
+                    cache['api/workflow/steps'] = $.ajax({
                         type: "GET",
                         url,
                         dataType: "json",
@@ -951,11 +952,11 @@ var LeafFormSearch = function (containerID) {
                             if(new URLSearchParams(window.location.search).get('dev') == null) {
                                 res = res.filter(step => step.workflowID > 0);
                             }
-                            cache['api/workflow/steps'] = res;
+                            return res;
                         }
                     });
                 }
-                let allStepsData = cache['api/workflow/steps'];
+                let allStepsData = await cache['api/workflow/steps'];
                 let categories = `<select id="${prefixID}widgetMat_${widgetID}" class="chosen" aria-label="stepID" style="width: 250px">
                                     <option value="submitted">Submitted</option>
                                     <option value="deleted">Cancelled</option>
@@ -975,7 +976,6 @@ var LeafFormSearch = function (containerID) {
                     );
                 }
 
-                chosenOptions();
                 if (callback != undefined) {
                     callback();
                 }

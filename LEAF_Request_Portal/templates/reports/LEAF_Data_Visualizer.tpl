@@ -748,6 +748,7 @@ async function main() {
     });
     leafSearch.search('');
     leafSearch.init();
+    document.querySelector('#' + leafSearch.getPrefixID() + 'advancedSearchButton').click();
 
     if(userQuery.terms == undefined) {
         getDataBuildCharts(categoryID);
@@ -768,10 +769,9 @@ async function main() {
         }
         leafSearch.renderPreviousAdvancedSearch(userQuery.terms);
     }
-    
+
     document.querySelector('#btn_addFilter').addEventListener('click', function() {
     	dialog_message.show();
-        document.querySelector('#' + leafSearch.getPrefixID() + 'advancedSearchButton').click();
     });
     
 }
