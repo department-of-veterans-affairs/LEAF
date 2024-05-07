@@ -4,7 +4,7 @@
 
 
 	<test name="Forms Workflow">
-			<parameter name="env" value="yahoo.com">
+			<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
 			<parameter name="browser" value="chrome"/>
 			<parameter name="remote_url" value="${remote.url}"/>
 			<classes>

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite configfailurepolicy="continue" thread-count="1" name="Failed suite [RegressionSuite]" guice-stage="DEVELOPMENT" verbose="0">
-  <test thread-count="1" name="Forms Workflow(failed)" verbose="0">
-    <parameter name="remote_url" value="http://localhost:4445"/>
+<suite name="Failed suite [RegressionSuite]" guice-stage="DEVELOPMENT" verbose="0">
+  <test thread-count="5" name="Forms Workflow(failed)" verbose="0">
     <parameter name="browser" value="chrome"/>
-    <parameter name="env" value="yahoo.com"/>
+    <parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#"/>
     <classes>
-      <class name="test.java.formWorkflow.formWorkflow_Test">
+      <class name="test.java.formWorkflow.FormEditorTests">
         <methods>
-          <include name="addSectionHeadings"/>
-          <include name="tearDown"/>
-          <include name="EditProperties"/>
-          <include name="editCollaborators"/>
+          <include name="deleteForm"/>
           <include name="setUp"/>
-          <include name="CreateAndDeleteForm"/>
+          <include name="tearDown"/>
+          <include name="setUpReporting"/>
+          <include name="generateReport"/>
+          <include name="checkStatus"/>
+          <include name="TestInitialization"/>
         </methods>
-      </class> <!-- test.java.formWorkflow.formWorkflow_Test -->
+      </class> <!-- test.java.formWorkflow.FormEditorTests -->
     </classes>
   </test> <!-- Forms Workflow(failed) -->
 </suite> <!-- Failed suite [RegressionSuite] -->
