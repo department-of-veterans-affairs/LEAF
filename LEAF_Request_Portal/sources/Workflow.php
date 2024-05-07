@@ -182,16 +182,27 @@ class Workflow
         return $res;
     }
 
+    // getAllCategories returns all active user-created forms
+    // Optional GET parameter "includeStandardLEAF" also returns built-in standardized LEAF forms
     public function getAllCategories()
     {
-        $res = $this->db->prepared_query("SELECT * FROM categories
-                                                WHERE workflowID>0 AND parentID=''
-        											AND disabled = 0
-        										ORDER BY categoryName", null);
+        if(!isset($_GET['includeStandardLEAF'])) {
+            $res = $this->db->prepared_query("SELECT * FROM categories
+                                                WHERE workflowID > 0 AND parentID=''
+                                                    AND disabled = 0
+                                                ORDER BY categoryName", null);
+        }
+        else {
+            $res = $this->db->prepared_query("SELECT * FROM categories
+                                                WHERE workflowID != 0 AND parentID=''
+                                                    AND disabled = 0
+                                                ORDER BY categoryName", null);
+        }
 
         return $res;
     }
 
+    // getAllCategories returns all user-created forms, including ones without an assigned workflow
     public function getAllCategoriesUnabridged()
     {
         $res = $this->db->prepared_query("SELECT * FROM categories

@@ -263,10 +263,8 @@ class Form
                 $fullFormPages = array_merge($fullFormPages, $form);
             }
         }
-        $return_value['status']['code'] = 2;
-        $return_value['status']['message'] = "Success";
-        $return_value['data'] = $fullFormPages;
-        return $return_value;
+
+        return $fullFormPages;
     }
 
     /**
@@ -1413,8 +1411,9 @@ class Form
                         LEFT JOIN workflow_steps USING (workflowID)
                         LEFT JOIN step_dependencies USING (stepID)
                         WHERE recordID=:recordID
-                        AND count > 0
-                        AND workflowID > 0';
+                            AND count > 0
+                            AND workflowID != 0
+                        GROUP BY dependencyID';
 
                 $res = $this->db->prepared_query($sql, $vars);
 
