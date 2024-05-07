@@ -946,14 +946,13 @@ var LeafFormSearch = function (containerID) {
                     cache['api/workflow/steps'] = $.ajax({
                         type: "GET",
                         url,
-                        dataType: "json",
-                        success: function (res) {
-                            // Hide standard workflows unless the GET parameter "dev" exists
-                            if(new URLSearchParams(window.location.search).get('dev') == null) {
-                                res = res.filter(step => step.workflowID > 0);
-                            }
-                            return res;
+                        dataType: "json"
+                    }).then(res => {
+                        // Hide standard workflows unless the GET parameter "dev" exists
+                        if(new URLSearchParams(window.location.search).get('dev') == null) {
+                            res = res.filter(step => step.workflowID > 0);
                         }
+                        return res;
                     });
                 }
                 let allStepsData = await cache['api/workflow/steps'];
