@@ -6,10 +6,7 @@
 		<parameter name="env" value="https://localhost/LEAF_Request_Portal/admin/?a=form#">
 			<parameter name="browser" value="chrome"/>
 			<classes>
-				<class name="test.java.formWorkflow.formWorkflow_Test">
-					<methods>
-						<include name="CreateAndDeleteForm"></include>
-					</methods>
+				<class name="test.java.formWorkflow.FormEditorTests">
 				</class>
 			</classes>
 		</parameter>

@@ -7,12 +7,8 @@ public class AppVariables {
 
 
 	//     C:\Selenium\Current_ChromeDriver
-	public final static String CHROMEDRIVER = "C:\\Selenium\\Current_ChromeDriver\\chromedriver.exe";
-	//public final static String CHROMEDRIVER = "C:\\DEV\\Tools\\Selenium\\Current_ChromeDriver\\chromedriver.exe";
-	//public final static String CHROMEDRIVER = "C:\\DEV\\Tools\\Selenium\\ChromeDriver_98.0.4758.102\\chromedriver_win32\\chromedriver.exe";
-										
-	public final static String IEDRIVER = "C:/DEV/Tools/Selenium/IEDriver/IEDriverServer_Win32_3.150.1/IEDriverServer.exe";
-	
+
+
 	public final static String PREPROD_DOMAIN = "https://leaf-preprod.va.gov/";  //  len = 28
 	public final static String PROD_DOMAIN = "https://leaf.va.gov/";	  		 //  len = 20 
 	
