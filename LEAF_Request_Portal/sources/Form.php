@@ -4384,6 +4384,9 @@ class Form
     }
 
     public function permanentlyDeleteRecord($recordID) {
+        if(!$this->login->checkGroup(1)) {
+            return 0;
+        }
         /*if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 0;
         }*/
