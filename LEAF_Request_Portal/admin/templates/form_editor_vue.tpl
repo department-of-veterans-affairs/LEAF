@@ -13,7 +13,7 @@
     const libsPath = '<!--{$libsPath}-->';
     const orgchartPath = '<!--{$orgchartPath}-->';
 
-    const hasDevConsoleAccess = '<!--{$hasDevConsoleAccess}-->';
+    const hasDevConsoleAccess = Number('<!--{$hasDevConsoleAccess}-->') > 0 ? true : false;
     
     let postRenderFormBrowser;
 

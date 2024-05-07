@@ -900,7 +900,7 @@ function showJSONendpoint() {
             $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res + '?x-filterData=recordID,'+ Object.keys(filterData).join(','));
            if($('#msCompatMode').is(':checked')) {
                 $('#expandLink').css('display', 'none');
-                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res + '&x-filterData=recordID,'+ Object.keys(filterData).join(','));
+                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res + '?x-filterData=recordID,'+ Object.keys(filterData).join(','));
             }
             else {
                 $('#expandLink').css('display', 'inline');
