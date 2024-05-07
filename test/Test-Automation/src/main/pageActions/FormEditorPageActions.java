@@ -31,8 +31,17 @@ public class FormEditorPageActions extends BasePage {
     @FindBy(id ="button_save")
     WebElement saveButton;
 
-    @FindBy(id ="button_cancelchange")
+    @FindBy(id ="confirm_button_cancelchange")
     WebElement selectCancel;
+
+    @FindBy(xpath ="//*[text()=' Staple other form']")
+    WebElement stapleForm;
+
+    @FindBy(id="mergedForms")
+    WebElement mergeForm;
+
+    @FindBy(id="stapledCategoryID")
+    WebElement formOptions;
 
 
     public FormEditorPageActions() {
@@ -56,31 +65,58 @@ public class FormEditorPageActions extends BasePage {
         log.info("Validating Form Created Successfully");
     }
 
+    public void openExistingForm(String FormName) {
+        Boolean formOpened = null;
+        WebElement form = driver.findElement(By.xpath("//div[@class='formPreviewTitle'][text()='"+FormName+"']"));
+        if(checkFormExists(FormName) == true) {
+            form.click();
+            log.info("Opening " + FormName + " Existing Form");
+            setExplicitWaitForElementToBeVisible(formLabel, 10);
+            formOpened = formLabel.isDisplayed();
+        }
+            Assert.assertEquals(formOpened, true);
+    }
+
+    public Boolean checkFormExists(String FormName) {
+        WebElement form = driver.findElement(By.xpath("//div[@class='formPreviewTitle'][text()='"+FormName+"']"));
+        js.executeScript("arguments[0].scrollIntoView();", form);
+        setExplicitWaitForElementToBeVisible(form,10 );
+        Boolean formExists = form.isDisplayed();
+        return formExists;
+    }
+
     public void deleteForm(String FormName) {
         Boolean formDeleted = null;
-        if(deleteButton.isDisplayed()==false){
+        if(deleteButton.isDisplayed()){
             deleteButton.click();
             setExplicitWaitForElementToBeVisible(confirmDeleteButton,20 );
             confirmDeleteButton.click();
-            WebElement form = driver.findElement(By.xpath("//div[@class='formPreviewTitle'][text()='"+FormName+"']"));
-            formDeleted = js.executeScript("arguments[0].scrollIntoView();", form).equals(false);
            }
-        else if(createForm.isDisplayed() == true){
-            WebElement form = driver.findElement(By.xpath("//div[@class='formPreviewTitle'][text()='"+FormName+"']"));
-            js.executeScript("arguments[0].scrollIntoView();", form);
-            form.click();
-            log.info("Selecting form to delete");
-            setExplicitWaitForElementToBeVisible(deleteButton,20 );
-            deleteButton.click();
-            setExplicitWaitForElementToBeVisible(confirmDeleteButton,20 );
-            confirmDeleteButton.click();
-            js.executeScript("arguments[0].scrollIntoView();", form);
-            formDeleted = form.isDisplayed();
-            log.info("Form Deleted Successfully");
-            js.executeScript("arguments[0].scrollIntoView();", form);
-        }
+        formDeleted = checkFormExists(FormName);
         Assert.assertEquals(formDeleted, false);
         log.info("Validating Form Deleted Successfully");
+    }
+
+    public void cancelDeleteForm(String FormName) {
+        Boolean formDeleted = null;
+        if(deleteButton.isDisplayed()){
+            deleteButton.click();
+            setExplicitWaitForElementToBeVisible(selectCancel,20 );
+            selectCancel.click();
+        }
+        formDeleted = checkFormExists(FormName);
+        Assert.assertEquals(formDeleted, true);
+        log.info("Validating Form Not Deleted Successfully");
+    }
+
+    public void stapleForm(String FormName) {
+        setExplicitWaitForElementToBeVisible(stapleForm,20);
+        stapleForm.click();
+        setExplicitWaitForElementToBeVisible(mergeForm, 10);
+        mergeForm.click();
+        setExplicitWaitForElementToBeVisible(formOptions, 10);
+        Boolean formOpened = formLabel.isDisplayed();
+        Assert.assertEquals(formOpened, true);
     }
 
 }
