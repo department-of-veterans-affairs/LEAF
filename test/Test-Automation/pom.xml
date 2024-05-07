@@ -66,6 +66,11 @@
             <version>2.19.0</version>
         </dependency>
         <!-- Add more dependencies as needed -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.28</version>
+        </dependency>
 
     </dependencies>
 
