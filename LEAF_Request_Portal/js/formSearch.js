@@ -953,6 +953,8 @@ var LeafFormSearch = function (containerID) {
                             res = res.filter(step => step.workflowID > 0);
                         }
                         return res;
+                    }).catch(error => {
+                        console.error(error);
                     });
                 }
                 let allStepsData = await cache['api/workflow/steps'];
@@ -962,7 +964,7 @@ var LeafFormSearch = function (containerID) {
                                     <option value="resolved" selected>Resolved</option>
                                     <option value="actionable">Actionable by me</option>`;
                 //categories += '<option value="destruction">Scheduled for Destruction</option>';
-                for (var i in allStepsData) {
+                for (let i in allStepsData) {
                     categories += `<option value="${allStepsData[i].stepID}">${allStepsData[i].description}: ${allStepsData[i].stepTitle}</option>`;
                 }
                 categories += "</select>";
