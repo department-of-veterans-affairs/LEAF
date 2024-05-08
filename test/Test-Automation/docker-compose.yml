@@ -1,5 +1,23 @@
-version: '2.2'
+version: '3.7'
 services:
+  test-api:
+    image: test-api:latest
+    container_name: test-api
+    build:
+      context: ./
+      dockerfile: test-api.dockerfile
+    # env_file:
+    #   - ./leaf_selenium.env
+    networks:
+      - leaf
+      - ui-test
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./output:/app/target
+      - ./selenium-test-helper/index.php:/var/www/html/selenium-tests/index.php
+      - ./src:/app/src
+      - ./testng.xml:/app/testng.xml
   app:
     build:
       context: ./
