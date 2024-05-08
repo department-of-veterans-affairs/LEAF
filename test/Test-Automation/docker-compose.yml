@@ -19,6 +19,7 @@ services:
       - ./src:/app/src
       - ./testng.xml:/app/testng.xml
   app:
+    image: app_test1
     build:
       context: ./
 
