@@ -222,7 +222,8 @@ function main() {
         else if(isJSON) {
             for(let i in advSearch) {
                 if(advSearch[i].id != 'data'
-                    && advSearch[i].id != 'dependencyID') {
+                    && advSearch[i].id != 'dependencyID'
+                    && advSearch[i].id != 'stepAction') {
                     query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
                 }
                 else {
