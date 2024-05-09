@@ -1118,17 +1118,16 @@ class Form
                       ':indicatorID' => $key,
                       ':series' => $series,
                       ':data' => trim($_POST[$key]),
-                      ':metadata' => null,
                       ':timestamp' => time(),
                       ':userID' => $this->login->getUserID(), );
 
-        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, metadata, timestamp, userID)
-                                            VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)
-                                            ON DUPLICATE KEY UPDATE data=:data, metadata=:metadata, timestamp=:timestamp, userID=:userID', $vars);
+        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
+                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
+                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
 
         if (!$duplicate) {
-            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)', $vars);
+            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
         }
         /*  signatures (not yet implemented)
         $vars = array(':recordID' => $recordID,
