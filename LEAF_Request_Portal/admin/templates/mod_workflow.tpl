@@ -54,6 +54,8 @@
 
 <script type="text/javascript">
     var CSRFToken = '<!--{$CSRFToken}-->';
+    let currentStepID = 0;
+    let reminder_step_change = '';
 
     function isJSON(input = '') {
         try {
@@ -250,6 +252,7 @@
      * @param stepID
      */
     function addEmailReminderDialog(stepID) {
+        currentStepID = stepID;
         $('.workflowStepInfo').css('display', 'none');
         let workflowStep = null;
         let reminderChecked = false;
@@ -257,6 +260,7 @@
         let reminderDays = '';
         let reminderDate = '';
         let reminder_days_additional = '';
+        let stepData = '';
 
         const d = new Date();
         const dateMin = d.getFullYear().toString() + '-'
@@ -266,15 +270,21 @@
         getStep(stepID, function (workflow_step) { //async is set to false
             workflowStep = workflow_step;
         });
-        if(typeof workflowStep?.stepData === 'string' && isJSON(workflowStep?.stepData)) {
-            const stepData = JSON.parse(workflowStep.stepData);
+
+        if (typeof workflowStep?.stepData === 'string' && isJSON(workflowStep?.stepData)) {
+            stepData = JSON.parse(workflowStep.stepData);
+
             if (stepData?.AutomatedEmailReminders?.DateSelected?.length > 0) {
                 reminderType = 'date';
+            } else if (stepData?.AutomatedEmailReminders?.MoveStepTo?.length > 0) {
+                reminderType = 'step_change';
             }
+
             reminderChecked = stepData.AutomatedEmailReminders?.AutomateEmailGroup === 'true'; //string
             reminderDays = stepData.AutomatedEmailReminders?.DaysSelected || '';
             reminderDate = stepData.AutomatedEmailReminders?.DateSelected || '';
             reminder_days_additional = stepData.AutomatedEmailReminders?.AdditionalDaysSelected || '';
+            reminder_step_change = stepData.AutomatedEmailReminders?.MoveStepTo || '';
         }
 
         dialog.setTitle('Email Reminder');
@@ -290,14 +300,15 @@
                     <select id="reminder_type_select" onchange="toggleReminderType()">
                         <option value="duration" ${reminderType === "duration" ? "selected" : ""}>Reminder for Inactivity</option>
                         <option value="date" ${reminderType === "date" ? "selected" : ""}>Reminder on Specific Date</option>
+                        <option value="step_change" ${reminderType === "step_change" ? "selected" : ""}>Step Change Reminder</option>
                     </select>
                 </div>
-                <div id="email_reminder_duration" style="display: ${reminderType === "duration" ? "block" : "none"}">
+                <div id="email_reminder_duration" style="display: ${reminderType === "duration" || reminderType === "step_change" ? "block" : "none"}">
                     Send a reminder after
                     <input aria-label="number of days" type="number" min="1"
                         id="reminder_days"
                         style="width: 50px" value="${reminderDays}"
-                        ${reminderType !== 'duration' ? 'aria-disabled="true" disabled' : ''} /> days of inactivity.
+                        ${reminderType !== 'duration' && reminderType !== 'step_change' ? 'aria-disabled="true" disabled' : ''} /> days of inactivity.
                 </div>
                 <div id="email_reminder_date" style="display: ${reminderType === "date" ? "block" : "none"}">
                     Start sending reminders on
@@ -311,14 +322,23 @@
                     <input aria-label="number of days additional" type="number" min="1"
                         id="reminder_days_additional" style="width: 50px" value="${reminder_days_additional}" /> days of inactivity.
                 </div>
+                <div id="step_selector" style="display: ${reminderType === "step_change" ? "block" : "none"}">
+                    Send a reminder and change Step to:
+                    <select id="workflow_step">
+                    </select>
+                </div>
             </div>`;
         dialog.setContent(output);
+
+        if (stepData?.AutomatedEmailReminders?.MoveStepTo?.length > 0) {
+            populateDropdown();
+        }
 
         dialog.setValidator('reminder_days', function() {
             const remindersChecked = document.getElementById('edit_email_check')?.checked;
             const reminderType = (document.getElementById('reminder_type_select')?.value || '').toLowerCase();
             const reminderDays = remindersChecked === true ? parseInt(document.getElementById('reminder_days')?.value || 0) : null;
-            return !(remindersChecked === true && reminderType === 'duration' && reminderDays < 1 )
+            return !(remindersChecked === true && (reminderType === 'duration' || reminderType === 'step_change') && reminderDays < 1 )
         });
         dialog.setSubmitValid('reminder_days', function() {
             alert('Number of days to remind user must be greater than 0!');
@@ -342,6 +362,17 @@
         dialog.setSubmitValid('reminder_days_additional', function() {
             alert('Additional Number of days to remind user must be greater than 0!');
         });
+
+        dialog.setValidator('workflow_step', function() {
+            const remindersChecked = document.getElementById('edit_email_check')?.checked;
+            const reminderType = (document.getElementById('reminder_type_select')?.value || '').toLowerCase();
+            const workflowStep = remindersChecked === true ? document.getElementById('workflow_step')?.value : null;
+            return !(remindersChecked === true && reminderType === 'step_change' && workflowStep === '');
+        });
+        dialog.setSubmitValid('workflow_step', function() {
+            alert('When doing a Step Change Reminder you need a step to go to.');
+        });
+
         let saving = false;
         dialog.setCancelHandler(function() {
             if(saving === false) {
@@ -352,11 +383,12 @@
             saving = true;
             const remindersChecked = document.getElementById('edit_email_check')?.checked;
             const reminderType = (document.getElementById('reminder_type_select')?.value || '').toLowerCase();
-            const reminderDays = remindersChecked === true && reminderType === 'duration' ?
+            const reminderDays = remindersChecked === true && reminderType === 'duration' || reminderType === 'step_change' ?
                 document.getElementById('reminder_days')?.value : '';
             const reminderDate = remindersChecked === true && reminderType === 'date' ?
                 document.getElementById('reminder_date')?.value : '';
             const additionalDays = remindersChecked === true ? document.getElementById('reminder_days_additional')?.value : '';
+            const stepChange = reminderChecked === true ? document.getElementById('workflow_step')?.value : '';
 
             let seriesData = {
                 AutomatedEmailReminders: {
@@ -364,6 +396,7 @@
                     'Days Selected': reminderDays,
                     'Date Selected': reminderDate,
                     'Additional Days Selected': additionalDays,
+                    'Move Step to': stepChange,
                 }
             }
             updateStepData(seriesData, stepID, function (res) {
@@ -607,7 +640,7 @@
             async: false
         }).done(function(res) {
             groupList = res;
-        }).fail(function(error) {
+        }).error(function(error) {
             alert(error);
         });
         $.ajax({
@@ -3102,28 +3135,83 @@
     // automated email reminder types, frequency and specific date
     function toggleReminderType() {
         const elSelect = document.getElementById('reminder_type_select');
-        if(elSelect !== null) {
+
+        if (elSelect !== null) {
             const reminderType = elSelect.value.toLowerCase();
 
             let elInputDuration = document.getElementById('reminder_days');
             let elInputDate = document.getElementById('reminder_date');
-            if(elInputDuration !== null) {
-                elInputDuration.disabled = reminderType !== 'duration';
-                elInputDuration.setAttribute('aria-disabled', reminderType !== 'duration');
+            let elWorkflowStep = document.getElementById('workflow_step');
+
+            if (elInputDuration !== null) {
+                elInputDuration.disabled = reminderType !== 'duration' && reminderType !== 'step_change';
+                elInputDuration.setAttribute('aria-disabled', reminderType !== 'duration' && reminderType !== 'step_change');
             }
-            if(elInputDate !== null) {
+
+            if (elInputDate !== null) {
                 elInputDate.disabled = reminderType !== 'date';
                 elInputDate.setAttribute('aria-disabled', reminderType !== 'date');
             }
 
+            if (elWorkflowStep !== null) {
+                elWorkflowStep.disabled = reminderType !== 'step_change';
+                elWorkflowStep.setAttribute('aria-disabled', reminderType !== 'step_change');
+            }
+
             let elContainerDuration = document.getElementById('email_reminder_duration');
             let elContainerDate = document.getElementById('email_reminder_date');
-            if(elContainerDuration !== null) {
-                elContainerDuration.style.display = reminderType === 'duration' ? 'block' : 'none';
+            let elContainerStep = document.getElementById('step_selector');
+
+            if (elContainerDuration !== null) {
+                elContainerDuration.style.display = reminderType === 'duration' || reminderType === 'step_change' ? 'block' : 'none';
             }
-            if(elContainerDate !== null) {
+
+            if (elContainerDate !== null) {
                 elContainerDate.style.display = reminderType === 'date' ? 'block' : 'none';
             }
+
+            if (elContainerStep !== null) {
+                elContainerStep.style.display = reminderType === 'step_change' ? 'block' : 'none';
+                populateDropdown();
+            }
+        }
+    }
+
+    function populateDropdown() {
+        let optionList = '';
+        let elStepSelector = document.getElementById('workflow_step');
+        let elSteps;
+
+        clearStepDropdown();
+
+        elSteps = document.createElement("option");
+        elSteps.textContent = 'Select a Step';
+        elSteps.value = '';
+
+        elStepSelector.appendChild(elSteps);
+
+        //workflow_step
+        for (let i in steps) {
+            if (currentStepID !== steps[i].stepID) {
+                elSteps = document.createElement("option");
+                elSteps.textContent = steps[i].stepTitle;
+                elSteps.value = steps[i].stepID;
+
+                if (steps[i].stepID == reminder_step_change) {
+                    elSteps.selected = true;
+                }
+
+                elStepSelector.appendChild(elSteps);
+            }
+        }
+    }
+
+    function clearStepDropdown() {
+        let elStepSelector = document.getElementById('workflow_step');
+        let currentOptions = elStepSelector.options.length - 1;
+
+        for (let i = currentOptions; i >= 0; i--) {
+            elStepSelector.remove(i);
         }
     }
 

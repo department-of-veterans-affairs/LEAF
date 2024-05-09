@@ -692,7 +692,8 @@ class Workflow
                         'AutomateEmailGroup' => $data['AutomatedEmailReminders']['Automate Email Group'],
                         'DaysSelected' => $data['AutomatedEmailReminders']['Days Selected'],
                         'DateSelected' => $data['AutomatedEmailReminders']['Date Selected'],
-                        'AdditionalDaysSelected' => $data['AutomatedEmailReminders']['Additional Days Selected']
+                        'AdditionalDaysSelected' => $data['AutomatedEmailReminders']['Additional Days Selected'],
+                        'MoveStepTo' => $data['AutomatedEmailReminders']['Move Step to'],
                     ]
                 ])
             ];

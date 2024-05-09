@@ -18,8 +18,10 @@ if (!empty($_GET['minutes'])) {
 // this was what the random function I found used.
 $comment = '';
 
-$getWorkflowStepsSQL = 'SELECT workflowID, stepID,stepTitle,stepData
-FROM workflow_steps WHERE stepData LIKE \'%"AutomateEmailGroup":"true"%\';';
+$getWorkflowStepsSQL = 'SELECT `workflowID`, `stepID`, `stepTitle`, `stepData`
+            FROM `workflow_steps`
+            WHERE `stepData` LIKE \'%"AutomateEmailGroup":"true"%\';';
+
 $getWorkflowStepsRes = $db->prepared_query($getWorkflowStepsSQL, []);
 
 // do we have automated notification setup here
@@ -28,10 +30,11 @@ if (empty($getWorkflowStepsRes)) {
     echo "No automated emails setup! \r\n";
     exit();
 }
+
 echo date('Y-m-d H:i:s')."\r\n";
+
 // go over the selected events
 foreach ($getWorkflowStepsRes as $workflowStep) {
-
     // get our data, we need to see how many days back we need to look.
     $eventDataArray = json_decode($workflowStep['stepData'], true, 3);
 
@@ -47,19 +50,27 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     $specificDate = isset($eventDataArray['AutomatedEmailReminders']['DateSelected']) ?
         $eventDataArray['AutomatedEmailReminders']['DateSelected'] : '';
     $formattedDate = null;
-
+    $nextStep = $eventDataArray['AutomatedEmailReminders']['MoveStepTo'];
     $intialCheckpointTimestamp = null;
+
     if (!empty($daysago)) {
-        $reminderType = 'duration';
+        if (!empty($nextStep)) {
+            $reminderType = 'step_change';
+        } else {
+            $reminderType = 'duration';
+        }
+
         $intialCheckpointTimestamp = time() - ((int) $daysago * $timeAdjustment);
     }
+
     if (!empty($specificDate) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $specificDate)) {
         $reminderType = 'date';
         $ymd = explode('-', $specificDate);
         $intialCheckpointTimestamp = mktime(0, 0, 0, (int) $ymd[1], (int) $ymd[2], (int) $ymd[0]);
         $formattedDate = date("F j, Y", $intialCheckpointTimestamp);
     }
-    if($reminderType === null) {
+
+    if ($reminderType === null) {
         continue;
     }
 
@@ -87,10 +98,9 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $getRecordResInitial[$getRecordResInitialKey]['daysSince'] = $daysago;
     }
 
-
     // make sure additional days selected is set, this will be a required field moving forward however there is a chance this could not be set.
     if(empty($eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'])) {
-        if($reminderType === 'duration') {
+        if($reminderType === 'duration' || $reminderType === 'step_change') {
             $eventDataArray['AutomatedEmailReminders']['AdditionalDaysSelected'] =  $daysago;
         } else {
             //additional days should always be set for a date type reminder, but didn't want to put an arbitrary value
@@ -130,15 +140,14 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         continue;
     }
 
-    // go through each and send an email
+    // go through each and send an email, and change step if this is a step change reminder
     foreach ($getRecordRes as $record) {
-
         // get the last action
         $getLastActionVar = [':recordID' => $record['recordID']];
         $getLastActionSql = "SELECT `time` FROM action_history WHERE recordID = :recordID ORDER BY `time` DESC LIMIT 1;";
         $getLastActionRes = $db->prepared_query($getLastActionSql, $getLastActionVar);
 
-        if(!empty($getLastActionRes[0])){
+        if (!empty($getLastActionRes[0])){
             // if this is not empty use the time of the action
             $lastActionTime = $getLastActionRes[0]['time'];
         } else {
@@ -163,10 +172,10 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $pla = (int)$lastActionDays > 1 ? 's' : '';
         $reminderBodyText = "Number of days outstanding: <b>".$lastActionDays." day".$pla."</b>";
 
-        $reminderBodyText .= $reminderType === 'duration' ?
+        $reminderBodyText .= $reminderType === 'duration' || $reminderType === 'step_change' ?
             " (Threshold: ".$record['daysSince']." day".$pl.")" : " (Date reminder: ".$formattedDate.")";
 
-        $daysSinceText = $reminderType === 'duration' || $record['initialNotificationSent'] == 1 ?
+        $daysSinceText = $reminderType === 'duration' || $reminderType === 'step_change' || $record['initialNotificationSent'] == 1 ?
             $record['daysSince']."+ Day" : $formattedDate." Date";
 
         $email->addSmartyVariables(array(
@@ -185,8 +194,32 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $login->logout();
         // login the next user
         $login->loginUser($record['userID']);
-        // assign and send emails 
-        $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$login);
+        // assign and send emails
+        if ($reminderType == 'duration' || $reminderType == 'date') {
+            $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$login);
+        } else {
+            $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_STEP_CHANGE_REMINDER,$login);
+
+            $formWorkflow = new Portal\FormWorkflow($db, $login, $record['recordID']);
+
+            $formWorkflow->setStep($nextStep, false, 'Automated step change reminder');
+            // add the step change logic
+            /* $data = array('CSRFToken' => $_SESSION['CSRFToken'],
+                'title' => $record['title'],
+                'comment' => 'Automated step change reminder',
+                'stepID' => $nextStep);
+            $url = $siteRoot . 'api/formWorkflow/' . $record['recordID'] . '/step';
+
+            $change_step = curl_init();
+            curl_setopt($change_step, CURLOPT_URL, $url);
+            curl_setopt($change_step, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($change_step, CURLOPT_POST, 1);
+            curl_setopt($change_step, CURLOPT_POSTFIELDS, json_encode($data));
+
+            $result = curl_exec($change_step);
+
+            curl_close($change_step); */
+        }
 
         // update the notification timestamp, this could be moved to batch, just trying to get a prototype working
         $updateRecordsWorkflowStateVars = [

@@ -58,6 +58,7 @@ class Email
     const NOTIFY_COMPLETE = -3;
     const EMAIL_REMINDER = -4;
     const AUTOMATED_EMAIL_REMINDER = -5;
+    const AUTOMATED_STEP_CHANGE_REMINDER = -6;
 
     public function __construct()
     {
@@ -676,7 +677,7 @@ class Email
 
                         $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
 
-                        // empuid is required to move forward, make sure this exists before continuing. 
+                        // empuid is required to move forward, make sure this exists before continuing.
                         // This can be a result of user not setting a user in form field
                         if(is_array($resEmpUID) && !empty($resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']])){
 
@@ -728,8 +729,8 @@ class Email
                         $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
                         $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
-                        
-                        // groupid is required to move forward, make sure this exists before continuing. 
+
+                        // groupid is required to move forward, make sure this exists before continuing.
                         // This can be a result of user not setting a group in form field
                         if(is_array($resGroupID) && !empty($resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']])){
                             $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
