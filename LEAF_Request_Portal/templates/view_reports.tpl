@@ -256,6 +256,26 @@ function addHeader(column) {
                  }});
             break;
         case 'days_since_last_action':
+            filterData['lastActionTime'] = 1;
+            headers.push({
+                name: 'Days Since Last Action',
+                indicatorID: 'daysSinceLastAction',
+                editable: false,
+                callback: function(data, blob) {
+                    let daysSinceAction;
+                    let recordBlob = blob[data.recordID];
+                    if(blob[data.recordID].lastActionTime != null) {
+                        let date = new Date(blob[data.recordID].lastActionTime * 1000);
+
+                        daysSinceAction = Math.round((today.getTime() - date.getTime()) / 86400000);
+                    }
+                    else {
+                        daysSinceAction = "Not Submitted";
+                    }
+                    $('#'+data.cellContainerID).html(daysSinceAction);
+                }
+            });
+            break;
         case 'days_since_last_step_movement':
             filterData['action_history.time'] = 1;
             filterData['action_history.stepID'] = 1;

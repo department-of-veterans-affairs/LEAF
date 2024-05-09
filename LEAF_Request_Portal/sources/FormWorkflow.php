@@ -1022,8 +1022,9 @@ class FormWorkflow
                 $vars2 = array(
                     ':recordID' => $this->recordID,
                     ':lastStatus' => $resActionData[0]['actionTextPasttense'],
+                    ':lastActionTime' => $time
                 );
-                $strSQL2 = 'UPDATE records SET lastStatus=:lastStatus
+                $strSQL2 = 'UPDATE records SET lastStatus=:lastStatus, lastActionTime=:lastActionTime
                     WHERE recordID = :recordID';
                 $this->db->prepared_query($strSQL2, $vars2);
 
