@@ -13,6 +13,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
@@ -20,6 +22,8 @@ import org.testng.annotations.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Random;
 
@@ -34,7 +38,7 @@ public class BasePage extends Utility {
     @Parameters({ "env", "browser"})
     @BeforeTest()
     public void setUp(@Optional("") String env, @Optional("CHROME") String browser) {
-        browserInitialization(browser,env);
+        browserInitialization(browser.toLowerCase(),env.toLowerCase());
         log.info("Title: "+driver.getCurrentUrl()+" -->"+driver.getTitle());
     }
 
@@ -84,7 +88,8 @@ public class BasePage extends Utility {
 
     //Initializing the driver and maximize the window size
     public static void browserInitialization(String browser, String env){
-        getDriver(browser);
+        System.out.println("browser: " + browser + " -- environment: " + env);
+        getDriver(browser, env);
         driver.manage().window().maximize();
         log.warn("Maximizing window size");
         driver.manage().deleteAllCookies();
@@ -103,13 +108,30 @@ public class BasePage extends Utility {
     }
 
 
-    public static WebDriver getDriver(String browserName){
-        if(browserName.toLowerCase().equals("chrome")){
-            initializeChrome();
+    public static WebDriver getDriver(String browserName, String env){
+        DesiredCapabilities cap = new DesiredCapabilities();
+        cap.setBrowserName(browserName);
+        if(env.equals("remote")){
+            try{
+                driver = new RemoteWebDriver(new URL(Constants.getRemote_url()), cap);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            
+        } else {
+            if(browserName.toLowerCase().equals("chrome")){
+                if(env.equals("remote")){
+                } else {
+                    initializeChrome();
+                }
+                
+            }
+            else if (browserName.toLowerCase().equals("firefox")) {
+                initializeFirefox();
+            }
         }
-        else if (browserName.toLowerCase().equals("firefox")) {
-            initializeFirefox();
-        }
+
+        
         return driver;
     }
 

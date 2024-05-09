@@ -15,7 +15,7 @@ COPY src src
 
 # Copy the Project Object Model (POM) file to the container's /app directory
 COPY pom.xml .
-RUN mvn clean install
+# RUN mvn clean install
 # Define the entry point for the container, specifying Maven as the command to run
 ENTRYPOINT ["mvn"]
 
