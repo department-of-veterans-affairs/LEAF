@@ -1130,7 +1130,7 @@ class Form
             $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID)
                                                    VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)', $vars);
         }
-
+        /*  signatures (not yet implemented)
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series, );
@@ -1141,7 +1141,7 @@ class Form
 
         if (strpos($res[0]['format'], 'signature') == 0) {
             // $this->writeSignature($recordID);
-        }
+        }*/
         return 1;
     }
 
