@@ -4,7 +4,8 @@ FROM php:8.1.28-fpm-bullseye
 RUN apt update
 RUN apt install -y openjdk-11-jdk maven
 
-COPY startup.sh /startup.sh
+COPY docker/startup.sh /startup.sh
+COPY docker/index.php /var/www/html/selenium-tests/index.php
 RUN chmod +x /startup.sh
 
 # Set the working directory to /app
@@ -15,7 +16,7 @@ COPY src src
 
 # Copy the Project Object Model (POM) file to the container's /app directory
 COPY pom.xml .
-RUN mvn clean install
+COPY testng.xml .
 
 # Define the entry point for the container, specifying Maven as the command to run
 # ENTRYPOINT 
