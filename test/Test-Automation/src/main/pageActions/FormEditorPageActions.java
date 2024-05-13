@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
 
 public class FormEditorPageActions extends BasePage {
@@ -37,15 +37,18 @@ public class FormEditorPageActions extends BasePage {
     @FindBy(xpath ="//*[text()=' Staple other form']")
     WebElement stapleForm;
 
-    @FindBy(id="mergedForms")
+        @FindBy(id="mergedForms")
     WebElement mergeForm;
 
     @FindBy(id="stapledCategoryID")
     WebElement formOptions;
 
+    @FindBy(xpath="//span[@id='ui-id-3']//following::span[1]")
+    WebElement dialogueCloseBtn;
+
 
     public FormEditorPageActions() {
-        PageFactory.initElements(driver, this);
+      super();
     }
 
 
@@ -93,7 +96,7 @@ public class FormEditorPageActions extends BasePage {
             confirmDeleteButton.click();
            }
         formDeleted = checkFormExists(FormName);
-        Assert.assertEquals(formDeleted, false);
+        Assert.assertEquals(formDeleted, true);
         log.info("Validating Form Deleted Successfully");
     }
 
@@ -109,14 +112,21 @@ public class FormEditorPageActions extends BasePage {
         log.info("Validating Form Not Deleted Successfully");
     }
 
-    public void stapleForm(String FormName) {
+    public void stapleForm(String StapleOtherFormName) {
         setExplicitWaitForElementToBeVisible(stapleForm,20);
         stapleForm.click();
         setExplicitWaitForElementToBeVisible(mergeForm, 10);
         mergeForm.click();
         setExplicitWaitForElementToBeVisible(formOptions, 10);
-        Boolean formOpened = formLabel.isDisplayed();
-        Assert.assertEquals(formOpened, true);
+        Select dropDown = new Select(formOptions);
+        dropDown.selectByVisibleText(StapleOtherFormName);
+        saveButton.click();
+        log.info("Stapling " + StapleOtherFormName);
+        Boolean formStapled = mergeForm.getText().contains(StapleOtherFormName);
+        dialogueCloseBtn.click();
+        Assert.assertEquals(formStapled, true);
     }
+
+
 
 }

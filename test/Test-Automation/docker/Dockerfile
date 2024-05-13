@@ -2,13 +2,13 @@
 FROM alpine:3.14
 
 # Update package index and install OpenJDK 11 and Maven
-RUN apk update && apk add openjdk11 && apk add maven
-
-#COPY script/startup.sh /
-#RUN chmod +x /startup.sh
+RUN apk update && apk add openjdk11 maven
 
 # Set the working directory to /app
 WORKDIR /app
+
+# Copy the testng.xml file to the container's /app directory
+COPY testng.xml .
 
 # Copy the source code from the local machine to the container's /app directory
 COPY src src
@@ -20,6 +20,4 @@ COPY pom.xml .
 ENTRYPOINT ["mvn"]
 
 # Set the default command for the container to run the "test" goal when started
-#CMD ["test"]
-
-#ENTRYPOINT ["/startup.sh"]
+# CMD ["test"]
