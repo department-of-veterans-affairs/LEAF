@@ -17,11 +17,10 @@ COPY src src
 # Copy the Project Object Model (POM) file to the container's /app directory
 COPY pom.xml .
 COPY testng.xml .
+RUN chown -R www-data:www-data /app
+RUN chown -R www-data:www-data /var/www
 
 # Define the entry point for the container, specifying Maven as the command to run
 # ENTRYPOINT 
-
-# Set the default command for the container to run the "test" goal when started
-#CMD ["test"]
 
 CMD "/startup.sh"

@@ -13,9 +13,10 @@ services:
       - ui-test
     volumes:
       # - ./output:/app/target
-      - ./index.php:/var/www/html/selenium-tests/index.php
+      - ./index.php:/app/index.php
       - ../src:/app/src
       - ../testng.xml:/app/testng.xml
+      
   chrome:
     image: selenium/standalone-chrome
     container_name: selenium-chrome

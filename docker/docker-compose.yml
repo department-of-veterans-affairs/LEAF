@@ -67,7 +67,7 @@ services:
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
-            #      - ./nginx/src:/var/www/html
+            - ./nginx/src:/var/www/html
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
         volumes_from:
             - leaf-php-8
