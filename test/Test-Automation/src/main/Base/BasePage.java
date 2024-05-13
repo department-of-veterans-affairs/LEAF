@@ -113,14 +113,8 @@ public class BasePage extends Utility {
     }
 
     //Initializing the driver and maximize the window size
-<<<<<<< HEAD
-    public static void browserInitialization(String browser, String env){
-        System.out.println("browser: " + browser + " -- environment: " + env);
-        getDriver(browser, env);
-=======
     public static void browserInitialization(String browser,String env) throws MalformedURLException {
         getDriver(browser);
->>>>>>> test-refractor
         driver.manage().window().maximize();
         log.warn("Maximizing window size");
         driver.manage().deleteAllCookies();

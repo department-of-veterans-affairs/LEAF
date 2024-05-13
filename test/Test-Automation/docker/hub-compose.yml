@@ -1,4 +1,3 @@
-<<<<<<< HEAD:test/Test-Automation/docker/hub-compose.yml
 version: '3.7'
 services:
   test-api:
@@ -63,78 +62,4 @@ networks:
 
 
     # ping leaf-flm
-=======
-version: '2.2'
-services:
-  app:
-    build:
-      context: ./
-
-    container_name: app_test1
-    volumes:
-      - ./output:/app/target
-
-    network_mode: host
-      #networks:
-    #- ui-test
-    #   should be pass during docker compose up -d app
-    # SCRIPT=test.java.formWorkflow.formWorkflow_Test
-    command: ["test","-Dremote.url= http://host.docker.internal:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-      #links:
-      # - "chrome"
-      #external_links:
-      # - "leaf-fpm"
-      # depends_on:
-      #  chrome:
-      #   condition: service_healthy
-
-  #http://192.168.86.248/LEAF_Request_Portal/admin/?a=form_vue#/
-  #http://leaf-php-8/LEAF_Request_Portal/admin/?a=form_vue#/
-
-
-  chrome:
-    image: selenium/standalone-chrome:4.18.1-20240224
-    container_name: selenium-chrome
-    networks:
-      - ui-test
-      - leaf
-    ports:
-      - "4445:4444"
-    shm_size: '2g'
-
-
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    environment:
-      - SE_NODE_MAX_INSTANCES=2
-      - SE_NODE_MAX_SESSIONS=2
-      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
-      - SE_NODE_SESSION_TIMEOUT=30
-
-    healthcheck:
-      test: curl --fail http://localhost:4444 || exit 1
-      interval: 5s
-      timeout: 10s
-      retries: 5
-
-
-networks:
-  ui-test:
-    name: ui-test
-  leaf:
-    external: true
-
-
-    #http://leaf-flm:33709/LEAF_Request_Portal/index.php
-    #http://leaf-php-8:33709/LEAF_Request_Portal/index.php
-    #https://host.docker.internal/LEAF_Request_Portal/index.php
-    #http://leaf-php-8/LEAF_Request_Portal/admin/?a=form_vue#/
-    #https://host.docker.internal/LEAF_Request_Portal/admin/?a=form_vue#/
-
-
-    # ping leaf-flm
->>>>>>> test-refractor:test/Test-Automation/docker-compose.yml
     # ping leaf-php-8
