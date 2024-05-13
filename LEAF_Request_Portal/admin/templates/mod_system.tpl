@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <div style="display:flex; gap: 0.5em; align-items: center; margin-top:0.75rem;">
+            <div style="display:flex; flex-wrap: wrap; gap: 0.5em; align-items: center; margin-top:0.75rem;">
                 <button class="usa-button" id="btn_save" type="button">Save</button>
                 <h3 id="progress" style="color: #c00; margin:0;"></h3>
             </div>
@@ -105,6 +105,7 @@ function saveSettings() {
     const national_linkedPrimary = $('#national_linkedPrimary').val();
 
     let calls = [];
+    let errors = [];
     if (siteSettings.heading !== heading) {
         calls.push(
             $.ajax({
@@ -116,9 +117,11 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.heading = heading;
+                    $('#headerDescription').html(heading);
                 },
                 error: function(err) {
                     console.log(err);
+                    errors.push('Error saving site Title');
                 }
             })
         );
@@ -134,9 +137,11 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.subHeading = subHeading;
+                    $('#logo .leaf-site-title').html(subHeading);
                 },
                 error: function(err) {
                     console.log(err);
+                    errors.push('Error saving site Facility Name');
                 }
             })
         );
@@ -155,6 +160,7 @@ function saveSettings() {
                 },
                 error: function(err) {
                     console.log(err);
+                    errors.push("Error saving Label for Request");
                 }
             })
         );
@@ -170,6 +176,10 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.timeZone = timeZone;
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push("Error saving TimeZone");
                 }
             })
         );
@@ -185,6 +195,10 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.siteType = siteType;
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push("Error saving siteType");
                 }
             }),
         );
@@ -200,6 +214,10 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.national_linkedSubordinateList = national_linkedSubordinateList;
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push("Error saving Subordinate Site URLs");
                 }
             })
         );
@@ -215,6 +233,10 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.national_linkedPrimary = national_linkedPrimary;
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push("Error saving Primary Site URL");
                 }
             })
         );
@@ -227,16 +249,26 @@ function saveSettings() {
     } else {
         $('#btn_save').prop('disabled', true);
         $('#btn_save').html('Saving...');
-        $.when.apply(undefined, calls).then(function(res) {
-            $('#btn_save').prop('disabled', false);
-            $('#btn_save').html('Save');
-            $('#progress').html('Settings saved.');
-            setListeners();
-            $('#national_linkedPrimary').trigger('change');
-            $('#progress').fadeIn(10, function() {
-                $('#progress').fadeOut(2000);
-            });
-        });
+        $.when.apply(undefined, calls)
+        .then(
+            function() { //on success
+                $('#btn_save').prop('disabled', false);
+                $('#btn_save').html('Save');
+                $('#progress').html('Settings saved.');
+                setListeners();
+                $('#national_linkedPrimary').trigger('change');
+                $('#progress').fadeIn(10, function() {
+                    $('#progress').fadeOut(2000);
+                });
+            },
+            function() { //on error
+                $('#btn_save').prop('disabled', false);
+                $('#btn_save').html('Save');
+                let errorText = errors.map(msg => msg + '<br>');
+                $('#progress').html(errorText);
+                $('#progress').fadeIn();
+            }
+        );
     }
 
 }
