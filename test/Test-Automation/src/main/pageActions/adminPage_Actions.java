@@ -3,13 +3,12 @@ package main.pageActions;
 import main.Base.BasePage;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 public class adminPage_Actions extends BasePage {
 
 
     public adminPage_Actions(){
-        PageFactory.initElements(driver,this);
+       super();
     }
 
     @FindBy(linkText="Home")
@@ -33,7 +32,7 @@ public class adminPage_Actions extends BasePage {
     @FindBy(xpath="//span[text()='Service Chiefs']")
     WebElement serviceChiefsIcon;
 
-    @FindBy(linkText="Workflow Editor")
+    @FindBy(xpath="//span[text()='Workflow Editor']")
     WebElement workflowEditor;
 
     @FindBy(xpath="//span[text()='Form Editor']")

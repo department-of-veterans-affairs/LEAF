@@ -2,6 +2,7 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="RegressionSuite" thread-count="1" parallel="false" configfailurepolicy="continue">
 	<test name="Forms Workflow">
+		<parameter name = "env" value="qa"/>
 			<classes>
 				<class name="test.java.formWorkflow.FormEditorTests"/>
 			</classes>
