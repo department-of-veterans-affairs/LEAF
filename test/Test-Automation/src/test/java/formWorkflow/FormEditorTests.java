@@ -6,7 +6,6 @@ import main.pageActions.adminPage_Actions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.ITestContext;
-import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -17,11 +16,7 @@ public class FormEditorTests extends BasePage {
     adminPage_Actions adminPageActions;
     FormEditorPageActions formEditorPageActions;
 
-    public FormEditorTests() {
-        super();
-    }
-
-    @BeforeTest(dependsOnMethods = {"setUp"})
+    @BeforeTest()
     public void TestInitialization(ITestContext context) {
         extentTest = extentReports.createTest(context.getName());
         adminPageActions = new adminPage_Actions();
@@ -30,23 +25,23 @@ public class FormEditorTests extends BasePage {
         formEditorPageActions = new FormEditorPageActions();
     }
 
-    @Test(priority = 1)
+    @Test()
     public void validateCreateForm() {
-        formEditorPageActions.createForm("TestForm-2", "TestFormDescription-2");
+        formEditorPageActions.createForm("TestForm-1", "TestFormDescription-1");
         extentTest.info("Verify that the form is created successfully");
     }
 
-    @Test(priority = 2)
-    public void deleteForm() {
-        formEditorPageActions.deleteForm("TestForm-2");
+    @Test(dependsOnMethods = {"validateCreateForm"})
+    public void validateStapleForm() {
+        formEditorPageActions.stapleForm("AS - Vacation Reservations");
+        extentTest.info("Verify that the form is stapled successfully");
+    }
+
+    @Test()
+    public void validateDeleteForm() {
+        formEditorPageActions.deleteForm("TestForm-1");
         extentTest.info("Verify that the form is deleted successfully");
     }
 
-    @AfterTest
-    public void tearDown() {
-        extentTest.info("Form Editor Tests case execution is completed");
-        log.info("Form Editor Tests case execution is completed");
-
-    }
 
 }

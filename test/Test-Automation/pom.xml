@@ -7,17 +7,19 @@
     <version>1.0.0</version>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <class.name>main.java.formWorkflow.FormEditorTests</class.name>
         <app.url>https://localhost/LEAF_Request_Portal/admin/?a=form#</app.url>
-        <selenium.version>4.18.0</selenium.version>
+        <selenium.version>4.20.0</selenium.version>
         <testng.version>7.8.0</testng.version>
         <log4j.version>2.19.0</log4j.version>
         <commons-io.version>2.16.1</commons-io.version>
         <kotlin.version>1.7.10</kotlin.version>
     </properties>
+
 
     <dependencies>
         <dependency>
@@ -31,6 +33,13 @@
             <artifactId>testng</artifactId>
             <version>${testng.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -137,6 +146,33 @@
                     </suiteXmlFiles>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.dkanejs.maven.plugins</groupId>
+                <artifactId>docker-compose-maven-plugin</artifactId>
+                <version>4.0.0</version>
+                <executions>
+                    <execution>
+                        <id>docker-compose-up</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>up</goal>
+                        </goals>
+                        <configuration>
+                            <composeFiles>
+                                <composeFile>docker-compose.yml</composeFile>
+                            </composeFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>docker-compose-down</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>down</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>

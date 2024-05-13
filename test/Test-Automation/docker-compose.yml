@@ -9,24 +9,24 @@ services:
       - ./output:/app/target
 
     network_mode: host
-    #networks:
-     #- ui-test
+      #networks:
+    #- ui-test
     #   should be pass during docker compose up -d app
     # SCRIPT=test.java.formWorkflow.formWorkflow_Test
     command: ["test","-Dremote.url= http://host.docker.internal:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-    #links:
-     # - "chrome"
-    #external_links:
-     # - "leaf-fpm"
-   # depends_on:
-    #  chrome:
-     #   condition: service_healthy
+      #links:
+      # - "chrome"
+      #external_links:
+      # - "leaf-fpm"
+      # depends_on:
+      #  chrome:
+      #   condition: service_healthy
 
-#http://192.168.86.248/LEAF_Request_Portal/admin/?a=form_vue#/
-#http://leaf-php-8/LEAF_Request_Portal/admin/?a=form_vue#/
+  #http://192.168.86.248/LEAF_Request_Portal/admin/?a=form_vue#/
+  #http://leaf-php-8/LEAF_Request_Portal/admin/?a=form_vue#/
 
 
   chrome:
