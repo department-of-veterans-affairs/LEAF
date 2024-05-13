@@ -310,7 +310,9 @@ $(function() {
                 
                 $('#employeeName').html('<!--{$summary.employee.firstName|escape}--> <!--{$summary.employee.lastName|escape}--> <span id="disabled_label" class="<!--{if $summary.employee.deleted == 0}-->notrequired<!--{/if}-->">(Disabled account)</span>');
                 $('#employeeAccount').html("<!--{$summary.employee.userName}-->");
-                $('#employeeLastUpdated').html("Updated: <!--{date('F j Y @ g:ia e', (int)$summary.employee.lastUpdated)}-->");
+                let lastUpdatedDate = new Date(<!--{(int)$summary.employee.lastUpdated*1000}-->)
+                let lastUpdatedFormatted = new Intl.DateTimeFormat('en-US',{dateStyle: 'short',timeStyle: 'short'}).format(lastUpdatedDate)
+                $('#employeeLastUpdated').html(`Updated: ${lastUpdatedFormatted}`);
                 $('#employeeBody').html(response);
             }
             else {
