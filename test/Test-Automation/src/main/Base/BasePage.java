@@ -24,10 +24,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-<<<<<<< HEAD
-import java.net.URL;
-=======
->>>>>>> test-refractor
 import java.time.Duration;
 import java.util.Random;
 
@@ -40,15 +36,6 @@ public class BasePage extends Utility {
     public JavascriptExecutor js = (JavascriptExecutor) driver;
 
     @Parameters({ "env", "browser"})
-<<<<<<< HEAD
-    @BeforeTest()
-    public void setUp(@Optional("") String env, @Optional("CHROME") String browser) {
-        browserInitialization(browser.toLowerCase(),env.toLowerCase());
-        log.info("Title: "+driver.getCurrentUrl()+" -->"+driver.getTitle());
-    }
-
-=======
->>>>>>> test-refractor
     @BeforeSuite
     public void setUp(@Optional("qa") String env, @Optional("CHROME") String browser) throws MalformedURLException{
         browserInitialization(browser,env);
@@ -114,7 +101,9 @@ public class BasePage extends Utility {
 
     //Initializing the driver and maximize the window size
     public static void browserInitialization(String browser,String env) throws MalformedURLException {
+        System.out.println("toga: " + env);
         getDriver(browser);
+        System.out.println("simbabsf: " + HUB_URL);
         driver.manage().window().maximize();
         log.warn("Maximizing window size");
         driver.manage().deleteAllCookies();
@@ -122,6 +111,7 @@ public class BasePage extends Utility {
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(Constants.pageLoadTimeOut));
         log.warn("Page load Timeout duration :"+ Constants.pageLoadTimeOut);
         if(env.equalsIgnoreCase("remote")){
+            System.out.println("remote: " + Constants.getRemote_url());
             driver = createDriver();
             driver.get(Constants.getRemote_url());
             log.info("Fetching Remote URL on docker hub : "+ Constants.getRemote_url());
@@ -133,35 +123,10 @@ public class BasePage extends Utility {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Constants.implicitWaitTime));
     }
 
-<<<<<<< HEAD
-
-    public static WebDriver getDriver(String browserName, String env){
-        DesiredCapabilities cap = new DesiredCapabilities();
-        cap.setBrowserName(browserName);
-        if(env.equals("remote")){
-            try{
-                driver = new RemoteWebDriver(new URL(Constants.getRemote_url()), cap);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            
-        } else {
-            if(browserName.toLowerCase().equals("chrome")){
-                if(env.equals("remote")){
-                } else {
-                    initializeChrome();
-                }
-                
-            }
-            else if (browserName.toLowerCase().equals("firefox")) {
-                initializeFirefox();
-            }
-=======
         public static WebDriver getDriver(String browserName){
         if(browserName.toLowerCase().equals("chrome")){
             initializeChrome();
-        }
-        else if (browserName.toLowerCase().equals("firefox")) {
+        } else if (browserName.toLowerCase().equals("firefox")) {
             initializeFirefox();
         } else if(browserName.toLowerCase().equals("remote")){
             try {
@@ -172,7 +137,6 @@ public class BasePage extends Utility {
         }
         else{
             log.error("Browser not found");
->>>>>>> test-refractor
         }
 
         
