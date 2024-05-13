@@ -9,13 +9,25 @@ $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf
 
 $orgcharts = $db->query("SELECT `site_path` FROM `sites` WHERE `site_type` = 'orgchart'");
 $dir = '/var/www/html';
+
+$failedArray = [];
+
 foreach ($orgcharts as $orgchart) {
     echo "Orgchart: " . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
     if (is_file($dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php')) {
-        echo exec('php ' . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php') . "\r\n";
+        $response = exec('php ' . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php') . "\r\n";
+        if($response == '0'){
+            $failedArray[] = $orgchart['site_path'].' (Failed)';
+        }
     } else {
+        $failedArray[] = $orgchart['site_path'].' (File Not Found)';
         echo "File was not found\r\n";
     }
+}
+
+// send email this could be brought into the class to allow for reuse
+if(!empty($failedArray)){
+    mail('shane.ottinger@va.gov','Orgchar Refresh Error',var_export($failedArray));
 }
 
 $endTime = microtime(true);

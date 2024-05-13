@@ -24,7 +24,7 @@ $oc_login->loginUser();
 
 // prevent updating if orgchart is the same
 if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
-    echo 1; // success value
+    echo 0; // success value
 } else {
 
     if (!empty($_GET['userName']) && !empty($_GET['empUID'])) {
