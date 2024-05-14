@@ -14,7 +14,7 @@ public class Constants {
 
     private static String env_URL = "https://host.docker.internal/LEAF_Request_Portal/admin/";
 
-    public static String HUB_URL = "http://localhost:4444/wd/hub";
+    public static String HUB_URL = "http://localhost:4445/wd/hub";
 
     private static String remote_url = "https://www.google.com";
     public static String browser = "remote";
