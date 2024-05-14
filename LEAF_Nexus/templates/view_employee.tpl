@@ -24,6 +24,7 @@
         <div id="employeeHeader">
             <div id="employeeName">Employee Search:</div>
             <div id="employeeAccount"></div>
+            <div id="employeeLastUpdated" style="font-style: italic; color: #111"></div>
         </div>
         <div id="employeeBody">
                 <div id="employeeSelector"></div>
@@ -306,10 +307,15 @@ $(function() {
         url: "ajaxEmployee.php?a=getForm&empUID=<!--{$empUID}-->",
         success: function(response) {
             if(response != '') {
+
                 const content = '<!--{$summary.employee.firstName|escape}--> <!--{$summary.employee.lastName|escape}-->' +
                  ' <span id="disabled_label" <!--{if $summary.employee.deleted == 0}-->style="display: none;"<!--{/if}-->">(Disabled account)</span>';
                 $('#employeeName').html(content);
+
                 $('#employeeAccount').html("<!--{$summary.employee.userName}-->");
+                let lastUpdatedDate = new Date(<!--{(int)$summary.employee.lastUpdated*1000}-->)
+                let lastUpdatedFormatted = new Intl.DateTimeFormat('en-US',{dateStyle: 'short',timeStyle: 'short'}).format(lastUpdatedDate)
+                $('#employeeLastUpdated').html(`Updated: ${lastUpdatedFormatted}`);
                 $('#employeeBody').html(response);
             }
             else {
