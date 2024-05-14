@@ -299,7 +299,7 @@
             // index by roles
             for(let depID in dataInboxes[sites[i].url][j].unfilledDependencyData) {
                 let uDD = dataInboxes[sites[i].url][j].unfilledDependencyData[depID];
-                let roleID = depID;
+                let roleID = String(depID) + dataInboxes[sites[i].url][j].stepID;
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     roleID = Sha1.hash(uDD.approverUID);
@@ -675,7 +675,7 @@
     function buildWorkflowCategoryCache(site) {
         return $.ajax({
             type: 'GET',
-            url: site.url + 'api/workflow/categories?x-filterData=categoryID',
+            url: site.url + 'api/workflow/categories?includeStandardLEAF&x-filterData=categoryID',
             success: function(res) {
                 res.forEach(w => {
                     dataWorkflowCategories[w.categoryID] = 1;

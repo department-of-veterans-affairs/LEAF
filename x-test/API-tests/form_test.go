@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"net/url"
+	"strconv"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -83,5 +85,68 @@ func TestForm_WorkflowIndicatorAssigned(t *testing.T) {
 	want := `[]`
 	if !cmp.Equal(got, want) {
 		t.Errorf("./api/form/508/workflow/indicator/assigned = %v, want = %v", got, want)
+	}
+}
+
+func TestForm_IsMaskable(t *testing.T) {
+	res, _ := httpGet(rootURL + "api/form/_form_ce46b")
+
+	var m FormCategoryResponse
+	err := json.Unmarshal([]byte(res), &m)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if m[0].IsMaskable != nil {
+		t.Errorf("./api/form/_form_ce46b isMaskable = %v, want = %v", m[0].IsMaskable, nil)
+	}
+
+	res, _ = httpGet(rootURL + "api/form/_form_ce46b?context=formEditor")
+
+	err = json.Unmarshal([]byte(res), &m)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if *m[0].IsMaskable != 0 {
+		t.Errorf("./api/form/_form_ce46b?context=formEditor isMaskable = %v, want = %v", m[0].IsMaskable, "0")
+	}
+}
+
+func TestForm_NonadminCannotCancelOwnSubmittedRecord(t *testing.T) {
+	// Setup conditions
+	postData := url.Values{}
+	postData.Set("CSRFToken", csrfToken)
+	postData.Set("numform_5ea07", "1")
+	postData.Set("title", "TestForm_NonadminCannotCancelOwnSubmittedRecord")
+	postData.Set("8", "1")
+	postData.Set("9", "112")
+
+	// TODO: streamline this
+	res, _ := client.PostForm(rootURL+`api/form/new`, postData)
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var response string
+	json.Unmarshal(bodyBytes, &response)
+	recordID, err := strconv.Atoi(string(response))
+
+	if err != nil {
+		t.Errorf("Could not create record for TestForm_NonadminCannotCancelOwnSubmittedRecord: " + err.Error())
+	}
+
+	postData = url.Values{}
+	postData.Set("CSRFToken", csrfToken)
+	client.PostForm(rootURL+`api/form/`+strconv.Itoa(recordID)+`/submit`, postData)
+
+	// Non-admin shouldn't be able to cancel a submitted record
+	postData = url.Values{}
+	postData.Set("CSRFToken", csrfToken)
+
+	res, _ = client.PostForm(rootURL+`api/form/`+strconv.Itoa(recordID)+`/cancel?masquerade=nonAdmin`, postData)
+	bodyBytes, _ = io.ReadAll(res.Body)
+	json.Unmarshal(bodyBytes, &response)
+	got := response
+
+	if got == "1" {
+		t.Errorf("./api/form/[recordID]/cancel got = %v, want = %v", got, "An error message")
 	}
 }

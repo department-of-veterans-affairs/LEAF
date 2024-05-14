@@ -60,6 +60,9 @@ export default {
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
             return `${page}${staple}${name}${shortLabel}${contentRequired}`;
         },
+        hasSpecialAccessRestrictions() {
+            return parseInt(this.formNode.isMaskable) === 1;
+        },
         required() {
             return parseInt(this.formNode.required) === 1;
         },
@@ -117,6 +120,7 @@ export default {
                         </button>
                         <div style="margin-left: auto; grid-area: 1 / 3 / 2 / 4">
                             <span v-if="sensitive"><img :src="libsPath + 'dynicons/svg/eye_invisible.svg'" style="width: 16px; vertical-align: middle; margin: 0 4px 2px 0" alt="" class="sensitive-icon" title="This field is sensitive" /></span>
+                            <span v-if="hasSpecialAccessRestrictions" role="img" aria="" alt="" title="special access restrictions are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">🔒</span>
                             <span v-if="conditionalQuestion" role="img" aria="" alt="" title="conditional logic is present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⛓️</span>
                             <span v-if="hasCode" role="img" aria="" alt="" title="advanced options are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⚙️</span>
                         </div>
