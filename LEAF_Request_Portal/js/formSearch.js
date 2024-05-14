@@ -17,6 +17,8 @@ var LeafFormSearch = function (containerID) {
     var widgetCounter = 0;
     var rootURL = "";
     var app_js_path = "";
+    let openedAdvancedSearch = false;
+    let cache = {};
 
     // constants
     var ALL_DATA_FIELDS = "0";
@@ -117,6 +119,10 @@ var LeafFormSearch = function (containerID) {
                     $("#" + prefixID + "widgetMat_0").focus();
                 }
             );
+            if(!openedAdvancedSearch) {
+                openedAdvancedSearch = true;
+                newSearchWidget();
+            }
         });
 
         $("#" + prefixID + "advancedSearchApply").on("click", function () {
@@ -140,8 +146,6 @@ var LeafFormSearch = function (containerID) {
                 search($("#" + prefixID + "searchtxt").val());
             }
         });
-
-        newSearchWidget();
     }
 
     /**
@@ -275,6 +279,7 @@ var LeafFormSearch = function (containerID) {
                     renderWidget(i);
                 }
                 $("#" + prefixID + "widgetCod_" + i).val(advSearch[i].operator);
+                $("#" + prefixID + "widgetCod_" + i).trigger("chosen:updated");
                 if (typeof advSearch[i].match == "string" && advSearch[i].operator.indexOf('MATCH') == -1) {
                     $("#" + prefixID + "widgetMat_" + i).val(
                         advSearch[i].match.replace(/\*/g, "")
@@ -688,7 +693,7 @@ var LeafFormSearch = function (containerID) {
     /**
      * @memberOf LeafFormSearch
      */
-    function renderWidget(widgetID, callback) {
+    async function renderWidget(widgetID, callback) {
         let url;
         switch ($("#" + prefixID + "widgetTerm_" + widgetID).val()) {
             case "title":
@@ -935,57 +940,46 @@ var LeafFormSearch = function (containerID) {
                 $(`#${prefixID}widgetCod_${widgetID}`).on("change", checkDateStatus);
                 url =
                     rootURL === ""
-                        ? "./api/workflow/steps"
-                        : rootURL + "api/workflow/steps";
-                $.ajax({
-                    type: "GET",
-                    url,
-                    dataType: "json",
-                    success: function (res) {
-                        let allStepsData = res;
-                        var categories =
-                            '<select id="' +
-                            prefixID +
-                            "widgetMat_" +
-                            widgetID +
-                            '" class="chosen" aria-label="stepID" style="width: 250px">';
-                        categories +=
-                            '<option value="submitted">Submitted</option>';
-                        categories +=
-                            '<option value="deleted">Cancelled</option>';
-                        categories +=
-                            '<option value="resolved" selected>Resolved</option>';
-                        categories +=
-                            '<option value="actionable">Actionable by me</option>';
-                        //categories += '<option value="destruction">Scheduled for Destruction</option>';
-                        for (var i in allStepsData) {
-                            categories +=
-                                '<option value="' +
-                                allStepsData[i].stepID +
-                                '">' +
-                                allStepsData[i].description +
-                                ": " +
-                                allStepsData[i].stepTitle +
-                                "</option>";
+                        ? "./api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description"
+                        : rootURL + "api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description";
+                if(cache['api/workflow/steps'] == undefined) {
+                    cache['api/workflow/steps'] = $.ajax({
+                        type: "GET",
+                        url,
+                        dataType: "json"
+                    }).then(res => {
+                        // Hide standard workflows unless the GET parameter "dev" exists
+                        if(new URLSearchParams(window.location.search).get('dev') == null) {
+                            res = res.filter(step => step.workflowID > 0);
                         }
-                        categories += "</select>";
-                        // quick and dirty fix to avoid a race condition related to common
-                        // implementations of formSearch. Since the new default UI will trigger
-                        // the parent ajax call, we don't want to overwrite the existing widget.
-                        // This can cause a minor UX issue where changing the search term from anything
-                        // else to a "Current Status" would result in a missing dropdown of status options.
-                        if($("#" + prefixID + "widgetMatch_" + widgetID).html() == "") {
-                            $("#" + prefixID + "widgetMatch_" + widgetID).html(
-                                categories
-                            );
-                        }
+                        return res;
+                    }).catch(error => {
+                        console.error(error);
+                    });
+                }
+                let allStepsData = await cache['api/workflow/steps'];
+                let categories = `<select id="${prefixID}widgetMat_${widgetID}" class="chosen" aria-label="stepID" style="width: 250px">
+                                    <option value="submitted">Submitted</option>
+                                    <option value="deleted">Cancelled</option>
+                                    <option value="resolved" selected>Resolved</option>
+                                    <option value="actionable">Actionable by me</option>`;
+                //categories += '<option value="destruction">Scheduled for Destruction</option>';
+                for (let i in allStepsData) {
+                    categories += `<option value="${allStepsData[i].stepID}">${allStepsData[i].description}: ${allStepsData[i].stepTitle}</option>`;
+                }
+                categories += "</select>";
+                // quick and dirty fix to avoid a race condition related to common
+                // implementations of formSearch. Since the new default UI will trigger
+                // the parent ajax call, we don't want to overwrite the existing widget.
+                if($("#" + prefixID + "widgetTerm_" + widgetID).val() == 'stepID') {
+                    $("#" + prefixID + "widgetMatch_" + widgetID).html(
+                        categories
+                    );
+                }
 
-                        chosenOptions();
-                        if (callback != undefined) {
-                            callback();
-                        }
-                    },
-                });
+                if (callback != undefined) {
+                    callback();
+                }
                 break;
             case "data":
                 let resultFilter =
@@ -1480,6 +1474,7 @@ var LeafFormSearch = function (containerID) {
                 );
                 break;
         }
+        chosenOptions();
     }
 
     /**

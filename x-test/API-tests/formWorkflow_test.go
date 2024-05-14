@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -23,7 +25,7 @@ func getFormWorkflow(url string) FormWorkflowResponse {
 }
 
 func TestFormWorkflow_currentStepPersonDesignatedAndGroup(t *testing.T) {
-	res := getFormWorkflow(rootURL + `api/formWorkflow/484/currentStep`)
+	res := getFormWorkflow(RootURL + `api/formWorkflow/484/currentStep`)
 
 	got := res[9].Description
 	want := "Group A"
@@ -41,5 +43,41 @@ func TestFormWorkflow_currentStepPersonDesignatedAndGroup(t *testing.T) {
 	// approverName should not exist for depID 9
 	if gotPtr != nil {
 		t.Errorf("ApproverName = %v, want = %v", *gotPtr, nil)
+	}
+}
+
+func TestFormWorkflow_ApplyAction(t *testing.T) {
+	// Test invalid ID
+	postData := url.Values{}
+	postData.Set("CSRFToken", CsrfToken)
+	postData.Set("dependencyID", "invalid id")
+	postData.Set("actionType", "approve")
+	res, _ := client.PostForm(RootURL+`api/formWorkflow/8/apply`, postData)
+	if res.StatusCode != http.StatusBadRequest {
+		t.Errorf("api/formWorkflow/8/apply (invalid ID) StatusCode = %v, want = %v", res.StatusCode, http.StatusBadRequest)
+	}
+
+	// Test invalid action
+	postData.Set("dependencyID", "-3")
+	postData.Set("actionType", "TestFormWorkflow_ApplyAction-invalidAction")
+	res, _ = client.PostForm(RootURL+`api/formWorkflow/8/apply`, postData)
+	if res.StatusCode != http.StatusBadRequest {
+		t.Errorf("api/formWorkflow/8/apply (invalid action) StatusCode = %v, want = %v", res.StatusCode, http.StatusBadRequest)
+	}
+
+	// Test valid ID
+	postData.Set("dependencyID", "-3")
+	postData.Set("actionType", "approve")
+	res, _ = client.PostForm(RootURL+`api/formWorkflow/8/apply`, postData)
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("api/formWorkflow/8/apply (valid ID) StatusCode = %v, want = %v", res.StatusCode, http.StatusOK)
+	}
+
+	// Test "page is out of date"
+	postData.Set("dependencyID", "-3")
+	postData.Set("actionType", "approve")
+	res, _ = client.PostForm(RootURL+`api/formWorkflow/8/apply`, postData)
+	if res.StatusCode != http.StatusConflict {
+		t.Errorf("api/formWorkflow/8/apply ('page is out of date') StatusCode = %v, want = %v", res.StatusCode, http.StatusConflict)
 	}
 }

@@ -111,9 +111,9 @@ function refreshEmp(userName) {
                 dialog_ok.setSaveHandler(function() {
                     dialog_ok.clearDialog();
                     dialog_ok.hide();
-                    $("#enable_account_<!--{$empUID}-->").removeClass('notrequired');
-                    $("#disable_account_<!--{$empUID}-->").addClass('notrequired');
-                    $("#disabled_label").removeClass('notrequired');
+                    $("#enable_account_<!--{$empUID}-->").show();
+                    $("#disable_account_<!--{$empUID}-->").hide();
+                    $("#disabled_label").show();
                 });
                 dialog_ok.show();
             }
@@ -252,9 +252,9 @@ function disableAccount(backupEmpUID) {
             success: function(response) {
                 confirm_dialog.hide();
                 if(response == true) {
-                    $("#enable_account_<!--{$empUID}-->").removeClass('notrequired');
-                    $("#disable_account_<!--{$empUID}-->").addClass('notrequired');
-                    $("#disabled_label").removeClass('notrequired');
+                    $("#enable_account_<!--{$empUID}-->").show();
+                    $("#disable_account_<!--{$empUID}-->").hide();
+                    $("#disabled_label").show();
                     alert('The account has been disabled.');
 
                     //window.location.reload();
@@ -280,9 +280,9 @@ function enableAccount(backupEmpUID) {
             success: function(response) {
                 confirm_dialog.hide();
                 if(response == true) {
-                    $("#enable_account_<!--{$empUID}-->").addClass('notrequired');
-                    $("#disable_account_<!--{$empUID}-->").removeClass('notrequired');
-                    $("#disabled_label").addClass('notrequired');
+                    $("#enable_account_<!--{$empUID}-->").hide();
+                    $("#disable_account_<!--{$empUID}-->").show();
+                    $("#disabled_label").hide();
                     alert('The account has been enabled.');
                     //window.location.reload();
                 }
@@ -307,8 +307,11 @@ $(function() {
         url: "ajaxEmployee.php?a=getForm&empUID=<!--{$empUID}-->",
         success: function(response) {
             if(response != '') {
-                
-                $('#employeeName').html('<!--{$summary.employee.firstName|escape}--> <!--{$summary.employee.lastName|escape}--> <span id="disabled_label" class="<!--{if $summary.employee.deleted == 0}-->notrequired<!--{/if}-->">(Disabled account)</span>');
+
+                const content = '<!--{$summary.employee.firstName|escape}--> <!--{$summary.employee.lastName|escape}-->' +
+                 ' <span id="disabled_label" <!--{if $summary.employee.deleted == 0}-->style="display: none;"<!--{/if}-->">(Disabled account)</span>';
+                $('#employeeName').html(content);
+
                 $('#employeeAccount').html("<!--{$summary.employee.userName}-->");
                 let lastUpdatedDate = new Date(<!--{(int)$summary.employee.lastUpdated*1000}-->)
                 let lastUpdatedFormatted = new Intl.DateTimeFormat('en-US',{dateStyle: 'short',timeStyle: 'short'}).format(lastUpdatedDate)

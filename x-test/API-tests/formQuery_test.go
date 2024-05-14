@@ -19,7 +19,7 @@ func getFormQuery(url string) (FormQueryResponse, error) {
 }
 
 func TestFormQuery_HomepageQuery(t *testing.T) {
-	res, _ := getFormQuery(rootURL + `api/form/query?q={"terms":[{"id":"title","operator":"LIKE","match":"***","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"title","operator":"LIKE","match":"***","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
 
 	// get first key
 	var key int
@@ -37,7 +37,7 @@ func TestFormQuery_HomepageQuery(t *testing.T) {
 }
 
 func TestFormQuery_NonadminQuery(t *testing.T) {
-	res, _ := getFormQuery(rootURL + `api/form/query?q={"terms":[{"id":"stepID","operator":"!=","match":"resolved","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service"],"sort":{},"limit":1000,"limitOffset":0}&x-filterData=recordID,title&masquerade=nonAdmin`)
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"stepID","operator":"!=","match":"resolved","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service"],"sort":{},"limit":1000,"limitOffset":0}&x-filterData=recordID,title&masquerade=nonAdmin`)
 
 	if _, exists := res[958]; exists {
 		t.Errorf("Record 958 should not be readable")
@@ -49,7 +49,7 @@ func TestFormQuery_NonadminQuery(t *testing.T) {
 }
 
 func TestFormQuery_NonadminQueryActionable(t *testing.T) {
-	res, _ := getFormQuery(rootURL + `api/form/query?q={"terms":[{"id":"stepID","operator":"=","match":"actionable","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service"],"sort":{},"limit":1000,"limitOffset":0}&x-filterData=recordID,title&masquerade=nonAdmin`)
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"stepID","operator":"=","match":"actionable","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service"],"sort":{},"limit":1000,"limitOffset":0}&x-filterData=recordID,title&masquerade=nonAdmin`)
 
 	if _, exists := res[503]; !exists {
 		t.Errorf("Record 503 should be actionable because tester is backup of person designated")
@@ -77,7 +77,7 @@ func TestFormQuery_NonadminQueryActionable(t *testing.T) {
 }
 
 func TestFormQuery_FulltextSearch_ApplePearOrange(t *testing.T) {
-	res, _ := getFormQuery(rootURL + `api/form/query?q={"terms":[{"id":"data","indicatorID":"3","operator":"MATCH","match":"apple pear orange","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"data","indicatorID":"3","operator":"MATCH","match":"apple pear orange","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
 
 	if _, exists := res[499]; !exists {
 		t.Errorf(`Record 499 should exist because a data field contains either apple, pear, or orange`)
@@ -89,7 +89,7 @@ func TestFormQuery_FulltextSearch_ApplePearOrange(t *testing.T) {
 }
 
 func TestFormQuery_FulltextSearch_ApplePear_RequireOrange(t *testing.T) {
-	res, _ := getFormQuery(rootURL + `api/form/query?q={"terms":[{"id":"data","indicatorID":"3","operator":"MATCH","match":"apple pear %2Borange","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"data","indicatorID":"3","operator":"MATCH","match":"apple pear %2Borange","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
 
 	if _, exists := res[499]; !exists {
 		t.Errorf(`Record 499 should exist because a data field contains the word "orange"`)
@@ -101,7 +101,7 @@ func TestFormQuery_FulltextSearch_ApplePear_RequireOrange(t *testing.T) {
 }
 
 func TestFormQuery_FulltextSearch_ApplePearNoOrange(t *testing.T) {
-	res, _ := getFormQuery(rootURL + `api/form/query?q={"terms":[{"id":"data","indicatorID":"3","operator":"MATCH","match":"apple pear %2Dorange","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"data","indicatorID":"3","operator":"MATCH","match":"apple pear %2Dorange","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
 
 	if _, exists := res[499]; exists {
 		t.Errorf(`Record 499 should not exist because data fields contain the word "orange". want = no orange`)
@@ -113,7 +113,7 @@ func TestFormQuery_FulltextSearch_ApplePearNoOrange(t *testing.T) {
 }
 
 func TestFormQuery_RecordIdAndFulltext(t *testing.T) {
-	res, _ := getFormQuery(rootURL + `api/form/query?q={"terms":[{"id":"recordID","operator":"=","match":"499","gate":"AND"},{"id":"data","indicatorID":"0","operator":"MATCH ALL","match":"apple","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"recordID","operator":"=","match":"499","gate":"AND"},{"id":"data","indicatorID":"0","operator":"MATCH ALL","match":"apple","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
 
 	if _, exists := res[499]; !exists {
 		t.Errorf(`Record 499 should exist because the data fields contain the word "apple". want = recordID IS 499 AND data contains apple`)

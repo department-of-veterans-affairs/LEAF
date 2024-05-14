@@ -259,8 +259,8 @@ export default {
                         </select>
                     </label>
                     <div v-if="focusedFormIsSensitive" style="display:flex; color: #a00;">
-                        <div style="display:flex; align-items: center;"><b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b></div> &nbsp;
-                        <div style="display:flex; align-items: center; font-size:90%;">(forced on because sensitive fields are present)</div>
+                        <div style="display:flex; align-items: center;"><b>Need to know: </b></div> &nbsp;
+                        <div style="display:flex; align-items: center;">Forced On because sensitive fields are present</div>
                     </div>
                     <label v-else for="needToKnow"
                         title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know: 

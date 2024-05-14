@@ -11,7 +11,7 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             CSRFToken: CSRFToken,
-            hasDevConsoleAccess: +hasDevConsoleAccess,
+            hasDevConsoleAccess: hasDevConsoleAccess,
             ajaxResponseMessage: '',
 
             siteSettings: {},
@@ -276,10 +276,9 @@ export default {
             let secureCalls = [
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}form/indicator/list`,
+                    url: `${this.APIroot}form/indicator/list?x-filterData=timeAdded`,
                     success: (res)=> {},
                     error: (err) => console.log(err),
-                    cache: false,
                 }),
 
                 this.fetchLEAFSRequests(true)

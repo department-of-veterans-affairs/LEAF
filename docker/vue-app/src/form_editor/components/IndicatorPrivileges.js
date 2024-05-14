@@ -16,7 +16,10 @@ export default {
     },
     inject: [
         'APIroot',
-        'CSRFToken'
+        'CSRFToken',
+        'showLastUpdate',
+        'focusedFormRecord',
+        'getFormByCategoryID'
     ],
     mounted() {
         /**
@@ -29,8 +32,7 @@ export default {
                 success: res => {
                     this.allGroups = res
                 },
-                error: err => console.log(err),
-                cache: false
+                error: err => console.log(err)
             }),
             $.ajax({
                 type: 'GET',
@@ -41,8 +43,7 @@ export default {
                 error: err => {
                     console.log(err);
                     this.statusMessageError = 'There was an error retrieving the Indicator Privileges. Please try again.';
-                },
-                cache: false
+                }
             })
         ];
         Promise.all(loadCalls).then((res)=> {
@@ -54,6 +55,9 @@ export default {
             const groupIDs = [];
             this.groupsWithPrivileges.map(g => groupIDs.push(parseInt(g.id)));
             return this.allGroups.filter(g => !groupIDs.includes(parseInt(g.groupID)));
+        },
+        formID() {
+            return this.focusedFormRecord?.categoryID || '';
         }
     },
     methods:{
@@ -73,6 +77,8 @@ export default {
                     success: res => {
                         //console.log(res); //NOTE: followup on this return value ('false').  should server return count(res)?
                         this.groupsWithPrivileges = this.groupsWithPrivileges.filter(g => g.id !== groupID);
+                        this.getFormByCategoryID(this.formID);
+                        this.showLastUpdate('form_properties_last_update');
                     }, 
                     error: err => console.log(err)
                 });
@@ -93,6 +99,8 @@ export default {
                     success: () => {
                         this.groupsWithPrivileges.push({id: this.group.groupID, name: this.group.name});
                         this.group = 0;
+                        this.getFormByCategoryID(this.formID);
+                        this.showLastUpdate('form_properties_last_update');
                     }, 
                     error: err => console.log('an error occurred while setting group access restrictions', err)
                 })
@@ -102,9 +110,8 @@ export default {
     template:`<fieldset id="indicatorPrivileges"  style="font-size: 90%; border-radius: 3px;">
                 <legend style="font-family: PublicSans-Bold">Special access restrictions</legend>
                 <div>
-                    Restrictions will limit view access to the request initiator and members of specific groups.<br/> 
-                    They will also only allow the specified groups to apply search filters for this field.<br/>
-                    All others will see "[protected data]".
+                    This prevents anyone from reading stored data unless they're part of the following groups.<br/> 
+                    If a group is assigned below, everyone else will see "[protected data]".
                 </div>
                 <template v-if="statusMessageError === ''">
                     <div v-if="groupsWithPrivileges.length === 0" style="margin:0.5rem 0">No special access restrictions are enabled. Normal access rules apply.</div>
