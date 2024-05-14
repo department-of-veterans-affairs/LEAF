@@ -1059,6 +1059,15 @@ var LeafFormGrid = function (containerID, options) {
     return null;
   }
 
+  /**
+   * @memberOf LeafFormGrid
+   * Disables the sticky header
+   */
+  function disableStickyHeader() {
+    document.querySelector(`#${prefixID}thead`).style.position = 'static';
+    document.querySelector(`#${prefixID}thead`).style.top = 'auto';
+  }
+
   return {
     getPrefixID: function () {
       return prefixID;
@@ -1095,9 +1104,9 @@ var LeafFormGrid = function (containerID, options) {
     },
     getDataByIndex: getDataByIndex,
     getDataByRecordID: getDataByRecordID,
-    disableVirtualHeader: function () {
-      document.querySelector(`#${prefixID}thead`).style.position = 'static';
-      document.querySelector(`#${prefixID}thead`).style.top = 'auto';
+    disableStickyHeader: disableStickyHeader,
+    disableVirtualHeader: function () { // backward compat
+      disableStickyHeader();
     },
     setStickyHeaderOffset: function (offset) {
       document.querySelector(`#${prefixID}thead`).style.top = offset;
