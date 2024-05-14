@@ -566,7 +566,7 @@ function loadSearchPrereqs() {
 
             $.ajax({
                 type: 'GET',
-                url: './api/workflow/steps',
+                url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
                 dataType: 'json',
                 success: function(res) {
                     let allStepsData = res;
