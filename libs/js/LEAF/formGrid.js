@@ -1096,7 +1096,11 @@ var LeafFormGrid = function (containerID, options) {
     getDataByIndex: getDataByIndex,
     getDataByRecordID: getDataByRecordID,
     disableVirtualHeader: function () {
-      // see renderVirtualHeader()
+      document.querySelector(`#${prefixID}thead`).style.position = 'static';
+      document.querySelector(`#${prefixID}thead`).style.top = 'auto';
+    },
+    setStickyHeaderOffset: function (offset) {
+      document.querySelector(`#${prefixID}thead`).style.top = offset;
     },
     stop: function () {
       isRenderingBody = false;

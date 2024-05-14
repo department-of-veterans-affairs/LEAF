@@ -502,7 +502,7 @@
 
         let formGrid = new LeafFormGrid('depList' + hash + '_' + stepID);
         formGrid.setRootURL(site.url);
-        formGrid.disableVirtualHeader(); // TODO: figure out why headers aren't sized correctly
+        formGrid.setStickyHeaderOffset('36px');
         formGrid.setDataBlob(res);
         formGrid.hideIndex();
         formGrid.setHeaders(headers);
