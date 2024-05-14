@@ -8,10 +8,10 @@ RUN apk update && apk add openjdk11 maven
 WORKDIR /app
 
 # Copy the testng.xml file to the container's /app directory
-COPY testng.xml .
+COPY ../testng.xml .
 
 # Copy the source code from the local machine to the container's /app directory
-COPY src src
+COPY ../src src
 
 # Copy the Project Object Model (POM) file to the container's /app directory
 COPY pom.xml .

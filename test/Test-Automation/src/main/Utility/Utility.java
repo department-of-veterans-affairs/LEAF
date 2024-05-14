@@ -4,13 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.Duration;
 
 public class Utility extends Constants{
@@ -20,13 +16,6 @@ public class Utility extends Constants{
     public static WebDriverWait explicitWait;
 
     private static final Logger log = LogManager.getLogger(Utility.class);
-
-    public static RemoteWebDriver createDriver() throws MalformedURLException {
-        DesiredCapabilities caps = new DesiredCapabilities();
-        caps.setCapability("browserName", "chrome");
-        caps.setCapability("version", "latest");
-        return new RemoteWebDriver(new URL(HUB_URL), caps);
-    }
 
 
     //Add explicit wait
@@ -53,7 +42,5 @@ public class Utility extends Constants{
         log.info("Waiting for Element to be invisible for "+seconds+" seconds");
         new WebDriverWait(driver, Duration.ofSeconds(seconds)).until(ExpectedConditions.invisibilityOf(element));
     }
-
-
 
 }

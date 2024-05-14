@@ -24,6 +24,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Random;
 
@@ -35,22 +36,26 @@ public class BasePage extends Utility {
     public static ExtentTest extentTest;
     public JavascriptExecutor js = (JavascriptExecutor) driver;
 
+
     @Parameters({ "env", "browser"})
     @BeforeSuite
-    public void setUp(@Optional("qa") String env, @Optional("CHROME") String browser) throws MalformedURLException{
+    public void setUp(@Optional("qa") String env, @Optional("CHROME") String browser)throws MalformedURLException {
         browserInitialization(browser,env);
         ExtentSparkReporter extentSparkReporter = new ExtentSparkReporter(Constants.currentDir+"//TestResult.html");
         extentReports = new ExtentReports();
         extentReports.attachReporter(extentSparkReporter);
         extentReports.setSystemInfo("OS", System.getProperty("os.name"));
         extentReports.setSystemInfo("Java Version", System.getProperty("java.version"));
-        log.info("Setting up the browser");
-    }
+        log.info("Setting up the extent report");
+      }
+
 
     @AfterClass
     public void tearDown(){
         driver.close();
         log.info("Closing the browser");
+        driver.quit();
+        log.info("Quitting the browser");
     }
 
     @AfterSuite
@@ -58,10 +63,7 @@ public class BasePage extends Utility {
         extentReports.flush();
         Desktop.getDesktop().browse(new File(Constants.currentDir+"//TestResult.html").toURI());
         log.info("Generating extent report");
-        driver.quit();
-        log.info("Quitting the browser");
-    }
-
+     }
 
     @AfterMethod
     public void checkStatus(ITestResult result) throws IOException {
@@ -97,7 +99,7 @@ public class BasePage extends Utility {
     //Baseclass is referring to Utils class using Super() keyword
     public BasePage() {
         PageFactory.initElements(driver, this);
-    }
+       }
 
     //Initializing the driver and maximize the window size
     public static void browserInitialization(String browser,String env) throws MalformedURLException {
@@ -139,7 +141,7 @@ public class BasePage extends Utility {
             log.error("Browser not found");
         }
 
-        
+
         return driver;
     }
 
@@ -205,6 +207,14 @@ public class BasePage extends Utility {
         String path = takeScreenshot(driver);
         return path;
     }
+
+    public static RemoteWebDriver createDriver() throws MalformedURLException {
+        DesiredCapabilities caps = new DesiredCapabilities();
+        caps.setBrowserName("chrome");
+        driver = new RemoteWebDriver(new URL(HUB_URL), caps);
+        return (RemoteWebDriver) driver;
+    }
+
 
 }
 

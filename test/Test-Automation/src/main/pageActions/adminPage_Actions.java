@@ -118,7 +118,7 @@ public class adminPage_Actions extends BasePage {
     }
 
     public FormEditorPageActions clickFormEditor(){
-     setExplicitWaitForElementToBeClickable(formEditor,30);
+     setExplicitWaitForElementToBeClickable(formEditor,60);
      formEditor.click();
      return new FormEditorPageActions();
     }

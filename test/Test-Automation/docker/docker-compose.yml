@@ -1,11 +1,12 @@
-version: '3.7'
+
 services:
   test-api:
     image: test-api:latest
     container_name: test-api
     build:
-      context: ./
-      dockerfile: test-api.dockerfile
+      context: ./..
+      dockerfile: docker/test-api.dockerfile
+
     env_file:
       - ./leaf_selenium.env
     networks:
