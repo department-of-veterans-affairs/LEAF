@@ -277,10 +277,10 @@ function setListeners() {
     $('#national_linkedPrimary').off();
     $('#btn_save').off();
     if ((siteSettings.siteType || '').toLowerCase() === 'national_subordinate') {
-        const currentPrimary = siteSettings.national_linkedPrimary;
+        const currentPrimary = (siteSettings.national_linkedPrimary || '').trim();
         const primaryChangeWarning = (event) => {
             const inputValue = event?.currentTarget?.value;
-            const showWarn = inputValue !== currentPrimary;
+            const showWarn = currentPrimary !== '' && inputValue !== currentPrimary;
             const ariaWarn = "WARNING: This will cause data alignment problems. Please contact your business process owner to coordinate changes";
             $('#primary_changed_warning').css('display', `${showWarn ? 'block' : 'none'}`);
             $('#primary_changed_warning_status').attr(
@@ -289,18 +289,19 @@ function setListeners() {
         }
         const checkPrimaryChanged = () => {
             const inputValue = $('#national_linkedPrimary').val();
-            const showWarn = inputValue !== currentPrimary;
+            const showWarn = currentPrimary !== '' && inputValue !== currentPrimary;
             if (showWarn) {
                 dialog_confirm.setTitle('WARNING');
                 dialog_confirm.setContent(`<div style="padding:1em 0.5em; height:80px;line-height:1.8;">
-                    <div>This change could cause data alignment problems.</div>
+                    <div>This will cause data alignment problems.</div>
                     <div>Please contact your business process owner to coordinate changes.</div>
-                    <div>Choose Yes to proceed with this change.</div>
                 </div>`);
                 dialog_confirm.setSaveHandler(() => {
                     saveSettings();
                     dialog_confirm.hide();
                 });
+                $('#confirm_saveBtnText').html('[ Make Change ]');
+                $('#confirm_button_cancelchange').html('[ Cancel ]');
                 dialog_confirm.show();
             } else {
                 saveSettings();
