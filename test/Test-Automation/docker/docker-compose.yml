@@ -13,7 +13,6 @@ services:
       - leaf
       - ui-test
     volumes:
-      # - ./output:/app/target
       - ./index.php:/app/index.php
       - ../src:/app/src
       - ../testng.xml:/app/testng.xml
@@ -38,42 +37,9 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
-      
-  # app:
-  #   image: app_test1
-  #   build:
-  #     context: ./
-
-  #   container_name: app_test1
-  #   volumes:
-  #     - ./output:/app/target
-  #     - ./testng.xml:/app/testng.xml
-
-  #   # network_mode: host
-  #   networks:
-  #    - ui-test
-  #   #   should be pass during docker compose up -d app
-  #   # SCRIPT=test.java.formWorkflow.formWorkflow_Test
-  #   command: ["test","-Dremote.url= http://host.docker.internal:4445", "-Dapp.url=http://host.docker.internal/LEAF_Request_Portal/admin/", "-Dclass.name=$SCRIPT"]
-  #   extra_hosts:
-  #     - "host.docker.internal:host-gateway"
-
-
-
 
 networks:
   ui-test:
     name: ui-test
   leaf:
     external: true
-
-
-    #http://leaf-flm:33709/LEAF_Request_Portal/index.php
-    #http://leaf-php-8:33709/LEAF_Request_Portal/index.php
-    #https://host.docker.internal/LEAF_Request_Portal/index.php
-    #http://leaf-php-8/LEAF_Request_Portal/admin/?a=form_vue#/
-    #https://host.docker.internal/LEAF_Request_Portal/admin/?a=form_vue#/
-
-
-    # ping leaf-flm
-    # ping leaf-php-8
