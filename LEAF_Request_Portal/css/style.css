@@ -569,6 +569,7 @@ span.printResponse {
   letter-spacing: 0.01rem;
   line-height: 150%;
   color: rgba(0, 0, 0, 0.8);
+  word-break: break-word;
 }
 
 div.printResponse::-webkit-scrollbar {
