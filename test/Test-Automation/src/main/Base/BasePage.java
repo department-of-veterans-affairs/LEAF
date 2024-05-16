@@ -103,9 +103,8 @@ public class BasePage extends Utility {
 
     //Initializing the driver and maximize the window size
     public static void browserInitialization(String browser,String env) throws MalformedURLException {
-        System.out.println("toga: " + env);
+        System.out.println("browse: " + browser);
         getDriver(browser);
-        System.out.println("simbabsf: " + HUB_URL);
         driver.manage().window().maximize();
         log.warn("Maximizing window size");
         driver.manage().deleteAllCookies();
@@ -208,10 +207,10 @@ public class BasePage extends Utility {
         return path;
     }
 
-    public static RemoteWebDriver createDriver() throws MalformedURLException {
+    public static RemoteWebDriver createDriver() throws MalformedURLException {       
         DesiredCapabilities caps = new DesiredCapabilities();
         caps.setBrowserName("chrome");
-        driver = new RemoteWebDriver(new URL(HUB_URL), caps);
+        driver = new RemoteWebDriver(new URL(Constants.getRemote_url()), caps);
         return (RemoteWebDriver) driver;
     }
 

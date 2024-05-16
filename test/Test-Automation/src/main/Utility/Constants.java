@@ -16,7 +16,7 @@ public class Constants {
 
     private static String remote_url = "http://host.docker.internal:4445/wd/hub";
     public static String browser = "chrome";
-    public static String HUB_URL = "http://localhost:4445";
+    public static String HUB_URL = "http://localhost:4445/wd/hub";
 
 
     public static String currentDir = System.getProperty("user.dir");
