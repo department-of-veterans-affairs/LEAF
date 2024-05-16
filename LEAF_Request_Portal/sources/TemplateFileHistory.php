@@ -88,7 +88,7 @@ class TemplateFileHistory
 
 
     /**
-     * Summary of getTemplateHistoryList
+     * Summary of getEmailTemplateHistoryList
      * @return array|string
      */
     public function getEmailTemplateHistoryList(): array
@@ -96,20 +96,20 @@ class TemplateFileHistory
         if (!$this->login->checkGroup(1)) {
             return ['error' => 'Admin access required'];
         }
-
-        $list = @scandir('../templates/email/');
-        if ($list === false) {
-            return ['error' => 'Unable to read template history directory'];
+        $out = array();
+        $emailList = $this->db->query(
+            'SELECT label, emailTo, emailCc, subject, body from email_templates'
+        );
+        foreach ($emailList as $listItem) {
+            $data = array(
+                'displayName' => $listItem['label'],
+                'bodyFileName' => $listItem['body'],
+                'emailToFileName' => $listItem['emailTo'],
+                'emailCcFileName' => $listItem['emailCc'],
+                'subjectFileName' => $listItem['subject']
+            );
+            $out[] = $data;
         }
-
-        $out = [];
-
-        foreach ($list as $item) {
-            if (preg_match('/.tpl$/', $item)) {
-                $out[] = $item;
-            }
-        }
-
         return $out;
     }
 
@@ -230,9 +230,12 @@ class TemplateFileHistory
             return 'Admin access required';
         }
 
-        $list = $this->getEmailTemplateHistoryList();
-
-        if (in_array($template, $list)) {
+        $email_templates = $this->getEmailTemplateHistoryList();
+        $body_list = array();
+        foreach($email_templates as $rec) {
+            $body_list[] = $rec['bodyFileName'];
+        }
+        if (in_array($template, $body_list)) {
             file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
 
             $this->dataActionLogger->logAction(

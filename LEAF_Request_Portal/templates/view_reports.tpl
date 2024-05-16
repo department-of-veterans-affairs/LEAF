@@ -33,26 +33,9 @@
 <script>
 const CSRFToken = '<!--{$CSRFToken}-->';
 
-//Object.assign for IE
-if (typeof Object.assign !== 'function') {
-    Object.assign = function(target) {
-        'use strict';
-        if (target == null) {
-            throw new TypeError('Cannot convert undefined or null to object');
-        }
-        target = Object(target);
-        for (let index = 1; index < arguments.length; index++) {
-            let source = arguments[index];
-            if (source != null) {
-                for (let key in source) {
-                    if (Object.prototype.hasOwnProperty.call(source, key)) {
-                        target[key] = source[key];
-                    }
-                }
-            }
-        }
-        return target;
-    };
+function scrubHTML(input) {
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        return t.textContent;
 }
 
 function loadWorkflow(recordID, prefixID) {
@@ -547,12 +530,12 @@ function loadSearchPrereqs() {
             //toggle all subcheckboxes with parent indicator checkbox
             $('.indicatorOption > label > input').on('change', function() {
                 const indicatorIsChecked = this.checked;
-                $(`input[id^="indicators_${this.value}_columns"`).prop('checked', indicatorIsChecked);
+                $(`input[id^="indicators_${this.value}_columns"]`).prop('checked', indicatorIsChecked);
             });
             //check parent if any subcheckbox is checked, uncheck if none are checked
             $('.subIndicatorOption > label > input').on('change', function() {
                 const indicatorID = this.getAttribute('gridparent');
-                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"`));
+                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"]`));
                 const atLeastOneChecked = siblings.some(sib => sib.checked === true);
                 if(atLeastOneChecked) {
                     $(`#indicators_${indicatorID}`).prop('checked', true);
@@ -583,7 +566,7 @@ function loadSearchPrereqs() {
 
             $.ajax({
                 type: 'GET',
-                url: './api/workflow/steps',
+                url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
                 dataType: 'json',
                 success: function(res) {
                     let allStepsData = res;
@@ -836,11 +819,11 @@ function openShareDialog() {
 }
 
 function showJSONendpoint() {
-    var pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
+    let pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
     leafSearch.getLeafFormQuery().setLimit(0, 10000);
-    var queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-    var jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString;
-    var powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
+    let queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+    let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
+    let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of 10,000 records has been preset</b>.</p><br />'
@@ -914,10 +897,10 @@ function showJSONendpoint() {
                 CSRFToken: CSRFToken}
         })
         .then(function(res) {
-            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res);
+            $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res + '?x-filterData=recordID,'+ Object.keys(filterData).join(','));
            if($('#msCompatMode').is(':checked')) {
                 $('#expandLink').css('display', 'none');
-                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res);
+                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res + '?x-filterData=recordID,'+ Object.keys(filterData).join(','));
             }
             else {
                 $('#expandLink').css('display', 'inline');
@@ -1061,6 +1044,20 @@ var version = 3;
     * v3 - uses getData() from formQuery.js
 */
 
+// Update window title
+function updateTitle(title) {
+    if(title != '') {
+        let siteName = document.querySelector('#headerDescription')?.innerText;
+        let siteLocation = document.querySelector('#headerLabel')?.innerText;
+        if(siteName == undefined) {
+            document.querySelector('title').innerText = scrubHTML(`${title}`);
+        }
+        else {
+            document.querySelector('title').innerText = scrubHTML(`${title} - ${siteName} | ${siteLocation}`);
+        }
+    }
+}
+
 /**
  * Generates a url based on the current report preferences
  * @param baseURL URL of this script, without parameters
@@ -1083,6 +1080,7 @@ function buildURLComponents(baseURL, update){
         url += '&sort=' + encodeURIComponent(urlSortPreference);
     }
     if($('#reportTitle').val() != '') {
+        updateTitle($('#reportTitle').val());
         url += '&title=' + encodeURIComponent(btoa($('#reportTitle').val()));
     }
     window.history.pushState('', '', url);
@@ -1338,6 +1336,27 @@ $(function() {
                 }
                 $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
                 renderGrid(queryResult);
+                //update Checkpoint Date Step header text if still needed (should be rare)
+                if(tStepHeader.some(ele => ele === 0)) {
+                    $.ajax({
+                        type: 'GET',
+                        url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
+                        dataType: 'json',
+                        success: (res) => {
+                            let div = document.createElement('div');
+                            res.forEach(step => {
+                                if(tStepHeader[step.stepID] === 0) {
+                                    const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
+                                    $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
+                                    $('#Vheader_stepID_' + step.stepID).text(title);
+                                    tStepHeader[step.stepID] = 1;
+                                }
+                            });
+
+                        },
+                        error: (err) => console.log(err),
+                    });
+                }
             }
         });
 
@@ -1357,6 +1376,7 @@ $(function() {
 
 
             $('#editReport').on('click', function() {
+                filterData = {}; // reset x-filterData params
                 grid.stop();
                 isNewQuery = true;
                 $('#reportTitleDisplay').css('display', 'none');
@@ -1428,6 +1448,8 @@ $(function() {
                 window.history.pushState('', '', url);
             });
         });
+        updateTitle(title);
+
         try {
             if(<!--{$version}--> >= 2) {
                 let query = '<!--{$query|escape:"html"}-->';

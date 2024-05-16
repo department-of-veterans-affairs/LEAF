@@ -32,6 +32,9 @@
 
             </script>
         <!--{/if}-->
+        <!--{if $indicator.format == ''}-->
+            <!--{$indicator.htmlPrint}-->
+        <!--{/if}-->
         <!--{if $indicator.format == 'textarea'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
                 <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->

@@ -36,7 +36,7 @@
                     indicatorID: 'uid',
                     editable: false,
                     callback: function(data, blob) {
-                        $('#' + data.cellContainerID).html('<a href="' + site.url + '?a=printview&recordID=' +
+                        $('#' + data.cellContainerID).html('<a target="_blank" href="' + site.url + '?a=printview&recordID=' +
                             data.recordID + '">' + data.recordID + '</a>');
                     }
                 }
@@ -97,6 +97,8 @@
                                             .slideDown();
                                         $('#requestTitle').attr('tabindex', '0');
                                         $('#requestInfo').attr('tabindex', '0');
+                                        $('.printmainform > div > img[role="button"]').css('display','none');
+                                        $('button[title^="Edit"]').css('display','none');
                                     },
                                     error: function() {
                                         triggerGenericLoadError();
@@ -297,7 +299,7 @@
             // index by roles
             for(let depID in dataInboxes[sites[i].url][j].unfilledDependencyData) {
                 let uDD = dataInboxes[sites[i].url][j].unfilledDependencyData[depID];
-                let roleID = depID;
+                let roleID = String(depID) + dataInboxes[sites[i].url][j].stepID;
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     roleID = Sha1.hash(uDD.approverUID);
@@ -673,7 +675,7 @@
     function buildWorkflowCategoryCache(site) {
         return $.ajax({
             type: 'GET',
-            url: site.url + 'api/workflow/categories?x-filterData=categoryID',
+            url: site.url + 'api/workflow/categories?includeStandardLEAF&x-filterData=categoryID',
             success: function(res) {
                 res.forEach(w => {
                     dataWorkflowCategories[w.categoryID] = 1;

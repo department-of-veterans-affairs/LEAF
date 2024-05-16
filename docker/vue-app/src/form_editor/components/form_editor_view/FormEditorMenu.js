@@ -10,6 +10,7 @@ export default {
 
         'openFormHistoryDialog',
         'openConfirmDeleteFormDialog',
+        'openEditCollaboratorsDialog',
     ],
     computed: {
         /**
@@ -97,6 +98,11 @@ export default {
                 <li>
                     <button type="button" @click="openFormHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history">
                         <span role="img" aria="" alt="">🕗&nbsp;</span>View History
+                    </button>
+                </li>
+                <li>
+                    <button type="button" @click="openEditCollaboratorsDialog" title="Edit Special Write Access">
+                        <span role="img" aria="" alt="">🔒&nbsp;</span>Customize Write Access
                     </button>
                 </li>
                 <li>

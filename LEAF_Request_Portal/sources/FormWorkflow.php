@@ -811,20 +811,22 @@ class FormWorkflow
      * @param int $dependencyID
      * @param string $actionType
      * @param string (optional) $comment
-     * @return array {status(int), errors[string]}
+     * @return string|array {errors(array), comment(string)} Returns a string on client-side error, containing the error message
      */
-    public function handleAction(int $dependencyID, string $actionType, ?string $comment = ''): array
+    public function handleAction(int $dependencyID, string $actionType, ?string $comment = ''): string|array
     {
         if (!is_numeric($dependencyID))
         {
-            return array('status' => 0, 'errors' => array('Invalid ID: dependencyID'));
+            http_response_code(400);
+            return 'Invalid ID: dependencyID';
         }
 
         $errors = array();
 
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
-            return array('status' => 0, 'errors' => array('Invalid Token'));
+            http_response_code(400);
+            return 'Invalid Token';
         }
 
         $comment = XSSHelpers::sanitizeHTML($comment);
@@ -853,7 +855,8 @@ class FormWorkflow
                 case 1: // service chief
                     if (!$this->login->checkService($res[0]['serviceID']))
                     {
-                        return array('status' => 0, 'errors' => array('Your account is not registered as a Service Chief'));
+                        http_response_code(403);
+                        return 'Your account is not registered as a Service Chief';
                     }
 
                     break;
@@ -869,7 +872,8 @@ class FormWorkflow
 
                     if (count($resQuad) == 0)
                     {
-                        return array('status' => 0, 'errors' => array('Your account is not registered as an Executive Leadership Team member'));
+                        http_response_code(403);
+                        return 'Your account is not registered as an Executive Leadership Team member';
                     }
 
                     break;
@@ -889,7 +893,8 @@ class FormWorkflow
                     $userAuthorized = $this->checkEmployeeAccess($empUID);
 
                     if(!$userAuthorized){
-                        return array('status' => 0, 'errors' => array('User account does not match'));
+                        http_response_code(403);
+                        return 'User account does not match';
                     }
 
                     break;
@@ -909,7 +914,8 @@ class FormWorkflow
 
                         if (!$userAuthorized)
                         {
-                            return array('status' => 0, 'errors' => array('User account does not match'));
+                            http_response_code(403);
+                            return 'User account does not match';
                         }
                     }
 
@@ -929,12 +935,14 @@ class FormWorkflow
 
                     if (!$this->login->checkGroup($groupID))
                     {
-                        return array('status' => 0, 'errors' => array('User account is not part of the designated group'));
+                        http_response_code(403);
+                        return 'User account is not part of the designated group';
                     }
 
                     break;
                 default:
-                    return array('status' => 0, 'errors' => array('Invalid Operation'));
+                    http_response_code(400);
+                    return 'Invalid Operation';
 
                     break;
             }
@@ -953,7 +961,8 @@ class FormWorkflow
 
 
         if(count($res) == 0) {
-            return array('status' => 0, 'errors' => array('This page is out of date. Please refresh for the latest status.'));
+            http_response_code(409);
+            return 'This page is out of date. Please refresh for the latest status.';
         }
 
         $logCache = array();
@@ -1193,13 +1202,17 @@ class FormWorkflow
                     }
                 } // End update the record's workflow state
             }
+            else {
+                http_response_code(400);
+                return 'Invalid action and step combination';
+            }
         }
 
 
         $comment_post = array('date' => date('M j', $time), 'user_name' => $this->login->getName(), 'comment' => $comment, 'responder' => $resActionData[0]['actionTextPasttense'], 'nextStep' => $res2[0]['nextStepID']);
 
 
-        return array('status' => 1, 'errors' => $errors, 'comment' => $comment_post);
+        return array('errors' => $errors, 'comment' => $comment_post);
     }
 
 
@@ -1651,7 +1664,7 @@ class FormWorkflow
                 default:
                 break;
             }
-
+            $data = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $data);
             $formattedFields["content"][$field['indicatorID']] = $data !== "" ? $data : $field["default"];
             $formattedFields["to_cc_content"][$field['indicatorID']] = $emailValue;
         }

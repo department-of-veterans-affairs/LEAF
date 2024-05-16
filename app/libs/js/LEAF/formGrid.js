@@ -35,10 +35,10 @@ var LeafFormGrid = function (containerID, options) {
     </div>
     <div id="${prefixID}table_stickyHeader" style="display: none"></div>
     <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
-      aria-label="" aria-live="assertive">
+      aria-label="Search Results" aria-live="assertive">
     </span>
     <table id="${prefixID}table" class="leaf_grid">
-      <thead id="${prefixID}thead" aria-label="Search Results"></thead>
+      <thead id="${prefixID}thead"></thead>
       <tbody id="${prefixID}tbody"></tbody>
       <tfoot id="${prefixID}tfoot"></tfoot>
     </table>`
@@ -58,10 +58,11 @@ var LeafFormGrid = function (containerID, options) {
 
   /**
    * @param values (required) object of cells and names to generate grid
+   * @param showScriptTags (default false) whether to display script tags
    * @memberOf LeafFormGrid
    * Returns copy of values with cells property html entities decoded
    */
-  function decodeCellHTMLEntities(values) {
+  function decodeCellHTMLEntities(values, showScriptTags = false) {
     let gridInfo = { ...values };
     if (gridInfo?.cells) {
       let cells = gridInfo.cells.slice();
@@ -71,12 +72,12 @@ var LeafFormGrid = function (containerID, options) {
           v = v.replaceAll(">", "&gt;");
           let elDiv = document.createElement("div");
           elDiv.innerHTML = v;
-          let text = elDiv.innerText;
-          text = text.replaceAll(
-            /(<script[\s\S]*?>)|(<\/script[\s\S]*?>)/gi,
-            ""
-          );
-          return text;
+          let scripts = elDiv.getElementsByTagName('script');
+          for(let i = 0; i < scripts.length; i++) {
+              let script = scripts[i];
+              script.remove();
+          }
+          return elDiv.innerHTML;
         });
         cells[ci] = arrRowVals.slice();
       });
@@ -152,7 +153,7 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
-   * @memberOf LeafFormGrid - add data to td elements
+   * @memberOf LeafFormGrid
    */
   function getIndicator(indicatorID, series) {
     $.ajax({
@@ -220,29 +221,27 @@ var LeafFormGrid = function (containerID, options) {
     let virtualHeader = `<tr id="${prefixID}tVirt_tr">`;
     if (showIndex) {
       temp +=
-        `<th scope="col"
-          id="${prefixID}header_UID" style="text-align:center">
-          <button type="button" class="btn_leaf_grid_sort"
-            aria-label="unique ID, sortable">UID
-            <span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
-          </button>
-        </th>`;
+        '<th scope="col" tabindex="0" id="' +
+        prefixID +
+        'header_UID" style="text-align: center">UID<span id="' + prefixID + 'header_UID_sort" class="' + prefixID + 'sort"></span></th>';
       virtualHeader +=
-        '<th id="Vheader_UID" style="text-align:center">UID</th>';
+        '<th id="Vheader_UID" style="text-align: center">UID</th>';
     }
     $("#" + prefixID + "thead").html(temp);
 
     if (showIndex) {
       $("#" + prefixID + "header_UID").css("cursor", "pointer");
-      $("#" + prefixID + "header_UID > button").on("click", null, null, function () {
-        if (headerToggle == 0) {
-          sort("recordID", "asc", postSortRequestFunc);
-          headerToggle = 1;
-        } else {
-          sort("recordID", "desc", postSortRequestFunc);
-          headerToggle = 0;
+      $("#" + prefixID + "header_UID").on("click keydown", null, null, function (event) {
+        if(event.type === "click" || event?.which === 13) {
+          if (headerToggle == 0) {
+            sort("recordID", "asc", postSortRequestFunc);
+            headerToggle = 1;
+          } else {
+            sort("recordID", "desc", postSortRequestFunc);
+            headerToggle = 0;
+          }
+          renderBody(0, Infinity);
         }
-        renderBody(0, Infinity);
       });
     }
 
@@ -252,13 +251,21 @@ var LeafFormGrid = function (containerID, options) {
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
       $("#" + prefixID + "thead_tr").append(
-        `<th scope="col"
-          id="${prefixID}header_${headers[i].indicatorID}" style="text-align:${align}">
-          <button type="button" class="btn_leaf_grid_sort"
-            aria-label="${headers[i].name}, sortable">${headers[i].name}
-            <span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
-          </button>
-        </th>`
+        '<th scope="col" id="' +
+          prefixID +
+          "header_" +
+          headers[i].indicatorID +
+          '" tabindex="0"  style="text-align:' +
+          align +
+          '">' +
+          headers[i].name +
+          '<span id="' +
+          prefixID +
+          "header_" +
+          headers[i].indicatorID +
+          '_sort" class="' +
+          prefixID +
+          'sort"></span></th>'
       );
       virtualHeader +=
         '<th id="Vheader_' +
@@ -273,19 +280,21 @@ var LeafFormGrid = function (containerID, options) {
           "cursor",
           "pointer"
         );
-        $("#" + prefixID + "header_" + headers[i].indicatorID + ' > button').on(
-          "click",
+        $("#" + prefixID + "header_" + headers[i].indicatorID).on(
+          "click keydown",
           null,
           headers[i].indicatorID,
           function (event) {
-            if (headerToggle == 0) {
-              sort(event.data, "asc", postSortRequestFunc);
-              headerToggle = 1;
-            } else {
-              sort(event.data, "desc", postSortRequestFunc);
-              headerToggle = 0;
+            if(event.type === "click" || event?.which === 13) {
+              if (headerToggle == 0) {
+                sort(event.data, "asc", postSortRequestFunc);
+                headerToggle = 1;
+              } else {
+                sort(event.data, "desc", postSortRequestFunc);
+                headerToggle = 0;
+              }
+              renderBody(0, Infinity);
             }
-            renderBody(0, Infinity);
           }
         );
       }
@@ -295,7 +304,7 @@ var LeafFormGrid = function (containerID, options) {
 
     $("#" + prefixID + "table>thead>tr>th").css({
       border: "1px solid black",
-      padding: "0",
+      padding: "4px 2px 4px 2px",
       "font-size": "12px",
     });
 
@@ -361,17 +370,19 @@ var LeafFormGrid = function (containerID, options) {
     if (key != "recordID" && currLimit != Infinity) {
       renderBody(0, Infinity);
     }
+
     $("." + prefixID + "sort").css("display", "none");
-    $(`th[id^="${prefixID}header_]`).removeAttr('aria-sort');
     const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
+    const headerText = document.querySelector(headerSelector)?.innerText || "";
+    $(`th[id*="${prefixID}header_"]`).removeAttr('aria-sort');
     if (order.toLowerCase() == "asc") {
-      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", ascending.");
-      $(headerSelector).attr("aria-sort", "ascending");
-      $(headerSelector + "_sort").html('<span aria-hidden="true"> ▲</span>');
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", ascending.");
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▲</span>');
+      $(headerSelector).attr('aria-sort', 'ascending');
     } else {
-      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : key) + ", descending.");
-      $(headerSelector).attr("aria-sort", "descending");
-      $(headerSelector + "_sort").html('<span aria-hidden="true"> ▼</span>')
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", descending.");
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▼</span>');
+      $(headerSelector).attr('aria-sort', 'descending');
     }
     $(headerSelector + "_sort").css("display", "inline");
     var array = [];
@@ -707,20 +718,19 @@ var LeafFormGrid = function (containerID, options) {
                                            }"
                                            data-indicator-id="${
                                              headers[j].indicatorID
-                                           }"
-                                           data-format="${
-                                             currentData[i].s1[
-                                               "id" +
-                                                 headers[j].indicatorID +
-                                                 "_format"
-                                             ]
                                            }">
                                             ${data.data}</td>`;
             }
           } else if (headers[j].callback != undefined) {
             buffer +=
-              `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}"
-                data-clickable="${editable}"></td>`;
+              '<td id="' +
+              prefixID +
+              currentData[i].recordID +
+              "_" +
+              headers[j].indicatorID +
+              '" data-clickable="' +
+              editable +
+              '"></td>';
           } else {
             buffer +=
               '<td id="' +
@@ -814,6 +824,7 @@ var LeafFormGrid = function (containerID, options) {
    */
   function announceResults() {
     let term = $('[name="searchtxt"]').val();
+
     if (currentData.length == 0) {
       $(".status").text("No results found for term " + term);
     } else {
@@ -824,6 +835,7 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
+   * @deprecated See example.tpl for more efficient formGrid usage.
    * @memberOf LeafFormGrid
    */
   function loadData(recordIDs, callback) {
@@ -930,12 +942,19 @@ var LeafFormGrid = function (containerID, options) {
         'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="" /> Export</button>'
     );
 
-    $("#" + prefixID + "getExcel").on("click", function () {
+    $("#" + prefixID + "getExcel").on("click", async function () {
+      // get indicator formats in case they need special handling (e.g. dates)
+      let iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format").then(res => res.json());
+      let indicatorFormats = {};
+      iFormatData.forEach(i => {
+        indicatorFormats[i.indicatorID] = i.format;
+      });
+
       if (currentRenderIndex != currentData.length) {
         renderBody(0, Infinity);
       }
-      var output = [];
-      var headers = [];
+      let output = [];
+      let headers = [];
       //removes triangle symbols so that ascii chars are not present in exported headers.
       $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
         $(val).html("");
@@ -951,21 +970,25 @@ var LeafFormGrid = function (containerID, options) {
       document
         .querySelectorAll("#" + prefixID + "tbody>tr>td")
         .forEach(function (val) {
-          var foundScripts = val.querySelectorAll("script");
+          let foundScripts = val.querySelectorAll("script");
 
-          for (var tIdx = 0; tIdx < foundScripts.length; tIdx++) {
+          for (let tIdx = 0; tIdx < foundScripts.length; tIdx++) {
             foundScripts[tIdx].parentNode.removeChild(foundScripts[tIdx]);
           }
 
-          var trimmedText = val.innerText.trim();
+          let trimmedText = val.innerText.trim();
           line[i] = trimmedText;
-          //prevent some values from being interpretted as dates by excel
-          const dataFormat = val.getAttribute("data-format");
+          //prevent some values from being interpreted as dates by excel
+          const dataFormat = indicatorFormats[val.getAttribute("data-indicator-id")];
           const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
+          const isNumber = /^\d+$/;
+
           line[i] =
-            dataFormat !== null &&
-            dataFormat !== "date" &&
-            testDateFormat.test(line[i])
+            (dataFormat !== null &&
+              dataFormat !== 'date' &&
+              testDateFormat.test(line[i])) ||
+            (isNumber.test(line[i]) &&
+              dataFormat === 'text')
               ? `="${line[i]}"`
               : line[i];
           if (i == 0 && headers[i] == "UID") {
@@ -997,8 +1020,8 @@ var LeafFormGrid = function (containerID, options) {
         rows += '"' + thisRow.join('","') + '",\r\n';
       });
 
-      var download = document.createElement("a");
-      var now = new Date().getTime();
+      let download = document.createElement("a");
+      let now = new Date().getTime();
       download.setAttribute(
         "href",
         "data:text/csv;charset=utf-8," + encodeURIComponent(rows)
