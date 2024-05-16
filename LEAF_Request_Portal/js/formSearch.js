@@ -709,10 +709,10 @@ var LeafFormSearch = function (containerID) {
 
     // getWorkflowStepActions retrieves data to support stepAction queries
     async function getWorkflowStepActions(workflowID) {
-        url =
-        rootURL === ""
-            ? `./api/workflow/${workflowID}/route?x-filterData=workflowID,stepID,actionType,actionTextPasttense`
-            : rootURL + `api/workflow/${workflowID}/route?x-filterData=workflowID,stepID,actionType,actionTextPasttense`;
+        let url = `./api/workflow/${workflowID}/route?x-filterData=workflowID,stepID,actionType,actionTextPasttense`;
+        if(rootURL != '') {
+            url = rootURL + `api/workflow/${workflowID}/route?x-filterData=workflowID,stepID,actionType,actionTextPasttense`;
+        }
         if(cache[`api/workflow/${workflowID}/route`] == undefined) {
             cache[`api/workflow/${workflowID}/route`] = $.ajax({
                 type: "GET",
@@ -1517,7 +1517,7 @@ var LeafFormSearch = function (containerID) {
                                 res = res.filter(step => step.workflowID > 0);
                             }
                             return res;
-                        });
+                        }).catch(err => console.error(err));
                     }
 
                     let workflowStepsData = await cache['api/workflow/steps'];
