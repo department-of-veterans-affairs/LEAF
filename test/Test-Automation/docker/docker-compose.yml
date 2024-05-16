@@ -1,7 +1,7 @@
 
 services:
   test-api:
-    image: test-api:new
+    image: test-api:latest
     container_name: test-api
     build:
       context: ./..
