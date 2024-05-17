@@ -640,7 +640,7 @@
             async: false
         }).done(function(res) {
             groupList = res;
-        }).error(function(error) {
+        }).fail(function(error) {
             alert(error);
         });
         $.ajax({
