@@ -69,7 +69,18 @@
             <version>1.22</version>
         </dependency>
         <!-- Add more dependencies as needed -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.28</version>
+        </dependency>
 
+    
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.5.9</version>
+      </dependency>
     </dependencies>
 
     <build>
