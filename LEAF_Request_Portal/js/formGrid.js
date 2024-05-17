@@ -944,11 +944,7 @@ var LeafFormGrid = function (containerID, options) {
 
     $("#" + prefixID + "getExcel").on("click", async function () {
       // get indicator formats in case they need special handling (e.g. dates)
-      let iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format").then(res => res.json());
-      let indicatorFormats = {};
-      iFormatData.forEach(i => {
-        indicatorFormats[i.indicatorID] = i.format;
-      });
+      
 
       if (currentRenderIndex != currentData.length) {
         renderBody(0, Infinity);
@@ -979,7 +975,7 @@ var LeafFormGrid = function (containerID, options) {
           let trimmedText = val.innerText.trim();
           line[i] = trimmedText;
           //prevent some values from being interpreted as dates by excel
-          const dataFormat = indicatorFormats[val.getAttribute("data-indicator-id")];
+          const dataFormat = val.getAttribute("data-format");
           const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
           const isNumber = /^\d+$/;
 
