@@ -300,8 +300,8 @@ function setListeners() {
                     saveSettings();
                     dialog_confirm.hide();
                 });
-                $('#confirm_saveBtnText').html('[ Make Change ]');
-                $('#confirm_button_cancelchange').html('[ Cancel ]');
+                $('#confirm_saveBtnText').html('Make Change');
+                $('#confirm_button_cancelchange').html('Cancel');
                 dialog_confirm.show();
             } else {
                 saveSettings();
