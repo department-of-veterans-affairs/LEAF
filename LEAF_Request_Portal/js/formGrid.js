@@ -590,7 +590,7 @@ var LeafFormGrid = function (containerID, options) {
 
     var colspan = showIndex ? headers.length + 1 : headers.length;
     if (currentData.length == 0) {
-      $("#" + prefixID + "tbody").append(
+      $("#" + prefixID + "tbody").html(
         '<tr><td colspan="' +
           colspan +
           '" style="text-align: center">No Results</td></tr>'
