@@ -404,7 +404,6 @@ function addHeader(column) {
                             if(tDepHeader[depID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
                                 $('#' + headerID).html(d.recordsDependencies[depID].description);
-                                $('#Vheader_' + column).html(d.recordsDependencies[depID].description);
                                 tDepHeader[depID] = 1;
                             }
                         }
@@ -431,7 +430,6 @@ function addHeader(column) {
                             if(tStepHeader[stepID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
                                 $('#' + headerID).html(d.stepFulfillment[stepID].step);
-                                $('#Vheader_' + column).html(d.stepFulfillment[stepID].step);
                                 tStepHeader[stepID] = 1;
                             }
                         }
@@ -571,7 +569,6 @@ function updateHeaderColors(){
                 bg_color = '#D1DFFF';
             }
             let elHeader = document.getElementById(grid.getPrefixID() + "header_" + header.indicatorID);
-            let elVHeader = document.getElementById("Vheader_" + header.indicatorID);
             let arrRGB = [];  //convert from hex to RGB
             for (let i = 1; i < 7; i += 2) {
                 arrRGB.push(parseInt(bg_color.slice(i, i + 2), 16));
@@ -583,9 +580,7 @@ function updateHeaderColors(){
             //pick text color based on bgcolor, apply to headers
             let textColor = maxVal < 128 || (sum < 350 && arrRGB[1] < 225) ? 'white' : 'black';
             elHeader.style.setProperty('background-color', bg_color);
-            elVHeader.style.setProperty('background-color', bg_color);
             elHeader.style.setProperty('color', textColor);
-            elVHeader.style.setProperty('color', textColor);
         }
     });
 }
