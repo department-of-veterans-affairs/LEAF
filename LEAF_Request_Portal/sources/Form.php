@@ -508,7 +508,9 @@ class Form
             }
             else {
                 $vars = array(':indicatorID' => $indicatorID);
-                $data = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
+                $data = $this->db->prepared_query('SELECT * FROM indicators
+                                                    LEFT JOIN indicator_mask USING (indicatorID)
+                                                    WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
                 $this->cache['getIndicator_'.$indicatorID] = $data;
             }
         }
