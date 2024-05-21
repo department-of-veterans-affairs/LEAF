@@ -80,6 +80,7 @@ function addHeader(column) {
             break;
         case 'service':
             filterData['service'] = 1;
+            leafSearch.getLeafFormQuery().join('service');
             headers.push({
                 name: 'Service',
                 indicatorID: 'service',
@@ -1172,7 +1173,6 @@ $(function() {
             if(!isSearchingDeleted(leafSearch)) {
                 leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
             }
-            leafSearch.getLeafFormQuery().join('service');
             headers = [];
         }
         else if(!isSearchingDeleted(leafSearch)) {
