@@ -530,12 +530,12 @@ function loadSearchPrereqs() {
             //toggle all subcheckboxes with parent indicator checkbox
             $('.indicatorOption > label > input').on('change', function() {
                 const indicatorIsChecked = this.checked;
-                $(`input[id^="indicators_${this.value}_columns"`).prop('checked', indicatorIsChecked);
+                $(`input[id^="indicators_${this.value}_columns"]`).prop('checked', indicatorIsChecked);
             });
             //check parent if any subcheckbox is checked, uncheck if none are checked
             $('.subIndicatorOption > label > input').on('change', function() {
                 const indicatorID = this.getAttribute('gridparent');
-                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"`));
+                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"]`));
                 const atLeastOneChecked = siblings.some(sib => sib.checked === true);
                 if(atLeastOneChecked) {
                     $(`#indicators_${indicatorID}`).prop('checked', true);
@@ -566,7 +566,7 @@ function loadSearchPrereqs() {
 
             $.ajax({
                 type: 'GET',
-                url: './api/workflow/steps',
+                url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
                 dataType: 'json',
                 success: function(res) {
                     let allStepsData = res;
@@ -1336,6 +1336,27 @@ $(function() {
                 }
                 $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
                 renderGrid(queryResult);
+                //update Checkpoint Date Step header text if still needed (should be rare)
+                if(tStepHeader.some(ele => ele === 0)) {
+                    $.ajax({
+                        type: 'GET',
+                        url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
+                        dataType: 'json',
+                        success: (res) => {
+                            let div = document.createElement('div');
+                            res.forEach(step => {
+                                if(tStepHeader[step.stepID] === 0) {
+                                    const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
+                                    $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
+                                    $('#Vheader_stepID_' + step.stepID).text(title);
+                                    tStepHeader[step.stepID] = 1;
+                                }
+                            });
+
+                        },
+                        error: (err) => console.log(err),
+                    });
+                }
             }
         });
 
