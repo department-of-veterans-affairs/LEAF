@@ -9,8 +9,13 @@
         <module name="Test-Automation" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="Test-Automation" target="1.8" />
+    <bytecodeTargetLevel target="8">
+      <module name="Test-Automation" target="8" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Test-Automation" options="" />
+    </option>
   </component>
 </project>

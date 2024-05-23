@@ -2,17 +2,20 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite configfailurepolicy="continue" thread-count="1" name="Failed suite [RegressionSuite]" guice-stage="DEVELOPMENT" verbose="0">
   <test thread-count="1" name="Forms Workflow(failed)" verbose="0">
-    <parameter name="remote_url" value=" http://192.168.86.248:4445"/>
-    <parameter name="browser" value="chrome"/>
-    <parameter name="env" value="http://host.docker.internal/LEAF_Request_Portal/admin/"/>
+    <parameter name="env" value="qa"/>
     <classes>
-      <class name="test.java.formWorkflow.formWorkflow_Test">
+      <class name="test.java.formWorkflow.FormEditorTests">
         <methods>
+          <include name="validateCreateForm"/>
           <include name="tearDown"/>
           <include name="setUp"/>
-          <include name="CreateAndDeleteForm"/>
+          <include name="validateStapleForm"/>
+          <include name="generateReport"/>
+          <include name="checkStatus"/>
+          <include name="validateDeleteForm"/>
+          <include name="TestInitialization"/>
         </methods>
-      </class> <!-- test.java.formWorkflow.formWorkflow_Test -->
+      </class> <!-- test.java.formWorkflow.FormEditorTests -->
     </classes>
   </test> <!-- Forms Workflow(failed) -->
 </suite> <!-- Failed suite [RegressionSuite] -->
