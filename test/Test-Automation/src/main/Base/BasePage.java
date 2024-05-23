@@ -43,11 +43,19 @@ public class BasePage extends Utility {
         extentReports.setSystemInfo("OS", System.getProperty("os.name"));
         extentReports.setSystemInfo("Java Version", System.getProperty("java.version"));
         log.info("Setting up the browser");
+        System.out.println("Before Suite");
     }
 
+    @BeforeClass()
+    public void initializeExtentTest(){
+        extentTest = extentReports.createTest(getClass().getSimpleName());
+        System.out.println("Class name is : "+getClass().getSimpleName());
+        log.info("Initializing extent test");
+    }
     @AfterClass
     public void tearDown(){
-        driver.close();
+       // driver.close();
+        System.out.println("After class"+ getClass().getSimpleName());
         log.info("Closing the browser");
     }
 
@@ -63,6 +71,7 @@ public class BasePage extends Utility {
 
     @AfterMethod
     public void checkStatus(ITestResult result) throws IOException {
+        System.out.println("After Method from BasePage");
         takeScreenshot(driver);
         String screenshotPath = getScreenshotPath();
         log.info("Checking status of the test case");
@@ -91,7 +100,6 @@ public class BasePage extends Utility {
     }
 
 
-
     //Baseclass is referring to Utils class using Super() keyword
     public BasePage() {
         PageFactory.initElements(driver, this);
@@ -103,7 +111,7 @@ public class BasePage extends Utility {
         driver.manage().window().maximize();
         log.warn("Maximizing window size");
         driver.manage().deleteAllCookies();
-        log.warn("Deleting all cookies");
+        log.warn("Deleting all          cookies");
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(Constants.pageLoadTimeOut));
         log.warn("Page load Timeout duration :"+ Constants.pageLoadTimeOut);
         if(env.equalsIgnoreCase("remote")){

@@ -23,6 +23,7 @@ public class FormEditorTests extends BasePage {
         adminPageActions.clickFormEditor();
         extentTest.info("Form Editor Page is opened successfully");
         formEditorPageActions = new FormEditorPageActions();
+        System.out.println();
     }
 
     @Test()
