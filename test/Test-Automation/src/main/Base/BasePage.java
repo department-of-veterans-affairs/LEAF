@@ -14,9 +14,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 
@@ -34,11 +35,11 @@ public class BasePage extends Utility {
     public static ExtentReports extentReports;
     public static ExtentTest extentTest;
     public JavascriptExecutor js = (JavascriptExecutor) driver;
+    public static WebDriver driver;
 
-    @Parameters({ "env", "browser"})
+
     @BeforeSuite
-    public void setUp(@Optional("qa") String env, @Optional("CHROME") String browser) throws MalformedURLException{
-        browserInitialization(browser,env);
+    public void setUp(ITestContext context){
         ExtentSparkReporter extentSparkReporter = new ExtentSparkReporter(Constants.currentDir+"//TestResult.html");
         extentReports = new ExtentReports();
         extentReports.attachReporter(extentSparkReporter);
@@ -47,8 +48,18 @@ public class BasePage extends Utility {
         log.info("Setting up the browser");
     }
 
+    @Parameters({ "env", "browser"})
+    @BeforeClass
+    public void setExtentTest(@Optional("qa") String env, @Optional("CHROME") String browser) throws MalformedURLException{
+        browserInitialization(browser,env);
+        extentTest = extentReports.createTest(getClass().getSimpleName());
+        System.out.println("Before class method BAaseclass"+getClass().getSimpleName());
+        log.info("Setting up the extent test");
+    }
+
     @AfterClass
     public void tearDown(){
+        System.out.println("After class method BAaseclass"+getClass().getSimpleName());
         driver.close();
         log.info("Closing the browser");
     }
@@ -65,6 +76,7 @@ public class BasePage extends Utility {
 
     @AfterMethod
     public void checkStatus(ITestResult result) throws IOException {
+        System.out.println("After method method BAaseclass"+getClass().getSimpleName());
         takeScreenshot(driver);
         String screenshotPath = getScreenshotPath();
         log.info("Checking status of the test case");
@@ -95,7 +107,8 @@ public class BasePage extends Utility {
 
 
     //Baseclass is referring to Utils class using Super() keyword
-    public BasePage() {
+    public BasePage(){
+        this.driver = driver;
         PageFactory.initElements(driver, this);
     }
 
@@ -119,6 +132,8 @@ public class BasePage extends Utility {
             driver.get(Constants.getEnvURL());
             redirectURL();
             log.info("Fetching Remote URL : "+ Constants.getEnvURL());
+        } else {
+            log.error("Environment not found");
         }
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Constants.implicitWaitTime));
     }
@@ -138,24 +153,17 @@ public class BasePage extends Utility {
         else{
             log.error("Browser not found");
         }
-
-        
         return driver;
     }
 
     private static WebDriver initializeChrome(){
-        if(Constants.headless){
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("headless");
-            driver = new ChromeDriver(options);
-            log.info("Test Running in Headless mode.");
-        } else{
-            driver = new ChromeDriver();
             ChromeOptions options = new ChromeOptions();
             options.setPageLoadStrategy(PageLoadStrategy.EAGER);
+            if(Constants.headless == true){
+                options.addArguments("--headless");
+            }
             driver = new ChromeDriver(options);
             log.info("Test Running on Chrome Browser");
-        }
         return driver;
     }
 
@@ -191,13 +199,18 @@ public class BasePage extends Utility {
     }
 
     public static void redirectURL() {
-        WebElement advancedButton = driver.findElement(By.id("details-button"));
-        setExplicitWaitForElementToBeVisible(advancedButton, 10);
-        advancedButton.click();
-        WebElement proceedLink = driver.findElement(By.id("proceed-link"));
-        setExplicitWaitForElementToBeVisible(proceedLink, 10);
-        proceedLink.click();
-        log.info("Redirecting to URL");
+        if(driver != null) {
+            driver.get("https://www.google.com");
+            WebElement advancedButton = driver.findElement(By.id("details-button"));
+            setExplicitWaitForElementToBeVisible(advancedButton, 10);
+            advancedButton.click();
+            WebElement proceedLink = driver.findElement(By.id("proceed-link"));
+            setExplicitWaitForElementToBeVisible(proceedLink, 10);
+            proceedLink.click();
+            log.info("Redirecting to URL");
+        } else{
+            log.error("Driver is null");
+        }
     }
 
 
@@ -205,6 +218,33 @@ public class BasePage extends Utility {
         String path = takeScreenshot(driver);
         return path;
     }
+    //Add explicit wait
+    public static void setExplicitWait(int seconds){
+        explicitWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
+        log.info("Waiting for Element to appear for "+seconds+" seconds");
+    }
+
+    //ExplicitWait for element to be clickable
+    public void setExplicitWaitForElementToBeClickable(WebElement element, int seconds){
+        log.info("Waiting for Element to be clickable for "+seconds+" seconds");
+        explicitWait =  new WebDriverWait(driver, Duration.ofSeconds(seconds));
+        explicitWait.until(ExpectedConditions.elementToBeClickable(element));
+    }
+
+    //ExplicitWait for element to be visible
+    protected static void setExplicitWaitForElementToBeVisible(WebElement element, int seconds){
+        log.info("Waiting for Element to be visible for "+seconds+" seconds");
+        new WebDriverWait(driver, Duration.ofSeconds(seconds)).until(ExpectedConditions.visibilityOf(element));
+    }
+
+    //ExplicitWait for element to be invisible
+    public void setExplicitWaitForElementToBeInvisible(WebElement element, int seconds){
+        log.info("Waiting for Element to be invisible for "+seconds+" seconds");
+        new WebDriverWait(driver, Duration.ofSeconds(seconds)).until(ExpectedConditions.invisibilityOf(element));
+    }
+
+
 
 }
 
+  

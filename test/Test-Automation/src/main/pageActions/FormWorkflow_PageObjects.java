@@ -9,10 +9,9 @@ import org.openqa.selenium.support.PageFactory;
 
 public class FormWorkflow_PageObjects extends BasePage {
 
-    private WebDriver driver;
 
     public FormWorkflow_PageObjects(WebDriver driver){
-        this.driver=driver;
+        super();
         PageFactory.initElements(driver,this);
     }
 

@@ -6,6 +6,7 @@ import main.pageActions.adminPage_Actions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.ITestContext;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -16,8 +17,10 @@ public class FormEditorTests extends BasePage {
     adminPage_Actions adminPageActions;
     FormEditorPageActions formEditorPageActions;
 
+
     @BeforeTest()
     public void TestInitialization(ITestContext context) {
+        System.out.println("FormEditorTests");
         extentTest = extentReports.createTest(context.getName());
         adminPageActions = new adminPage_Actions();
         adminPageActions.clickFormEditor();

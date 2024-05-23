@@ -8,6 +8,7 @@ import org.openqa.selenium.support.PageFactory;
 public class HomePageActions extends BasePage {
 
     public HomePageActions(){
+        super();
         PageFactory.initElements(driver,this);
     }
 

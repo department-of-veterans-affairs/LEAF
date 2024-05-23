@@ -1,17 +1,15 @@
 package main.pageActions;
 
 import main.Base.BasePage;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 class AdminUserAccess_PageObjects extends BasePage {
-    WebDriver driver;
 
-    public AdminUserAccess_PageObjects(WebDriver driver){
-        this.driver = driver;
-        PageFactory.initElements(driver,this);
+    public AdminUserAccess_PageObjects(){
+       super();
+       PageFactory.initElements(driver,this);
     }
 
     @FindBy (id = "details-button")

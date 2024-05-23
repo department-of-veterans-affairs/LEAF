@@ -9,10 +9,9 @@ import org.openqa.selenium.support.PageFactory;
 
 public class currentMethods_PageActions extends BasePage {
 
-    WebDriver driver;
 
     public currentMethods_PageActions(WebDriver driver){
-        this.driver=driver;
+        super();
         PageFactory.initElements(driver,this);
     }
 

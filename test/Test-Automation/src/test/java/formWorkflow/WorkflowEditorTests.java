@@ -16,13 +16,18 @@ public class WorkflowEditorTests extends BasePage {
     adminPage_Actions adminPageActions;
     WorkflowEditorPageActions workflowEditorPageActions ;
 
+    public WorkflowEditorTests() {
+        super();
+    }
+
     @BeforeTest()
-    public void TestInitialization(ITestContext context) {
+    public void WorkFlowTest(ITestContext context) {
         extentTest = extentReports.createTest(context.getName());
         adminPageActions = new adminPage_Actions();
         adminPageActions.clickWorkflowEditor();
         extentTest.info("WorkFlow Editor Page is opened successfully");
         workflowEditorPageActions = new WorkflowEditorPageActions();
+        System.out.println("WorkflowEditorTests");
     }
 
     @Test
