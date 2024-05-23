@@ -3852,7 +3852,8 @@ class Form
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
             $temp['categoryName'] = $item['categoryName'];
-            $temp['disabled'] = ($item['disabled'] == 1) ? 'Archived' : 'Deletion Date: '. $delDateFormat;
+            // TODO: change the below name. New output should use new property names instead of recycling existing ones.
+            $temp['disabled'] = ($item['disabled'] == 1) ? 'Archived' : 'Scheduled Deletion Date: '. $delDateFormat;
             $disabledIndicatorList[] = $temp;
         }
 
