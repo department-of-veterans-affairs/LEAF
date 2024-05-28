@@ -299,7 +299,7 @@
             // index by roles
             for(let depID in dataInboxes[sites[i].url][j].unfilledDependencyData) {
                 let uDD = dataInboxes[sites[i].url][j].unfilledDependencyData[depID];
-                let roleID = String(depID) + dataInboxes[sites[i].url][j].stepID;
+                let roleID = Number(depID);
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     roleID = Sha1.hash(uDD.approverUID);
@@ -502,7 +502,7 @@
 
         let formGrid = new LeafFormGrid('depList' + hash + '_' + stepID);
         formGrid.setRootURL(site.url);
-        formGrid.disableVirtualHeader(); // TODO: figure out why headers aren't sized correctly
+        formGrid.setStickyHeaderOffset('36px');
         formGrid.setDataBlob(res);
         formGrid.hideIndex();
         formGrid.setHeaders(headers);
@@ -562,7 +562,6 @@
             <button type="button" id="depLabel${hash}_${stepID}" class="depInbox" style="background-color: ${site.backgroundColor}">
                 <div>
                     <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
-                    <span style="color: ${site.fontColor}">${categoryName}</span>
                 </div>
                 <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
             </button>
