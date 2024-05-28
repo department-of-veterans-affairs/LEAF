@@ -6,7 +6,7 @@ require_once LIB_PATH . '/php-commons/Db.php';
 $startTime = microtime(true);
 
 $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
-
+$errorNotify = new Leaf\ErrorNotify();
 $orgcharts = $db->query("SELECT `site_path` FROM `sites` WHERE `site_type` = 'orgchart'");
 $dir = '/var/www/html';
 
@@ -26,9 +26,8 @@ foreach ($orgcharts as $orgchart) {
 }
 
 // send email this could be brought into the class to allow for reuse
-if(!empty($failedArray)){
-    mail('shane.ottinger@va.gov','Orgchar Refresh Error',var_export($failedArray));
-}
+
+$errorNotify->sendNotification('Orgchart Refresh Error',$failedArray);
 
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
