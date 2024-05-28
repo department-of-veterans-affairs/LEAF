@@ -2961,16 +2961,22 @@ class Form
             'www' => 1,
         );
         $words = explode(' ', trim($query));
+
+        //Prevent stopwords and words less than 3 characters from being included.
+        //Such words are not searched but would otherwise be marked as required.
+        //This would cause no results even if the data entry contained them.
+        $wordsin = array();
         foreach($words as $k => $word) {
             $searchWord = trim($word);
-            $firstChar = substr($searchWord, 0, 1);
-            if(strlen($searchWord) > 2 && $fulltext_stopwords[$searchWord] !== 1 && $firstChar !== '+' && $firstChar !== '-') {
-                $searchWord = '+' . $searchWord;
+            if(strlen($searchWord) > 2 && $fulltext_stopwords[$searchWord] !== 1) {
+                $wordsin[] = $searchWord;
             }
-            $words[$k] = htmlentities($searchWord, ENT_QUOTES);
         }
-
-        return implode(' ', $words);
+        foreach($wordsin as $k => $word) {
+            $firstChar = substr($word, 0, 1);
+            $wordsin[$k] = $firstChar !== '+' && $firstChar !== '-' ? '+' . $word : $word;
+        }
+        return implode(' ', $wordsin);
     }
 
     /**
