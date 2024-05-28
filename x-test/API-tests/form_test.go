@@ -89,7 +89,7 @@ func TestForm_WorkflowIndicatorAssigned(t *testing.T) {
 }
 
 func TestForm_IsMaskable(t *testing.T) {
-	res, _ := httpGet(rootURL + "api/form/_form_ce46b")
+	res, _ := httpGet(RootURL + "api/form/_form_ce46b")
 
 	var m FormCategoryResponse
 	err := json.Unmarshal([]byte(res), &m)
@@ -101,7 +101,7 @@ func TestForm_IsMaskable(t *testing.T) {
 		t.Errorf("./api/form/_form_ce46b isMaskable = %v, want = %v", m[0].IsMaskable, nil)
 	}
 
-	res, _ = httpGet(rootURL + "api/form/_form_ce46b?context=formEditor")
+	res, _ = httpGet(RootURL + "api/form/_form_ce46b?context=formEditor")
 
 	err = json.Unmarshal([]byte(res), &m)
 	if err != nil {
@@ -116,14 +116,14 @@ func TestForm_IsMaskable(t *testing.T) {
 func TestForm_NonadminCannotCancelOwnSubmittedRecord(t *testing.T) {
 	// Setup conditions
 	postData := url.Values{}
-	postData.Set("CSRFToken", csrfToken)
+	postData.Set("CSRFToken", CsrfToken)
 	postData.Set("numform_5ea07", "1")
 	postData.Set("title", "TestForm_NonadminCannotCancelOwnSubmittedRecord")
 	postData.Set("8", "1")
 	postData.Set("9", "112")
 
 	// TODO: streamline this
-	res, _ := client.PostForm(rootURL+`api/form/new`, postData)
+	res, _ := client.PostForm(RootURL+`api/form/new`, postData)
 	bodyBytes, _ := io.ReadAll(res.Body)
 	var response string
 	json.Unmarshal(bodyBytes, &response)
@@ -134,14 +134,14 @@ func TestForm_NonadminCannotCancelOwnSubmittedRecord(t *testing.T) {
 	}
 
 	postData = url.Values{}
-	postData.Set("CSRFToken", csrfToken)
-	client.PostForm(rootURL+`api/form/`+strconv.Itoa(recordID)+`/submit`, postData)
+	postData.Set("CSRFToken", CsrfToken)
+	client.PostForm(RootURL+`api/form/`+strconv.Itoa(recordID)+`/submit`, postData)
 
 	// Non-admin shouldn't be able to cancel a submitted record
 	postData = url.Values{}
-	postData.Set("CSRFToken", csrfToken)
+	postData.Set("CSRFToken", CsrfToken)
 
-	res, _ = client.PostForm(rootURL+`api/form/`+strconv.Itoa(recordID)+`/cancel?masquerade=nonAdmin`, postData)
+	res, _ = client.PostForm(RootURL+`api/form/`+strconv.Itoa(recordID)+`/cancel?masquerade=nonAdmin`, postData)
 	bodyBytes, _ = io.ReadAll(res.Body)
 	json.Unmarshal(bodyBytes, &response)
 	got := response
