@@ -3395,8 +3395,6 @@ class Form
                                 default:
                                     if($operator == 'MATCH ALL') {
                                         $vars[":data{$count}"] = $this->parseBooleanQuery($vars[":data{$count}"]);
-                                    } else {
-                                        $vars[":data{$count}"] = htmlentities(trim($vars[":data{$count}"]), ENT_QUOTES);
                                     }
 
                                     if(strpos($operator, 'MATCH') !== false) {
@@ -3409,6 +3407,9 @@ class Form
 
                                         $operator = 'AGAINST';
                                         $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                    } else {
+                                        //handle quotes, &, etc for non BOOLEAN MODE searches. update/rm on mv to markdown
+                                        $vars[":data{$count}"] = htmlentities(trim($vars[":data{$count}"]), ENT_QUOTES);
                                     }
                                     break;
                             }
