@@ -3399,6 +3399,59 @@ class Form
                     $conditions .= "{$gate}lj_dependency{$count}.dependencyID = :indicatorID{$count}";
 
                     break;
+                case 'stepAction':
+                    if (!isset($q['indicatorID']) || !is_numeric($q['indicatorID']))
+                    {
+                        return 0;
+                    }
+
+                    switch($operator) {
+                        case "=":
+                            $vars[':indicatorID' . $count] = $q['indicatorID']; // this is the stepID
+                            // This checks if someone has taken a specific action for a stepID
+                            // OUTER JOIN gets the most recent action for a specific stepID, since there can be
+                            // loops within a workflow, and people can take different actions later
+                            $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
+                                                    LEFT OUTER JOIN action_history sFA_ah{$count}
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID 
+                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.time < sFA_ah{$count}.time)
+                                            WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL) lj_action_history{$count}
+                                            USING (recordID) ";
+                            // Check if the step was fulfilled. This reduces confusion for multi-requirement steps (which would have multiple actions)
+                            $joins .= "LEFT JOIN (SELECT recordID, stepID, fulfillmentTime FROM records_step_fulfillment
+                                            WHERE stepID=:indicatorID{$count}) lj_action_history_fulfillment{$count}
+                                            USING (recordID) ";
+                            $conditions .= "{$gate}(lj_action_history{$count}.stepID=:indicatorID{$count}
+                                                    AND lj_action_history_fulfillment{$count}.fulfillmentTime IS NOT NULL
+                                                    AND lj_action_history{$count}.actionType=:stepAction{$count}
+                                                )";
+                            break;
+                        case "!=":
+                            // This checks if someone has taken a specific action for a stepID
+                            // OUTER JOIN gets the most recent action for a specific stepID, since there can be
+                            // loops within a workflow, and people can take different actions later
+                            $vars[':indicatorID' . $count] = $q['indicatorID']; // this is the stepID
+                            $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
+                                                    LEFT OUTER JOIN action_history sFA_ah{$count}
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID
+                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.time < sFA_ah{$count}.time)
+                                            WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL AND ah.actionType=:stepAction{$count}) lj_action_history{$count}
+                                            USING (recordID) ";
+                            $conditions .= "{$gate}lj_action_history{$count}.stepID IS NULL";
+                            break;
+                        case "not implemented": // disabled
+                            // This checks if a specific action has never been taken for a stepID
+                            $vars[':indicatorID' . $count] = $q['indicatorID'];
+                            $joins .= "LEFT JOIN (SELECT recordID, stepID FROM action_history
+                                        WHERE stepID=:indicatorID{$count}
+                                            AND actionType=:stepAction{$count}) lj_action_history{$count}
+                                        USING (recordID) ";
+                            $conditions .= "{$gate}lj_action_history{$count}.stepID IS NULL";
+                            break;
+                    }
+                    break;
                 default:
                     return 0;
             }
