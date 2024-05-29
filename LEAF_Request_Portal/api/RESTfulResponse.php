@@ -631,29 +631,30 @@ abstract class RESTfulResponse
     }
 
     /**
-     * filterDataActionHistory is a helper function for filterData
+     * filterSubkeys is a helper function for filterData
      *
-     * @param array $actionHistory
-     * @param array $filter
+     * @param string $keyName Name of the child key
+     * @param array $subKey Content of the child key
+     * @param array $filter User's filter
      *
      * @return array
      *
      * Created at: 3/24/2023, 8:09:01 AM (America/New_York)
      */
-    private function filterDataActionHistory(array $actionHistory, array $filter): array
+    private function filterSubkeys(string $keyName, array $subKey, array $filter): array
     {
         // iterate through keys within each action_history set
-        foreach ($actionHistory as $actionIdx => $actionItem) {
-            $actionKeys = array_keys($actionItem);
+        foreach ($subKey as $keyIdx => $item) {
+            $keys = array_keys($item);
 
-            foreach ($actionKeys as $actionKey) {
-                if (!isset($filter['action_history.' . $actionKey])) {
-                    unset($actionHistory[$actionIdx][$actionKey]);
+            foreach ($keys as $key) {
+                if (!isset($filter[$keyName . '.' . $key])) {
+                    unset($subKey[$keyIdx][$key]);
                 }
             }
         }
 
-        return $actionHistory;
+        return $subKey;
     }
 
     /**
@@ -684,6 +685,7 @@ abstract class RESTfulResponse
             // add data fields that are implicitly requested
             $filter['s1'] = 1;
             $filter['action_history'] = 1;
+            $filter['child'] = 1;
 
             // iterate through each record
             foreach ($data as $key => $value) {
@@ -711,7 +713,12 @@ abstract class RESTfulResponse
 
                     // filter out action_history fields if applicable
                     if (isset($data[$key]['action_history'])) {
-                        $data[$key]['action_history'] = $this->filterDataActionHistory($data[$key]['action_history'], $filter);
+                        $data[$key]['action_history'] = $this->filterSubkeys('action_history', $data[$key]['action_history'], $filter);
+                    }
+
+                    // filter out child fields (e.g. form/[id]data/tree) if applicable
+                    if (isset($data[$key]['child'])) {
+                        $data[$key]['child'] = $this->filterSubkeys('child', $data[$key]['child'], $filter);
                     }
                 }
             }

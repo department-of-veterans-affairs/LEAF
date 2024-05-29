@@ -150,3 +150,21 @@ func TestForm_NonadminCannotCancelOwnSubmittedRecord(t *testing.T) {
 		t.Errorf("./api/form/[recordID]/cancel got = %v, want = %v", got, "An error message")
 	}
 }
+
+func TestForm_FilterChildkeys(t *testing.T) {
+	res, _ := httpGet(RootURL + "api/form/9/data/tree?x-filterData=child.name")
+
+	var m FormCategoryResponse
+	err := json.Unmarshal([]byte(res), &m)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if m[0].Child[4].Name == "" {
+		t.Errorf("./api/form/9/data/tree?x-filterData=child.name child[4].name = %v, want = %v", m[0].Child[4].Name, "")
+	}
+
+	if m[0].Child[4].IndicatorID != 0 {
+		t.Errorf("./api/form/9/data/tree?x-filterData=child.name child[4].indicatorID = %v, want = %v", m[0].Child[4].IndicatorID, "undefined")
+	}
+}
