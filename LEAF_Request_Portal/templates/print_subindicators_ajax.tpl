@@ -230,7 +230,8 @@
                 <!--{if $indicator.displayedValue != ''}-->
                     <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$indicator.value|escape}-->"><!--{$indicator.displayedValue|sanitize}--></a>
                 <!--{else}-->
-                Loading...
+                    empUID #:<!--{$indicator.value|escape }--> (disabled account)<br>
+                    Recorded on <!--{$indicator.timestamp|date_format}--> by <!--{$indicator.userID|escape}-->
                 <!--{/if}-->
             </div>
             <!--{else}-->
