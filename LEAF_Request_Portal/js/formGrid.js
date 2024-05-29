@@ -942,17 +942,16 @@ var LeafFormGrid = function (containerID, options) {
           line[i] = trimmedText;
           //prevent some values from being interpreted as dates by excel
           const dataFormat = indicatorFormats[val.getAttribute("data-indicator-id")];
-          const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
+          const testExcelDateFormat = /^\d{1,2}[\/-]\d{1,2}([\/-]\d{2,4})?$/; // Excel thinks these are dates
           const isNumber = /^\d+$/;
 
-          line[i] =
-            (dataFormat !== null &&
-              dataFormat !== 'date' &&
-              testDateFormat.test(line[i])) ||
-            (isNumber.test(line[i]) &&
-              dataFormat === 'text')
-              ? `="${line[i]}"`
-              : line[i];
+          if(dataFormat == 'text') {
+              if(isNumber.test(line[i]) // workaround for excel's handling of very large numbers (e.g. serial number)
+                 || testExcelDateFormat.test(line[i])) {
+                  line[i] = `="${line[i]}"`;
+              }
+          }
+
           if (i == 0 && headers[i] == "UID") {
             line[i] =
               '=HYPERLINK("' +
