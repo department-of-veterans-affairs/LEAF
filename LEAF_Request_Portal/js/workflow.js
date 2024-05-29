@@ -669,7 +669,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             response.comment != null
                         ) {
                             text +=
-                                '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px">' +
+                                '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px; word-break:break-word;">' +
                                 response.comment +
                                 "</div></div>";
                         }
