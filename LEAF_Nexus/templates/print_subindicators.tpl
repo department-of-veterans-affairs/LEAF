@@ -83,7 +83,7 @@
     }
     function showAllFields() {
         $('.printformblock').css('display', 'inline');
-        $('.notrequired').css('display', 'inline');
+        $('.notrequired:not(#tools button.options)').css('display', 'inline');
         $('.tempText').css('display', 'none');
     }
 </script>

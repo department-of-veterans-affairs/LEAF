@@ -263,10 +263,8 @@ class Form
                 $fullFormPages = array_merge($fullFormPages, $form);
             }
         }
-        $return_value['status']['code'] = 2;
-        $return_value['status']['message'] = "Success";
-        $return_value['data'] = $fullFormPages;
-        return $return_value;
+
+        return $fullFormPages;
     }
 
     /**
@@ -463,6 +461,12 @@ class Form
 
     /**
      * Get a form's indicator and all children, including data if available
+     * 
+     * Flags:
+     *  $_GET['context'] If the context is set to "formEditor", an additional "isMaskable" property indicates
+     *                   whether the field has Special Access Restrictions assigned. Used in the Form Editor
+     *                   to provide a visual indicator.
+     * 
      * @param int $indicatorID
      * @param int $series
      * @param int $recordID
@@ -504,7 +508,9 @@ class Form
             }
             else {
                 $vars = array(':indicatorID' => $indicatorID);
-                $data = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
+                $data = $this->db->prepared_query('SELECT * FROM indicators
+                                                    LEFT JOIN indicator_mask USING (indicatorID)
+                                                    WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
                 $this->cache['getIndicator_'.$indicatorID] = $data;
             }
         }
@@ -531,6 +537,10 @@ class Form
             if(!$forceReadOnly) {
                 $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
                 $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
+
+                if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
+                    $form[$idx]['isMaskable'] = isset($data[0]['groupID']) ? 1 : 0;
+                }
             }
             $form[$idx]['sort'] = $data[0]['sort'];
 
@@ -762,76 +772,66 @@ class Form
     }
 
     /**
+     * cancelRecord marks a record as cancelled.
+     * 
+     * Only admins should be able to cancel submitted records.
+     * 
      * @param int $recordID
      * @param string $comment
      *
-     * @return int|string
-     *
-     * Created at: 8/24/2023, 2:15:39 PM (America/New_York)
+     * @return int|string Return 1 on success, error string on failure
      */
-    public function deleteRecord(int $recordID, ?string $comment = ''): int|string
+    public function cancelRecord(int $recordID, ?string $comment = ''): int|string
     {
-        if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
-            $return_value = 0;
-        } elseif (!$this->hasWriteAccess($recordID)) {
-            $return_value = 'Please contact your administrator to cancel this request to help avoid confusion in the process.';
-        } else {
-            // only allow admins to delete resolved requests
-            $vars = array(':recordID' => $recordID);
-            $sql = 'SELECT `recordID`, `submitted`, `stepID`
+        $return_value = 'Please contact your administrator';
+
+        $vars = array(':recordID' => $recordID);
+        $sql = 'SELECT `submitted`
                     FROM `records`
-                    LEFT JOIN `records_workflow_state` USING (`recordID`)
-                    WHERE `recordID` = :recordID
-                    AND `submitted` > 0';
+                    WHERE `recordID` = :recordID';
+        $resIsSubmitted = $this->db->prepared_query($sql, $vars);
+
+        if ($resIsSubmitted[0]['submitted'] != 0 && !$this->login->checkGroup(1)) {
+            $return_value = 'To help avoid confusion in the process, Please contact your administrator to cancel this request.';
+        } else if ($this->hasWriteAccess($recordID)) {
+            $vars = array(':recordID' => $recordID,
+                        ':time' => time());
+            $sql = 'UPDATE `records`
+                    SET `deleted` = :time
+                    WHERE `recordID` = :recordID';
 
             $res = $this->db->prepared_query($sql, $vars);
 
-            if (
-                isset($res[0])
-                && $res[0]['stepID'] == null
-                && !$this->login->checkGroup(1)
-            ) {
-                $return_value = 'Cannot cancel resolved request.';
-            } else {
-                $vars = array(':recordID' => $recordID,
-                            ':time' => time());
-                $sql = 'UPDATE `records`
-                        SET `deleted` = :time
-                        WHERE `recordID` = :recordID';
+            // actionID 4 = delete
+            $vars = array(':recordID' => $recordID,
+                        ':userID' => $this->login->getUserID(),
+                        ':dependencyID' => 0,
+                        ':actionType' => 'deleted',
+                        ':actionTypeID' => 4,
+                        ':time' => time(),
+                        ':comment' => XSSHelpers::xscrub($comment));
+            $sql = 'INSERT INTO `action_history`
+                        (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
+                    VALUES
+                        (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
 
-                $res = $this->db->prepared_query($sql, $vars);
+            $res = $this->db->prepared_query($sql, $vars);
 
-                // actionID 4 = delete
-                $vars = array(':recordID' => $recordID,
-                            ':userID' => $this->login->getUserID(),
-                            ':dependencyID' => 0,
-                            ':actionType' => 'deleted',
-                            ':actionTypeID' => 4,
-                            ':time' => time(),
-                            ':comment' => XSSHelpers::xscrub($comment));
-                $sql = 'INSERT INTO `action_history`
-                            (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
-                        VALUES
-                            (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+            // delete state
+            $vars = array(':recordID' => $recordID);
+            $sql = 'DELETE
+                    FROM `records_workflow_state`
+                    WHERE `recordID` = :recordID';
 
-                $res = $this->db->prepared_query($sql, $vars);
+            $this->db->prepared_query($sql, $vars);
 
-                // delete state
-                $vars = array(':recordID' => $recordID);
-                $sql = 'DELETE
-                        FROM `records_workflow_state`
-                        WHERE `recordID` = :recordID';
+            // delete tags
+            $vars = array(':recordID' => $recordID);
+            $sql = 'DELETE
+                    FROM `tags`
+                    WHERE `recordID` = :recordID';
 
-                $this->db->prepared_query($sql, $vars);
-
-                // delete tags
-                $vars = array(':recordID' => $recordID);
-                $sql = 'DELETE
-                        FROM `tags`
-                        WHERE `recordID` = :recordID';
-
-                $res = $this->db->prepared_query($sql, $vars);
-            }
+            $res = $this->db->prepared_query($sql, $vars);
 
             $return_value = 1;
         }
@@ -1130,7 +1130,7 @@ class Form
             $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
                                                    VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
         }
-
+        /*  signatures (not yet implemented)
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series, );
@@ -1141,7 +1141,7 @@ class Form
 
         if (strpos($res[0]['format'], 'signature') == 0) {
             // $this->writeSignature($recordID);
-        }
+        }*/
         return 1;
     }
 
@@ -1404,8 +1404,9 @@ class Form
                         LEFT JOIN workflow_steps USING (workflowID)
                         LEFT JOIN step_dependencies USING (stepID)
                         WHERE recordID=:recordID
-                        AND count > 0
-                        AND workflowID > 0';
+                            AND count > 0
+                            AND workflowID != 0
+                        GROUP BY dependencyID';
 
                 $res = $this->db->prepared_query($sql, $vars);
 
@@ -4130,15 +4131,15 @@ class Form
             $indicatorList = '';
             foreach ($res as $field)
             {
-                if ($series != null && $recordID != null && is_numeric($field['indicatorID']))
+                if (is_numeric($field['indicatorID']))
                 {
                     $indicatorList .= "{$field['indicatorID']},";
                 }
             }
+            $indicatorList = trim($indicatorList, ',');
 
             if ($series != null && $recordID != null)
             {
-                $indicatorList = trim($indicatorList, ',');
                 $var = array(':series' => (int)$series,
                              ':recordID' => (int)$recordID, );
                 $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID, userID FROM data
@@ -4154,14 +4155,21 @@ class Form
                     $data[$idx]['userID'] = $resIn['userID'];
                 }
             }
+            else if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
+                $res2 = $this->db->prepared_query('SELECT indicatorID, groupID FROM indicators
+                									LEFT JOIN indicator_mask USING (indicatorID)
+                									WHERE indicatorID IN (' . $indicatorList . ')', []);
+
+                foreach ($res2 as $resIn)
+                {
+                    $idx = $resIn['indicatorID'];
+                    $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
+                }
+            }
 
             foreach ($res as $field)
             {
-                if (isset($_GET['childkeys']) && strtolower($_GET['childkeys']) === 'nonnumeric') {
-                    $idx = "id".$field['indicatorID'];
-                } else {
-                    $idx = $field['indicatorID'];
-                }
+                $idx = $field['indicatorID'];
 
                 $child[$idx]['indicatorID'] = $field['indicatorID'];
                 $child[$idx]['series'] = $series;
@@ -4181,6 +4189,10 @@ class Form
                 $child[$idx]['sort'] = $field['sort'];
                 $child[$idx]['has_code'] = trim($field['html']) != '' || trim($field['htmlPrint']) != '';
                 $child[$idx]['userID'] = $data[$idx]['userID'];
+                if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
+                    $child[$idx]['isMaskable'] = isset($data[$idx]['groupID']) ? 1 : 0;
+                }
+
                 $inputType = explode("\n", $field['format']);
                 $numOptions = count($inputType) > 1 ? count($inputType) : 0;
                 for ($i = 1; $i < $numOptions; $i++)
@@ -4376,6 +4388,9 @@ class Form
     }
 
     public function permanentlyDeleteRecord($recordID) {
+        if(!$this->login->checkGroup(1)) {
+            return 0;
+        }
         /*if ($_POST['CSRFToken'] != $_SESSION['CSRFToken']) {
             return 0;
         }*/

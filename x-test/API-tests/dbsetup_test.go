@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strings"
 )
 
 var origPortalDbName, origNexusDbName string
@@ -80,9 +81,15 @@ func setupTestDB() {
 		testNexusDbName)
 }
 
+func updateTestDBSchema() {
+	res, _ := httpGet(RootURL + `scripts/updateDatabase.php`)
+	if strings.Contains(res, `Db Update failed`) {
+		log.Fatal(`Could not update database schema: ` + res)
+	}
+}
+
 // teardownTestDB reroutes the standard LEAF dev environment back to the original configuration
 func teardownTestDB() {
-	// Setup test database
 	db, err := sql.Open("mysql", mysqlDSN)
 	if err != nil {
 		log.Fatal("Can't connect to database: ", err.Error())

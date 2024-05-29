@@ -11,6 +11,10 @@
 .table td {
     font-size: 12pt;
 }
+.table th {
+    border: 1px solid black;
+    padding: 4px;
+}
 
 .dc-chart g.row text {
     fill: black;
@@ -96,8 +100,11 @@ function isNumeric(x) {
 }
 
 function scrubHTML(input) {
-        let t = new DOMParser().parseFromString(input, 'text/html').body;
-        return t.textContent;
+    if(input == undefined) {
+        return '';
+    }
+    let t = new DOMParser().parseFromString(input, 'text/html').body;
+    return t.textContent;
 }
 
 // Update window title
@@ -162,7 +169,7 @@ function buildFacts(fields, data) {
 
         // assign user-defined fields
         fields.forEach(field => {
-        	temp[field.indicatorID] = data[i].s1?.['id' + field.indicatorID];
+        	temp[field.indicatorID] = scrubHTML(data[i].s1?.['id' + field.indicatorID]);
             if(temp[field.indicatorID] == null || temp[field.indicatorID] == '') {
                 temp[field.indicatorID] = 'Blank';
             }
@@ -188,6 +195,8 @@ function buildFacts(fields, data) {
                 }
                 temp[field.indicatorID] = date;
             }
+
+            temp[field.indicatorID] = scrubHTML(temp[field.indicatorID]);
         });
         parsed.push(temp);
     }
@@ -546,19 +555,19 @@ async function selectForm() {
             }
         );
 
-        activityCharts[form.categoryID] = dc.barChart(`#activity_${form.categoryID}`, 'activity');
+        activityCharts[form.categoryID] = dc.lineChart(`#activity_${form.categoryID}`, 'activity');
 
         activityCharts[form.categoryID]
             .width(100)
             .height(24)
             .dimension(dimActivityTime)
             .group(groupActivity[form.categoryID])
-            .valueAccessor(d => d.value[form.categoryID])
+            .valueAccessor(d => d.value[form.categoryID] == undefined ? 0 : d.value[form.categoryID])
             .brushOn(false)
             .margins({left: 0, top: 4, right: 0, bottom: 0})
             .x(d3.scaleTime().domain([minDate, maxDate]))
             .xUnits(() => 16)
-        	.gap(2);
+            .title(d => d.key.toLocaleDateString('en-us') + ': ' + d.value[form.categoryID] + ' request(s)');
         document.querySelector(`#activity_${form.categoryID}`).innerHTML = '';
     });
 
@@ -635,6 +644,7 @@ async function getDataBuildCharts(categoryID, customSearch) {
     	if(field.description != '') {
             t.name = field.description;
         }
+        t.name = scrubHTML(t.name);
         exportFields.push(t);
     });
 
@@ -738,6 +748,7 @@ async function main() {
     });
     leafSearch.search('');
     leafSearch.init();
+    document.querySelector('#' + leafSearch.getPrefixID() + 'advancedSearchButton').click();
 
     if(userQuery.terms == undefined) {
         getDataBuildCharts(categoryID);
@@ -758,10 +769,9 @@ async function main() {
         }
         leafSearch.renderPreviousAdvancedSearch(userQuery.terms);
     }
-    
+
     document.querySelector('#btn_addFilter').addEventListener('click', function() {
     	dialog_message.show();
-        document.querySelector('#' + leafSearch.getPrefixID() + 'advancedSearchButton').click();
     });
     
 }

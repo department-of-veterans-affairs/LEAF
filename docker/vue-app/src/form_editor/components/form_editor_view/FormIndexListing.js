@@ -69,16 +69,16 @@ export default {
                 @dragenter.prevent="onDragEnter"
                 @dragleave="onDragLeave">
 
-                <form-index-listing v-for="(child, k, i) in formNode.child"
-                    :id="'index_listing_' + child.indicatorID"
+                <form-index-listing v-for="(listItem, idx) in formNode.child"
+                    :id="'index_listing_' + listItem.indicatorID"
                     :categoryID="categoryID"
                     :formPage=formPage
                     :depth="depth + 1"
                     :parentID="indicatorID"
-                    :indicatorID="child.indicatorID"
-                    :formNode="child"
-                    :index="i"
-                    :key="'index_list_item_' + child.indicatorID"
+                    :indicatorID="listItem.indicatorID"
+                    :formNode="listItem"
+                    :index="idx"
+                    :key="'index_list_item_' + listItem.indicatorID"
                     :draggable="!previewMode"
                     @dragstart.stop="startDrag">
                 </form-index-listing>

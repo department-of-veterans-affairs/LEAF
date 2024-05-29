@@ -32,7 +32,7 @@
 
             </script>
         <!--{/if}-->
-        <!--{if $indicator.format == null}-->
+        <!--{if $indicator.format == ''}-->
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'textarea'}-->

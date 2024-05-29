@@ -80,6 +80,7 @@ function addHeader(column) {
             break;
         case 'service':
             filterData['service'] = 1;
+            leafSearch.getLeafFormQuery().join('service');
             headers.push({
                 name: 'Service',
                 indicatorID: 'service',
@@ -360,7 +361,6 @@ function addHeader(column) {
                             if(tDepHeader[depID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
                                 $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
-                                $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
                                 tDepHeader[depID] = 1;
                             }
                         }
@@ -386,7 +386,6 @@ function addHeader(column) {
                             if(tStepHeader[stepID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
                                 $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
-                                $('#Vheader_' + column).html(blob[data.recordID].stepFulfillment[stepID].step);
                                 tStepHeader[stepID] = 1;
                             }
                         }
@@ -530,12 +529,12 @@ function loadSearchPrereqs() {
             //toggle all subcheckboxes with parent indicator checkbox
             $('.indicatorOption > label > input').on('change', function() {
                 const indicatorIsChecked = this.checked;
-                $(`input[id^="indicators_${this.value}_columns"`).prop('checked', indicatorIsChecked);
+                $(`input[id^="indicators_${this.value}_columns"]`).prop('checked', indicatorIsChecked);
             });
             //check parent if any subcheckbox is checked, uncheck if none are checked
             $('.subIndicatorOption > label > input').on('change', function() {
                 const indicatorID = this.getAttribute('gridparent');
-                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"`));
+                const siblings = Array.from($(`input[id^="indicators_${indicatorID}_columns"]`));
                 const atLeastOneChecked = siblings.some(sib => sib.checked === true);
                 if(atLeastOneChecked) {
                     $(`#indicators_${indicatorID}`).prop('checked', true);
@@ -566,7 +565,7 @@ function loadSearchPrereqs() {
 
             $.ajax({
                 type: 'GET',
-                url: './api/workflow/steps',
+                url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
                 dataType: 'json',
                 success: function(res) {
                     let allStepsData = res;
@@ -651,7 +650,6 @@ function updateHeaderColors(){
                 bg_color = '#D1DFFF';
             }
             let elHeader = document.getElementById(grid.getPrefixID() + "header_" + header.indicatorID);
-            let elVHeader = document.getElementById("Vheader_" + header.indicatorID);
             let arrRGB = [];  //convert from hex to RGB
             for (let i = 1; i < 7; i += 2) {
                 arrRGB.push(parseInt(bg_color.slice(i, i + 2), 16));
@@ -663,9 +661,7 @@ function updateHeaderColors(){
             //pick text color based on bgcolor, apply to headers
             let textColor = maxVal < 128 || (sum < 350 && arrRGB[1] < 225) ? 'white' : 'black';
             elHeader.style.setProperty('background-color', bg_color);
-            elVHeader.style.setProperty('background-color', bg_color);
             elHeader.style.setProperty('color', textColor);
-            elVHeader.style.setProperty('color', textColor);
         }
     });
 }
@@ -900,7 +896,7 @@ function showJSONendpoint() {
             $('#exportPath').html(pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/open/form/query/_' + res + '?x-filterData=recordID,'+ Object.keys(filterData).join(','));
            if($('#msCompatMode').is(':checked')) {
                 $('#expandLink').css('display', 'none');
-                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res + '&x-filterData=recordID,'+ Object.keys(filterData).join(','));
+                $('#exportPath').html(powerQueryURL + 'api/open/form/query/_' + res + '?x-filterData=recordID,'+ Object.keys(filterData).join(','));
             }
             else {
                 $('#expandLink').css('display', 'inline');
@@ -1177,7 +1173,6 @@ $(function() {
             if(!isSearchingDeleted(leafSearch)) {
                 leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
             }
-            leafSearch.getLeafFormQuery().join('service');
             headers = [];
         }
         else if(!isSearchingDeleted(leafSearch)) {
@@ -1336,6 +1331,26 @@ $(function() {
                 }
                 $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
                 renderGrid(queryResult);
+                //update Checkpoint Date Step header text if still needed (should be rare)
+                if(tStepHeader.some(ele => ele === 0)) {
+                    $.ajax({
+                        type: 'GET',
+                        url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
+                        dataType: 'json',
+                        success: (res) => {
+                            let div = document.createElement('div');
+                            res.forEach(step => {
+                                if(tStepHeader[step.stepID] === 0) {
+                                    const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
+                                    $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
+                                    tStepHeader[step.stepID] = 1;
+                                }
+                            });
+
+                        },
+                        error: (err) => console.log(err),
+                    });
+                }
             }
         });
 
