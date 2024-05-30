@@ -643,7 +643,7 @@ abstract class RESTfulResponse
      */
     private function filterSubkeys(string $keyName, array $subKey, array $filter): array
     {
-        // iterate through keys within each action_history set
+        // iterate through keys within each subset
         foreach ($subKey as $keyIdx => $item) {
             $keys = array_keys($item);
 
