@@ -8,7 +8,7 @@
 	<test name="Forms Workflow">
 
 			<classes>
-				<!--<class name="FormEditorTests"/>-->
+				<!--<class name="test.java.formWorkflow.FormEditorTests"/>-->
 				<class name="${class.name}"/>
 			</classes>
 	</test>

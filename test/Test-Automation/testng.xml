@@ -2,13 +2,13 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="RegressionSuite" thread-count="1" parallel="false" configfailurepolicy="continue">
 	<parameter name="env" value="qa"/>
-	<parameter name="app_url" value="https://localhost/LEAF_Request_Portal/admin/?a=form#"/>
+	<parameter name="app_url" value="https://host.docker.internal/LEAF_Request_Portal/admin"/>
 	<parameter name="browser" value="chrome"/>
 	<parameter name="remote_url" value=""/>
 	<test name="Forms Workflow">
 
 			<classes>
-				<class name="test.java.formWorkflow.FormEditorTests"/>
+				<class name="test.java.FormEditorTests"/>
 			</classes>
 	</test>
 

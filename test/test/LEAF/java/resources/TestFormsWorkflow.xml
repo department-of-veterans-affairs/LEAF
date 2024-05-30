@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="RegressionSuite" thread-count="1" parallel="false" configfailurepolicy="continue">
-	<parameter name ="env" value="${env.run}"/>
-	<parameter name="app_url" value="${app.url}"/>
-	<parameter name="browser" value="${browser}"/>
-	<parameter name="remote_url" value="${remote.url}"/>
-	<test name="Forms Workflow">
 
+
+	<test name="Forms Workflow">
+			<parameter name="env" value="${app.url}">
+			<parameter name="browser" value="chrome"/>
+			<parameter name="remote_url" value="${remote.url}"/>
 			<classes>
-				<!--<class name="FormEditorTests"/>-->
-				<class name="${class.name}"/>
+				<class name="test.java.FormEditorTests"/>
 			</classes>
+		</parameter>
 	</test>
 
 <!--    -->   	

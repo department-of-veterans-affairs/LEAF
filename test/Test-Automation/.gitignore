@@ -1,19 +1,32 @@
+# Ignore general build and IDE directories
 bin/
 test-output/
 target/
 .idea/
 .idea/**
+
+# Ignore output directories and specific file patterns in Test-Automation
 output/
 Test-Automation.iml
 Test-Automation/
 Test-Automation/**/*.html
 Test-Automation/**/*.iml
-Test-Automation/**/*.output/
-Test-Automation/**/*.idea/
-Test-Automation/**/*.Screenshot/
-Test-Automation/**/*.test-output/
-Test-Automation/**/*.target/
+Test-Automation/**/output/
+Test-Automation/**/.idea/
+Test-Automation/**/Screenshot/
+Test-Automation/**/test-output/
+Test-Automation/**/target/
+
+# Ignore specific screenshot patterns
 Screenshot/screenshot_*.png
 Screenshot/*.png
+
+# Ignore test result files
 TestResult.html
 index.html
+
+# Ignore specific test automation files
+test/Test-Automation/output/surefire-reports/
+
+# Ignore specific qrcode error file
+app/libs/qrcode/tmp_91031ae2af67021c73bf6d3289dd0c75e566e1f7.png-errors.txt

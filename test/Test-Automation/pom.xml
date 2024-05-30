@@ -11,12 +11,12 @@
         <java.version>1.8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <class.name> test.java.formWorkflow.FormEditorTests</class.name>
+        <class.name>test.java.FormEditorTests</class.name>
         <app.url>https://localhost/LEAF_Request_Portal/admin/?a=form#</app.url>
         <env.run>qa</env.run>
         <remote.url></remote.url>
         <browser>chrome</browser>
-        <selenium.version>4.10.0</selenium.version>
+        <selenium.version>4.11.0</selenium.version>
         <testng.version>7.1.0</testng.version>
         <log4j.version>2.19.0</log4j.version>
         <commons-io.version>2.16.1</commons-io.version>
