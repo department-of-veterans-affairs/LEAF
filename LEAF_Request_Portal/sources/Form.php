@@ -834,8 +834,6 @@ class Form
 
             // need to send emails to everyone upstream from the currect step.
             $this->notifyPriorSteps($recordID);
-            /* $status = $this->getDependencyStatus($recordID);
-            error_log(print_r($status, true)); */
 
             $return_value = 1;
         }
