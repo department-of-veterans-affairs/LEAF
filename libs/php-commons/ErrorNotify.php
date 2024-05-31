@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Leaf;
+namespace Leaf;
 
 
 class ErrorNotify
@@ -12,8 +12,9 @@ class ErrorNotify
     }
 
     public function sendNotification(string $title, array $errorsArr){
+        
         if(!empty($errorsArr)){
-            mail('shane.ottinger@va.gov',$title,var_export($errorsArr));
+            mail('shane.ottinger@va.gov,jamie.holcomb@va.gov,carrie.hanscom@va.gov,casey.herold@va.gov',$title,var_export($errorsArr,true));
         }
     }
 }

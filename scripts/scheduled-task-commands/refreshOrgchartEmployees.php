@@ -2,6 +2,7 @@
 // this file will need to be added, Pete's destruction ticket has it already.
 require_once 'globals.php';
 require_once LIB_PATH . '/php-commons/Db.php';
+require_once LIB_PATH . '/php-commons/ErrorNotify.php';
 
 $startTime = microtime(true);
 
@@ -15,7 +16,9 @@ $failedArray = [];
 foreach ($orgcharts as $orgchart) {
     echo "Orgchart: " . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php' . "\r\n";
     if (is_file($dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php')) {
-        $response = exec('php ' . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php') . "\r\n";
+        
+        $response = exec('php ' . $dir . $orgchart['site_path'] . '/scripts/refreshOrgchartEmployees.php',$output) . "\r\n";
+        
         if($response == '0'){
             $failedArray[] = $orgchart['site_path'].' (Failed)';
         }

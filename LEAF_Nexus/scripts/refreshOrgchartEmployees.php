@@ -23,8 +23,8 @@ $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB)
 $oc_login->loginUser();
 
 // prevent updating if orgchart is the same
-if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
-    echo 0; // success value
+if (@strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
+    echo 1; // success value
 } else {
 
     if (!empty($_GET['userName']) && !empty($_GET['empUID'])) {
@@ -34,11 +34,11 @@ if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
 
         $startTime = time();
         // echo "Refresh Orgchart Employees Start\n";
-        updateLocalOrgchartBatch();
+        $success = updateLocalOrgchartBatch();
 
         $endTime = time();
         // echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
-        echo 1; // success value
+        echo (int)$success; // success value
     }
 }
 
@@ -137,7 +137,7 @@ function updateLocalOrgchartBatch()
     $localEmployees = $oc_db->query($localEmployeeSql);
 
     if (count($localEmployees) == 0) {
-        return;
+        return TRUE;
     }
 
     $localEmployeeUsernames = [];
@@ -149,12 +149,17 @@ function updateLocalOrgchartBatch()
 
     // chunk it so we can go over this data.
     $localEmployeeUsernamesChunked = array_chunk($localEmployeeUsernames, 100);
-
+    $loopDidnotFail = true;
     // loop over the chunked names so we can limit how much data this will be inserting at a time.
     foreach ($localEmployeeUsernamesChunked as $localEmployeeUsernames) {
         // get employees from the nexus based on the username
-        updateEmployeeDataBatch($localEmployeeUsernames);
+        $returnStatus = updateEmployeeDataBatch($localEmployeeUsernames);
+        if($returnStatus == false){
+            $loopDidnotFail = false;
+        }
     }
+
+    return $loopDidnotFail;
 }
 /**
  * @param getEmployeeUIDs array $localEmployeeUsernames
@@ -287,6 +292,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
         $oc_db->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
     }
 
+    return TRUE;
 }
 
 /*

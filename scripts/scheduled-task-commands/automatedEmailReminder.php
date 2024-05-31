@@ -6,17 +6,26 @@ require_once LIB_PATH . '/php-commons/Db.php';
 $startTime = microtime(true);
 
 $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
-
+$errorNotify = new Leaf\ErrorNotify();
 $siteList = $db->query("SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal'");
 $dir = '/var/www/html';
+
+$failedArray = [];
+
 foreach ($siteList as $site) {
     echo "Portal: " . $dir . $site['site_path'] . '/scripts/automated_email.php' . "\r\n";
     if (is_file($dir . $site['site_path'] . '/scripts/automated_email.php')) {
-        echo exec('php ' . $dir . $site['site_path'] . '/scripts/automated_email.php') . "\r\n";
+        $response =  exec('php ' . $dir . $site['site_path'] . '/scripts/automated_email.php');
+        if($response == '0'){
+            $failedArray[] = $site['site_path'].' (Failed)';
+        }
     } else {
         echo "File was not found\r\n";
     }
 }
+
+$errorNotify->sendNotification('Automated Email Error',$failedArray);
+
 
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
