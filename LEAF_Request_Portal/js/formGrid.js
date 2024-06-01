@@ -364,13 +364,13 @@ var LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    */
   function sort(key, order, callback) {
+    const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
+    const headerText = document.querySelector(headerSelector)?.innerText || "";
     if (key != "recordID" && currLimit != Infinity) {
       renderBody(0, Infinity);
     }
 
     $("." + prefixID + "sort").css("display", "none");
-    const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
-    const headerText = document.querySelector(headerSelector)?.innerText || "";
     $(`th[id*="${prefixID}header_"]`).removeAttr('aria-sort');
     if (order.toLowerCase() == "asc") {
       $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", ascending.");
