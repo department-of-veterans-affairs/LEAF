@@ -331,6 +331,7 @@ var LeafFormQuery = function () {
     updateTerm,
     updateDataTerm,
     setQuery: (inc) => query = inc,
+    setBatchSize: (size) => batchSize = size,
     setLimit,
     setLimitOffset,
     setRootURL: (url) => rootURL = url,

@@ -1311,6 +1311,7 @@ $(function() {
             abortController.abort();
             abortLoad = true;
         });
+        leafSearch.getLeafFormQuery().setBatchSize(1000);
         leafSearch.getLeafFormQuery().setLimit(Infinity); // Backward compat: limit shouldn't exist
         leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
         leafSearch.getLeafFormQuery().setAbortSignal(abortController.signal);
