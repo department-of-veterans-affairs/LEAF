@@ -72,10 +72,10 @@ function addHeader(column) {
                 name: 'Title',
                 indicatorID: 'title',
                 callback: function(data, blob) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                    $('#'+data.cellContainerID).on('click', function(){
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].title;
+                    document.querySelector(`#${data.cellContainerID}`).addEventListener('click', () => {
                         changeTitle(data, $('#'+data.cellContainerID).html());
-                });
+                    });
             }});
             break;
         case 'service':
@@ -86,7 +86,7 @@ function addHeader(column) {
                 indicatorID: 'service',
                 editable: false,
                 callback: function(data, blob) {
-                $('#'+data.cellContainerID).html(blob[data.recordID].service);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
             }});
             break;
         case 'type':
@@ -102,7 +102,7 @@ function addHeader(column) {
                          types += blob[data.recordID].categoryNames[i] + ' | ';
                      }
                      types = types.substr(0, types.length - 3);
-                     $('#'+data.cellContainerID).html(types);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = types;
             }});
             break;
         case 'status':
@@ -119,7 +119,7 @@ function addHeader(column) {
                      if(blob[data.recordID].deleted > 0) {
                          status += ', Cancelled';
                      }
-                     $('#'+data.cellContainerID).html(status);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = status;
             }});
             break;
         case 'initiator':
@@ -128,7 +128,7 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName;
             }});
             break;
         case 'dateCancelled':
@@ -139,7 +139,7 @@ function addHeader(column) {
                 name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].deleted > 0) {
                     var date = new Date(blob[data.recordID].deleted * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
                 }
             }});
             headers.push({
@@ -147,7 +147,7 @@ function addHeader(column) {
                 if(blob[data.recordID].action_history != undefined) {
                     var cancelData = blob[data.recordID].action_history.pop();
                     if(cancelData != undefined && cancelData.actionType === 'deleted') {
-                        $('#'+data.cellContainerID).html(cancelData.approverName);
+                        document.querySelector(`#${data.cellContainerID}`).innerHTML = cancelData.approverName;
                     }
                 }
             }});
@@ -157,7 +157,7 @@ function addHeader(column) {
             headers.push({
                 name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
                 var date = new Date(blob[data.recordID].date * 1000);
-                $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
             }});
             break;
         case 'dateResolved':
@@ -167,13 +167,13 @@ function addHeader(column) {
                 name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionData != undefined) {
                     var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
                 }
             }});
             headers.push({
                 name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionData != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].recordResolutionData.lastStatus;
                 }
             }});
             break;
@@ -183,21 +183,21 @@ function addHeader(column) {
             headers.push({
                 name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionBy != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].recordResolutionBy.resolvedBy;
                 }
             }});
             break;
         case 'actionButton':
             headers.unshift({
                 name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html('<div tabindex="0" class="buttonNorm">Take Action</div>');
-                $('#'+data.cellContainerID).on('keydown', function(e) {
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = '<div tabindex="0" class="buttonNorm">Take Action</div>';
+                document.querySelector(`#${data.cellContainerID}`).addEventListener('keydown', function(e) {
                     if (e.which === 13) {
                         e.preventDefault();
                         loadWorkflow(data.recordID, grid.getPrefixID());
                     }
                 });
-                $('#'+data.cellContainerID).on('click', function() {
+                document.querySelector(`#${data.cellContainerID}`).addEventListener('click', function() {
                     loadWorkflow(data.recordID, grid.getPrefixID());
                 });
             }});
@@ -224,7 +224,7 @@ function addHeader(column) {
                          }
                      }
                      buffer += '</table>';
-                     $('#'+data.cellContainerID).html(buffer);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = buffer;
             }});
             break;
         case 'approval_history':
@@ -253,7 +253,7 @@ function addHeader(column) {
                                + delimLF + '</tr>';
                      }
                      buffer += '</table>';
-                     $('#'+data.cellContainerID).html(buffer);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = buffer;
                  }});
             break;
         case 'days_since_last_action':
@@ -305,7 +305,7 @@ function addHeader(column) {
                     else {
                         daysSinceAction = "Not Submitted";
                     }
-                    $('#'+data.cellContainerID).html(daysSinceAction);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = daysSinceAction;
                 }
             });
             break;
@@ -339,7 +339,7 @@ function addHeader(column) {
                         content = new Date(fulfillmentTime + destMilliseconds).toLocaleDateString();
                     }
                 }
-                $('#'+data.cellContainerID).html(content);
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = content;
             }});
             break;
         default:
@@ -357,10 +357,10 @@ function addHeader(column) {
                         if(blob[data.recordID].recordsDependencies != undefined
                             && blob[data.recordID].recordsDependencies[depID] != undefined) {
                             var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
-                            $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                            document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
                             if(tDepHeader[depID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-                                $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
+                                document.querySelector(`#${headerID}`).innerHTML = blob[data.recordID].recordsDependencies[depID].description;
                                 tDepHeader[depID] = 1;
                             }
                         }
@@ -381,11 +381,11 @@ function addHeader(column) {
                         if(blob[data.recordID].stepFulfillment != undefined
                             && blob[data.recordID].stepFulfillment[stepID] != undefined) {
                             var date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
-                            $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                            document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
 
                             if(tStepHeader[stepID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-                                $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
+                                document.querySelector(`#${headerID}`).innerHTML = blob[data.recordID].stepFulfillment[stepID].step;
                                 tStepHeader[stepID] = 1;
                             }
                         }
