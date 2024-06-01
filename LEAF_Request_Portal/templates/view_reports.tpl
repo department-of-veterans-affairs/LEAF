@@ -21,7 +21,7 @@
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%; padding-left: 8px;"></div>
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
-    <p id="reportStats" style="position: absolute; padding-left: 8px; z-index: 1"></p>
+    <br /><span id="reportStats" style="padding-left: 8px; z-index: 1"></span><button id="btn_abort" class="buttonNorm" style="display: none">Stop</button>
 </div>
 
 <div id="results" style="display: none">Loading...</div>
@@ -1295,8 +1295,7 @@ $(function() {
             clicked = false; //global to reduce dblclicks
         }
 
-        let batchSize = 1000;
-        let offset = 0;
+        let abortController = new AbortController();
         let queryResult = {};
         let abortLoad = false;
         let masquerade = '';
@@ -1307,55 +1306,48 @@ $(function() {
             addMasqueradeParam = '&masquerade=nonAdmin';
         }
 
-        leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
+        document.querySelector('#btn_abort').style.display = 'inline';
+        document.querySelector('#btn_abort').addEventListener('click', function() {
+            abortController.abort();
+            abortLoad = true;
+        });
+        leafSearch.getLeafFormQuery().setLimit(Infinity); // Backward compat: limit shouldn't exist
         leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
-
-        leafSearch.getLeafFormQuery().onSuccess(function(res, resStatus, resJqXHR) {
-            queryResult = Object.assign(queryResult, res);
-
-            if((Object.keys(res).length == batchSize
-                    || resJqXHR.getResponseHeader('leaf-query') == 'continue')
-                && !abortLoad) {
-                $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);
-                $('#btn_abort').on('click', function() {
-                    abortLoad = true;
-                });
-                offset += batchSize;
-                leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
-                leafSearch.getLeafFormQuery().execute();
-            }
-            else {
-                let partialLoad = '';
-                if(abortLoad) {
-                    partialLoad = ' (partially loaded)';
-                }
-                $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
-                renderGrid(queryResult);
-                //update Checkpoint Date Step header text if still needed (should be rare)
-                if(tStepHeader.some(ele => ele === 0)) {
-                    $.ajax({
-                        type: 'GET',
-                        url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
-                        dataType: 'json',
-                        success: (res) => {
-                            let div = document.createElement('div');
-                            res.forEach(step => {
-                                if(tStepHeader[step.stepID] === 0) {
-                                    const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
-                                    $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
-                                    tStepHeader[step.stepID] = 1;
-                                }
-                            });
-
-                        },
-                        error: (err) => console.log(err),
-                    });
-                }
-            }
+        leafSearch.getLeafFormQuery().setAbortSignal(abortController.signal);
+        leafSearch.getLeafFormQuery().onProgress(progress => {
+            $('#reportStats').html(`Loading ${progress}+ records`);
         });
 
         // get data
-        leafSearch.getLeafFormQuery().execute();
+        leafSearch.getLeafFormQuery().execute().then(queryResult => {
+            let partialLoad = '';
+            if(abortLoad) {
+                partialLoad = ' (partially loaded)';
+            }
+            document.querySelector('#btn_abort').style.display = 'none';
+            $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
+            renderGrid(queryResult);
+            //update Checkpoint Date Step header text if still needed (should be rare)
+            if(tStepHeader.some(ele => ele === 0)) {
+                $.ajax({
+                    type: 'GET',
+                    url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
+                    dataType: 'json',
+                    success: (res) => {
+                        let div = document.createElement('div');
+                        res.forEach(step => {
+                            if(tStepHeader[step.stepID] === 0) {
+                                const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
+                                $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
+                                tStepHeader[step.stepID] = 1;
+                            }
+                        });
+
+                    },
+                    error: (err) => console.log(err),
+                });
+            }
+        });
 
         // create save link once
         if(!extendedToolbar) {
@@ -1365,7 +1357,7 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="dynicons/?img=gnome-applications-science.svg&w=32" alt="" /> Modify Search</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="dynicons/?img=applications-other.svg&w=16" alt="" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="display: none; position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
             extendedToolbar = true;
 
 
