@@ -637,17 +637,7 @@ var LeafFormGrid = function (containerID, options) {
                   );
                 }
               }
-              buffer += `<td id="${prefixID + currentData[i].recordID}_${
-                headers[j].indicatorID
-              }"
-                                           data-editable="${editable}"
-                                           data-record-id="${
-                                             currentData[i].recordID
-                                           }"
-                                           data-indicator-id="${
-                                             headers[j].indicatorID
-                                           }">
-                                            ${data.data}</td>`;
+              buffer += `<td id="${prefixID + currentData[i].recordID}_${headers[j].indicatorID}" data-editable="${editable}" data-record-id="${currentData[i].recordID}" data-indicator-id="${headers[j].indicatorID}">${data.data}</td>`;
             }
           } else if (headers[j].callback != undefined) {
             buffer +=
