@@ -602,47 +602,18 @@ var LeafFormGrid = function (containerID, options) {
             if (currentData[i].s1 == undefined) {
               currentData[i].s1 = {};
             }
-            data.data =
-              currentData[i].s1["id" + headers[j].indicatorID] != undefined
-                ? currentData[i].s1["id" + headers[j].indicatorID]
-                : "";
+            data.data = '';
+            if(currentData[i].s1["id" + headers[j].indicatorID] != undefined) {
+              data.data = currentData[i].s1["id" + headers[j].indicatorID];
+            }
             validateHtml.innerHTML = data.data;
             data.data = validateHtml.innerHTML;
-            if (
-              currentData[i].s1["id" + headers[j].indicatorID + "_htmlPrint"] !=
-              undefined
-            ) {
-              var htmlPrint =
-                '<textarea id="data_' +
-                currentData[i].recordID +
-                "_" +
-                headers[j].indicatorID +
-                '_1" style="display: none">' +
-                data.data +
-                "</textarea>";
-              htmlPrint += currentData[i].s1[
-                "id" + headers[j].indicatorID + "_htmlPrint"
-              ]
-                .replace(
-                  /{{ iID }}/g,
-                  currentData[i].recordID + "_" + headers[j].indicatorID
-                )
+            if (currentData[i].s1[`id${headers[j].indicatorID}_htmlPrint`] != undefined) {
+              let htmlPrint = `<textarea id="data_${currentData[i].recordID}_${headers[j].indicatorID}_1" style="display: none">${data.data}</textarea>`;
+              htmlPrint += currentData[i].s1[`id${headers[j].indicatorID}_htmlPrint`]
+                .replace(/{{ iID }}/g, currentData[i].recordID + "_" + headers[j].indicatorID)
                 .replace(/{{ recordID }}/g, currentData[i].recordID);
-              buffer +=
-                '<td id="' +
-                prefixID +
-                currentData[i].recordID +
-                "_" +
-                headers[j].indicatorID +
-                '" data-editable="' +
-                editable +
-                '" data-record-id="' +
-                currentData[i].recordID +
-                '" data-indicator-id="' +
-                headers[j].indicatorID +
-                '">' +
-                htmlPrint +
-                "</td>";
+              buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-editable="${editable}" data-record-id="${currentData[i].recordID}" data-indicator-id="${headers[j].indicatorID}">${htmlPrint}</td>`;
             } else {
               if (headers[j].cols !== undefined) {
                 if (
