@@ -390,9 +390,7 @@ var LeafFormGrid = function (containerID, options) {
     var tDate;
     for (let i in currentData) {
       if (currentData[i][key] == undefined) {
-        currentData[i][key] = $(
-          "#" + prefixID + currentData[i].recordID + "_" + key
-        ).html();
+        currentData[i][key] = document.querySelector(`#${prefixID}${currentData[i].recordID}_${key}`).innerHTML;
         currentData[i][key] =
           currentData[i][key] == undefined ? "" : currentData[i][key];
       }
@@ -543,7 +541,7 @@ var LeafFormGrid = function (containerID, options) {
     var fullRender = false;
     if (startIdx == undefined || startIdx == 0) {
       startIdx = 0;
-      $("#" + prefixID + "tbody").empty();
+      document.querySelector(`#${prefixID}tbody`).innerHTML = '';
       renderHistory = {};
       fullRender = true;
     }
@@ -553,11 +551,7 @@ var LeafFormGrid = function (containerID, options) {
 
     var colspan = showIndex ? headers.length + 1 : headers.length;
     if (currentData.length == 0) {
-      $("#" + prefixID + "tbody").html(
-        '<tr><td colspan="' +
-          colspan +
-          '" style="text-align: center">No Results</td></tr>'
-      );
+      document.querySelector(`#${prefixID}tbody`).innerHTML = `<tr><td colspan="${colspan}" style="text-align: center">No Results</td></tr>`;
     }
     var counter = 0;
     var validateHtml = document.createElement("div");
@@ -735,24 +729,22 @@ var LeafFormGrid = function (containerID, options) {
       currentRenderIndex + limit >= currentData.length ||
       limit == undefined
     ) {
-      $("#" + prefixID + "tfoot").html("");
+      document.querySelector(`#${prefixID}tfoot`).innerHTML = '';
     } else {
-      $("#" + prefixID + "tfoot").html(
-        "<tr><td colspan=" +
-          colspan +
-          ' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="' +
-          rootURL +
-          'images/indicator.gif" style="vertical-align: middle" alt="" /> Loading more results...</td></tr>'
-      );
+      document.querySelector(`#${prefixID}tfoot`).innerHTML = `<tr>
+          <td colspan="${colspan}" style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold">
+            <img src="${rootURL}images/indicator.gif" style="vertical-align: middle" alt="" /> Loading more results...
+          </td>
+        </tr>`;
     }
 
-    $("#" + prefixID + "tbody").append(buffer);
-    $("#" + prefixID + "tbody td[data-editable=true]").addClass(
-      "table_editable"
-    );
-    $("#" + prefixID + "tbody td[data-clickable=true]").addClass(
-      "table_editable"
-    );
+    document.querySelector(`#${prefixID}tbody`).insertAdjacentHTML('beforeend', buffer);
+    document.querySelectorAll(`#${prefixID}tbody td[data-editable=true]`).forEach(el => {
+      el.classList.add('table_editable');
+    });
+    document.querySelectorAll(`#${prefixID}tbody td[data-clickable=true]`).forEach(el => {
+      el.classList.add('table_editable');
+    });
     $("#" + prefixID + "tbody").unbind("click"); //prevents multiple firing on same report builder element, which causes subsequent problems with icheck
     $("#" + prefixID + "tbody").on(
       "click",
@@ -772,13 +764,9 @@ var LeafFormGrid = function (containerID, options) {
       callbackBuffer[i]();
     }
 
-    $("#" + prefixID + "table>tbody>tr>td").css({
-      padding: "8px",
-    });
     if (postRenderFunc != null) {
       postRenderFunc();
     }
-    renderVirtualHeader();
   }
 
   /**

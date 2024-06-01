@@ -713,6 +713,10 @@ table.leaf_grid tbody tr td {
   transition: filter 0.25s;
 }
 
+table.leaf_grid>tbody>tr>td {
+  padding: 8px;
+}
+
 .agenda th {
   padding: 8px 4px 8px 4px;
   border: 1px solid black;
