@@ -343,6 +343,7 @@ var LeafFormQuery = function () {
     onSuccess,
     onProgress,
     setAbortSignal,
+    getResults: () => results,
     execute
   };
 };

@@ -21,7 +21,7 @@
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%; padding-left: 8px;"></div>
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
-    <br /><span id="reportStats" style="padding-left: 8px; z-index: 1"></span><button id="btn_abort" class="buttonNorm" style="display: none">Stop</button>
+    <br /><span id="reportStats" style="padding-left: 8px; z-index: 1"></span><button id="btn_abort" class="buttonNorm" style="display: none">Stop and show results</button>
 </div>
 
 <div id="results" style="display: none">Loading...</div>
@@ -1311,12 +1311,17 @@ $(function() {
             abortController.abort();
             abortLoad = true;
         });
+        let firstBatchLoaded = false;
         leafSearch.getLeafFormQuery().setBatchSize(1000);
         leafSearch.getLeafFormQuery().setLimit(Infinity); // Backward compat: limit shouldn't exist
         leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
         leafSearch.getLeafFormQuery().setAbortSignal(abortController.signal);
         leafSearch.getLeafFormQuery().onProgress(progress => {
             $('#reportStats').html(`Loading ${progress}+ records`);
+            if(!firstBatchLoaded) {
+                renderGrid(leafSearch.getLeafFormQuery().getResults());
+                firstBatchLoaded = true;
+            }
         });
 
         // get data
