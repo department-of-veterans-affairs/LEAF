@@ -22,6 +22,10 @@ var LeafFormGrid = function (containerID, options) {
   var rootURL = "";
   var isRenderingBody = false;
   let renderHistory = {}; // index of rendered recordIDs
+  let processedCallbackBuffer = false; // processed callback buffers for all records
+  let callbackCache = {}; // cache of processed callbacks
+  let disabledRenderCache = false;
+  let sortDirection = {}; // map of sort direction for each key
 
   $("#" + containerID).html(
     `<div id="${prefixID}grid"></div>
@@ -207,7 +211,6 @@ var LeafFormGrid = function (containerID, options) {
     });
   }
 
-  var headerToggle = 0;
   // header format: {name, indicatorID, sortable, editable, visible, [callback]}
   // callback receives {recordID, indicatorID, cellContainerID} within the scope of loadData()
   /**
@@ -228,12 +231,10 @@ var LeafFormGrid = function (containerID, options) {
       $("#" + prefixID + "header_UID").css("cursor", "pointer");
       $("#" + prefixID + "header_UID").on("click keydown", null, null, function (event) {
         if(event.type === "click" || event?.which === 13) {
-          if (headerToggle == 0) {
+          if(sortDirection['recordID'] == undefined || sortDirection['recordID'] == 'desc') {
             sort("recordID", "asc", postSortRequestFunc);
-            headerToggle = 1;
           } else {
             sort("recordID", "desc", postSortRequestFunc);
-            headerToggle = 0;
           }
           renderBody(0, Infinity);
         }
@@ -274,14 +275,14 @@ var LeafFormGrid = function (containerID, options) {
           headers[i].indicatorID,
           function (event) {
             if(event.type === "click" || event?.which === 13) {
-              if (headerToggle == 0) {
+              if(sortDirection[event.data] == undefined || sortDirection[event.data] == 'desc') {
                 sort(event.data, "asc", postSortRequestFunc);
-                headerToggle = 1;
               } else {
                 sort(event.data, "desc", postSortRequestFunc);
-                headerToggle = 0;
               }
-              renderBody(0, Infinity);
+              let currPosition = renderRequest.length; // retain scroll position
+              renderRequest = [];
+              renderBody(0, currPosition);
             }
           }
         );
@@ -364,6 +365,7 @@ var LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    */
   function sort(key, order, callback) {
+    sortDirection[key] = order;
     const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
     const headerText = document.querySelector(headerSelector)?.innerText || "";
     if (key != "recordID" && currLimit != Infinity) {
@@ -544,6 +546,7 @@ var LeafFormGrid = function (containerID, options) {
       document.querySelector(`#${prefixID}tbody`).innerHTML = '';
       renderHistory = {};
       fullRender = true;
+      currentRenderIndex = 0;
     }
 
     var buffer = "";
@@ -640,15 +643,11 @@ var LeafFormGrid = function (containerID, options) {
               buffer += `<td id="${prefixID + currentData[i].recordID}_${headers[j].indicatorID}" data-editable="${editable}" data-record-id="${currentData[i].recordID}" data-indicator-id="${headers[j].indicatorID}">${data.data}</td>`;
             }
           } else if (headers[j].callback != undefined) {
-            buffer +=
-              '<td id="' +
-              prefixID +
-              currentData[i].recordID +
-              "_" +
-              headers[j].indicatorID +
-              '" data-clickable="' +
-              editable +
-              '"></td>';
+            if(callbackCache[currentData[i].recordID] == undefined || callbackCache[currentData[i].recordID][data.indicatorID] == undefined) {
+              buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-clickable="${editable}"></td>`;
+            } else {
+              buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-clickable="${editable}">${callbackCache[currentData[i].recordID][data.indicatorID]}</td>`;
+            }
           } else {
             buffer +=
               '<td id="' +
@@ -659,7 +658,7 @@ var LeafFormGrid = function (containerID, options) {
               '"></td>';
           }
 
-          if (headers[j].callback != undefined) {
+          if (headers[j].callback != undefined && (callbackCache[currentData[i].recordID] == undefined || callbackCache[currentData[i].recordID][data.indicatorID] == undefined)) {
             callbackBuffer.push(
               (function (funct, data) {
                 return function () {
@@ -727,6 +726,23 @@ var LeafFormGrid = function (containerID, options) {
 
     if (postRenderFunc != null) {
       postRenderFunc();
+    }
+
+    // Cache rendered content
+    if(limit == Infinity && !processedCallbackBuffer && !disabledRenderCache) {
+      processedCallbackBuffer = true;
+      for (let i in currentData) {
+        for(let j in headers) {
+          let id = currentData[i].recordID;
+          callbackCache[id] = callbackCache[id] || {};
+          if (callbackCache[id][headers[j].indicatorID] == undefined) {
+            callbackCache[id][headers[j].indicatorID] = document.querySelector(`#${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}`)?.innerHTML;
+            if(callbackCache[id][headers[j].indicatorID] == undefined) {
+              callbackCache[id][headers[j].indicatorID] = "";
+            }
+          }
+        }
+      }
     }
   }
 
@@ -817,6 +833,7 @@ var LeafFormGrid = function (containerID, options) {
   function setData(data) {
     isDataLoaded = true;
     currentData = data;
+    processedCallbackBuffer = false;
   }
 
   /**
@@ -1056,6 +1073,7 @@ var LeafFormGrid = function (containerID, options) {
     disableVirtualHeader: function () { // backward compat
       disableStickyHeader();
     },
+    disableRenderCache: () => disabledRenderCache = true,
     setStickyHeaderOffset: function (offset) {
       document.querySelector(`#${prefixID}thead`).style.top = offset;
     },
