@@ -646,7 +646,7 @@ var LeafFormGrid = function (containerID, options) {
             if(callbackCache[currentData[i].recordID] == undefined || callbackCache[currentData[i].recordID][data.indicatorID] == undefined) {
               buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-clickable="${editable}"></td>`;
             } else {
-              buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-clickable="${editable}">${callbackCache[currentData[i].recordID][data.indicatorID]}</td>`;
+              buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-clickable="${editable}" style="${callbackCache[currentData[i].recordID][data.indicatorID].style}">${callbackCache[currentData[i].recordID][data.indicatorID].content}</td>`;
             }
           } else {
             buffer +=
@@ -736,9 +736,14 @@ var LeafFormGrid = function (containerID, options) {
           let id = currentData[i].recordID;
           callbackCache[id] = callbackCache[id] || {};
           if (callbackCache[id][headers[j].indicatorID] == undefined) {
-            callbackCache[id][headers[j].indicatorID] = document.querySelector(`#${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}`)?.innerHTML;
-            if(callbackCache[id][headers[j].indicatorID] == undefined) {
-              callbackCache[id][headers[j].indicatorID] = "";
+            callbackCache[id][headers[j].indicatorID] = {};
+            let el = document.querySelector(`#${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}`);
+            if(el != undefined) {
+              callbackCache[id][headers[j].indicatorID].content = el.innerHTML;
+              callbackCache[id][headers[j].indicatorID].style = el.style.cssText;
+            } else {
+              callbackCache[id][headers[j].indicatorID].content = '';
+              callbackCache[id][headers[j].indicatorID].style = '';
             }
           }
         }
