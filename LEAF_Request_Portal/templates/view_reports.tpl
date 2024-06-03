@@ -827,6 +827,7 @@ function showJSONendpoint() {
     dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
                            + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
+                           + '<button id="copy" class="buttonNorm" style="float: right">Copy to Clipboard</button>'
                            + '<select id="format">'
                            + '<option value="json">JSON</option>'
                            + '<option value="htmltable">HTML Table</option>'
@@ -886,6 +887,24 @@ function showJSONendpoint() {
                 break;
         }
     }
+
+    function selectExample() {
+        let selection = window.getSelection();
+        let range = document.createRange();
+        range.selectNodeContents(document.querySelector('#exportPathContainer'));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        return selection;
+    }
+    document.querySelector('#exportPathContainer').addEventListener('click', (e) => {
+        selectExample();
+    });
+
+    document.querySelector('#copy').addEventListener('click', () => {
+        navigator.clipboard.writeText(selectExample().focusNode.innerText);
+        $("#formatStatus").show().text("Copied!");
+        $("#formatStatus").fadeOut(3000);
+    });
 
     $('#format').on('change', function() {
         setExportFormat();
