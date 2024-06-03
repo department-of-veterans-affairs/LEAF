@@ -6,15 +6,16 @@ namespace Leaf;
 class ErrorNotify
 {
 
-    public function __construct()
-    {
-        
-    }
-
+    /**
+     * This is the basic function we are going to start with for getting notifications of errors to devs, we will want to move this over
+     * to dynatrace eventually.
+     * @param string $title
+     * @param array $errorsArr 
+     */
     public function sendNotification(string $title, array $errorsArr){
         
         if(!empty($errorsArr)){
-            mail('shane.ottinger@va.gov,jamie.holcomb@va.gov,carrie.hanscom@va.gov,casey.herold@va.gov',$title,var_export($errorsArr,true));
+            mail('noname@email.com',$title,var_export($errorsArr,true));
         }
     }
 }
