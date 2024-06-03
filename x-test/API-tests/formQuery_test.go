@@ -88,6 +88,15 @@ func TestFormQuery_FulltextSearch_ApplePearOrange(t *testing.T) {
 	}
 }
 
+func TestFormQuery_FulltextSearch_TheOrangeOrPear_StopwordsNotRequired(t *testing.T) {
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"data","indicatorID":"3","operator":"MATCH ALL","match":"The orange or pear","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
+
+	if _, exists := res[497]; !exists {
+		t.Errorf(`Record 497 should exist because a data field contains "The apple, orange or pear"`)
+	}
+
+}
+
 func TestFormQuery_FulltextSearch_ApplePear_RequireOrange(t *testing.T) {
 	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"data","indicatorID":"3","operator":"MATCH","match":"apple pear %2Borange","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
 

@@ -2967,7 +2967,7 @@ class Form
         foreach($words as $k => $word) {
             $searchWord = trim($word);
             $firstChar = substr($searchWord, 0, 1);
-            if(strlen($searchWord) > 2 && $fulltext_stopwords[$searchWord] !== 1 && $firstChar !== '+' && $firstChar !== '-') {
+            if(strlen($searchWord) > 2 && $fulltext_stopwords[strtolower($searchWord)] !== 1 && $firstChar !== '+' && $firstChar !== '-') {
                 $words[$k] = '+' . $searchWord;
             } else {
                 $words[$k] = $searchWord;
@@ -3405,7 +3405,8 @@ class Form
                                         $operator = 'AGAINST';
                                         $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
                                     } else {
-                                        //handle quotes, &, etc for non BOOLEAN MODE searches. update/rm on mv to markdown
+                                        //Temporary means to handle quotes for non BOOLEAN MODE text searches.
+                                        //TODO: remove this on move to markdown
                                         $vars[":data{$count}"] = htmlentities(trim($vars[":data{$count}"]), ENT_QUOTES);
                                     }
                                     break;
