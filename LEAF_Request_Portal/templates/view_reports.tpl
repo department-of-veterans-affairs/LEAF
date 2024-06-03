@@ -896,9 +896,6 @@ function showJSONendpoint() {
         selection.addRange(range);
         return selection;
     }
-    document.querySelector('#exportPathContainer').addEventListener('click', (e) => {
-        selectExample();
-    });
 
     document.querySelector('#copy').addEventListener('click', () => {
         navigator.clipboard.writeText(selectExample().focusNode.innerText);
