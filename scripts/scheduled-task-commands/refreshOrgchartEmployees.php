@@ -2,12 +2,12 @@
 // this file will need to be added, Pete's destruction ticket has it already.
 require_once 'globals.php';
 require_once LIB_PATH . '/php-commons/Db.php';
-require_once LIB_PATH . '/php-commons/ErrorNotify.php';
+require_once APP_PATH . '/Leaf/ErrorNotify.php';
 
 $startTime = microtime(true);
 
 $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
-$errorNotify = new Leaf\ErrorNotify();
+$errorNotify = new App\Leaf\ErrorNotify();
 $orgcharts = $db->query("SELECT `site_path` FROM `sites` WHERE `site_type` = 'orgchart'");
 $dir = '/var/www/html';
 

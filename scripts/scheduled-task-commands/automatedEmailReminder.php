@@ -3,10 +3,12 @@
 require_once 'globals.php';
 require_once LIB_PATH . '/php-commons/Db.php';
 
+require_once APP_PATH . '/Leaf/ErrorNotify.php';
+
 $startTime = microtime(true);
 
 $db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
-$errorNotify = new Leaf\ErrorNotify();
+$errorNotify = new App\Leaf\ErrorNotify();
 $siteList = $db->query("SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal'");
 $dir = '/var/www/html';
 

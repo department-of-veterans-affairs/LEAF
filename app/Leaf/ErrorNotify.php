@@ -1,6 +1,6 @@
 <?php
 
-namespace Leaf;
+namespace App\Leaf;
 
 
 class ErrorNotify
@@ -12,7 +12,7 @@ class ErrorNotify
      * @param string $title
      * @param array $errorsArr 
      */
-    public function sendNotification(string $title, array $errorsArr){
+    public function sendNotification(string $title, array $errorsArr): void {
         
         if(!empty($errorsArr)){
             mail('noname@email.com',$title,var_export($errorsArr,true));
