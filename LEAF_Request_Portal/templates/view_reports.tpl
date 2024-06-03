@@ -816,13 +816,15 @@ function openShareDialog() {
 
 function showJSONendpoint() {
     let pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
-    leafSearch.getLeafFormQuery().setLimit(0, 10000);
-    let queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+    let query = leafSearch.getLeafFormQuery().getQuery();
+    delete query.limit;
+    delete query.limitOffset;
+    let queryString = JSON.stringify(query);
     let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
     let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
-    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of 10,000 records has been preset</b>.</p><br />'
+    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
                            + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
                            + '<select id="format">'
@@ -832,10 +834,11 @@ function showJSONendpoint() {
                            + '<option value="csv">CSV</option>'
                            + '<option value="xml">XML</option>'
                            + '<option value="debug">Plaintext</option>'
+                           + '<option value="leafFormQuery">JavaScript Template</option>'
                            + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
                            + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
-                           + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
+                           + '<br /><div id="exportPathContainer" contenteditable="true" spellcheck="false" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; min-height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
                            + '<a href="report.php?a=LEAF_Data_Dictionary" target="_blank">Data Dictionary Reference</a>'
                            + '<br /><br />'
                            + '<fieldset>'
@@ -860,8 +863,23 @@ function showJSONendpoint() {
         switch($('#format').val()) {
             case 'json':
                 $('#exportFormat').html('');
+                document.querySelector('#exportPath').style.display = 'inline';
+                break;
+            case 'leafFormQuery':
+                let buffer = "&lt;script&gt;<br />";
+                buffer += `async function main() {<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;let query = new LeafFormQuery();<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;query.importQuery(${queryString});<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;let results = await query.execute();<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;// Do something with the results<br />
+                    }<br /><br />
+                    document.addEventListener('DOMContentLoaded', main);`;
+                buffer += "<br />&lt;/script&gt;";
+                document.querySelector('#exportFormat').innerHTML = buffer;
+                document.querySelector('#exportPath').style.display = 'none';
                 break;
             default:
+                document.querySelector('#exportPath').style.display = 'inline';
                 $('#exportFormat').append('format=' + $('#format').val());
                 $("#formatStatus").show().text("Format changed to " + $('#format').val());
                 $("#formatStatus").fadeOut(3000);
