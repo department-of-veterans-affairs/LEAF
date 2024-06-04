@@ -119,3 +119,11 @@ func TestFormQuery_RecordIdAndFulltext(t *testing.T) {
 		t.Errorf(`Record 499 should exist because the data fields contain the word "apple". want = recordID IS 499 AND data contains apple`)
 	}
 }
+
+func TestFormQuery_GroupClickedApprove(t *testing.T) {
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"stepAction","indicatorID":"4","operator":"=","match":"approve","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"date","direction":"DESC"},"limit":50}`)
+
+	if _, exists := res[9]; !exists {
+		t.Errorf(`Record 9 should exist because the "Group designated step" clicked "Approve". want = recordID 9 exists in the result set`)
+	}
+}

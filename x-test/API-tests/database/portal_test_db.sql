@@ -29,7 +29,11 @@ INSERT INTO `action_history` (`actionID`, `recordID`, `userID`, `stepID`, `depen
 (2,	530,	'tester',	0,	0,	'changeInitiator',	8,	1699056198,	'Initiator changed to Alysa Dare'),
 (3,	530,	'tester',	0,	0,	'move',	8,	1699056206,	'Moved to Requestor Followup step'),
 (4,	7,	'tester',	0,	0,	'move',	8,	1700253479,	'Moved to Requestor Followup step'),
-(5,	7,	'tester',	3,	-2,	'sendback',	8,	1700253822,	'');
+(5,	7,	'tester',	3,	-2,	'sendback',	8,	1700253822,	''),
+(6,	9,	'tester',	1,	9,	'approve',	8,	1716939853,	''),
+(7,	9,	'tester',	2,	9,	'approve',	8,	1716939855,	''),
+(8,	9,	'tester',	3,	-2,	'approve',	8,	1716939857,	''),
+(9,	9,	'tester',	4,	-3,	'approve',	8,	1716939859,	'');
 
 DROP TABLE IF EXISTS `action_types`;
 CREATE TABLE `action_types` (
@@ -6271,8 +6275,8 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (5,	1692288069,	0,	'tester',	'LEAF Secure Certification',	0,	'Submitted',	1692288081,	0,	0,	1),
 (6,	1693258385,	0,	'tester',	'untitled',	0,	NULL,	0,	0,	1,	1),
 (7,	1694021464,	0,	'tESTER',	'Requestor followup - Different Username case sensitivity',	0,	'Re-opened for editing',	0,	0,	1,	1),
-(8,	1694021464,	0,	'tester',	'Available for test case',	0,	'Approved',	1694021485,	0,	0,	1),
-(9,	1694021464,	0,	'tester',	'Available for test case',	0,	'Approved',	1694021485,	0,	0,	1),
+(8,	1694021464,	0,	'tester',	'TestFormWorkflow_ApplyAction',	0,	'Approved',	1694021485,	0,	0,	1),
+(9,	1694021464,	0,	'tester',	'TestFormQuery_GroupClickedApprove',	0,	'Approved',	1694021485,	0,	0,	1),
 (10,	1694021465,	0,	'tester',	'TestFormWorkflow_ApplyAction',	0,	'Submitted',	1694021485,	0,	0,	1),
 (11,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
 (12,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
@@ -7250,11 +7254,11 @@ INSERT INTO `records_dependencies` (`recordID`, `dependencyID`, `filled`, `time`
 (8,	-1,	1,	1694126647),
 (8,	5,	1,	1694021485),
 (8,	9,	1,	1694126651),
-(9,	-3,	0,	NULL),
-(9,	-2,	0,	1694021485),
+(9,	-3,	1,	1716939859),
+(9,	-2,	1,	1716939857),
 (9,	-1,	1,	1694130219),
 (9,	5,	1,	1694021485),
-(9,	9,	0,	NULL),
+(9,	9,	1,	1716939855),
 (10,	-3,	0,	NULL),
 (10,	-2,	0,	1694021485),
 (10,	-1,	0,	NULL),
@@ -12017,6 +12021,10 @@ INSERT INTO `records_step_fulfillment` (`recordID`, `stepID`, `fulfillmentTime`)
 (8,	1,	1694126647),
 (8,	2,	1694126651),
 (8,	3,	1694126654),
+(9,	1,	1716939853),
+(9,	2,	1716939855),
+(9,	3,	1716939857),
+(9,	4,	1716939859),
 (500,	8,	1698275281),
 (501,	8,	1698275239),
 (502,	7,	1697554890),
@@ -12039,7 +12047,6 @@ CREATE TABLE `records_workflow_state` (
 INSERT INTO `records_workflow_state` (`recordID`, `stepID`, `blockingStepID`, `lastNotified`, `initialNotificationSent`) VALUES
 (5,	-3,	0,	'2023-08-17 16:01:21',	0),
 (8,	4,	0,	'2023-09-07 22:45:09',	0),
-(9,	1,	0,	'2023-09-06 17:31:25',	0),
 (10,	1,	0,	'2023-09-06 17:31:25',	0),
 (11,	1,	0,	'2023-09-06 17:31:25',	0),
 (12,	1,	0,	'2023-09-06 17:31:25',	0),

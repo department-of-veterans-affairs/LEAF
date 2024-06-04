@@ -671,7 +671,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             response.comment != null
                         ) {
                             text +=
-                                '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px">' +
+                                '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px; word-break:break-word;">' +
                                 response.comment +
                                 "</div></div>";
                         }
@@ -729,7 +729,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             response.comment != null
                         ) {
                             text +=
-                                '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
+                                '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black;word-break:break-word;"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
                                 response.comment +
                                 "</span></fieldset></div>";
                         }
