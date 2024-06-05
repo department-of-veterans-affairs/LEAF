@@ -552,7 +552,7 @@ var LeafFormGrid = function (containerID, options) {
 
     var buffer = "";
     var callbackBuffer = [];
-    let callbackCacheBuffer = [];
+    let outputBuffer = []; // buffer of pre-rendered rows
 
     var colspan = showIndex ? headers.length + 1 : headers.length;
     if (currentData.length == 0) {
@@ -574,7 +574,7 @@ var LeafFormGrid = function (containerID, options) {
       renderHistory[currentData[i].recordID] = 1;
 
       if(renderCache[currentData[i].recordID] != undefined) {
-        callbackCacheBuffer.push(renderCache[currentData[i].recordID]);
+        outputBuffer.push(renderCache[currentData[i].recordID]);
         counter++;
 
         if (fullRender) {
@@ -732,8 +732,8 @@ var LeafFormGrid = function (containerID, options) {
     for (let i in callbackBuffer) {
       callbackBuffer[i]();
     }
-    for (let i in callbackCacheBuffer) {
-      domTableBody.appendChild(callbackCacheBuffer[i]);
+    for (let i in outputBuffer) {
+      domTableBody.appendChild(outputBuffer[i]);
     }
 
     if (postRenderFunc != null) {
