@@ -366,6 +366,9 @@ class Email
             $recipients.=", ".$cc;
         };
         $email_tracker = new EmailTracker($this->portal_db);
+
+        // the second argument in this method is a list of recipients. The format needs to be "Recipient(s): <email@address.com>[, <email@address.com>]"
+        // this list of recipients is used in the processPriorStepsEmailed method below and expects this format.
         $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $recipients, 'Subject: ' . $this->emailSubject);
     }
 
