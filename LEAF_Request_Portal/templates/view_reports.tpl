@@ -867,16 +867,16 @@ function showJSONendpoint() {
                 document.querySelector('#exportPath').style.display = 'inline';
                 break;
             case 'leafFormQuery':
-                let buffer = "&lt;script&gt;<br />";
-                buffer += `async function main() {<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;let query = new LeafFormQuery();<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;query.importQuery(${queryString});<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;let results = await query.execute();<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;// Do something with the results<br />
-                    }<br /><br />
-                    document.addEventListener('DOMContentLoaded', main);`;
-                buffer += "<br />&lt;/script&gt;";
-                document.querySelector('#exportFormat').innerHTML = buffer;
+                let buffer = "<scr"+"ipt>\n";
+                buffer += `async function main() {
+                    \u00A0\u00A0\u00A0\u00A0let query = new LeafFormQuery();
+                    \u00A0\u00A0\u00A0\u00A0query.importQuery(${queryString});
+                    \u00A0\u00A0\u00A0\u00A0let results = await query.execute();
+                    \u00A0\u00A0\u00A0\u00A0// Do something with the results
+                    }
+                    document.addEventListener('DOMContentLoaded', main);\n`;
+                buffer += "</scr"+"ipt>";
+                document.querySelector('#exportFormat').innerText = buffer;
                 document.querySelector('#exportPath').style.display = 'none';
                 break;
             default:
