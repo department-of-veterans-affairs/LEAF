@@ -39,7 +39,7 @@ var LeafFormGrid = function (containerID, options) {
     <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
       aria-label="Search Results" aria-live="assertive">
     </span>
-    <table id="${prefixID}table" class="leaf_grid">
+    <table id="${prefixID}table" role="table" class="leaf_grid">
       <thead id="${prefixID}thead" style="position: sticky; top: 0px"></thead>
       <tbody id="${prefixID}tbody"></tbody>
       <tfoot id="${prefixID}tfoot"></tfoot>
