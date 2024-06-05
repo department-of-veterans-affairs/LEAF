@@ -220,10 +220,10 @@ var LeafFormGrid = function (containerID, options) {
     headers = headersIn;
     let temp = `<tr id="${prefixID}thead_tr">`;
     if (showIndex) {
-      temp +=
-        '<th scope="col" tabindex="0" id="' +
-        prefixID +
-        'header_UID" style="text-align: center">UID<span id="' + prefixID + 'header_UID_sort" class="' + prefixID + 'sort"></span></th>';
+      temp += `<th scope="col" tabindex="0" id="${prefixID}header_UID" style="text-align: center" role="button">
+        UID
+        <span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
+      </th>`;
     }
     $("#" + prefixID + "thead").html(temp);
 
@@ -242,28 +242,15 @@ var LeafFormGrid = function (containerID, options) {
       });
     }
 
+    let domThead = document.querySelector(`#${prefixID}thead_tr`);
     for (let i in headers) {
       if (headers[i].visible == false) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
-      $("#" + prefixID + "thead_tr").append(
-        '<th scope="col" id="' +
-          prefixID +
-          "header_" +
-          headers[i].indicatorID +
-          '" tabindex="0"  style="text-align:' +
-          align +
-          '">' +
-          headers[i].name +
-          '<span id="' +
-          prefixID +
-          "header_" +
-          headers[i].indicatorID +
-          '_sort" class="' +
-          prefixID +
-          'sort"></span></th>'
-      );
+      domThead.insertAdjacentHTML('beforeend', `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" role="button">
+        ${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
+        </th>`);
 
       if (headers[i].sortable == undefined || headers[i].sortable == true) {
         $("#" + prefixID + "header_" + headers[i].indicatorID).css(
