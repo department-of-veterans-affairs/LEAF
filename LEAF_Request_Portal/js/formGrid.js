@@ -236,7 +236,8 @@ var LeafFormGrid = function (containerID, options) {
           } else {
             sort("recordID", "desc", postSortRequestFunc);
           }
-          renderBody(0, Infinity);
+          let currPosition = renderRequest.length; // retain scroll position
+          renderBody(0, currPosition);
         }
       });
     }
