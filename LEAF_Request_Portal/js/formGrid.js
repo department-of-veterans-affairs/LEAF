@@ -23,7 +23,7 @@ var LeafFormGrid = function (containerID, options) {
   var isRenderingBody = false;
   let renderHistory = {}; // index of rendered recordIDs
   let processedCallbackBuffer = false; // processed callback buffers for all records
-  let callbackCache = {}; // cache of processed callbacks
+  let renderCache = {}; // cache of rows with processed callbacks
   let disabledRenderCache = false;
   let sortDirection = {}; // map of sort direction for each key
 
@@ -551,6 +551,7 @@ var LeafFormGrid = function (containerID, options) {
 
     var buffer = "";
     var callbackBuffer = [];
+    let callbackCacheBuffer = [];
 
     var colspan = showIndex ? headers.length + 1 : headers.length;
     if (currentData.length == 0) {
@@ -570,6 +571,16 @@ var LeafFormGrid = function (containerID, options) {
       }
 
       renderHistory[currentData[i].recordID] = 1;
+
+      if(renderCache[currentData[i].recordID] != undefined) {
+        callbackCacheBuffer.push(renderCache[currentData[i].recordID]);
+        counter++;
+
+        if (fullRender) {
+          currentRenderIndex = i + 1;
+        }
+        continue;
+      }
       buffer +=
         '<tr id="' + prefixID + "tbody_tr" + currentData[i].recordID + '">';
       if (showIndex) {
@@ -643,11 +654,7 @@ var LeafFormGrid = function (containerID, options) {
               buffer += `<td id="${prefixID + currentData[i].recordID}_${headers[j].indicatorID}" data-editable="${editable}" data-record-id="${currentData[i].recordID}" data-indicator-id="${headers[j].indicatorID}">${data.data}</td>`;
             }
           } else if (headers[j].callback != undefined) {
-            if(callbackCache[currentData[i].recordID] == undefined || callbackCache[currentData[i].recordID][data.indicatorID] == undefined) {
-              buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-clickable="${editable}"></td>`;
-            } else {
-              buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-clickable="${editable}" style="${callbackCache[currentData[i].recordID][data.indicatorID].style}">${callbackCache[currentData[i].recordID][data.indicatorID].content}</td>`;
-            }
+            buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-clickable="${editable}"></td>`;
           } else {
             buffer +=
               '<td id="' +
@@ -658,7 +665,7 @@ var LeafFormGrid = function (containerID, options) {
               '"></td>';
           }
 
-          if (headers[j].callback != undefined && (callbackCache[currentData[i].recordID] == undefined || callbackCache[currentData[i].recordID][data.indicatorID] == undefined)) {
+          if (headers[j].callback != undefined && (renderCache[currentData[i].recordID] == undefined || renderCache[currentData[i].recordID][data.indicatorID] == undefined)) {
             callbackBuffer.push(
               (function (funct, data) {
                 return function () {
@@ -698,7 +705,8 @@ var LeafFormGrid = function (containerID, options) {
         </tr>`;
     }
 
-    document.querySelector(`#${prefixID}tbody`).insertAdjacentHTML('beforeend', buffer);
+    let domTableBody = document.querySelector(`#${prefixID}tbody`);
+    domTableBody.insertAdjacentHTML('beforeend', buffer);
     document.querySelectorAll(`#${prefixID}tbody td[data-editable=true]`).forEach(el => {
       el.classList.add('table_editable');
     });
@@ -723,6 +731,9 @@ var LeafFormGrid = function (containerID, options) {
     for (let i in callbackBuffer) {
       callbackBuffer[i]();
     }
+    for (let i in callbackCacheBuffer) {
+      domTableBody.appendChild(callbackCacheBuffer[i]);
+    }
 
     if (postRenderFunc != null) {
       postRenderFunc();
@@ -730,21 +741,13 @@ var LeafFormGrid = function (containerID, options) {
 
     // Cache rendered content
     if(limit == Infinity && !processedCallbackBuffer && !disabledRenderCache) {
+      renderCache = {};
       processedCallbackBuffer = true;
       for (let i in currentData) {
         for(let j in headers) {
           let id = currentData[i].recordID;
-          callbackCache[id] = callbackCache[id] || {};
-          if (callbackCache[id][headers[j].indicatorID] == undefined) {
-            callbackCache[id][headers[j].indicatorID] = {};
-            let el = document.querySelector(`#${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}`);
-            if(el != undefined) {
-              callbackCache[id][headers[j].indicatorID].content = el.innerHTML;
-              callbackCache[id][headers[j].indicatorID].style = el.style.cssText;
-            } else {
-              callbackCache[id][headers[j].indicatorID].content = '';
-              callbackCache[id][headers[j].indicatorID].style = '';
-            }
+          if (renderCache[id] == undefined) {
+            renderCache[id] = document.querySelector(`#${prefixID}tbody_tr${currentData[i].recordID}`);
           }
         }
       }
