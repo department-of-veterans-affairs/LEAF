@@ -533,6 +533,7 @@ class Form
             $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
             $form[$idx]['displayedValue'] = ''; // used for Org Charts
             $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ? $data[0]['timestamp'] : 0;
+            $form[$idx]['userID'] = $data[0]['userID'];
             if(!$forceReadOnly) {
                 $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
                 $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
@@ -3410,6 +3411,59 @@ class Form
                     $conditions .= "{$gate}lj_dependency{$count}.dependencyID = :indicatorID{$count}";
 
                     break;
+                case 'stepAction':
+                    if (!isset($q['indicatorID']) || !is_numeric($q['indicatorID']))
+                    {
+                        return 0;
+                    }
+
+                    switch($operator) {
+                        case "=":
+                            $vars[':indicatorID' . $count] = $q['indicatorID']; // this is the stepID
+                            // This checks if someone has taken a specific action for a stepID
+                            // OUTER JOIN gets the most recent action for a specific stepID, since there can be
+                            // loops within a workflow, and people can take different actions later
+                            $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
+                                                    LEFT OUTER JOIN action_history sFA_ah{$count}
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID 
+                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.time < sFA_ah{$count}.time)
+                                            WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL) lj_action_history{$count}
+                                            USING (recordID) ";
+                            // Check if the step was fulfilled. This reduces confusion for multi-requirement steps (which would have multiple actions)
+                            $joins .= "LEFT JOIN (SELECT recordID, stepID, fulfillmentTime FROM records_step_fulfillment
+                                            WHERE stepID=:indicatorID{$count}) lj_action_history_fulfillment{$count}
+                                            USING (recordID) ";
+                            $conditions .= "{$gate}(lj_action_history{$count}.stepID=:indicatorID{$count}
+                                                    AND lj_action_history_fulfillment{$count}.fulfillmentTime IS NOT NULL
+                                                    AND lj_action_history{$count}.actionType=:stepAction{$count}
+                                                )";
+                            break;
+                        case "!=":
+                            // This checks if someone has taken a specific action for a stepID
+                            // OUTER JOIN gets the most recent action for a specific stepID, since there can be
+                            // loops within a workflow, and people can take different actions later
+                            $vars[':indicatorID' . $count] = $q['indicatorID']; // this is the stepID
+                            $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
+                                                    LEFT OUTER JOIN action_history sFA_ah{$count}
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID
+                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.time < sFA_ah{$count}.time)
+                                            WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL AND ah.actionType=:stepAction{$count}) lj_action_history{$count}
+                                            USING (recordID) ";
+                            $conditions .= "{$gate}lj_action_history{$count}.stepID IS NULL";
+                            break;
+                        case "not implemented": // disabled
+                            // This checks if a specific action has never been taken for a stepID
+                            $vars[':indicatorID' . $count] = $q['indicatorID'];
+                            $joins .= "LEFT JOIN (SELECT recordID, stepID FROM action_history
+                                        WHERE stepID=:indicatorID{$count}
+                                            AND actionType=:stepAction{$count}) lj_action_history{$count}
+                                        USING (recordID) ";
+                            $conditions .= "{$gate}lj_action_history{$count}.stepID IS NULL";
+                            break;
+                    }
+                    break;
                 default:
                     return 0;
             }
@@ -4152,7 +4206,7 @@ class Form
             {
                 $var = array(':series' => (int)$series,
                              ':recordID' => (int)$recordID, );
-                $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID FROM data
+                $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID, userID FROM data
                 									LEFT JOIN indicator_mask USING (indicatorID)
                 									WHERE indicatorID IN (' . $indicatorList . ') AND series=:series AND recordID=:recordID', $var);
 
@@ -4162,6 +4216,7 @@ class Form
                     $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
                     $data[$idx]['timestamp'] = isset($resIn['timestamp']) ? $resIn['timestamp'] : 0;
                     $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
+                    $data[$idx]['userID'] = $resIn['userID'];
                 }
             }
             else if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
@@ -4197,7 +4252,7 @@ class Form
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
                 $child[$idx]['has_code'] = trim($field['html']) != '' || trim($field['htmlPrint']) != '';
-
+                $child[$idx]['userID'] = $data[$idx]['userID'];
                 if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
                     $child[$idx]['isMaskable'] = isset($data[$idx]['groupID']) ? 1 : 0;
                 }
