@@ -324,7 +324,7 @@ var LeafFormGrid = function (containerID, options) {
     // sticky header UX
     const domHeader = document.querySelector(`#${prefixID}thead`);
     const observer = new IntersectionObserver((evt) => {
-      if(evt[0].intersectionRatio < 1) {
+      if(evt[0].boundingClientRect.y != evt[0].intersectionRect.y) {
         $("#" + prefixID + "table thead tr th").css({
           "filter": "invert(1) grayscale(1)",
           height: "1.3rem",
