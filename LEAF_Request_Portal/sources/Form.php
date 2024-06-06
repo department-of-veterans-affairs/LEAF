@@ -461,12 +461,12 @@ class Form
 
     /**
      * Get a form's indicator and all children, including data if available
-     * 
+     *
      * Flags:
      *  $_GET['context'] If the context is set to "formEditor", an additional "isMaskable" property indicates
      *                   whether the field has Special Access Restrictions assigned. Used in the Form Editor
      *                   to provide a visual indicator.
-     * 
+     *
      * @param int $indicatorID
      * @param int $series
      * @param int $recordID
@@ -773,9 +773,9 @@ class Form
 
     /**
      * cancelRecord marks a record as cancelled.
-     * 
+     *
      * Only admins should be able to cancel submitted records.
-     * 
+     *
      * @param int $recordID
      * @param string $comment
      *
@@ -833,10 +833,21 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
+            // need to send emails to everyone upstream from the currect step.
+            $this->notifyPriorSteps($recordID);
+
             $return_value = 1;
         }
 
         return $return_value;
+    }
+
+    private function notifyPriorSteps(int $recordID): void
+    {
+        $email = new Email();
+        $email->setSender('leaf.noreply@va.gov');
+
+        $email->attachApproversAndEmail($recordID, Email::CANCEL_REQUEST, $this->login);
     }
 
     public function restoreRecord($recordID)
@@ -2423,7 +2434,7 @@ class Form
 
     /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
      * specified by $indicatorID_list (string of ID#'s delimited by ',')
-     * 
+     *
      * WARNING: $alreadyCheckedReadAccess can only be set to true if $recordID_list has been
      *          processed by checkReadAccess().
      *
@@ -2920,7 +2931,7 @@ class Form
     /**
      * parseBooleanQuery transforms a user's query to add implied "+" prefixes when
      * a "MATCH ALL" condition is selected.
-     * 
+     *
      * @param $query
      * @return string Transformed query
      */
@@ -2939,9 +2950,9 @@ class Form
 
     /**
      * query parses a JSON formatted user query defined in formQuery.js.
-     * 
+     *
      * Returns an array on success, and string/int for malformed queries
-     * 
+     *
      * @param string JSON formatted string of the query
      * @return mixed
      */
@@ -3577,7 +3588,7 @@ class Form
                     break;
             }
         }
-        
+
         // avoid extra sort when using fulltext index
         if($usingFulltextIndex) {
             $sort = '';
