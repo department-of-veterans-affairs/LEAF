@@ -26,6 +26,7 @@ var LeafFormGrid = function (containerID, options) {
   let renderCache = {}; // cache of rows with processed callbacks
   let disabledRenderCache = false;
   let sortDirection = {}; // map of sort direction for each key
+  let rowHeight = 0;
 
   $("#" + containerID).html(
     `<div id="${prefixID}grid"></div>
@@ -42,7 +43,7 @@ var LeafFormGrid = function (containerID, options) {
     <table id="${prefixID}table" class="leaf_grid">
       <thead id="${prefixID}thead" style="position: sticky; top: 0px"></thead>
       <tbody id="${prefixID}tbody"></tbody>
-      <tfoot id="${prefixID}tfoot"></tfoot>
+      <tfoot id="${prefixID}tfoot" class="leaf_grid-loading"></tfoot>
     </table>`
   );
 
@@ -210,7 +211,7 @@ var LeafFormGrid = function (containerID, options) {
       cache: false,
     });
   }
-
+  let renderRequest = 0;
   // header format: {name, indicatorID, sortable, editable, visible, [callback]}
   // callback receives {recordID, indicatorID, cellContainerID} within the scope of loadData()
   /**
@@ -236,8 +237,9 @@ var LeafFormGrid = function (containerID, options) {
           } else {
             sort("recordID", "desc", postSortRequestFunc);
           }
-          let currPosition = renderRequest.length; // retain scroll position
-          renderBody(0, currPosition);
+          let currPosition = renderRequest; // retain scroll position
+          renderRequest = 0;
+          renderBody(0, currPosition + defaultLimit);
         }
       });
     }
@@ -268,9 +270,9 @@ var LeafFormGrid = function (containerID, options) {
               } else {
                 sort(event.data, "desc", postSortRequestFunc);
               }
-              let currPosition = renderRequest.length; // retain scroll position
-              renderRequest = [];
-              renderBody(0, currPosition);
+              let currPosition = renderRequest; // retain scroll position
+              renderRequest = 0;
+              renderBody(0, currPosition + defaultLimit);
             }
           }
         );
@@ -287,18 +289,24 @@ var LeafFormGrid = function (containerID, options) {
     var scrolled = false;
     let initialTop = Infinity;
 
-    $(window).on("scroll", function () {
-      scrolled = true;
-    });
-    var renderRequest = [];
-    setInterval(function () {
-      scrollPos = $(window).scrollTop();
-      tableHeight = $("#" + prefixID + "table").height();
-      pageHeight = $(window).height();
-      if (
-        scrolled &&
-        $("#" + prefixID + "thead").offset() != undefined
-      ) {
+    if(document.onscrollend != undefined) {
+      document.onscrollend = handleScroll;
+    } else {
+      // safari compatibility
+      let scrollTimer;
+      document.onscroll = function() {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(handleScroll, 100);
+      };
+    }
+
+    function handleScroll() {
+      let scrollPos = window.scrollY;
+
+      if ($("#" + prefixID + "thead").offset() != undefined) {
+        tableHeight = document.querySelector(`#${prefixID}tbody`).offsetHeight;
+        let tableTop = document.querySelector(`#${prefixID}tbody`).getBoundingClientRect().top * -1;
+
         scrolled = false;
 
         if(initialTop > $("#" + prefixID + "thead").offset().top) {
@@ -329,20 +337,19 @@ var LeafFormGrid = function (containerID, options) {
             "border-right": "1px solid black"
           });
         }
-      }
 
-      // render additional segment right before the user scrolls to it
-      if (
-        scrollPos + pageHeight * 1.2 > tableHeight &&
-        isDataLoaded &&
-        isRenderingBody
-      ) {
-        if (renderRequest[currentRenderIndex] == undefined) {
-          renderRequest[currentRenderIndex] = 1;
-          renderBody(currentRenderIndex, defaultLimit);
+        // render additional segment right before the user scrolls to it
+        if (
+          (tableTop / rowHeight) + defaultLimit > currentRenderIndex &&
+          isDataLoaded &&
+          isRenderingBody
+        ) {
+          if (renderRequest < currentRenderIndex) {
+            renderBody(currentRenderIndex, (tableTop / rowHeight) + defaultLimit - currentRenderIndex);
+          }
         }
       }
-    }, 100);
+    }
   }
 
   /**
@@ -518,6 +525,10 @@ var LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    */
   function renderBody(startIdx, limit) {
+    let scrollY = window.scrollY;
+    let scrollX = window.scrollX;
+
+    renderRequest = currentRenderIndex;
     isRenderingBody = true;
     if (preRenderFunc != null) {
       preRenderFunc();
@@ -528,13 +539,12 @@ var LeafFormGrid = function (containerID, options) {
     }
     currLimit = limit;
 
-    var fullRender = false;
     if (startIdx == undefined || startIdx == 0) {
       startIdx = 0;
       document.querySelector(`#${prefixID}tbody`).innerHTML = '';
       renderHistory = {};
-      fullRender = true;
       currentRenderIndex = 0;
+      renderRequest = 0;
     }
 
     var buffer = "";
@@ -564,9 +574,7 @@ var LeafFormGrid = function (containerID, options) {
         outputBuffer.push(renderCache[currentData[i].recordID]);
         counter++;
 
-        if (fullRender) {
-          currentRenderIndex = i + 1;
-        }
+        currentRenderIndex = i + 1;
         continue;
       }
       buffer +=
@@ -675,26 +683,34 @@ var LeafFormGrid = function (containerID, options) {
       buffer += "</tr>";
       counter++;
 
-      if (fullRender) {
-        currentRenderIndex = i + 1;
-      }
-    }
-
-    if (
-      currentRenderIndex + limit >= currentData.length ||
-      limit == undefined
-    ) {
-      document.querySelector(`#${prefixID}tfoot`).innerHTML = '';
-    } else {
-      document.querySelector(`#${prefixID}tfoot`).innerHTML = `<tr>
-          <td colspan="${colspan}" style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold">
-            <img src="${rootURL}images/indicator.gif" style="vertical-align: middle" alt="" /> Loading more results...
-          </td>
-        </tr>`;
+      currentRenderIndex = i + 1;
     }
 
     let domTableBody = document.querySelector(`#${prefixID}tbody`);
     domTableBody.insertAdjacentHTML('beforeend', buffer);
+
+    for (let i in outputBuffer) {
+      domTableBody.appendChild(outputBuffer[i]);
+    }
+
+    if(rowHeight == 0) {
+      rowHeight = domTableBody.offsetHeight / currentRenderIndex;
+    }
+    fillerHeight = (rowHeight * (currentData.length - currentRenderIndex));
+    if (
+      currentRenderIndex >= currentData.length ||
+      limit == undefined
+    ) {
+      document.querySelector(`#${prefixID}tfoot`).innerHTML = '';
+    } else {
+      let tfootBuf = `<tr style="height: ${fillerHeight}px">`;
+      document.querySelectorAll(`#${prefixID}thead_tr th`).forEach(el => {
+        tfootBuf += `<td style="width: ${el.offsetWidth}px"></td>`
+      });
+      tfootBuf += `</tr>`;
+      document.querySelector(`#${prefixID}tfoot`).innerHTML = tfootBuf;
+    }
+
     document.querySelectorAll(`#${prefixID}tbody td[data-editable=true]`).forEach(el => {
       el.classList.add('table_editable');
     });
@@ -719,9 +735,6 @@ var LeafFormGrid = function (containerID, options) {
     for (let i in callbackBuffer) {
       callbackBuffer[i]();
     }
-    for (let i in outputBuffer) {
-      domTableBody.appendChild(outputBuffer[i]);
-    }
 
     if (postRenderFunc != null) {
       postRenderFunc();
@@ -740,6 +753,10 @@ var LeafFormGrid = function (containerID, options) {
         }
       }
     }
+
+    setTimeout(() => {
+      window.scrollTo(scrollX, scrollY); // compensate for browser reflow
+    }, 0);
   }
 
   /**
@@ -810,6 +827,7 @@ var LeafFormGrid = function (containerID, options) {
         if (postProcessDataFunc != null) {
           currentData = postProcessDataFunc(currentData);
         }
+        document.querySelector(`#${prefixID}table`).setAttribute('aria-rowcount', currentData.length);
         sort("recordID", "desc");
         renderBody(0, defaultLimit);
 
@@ -830,6 +848,7 @@ var LeafFormGrid = function (containerID, options) {
     isDataLoaded = true;
     currentData = data;
     processedCallbackBuffer = false;
+    document.querySelector(`#${prefixID}table`).setAttribute('aria-rowcount', currentData.length);
   }
 
   /**
