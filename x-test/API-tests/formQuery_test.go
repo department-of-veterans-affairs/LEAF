@@ -136,3 +136,15 @@ func TestFormQuery_GroupClickedApprove(t *testing.T) {
 		t.Errorf(`Record 9 should exist because the "Group designated step" clicked "Approve". want = recordID 9 exists in the result set`)
 	}
 }
+
+func TestFormQuery_FilterActionHistory(t *testing.T) {
+	res, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"recordID","operator":"=","match":"9","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["action_history"],"sort":{},"limit":10000,"limitOffset":0}&x-filterData=recordID,title,action_history.time,action_history.description,action_history.actionTextPasttense,action_history.approverName`)
+
+	if res[9].ActionHistory[0].RecordID != 0 {
+		t.Errorf(`Record ID should not exist since it wasn't requested within action_history. want = action_history[0].recordID is null`)
+	}
+
+	if res[9].ActionHistory[0].ApproverName == "" {
+		t.Errorf(`Approver name should not be empty since the record contains actions, and it was requested via filter want = action_history[0].approverName is not empty`)
+	}
+}
