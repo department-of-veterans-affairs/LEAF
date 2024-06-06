@@ -461,12 +461,12 @@ class Form
 
     /**
      * Get a form's indicator and all children, including data if available
-     * 
+     *
      * Flags:
      *  $_GET['context'] If the context is set to "formEditor", an additional "isMaskable" property indicates
      *                   whether the field has Special Access Restrictions assigned. Used in the Form Editor
      *                   to provide a visual indicator.
-     * 
+     *
      * @param int $indicatorID
      * @param int $series
      * @param int $recordID
@@ -773,9 +773,9 @@ class Form
 
     /**
      * cancelRecord marks a record as cancelled.
-     * 
+     *
      * Only admins should be able to cancel submitted records.
-     * 
+     *
      * @param int $recordID
      * @param string $comment
      *
@@ -833,10 +833,21 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
+            // need to send emails to everyone upstream from the currect step.
+            $this->notifyPriorSteps($recordID);
+
             $return_value = 1;
         }
 
         return $return_value;
+    }
+
+    private function notifyPriorSteps(int $recordID): void
+    {
+        $email = new Email();
+        $email->setSender('leaf.noreply@va.gov');
+
+        $email->attachApproversAndEmail($recordID, Email::CANCEL_REQUEST, $this->login);
     }
 
     public function restoreRecord($recordID)
@@ -2423,7 +2434,7 @@ class Form
 
     /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
      * specified by $indicatorID_list (string of ID#'s delimited by ',')
-     * 
+     *
      * WARNING: $alreadyCheckedReadAccess can only be set to true if $recordID_list has been
      *          processed by checkReadAccess().
      *
@@ -2920,28 +2931,70 @@ class Form
     /**
      * parseBooleanQuery transforms a user's query to add implied "+" prefixes when
      * a "MATCH ALL" condition is selected.
-     * 
+     *
      * @param $query
      * @return string Transformed query
      */
     private function parseBooleanQuery(string $query): string
     {
-        $words = explode(' ', $query);
+        $fulltext_stopwords = array(
+            'a' => 1,
+            'about' => 1,
+            'an' => 1,
+            'are' => 1,
+            'as' => 1,
+            'at' => 1,
+            'be' => 1,
+            'by' => 1,
+            'com' => 1,
+            'de' => 1,
+            'en' => 1,
+            'for' => 1,
+            'from' => 1,
+            'how' => 1,
+            'i' => 1,
+            'in' => 1,
+            'is' => 1,
+            'it' => 1,
+            'la' => 1,
+            'of' => 1,
+            'on' => 1,
+            'or' => 1,
+            'that'=> 1,
+            'the'=> 1,
+            'this'=> 1,
+            'to' => 1,
+            'was' => 1,
+            'what' => 1,
+            'when' => 1,
+            'where' => 1,
+            'who' => 1,
+            'will' => 1,
+            'with' => 1,
+            'und' => 1,
+            'www' => 1,
+        );
+        $words = explode(' ', trim($query));
+
+        //Prevent stopwords and words less than 3 characters from being required,
+        //since that could cause no results even if the data entry contained them.
         foreach($words as $k => $word) {
-            $firstChar = substr($word, 0, 1);
-            if($firstChar != '+' && $firstChar != '-') {
-                $words[$k] = '+' . $words[$k];
+            $searchWord = trim($word);
+            $firstChar = substr($searchWord, 0, 1);
+            if(strlen($searchWord) > 2 && $fulltext_stopwords[strtolower($searchWord)] !== 1 && $firstChar !== '+' && $firstChar !== '-') {
+                $words[$k] = '+' . $searchWord;
+            } else {
+                $words[$k] = $searchWord;
             }
         }
-
         return implode(' ', $words);
     }
 
     /**
      * query parses a JSON formatted user query defined in formQuery.js.
-     * 
+     *
      * Returns an array on success, and string/int for malformed queries
-     * 
+     *
      * @param string JSON formatted string of the query
      * @return mixed
      */
@@ -3365,6 +3418,10 @@ class Form
 
                                         $operator = 'AGAINST';
                                         $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                    } else {
+                                        //Temporary means to handle quotes for non BOOLEAN MODE text searches.
+                                        //TODO: remove this on move to markdown
+                                        $vars[":data{$count}"] = htmlentities(trim($vars[":data{$count}"]), ENT_QUOTES);
                                     }
                                     break;
                             }
@@ -3577,7 +3634,7 @@ class Form
                     break;
             }
         }
-        
+
         // avoid extra sort when using fulltext index
         if($usingFulltextIndex) {
             $sort = '';
@@ -3906,7 +3963,8 @@ class Form
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
             $temp['categoryName'] = $item['categoryName'];
-            $temp['disabled'] = ($item['disabled'] == 1) ? 'Archived' : 'Deletion Date: '. $delDateFormat;
+            // TODO: change the below name. New output should use new property names instead of recycling existing ones.
+            $temp['disabled'] = ($item['disabled'] == 1) ? 'Archived' : 'Scheduled Deletion Date: '. $delDateFormat;
             $disabledIndicatorList[] = $temp;
         }
 
