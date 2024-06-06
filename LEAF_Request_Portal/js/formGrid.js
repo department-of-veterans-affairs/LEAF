@@ -27,6 +27,7 @@ var LeafFormGrid = function (containerID, options) {
   let disabledRenderCache = false;
   let sortDirection = {}; // map of sort direction for each key
   let rowHeight = 0;
+  let stickyHeaderOffset = 0;
 
   $("#" + containerID).html(
     `<div id="${prefixID}grid"></div>
@@ -285,8 +286,6 @@ var LeafFormGrid = function (containerID, options) {
       "font-size": "12px",
     });
 
-    let initialTop = Infinity;
-
     if(document.onscrollend != undefined) {
       document.onscrollend = handleScroll;
     } else {
@@ -308,35 +307,6 @@ var LeafFormGrid = function (containerID, options) {
         let tableTop = document.querySelector(`#${prefixID}tbody`).getBoundingClientRect().top * -1;
         virtualIndex = (tableTop / rowHeight) + defaultLimit;
 
-        if(initialTop > $("#" + prefixID + "thead").offset().top) {
-          initialTop = $("#" + prefixID + "thead").offset().top;
-        }
-        if (scrollX > initialTop && scrollX < tableHeight + initialTop) {
-          $("#" + prefixID + "table thead tr th").css({
-            "filter": "invert(1) grayscale(1)",
-            height: "1.3rem",
-            "border-top": "1px solid white"
-          });
-          $("#" + prefixID + "table thead tr th:first-child").css({
-            "border-left": "1px solid white"
-          });
-          $("#" + prefixID + "table thead tr th:last-child").css({
-            "border-right": "1px solid white"
-          });
-        } else {
-          $("#" + prefixID + "table thead tr th").css({
-            "filter": "invert(0)",
-            height: "auto",
-            "border-top": "1px solid black"
-          });
-          $("#" + prefixID + "table thead tr th:first-child").css({
-            "border-left": "1px solid black"
-          });
-          $("#" + prefixID + "table thead tr th:last-child").css({
-            "border-right": "1px solid black"
-          });
-        }
-
         // render additional segment right before the user scrolls to it
         if (
           virtualIndex > currentRenderIndex &&
@@ -350,6 +320,41 @@ var LeafFormGrid = function (containerID, options) {
         }
       }
     }
+
+    // sticky header UX
+    const domHeader = document.querySelector(`#${prefixID}thead`);
+    const observer = new IntersectionObserver((evt) => {
+      if(evt[0].intersectionRatio < 1) {
+        $("#" + prefixID + "table thead tr th").css({
+          "filter": "invert(1) grayscale(1)",
+          height: "1.3rem",
+          "border-top": "1px solid white"
+        });
+        $("#" + prefixID + "table thead tr th:first-child").css({
+          "border-left": "1px solid white"
+        });
+        $("#" + prefixID + "table thead tr th:last-child").css({
+          "border-right": "1px solid white"
+        });
+      } else {
+        $("#" + prefixID + "table thead tr th").css({
+          "filter": "invert(0)",
+          height: "auto",
+          "border-top": "1px solid black"
+        });
+        $("#" + prefixID + "table thead tr th:first-child").css({
+          "border-left": "1px solid black"
+        });
+        $("#" + prefixID + "table thead tr th:last-child").css({
+          "border-right": "1px solid black"
+        });
+      }
+    }, {
+      rootMargin: -stickyHeaderOffset - 1 + 'px 0px 0px 0px',
+      threshold: [1],
+    });
+    
+    observer.observe(domHeader);
   }
 
   /**
@@ -1084,6 +1089,7 @@ var LeafFormGrid = function (containerID, options) {
     disableRenderCache: () => disabledRenderCache = true,
     setStickyHeaderOffset: function (offset) {
       document.querySelector(`#${prefixID}thead`).style.top = offset;
+      stickyHeaderOffset = Number(offset.replace('px', ''));
     },
     stop: function () {
       isRenderingBody = false;
