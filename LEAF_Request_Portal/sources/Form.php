@@ -2937,14 +2937,56 @@ class Form
      */
     private function parseBooleanQuery(string $query): string
     {
-        $words = explode(' ', $query);
+        $fulltext_stopwords = array(
+            'a' => 1,
+            'about' => 1,
+            'an' => 1,
+            'are' => 1,
+            'as' => 1,
+            'at' => 1,
+            'be' => 1,
+            'by' => 1,
+            'com' => 1,
+            'de' => 1,
+            'en' => 1,
+            'for' => 1,
+            'from' => 1,
+            'how' => 1,
+            'i' => 1,
+            'in' => 1,
+            'is' => 1,
+            'it' => 1,
+            'la' => 1,
+            'of' => 1,
+            'on' => 1,
+            'or' => 1,
+            'that'=> 1,
+            'the'=> 1,
+            'this'=> 1,
+            'to' => 1,
+            'was' => 1,
+            'what' => 1,
+            'when' => 1,
+            'where' => 1,
+            'who' => 1,
+            'will' => 1,
+            'with' => 1,
+            'und' => 1,
+            'www' => 1,
+        );
+        $words = explode(' ', trim($query));
+
+        //Prevent stopwords and words less than 3 characters from being required,
+        //since that could cause no results even if the data entry contained them.
         foreach($words as $k => $word) {
-            $firstChar = substr($word, 0, 1);
-            if($firstChar != '+' && $firstChar != '-') {
-                $words[$k] = '+' . $words[$k];
+            $searchWord = trim($word);
+            $firstChar = substr($searchWord, 0, 1);
+            if(strlen($searchWord) > 2 && $fulltext_stopwords[strtolower($searchWord)] !== 1 && $firstChar !== '+' && $firstChar !== '-') {
+                $words[$k] = '+' . $searchWord;
+            } else {
+                $words[$k] = $searchWord;
             }
         }
-
         return implode(' ', $words);
     }
 
@@ -3376,6 +3418,10 @@ class Form
 
                                         $operator = 'AGAINST';
                                         $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                    } else {
+                                        //Temporary means to handle quotes for non BOOLEAN MODE text searches.
+                                        //TODO: remove this on move to markdown
+                                        $vars[":data{$count}"] = htmlentities(trim($vars[":data{$count}"]), ENT_QUOTES);
                                     }
                                     break;
                             }
