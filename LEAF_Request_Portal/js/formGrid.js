@@ -237,9 +237,9 @@ var LeafFormGrid = function (containerID, options) {
           } else {
             sort("recordID", "desc", postSortRequestFunc);
           }
-          let currPosition = renderRequest; // retain scroll position
           renderRequest = 0;
-          renderBody(0, currPosition + defaultLimit);
+          renderBody(0, virtualIndex);
+          window.scrollTo(scrollX, scrollY); // compensate for browser reflow
         }
       });
     }
@@ -270,9 +270,9 @@ var LeafFormGrid = function (containerID, options) {
               } else {
                 sort(event.data, "desc", postSortRequestFunc);
               }
-              let currPosition = renderRequest; // retain scroll position
               renderRequest = 0;
-              renderBody(0, currPosition + defaultLimit);
+              renderBody(0, virtualIndex);
+              window.scrollTo(scrollX, scrollY); // compensate for browser reflow
             }
           }
         );
@@ -285,8 +285,6 @@ var LeafFormGrid = function (containerID, options) {
       "font-size": "12px",
     });
 
-    // sticky headers
-    var scrolled = false;
     let initialTop = Infinity;
 
     if(document.onscrollend != undefined) {
@@ -300,19 +298,20 @@ var LeafFormGrid = function (containerID, options) {
       };
     }
 
+    let scrollX, scrollY, virtualIndex;
     function handleScroll() {
-      let scrollPos = window.scrollY;
+      scrollY = window.scrollY;
+      scrollX = window.scrollX;
 
       if ($("#" + prefixID + "thead").offset() != undefined) {
         tableHeight = document.querySelector(`#${prefixID}tbody`).offsetHeight;
         let tableTop = document.querySelector(`#${prefixID}tbody`).getBoundingClientRect().top * -1;
-
-        scrolled = false;
+        virtualIndex = (tableTop / rowHeight) + defaultLimit;
 
         if(initialTop > $("#" + prefixID + "thead").offset().top) {
           initialTop = $("#" + prefixID + "thead").offset().top;
         }
-        if (scrollPos > initialTop && scrollPos < tableHeight + initialTop) {
+        if (scrollX > initialTop && scrollX < tableHeight + initialTop) {
           $("#" + prefixID + "table thead tr th").css({
             "filter": "invert(1) grayscale(1)",
             height: "1.3rem",
@@ -340,12 +339,13 @@ var LeafFormGrid = function (containerID, options) {
 
         // render additional segment right before the user scrolls to it
         if (
-          (tableTop / rowHeight) + defaultLimit > currentRenderIndex &&
+          virtualIndex > currentRenderIndex &&
           isDataLoaded &&
           isRenderingBody
         ) {
           if (renderRequest < currentRenderIndex) {
-            renderBody(currentRenderIndex, (tableTop / rowHeight) + defaultLimit - currentRenderIndex);
+            renderBody(currentRenderIndex, virtualIndex - currentRenderIndex);
+            window.scrollTo(scrollX, scrollY); // compensate for browser reflow
           }
         }
       }
@@ -525,9 +525,6 @@ var LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    */
   function renderBody(startIdx, limit) {
-    let scrollY = window.scrollY;
-    let scrollX = window.scrollX;
-
     renderRequest = currentRenderIndex;
     isRenderingBody = true;
     if (preRenderFunc != null) {
@@ -753,10 +750,6 @@ var LeafFormGrid = function (containerID, options) {
         }
       }
     }
-
-    setTimeout(() => {
-      window.scrollTo(scrollX, scrollY); // compensate for browser reflow
-    }, 0);
   }
 
   /**
