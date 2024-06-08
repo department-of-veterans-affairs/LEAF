@@ -1313,7 +1313,8 @@ $(function() {
         });
 
         // show top results asap
-        let queryFirstBatch = leafSearch.getLeafFormQuery();
+        let queryFirstBatch = new LeafFormQuery();
+        queryFirstBatch.setQuery(structuredClone(leafSearch.getLeafFormQuery().getQuery()));
         queryFirstBatch.sort('recordID', 'DESC');
         queryFirstBatch.setLimit(50);
         queryFirstBatch.setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
@@ -1325,7 +1326,12 @@ $(function() {
         leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
         leafSearch.getLeafFormQuery().setAbortSignal(abortController.signal);
         leafSearch.getLeafFormQuery().onProgress(progress => {
-            $('#reportStats').html(`Loading ${progress}+ records`);
+            document.querySelector('#reportStats').innerText = `Loading ${progress}+ records`;
+            document.querySelector(`#${grid.getPrefixID()}tfoot`).innerHTML = `<tr>
+                <td colspan="${grid.getNumHeaders()}" style="padding: 8px; font-size: 120%; font-weight: bold">
+                <img src="./images/indicator.gif" style="vertical-align: middle" alt="" /> Loading ${progress}+ records
+                </td>
+            </tr>`;
         });
 
         // get data

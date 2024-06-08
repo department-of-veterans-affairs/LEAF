@@ -1061,6 +1061,13 @@ var LeafFormGrid = function (containerID, options) {
     },
     hideIndex: hideIndex,
     setHeaders: setHeaders,
+    getNumHeaders: () => {
+      if(showIndex) {
+        return headers.length + 1;
+      } else {
+        return headers.length;
+      }
+    },
     sort: sort,
     renderVirtualHeader: renderVirtualHeader,
     renderBody: renderBody,
