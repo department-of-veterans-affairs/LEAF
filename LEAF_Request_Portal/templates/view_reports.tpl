@@ -1162,7 +1162,7 @@ $(function() {
     });
     var extendedToolbar = false;
     $('#generateReport').off();
-    $('#generateReport').on('click', function() {
+    $('#generateReport').on('click', async function() {
         $('#results').fadeIn(700);
         $('#saveLinkContainer').fadeIn(700);
         $('#step_2').slideUp(700);
@@ -1311,17 +1311,21 @@ $(function() {
             abortController.abort();
             abortLoad = true;
         });
-        let firstBatchLoaded = false;
+
+        // show top results asap
+        let queryFirstBatch = leafSearch.getLeafFormQuery();
+        queryFirstBatch.sort('recordID', 'DESC');
+        queryFirstBatch.setLimit(50);
+        queryFirstBatch.setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
+        let firstBatch = await queryFirstBatch.execute();
+        renderGrid(firstBatch);
+
         leafSearch.getLeafFormQuery().setBatchSize(1000);
         leafSearch.getLeafFormQuery().setLimit(Infinity); // Backward compat: limit shouldn't exist
         leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
         leafSearch.getLeafFormQuery().setAbortSignal(abortController.signal);
         leafSearch.getLeafFormQuery().onProgress(progress => {
             $('#reportStats').html(`Loading ${progress}+ records`);
-            if(!firstBatchLoaded) {
-                renderGrid(leafSearch.getLeafFormQuery().getResults());
-                firstBatchLoaded = true;
-            }
         });
 
         // get data

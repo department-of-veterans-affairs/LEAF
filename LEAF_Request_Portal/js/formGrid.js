@@ -707,7 +707,7 @@ var LeafFormGrid = function (containerID, options) {
     } else {
       let tfootBuf = `<tr style="height: ${fillerHeight}px">`;
       document.querySelectorAll(`#${prefixID}thead_tr th`).forEach(el => {
-        tfootBuf += `<td style="width: ${el.offsetWidth}px"></td>`
+        tfootBuf += `<td></td>`;
       });
       tfootBuf += `</tr>`;
       document.querySelector(`#${prefixID}tfoot`).innerHTML = tfootBuf;
