@@ -3557,6 +3557,10 @@ class Form
                     $sort = 'ORDER BY date ';
 
                     break;
+                case 'recordID':
+                    $sort = 'ORDER BY recordID ';
+
+                    break;
                 case 'title':
                     $sort = 'ORDER BY title ';
 

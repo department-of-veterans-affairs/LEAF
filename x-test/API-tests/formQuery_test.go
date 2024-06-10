@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -125,5 +126,21 @@ func TestFormQuery_GroupClickedApprove(t *testing.T) {
 
 	if _, exists := res[9]; !exists {
 		t.Errorf(`Record 9 should exist because the "Group designated step" clicked "Approve". want = recordID 9 exists in the result set`)
+	}
+}
+
+func TestFormQuery_DescendingIndex(t *testing.T) {
+	// This test reproduces an issue where a descending recordID index in MySQL <= 8.4 results in unexpected query results
+	// when 2 or more potential indexes can be used. Reliably reproducing this issue also requires a new record to be created.
+	postData := url.Values{}
+	postData.Set("CSRFToken", CsrfToken)
+	postData.Set("numform_5ea07", "1")
+	postData.Set("title", "TestFormQuery_DescendingIndex")
+	client.PostForm(RootURL+`api/form/new`, postData)
+
+	res, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"userID","operator":"=","match":"VTRSHHZOFIA","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","status","categoryName"],"sort":{"column":"recordID","direction":"DESC"},"limit":50}`)
+
+	if _, exists := res[6]; !exists {
+		t.Errorf(`Record ID should exist because VTRSHHZOFIA is the initiator. want = recordID is not null`)
 	}
 }
