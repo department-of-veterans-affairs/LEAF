@@ -43,7 +43,9 @@ var LeafFormQuery = function () {
    * @memberOf LeafFormQuery
    */
   function addTerm(id = "title", operator = "=", match = "**", gate = "AND") {
-    match = encodeURIComponent(match);
+    if(typeof match == 'string') {
+      match = match.replaceAll('&', '%26');
+    }
     query.terms.push({id, operator, match, gate});
   }
 
@@ -57,7 +59,9 @@ var LeafFormQuery = function () {
    * @memberOf LeafFormQuery
    */
   function addDataTerm(id = "title", indicatorID = "0", operator = "=", match = "**", gate = "AND") {
-    match = encodeURIComponent(match);
+    if(typeof match == 'string') {
+      match = match.replaceAll('&', '%26');
+    }
     query.terms.push({id, indicatorID, operator, match, gate});
   }
 
