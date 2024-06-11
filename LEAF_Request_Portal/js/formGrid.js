@@ -369,7 +369,7 @@ var LeafFormGrid = function (containerID, options) {
     const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
     let headerText = '';
     for(let i in headers) {
-      if(headers[i].name == key) {
+      if(headers[i].indicatorID == key) {
         headerText = headers[i].name;
         break;
       }
