@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"strconv"
+	"github.com/google/go-cmp/cmp"
 )
 
 func getFormQuery(url string) (FormQueryResponse, error) {
@@ -142,5 +144,87 @@ func TestFormQuery_DescendingIndex(t *testing.T) {
 
 	if _, exists := res[6]; !exists {
 		t.Errorf(`Record ID should exist because VTRSHHZOFIA is the initiator. want = recordID is not null`)
+	}
+}
+
+func TestFormQuery_Employee_Metadata(t *testing.T) {
+	//setup.  normally set in employee selector result handler.
+	mock_orgchart_employee := Orgchart_employee_metadata{
+		FirstName: "Ramon",
+		LastName: "Watsica",
+		MiddleName: "Yundt",
+		Email: "Ramon.Watsica@fake-email.com",
+		UserName: "VTRYCXBETHANY",
+	}
+	org_emp_bytes, err := json.Marshal(mock_orgchart_employee)
+	if err != nil {
+		t.Error("Error Marshalling org emp struct")
+	}
+
+	//post and confirm post success
+	postData := url.Values{}
+	postData.Set("CSRFToken", CsrfToken)
+	postData.Set("8", "201")
+	postData.Set("8_metadata", string(org_emp_bytes))
+
+	res, err := client.PostForm(RootURL+`api/form/11`, postData)
+	if err != nil {
+		t.Error("Error sending post request")
+	}
+
+	bodyBytes, _ := io.ReadAll(res.Body)
+	got := string(bodyBytes)
+	want := `"1"`
+	if !cmp.Equal(got, want) {
+		t.Errorf("Admin did not have access got = %v, want = %v", got, want)
+	}
+
+	formRes, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"categoryID","operator":"=","match":"form_5ea07","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":[],"sort":{},"getData":["8"],"limit":10000,"limitOffset":0}&x-filterData=recordID,title`)
+
+	if _, exists := formRes[11]; !exists {
+		t.Errorf("Record 11 should be readable")
+	}
+
+	recData := formRes[11].S1
+
+	metadataInterface := recData["id8_orgchart"]
+	orgchart := metadataInterface.(map[string]interface {})
+	b, _ := json.Marshal(orgchart)
+
+	var org_emp_md Orgchart_employee_metadata
+	err = json.Unmarshal(b, &org_emp_md)
+	if err != nil {
+		t.Error("Error on orgchart_employee_metadata unmarshal")
+	}
+
+	got = org_emp_md.FirstName
+	want = mock_orgchart_employee.FirstName
+	if !cmp.Equal(got, want) {
+		t.Errorf("firstName got = %v, want = %v", got, want)
+	}
+	got = org_emp_md.LastName
+	want = mock_orgchart_employee.LastName
+	if !cmp.Equal(got, want) {
+		t.Errorf("lastName got = %v, want = %v", got, want)
+	}
+	got = org_emp_md.MiddleName
+	want = mock_orgchart_employee.MiddleName
+	if !cmp.Equal(got, want) {
+		t.Errorf("middleName got = %v, want = %v", got, want)
+	}
+	got = org_emp_md.Email
+	want = mock_orgchart_employee.Email
+	if !cmp.Equal(got, want) {
+		t.Errorf("email got = %v, want = %v", got, want)
+	}
+	got = org_emp_md.UserName
+	want = mock_orgchart_employee.UserName
+	if !cmp.Equal(got, want) {
+		t.Errorf("userName got = %v, want = %v", got, want)
+	}
+	got = strconv.Itoa(org_emp_md.EmpUID)
+	want = "201"
+	if !cmp.Equal(got, want) {
+		t.Errorf("userName got = %v, want = %v", got, want)
 	}
 }

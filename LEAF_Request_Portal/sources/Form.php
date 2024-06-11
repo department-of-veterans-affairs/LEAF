@@ -1115,20 +1115,37 @@ class Form
             return 0;
         }
 
+        $validMetadataFields = array(
+            "firstName" => 1,
+            "lastName" => 1,
+            "middleName" => 1,
+            "email" => 1,
+            "userName" => 1,
+        );
+        $metadata = array();
+        if(isset($_POST[$key . "_metadata"])) {
+            $postMetadata = json_decode($_POST[$key . "_metadata"], true);
+            foreach($postMetadata as $metakey => $info) {
+                if($validMetadataFields[$metakey] === 1) {
+                    $metadata[$metakey] = XSSHelpers::xscrub($info);
+                }
+            }
+        }
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series,
                       ':data' => trim($_POST[$key]),
+                      ':metadata' => count($metadata) > 0 ? json_encode($metadata) : null,
                       ':timestamp' => time(),
                       ':userID' => $this->login->getUserID(), );
 
-        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
-                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
-                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
+        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, metadata, timestamp, userID)
+                                            VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)
+                                            ON DUPLICATE KEY UPDATE data=:data, metadata=:metadata, timestamp=:timestamp, userID=:userID', $vars);
 
         if (!$duplicate) {
-            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
+            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)', $vars);
         }
         /*  signatures (not yet implemented)
         $vars = array(':recordID' => $recordID,
@@ -2623,9 +2640,9 @@ class Form
 			    break;
                     }
 
-
-                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
-                    if (isset($item['dataOrgchart']))
+                    $isProtected = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1;
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = $isProtected ? '[protected data]' : $item['data'];
+                    if (isset($item['dataOrgchart']) && !$isProtected)
                     {
                         $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
                     }

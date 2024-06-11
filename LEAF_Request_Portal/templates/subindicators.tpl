@@ -1121,7 +1121,7 @@
                                     $('#<!--{$indicator.indicatorID|strip_tags}-->').trigger('change');
                                     $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('');
                                 },
-                                fail: function(err) {
+                                error: function(err) {
                                     console.log(err);
                                 }
                             });
@@ -1139,6 +1139,16 @@
                     });
                     empSel.setResultHandler(function() {
                         importFromNational(empSel);
+                        if (typeof formMetadata !== 'undefined') {
+                            const user = empSel.selectionData[empSel.selection] || null;
+                            formMetadata['<!--{$indicator.indicatorID}-->'] = {
+                                firstName: user?.firstName || '',
+                                lastName: user?.lastName || '',
+                                middleName: user?.middleName || '',
+                                email: user?.email || '',
+                                userName: user?.userName || ''
+                            };
+                        }
                     });
                     empSel.initialize();
                     <!--{if $indicator.value != ''}-->

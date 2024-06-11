@@ -5,6 +5,7 @@ var form;
 var formValidator = {};
 var formRequired = {};
 var formConditions = {};
+var formMetadata = {};
 var LeafForm = function (containerID) {
   var containerID = containerID;
   var prefixID = "LeafForm" + Math.floor(Math.random() * 1000) + "_";
@@ -702,6 +703,9 @@ var LeafForm = function (containerID) {
     $("#" + htmlFormID)
       .serializeArray()
       .map(function (x) {
+        if(formMetadata[x.name] !== undefined) {
+         data[`${x.name}_metadata`] = JSON.stringify(formMetadata[x.name]);
+        }
         if (x.name.includes("_multiselect")) {
           const i = x.name.indexOf("_multiselect");
           if (x.value === "") {
@@ -811,6 +815,7 @@ var LeafForm = function (containerID) {
     formValidator = new Object();
     formRequired = new Object();
     formConditions = new Object();
+    formMetadata = new Object();
     $.ajax({
       type: "GET",
       url:
