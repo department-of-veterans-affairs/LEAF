@@ -34,8 +34,14 @@
 const CSRFToken = '<!--{$CSRFToken}-->';
 
 function scrubHTML(input) {
-        let t = new DOMParser().parseFromString(input, 'text/html').body;
-        return t.textContent;
+    if(input == undefined) {
+        return '';
+    }
+    let t = new DOMParser().parseFromString(input, 'text/html').body;
+    while(input != t.textContent) {
+        return scrubHTML(t.textContent);
+    }
+    return t.textContent;
 }
 
 function loadWorkflow(recordID, prefixID) {
@@ -439,16 +445,10 @@ function loadSearchPrereqs() {
             var groupNames = [];
             var groupIDmap = {};
             var tmp = document.createElement('div');
-            var temp;
             let grid = {};
 
             for(let i in res) {
-                temp = res[i].name;
-                tmp.innerHTML = temp;
-                temp = tmp.textContent || tmp.innerText || '';
-                temp = temp.replace(/[^\040-\176]/g, '');
-
-                resIndicatorList[res[i].indicatorID] = temp;
+                resIndicatorList[res[i].indicatorID] = scrubHTML(res[i].name);
 
                 if(groupList[res[i].categoryID] == undefined) {
                     groupList[res[i].categoryID] = [];
@@ -502,6 +502,7 @@ function loadSearchPrereqs() {
                     const isDisabled = res.find(ele => ele.indicatorID === indID).isDisabled;
                     const isArchivedClass = isDisabled > 0 ? ' is-archived' : '';
                     const isArchivedText = isDisabled > 0 ? ' (Archived)' : '';
+
                     buffer += `<div class="indicatorOption${isArchivedClass}" id="indicatorOption_${indID}" style="display: none"><label class="checkable leaf_check" for="indicators_${indID}" title="indicatorID: ${indID}\n${resIndicatorList[indID]}${isArchivedText}" >`;
                     buffer += `<input type="checkbox" class="icheck leaf_check parent" id="indicators_${indID}" name="indicators[${indID}]" value="${indID}" />`
                     buffer += `<span class="leaf_check"></span> ${resIndicatorList[indID]}${isArchivedText}</label>`;
@@ -735,14 +736,9 @@ function editLabels() {
             indicatorSort[curID] = i + 1;
         });
         var tmp = document.createElement('div');
-        var temp;
         for(let i in resSelectList) {
             if(resIndicatorList[resSelectList[i]] != undefined) {
-                temp = $('#id_' + resSelectList[i]).val();
-                tmp.innerHTML = temp;
-                temp = tmp.textContent || tmp.innerText || '';
-                temp = temp.replace(/[^\040-\176]/g, '');
-                resIndicatorList[resSelectList[i]] = temp;
+                resIndicatorList[resSelectList[i]] = scrubHTML($('#id_' + resSelectList[i]).val());
             }
         }
         gridColorData = Object.assign({ }, tempColorData);
@@ -1227,10 +1223,7 @@ $(function() {
             }
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
-            var tmp = document.createElement('div');
-            tmp.innerHTML = temp.name;
-            temp.name = tmp.textContent || tmp.innerText || '';
-            temp.name = temp.name.replace(/[^\040-\176]/g, '');
+            temp.name = scrubHTML(temp.name);
             if($.isNumeric(resSelectList[i][0]) || $.isNumeric(resSelectList[i])) {
                     headers.push(temp);
                     leafSearch.getLeafFormQuery().getData(temp.indicatorID);
