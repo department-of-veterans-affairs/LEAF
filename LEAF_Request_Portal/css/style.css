@@ -707,10 +707,29 @@ table.leaf_grid td:first-child {
 }
 
 table.leaf_grid thead tr th,
-table.leaf_grid tbody tr td {
+table.leaf_grid tbody tr td,
+table.leaf_grid tfoot tr td {
   border-bottom: 1px solid black;
   border-right: 1px solid black;
   transition: filter 0.25s;
+}
+
+table.leaf_grid>tbody>tr>td {
+  padding: 8px;
+}
+
+.leaf_grid-loading tr td {
+  background: linear-gradient(90deg, #ffffff, #dbdbdb, #ffffff);
+  animation: leaf_grid-loading 30s linear infinite;
+}
+
+@keyframes leaf_grid-loading {
+  0% {
+      background-position: 0 0;
+  }
+  100% {
+      background-position: 1200px 0;
+  }
 }
 
 .agenda th {

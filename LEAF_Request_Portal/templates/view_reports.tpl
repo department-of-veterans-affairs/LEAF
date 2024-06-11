@@ -21,7 +21,7 @@
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%; padding-left: 8px;"></div>
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
-    <p id="reportStats" style="position: absolute; padding-left: 8px; z-index: 1"></p>
+    <br /><span id="reportStats" style="padding-left: 8px; z-index: 1"></span><button id="btn_abort" class="buttonNorm" style="display: none">Stop and show results</button>
 </div>
 
 <div id="results" style="display: none">Loading...</div>
@@ -72,10 +72,10 @@ function addHeader(column) {
                 name: 'Title',
                 indicatorID: 'title',
                 callback: function(data, blob) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                    $('#'+data.cellContainerID).on('click', function(){
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].title;
+                    document.querySelector(`#${data.cellContainerID}`).addEventListener('click', () => {
                         changeTitle(data, $('#'+data.cellContainerID).html());
-                });
+                    });
             }});
             break;
         case 'service':
@@ -86,7 +86,7 @@ function addHeader(column) {
                 indicatorID: 'service',
                 editable: false,
                 callback: function(data, blob) {
-                $('#'+data.cellContainerID).html(blob[data.recordID].service);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
             }});
             break;
         case 'type':
@@ -102,7 +102,7 @@ function addHeader(column) {
                          types += blob[data.recordID].categoryNames[i] + ' | ';
                      }
                      types = types.substr(0, types.length - 3);
-                     $('#'+data.cellContainerID).html(types);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = types;
             }});
             break;
         case 'status':
@@ -119,7 +119,7 @@ function addHeader(column) {
                      if(blob[data.recordID].deleted > 0) {
                          status += ', Cancelled';
                      }
-                     $('#'+data.cellContainerID).html(status);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = status;
             }});
             break;
         case 'initiator':
@@ -128,7 +128,7 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName;
             }});
             break;
         case 'dateCancelled':
@@ -139,7 +139,7 @@ function addHeader(column) {
                 name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].deleted > 0) {
                     var date = new Date(blob[data.recordID].deleted * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
                 }
             }});
             headers.push({
@@ -147,7 +147,7 @@ function addHeader(column) {
                 if(blob[data.recordID].action_history != undefined) {
                     var cancelData = blob[data.recordID].action_history.pop();
                     if(cancelData != undefined && cancelData.actionType === 'deleted') {
-                        $('#'+data.cellContainerID).html(cancelData.approverName);
+                        document.querySelector(`#${data.cellContainerID}`).innerHTML = cancelData.approverName;
                     }
                 }
             }});
@@ -157,7 +157,7 @@ function addHeader(column) {
             headers.push({
                 name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
                 var date = new Date(blob[data.recordID].date * 1000);
-                $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
             }});
             break;
         case 'dateResolved':
@@ -167,13 +167,13 @@ function addHeader(column) {
                 name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionData != undefined) {
                     var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
                 }
             }});
             headers.push({
                 name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionData != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].recordResolutionData.lastStatus;
                 }
             }});
             break;
@@ -183,21 +183,21 @@ function addHeader(column) {
             headers.push({
                 name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionBy != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].recordResolutionBy.resolvedBy;
                 }
             }});
             break;
         case 'actionButton':
             headers.unshift({
                 name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html('<div tabindex="0" class="buttonNorm">Take Action</div>');
-                $('#'+data.cellContainerID).on('keydown', function(e) {
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = '<div tabindex="0" class="buttonNorm">Take Action</div>';
+                document.querySelector(`#${data.cellContainerID}`).addEventListener('keydown', function(e) {
                     if (e.which === 13) {
                         e.preventDefault();
                         loadWorkflow(data.recordID, grid.getPrefixID());
                     }
                 });
-                $('#'+data.cellContainerID).on('click', function() {
+                document.querySelector(`#${data.cellContainerID}`).addEventListener('click', function() {
                     loadWorkflow(data.recordID, grid.getPrefixID());
                 });
             }});
@@ -224,7 +224,7 @@ function addHeader(column) {
                          }
                      }
                      buffer += '</table>';
-                     $('#'+data.cellContainerID).html(buffer);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = buffer;
             }});
             break;
         case 'approval_history':
@@ -253,7 +253,7 @@ function addHeader(column) {
                                + delimLF + '</tr>';
                      }
                      buffer += '</table>';
-                     $('#'+data.cellContainerID).html(buffer);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = buffer;
                  }});
             break;
         case 'days_since_last_action':
@@ -305,7 +305,7 @@ function addHeader(column) {
                     else {
                         daysSinceAction = "Not Submitted";
                     }
-                    $('#'+data.cellContainerID).html(daysSinceAction);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = daysSinceAction;
                 }
             });
             break;
@@ -339,7 +339,7 @@ function addHeader(column) {
                         content = new Date(fulfillmentTime + destMilliseconds).toLocaleDateString();
                     }
                 }
-                $('#'+data.cellContainerID).html(content);
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = content;
             }});
             break;
         default:
@@ -357,10 +357,10 @@ function addHeader(column) {
                         if(blob[data.recordID].recordsDependencies != undefined
                             && blob[data.recordID].recordsDependencies[depID] != undefined) {
                             var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
-                            $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                            document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
                             if(tDepHeader[depID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-                                $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
+                                document.querySelector(`#${headerID}`).innerHTML = blob[data.recordID].recordsDependencies[depID].description;
                                 tDepHeader[depID] = 1;
                             }
                         }
@@ -381,11 +381,11 @@ function addHeader(column) {
                         if(blob[data.recordID].stepFulfillment != undefined
                             && blob[data.recordID].stepFulfillment[stepID] != undefined) {
                             var date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
-                            $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                            document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
 
                             if(tStepHeader[stepID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-                                $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
+                                document.querySelector(`#${headerID}`).innerHTML = blob[data.recordID].stepFulfillment[stepID].step;
                                 tStepHeader[stepID] = 1;
                             }
                         }
@@ -1162,7 +1162,7 @@ $(function() {
     });
     var extendedToolbar = false;
     $('#generateReport').off();
-    $('#generateReport').on('click', function() {
+    $('#generateReport').on('click', async function() {
         $('#results').fadeIn(700);
         $('#saveLinkContainer').fadeIn(700);
         $('#step_2').slideUp(700);
@@ -1295,8 +1295,7 @@ $(function() {
             clicked = false; //global to reduce dblclicks
         }
 
-        let batchSize = 1000;
-        let offset = 0;
+        let abortController = new AbortController();
         let queryResult = {};
         let abortLoad = false;
         let masquerade = '';
@@ -1307,55 +1306,64 @@ $(function() {
             addMasqueradeParam = '&masquerade=nonAdmin';
         }
 
-        leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
+        document.querySelector('#btn_abort').style.display = 'inline';
+        document.querySelector('#btn_abort').addEventListener('click', function() {
+            abortController.abort();
+            abortLoad = true;
+        });
+
+        // show top results asap
+        let queryFirstBatch = new LeafFormQuery();
+        queryFirstBatch.setQuery(structuredClone(leafSearch.getLeafFormQuery().getQuery()));
+        queryFirstBatch.sort('recordID', 'DESC');
+        queryFirstBatch.setLimit(50);
+        queryFirstBatch.setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
+        let firstBatch = await queryFirstBatch.execute();
+        renderGrid(firstBatch);
+
+        leafSearch.getLeafFormQuery().setBatchSize(1000);
+        leafSearch.getLeafFormQuery().setLimit(Infinity); // Backward compat: limit shouldn't exist
         leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
-
-        leafSearch.getLeafFormQuery().onSuccess(function(res, resStatus, resJqXHR) {
-            queryResult = Object.assign(queryResult, res);
-
-            if((Object.keys(res).length == batchSize
-                    || resJqXHR.getResponseHeader('leaf-query') == 'continue')
-                && !abortLoad) {
-                $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);
-                $('#btn_abort').on('click', function() {
-                    abortLoad = true;
-                });
-                offset += batchSize;
-                leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
-                leafSearch.getLeafFormQuery().execute();
-            }
-            else {
-                let partialLoad = '';
-                if(abortLoad) {
-                    partialLoad = ' (partially loaded)';
-                }
-                $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
-                renderGrid(queryResult);
-                //update Checkpoint Date Step header text if still needed (should be rare)
-                if(tStepHeader.some(ele => ele === 0)) {
-                    $.ajax({
-                        type: 'GET',
-                        url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
-                        dataType: 'json',
-                        success: (res) => {
-                            let div = document.createElement('div');
-                            res.forEach(step => {
-                                if(tStepHeader[step.stepID] === 0) {
-                                    const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
-                                    $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
-                                    tStepHeader[step.stepID] = 1;
-                                }
-                            });
-
-                        },
-                        error: (err) => console.log(err),
-                    });
-                }
-            }
+        leafSearch.getLeafFormQuery().setAbortSignal(abortController.signal);
+        leafSearch.getLeafFormQuery().onProgress(progress => {
+            document.querySelector('#reportStats').innerText = `Loading ${progress}+ records`;
+            document.querySelector(`#${grid.getPrefixID()}tfoot`).innerHTML = `<tr>
+                <td colspan="${grid.getNumHeaders()}" style="padding: 8px; font-size: 120%; font-weight: bold">
+                <img src="./images/indicator.gif" style="vertical-align: middle" alt="" /> Loading ${progress}+ records
+                </td>
+            </tr>`;
         });
 
         // get data
-        leafSearch.getLeafFormQuery().execute();
+        leafSearch.getLeafFormQuery().execute().then(queryResult => {
+            let partialLoad = '';
+            if(abortLoad) {
+                partialLoad = ' (partially loaded)';
+            }
+            document.querySelector('#btn_abort').style.display = 'none';
+            $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
+            renderGrid(queryResult);
+            //update Checkpoint Date Step header text if still needed (should be rare)
+            if(tStepHeader.some(ele => ele === 0)) {
+                $.ajax({
+                    type: 'GET',
+                    url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
+                    dataType: 'json',
+                    success: (res) => {
+                        let div = document.createElement('div');
+                        res.forEach(step => {
+                            if(tStepHeader[step.stepID] === 0) {
+                                const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
+                                $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
+                                tStepHeader[step.stepID] = 1;
+                            }
+                        });
+
+                    },
+                    error: (err) => console.log(err),
+                });
+            }
+        });
 
         // create save link once
         if(!extendedToolbar) {
@@ -1365,7 +1373,7 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="dynicons/?img=gnome-applications-science.svg&w=32" alt="" /> Modify Search</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="dynicons/?img=applications-other.svg&w=16" alt="" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="display: none; position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
             extendedToolbar = true;
 
 
