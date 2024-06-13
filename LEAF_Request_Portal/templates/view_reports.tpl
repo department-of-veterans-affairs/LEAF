@@ -1347,6 +1347,7 @@ $(function() {
         });
 
         // show top results asap
+        document.querySelector('#reportStats').innerText = `Loading...`;
         let queryFirstBatch = new LeafFormQuery();
         queryFirstBatch.setQuery(structuredClone(leafSearch.getLeafFormQuery().getQuery()));
         queryFirstBatch.sort('recordID', 'DESC');
