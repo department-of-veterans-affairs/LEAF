@@ -4,10 +4,11 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import test.java.context.Constants;
+
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
 
-import test.java.context.Constants;
 
 /**
  * The Class handles the report activities.

@@ -1,6 +1,6 @@
 package test.java.context;
 
-/**
+/*
  * The Class is for Constants.
  *
  * @author Nikesh
