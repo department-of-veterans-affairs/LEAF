@@ -6,8 +6,6 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-	"strconv"
-	"github.com/google/go-cmp/cmp"
 )
 
 func getFormQuery(url string) (FormQueryResponse, error) {
@@ -168,8 +166,14 @@ func TestFormQuery_DescendingIndex(t *testing.T) {
 	}
 }
 
+/*
+* Reading of metadata values will be added in a future deployment
+* The orgchart value is still from the orgchart lookup, not the metadata field
+	// "strconv"
+	// "github.com/google/go-cmp/cmp"
+
 func TestFormQuery_Employee_Metadata(t *testing.T) {
-	//setup.  normally set in employee selector result handler.
+	//values that should be assigned to S1 ind orchart value when form data are read
 	mock_orgchart_employee := Orgchart_employee_metadata{
 		FirstName: "Ramon",
 		LastName: "Watsica",
@@ -177,16 +181,11 @@ func TestFormQuery_Employee_Metadata(t *testing.T) {
 		Email: "Ramon.Watsica@fake-email.com",
 		UserName: "VTRYCXBETHANY",
 	}
-	org_emp_bytes, err := json.Marshal(mock_orgchart_employee)
-	if err != nil {
-		t.Error("Error Marshalling org emp struct")
-	}
 
 	//post and confirm post success
 	postData := url.Values{}
 	postData.Set("CSRFToken", CsrfToken)
 	postData.Set("8", "201")
-	postData.Set("8_metadata", string(org_emp_bytes))
 
 	res, err := client.PostForm(RootURL+`api/form/11`, postData)
 	if err != nil {
@@ -197,7 +196,7 @@ func TestFormQuery_Employee_Metadata(t *testing.T) {
 	got := string(bodyBytes)
 	want := `"1"`
 	if !cmp.Equal(got, want) {
-		t.Errorf("Admin did not have access got = %v, want = %v", got, want)
+		t.Errorf("Error posting orgchart entry.  Admin did not have access got = %v, want = %v", got, want)
 	}
 
 	formRes, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"categoryID","operator":"=","match":"form_5ea07","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":[],"sort":{},"getData":["8"],"limit":10000,"limitOffset":0}&x-filterData=recordID,title`)
@@ -249,3 +248,4 @@ func TestFormQuery_Employee_Metadata(t *testing.T) {
 		t.Errorf("userName got = %v, want = %v", got, want)
 	}
 }
+*/

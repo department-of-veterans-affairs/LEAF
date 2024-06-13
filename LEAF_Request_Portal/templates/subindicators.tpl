@@ -1139,16 +1139,6 @@
                     });
                     empSel.setResultHandler(function() {
                         importFromNational(empSel);
-                        if (typeof formMetadata !== 'undefined') {
-                            const user = empSel.selectionData[empSel.selection] || null;
-                            formMetadata['<!--{$indicator.indicatorID}-->'] = {
-                                firstName: user?.firstName || '',
-                                lastName: user?.lastName || '',
-                                middleName: user?.middleName || '',
-                                email: user?.email || '',
-                                userName: user?.userName || ''
-                            };
-                        }
                     });
                     empSel.initialize();
                     <!--{if $indicator.value != ''}-->

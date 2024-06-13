@@ -1091,9 +1091,15 @@ class Form
                       ':indicatorID' => $key,
                       ':series' => $series, );
 
-        $res = $this->db->prepared_query('SELECT data, format FROM data
-                                            LEFT JOIN indicators USING (indicatorID)
-                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
+        $sql = "SELECT format, data FROM indicators
+            LEFT JOIN data ON data.indicatorID=indicators.indicatorID
+            WHERE recordID=:recordID AND indicators.indicatorID=:indicatorID AND series=:series
+            UNION
+            SELECT format, data FROM data
+            RIGHT JOIN indicators ON data.indicatorID=indicators.indicatorID
+            WHERE data.indicatorID IS NULL";
+
+        $res = $this->db->prepared_query($sql, $vars);
 
         // handle fileupload indicator type
         if (isset($res[0]['format'])
@@ -1126,20 +1132,24 @@ class Form
             return 0;
         }
 
-        $validMetadataFields = array(
-            "firstName" => 1,
-            "lastName" => 1,
-            "middleName" => 1,
-            "email" => 1,
-            "userName" => 1,
-        );
         $metadata = array();
-        if(isset($_POST[$key . "_metadata"])) {
-            $postMetadata = json_decode($_POST[$key . "_metadata"], true);
-            foreach($postMetadata as $metakey => $info) {
-                if($validMetadataFields[$metakey] === 1) {
-                    $metadata[$metakey] = XSSHelpers::xscrub($info);
-                }
+        if($res[0]['format'] === 'orgchart_employee' && is_numeric($_POST[$key])) {
+            $empVars = array(
+                ':empUID' => $_POST[$key],
+            );
+            $empSql = "SELECT `firstName`, `lastName`, `middleName`, `data` AS `email`, `userName` FROM `{$this->oc_dbName}`.`employee`
+                JOIN `{$this->oc_dbName}`.`employee_data` USING (empUID)
+                WHERE `{$this->oc_dbName}`.`employee_data`.`indicatorID`=6 AND `{$this->oc_dbName}`.`employee`.`empUID` = :empUID";
+
+            $empRes = $this->db->prepared_query($empSql, $empVars);
+            if (isset($empRes[0])) {
+                $metadata = array(
+                    'firstName' => $empRes[0]['firstName'],
+                    'lastName' => $empRes[0]['lastName'],
+                    'middleName' => $empRes[0]['middleName'],
+                    'email' => $empRes[0]['email'],
+                    'userName' => $empRes[0]['userName'],
+                );
             }
         }
         $vars = array(':recordID' => $recordID,
