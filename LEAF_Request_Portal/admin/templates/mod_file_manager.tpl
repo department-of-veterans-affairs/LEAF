@@ -1,3 +1,4 @@
+<script src="../js/formGrid.js"></script>
 <div class="leaf-center-content">
 
     
@@ -42,24 +43,39 @@
 var CSRFToken = '<!--{$CSRFToken}-->';
 
 function showFiles() {
+    let grid = new LeafFormGrid('fileList', true);
+    grid.setRootURL('../');
+    grid.enableToolbar();
+    grid.hideIndex();
+
     $.ajax({
         type: 'GET',
-        url: '../api/system/files',
+        url: '../api/system/files?getLastModified=1',
         success: function(res) {
-        	let output = '<table class="table">';
-            for(let i in res) {
-            	output += `<tr>
-                    <td><a href="../files/${res[i]}">../files/${res[i]}</a></td>
-                    <td><a href="#" onclick="deleteFile('${res[i]}')">Delete</a></td>
-                </tr>`;
-            }
-            output += '</table>';
-            $('#fileList').html(output);
+            grid.setData(Object.keys(res).map(key => {
+                res[key].recordID = key; // formGrid expects there to be a recordID property that contains unique integers
+                return res[key];
+            }));
+            grid.setDataBlob(res);
+            
+            grid.setHeaders([
+                {name: 'Filename', indicatorID: 'file', editable: false, callback: function(data, blob) {
+                    $('#'+data.cellContainerID).html(`../files/${blob[data.recordID].file}`);
+                }},
+                {name: 'Last Modified', indicatorID: 'lastModified', editable: false, callback: function(data, blob) {
+                    let modTime = new Date(blob[data.recordID].modifiedTime * 1000);
+                    $('#'+data.cellContainerID).html(modTime.toLocaleDateString());
+                }},
+                {name: '', indicatorID: 'delete', editable: false, callback: function(data, blob) {
+                    $('#'+data.cellContainerID).html(`<a href="#" onclick="deleteFile('${blob[data.recordID].file}')">Delete</a>`);
+                }}
+            ]);
+
+            grid.renderBody();
         },
         error: function(err) {
             console.error(err?.responseText);
-        },
-        cache: false
+        }
     });
 }
 

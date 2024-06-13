@@ -590,7 +590,7 @@ class System
     }
 
 
-    public function getFileList()
+    public function getFileList($getLastModified = false)
     {
         if (!$this->login->checkGroup(1))
         {
@@ -605,7 +605,12 @@ class System
             if (in_array(strtolower($ext), $this->fileExtensionWhitelist)
                 && $item != 'index.html')
             {
-                $out[] = $item;
+                if($getLastModified == false) {
+                    $out[] = $item;
+                }
+                else {
+                    $out[] = ['file' => $item, 'modifiedTime' => filemtime('../files/' . $item)];
+                }
             }
         }
 
