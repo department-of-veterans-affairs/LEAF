@@ -518,7 +518,15 @@ class System
             return 'Admin access required';
         }
 
-        if (array_search($_POST['timeZone'], \DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, 'US')) === false)
+        $tz_additional = array(
+            "America/Puerto_Rico",
+            "Pacific/Guam",
+            "Pacific/Saipan",
+            "Pacific/Pago_Pago",
+            "Asia/Manila",
+        );
+        $tzones = array_merge(\DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, 'US'), $tz_additional);
+        if (array_search($_POST['timeZone'], $tzones) === false)
         {
             return 'Invalid timezone';
         }
@@ -795,8 +803,68 @@ class System
         }
 
         $this->cleanupSystemAdmin();
+        $this->cleanupUsers();
 
         return 'Syncing has finished. You are set to go.';
+    }
+
+    private function cleanupUsers(): void
+    {
+        $groups = new Group($this->db, $this->login);
+        $services = new Service($this->db, $this->login);
+
+        // Get all users with a backupID
+        $backupList = $this->getAllBackups('users', 'groupID');
+
+        // loop through this list and check for a user with the same userID without a backupID
+        foreach($backupList as $backup) {
+            $user = $this->getUserNoBackup($backup['groupID'], $backup['backupID'], 'users', 'groupID');
+
+            if (empty($user)) {
+                $groups->removeMember($backup['userID'], $backup['groupID'], $backup['backupID']);
+            }
+        }
+
+        // Get all service chiefs with a backupID
+        $backupList = $this->getAllBackups('service_chiefs', 'serviceID');
+
+        // loop through this list and check for a user with the same userID without a backupID
+        foreach($backupList as $backup) {
+            $user = $this->getUserNoBackup($backup['serviceID'], $backup['backupID'], 'service_chiefs', 'serviceID');
+
+            if (empty($user)) {
+                $services->removeChief($backup['serviceID'], $backup['userID'], $backup['backupID']);
+            }
+        }
+
+        // Or is there an easier query to do this in one step.
+    }
+
+    private function getUserNoBackup(int $serviceGroup, string $backup, string $table, string $id): array
+    {
+        $vars = array(':userID' => $backup,
+                      ':serviceGroup' => $serviceGroup);
+        $sql = "SELECT `userID`, {$id}, `backupID`
+                FROM {$table}
+                WHERE `userID` = :userID
+                AND {$id} = :serviceGroup
+                AND `backupID` = ''";
+
+        $user = $this->db->prepared_query($sql, $vars);
+
+        return $user;
+    }
+
+    private function getAllBackups(string $table, string $id): array
+    {
+        $vars = array();
+        $sql = "SELECT `userID`, {$id}, `backupID`
+                FROM {$table}
+                WHERE `backupID` != ''";
+
+        $backupList = $this->db->prepared_query($sql, $vars);
+
+        return $backupList;
     }
 
     /**

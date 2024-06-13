@@ -39,7 +39,7 @@ class Config
         $this->adPath = $settings['adPath'];
         self::$uploadDir = $site_paths['site_uploads'];
         self::$orgchartPath = $site_paths['orgchart_path'];
-        self::$orgchartImportTags = $settings['orgchartImportTags'];
+        self::$orgchartImportTags = isset($settings['orgchartImportTags']) ? $settings['orgchartImportTags'] : null;
         self::$portalDb = $site_paths['portal_database'];
         $this->phonedbName = $site_paths['orgchart_database'];
 

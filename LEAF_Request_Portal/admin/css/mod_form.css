@@ -30,8 +30,8 @@
 
 .formPreviewStatus {
     padding: 0.2rem 0.4rem 0.2rem 0.4rem;
-    font-size: 0.6rem;
-    color: red;
+    font-size: 11px;
+    color: #c00000;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

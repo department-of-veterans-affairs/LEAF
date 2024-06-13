@@ -516,7 +516,7 @@ function getGroupList() {
                                         '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><br /><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div><br/><br/><hr/><div id="employees"></div>');
 
                                     $('#employees').html('<div id="employee_table" style="display: table-header-group"></div><br /><div id="showInactive" class="fas fa-angle-right" style="cursor: pointer;"></div><div id="inactive_table" style="display: none"></div>');
-                                    let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th title="Inherited from Nexus">Inherited</th><th>Actions</th></tr></thead><tbody>';
+                                    let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th title="Inherited from Nexus" style="text-align: center;">Inherited</th><th style="text-align: center;">Actions</th></tr></thead><tbody>';
                                     let inactive_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Actions</th></tr></thead><tbody>';
                                     let counter = 0;
                                     for(let i in res) {
@@ -524,9 +524,9 @@ function getGroupList() {
                                             let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
                                             let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
                                             let backups = `<td style="font-size: 0.8em">`;
-                                            let isInherited = `<td style="font-size: 0.8em;">${res[i].locallyManaged == 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
-                                            let removeButton = `<td style="font-size: 0.8em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Remove this user from this group">Remove</button>`;
-                                            let addToNexusButton = `<button id="addNexusMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; margin-left: 2px !important; min-width: 4rem;" title="Add this user to Nexus group">Add to Nexus</button>`;
+                                            let isInherited = `<td style="font-size: 0.8em; text-align: center;">${res[i].locallyManaged == 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let addToNexus = `${res[i].locallyManaged != 0 ? `<button type="button" id="addNexusMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; margin: auto; min-width: 4rem;" title="Add this user to Nexus group">Add to Nexus</button>` : ''}`;
+                                            let removeButton = `<td style="font-size: 0.8em; text-align: center;">${addToNexus}<button type="button" id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; min-width: 4rem;" title="Remove this user from this group">Remove</button>`;
 
                                             // Check for Backups
                                             for (let j in res) {
@@ -539,6 +539,7 @@ function getGroupList() {
 
                                             if (res[i].active === 1) {
                                                 let actions = `${removeButton}`;
+
                                                 actions += '</td>';
                                                 employee_table += `<tr class="id-${res[i].empUID}">${employeeName}${employeeUserName}${backups}${isInherited}${actions}</tr>`;
                                             } else {
@@ -582,6 +583,7 @@ function getGroupList() {
                                                     dialog_confirm.setContent('Are you sure you want to add this member to Nexus group?');
                                                     dialog_confirm.setSaveHandler(function () {
                                                         addNexusMember(groupID, res[i].empUID);
+                                                        reactivateMember(groupID, res[i].userName);
                                                         dialog_confirm.hide();
                                                         dialog.hide();
                                                     });
@@ -713,7 +715,7 @@ function getGroupList() {
                                                             row.style.backgroundColor = "#aea";
                                                             row.classList.add(`id-${selectedUser.empUID}`);
                                                             row.classList.add(`user-to-add`);
-                                                            
+
                                                             let employeeName = row.insertCell(0);
                                                             employeeName.classList.add("leaf-user-link");
                                                             employeeName.title = `${selectedUser.empUID} - ${selectedUser.userName}`;

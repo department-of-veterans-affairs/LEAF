@@ -6,6 +6,7 @@ $nav_level_3_bgc: #2378C3;
 
 /* ############### LEAF MAIN NAV ################# */
 .leaf-nav-icon {float: right; margin: 0.2rem 0.3rem 0.2rem 0; color: #00bde3;}
+.lev3 > a > i.fa-angle-down {display: none;}
 .leaf-nav-icon-space {float: left; margin: 0;}
 .leaf-user-menu-name {white-space: normal; word-break: break-all; font-family: 'PublicSans-Medium', sans-serif;}
 #nav ul, #nav li {
@@ -48,9 +49,6 @@ html.no-js li:hover > a + ul, html.no-js li:focus > a + ul {
       color: $nav_link_bgc;
       margin: 0.2rem 0.5rem;
   }
-  #nav > ul > li:nth-child(2) {
-    margin-top: 1.2rem;
-  }
 
   /* Any submenu */
   a + ul {position: relative;}
@@ -61,21 +59,28 @@ html.no-js li:hover > a + ul, html.no-js li:focus > a + ul {
   #nav > ul > li:not(#toggleMenu) > a > i {margin-right: 0.6rem;}
   #nav > ul > li:not(#toggleMenu):not(.js-showElement) {display: none;}
 
-  #nav #toggleMenu.js-open .fa-times {display: block; color: #fff; font-size: 1.25rem;}
-  #nav #toggleMenu.js-open .leaf-menu {display: none;}
-  .leaf-menu button {
+  #toggleMenu {
+    margin-bottom: 1rem;
+  }
+  #toggleMenu a {
+    text-decoration: none;
+  }
+  #toggleMenu .leaf-menu {
     cursor: pointer;
     color: #fff;
     background-color: $nav_base_bgc;
-    font-size: 0.5rem;
-    font-family: 'PublicSans-Bold', sans-serif;
-    border: 2px outset #fff;
+    font-size: 11px;
+    font-family: 'PublicSans-Regular', sans-serif;
+    border: 1px outset #fff;
     border-radius: 3px;
-    width: 38px;
-    height: 24px;
     padding: 0.2rem;
     text-align: center;
   }
+  #nav #toggleMenu.js-open {
+    margin: 2rem 0.5rem 0 0;
+  }
+  #nav #toggleMenu.js-open .fa-times {display: block; color: #fff; font-size: 1.25rem;}
+  #nav #toggleMenu.js-open .leaf-menu {display: none;}
   #nav #toggleMenu.js-open a {display: block; text-decoration: none; margin-bottom: 0.8rem;}
   #nav #toggleMenu:not(.js-open) .fa-times {display: none;}
   #nav #toggleMenu:not(.js-open) .leaf-menu {display: block; color: #fff; text-decoration: none; }
@@ -87,7 +92,8 @@ html.no-js li:hover > a + ul, html.no-js li:focus > a + ul {
     z-index: 9999;
     margin: 0.3rem 0.0rem 0.0rem 0.0rem;
   }
-  .lev3 > a > i {display: none;}
+  .lev3 > a > i.fa-angle-left {display: none;}
+  .lev3 > a > i.fa-angle-down {display: block;}
   #nav > ul > li > ul:not(.js-showElement) {display: none;}
   #nav > ul > li > ul > li {padding: 0.2rem 0.2rem; width: 12.0rem;}
   #nav > ul > li > ul > li > a {color: $nav_link_bgc; text-decoration: none; padding: 0.3rem 0.4rem 0.3rem 0.4rem;}
@@ -100,7 +106,7 @@ html.no-js li:hover > a + ul, html.no-js li:focus > a + ul {
     margin: 0.2rem 0.4rem 0.2rem 0.4rem;
   }
   #nav > ul > li > ul > li > ul > li {padding: 0.3rem 0;}
-  #nav > ul > li > ul > li > ul:not(.js-showElement) {display: block;}
+  #nav > ul > li > ul > li > ul:not(.js-showElement) {display: none;}
   #nav > ul > li > ul > li > ul > li > a {
     background-color: $nav_level_3_bgc;
     color: $nav_link_bgc;
