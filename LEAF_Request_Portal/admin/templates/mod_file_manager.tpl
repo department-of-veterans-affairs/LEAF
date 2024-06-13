@@ -60,7 +60,8 @@ function showFiles() {
             
             grid.setHeaders([
                 {name: 'Filename', indicatorID: 'file', editable: false, callback: function(data, blob) {
-                    $('#'+data.cellContainerID).html(`../files/${blob[data.recordID].file}`);
+                    let filePath = `../files/${blob[data.recordID].file}`;
+                    $('#'+data.cellContainerID).html(`<a href="${filePath}">${filePath}</a>`);
                 }},
                 {name: 'Last Modified', indicatorID: 'lastModified', editable: false, callback: function(data, blob) {
                     let modTime = new Date(blob[data.recordID].modifiedTime * 1000);
