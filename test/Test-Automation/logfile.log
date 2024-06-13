@@ -240,3 +240,39 @@ Session ID: 9c95be0f4a32a33304e039f1163ff589
 2024-06-11 14:08:57 [main] INFO  LogListener:22 - Mail sending toggel is set to false
 2024-06-11 14:08:57 [main] INFO  LogListener:22 - Mail sent : false
 2024-06-11 14:08:57 [main] INFO  LogListener:22 - ************************** Test Execution Finished ************************************
+2024-06-13 12:57:51 [main] INFO  LogListener:22 - ************************** Test Execution Started ************************************
+2024-06-13 12:58:01 [TestNG-test=Test-1] INFO  LogListener:22 - validateCreateWorkflow: Test started
+2024-06-13 12:58:01 [TestNG-test=Test-1] INFO  LogListener:22 - validateCreateWorkflow : Test Skipped
+2024-06-13 12:58:01 [TestNG-test=Test-1] INFO  LogListener:22 - validateDeleteWorkflow: Test started
+2024-06-13 12:58:01 [TestNG-test=Test-1] INFO  LogListener:22 - validateDeleteWorkflow : Test Skipped
+2024-06-13 12:58:05 [TestNG-test=Test-1] INFO  LogListener:22 - validateCreateForm: Test started
+2024-06-13 12:58:05 [TestNG-test=Test-1] INFO  LogListener:22 - validateCreateForm : Test Skipped
+2024-06-13 12:58:05 [TestNG-test=Test-1] INFO  LogListener:22 - validateDeleteForm: Test started
+2024-06-13 12:58:05 [TestNG-test=Test-1] INFO  LogListener:22 - validateDeleteForm : Test Skipped
+2024-06-13 12:58:05 [TestNG-test=Test-1] INFO  LogListener:22 - validateStapleForm: Test started
+2024-06-13 12:58:05 [TestNG-test=Test-1] INFO  LogListener:22 - validateStapleForm : Test Skipped
+2024-06-13 12:58:07 [main] INFO  LogListener:22 - Total number of testcases : 5
+2024-06-13 12:58:07 [main] INFO  LogListener:22 - Number of testcases Passed : 0
+2024-06-13 12:58:07 [main] INFO  LogListener:22 - Number of testcases Failed : 0
+2024-06-13 12:58:07 [main] INFO  LogListener:22 - Number of testcases Skipped  : 5
+2024-06-13 12:58:07 [main] INFO  LogListener:22 - Mail sending toggel is set to false
+2024-06-13 12:58:07 [main] INFO  LogListener:22 - Mail sent : false
+2024-06-13 12:58:07 [main] INFO  LogListener:22 - ************************** Test Execution Finished ************************************
+2024-06-13 12:59:26 [main] INFO  LogListener:22 - ************************** Test Execution Started ************************************
+2024-06-13 13:00:02 [TestNG-test=Test-1] INFO  LogListener:22 - validateCreateWorkflow: Test started
+2024-06-13 13:00:02 [TestNG-test=Test-1] INFO  LogListener:22 - validateCreateWorkflow : Test Skipped
+2024-06-13 13:00:02 [TestNG-test=Test-1] INFO  LogListener:22 - validateDeleteWorkflow: Test started
+2024-06-13 13:00:02 [TestNG-test=Test-1] INFO  LogListener:22 - validateDeleteWorkflow : Test Skipped
+2024-06-13 13:00:36 [TestNG-test=Test-1] INFO  LogListener:22 - validateCreateForm: Test started
+2024-06-13 13:00:36 [TestNG-test=Test-1] INFO  LogListener:22 - validateCreateForm : Test Skipped
+2024-06-13 13:00:36 [TestNG-test=Test-1] INFO  LogListener:22 - validateDeleteForm: Test started
+2024-06-13 13:00:36 [TestNG-test=Test-1] INFO  LogListener:22 - validateDeleteForm : Test Skipped
+2024-06-13 13:00:36 [TestNG-test=Test-1] INFO  LogListener:22 - validateStapleForm: Test started
+2024-06-13 13:00:36 [TestNG-test=Test-1] INFO  LogListener:22 - validateStapleForm : Test Skipped
+2024-06-13 13:00:38 [main] INFO  LogListener:22 - Total number of testcases : 5
+2024-06-13 13:00:38 [main] INFO  LogListener:22 - Number of testcases Passed : 0
+2024-06-13 13:00:38 [main] INFO  LogListener:22 - Number of testcases Failed : 0
+2024-06-13 13:00:38 [main] INFO  LogListener:22 - Number of testcases Skipped  : 5
+2024-06-13 13:00:38 [main] INFO  LogListener:22 - Mail sending toggel is set to false
+2024-06-13 13:00:38 [main] INFO  LogListener:22 - Mail sent : false
+2024-06-13 13:00:38 [main] INFO  LogListener:22 - ************************** Test Execution Finished ************************************
