@@ -4,7 +4,6 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 // copied from FormWorkflow.php just to get us moved along.
 $protocol = 'https';
 
-
 $request_uri = str_replace(['/var/www/html/','/scripts'],'',$currDir);
 
 $siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
@@ -26,10 +25,10 @@ $getWorkflowStepsRes = $db->prepared_query($getWorkflowStepsSQL, []);
 // do we have automated notification setup here
 if (empty($getWorkflowStepsRes)) {
     // @todo: need to look at how other scripts output
-    echo "No automated emails setup! \r\n";
+    echo 1;
     exit();
 }
-echo date('Y-m-d H:i:s')."\r\n";
+
 // go over the selected events
 foreach ($getWorkflowStepsRes as $workflowStep) {
 
@@ -64,7 +63,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         continue;
     }
 
-    echo "Working on step: {$workflowStep['stepID']}, Initial Notification: ".date('Y-m-d H:i:s',$intialCheckpointTimestamp)."\r\n";
+//    echo "Working on step: {$workflowStep['stepID']}, Initial Notification: ".date('Y-m-d H:i:s',$intialCheckpointTimestamp)."\r\n";
 
     // step id, I think workflow id is also needed here
     $getRecordVar = [
@@ -127,10 +126,10 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
     // make sure we have records to work with
     if (empty($getRecordRes)) {
         // @todo: need to look at how other scripts output errors
-        echo "There are no records to be notified for this step! \r\n";
+//        echo "There are no records to be notified for this step! \r\n";
         continue;
     }
-
+    $mailSuccessFullySent = 1;
     // go through each and send an email
     foreach ($getRecordRes as $record) {
 
@@ -182,11 +181,16 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
             "comment" => $comment
         ));
 
-        // need to get the emails sending to make sure this actually works!
-        // need to get login for this user, as it stands it will default to "SYSTEM" which is not what we want here. $login
+        // log out user
+        $login->logout();
+        // login the next user
         $login->loginUser($record['userID']);
-        $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$login);
+        // assign and send emails 
+        $mailSent = $email->attachApproversAndEmail($record['recordID'],Portal\Email::AUTOMATED_EMAIL_REMINDER,$login);
 
+        if($mailSent == false){
+            $mailSuccessFullySent = 0;
+        }
         // update the notification timestamp, this could be moved to batch, just trying to get a prototype working
         $updateRecordsWorkflowStateVars = [
             ':recordID' => $record['recordID'],
@@ -197,6 +201,11 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
                                             WHERE recordID=:recordID';
         $db->prepared_query($updateRecordsWorkflowStateSql, $updateRecordsWorkflowStateVars);
 
-        echo "Email sent for {$record['recordID']} ({$daysSinceText}) \r\n";
+//        echo "Email sent for {$record['recordID']} ({$daysSinceText}) \r\n";
+        
+        
     }
+    
+    echo $mailSuccessFullySent;
+
 }

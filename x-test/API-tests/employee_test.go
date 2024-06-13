@@ -39,7 +39,7 @@ func postEmployee(postUrl string, data Employee) (string, error) {
 	postData.Set("firstName", data.FirstName)
 	postData.Set("lastName", data.LastName)
 	postData.Set("userName", data.UserName)
-	postData.Set("CSRFToken", csrfToken)
+	postData.Set("CSRFToken", CsrfToken)
 
 	// Send POST request
 	res, err := client.PostForm(postUrl, postData)
@@ -61,7 +61,7 @@ func postEmployee(postUrl string, data Employee) (string, error) {
 func disableEmployee(postUrl string) error {
 
 	data := url.Values{}
-	data.Set("CSRFToken", csrfToken)
+	data.Set("CSRFToken", CsrfToken)
 
 	req, err := http.NewRequest("DELETE", postUrl, strings.NewReader(data.Encode()))
 
@@ -100,7 +100,7 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 		UserName:  "testuser",
 	}
 
-	employeeId, err := postEmployee(natOrgURL+`api/employee/new`, m)
+	employeeId, err := postEmployee(NationalOrgchartURL+`api/employee/new`, m)
 
 	if err != nil {
 		t.Error(err)
@@ -110,7 +110,7 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 		t.Error("no user id returned")
 	}
 
-	employeeId, err = postEmployee(orgURL+`api/employee/new`, m)
+	employeeId, err = postEmployee(RootOrgchartURL+`api/employee/new`, m)
 
 	if err != nil {
 		t.Error(err)
@@ -123,7 +123,7 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 	var localEmployeeKey string
 	var natEmployeeKey string
 
-	natEmpoyeeRes, err := getEmployee(natOrgURL + `api/employee/search?q=username:testuser`)
+	natEmpoyeeRes, err := getEmployee(NationalOrgchartURL + `api/employee/search?q=username:testuser`)
 
 	if err != nil {
 		t.Error(err)
@@ -134,7 +134,7 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 		break
 	}
 
-	localEmployeeRes, _ := getEmployee(orgURL + `api/employee/search?q=username:testuser`)
+	localEmployeeRes, _ := getEmployee(RootOrgchartURL + `api/employee/search?q=username:testuser`)
 	for key := range localEmployeeRes {
 		localEmployeeKey = key
 		break
@@ -153,13 +153,13 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 	}
 
 	// delete remote employee
-	err = disableEmployee(fmt.Sprintf("%sapi/employee/%s", natOrgURL, natEmployeeKey))
+	err = disableEmployee(fmt.Sprintf("%sapi/employee/%s", NationalOrgchartURL, natEmployeeKey))
 	if err != nil {
 		t.Error(err)
 	}
 
 	// make sure the national is disabled
-	res, _ := getEmployee(natOrgURL + `api/employee/search?q=username:testuser`)
+	res, _ := getEmployee(NationalOrgchartURL + `api/employee/search?q=username:testuser`)
 
 	gotId := fmt.Sprintf("%d", res[natEmployeeKey].EmployeeId)
 	wantId := natEmployeeKey
@@ -168,7 +168,7 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 	}
 
 	// make sure the local is not disabled
-	res, _ = getEmployee(orgURL + `api/employee/search?q=username:testuser`)
+	res, _ = getEmployee(RootOrgchartURL + `api/employee/search?q=username:testuser`)
 
 	gotId = fmt.Sprintf("%d", res[localEmployeeKey].EmployeeId)
 	wantId = localEmployeeKey
@@ -177,20 +177,20 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 	}
 
 	// run script again, make sure it deletes locally
-	err = updateEmployees(orgURL + `scripts/refreshOrgchartEmployees.php`)
+	err = updateEmployees(RootOrgchartURL + `scripts/refreshOrgchartEmployees.php`)
 	if err != nil {
 		t.Error(err)
 	}
 
 	// make sure the national entry was deleted
-	res, _ = getEmployee(natOrgURL + `api/employee/search?q=username:testuser`)
+	res, _ = getEmployee(NationalOrgchartURL + `api/employee/search?q=username:testuser`)
 
 	if len(res) > 0 {
 		t.Error("User Exists on national")
 	}
 
 	// make sure the local has been deleted.
-	res, _ = getEmployee(orgURL + `api/employee/search?q=username:testuser`)
+	res, _ = getEmployee(RootOrgchartURL + `api/employee/search?q=username:testuser`)
 
 	if len(res) > 0 {
 		t.Error("User Exists on local")

@@ -16,7 +16,6 @@ nav#top-menu-nav {
         @include flexcenter;
         position: relative;
         height: 32px;
-        width: 175px;
         font-size: 14px;
         font-weight: bolder;
         &:not(:last-child)::after {
@@ -26,12 +25,12 @@ nav#top-menu-nav {
             display: block;
             height: 50%;
             border-radius: 2px;
-            width: 1px;
+            width: 2px;
             background-color: black;
         };
         button, a {
             margin: 0;
-            padding: 0;
+            padding-right: 0.4rem;
             @include flexcenter;
             position: relative;
             background-color: inherit;
@@ -590,7 +589,12 @@ table[class$="SelectorTable"] th {
             }
             &:not(.form-header):not(.preview) {
                 margin-left: 0.5rem;
-                border-top: 1px solid #e8e8e8;
+                border: 1px solid #c1c1c1;
+                box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+                transition: box-shadow 0.5s;
+            }
+            &:not(.form-header):not(.preview):hover {
+                box-shadow: 1px 1px 10px 5px rgba(0,0,20,0.4);
             }
         }
     }
@@ -619,9 +623,6 @@ table[class$="SelectorTable"] th {
         flex-direction: column;
         margin-bottom: 0.25rem;
         background-color: white;
-        &.conditional {
-            background-color: saturate(darken($BG_Pearl, 2%), 15%);
-        }
         /* 1st section (name and toolbar) of editing_area */
         .name_and_toolbar {
             width: 100%;
@@ -666,14 +667,14 @@ table[class$="SelectorTable"] th {
                 display: flex; 
                 align-items: center;
                 gap: 3px;
-                min-width: 242px;
+                min-width: 260px;
             }
             button {
-                padding: 1px 6px;
+                padding: 4px;
+                margin: 2px;
                 font-weight: normal;
             }
             img {
-                margin-left:auto;
                 width:16px;
                 height:16px;
             }

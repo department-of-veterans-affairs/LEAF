@@ -62,11 +62,19 @@
             <div class="item siteType national_subordinate" style="display: none">
                 <label for="national_linkedPrimary" class="usa-label">Nationally Standardized Primary Site URLs must end with a trailing slash.</label>
                 <input id="national_linkedPrimary" type="text" class="usa-input" size="48" />
+                <span id="primary_changed_warning_status" role="status" aria-live="polite" aria-label=""></span>
+                <div id="primary_changed_warning" style="display: none; margin-top:0.25rem;">
+                    <div style="padding:3px 4px;background-color:#ffffc0;color:#c00;">WARNING</div>
+                    <div style="padding:3px 4px;background-color:#fff;border-top:1px solid #000">
+                        This will cause data alignment problems.&nbsp; Please contact your business process owner to coordinate changes.
+                    </div>
+                </div>
             </div>
 
-            <h3 id="progress" style="color: red;"></h3>
-            <button class="usa-button" id="btn_save" type="button" onclick="saveSettings();">Save</button>
-
+            <div style="display:flex; flex-wrap: wrap; gap: 0.5em; align-items: center; margin-top:0.75rem;">
+                <button class="usa-button" id="btn_save" type="button">Save</button>
+                <h3 id="progress" style="color: #c00; margin:0;"></h3>
+            </div>
         </form>
 
     </main>
@@ -84,76 +92,226 @@
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 
 <script type="text/javascript">
-var CSRFToken = '<!--{$CSRFToken}-->';
+const CSRFToken = '<!--{$CSRFToken}-->';
+let siteSettings = {};
 
-function saveSettings()
-{
-    let origSaveText = $('#btn_save').html();
-    $('#btn_save').html('Saving...')
-    $.when(
+function saveSettings() {
+    const heading = $('#heading').val();
+    const subHeading = $('#subHeading').val();
+    const requestLabel = $('#requestLabel').val();
+    const timeZone = $('#timeZone').val();
+    const siteType = $('#siteType').val();
+    const national_linkedSubordinateList = $('#national_linkedSubordinateList').val();
+    const national_linkedPrimary = $('#national_linkedPrimary').val();
+
+    let calls = [];
+    let errors = [];
+    if (siteSettings.heading !== heading) {
+        calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/system/settings/heading',
-                data: {heading: $('#heading').val(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
+                data: {
+                    heading: heading,
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                },
                 success: function(res) {
+                    siteSettings.heading = heading;
+                    $('#headerDescription').html(heading);
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push('Error saving site Title');
                 }
-            }),
+            })
+        );
+    }
+    if (siteSettings.subHeading !== subHeading) {
+        calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/system/settings/subHeading',
-                data: {subHeading: $('#subHeading').val(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
+                data: {
+                    subHeading: subHeading,
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                },
                 success: function(res) {
+                    siteSettings.subHeading = subHeading;
+                    $('#logo .leaf-site-title').html(subHeading);
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push('Error saving site Facility Name');
                 }
-            }),
+            })
+        );
+    }
+    if (siteSettings.requestLabel !== requestLabel) {
+        calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/system/settings/requestLabel',
-                data: {requestLabel: $('#requestLabel').val(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
+                data: {
+                    requestLabel: requestLabel,
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                },
                 success: function(res) {
+                    siteSettings.requestLabel = requestLabel;
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push("Error saving Label for Request");
                 }
-            }),
+            })
+        );
+    }
+    if (siteSettings.timeZone !== timeZone) {
+        calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/system/settings/timeZone',
-                data: {timeZone: $('#timeZone').val(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
+                data: {
+                    timeZone: timeZone,
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                },
                 success: function(res) {
+                    siteSettings.timeZone = timeZone;
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push("Error saving TimeZone");
                 }
-            }),
+            })
+        );
+    }
+    if (siteSettings.siteType !== siteType) {
+        calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/system/settings/siteType',
-                data: {siteType: $('#siteType').val(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
+                data: {
+                    siteType: siteType,
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                },
                 success: function(res) {
+                    siteSettings.siteType = siteType;
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push("Error saving siteType");
                 }
             }),
+        );
+    }
+    if (siteSettings.national_linkedSubordinateList !== national_linkedSubordinateList) {
+        calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/system/settings/national_linkedSubordinateList',
-                data: {national_linkedSubordinateList: $('#national_linkedSubordinateList').val(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
+                data: {
+                    national_linkedSubordinateList: national_linkedSubordinateList,
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                },
                 success: function(res) {
+                    siteSettings.national_linkedSubordinateList = national_linkedSubordinateList;
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push("Error saving Subordinate Site URLs");
                 }
-            }),
+            })
+        );
+    }
+    if (siteSettings.national_linkedPrimary !== national_linkedPrimary) {
+        calls.push(
             $.ajax({
                 type: 'POST',
                 url: '../api/system/settings/national_linkedPrimary',
-                data: {national_linkedPrimary: $('#national_linkedPrimary').val(),
-                    CSRFToken: '<!--{$CSRFToken}-->'},
+                data: {
+                    national_linkedPrimary: national_linkedPrimary,
+                    CSRFToken: '<!--{$CSRFToken}-->'
+                },
                 success: function(res) {
+                    siteSettings.national_linkedPrimary = national_linkedPrimary;
+                },
+                error: function(err) {
+                    console.log(err);
+                    errors.push("Error saving Primary Site URL");
                 }
             })
-         ).then(function() {
-            $('#btn_save').html(origSaveText);
-        	 $('#progress').html('Settings saved.');
-        	 $('#progress').fadeIn(10, function() {
-                 $('#progress').fadeOut(2000);
-        	 });
-         });
+        );
+    }
+    if (calls.length === 0) {
+        $('#progress').html('No changes to save.');
+        $('#progress').fadeIn(10, function() {
+            $('#progress').fadeOut(2000);
+        });
+    } else {
+        $('#btn_save').prop('disabled', true);
+        $('#btn_save').html('Saving...');
+        $.when.apply(undefined, calls)
+        .then(
+            function() { //on success
+                $('#btn_save').prop('disabled', false);
+                $('#btn_save').html('Save');
+                $('#progress').html('Settings saved.');
+                setListeners();
+                $('#national_linkedPrimary').trigger('change');
+                $('#progress').fadeIn(10, function() {
+                    $('#progress').fadeOut(2000);
+                });
+            },
+            function() { //on error
+                $('#btn_save').prop('disabled', false);
+                $('#btn_save').html('Save');
+                let errorText = errors.map(msg => msg + '<br>');
+                $('#progress').html(errorText);
+                $('#progress').fadeIn();
+            }
+        );
+    }
+
+}
+
+function setListeners() {
+    $('#national_linkedPrimary').off();
+    $('#btn_save').off();
+    if ((siteSettings.siteType || '').toLowerCase() === 'national_subordinate') {
+        const currentPrimary = (siteSettings.national_linkedPrimary || '').trim();
+        const primaryChangeWarning = (event) => {
+            const inputValue = event?.currentTarget?.value;
+            const showWarn = currentPrimary !== '' && inputValue !== currentPrimary;
+            const ariaWarn = "WARNING: This will cause data alignment problems. Please contact your business process owner to coordinate changes";
+            $('#primary_changed_warning').css('display', `${showWarn ? 'block' : 'none'}`);
+            $('#primary_changed_warning_status').attr(
+                'aria-label', `${showWarn ? ariaWarn : ''}`
+            );
+        }
+        const checkPrimaryChanged = () => {
+            const inputValue = $('#national_linkedPrimary').val();
+            const showWarn = currentPrimary !== '' && inputValue !== currentPrimary;
+            if (showWarn) {
+                dialog_confirm.setTitle('WARNING');
+                dialog_confirm.setContent(`<div style="padding:1em 0.5em; height:80px;line-height:1.8;">
+                    <div>This will cause data alignment problems.</div>
+                    <div>Please contact your business process owner to coordinate changes.</div>
+                </div>`);
+                dialog_confirm.setSaveHandler(() => {
+                    saveSettings();
+                    dialog_confirm.hide();
+                });
+                $('#confirm_saveBtnText').html('Make Change');
+                $('#confirm_button_cancelchange').html('Cancel');
+                dialog_confirm.show();
+            } else {
+                saveSettings();
+            }
+        }
+        $('#national_linkedPrimary').on('change', primaryChangeWarning);
+        $('#btn_save').on('click', checkPrimaryChanged);
+    } else {
+        $('#btn_save').on('click', saveSettings);
+    }
 }
 
 function renderSiteType() {
@@ -234,7 +392,9 @@ $(function() {
         cache: false
     })
     .then(function(res) {
+        siteSettings = res;
         renderSettings(res)
+        setListeners();
     });
 
     $('#siteType').on('change', function() {

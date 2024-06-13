@@ -53,7 +53,7 @@ export default {
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
 
-            name: XSSHelpers.stripTags(this.dialogData?.indicator?.name || '', ['script']),
+            name: this.removeScriptTags(this.decodeHTMLEntities(this.dialogData?.indicator?.name || '')),
             options: this.dialogData?.indicator?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
             format: this.dialogData?.indicator?.format || '',  //base format (eg 'radio')
             description: this.dialogData?.indicator?.description || '',
@@ -85,6 +85,7 @@ export default {
         'checkRequiredData',
         'setDialogSaveFunction',
         'advancedMode',
+        'hasDevConsoleAccess',
         'initializeOrgSelector',
         'closeFormDialog',
         'showLastUpdate',
@@ -119,7 +120,7 @@ export default {
         if(this.sort === null){
             this.sort = this.newQuestionSortValue;
         }
-        if(XSSHelpers.containsTags(this.name, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>'])) {
+        if(this.containsRichText(this.name)) {
             document.getElementById('advNameEditor').click();
             document.querySelector('.trumbowyg-editor').focus();
         } else {
@@ -155,10 +156,10 @@ export default {
         },
         showFormatSelect() {
             //not a header, or in advanced mode, or the format of the header is already a format other than none
-            return this.parentID !== null || this.advancedMode === true || this.format !== ''
+            return this.parentID !== null || this.advancedMode === true || this.format !== '' || hasDevConsoleAccess;
         },
         shortLabelTriggered() {
-            return this.name.trim().split(' ').length > 3;
+            return this.name.trim().split(' ').length > 2 || this.containsRichText(this.name) || hasDevConsoleAccess;
         },
         formatBtnText() {
             return this.showDetailedFormatInfo ? "Hide Details" : "What's this?";
@@ -204,6 +205,24 @@ export default {
         }
     },
     methods: {
+        containsRichText(txt) {
+            return XSSHelpers.containsTags(txt, ['<b>','<i>','<u>','<ol>','<li>','<br>','<p>','<td>','<h1>','<h2>','<h3>','<h4>','<a>','<blockquote>']);
+        },
+        decodeHTMLEntities(txt) {
+            let tmp = document.createElement("textarea");
+            tmp.innerHTML = txt;
+            return tmp.value;
+        },
+        removeScriptTags(txt) {
+            let tmp = document.createElement('div');
+            tmp.innerHTML = txt;
+            let scripts = tmp.getElementsByTagName('script');
+            for(let i = 0; i < scripts.length; i++) {
+                let script = scripts[i];
+                script.remove();
+            }
+            return tmp.innerHTML;
+        },
         setOrgSelDefaultValue(orgSelector = {}) {
             if(orgSelector.selection !== undefined) {
                 this.defaultValue = orgSelector.selection.toString();
@@ -585,7 +604,7 @@ export default {
         </div>
         <div v-show="description !== '' || shortLabelTriggered">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label for="description">What would you call this field in a spreadsheet?</label>
+                <label for="description">Short label for spreadsheet headings</label>
                 <div>{{shortlabelCharsRemaining}}</div>
             </div>
             <input type="text" id="description" v-model="description" maxlength="50" />
@@ -611,11 +630,11 @@ export default {
                 </div>
             </div>
             <div v-show="format === 'checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
-                <label for="indicatorSingleAnswer">Text for checkbox:</label>
+                <label for="indicatorSingleAnswer">Text for checkbox</label>
                 <input type="text" id="indicatorSingleAnswer" v-model="singleOptionValue"/>
             </div>
             <div v-show="isMultiOptionQuestion" id="container_indicatorMultiAnswer" style="margin-top:0.5rem;">
-                <label for="indicatorMultiAnswer">One option per line:</label>
+                <label for="indicatorMultiAnswer">Options (One option per line)</label>
                 <textarea id="indicatorMultiAnswer" v-model="multiOptionValue" style="height: 130px;">
                 </textarea>
             </div>
