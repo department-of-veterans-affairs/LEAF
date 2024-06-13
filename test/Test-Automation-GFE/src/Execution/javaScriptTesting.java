@@ -13,7 +13,6 @@ import Framework.setupFramework;
 public class javaScriptTesting {
 	
 	public static void main(String args[]) {  //       C:\DEV\Tools\Selenium\ChromeDriver_95.0.4638.17\chromedriver_win32
-	    System.setProperty("webdriver.chrome.driver", "C:\\DEV\\Tools\\Selenium\\ChromeDriver_95.0.4638.17\\chromedriver_win32\\chromedriver.exe");
 	    						WebDriver driver = new ChromeDriver();
 	    driver.get("https://secure.indeed.com/account/login");
 //	    //implicit wait
