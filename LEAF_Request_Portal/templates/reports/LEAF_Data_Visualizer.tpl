@@ -331,9 +331,7 @@ function initCharts(fields) {
     // generate configuration for each selected field
     fields.forEach(field => {
         let label = field.description == null || field.description == '' ? field.name : field.description;
-        let tDom = document.createElement('div');
-        tDom.innerHTML = label;
-        label = tDom.innerText;
+        label = scrubHTML(label);
         
         if(label == '') {
             label = `<span style="color: red">Blank Fieldname #${field.indicatorID}</span>`;
