@@ -1091,15 +1091,17 @@ class Form
                       ':indicatorID' => $key,
                       ':series' => $series, );
 
-        $sql = "SELECT format, data FROM indicators
-            LEFT JOIN data ON data.indicatorID=indicators.indicatorID
-            WHERE recordID=:recordID AND indicators.indicatorID=:indicatorID AND series=:series
-            UNION
-            SELECT format, data FROM data
-            RIGHT JOIN indicators ON data.indicatorID=indicators.indicatorID
-            WHERE data.indicatorID IS NULL";
+        $sql = "SELECT `format`, `data` FROM `data`
+            LEFT JOIN `indicators` USING (`indicatorID`)
+            WHERE `recordID`=:recordID AND `indicators`.`indicatorID`=:indicatorID AND `series`=:series";
 
         $res = $this->db->prepared_query($sql, $vars);
+
+        if(empty($res)) {
+            $vf = array(":indicatorID" => $key);
+            $sqlf = "SELECT `format` FROM `indicators` WHERE `indicatorID`=:indicatorID";
+            $res =  $this->db->prepared_query($sqlf, $vf);
+        }
 
         // handle fileupload indicator type
         if (isset($res[0]['format'])
