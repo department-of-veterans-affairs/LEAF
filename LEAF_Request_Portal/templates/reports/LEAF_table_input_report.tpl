@@ -106,7 +106,7 @@ function buildHeaderArray(columnNames) {
 }
 
 //get data for the selected indicator associated with the given recordID
-function addRecordData(recordID, indicatorID, gridInput = {}) {
+function addRecordData(recordID, gridInput = {}) {
     let dataRows = gridInput?.cells;
     bodyObj[recordID] = [];
     if (dataRows !== null && dataRows !== undefined) {
@@ -186,7 +186,7 @@ async function queryIndicator(catID='', indicatorID=0) {
         } else {
             bodyObj = {};
             for(let recordID in resultSet) {
-                addRecordData(recordID, indicatorID, resultSet[recordID]?.s1?.["id" + indicatorID + "_gridInput"]);
+                addRecordData(recordID, resultSet[recordID]?.s1?.["id" + indicatorID + "_gridInput"]);
             }
         }
     });
