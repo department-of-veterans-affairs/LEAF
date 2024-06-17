@@ -589,8 +589,14 @@ class System
         return 1;
     }
 
-
-    public function getFileList($getLastModified = false)
+    /**
+     * getFileList retrieves filenames uploaded via Admin Panel -> File Manager
+     *
+     * @param bool getLastModified If set to true, the returned elements within the array include [file, modifiedTime]
+     * 
+     * @return array
+     */
+    public function getFileList(bool $getLastModified = false): array
     {
         if (!$this->login->checkGroup(1))
         {
