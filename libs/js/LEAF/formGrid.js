@@ -14,40 +14,33 @@ var LeafFormGrid = function (containerID, options) {
   var isDataLoaded = false;
   var defaultLimit = 50;
   var currLimit = 50;
-  var headerColor = "#d1dfff";
   var dataBlob = {}; // if data needs to be passed in
   var postProcessDataFunc = null;
   var preRenderFunc = null;
   var postRenderFunc = null;
+  let postSortRequestFunc = null;
   var rootURL = "";
-  var isRenderingVirtualHeader = true;
   var isRenderingBody = false;
+  let renderHistory = {}; // index of rendered recordIDs
 
   $("#" + containerID).html(
-    '<div id="' +
-      prefixID +
-      'grid"></div><div id="' +
-      prefixID +
-      'form" style="display: none"></div>'
+    `<div id="${prefixID}grid"></div>
+    <div id="${prefixID}form" style="display: none"></div>`
   );
 
   $("#" + prefixID + "grid").html(
-    '<div style="position: relative"><div id="' +
-      prefixID +
-      'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="' +
-      prefixID +
-      'table_stickyHeader" style="display: none"></div><table id="' +
-      prefixID +
-      'table" class="leaf_grid"><thead id="' +
-      prefixID +
-      'thead" aria-label="Search Results"></thead><tbody id="' +
-      prefixID +
-      'tbody"></tbody><tfoot id="' +
-      prefixID +
-      'tfoot"></tfoot></table>'
+    `<div style="position: relative">
+      <div id="${prefixID}gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div>
+    </div>
+    <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
+      aria-label="Search Results" aria-live="assertive">
+    </span>
+    <table id="${prefixID}table" class="leaf_grid">
+      <thead id="${prefixID}thead" style="position: sticky; top: 0px"></thead>
+      <tbody id="${prefixID}tbody"></tbody>
+      <tfoot id="${prefixID}tfoot"></tfoot>
+    </table>`
   );
-
-  $("#" + prefixID + "thead").css({ "background-color": headerColor });
 
   if (options == undefined) {
     form = new LeafForm(prefixID + "form");
@@ -59,6 +52,102 @@ var LeafFormGrid = function (containerID, options) {
    */
   function hideIndex() {
     showIndex = false;
+  }
+
+  /**
+   * @param values (required) object of cells and names to generate grid
+   * @param showScriptTags (default false) whether to display script tags
+   * @memberOf LeafFormGrid
+   * Returns copy of values with cells property html entities decoded
+   */
+  function decodeCellHTMLEntities(values, showScriptTags = false) {
+    let gridInfo = { ...values };
+    if (gridInfo?.cells) {
+      let cells = gridInfo.cells.slice();
+      cells.forEach((arrRowVals, ci) => {
+        arrRowVals = arrRowVals.map((v) => {
+          v = v.replaceAll("<", "&lt;"); //handle old data values
+          v = v.replaceAll(">", "&gt;");
+          let elDiv = document.createElement("div");
+          elDiv.innerHTML = v;
+          let scripts = elDiv.getElementsByTagName('script');
+          for(let i = 0; i < scripts.length; i++) {
+              let script = scripts[i];
+              script.remove();
+          }
+          return elDiv.innerHTML;
+        });
+        cells[ci] = arrRowVals.slice();
+      });
+      gridInfo.cells = cells;
+    }
+    return gridInfo;
+  }
+
+  /**
+   * @param values (required) object of cells and names to generate grid
+   * @memberOf LeafFormGrid
+   */
+  function printTableReportBuilder(values, columnValues) {
+    // remove unused columns
+    values = decodeCellHTMLEntities(values);
+    if (columnValues !== null && columnValues !== undefined) {
+      values.format = values.format.filter(function (value) {
+        return columnValues.includes(value.id);
+      });
+    }
+
+    var gridBodyBuffer = "";
+    var gridHeadBuffer = "";
+    var rows = values.cells === undefined ? 0 : values.cells.length;
+    var columns = values.format.length;
+    var columnOrder = [];
+    var delim = '<span class="nodisplay">^;</span>'; // invisible delimiters to help Excel users
+    var delimLF = "\r\n";
+    var tDelim = "";
+
+    //finds and displays column names
+    for (let i = 0; i < columns; i++) {
+      tDelim = i === columns - 1 ? "" : delim;
+      gridHeadBuffer +=
+        '<td style="width: 100px;">' + values.format[i].name + tDelim + "</td>";
+      columnOrder.push(values.format[i].id);
+    }
+
+    //populates table
+    for (let i = 0; i < rows; i++) {
+      //makes array of cells
+      let rowBuffer = [];
+      for (let j = 0; j < columns; j++) {
+        rowBuffer.push('<td style="width:100px"></td>');
+      }
+
+      //for all values with matching column id, replaces cell with value
+      for (let j = 0; j < values.columns.length; j++) {
+        tDelim = j == values.columns.length - 1 ? "" : delim;
+        if (columnOrder.indexOf(values.columns[j]) !== -1) {
+          let value =
+            values.cells[i] === undefined || values.cells[i][j] === undefined
+              ? ""
+              : values.cells[i][j];
+          rowBuffer.splice(
+            columnOrder.indexOf(values.columns[j]),
+            1,
+            '<td style="width:100px">' + value + tDelim + "</td>"
+          );
+        }
+      }
+
+      //combines cells into html and pushes row to body buffer
+      const gridRow = "<tr>" + rowBuffer.join("") + delimLF + "</tr>";
+      gridBodyBuffer += gridRow;
+    }
+    return (
+      `<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;">
+        <thead>${gridHeadBuffer}${delimLF}</thead>
+        <tbody>${gridBodyBuffer}</tbody>
+      </table>`
+    );
   }
 
   /**
@@ -82,16 +171,27 @@ var LeafFormGrid = function (containerID, options) {
             ? response[indicatorID].displayedValue
             : response[indicatorID].value;
         if (
-          response[indicatorID].format == "checkboxes" &&
+          (response[indicatorID].format == "checkboxes" ||
+            response[indicatorID].format == "multiselect") &&
           Array.isArray(data)
         ) {
           var tData = "";
-          for (var i in data) {
+          for (let i in data) {
             if (data[i] != "no") {
               tData += ", " + data[i];
             }
           }
           data = tData.substr(2);
+        }
+        if (response[indicatorID].format == "grid") {
+          data = printTableReportBuilder(data);
+        }
+        if (response[indicatorID].format == "date") {
+          data = new Date(data).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          });
         }
         $("#" + prefixID + recordID + "_" + indicatorID)
           .empty()
@@ -115,57 +215,38 @@ var LeafFormGrid = function (containerID, options) {
    */
   function setHeaders(headersIn) {
     headers = headersIn;
-    var temp = '<tr id="' + prefixID + "thead_tr" + '">';
-    var virtualHeader = '<tr id="' + prefixID + "tVirt_tr" + '">';
+    let temp = `<tr id="${prefixID}thead_tr">`;
     if (showIndex) {
       temp +=
-        '<th id="' +
+        '<th scope="col" tabindex="0" id="' +
         prefixID +
-        'header_UID" style="text-align: center">UID</th>';
-      virtualHeader += '<th style="text-align: center">UID</th>';
+        'header_UID" style="text-align: center">UID<span id="' + prefixID + 'header_UID_sort" class="' + prefixID + 'sort"></span></th>';
     }
     $("#" + prefixID + "thead").html(temp);
 
     if (showIndex) {
       $("#" + prefixID + "header_UID").css("cursor", "pointer");
-      $("#" + prefixID + "header_UID").on("click", null, null, function (data) {
-        if (headerToggle == 0) {
-          sort("recordID", "asc");
-          headerToggle = 1;
-        } else {
-          sort("recordID", "desc");
-          headerToggle = 0;
+      $("#" + prefixID + "header_UID").on("click keydown", null, null, function (event) {
+        if(event.type === "click" || event?.which === 13) {
+          if (headerToggle == 0) {
+            sort("recordID", "asc", postSortRequestFunc);
+            headerToggle = 1;
+          } else {
+            sort("recordID", "desc", postSortRequestFunc);
+            headerToggle = 0;
+          }
+          renderBody(0, Infinity);
         }
-        renderBody(0, Infinity);
       });
-      // todo: move this into a stylesheet
-      $("#" + prefixID + "header_UID").on(
-        "mouseover",
-        null,
-        null,
-        function (data) {
-          $("#" + prefixID + "header_UID").css("background-color", "#79a2ff");
-        }
-      );
-      $("#" + prefixID + "header_UID").on(
-        "mouseout",
-        null,
-        null,
-        function (data) {
-          $("#" + prefixID + "header_UID").css({
-            "background-color": headerColor,
-          });
-        }
-      );
     }
 
-    for (var i in headers) {
+    for (let i in headers) {
       if (headers[i].visible == false) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
       $("#" + prefixID + "thead_tr").append(
-        '<th id="' +
+        '<th scope="col" id="' +
           prefixID +
           "header_" +
           headers[i].indicatorID +
@@ -181,95 +262,42 @@ var LeafFormGrid = function (containerID, options) {
           prefixID +
           'sort"></span></th>'
       );
-      virtualHeader +=
-        '<th id="Vheader_' +
-        headers[i].indicatorID +
-        '" style="text-align:' +
-        align +
-        '">' +
-        headers[i].name +
-        "</th>";
+
       if (headers[i].sortable == undefined || headers[i].sortable == true) {
         $("#" + prefixID + "header_" + headers[i].indicatorID).css(
           "cursor",
           "pointer"
         );
         $("#" + prefixID + "header_" + headers[i].indicatorID).on(
-          "click",
+          "click keydown",
           null,
           headers[i].indicatorID,
-          function (data) {
-            if (headerToggle == 0) {
-              sort(data.data, "asc");
-              headerToggle = 1;
-            } else {
-              sort(data.data, "desc");
-              headerToggle = 0;
-            }
-            renderBody(0, Infinity);
-          }
-        );
-        //using enter key to sort the the table heads for 508 compliance
-        $("#" + prefixID + "header_" + headers[i].indicatorID).on(
-          "keydown",
-          null,
-          headers[i].indicatorID,
-          function (data) {
-            if (data.keyCode == 13) {
+          function (event) {
+            if(event.type === "click" || event?.which === 13) {
               if (headerToggle == 0) {
-                sort(data.data, "asc");
+                sort(event.data, "asc", postSortRequestFunc);
                 headerToggle = 1;
               } else {
-                sort(data.data, "desc");
+                sort(event.data, "desc", postSortRequestFunc);
                 headerToggle = 0;
               }
               renderBody(0, Infinity);
             }
           }
         );
-        // todo: move this into a stylesheet
-        $("#" + prefixID + "header_" + headers[i].indicatorID).on(
-          "mouseover",
-          null,
-          headers[i].indicatorID,
-          function (data) {
-            $("#" + prefixID + "header_" + data.data).css(
-              "background-color",
-              "#79a2ff"
-            );
-          }
-        );
-        $("#" + prefixID + "header_" + headers[i].indicatorID).on(
-          "mouseout",
-          null,
-          headers[i].indicatorID,
-          function (data) {
-            $("#" + prefixID + "header_" + data.data).css({
-              "background-color": headerColor,
-            });
-          }
-        );
       }
     }
     $("#" + prefixID + "thead").append("</tr>");
-    virtualHeader += "</tr>";
 
     $("#" + prefixID + "table>thead>tr>th").css({
-      border: "1px solid black",
       padding: "4px 2px 4px 2px",
       "font-size": "12px",
     });
 
     // sticky headers
     var scrolled = false;
-    var initialTop;
+    let initialTop = Infinity;
 
-    $("#" + prefixID + "table_stickyHeader").html(
-      "<table><thead>" + virtualHeader + "</thead></table>"
-    );
-    $(window).on("resize", function () {
-      renderVirtualHeader();
-    });
     $(window).on("scroll", function () {
       scrolled = true;
     });
@@ -280,25 +308,43 @@ var LeafFormGrid = function (containerID, options) {
       pageHeight = $(window).height();
       if (
         scrolled &&
-        $("#" + prefixID + "thead").offset() != undefined &&
-        isRenderingVirtualHeader
+        $("#" + prefixID + "thead").offset() != undefined
       ) {
         scrolled = false;
-        initialTop = $("#" + prefixID + "thead").offset().top;
 
+        if(initialTop > $("#" + prefixID + "thead").offset().top) {
+          initialTop = $("#" + prefixID + "thead").offset().top;
+        }
         if (scrollPos > initialTop && scrollPos < tableHeight + initialTop) {
-          $("#" + prefixID + "table_stickyHeader").css("display", "inline");
-          $("#" + prefixID + "table_stickyHeader").css({
-            position: "absolute",
-            top: scrollPos + "px",
+          $("#" + prefixID + "table thead tr th").css({
+            "filter": "invert(1) grayscale(1)",
+            height: "1.3rem",
+            "border-top": "1px solid white"
+          });
+          $("#" + prefixID + "table thead tr th:first-child").css({
+            "border-left": "1px solid white"
+          });
+          $("#" + prefixID + "table thead tr th:last-child").css({
+            "border-right": "1px solid white"
           });
         } else {
-          $("#" + prefixID + "table_stickyHeader").css("display", "none");
+          $("#" + prefixID + "table thead tr th").css({
+            "filter": "invert(0)",
+            height: "auto",
+            "border-top": "1px solid black"
+          });
+          $("#" + prefixID + "table thead tr th:first-child").css({
+            "border-left": "1px solid black"
+          });
+          $("#" + prefixID + "table thead tr th:last-child").css({
+            "border-right": "1px solid black"
+          });
         }
       }
 
+      // render additional segment right before the user scrolls to it
       if (
-        scrollPos > tableHeight - pageHeight * 0.8 &&
+        scrollPos + pageHeight * 1.2 > tableHeight &&
         isDataLoaded &&
         isRenderingBody
       ) {
@@ -311,63 +357,62 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
+   * Sort the current dataset based on rendered data in table cells
+   * @param key key to sort on
+   * @param order Sort order: asc/desc
+   * @param callback (optional)
    * @memberOf LeafFormGrid
    */
-  function sort(key, order) {
+  function sort(key, order, callback) {
     if (key != "recordID" && currLimit != Infinity) {
       renderBody(0, Infinity);
     }
 
     $("." + prefixID + "sort").css("display", "none");
+    const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
+    const headerText = document.querySelector(headerSelector)?.innerText || "";
+    $(`th[id*="${prefixID}header_"]`).removeAttr('aria-sort');
     if (order.toLowerCase() == "asc") {
-      $("#" + prefixID + "header_" + key + "_sort").html(" &#9650;");
-      $("#" + prefixID + "header_" + key + "_sort").css(
-        "vertical-align",
-        "super"
-      );
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", ascending.");
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▲</span>');
+      $(headerSelector).attr('aria-sort', 'ascending');
     } else {
-      $("#" + prefixID + "header_" + key + "_sort").html(" &#9660;");
-      $("#" + prefixID + "header_" + key + "_sort").css(
-        "vertical-align",
-        "sub"
-      );
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", descending.");
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▼</span>');
+      $(headerSelector).attr('aria-sort', 'descending');
     }
-    $("#" + prefixID + "header_" + key + "_sort").css("display", "inline");
+    $(headerSelector + "_sort").css("display", "inline");
     var array = [];
     var isIndicatorID = $.isNumeric(key);
     var isDate = false;
+    var isNumeric = true;
     var idKey = "id" + key;
     var tDate;
-    for (var i in currentData) {
-      currentData[i].recordID = parseInt(currentData[i].recordID);
+    for (let i in currentData) {
       if (currentData[i][key] == undefined) {
         currentData[i][key] = $(
           "#" + prefixID + currentData[i].recordID + "_" + key
         ).html();
         currentData[i][key] =
           currentData[i][key] == undefined ? "" : currentData[i][key];
-
-        // IE workaround... it adds zero-width "left-to-right mark" spaces for some reason, and we need to take it out
-        currentData[i][key] = currentData[i][key].replace(
-          /[\u200B-\u200E]/g,
-          ""
-        );
       }
-
+      if (currentData[i].s1 == undefined) {
+        currentData[i].s1 = {};
+      }
+      if (
+        currentData[i].s1[idKey] == undefined ||
+        currentData[i].s1[idKey] == ""
+      ) {
+        if (currentData[i].sDate == undefined) {
+          currentData[i].sDate = {};
+        }
+        //Workaround for sorting manually created grid
+        currentData[i].s1[idKey] = !isNaN(currentData[i][key])
+          ? currentData[i][key]
+          : "";
+        currentData[i].sDate[key] = 0;
+      }
       if (isIndicatorID) {
-        if (currentData[i].s1 == undefined) {
-          currentData[i].s1 = {};
-        }
-        if (
-          currentData[i].s1[idKey] == undefined ||
-          currentData[i].s1[idKey] == ""
-        ) {
-          if (currentData[i].sDate == undefined) {
-            currentData[i].sDate = {};
-          }
-          currentData[i].s1[idKey] = "";
-          currentData[i].sDate[key] = 0;
-        }
         tDate = null;
         if (
           isNaN(currentData[i].s1[idKey]) &&
@@ -383,10 +428,6 @@ var LeafFormGrid = function (containerID, options) {
           }
           currentData[i].sDate[key] = 0;
           currentData[i].sDate[key] = !isNaN(tDate) ? tDate : 0;
-        }
-
-        if ($.isNumeric(currentData[i].s1[idKey])) {
-          currentData[i].s1[idKey] = parseFloat(currentData[i].s1[idKey]);
         }
       }
       // detect date fields for other non-indicatorID columns
@@ -412,6 +453,12 @@ var LeafFormGrid = function (containerID, options) {
         }
       }
 
+      if ($.isNumeric(currentData[i].s1[idKey]) & (isNumeric == true)) {
+        currentData[i].s1[idKey] = parseFloat(currentData[i].s1[idKey]);
+      } else {
+        isNumeric = false;
+      }
+
       array.push(currentData[i]);
     }
     if (isDate) {
@@ -424,7 +471,7 @@ var LeafFormGrid = function (containerID, options) {
         }
         return 0;
       });
-    } else if ($.isNumeric(key)) {
+    } else if ($.isNumeric(key) || isNumeric) {
       array.sort(function (a, b) {
         if (b.s1[idKey] > a.s1[idKey]) {
           return 1;
@@ -445,6 +492,10 @@ var LeafFormGrid = function (containerID, options) {
         return 0;
       });
     } else {
+      var collator = new Intl.Collator("en", {
+        numeric: true,
+        sensitivity: "base",
+      });
       array.sort(function (a, b) {
         if (a[key] == undefined) {
           a[key] = "";
@@ -452,61 +503,25 @@ var LeafFormGrid = function (containerID, options) {
         if (b[key] == undefined) {
           b[key] = "";
         }
-        if (b[key].toLowerCase() > a[key].toLowerCase()) {
-          return 1;
-        }
-        if (b[key].toLowerCase() < a[key].toLowerCase()) {
-          return -1;
-        }
-        return 0;
+        return collator.compare(b[key], a[key]);
       });
     }
     if (order == "asc") {
       array.reverse();
     }
     currentData = array;
+
+    if (callback != undefined && typeof callback === "function") {
+      callback(key, order);
+    }
   }
 
   /**
    * @memberOf LeafFormGrid
+   * @deprecated No-longer needed due to the end of IE7 support
    */
   function renderVirtualHeader() {
-    if (!isRenderingVirtualHeader) {
-      return false;
-    }
-
-    var virtHeaderSizes = [];
-    $("#" + prefixID + "thead>tr>th").each(function () {
-      virtHeaderSizes.push($(this).css("width"));
-    });
-
-    $("#" + prefixID + "table_stickyHeader > table").css({
-      width: $("#" + prefixID + "thead").css("width"),
-      height: "30px",
-    });
-    $("#" + prefixID + "table_stickyHeader > table > thead > tr > th").each(
-      function (idx) {
-        $(this).css({
-          width: virtHeaderSizes[idx],
-          padding: "2px",
-          "font-weight": "normal",
-        });
-      }
-    );
-
-    $("#" + prefixID + "table_stickyHeader > table").css({
-      border: "1px solid black",
-      "border-collapse": "collapse",
-      margin: "0 2px 0",
-    });
-    $("#" + prefixID + "table_stickyHeader > table > thead > tr").css({
-      "background-color": "black",
-      color: "white",
-    });
-    $("#" + prefixID + "table_stickyHeader > table > thead > tr > th").css(
-      "border",
-      "1px solid #e0e0e0"
-    );
+    return false;
   }
 
   /**
@@ -529,6 +544,7 @@ var LeafFormGrid = function (containerID, options) {
     if (startIdx == undefined || startIdx == 0) {
       startIdx = 0;
       $("#" + prefixID + "tbody").empty();
+      renderHistory = {};
       fullRender = true;
     }
 
@@ -544,12 +560,19 @@ var LeafFormGrid = function (containerID, options) {
       );
     }
     var counter = 0;
+    var validateHtml = document.createElement("div");
     for (var i = startIdx; i < currentData.length; i++) {
       if (counter >= limit) {
         currentRenderIndex = i;
         break;
       }
 
+      // Prevent duplicate DOM IDs from being generated
+      if (renderHistory[currentData[i].recordID] != undefined) {
+        continue;
+      }
+
+      renderHistory[currentData[i].recordID] = 1;
       buffer +=
         '<tr id="' + prefixID + "tbody_tr" + currentData[i].recordID + '">';
       if (showIndex) {
@@ -589,21 +612,78 @@ var LeafFormGrid = function (containerID, options) {
               currentData[i].s1["id" + headers[j].indicatorID] != undefined
                 ? currentData[i].s1["id" + headers[j].indicatorID]
                 : "";
-            buffer +=
-              '<td id="' +
-              prefixID +
-              currentData[i].recordID +
-              "_" +
-              headers[j].indicatorID +
-              '" data-editable="' +
-              editable +
-              '" data-record-id="' +
-              currentData[i].recordID +
-              '" data-indicator-id="' +
-              headers[j].indicatorID +
-              '">' +
-              data.data +
-              "</td>";
+            validateHtml.innerHTML = data.data;
+            data.data = validateHtml.innerHTML;
+            if (
+              currentData[i].s1["id" + headers[j].indicatorID + "_htmlPrint"] !=
+              undefined
+            ) {
+              var htmlPrint =
+                '<textarea id="data_' +
+                currentData[i].recordID +
+                "_" +
+                headers[j].indicatorID +
+                '_1" style="display: none">' +
+                data.data +
+                "</textarea>";
+              htmlPrint += currentData[i].s1[
+                "id" + headers[j].indicatorID + "_htmlPrint"
+              ]
+                .replace(
+                  /{{ iID }}/g,
+                  currentData[i].recordID + "_" + headers[j].indicatorID
+                )
+                .replace(/{{ recordID }}/g, currentData[i].recordID);
+              buffer +=
+                '<td id="' +
+                prefixID +
+                currentData[i].recordID +
+                "_" +
+                headers[j].indicatorID +
+                '" data-editable="' +
+                editable +
+                '" data-record-id="' +
+                currentData[i].recordID +
+                '" data-indicator-id="' +
+                headers[j].indicatorID +
+                '">' +
+                htmlPrint +
+                "</td>";
+            } else {
+              if (headers[j].cols !== undefined) {
+                if (
+                  currentData[i].s1[data.data] !== undefined &&
+                  data.data.search("gridInput") &&
+                  headers[j].cols.length > 0
+                ) {
+                  data.data = printTableReportBuilder(
+                    currentData[i].s1[data.data],
+                    headers[j].cols
+                  );
+                }
+              } else {
+                if (
+                  currentData[i].s1[data.data] !== undefined &&
+                  data.data.search("gridInput")
+                ) {
+                  data.data = printTableReportBuilder(
+                    currentData[i].s1[data.data],
+                    null
+                  );
+                }
+              }
+              buffer += `<td id="${prefixID + currentData[i].recordID}_${
+                headers[j].indicatorID
+              }"
+                                           data-editable="${editable}"
+                                           data-record-id="${
+                                             currentData[i].recordID
+                                           }"
+                                           data-indicator-id="${
+                                             headers[j].indicatorID
+                                           }">
+                                            ${data.data}</td>`;
+            }
           } else if (headers[j].callback != undefined) {
             buffer +=
               '<td id="' +
@@ -662,7 +742,7 @@ var LeafFormGrid = function (containerID, options) {
           colspan +
           ' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="' +
           rootURL +
-          'images/indicator.gif" style="vertical-align: middle" alt="Loading" /> Loading more results...</td></tr>'
+          'images/indicator.gif" style="vertical-align: middle" alt="" /> Loading more results...</td></tr>'
       );
     }
 
@@ -673,6 +753,7 @@ var LeafFormGrid = function (containerID, options) {
     $("#" + prefixID + "tbody td[data-clickable=true]").addClass(
       "table_editable"
     );
+    $("#" + prefixID + "tbody").unbind("click"); //prevents multiple firing on same report builder element, which causes subsequent problems with icheck
     $("#" + prefixID + "tbody").on(
       "click",
       "td[data-editable=true]",
@@ -687,14 +768,12 @@ var LeafFormGrid = function (containerID, options) {
         form.dialog().show();
       }
     );
-    for (var i in callbackBuffer) {
+    for (let i in callbackBuffer) {
       callbackBuffer[i]();
     }
 
     $("#" + prefixID + "table>tbody>tr>td").css({
-      border: "1px solid black",
       padding: "8px",
-      "font-size": "12px",
     });
     if (postRenderFunc != null) {
       postRenderFunc();
@@ -705,6 +784,22 @@ var LeafFormGrid = function (containerID, options) {
   /**
    * @memberOf LeafFormGrid
    */
+  function announceResults() {
+    let term = $('[name="searchtxt"]').val();
+
+    if (currentData.length == 0) {
+      $(".status").text("No results found for term " + term);
+    } else {
+      $(".status").text(
+        "Search results found for term " + term + " listed below"
+      );
+    }
+  }
+
+  /**
+   * @deprecated See example.tpl for more efficient formGrid usage.
+   * @memberOf LeafFormGrid
+   */
   function loadData(recordIDs, callback) {
     currentData = [];
     var colspan = showIndex ? headers.length + 1 : headers.length;
@@ -713,7 +808,7 @@ var LeafFormGrid = function (containerID, options) {
         colspan +
         '" style="text-align: left; padding: 8px">Building report... <img src="' +
         rootURL +
-        'images/largespinner.gif" alt="loading..." /></td></tr>'
+        'images/largespinner.gif" alt="" /></td></tr>'
     );
 
     var headerIDList = "";
@@ -767,7 +862,7 @@ var LeafFormGrid = function (containerID, options) {
 
   /**
    * Set the working data set
-   * @params array - Expects format: [{recordID, indicatorID}, ...]
+   * @params array - Expects format: [{recordID}, ...]
    * @memberOf LeafFormGrid
    */
   function setData(data) {
@@ -802,63 +897,111 @@ var LeafFormGrid = function (containerID, options) {
     containerID = prefixID + "gridToolbar";
     $("#" + containerID).css("display", "block");
     $("#" + containerID).html(
-      '<button type="button" id="' +
+      '<br/><button type="button" id="' +
         prefixID +
-        'getExcel" class="buttonNorm"><img src="dynicons/?img=x-office-spreadsheet.svg&w=32" alt="Icon of Spreadsheet" /> Export</button>'
+        'getExcel" class="buttonNorm"><img src="' +
+        rootURL +
+        'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="" /> Export</button>'
     );
 
-    $("#" + prefixID + "getExcel").on("click", function () {
+    $("#" + prefixID + "getExcel").on("click", async function () {
+      // get indicator formats in case they need special handling (e.g. dates)
+      let iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format").then(res => res.json());
+      let indicatorFormats = {};
+      iFormatData.forEach(i => {
+        indicatorFormats[i.indicatorID] = i.format;
+      });
+
       if (currentRenderIndex != currentData.length) {
         renderBody(0, Infinity);
       }
-      var output = [];
-      var headers = [];
+      let output = [];
+      let headers = [];
+      //removes triangle symbols so that ascii chars are not present in exported headers.
+      $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
+        $(val).html("");
+      });
       $("#" + prefixID + "thead>tr>th").each(function (idx, val) {
         headers.push($(val).text().trim());
       });
+      output.push(headers); //first row will be headers
 
-      var line = {};
-      var i = 0;
-      var thisSite = document.createElement("a");
-      var numColumns = headers.length - 1;
-      $("#" + prefixID + "tbody>tr>td").each(function (idx, val) {
-        line[headers[i]] = $(val).text().trim();
-        if (i == 0 && headers[i] == "UID") {
-          line[headers[i]] =
-            '=HYPERLINK("' +
-            window.location.origin +
-            window.location.pathname +
-            "?a=printview&recordID=" +
-            $(val).text().trim() +
-            '", "' +
-            $(val).text().trim() +
-            '")';
-        }
-        i++;
-        if (i > numColumns) {
-          output.push(line);
-          line = {};
-          i = 0;
-        }
+      let line = [];
+      let i = 0;
+      let numColumns = headers.length - 1;
+      document
+        .querySelectorAll("#" + prefixID + "tbody>tr>td")
+        .forEach(function (val) {
+          let foundScripts = val.querySelectorAll("script");
+
+          for (let tIdx = 0; tIdx < foundScripts.length; tIdx++) {
+            foundScripts[tIdx].parentNode.removeChild(foundScripts[tIdx]);
+          }
+
+          let trimmedText = val.innerText.trim();
+          line[i] = trimmedText;
+          //prevent some values from being interpreted as dates by excel
+          const dataFormat = indicatorFormats[val.getAttribute("data-indicator-id")];
+          const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
+          const isNumber = /^\d+$/;
+
+          line[i] =
+            (dataFormat !== null &&
+              dataFormat !== 'date' &&
+              testDateFormat.test(line[i])) ||
+            (isNumber.test(line[i]) &&
+              dataFormat === 'text')
+              ? `="${line[i]}"`
+              : line[i];
+          if (i == 0 && headers[i] == "UID") {
+            line[i] =
+              '=HYPERLINK("' +
+              window.location.origin +
+              window.location.pathname +
+              "?a=printview&recordID=" +
+              trimmedText +
+              '", "' +
+              trimmedText +
+              '")';
+          }
+          i++;
+          if (i > numColumns) {
+            output.push(line); //add new row
+            line = [];
+            i = 0;
+          }
+        });
+
+      rows = "";
+      output.forEach(function (thisRow) {
+        //escape double quotes
+        thisRow.forEach(function (col, idx) {
+          thisRow[idx] = col.replace(/\"/g, '""');
+        });
+        //add to csv string
+        rows += '"' + thisRow.join('","') + '",\r\n';
       });
-      var tForm = $(document.createElement("form"));
-      tForm.attr({
-        action: rootURL + "api/converter/json?format=csv",
-        method: "POST",
-      });
-      var tInput = $(document.createElement("input"));
-      var tInput2 = $(document.createElement("input"));
-      tInput.attr({
-        type: "hidden",
-        name: "input",
-        value: JSON.stringify(output),
-      });
-      tInput2.attr({ type: "hidden", name: "CSRFToken", value: CSRFToken });
-      tForm.append(tInput);
-      tForm.append(tInput2);
-      tForm.appendTo("#" + containerID);
-      tForm.submit();
-      tForm.remove();
+
+      let download = document.createElement("a");
+      let now = new Date().getTime();
+      download.setAttribute(
+        "href",
+        "data:text/csv;charset=utf-8," + encodeURIComponent(rows)
+      );
+      download.setAttribute("download", "Exported_" + now + ".csv");
+      download.style.display = "none";
+
+      document.body.appendChild(download);
+      if (navigator.msSaveOrOpenBlob) {
+        rows = "\uFEFF" + rows;
+        navigator.msSaveOrOpenBlob(
+          new Blob([rows], { type: "text/csv;charset=utf-8;" }),
+          "Exported_" + now + ".csv"
+        );
+      } else {
+        download.click();
+      }
+      document.body.removeChild(download);
     });
   }
 
@@ -888,6 +1031,15 @@ var LeafFormGrid = function (containerID, options) {
 
   /**
    * @memberOf LeafFormGrid
+   * Set callback function to run after the user requests a sort.
+   * The function takes two parameters: key, sort direction (asc/desc)
+   */
+  function setPostSortRequestFunc(func) {
+    postSortRequestFunc = func;
+  }
+
+  /**
+   * @memberOf LeafFormGrid
    * Return data row from loadData() using the array's index
    */
   function getDataByIndex(index) {
@@ -905,6 +1057,15 @@ var LeafFormGrid = function (containerID, options) {
       }
     }
     return null;
+  }
+
+  /**
+   * @memberOf LeafFormGrid
+   * Disables the sticky header
+   */
+  function disableStickyHeader() {
+    document.querySelector(`#${prefixID}thead`).style.position = 'static';
+    document.querySelector(`#${prefixID}thead`).style.top = 'auto';
   }
 
   return {
@@ -925,6 +1086,7 @@ var LeafFormGrid = function (containerID, options) {
     sort: sort,
     renderVirtualHeader: renderVirtualHeader,
     renderBody: renderBody,
+    announceResults: announceResults,
     loadData: loadData,
     setData: setData,
     setDataBlob: setDataBlob,
@@ -933,6 +1095,7 @@ var LeafFormGrid = function (containerID, options) {
     setPostProcessDataFunc: setPostProcessDataFunc,
     setPreRenderFunc: setPreRenderFunc,
     setPostRenderFunc: setPostRenderFunc,
+    setPostSortRequestFunc: setPostSortRequestFunc,
     setDefaultLimit: function (limit) {
       defaultLimit = limit;
     },
@@ -941,8 +1104,12 @@ var LeafFormGrid = function (containerID, options) {
     },
     getDataByIndex: getDataByIndex,
     getDataByRecordID: getDataByRecordID,
-    disableVirtualHeader: function () {
-      isRenderingVirtualHeader = false;
+    disableStickyHeader: disableStickyHeader,
+    disableVirtualHeader: function () { // backward compat
+      disableStickyHeader();
+    },
+    setStickyHeaderOffset: function (offset) {
+      document.querySelector(`#${prefixID}thead`).style.top = offset;
     },
     stop: function () {
       isRenderingBody = false;

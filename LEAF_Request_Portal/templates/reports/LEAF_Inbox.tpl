@@ -36,7 +36,7 @@
                     indicatorID: 'uid',
                     editable: false,
                     callback: function(data, blob) {
-                        $('#' + data.cellContainerID).html('<a href="' + site.url + '?a=printview&recordID=' +
+                        $('#' + data.cellContainerID).html('<a target="_blank" href="' + site.url + '?a=printview&recordID=' +
                             data.recordID + '">' + data.recordID + '</a>');
                     }
                 }
@@ -97,6 +97,8 @@
                                             .slideDown();
                                         $('#requestTitle').attr('tabindex', '0');
                                         $('#requestInfo').attr('tabindex', '0');
+                                        $('.printmainform > div > img[role="button"]').css('display','none');
+                                        $('button[title^="Edit"]').css('display','none');
                                     },
                                     error: function() {
                                         triggerGenericLoadError();
@@ -297,7 +299,7 @@
             // index by roles
             for(let depID in dataInboxes[sites[i].url][j].unfilledDependencyData) {
                 let uDD = dataInboxes[sites[i].url][j].unfilledDependencyData[depID];
-                let roleID = depID;
+                let roleID = Number(depID);
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     roleID = Sha1.hash(uDD.approverUID);
@@ -500,7 +502,7 @@
 
         let formGrid = new LeafFormGrid('depList' + hash + '_' + stepID);
         formGrid.setRootURL(site.url);
-        formGrid.disableVirtualHeader(); // TODO: figure out why headers aren't sized correctly
+        formGrid.setStickyHeaderOffset('36px');
         formGrid.setDataBlob(res);
         formGrid.hideIndex();
         formGrid.setHeaders(headers);
@@ -560,7 +562,6 @@
             <button type="button" id="depLabel${hash}_${stepID}" class="depInbox" style="background-color: ${site.backgroundColor}">
                 <div>
                     <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
-                    <span style="color: ${site.fontColor}">${categoryName}</span>
                 </div>
                 <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
             </button>
@@ -673,7 +674,7 @@
     function buildWorkflowCategoryCache(site) {
         return $.ajax({
             type: 'GET',
-            url: site.url + 'api/workflow/categories?x-filterData=categoryID',
+            url: site.url + 'api/workflow/categories?includeStandardLEAF&x-filterData=categoryID',
             success: function(res) {
                 res.forEach(w => {
                     dataWorkflowCategories[w.categoryID] = 1;
