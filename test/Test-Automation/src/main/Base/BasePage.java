@@ -46,15 +46,11 @@ public class BasePage extends Utility {
         extentReports.attachReporter(extentSparkReporter);
         extentReports.setSystemInfo("OS", System.getProperty("os.name"));
         extentReports.setSystemInfo("Java Version", System.getProperty("java.version"));
-<<<<<<< HEAD
         log.info("Setting up the browser");
         System.out.println("Before Suite");
-    }
-=======
         log.info("Setting up the extent report");
-      }
+    }
 
->>>>>>> cc3e1b7f7cd6705fc5751d8b4292d79e4590e039
 
     @BeforeClass()
     public void initializeExtentTest(){
