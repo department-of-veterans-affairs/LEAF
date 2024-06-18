@@ -243,11 +243,11 @@
 
     $(function(){
         $('#emailToCode').on("keyup", function(e) {
-            this.value = this.value.replace(/[;:\s]/, ',');
+            this.value = this.value.replace(/[,;:\s]/g, '\n');
         });
 
         $('#emailCcCode').on("keyup", function(e) {
-            this.value = this.value.replace(/[;:\s]/, ',');
+            this.value = this.value.replace(/[,;:\s]/g, '\n');
         });
     });
 
