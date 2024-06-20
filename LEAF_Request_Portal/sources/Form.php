@@ -3180,7 +3180,7 @@ class Form
 
                     break;
                 case 'categoryID':
-                    if (!strpos($joins,'category_count')) {
+                    if (!str_contains($joins,'lj_category_count')) {
                         $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
                     }
                     if ($q['operator'] != '!=')
@@ -3234,7 +3234,7 @@ class Form
                             /*case 'destruction':
                                 $conditions .= "{$gate}(categories.destructionAge IS NOT NULL AND ".
                                     "records_workflow_state.stepID IS NULL AND submitted != 0)";
-                                if (!strpos($joins,'category_count')) {
+                                if (!str_contains($joins,'lj_category_count')) {
                                     $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
@@ -3297,7 +3297,7 @@ class Form
                                 $conditions .= "{$gate}(categories.destructionAge IS NULL OR ".
                                     "(records_workflow_state.stepID IS NOT NULL OR submitted = 0)".
                                 ")";
-                                if (!strpos($joins,'category_count')) {
+                                if (!str_contains($joins,'lj_category_count')) {
                                     $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
