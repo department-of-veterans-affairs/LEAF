@@ -49,7 +49,7 @@ export default {
             } else {
                 msg = 'No Workflow';
             }
-            return msg;
+            return this.decodeAndStripHTML(msg);
         }
     },
     methods: {
