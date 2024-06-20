@@ -79,6 +79,31 @@ public class BasePage {
 		new WebDriverWait(driver, Duration.ofSeconds(seconds)).until(ExpectedConditions.invisibilityOf(element));
 	}
 
+   public void clickElement(WebElement element){
+	  try{
+		  // Wait for the element to be clickable
+		  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		  wait.until(ExpectedConditions.elementToBeClickable(element));
+		  // Click the element
+		  element.click();
 
+	  } catch(NoSuchElementException e){
+		  System.out.println("Element not found, Exception thrown :");
+		  System.out.println( e.getMessage());
+	  }
+	}
 
+	public void enterText(WebElement element, String text){
+		try{
+			// Wait for the element to be clickable
+			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+			wait.until(ExpectedConditions.elementToBeClickable(element));
+			// Click the element
+			element.sendKeys(text);
+
+		} catch(NoSuchElementException e){
+			System.out.println("Element not found, Exception thrown :");
+			System.out.println( e.getMessage());
+		}
+	}
 }

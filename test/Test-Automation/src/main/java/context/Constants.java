@@ -17,9 +17,9 @@ public class Constants {
 	public final static String PROJECT_NAME = "Your_Project_Name";
 
 	/** The Constant EXTENT_CONFIG_PATH. */
-	public final static String EXTENT_CONFIG_PATH = WORKING_DIRECTORY + "/src/test/resources/config/extent-config.xml";
+	public final static String EXTENT_CONFIG_PATH = WORKING_DIRECTORY + "/src/main/resources/config/extent-config.xml";
 
 	/** The Constant PROPERTY_FILE_PATH. */
-	public final static String PROPERTY_FILE_PATH = WORKING_DIRECTORY + "/src/test/resources/config/test.properties";
+	public final static String PROPERTY_FILE_PATH = WORKING_DIRECTORY + "/src/main/resources/config/test.properties";
 
 }

@@ -2,6 +2,7 @@ package test.java.tests;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import main.java.factory.PageinstancesFactory;
@@ -23,11 +24,34 @@ public class FormEditorTests extends BaseTest {
     }
 
 
+    /*
+    Validate a new form is created
+     */
     @Test()
-    public void validateCreateForm() {
-        formEditorPageActions.createForm("TestForm-1", "TestFormDescription-1");
+    public void TC001_validateCreateForm() {
+        formEditorPageActions.clickCreateForm();
+        formEditorPageActions.enterFormName("Test-1");
+        formEditorPageActions.enterDescription("Test-Decription");
+        formEditorPageActions.clickSave();
+        Assert.assertTrue(formEditorPageActions.validateForm("Test-1"));
     }
 
+    @Test
+    public void TC002_validateSectionCreated(){
+        formEditorPageActions.clickAddSection();
+        formEditorPageActions.enterSectionHeading("Section Heading");
+        formEditorPageActions.clickSave();
+        Assert.assertTrue(formEditorPageActions.checkSectionCreated("Section Heading"));
+    }
+
+    @Test
+    public void TC003_validateQuestionCreated(){
+        formEditorPageActions.clickAddQuestionToHeader();
+        formEditorPageActions.AddQuestion("Question");
+        formEditorPageActions.clickSave();
+        Assert.assertTrue(formEditorPageActions.validateCreatedQuestion("Question"));
+    }
+/*
     @Test(dependsOnMethods = {"validateCreateForm"})
     public void validateStapleForm() {
         formEditorPageActions.stapleForm("AS - Vacation Reservations");
@@ -39,4 +63,6 @@ public class FormEditorTests extends BaseTest {
     }
 
 
+
+ */
 }

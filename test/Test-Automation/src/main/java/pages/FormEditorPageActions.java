@@ -37,7 +37,7 @@ public class FormEditorPageActions extends BasePage {
     @FindBy(xpath ="//*[text()=' Staple other form']")
     WebElement stapleForm;
 
-        @FindBy(id="mergedForms")
+    @FindBy(id="mergedForms")
     WebElement mergeForm;
 
     @FindBy(id="stapledCategoryID")
@@ -46,28 +46,77 @@ public class FormEditorPageActions extends BasePage {
     @FindBy(xpath="//span[@id='ui-id-3']//following::span[1]")
     WebElement dialogueCloseBtn;
 
+    @FindBy(xpath="//button[contains(@id,'main_form_form')]//span[2]")
+    WebElement Form;
+
+    @FindBy(xpath="//button[text()=' + Add Section ']")
+    WebElement AddSection;
+
+    @FindBy(xpath="//textarea[@id=\"name\"]")
+    WebElement sectionDescription;
+
+    @FindBy(xpath="/html/body/div[1]/div/div/main/section/div[2]/div[2]/div[1]/ul/li/div/ul/li/div/div/div/div[2]")
+    WebElement createdQuestionHeading;
+
+    @FindBy(xpath="//div[contains(@id,'format_label')]")
+    WebElement createdSectionHeading;
+
+    @FindBy(xpath="//button[text()=' + Add Question to Section ']")
+    WebElement AddQuestionToHeader;
 
     public FormEditorPageActions(WebDriver driver) {
       super(driver);
     }
 
-
-    public void createForm(String FormName, String FormDescription) {
-        setExplicitWaitForElementToBeVisible(createForm,10);
-        createForm.click();
-        setExplicitWaitForElementToBeVisible(formLabel,10);
-        formLabel.sendKeys(FormName);
-        setExplicitWaitForElementToBeVisible(formDescription,10);
-        formDescription.sendKeys(FormDescription);
-        saveButton.click();
-        log.info("Form Created Successfully");
-        WebElement form = driver.findElement(By.xpath("//b[text()='"+FormName+"']"));
-        setExplicitWaitForElementToBeVisible(form,10 );
-        Boolean formCreated = form.isDisplayed();
-        Assert.assertEquals(formCreated, true);
-        log.info("Validating Form Created Successfully");
+    public void clickCreateForm(){
+        clickElement(createForm);
     }
 
+    public void enterFormName(String formName){
+        enterText(formLabel,formName);
+    }
+
+    public void enterDescription(String description){
+        enterText(formDescription,description);
+    }
+
+    public void clickSave(){
+        clickElement(saveButton);
+    }
+
+    public Boolean validateForm(String fornName){
+        setExplicitWaitForElementToBeVisible(Form,30 );
+        Boolean formPresent = Form.getText().trim().contains(fornName);
+        return formPresent;
+    }
+
+    public void clickAddSection(){
+        clickElement(AddSection);
+    }
+
+    public void enterSectionHeading(String header){
+        enterText(sectionDescription,header);
+    }
+
+    public Boolean checkSectionCreated(String section){
+        setExplicitWaitForElementToBeVisible(createdSectionHeading,30 );
+        Boolean sectionPresent = createdSectionHeading.getText().trim().contains(section);
+        return sectionPresent;
+    }
+
+    public void clickAddQuestionToHeader(){
+        clickElement(AddQuestionToHeader);
+    }
+
+    public void AddQuestion(String question){
+        enterText(formLabel,question);
+    }
+
+    public Boolean validateCreatedQuestion(String question){
+        setExplicitWaitForElementToBeVisible(createdQuestionHeading,30 );
+        Boolean questionPresent = createdQuestionHeading.getText().trim().contains(question);
+        return questionPresent;
+    }
     public void openExistingForm(String FormName) {
         Boolean formOpened = null;
         WebElement form = driver.findElement(By.xpath("//div[@class='formPreviewTitle'][text()='"+FormName+"']"));

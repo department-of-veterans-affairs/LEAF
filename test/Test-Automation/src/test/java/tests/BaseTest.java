@@ -67,7 +67,7 @@ public class BaseTest {
 	 */
 	@Parameters({ "environment", "env_URL","Hub_Url"})
 	@BeforeClass
-	protected void setup(@Optional("") String env, @Optional("") String env_URL,@Optional("") String Hub_Url) throws MalformedURLException {
+	protected void setup(@Optional("local") String env, @Optional("https://host.docker.internal/LEAF_Request_Portal/admin/") String env_URL,@Optional("") String Hub_Url) throws MalformedURLException {
       	WebDriverManager.chromedriver().setup();
 		ChromeOptions ops = new ChromeOptions();
 		ops.addArguments("disable-infobars");
