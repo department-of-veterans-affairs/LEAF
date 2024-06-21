@@ -40,6 +40,9 @@ function showPreview(recordID) {
                     formLibraryID: recordID},
             success: function(res) {
                 window.location = '?a=form_vue#/forms?formID=' + res;
+            },
+            error: function(err) {
+                console.log(err);
             }
         });
     });
