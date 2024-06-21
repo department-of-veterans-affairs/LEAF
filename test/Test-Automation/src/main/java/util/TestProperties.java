@@ -19,7 +19,7 @@ public class TestProperties {
 	/**
 	 * Load all propertie.
 	 */
-	public static void loadAllPropertie() {
+	public static void loadAllProperties() {
 		try {
 			FileInputStream Locator;
 			Locator = new FileInputStream(Constants.PROPERTY_FILE_PATH);
