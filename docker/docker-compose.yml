@@ -87,32 +87,13 @@ services:
             - leaf
 
     leaf-smtp:
-        #   image: kurzdigital/fake-smtp # https://hub.docker.com/r/kurzdigital/fake-smtp/
-        #   expose:
-        #     - '2525'
-        #   ports:
-        #     - "2525:25" # smtp port
-        #     - "5080:5080" # web ui port
-        #   restart: 'always'
-        #   networks:
-        #     code-network:
-        #       aliases:
-        #         - smtp
-
-        #   environment:
-        #     - "SMTP_PORT=${SMTP_PORT}"
-        #     - "APP_USER=${APP_USER}" # ui login -- defaults to tester
-        #     - "APP_PASSWORD=${APP_PASSWORD}"
-        #     - "MYSQL_USER=${MYSQL_USER}"
-        #     - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
-        image: pelentan/fake-smtp:1.0
+        image: rnwood/smtp4dev
         container_name: leaf-smtp
         env_file:
             - ./env_files/globals_local.env
             - ./env_files/secrets.env
         ports:
-            - "2525:25"
-            - "5080:5080"
+            - "5080:80"
         networks:
             - leaf
 
