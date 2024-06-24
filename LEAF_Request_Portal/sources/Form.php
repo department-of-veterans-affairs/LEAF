@@ -3702,9 +3702,9 @@ class Form
         foreach ($res as $item)
         {
             if(!isset($data[$item['recordID']])) {
-                $data[$item['recordID']] = $item;
                 $recordIDs .= $item['recordID'] . ',';
             }
+            $data[$item['recordID']] = $item;
         }
         $recordIDs = trim($recordIDs, ',');
         $recordIDs = $recordIDs ?: 0;
