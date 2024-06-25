@@ -10,6 +10,9 @@ package-lock.json
 .DS_Store
 test_logins.txt
 */auth_dev/*
+*.key
+*.jks
+
 
 */templates_c/*.tpl.php
 */admin/templates_c/*.tpl.php
