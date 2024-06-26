@@ -12,6 +12,12 @@ test_logins.txt
 */auth_dev/*
 *.key
 *.jks
+*.ppk
+*.pem
+*.rdp
+*.pub
+.ssh/*
+*.log
 
 
 */templates_c/*.tpl.php
