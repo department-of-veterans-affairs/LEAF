@@ -227,17 +227,56 @@ table.agenda {
 }
 
 table.leaf_grid {
-  border: 1px solid black;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin: 2px;
-  width: 95%;
-  table-layout: fixed;
 }
-table.leaf_grid td {
-  vertical-align: top;
-  word-break: break-word;
-  white-space: pre-wrap;
-  width: 20%;
+
+table.leaf_grid th {
+  font-weight: normal;
+  padding: 4px 2px 4px 2px;
+  font-size: 12px;
+  background-color: rgb(209, 223, 255);
+  border-top: 1px solid black;
+}
+table.leaf_grid th:hover,
+table.leaf_grid th:focus {
+  background-color: #79a2ff;
+}
+
+table.leaf_grid > tbody {
+  background-color: white;
+}
+
+table.leaf_grid th:first-child,
+table.leaf_grid td:first-child {
+  border-left: 1px solid black;
+}
+
+table.leaf_grid thead tr th,
+table.leaf_grid tbody tr td,
+table.leaf_grid tfoot tr td {
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+  transition: filter 0.25s;
+}
+
+table.leaf_grid>tbody>tr>td {
+  padding: 8px;
+}
+
+.leaf_grid-loading tr td {
+  background: linear-gradient(90deg, #ffffff, #dbdbdb, #ffffff);
+  animation: leaf_grid-loading 30s linear infinite;
+}
+
+@keyframes leaf_grid-loading {
+  0% {
+      background-position: 0 0;
+  }
+  100% {
+      background-position: 1200px 0;
+  }
 }
 
 .agenda td {

@@ -71,7 +71,7 @@ class SystemController extends RESTfulResponse
         });
 
         $this->index['GET']->register('system/files', function ($args) use ($system) {
-            return $system->getFileList();
+            return $system->getFileList($_GET['getLastModified']);
         });
 
         $this->index['GET']->register('system/settings', function ($args) use ($system) {
