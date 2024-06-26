@@ -244,10 +244,12 @@
     $(function(){
         $('#emailToCode').on("keyup", function(e) {
             this.value = this.value.replace(/[,;:\s]/g, '\n');
+            this.value = this.value.replace(/(.)\n?\n/g, '$1\n');
         });
 
         $('#emailCcCode').on("keyup", function(e) {
             this.value = this.value.replace(/[,;:\s]/g, '\n');
+            this.value = this.value.replace(/(.)\n?\n/g, '$1\n');
         });
     });
 
