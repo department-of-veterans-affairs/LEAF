@@ -241,7 +241,7 @@ export default {
                                     <option v-if="parseInt(r.workflowID) > 0"
                                         :value="r.workflowID"
                                         :selected="workflowID === parseInt(r.workflowID)">
-                                        ID#{{r.workflowID}}: {{truncateText(r.description,32)}}
+                                        ID#{{r.workflowID}}: {{truncateText(decodeAndStripHTML(r.description),32)}}
                                     </option>
                                 </template>
                             </select>

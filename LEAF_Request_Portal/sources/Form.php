@@ -4267,7 +4267,7 @@ class Form
                     $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
                     $data[$idx]['timestamp'] = isset($resIn['timestamp']) ? $resIn['timestamp'] : 0;
                     $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
-                    $data[$idx]['userID'] = $resIn['userID'];
+                    $data[$idx]['userID'] = isset($resIn['userID']) ? $resIn['userID'] : '';
                 }
             }
             else if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
@@ -4303,7 +4303,7 @@ class Form
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
                 $child[$idx]['has_code'] = trim($field['html']) != '' || trim($field['htmlPrint']) != '';
-                $child[$idx]['userID'] = $data[$idx]['userID'];
+                $child[$idx]['userID'] = isset($data[$idx]['userID']) ? $data[$idx]['userID'] : '';
                 if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
                     $child[$idx]['isMaskable'] = isset($data[$idx]['groupID']) ? 1 : 0;
                 }
