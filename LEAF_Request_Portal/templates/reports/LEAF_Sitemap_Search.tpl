@@ -1018,9 +1018,14 @@ async function getSubordinateSites() {
 }
 
 function scrubHTML(input) {
-    let t = document.createElement('div');
-    t.innerHTML = input;
-    return t.innerText;
+    if(input == undefined) {
+        return '';
+    }
+    let t = new DOMParser().parseFromString(input, 'text/html').body;
+    while(input != t.textContent) {
+        return scrubHTML(t.textContent);
+    }
+    return t.textContent;
 }
 
 var clicked = false;
