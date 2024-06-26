@@ -1,5 +1,5 @@
 <?php
-  $result = exec("mvn test -Dbrowser=remote", $output, $return_var);
+  $result = exec("mvn test", $output, $return_var);
   if ($return_var === 0) {
     // Output the results
     foreach ($output as $line) {

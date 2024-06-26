@@ -42,3 +42,5 @@ docker/nginx/nginx.conf
 libs/css/leaf.js
 
 x-test/API-tests/result_cache/*
+
+*.log
