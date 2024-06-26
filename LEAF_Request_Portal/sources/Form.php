@@ -3180,17 +3180,18 @@ class Form
 
                     break;
                 case 'categoryID':
+                    if (!str_contains($joins,'lj_category_count')) {
+                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
+                    }
                     if ($q['operator'] != '!=')
                     {
                         // Backwards Compatibility
-                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
-                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID = :categoryID{$count}";
+                        $conditions .= "{$gate}lj_category_count.categoryID = :categoryID{$count}";
                     }
                     else
                     {
                         // Backwards Compatibility
-                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
-                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID != :categoryID{$count}";
+                        $conditions .= "{$gate}lj_category_count.categoryID != :categoryID{$count}";
                     }
 
                     break;
@@ -3233,8 +3234,8 @@ class Form
                             /*case 'destruction':
                                 $conditions .= "{$gate}(categories.destructionAge IS NOT NULL AND ".
                                     "records_workflow_state.stepID IS NULL AND submitted != 0)";
-                                if (!strpos($joins,'category_count')) {
-                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                if (!str_contains($joins,'lj_category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
                                 $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
@@ -3296,8 +3297,8 @@ class Form
                                 $conditions .= "{$gate}(categories.destructionAge IS NULL OR ".
                                     "(records_workflow_state.stepID IS NOT NULL OR submitted = 0)".
                                 ")";
-                                if (!strpos($joins,'category_count')) {
-                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                if (!str_contains($joins,'lj_category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
                                 $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
@@ -3700,8 +3701,10 @@ class Form
         $recordIDs = '';
         foreach ($res as $item)
         {
+            if(!isset($data[$item['recordID']])) {
+                $recordIDs .= $item['recordID'] . ',';
+            }
             $data[$item['recordID']] = $item;
-            $recordIDs .= $item['recordID'] . ',';
         }
         $recordIDs = trim($recordIDs, ',');
         $recordIDs = $recordIDs ?: 0;
