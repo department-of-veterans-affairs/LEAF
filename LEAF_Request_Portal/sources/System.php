@@ -596,7 +596,7 @@ class System
      * 
      * @return array
      */
-    public function getFileList(bool $getLastModified = false): array
+    public function getFileList(?bool $getLastModified = false): array
     {
         if (!$this->login->checkGroup(1))
         {
