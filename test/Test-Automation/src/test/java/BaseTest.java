@@ -17,7 +17,6 @@ import main.java.util.LoggerUtil;
 import main.java.util.MailUtil;
 import main.java.util.TestProperties;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
@@ -25,22 +24,36 @@ import java.util.Map;
 
 import static main.java.pages.BasePage.setExplicitWaitForElementToBeVisible;
 
+/**
+ * BaseTest class to be extended by all test classes.
+ * It contains setup and teardown methods for WebDriver and test reporting.
+ */
 @Listeners({ReportListener.class, LogListener.class})
 public class BaseTest {
 
+	/** The WebDriver instance. */
 	protected WebDriver driver;
 
+	/**
+	 * Global setup method that runs once before any test in the suite.
+	 * This method initializes logging and loads test properties.
+	 */
 	@BeforeSuite(alwaysRun = true)
 	public void globalSetup() {
 		LoggerUtil.log("************************** Test Execution Started ************************************");
 		try {
-			TestProperties.loadAllProperties();
+			TestProperties.loadAllProperties(); // Load all test properties
 		} catch (Exception e) {
 			LoggerUtil.log("Error loading properties: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Global teardown method that runs once after all tests in the suite.
+	 * This method logs the results and sends an email summary of the test execution.
+	 * @param context The test context containing information about the test execution.
+	 */
 	@AfterSuite(alwaysRun = true)
 	public void wrapAllUp(ITestContext context) {
 		int total = context.getAllTestMethods().length;
@@ -51,16 +64,25 @@ public class BaseTest {
 		LoggerUtil.log("Number of test cases Passed : " + passed);
 		LoggerUtil.log("Number of test cases Failed : " + failed);
 		LoggerUtil.log("Number of test cases Skipped  : " + skipped);
-		boolean mailSent = MailUtil.sendMail(total, passed, failed, skipped);
+		boolean mailSent = MailUtil.sendMail(total, passed, failed, skipped); // Send email with the test results
 		LoggerUtil.log("Mail sent : " + mailSent);
 		LoggerUtil.log("************************** Test Execution Finished ************************************");
 	}
 
+	/**
+	 * Setup method that runs before each test class.
+	 * Initializes the WebDriver based on the provided environment.
+	 *
+	 * @param env The environment (local or remote).
+	 * @param env_URL The URL of the environment.
+	 * @param Hub_Url The URL of the Selenium Hub.
+	 * @throws MalformedURLException If the Hub URL is malformed.
+	 */
 	@Parameters({"environment", "env_URL", "Hub_Url"})
 	@BeforeClass
 	protected void setup(@Optional("remote") String env, @Optional("http://host.docker.internal/LEAF_Request_Portal/admin/") String env_URL, @Optional("http://localhost:4444/wd/hub") String Hub_Url) throws MalformedURLException {
 
-		// Use environment variables as fallback
+		// Use environment variables as fallback if parameters are not provided
 		String environment = System.getenv().getOrDefault("ENVIRONMENT", env);
 		String envUrl = System.getenv().getOrDefault("ENV_URL", env_URL);
 		String hubUrl = System.getenv().getOrDefault("HUB_URL", Hub_Url);
@@ -75,23 +97,28 @@ public class BaseTest {
 		LoggerUtil.log("Environment URL: " + envUrl);
 		LoggerUtil.log("Hub URL: " + hubUrl);
 
+		// Initialize ChromeOptions
 		ChromeOptions ops = new ChromeOptions();
 		ops.addArguments("disable-infobars");
 
 		try {
+			// Setup WebDriver based on environment
 			if (environment.equalsIgnoreCase("local")) {
-				setupLocalDriver(ops);
+				setupLocalDriver(ops); // Local setup
 			} else if (environment.equalsIgnoreCase("remote")) {
-				setupRemoteDriver(hubUrl, ops);
+				setupRemoteDriver(hubUrl, ops); // Remote setup
 			}
 
+			// Set WebDriver instance in context for accessibility across the test
 			WebDriverContext.setDriver(driver);
 			LoggerUtil.log("WebDriver set in WebDriverContext.");
 
+			// Configure browser settings
 			driver.manage().window().maximize();
 			driver.manage().deleteAllCookies();
 			driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
 
+			// Navigate to the specified URL
 			navigateToUrl(envUrl);
 			LoggerUtil.log("Setup completed");
 
@@ -101,13 +128,24 @@ public class BaseTest {
 		}
 	}
 
-
+	/**
+	 * Sets up a local ChromeDriver instance.
+	 *
+	 * @param ops ChromeOptions for the ChromeDriver.
+	 */
 	private void setupLocalDriver(ChromeOptions ops) {
-		WebDriverManager.chromedriver().setup();
-		driver = new ChromeDriver(ops);
+		WebDriverManager.chromedriver().setup(); // Setup ChromeDriver using WebDriverManager
+		driver = new ChromeDriver(ops); // Initialize ChromeDriver with options
 		LoggerUtil.log("Local ChromeDriver session created successfully.");
 	}
 
+	/**
+	 * Sets up a remote WebDriver instance.
+	 *
+	 * @param hubUrl The URL of the Selenium Hub.
+	 * @param ops ChromeOptions for the ChromeDriver.
+	 * @throws MalformedURLException If the Hub URL is malformed.
+	 */
 	private void setupRemoteDriver(String hubUrl, ChromeOptions ops) throws MalformedURLException {
 		DesiredCapabilities capabilities = new DesiredCapabilities();
 		capabilities.setCapability("timeouts", Map.of(
@@ -118,7 +156,7 @@ public class BaseTest {
 		capabilities.setCapability(ChromeOptions.CAPABILITY, ops);
 		LoggerUtil.log("Creating RemoteWebDriver session with URL: " + hubUrl);
 		try {
-			driver = new RemoteWebDriver(new URL(hubUrl), capabilities);
+			driver = new RemoteWebDriver(new URL(hubUrl), capabilities); // Initialize RemoteWebDriver with capabilities
 			LoggerUtil.log("RemoteWebDriver session created successfully.");
 		} catch (Exception e) {
 			LoggerUtil.log("Failed to create RemoteWebDriver session: " + e.getMessage());
@@ -126,10 +164,16 @@ public class BaseTest {
 		}
 	}
 
+	/**
+	 * Navigates to the given URL and handles the security warning.
+	 *
+	 * @param url The URL to navigate to.
+	 */
 	private void navigateToUrl(String url) {
-		driver.get(url);
+		driver.get(url); // Navigate to the URL
 		LoggerUtil.log("Navigated to URL: " + url);
 		try {
+			// Handle potential security warning
 			WebElement detailsButton = driver.findElement(By.xpath("//button[@id='details-button']"));
 			detailsButton.click();
 			WebElement proceedLink = driver.findElement(By.id("proceed-link"));
@@ -141,13 +185,17 @@ public class BaseTest {
 		}
 	}
 
+	/**
+	 * Teardown method that runs after each test class.
+	 * Cleans up the WebDriver instance.
+	 */
 	@AfterClass(alwaysRun = true)
 	public void wrapUp() {
 		if (driver != null) {
-			driver.quit();
+			driver.quit(); // Close and quit WebDriver
 			LoggerUtil.log("WebDriver session terminated.");
 		}
-		WebDriverContext.removeDriver();
+		WebDriverContext.removeDriver(); // Remove WebDriver from context
 		LoggerUtil.log("WebDriver removed from WebDriverContext.");
 	}
 }
