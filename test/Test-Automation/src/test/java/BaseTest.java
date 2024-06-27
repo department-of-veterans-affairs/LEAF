@@ -13,11 +13,11 @@ import org.testng.annotations.*;
 import main.java.context.WebDriverContext;
 import main.java.listeners.LogListener;
 import main.java.listeners.ReportListener;
-import main.java.pages.BasePage;
 import main.java.util.LoggerUtil;
 import main.java.util.MailUtil;
 import main.java.util.TestProperties;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
@@ -25,19 +25,11 @@ import java.util.Map;
 
 import static main.java.pages.BasePage.setExplicitWaitForElementToBeVisible;
 
-/**
- * Every test class should extend this class.
- *
- */
 @Listeners({ReportListener.class, LogListener.class})
 public class BaseTest {
 
-	/** The driver. */
 	protected WebDriver driver;
 
-	/**
-	 * Global setup.
-	 */
 	@BeforeSuite(alwaysRun = true)
 	public void globalSetup() {
 		LoggerUtil.log("************************** Test Execution Started ************************************");
@@ -49,11 +41,6 @@ public class BaseTest {
 		}
 	}
 
-	/**
-	 * Wrap all up.
-	 *
-	 * @param context the context
-	 */
 	@AfterSuite(alwaysRun = true)
 	public void wrapAllUp(ITestContext context) {
 		int total = context.getAllTestMethods().length;
@@ -69,61 +56,98 @@ public class BaseTest {
 		LoggerUtil.log("************************** Test Execution Finished ************************************");
 	}
 
-	/**
-	 * Setup.
-	 */
 	@Parameters({"environment", "env_URL", "Hub_Url"})
 	@BeforeClass
-	protected void setup(@Optional("local") String env, @Optional("https://host.docker.internal/LEAF_Request_Portal/admin/") String env_URL, @Optional("") String Hub_Url) throws MalformedURLException {
+	protected void setup(@Optional("remote") String env, @Optional("http://host.docker.internal/LEAF_Request_Portal/admin/") String env_URL, @Optional("http://localhost:4444/wd/hub") String Hub_Url) throws MalformedURLException {
+
+		// Use environment variables as fallback
+		String environment = System.getenv().getOrDefault("ENVIRONMENT", env);
+		String envUrl = System.getenv().getOrDefault("ENV_URL", env_URL);
+		String hubUrl = System.getenv().getOrDefault("HUB_URL", Hub_Url);
+
+		// Add this conditional check to differentiate between running inside and outside the container
+		if (environment.equalsIgnoreCase("remote") && !System.getenv().containsKey("ENVIRONMENT")) {
+			hubUrl = "http://localhost:4445/wd/hub"; // Default to internal container Hub URL
+		}
+
+		LoggerUtil.log("Setup started");
+		LoggerUtil.log("Environment: " + environment);
+		LoggerUtil.log("Environment URL: " + envUrl);
+		LoggerUtil.log("Hub URL: " + hubUrl);
+
 		ChromeOptions ops = new ChromeOptions();
 		ops.addArguments("disable-infobars");
 
-		if (env.equalsIgnoreCase("local")) {
-			WebDriverManager.chromedriver().setup();
-			driver = new ChromeDriver(ops);
-		} else if (env.equalsIgnoreCase("remote")) {
-			DesiredCapabilities capabilities = new DesiredCapabilities();
-			capabilities.setCapability("timeouts", Map.of(
-					"implicit", 5000,
-					"pageLoad", 60000,
-					"script", 10000
-			));
-			capabilities.setCapability(ChromeOptions.CAPABILITY, ops);
-			driver = new RemoteWebDriver(new URL(Hub_Url), capabilities);
-		}
+		try {
+			if (environment.equalsIgnoreCase("local")) {
+				setupLocalDriver(ops);
+			} else if (environment.equalsIgnoreCase("remote")) {
+				setupRemoteDriver(hubUrl, ops);
+			}
 
-		WebDriverContext.setDriver(driver);
-		driver.manage().window().maximize();
-		driver.manage().deleteAllCookies();
-		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
+			WebDriverContext.setDriver(driver);
+			LoggerUtil.log("WebDriver set in WebDriverContext.");
 
-		if (env.equalsIgnoreCase("local")) {
-			driver.get(env_URL);
-			driver.findElement(By.xpath("//button[@id='details-button']")).click();
-			WebElement proceed_link = driver.findElement(By.id("proceed-link"));
-			setExplicitWaitForElementToBeVisible(proceed_link, 60);
-			proceed_link.click();
-		}
-		else {
-			driver.get(env_URL);
-			driver.findElement(By.xpath("//button[@id='details-button']")).click();
-			WebElement proceed_link = driver.findElement(By.id("proceed-link"));
-			setExplicitWaitForElementToBeVisible(proceed_link, 60);
-			proceed_link.click();
-		}
+			driver.manage().window().maximize();
+			driver.manage().deleteAllCookies();
+			driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
 
-		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
+			navigateToUrl(envUrl);
+			LoggerUtil.log("Setup completed");
+
+		} catch (Exception e) {
+			LoggerUtil.log("Setup failed: " + e.getMessage());
+			throw e;
+		}
 	}
 
 
-	/**
-	 * Wrap up.
-	 */
+	private void setupLocalDriver(ChromeOptions ops) {
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver(ops);
+		LoggerUtil.log("Local ChromeDriver session created successfully.");
+	}
+
+	private void setupRemoteDriver(String hubUrl, ChromeOptions ops) throws MalformedURLException {
+		DesiredCapabilities capabilities = new DesiredCapabilities();
+		capabilities.setCapability("timeouts", Map.of(
+				"implicit", 5000,
+				"pageLoad", 60000,
+				"script", 10000
+		));
+		capabilities.setCapability(ChromeOptions.CAPABILITY, ops);
+		LoggerUtil.log("Creating RemoteWebDriver session with URL: " + hubUrl);
+		try {
+			driver = new RemoteWebDriver(new URL(hubUrl), capabilities);
+			LoggerUtil.log("RemoteWebDriver session created successfully.");
+		} catch (Exception e) {
+			LoggerUtil.log("Failed to create RemoteWebDriver session: " + e.getMessage());
+			throw e;
+		}
+	}
+
+	private void navigateToUrl(String url) {
+		driver.get(url);
+		LoggerUtil.log("Navigated to URL: " + url);
+		try {
+			WebElement detailsButton = driver.findElement(By.xpath("//button[@id='details-button']"));
+			detailsButton.click();
+			WebElement proceedLink = driver.findElement(By.id("proceed-link"));
+			setExplicitWaitForElementToBeVisible(proceedLink, 60);
+			proceedLink.click();
+			LoggerUtil.log("Clicked through security warning");
+		} catch (Exception e) {
+			LoggerUtil.log("Security warning elements not found or could not be clicked: " + e.getMessage());
+		}
+	}
+
 	@AfterClass(alwaysRun = true)
 	public void wrapUp() {
 		if (driver != null) {
-			driver.close();
 			driver.quit();
+			LoggerUtil.log("WebDriver session terminated.");
 		}
+		WebDriverContext.removeDriver();
+		LoggerUtil.log("WebDriver removed from WebDriverContext.");
 	}
 }

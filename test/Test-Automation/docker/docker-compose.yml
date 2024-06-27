@@ -1,3 +1,4 @@
+version: '3'
 services:
   test-api:
     image: test-api:latest
@@ -14,6 +15,12 @@ services:
       - ./index.php:/app/index.php
       - ../src:/app/src
       - ../testng.xml:/app/testng.xml
+    depends_on:
+      - chrome
+    environment:
+      - ENVIRONMENT=remote
+      - ENV_URL=http://host.docker.internal/LEAF_Request_Portal/admin/
+      - HUB_URL=http://selenium-chrome:4445/wd/hub
 
   chrome:
     image: custom-selenium-chrome
@@ -30,9 +37,9 @@ services:
       - SE_NODE_MAX_INSTANCES=2
       - SE_NODE_MAX_SESSIONS=2
       - SE_NODE_OVERRIDE_MAX_SESSIONS=true
-      - SE_NODE_SESSION_TIMEOUT=600  # Increased session timeout
-      - SE_SESSION_REQUEST_TIMEOUT=60000  # Increased request timeout
-      - SE_SESSION_RETRY_INTERVAL=5000  # Increased retry interval
+      - SE_NODE_SESSION_TIMEOUT=600
+      - SE_SESSION_REQUEST_TIMEOUT=60000
+      - SE_SESSION_RETRY_INTERVAL=5000
     healthcheck:
       test: curl --fail http://localhost:4445/wd/hub/status || exit 1
       interval: 5s
@@ -41,6 +48,5 @@ services:
 
 networks:
   ui-test:
-    name: ui-test
   leaf:
     external: true
