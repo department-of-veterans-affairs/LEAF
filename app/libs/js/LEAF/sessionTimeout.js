@@ -15,7 +15,7 @@ var LeafSession_lastActiveTime = Math.round(Date.now() / 1000);
 function LeafSessionTimeout() {
     document.querySelector('body').insertAdjacentHTML('beforeend', '<div id="LeafSession_dialog" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6)">'
         + '<div style="background-color: #fffdcf; margin: 20% auto; padding: 16px; width: 70%; border: 1px solid black; font-size: 20px; text-align: center">Your session will expire soon if you remain inactive.'
-        + '<br /><br /><button id="LeafSession_dialog_moreTime" class="buttonNorm" style="font-size: 24px">I need more time</button></div>'
+        + '<br />Press any key or move the mouse to extend your session.<br /><br /><button id="LeafSession_dialog_moreTime" class="buttonNorm" style="font-size: 24px">I need more time</button></div>'
         + '</div>');
 
     function handleErrors(res) {

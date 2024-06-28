@@ -74,7 +74,8 @@ switch ($action) {
                 $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
                 $t_form->assign('form', $indicator);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
-                $t_form->assign('orgchartImportTag', LEAF_SETTINGS['orgchartImportTags'][0]);
+                $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
+                $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
                 $t_form->assign('max_filesize', ini_get('upload_max_filesize'));
                 $t_form->display(customTemplate('ajaxForm.tpl'));
@@ -105,6 +106,7 @@ switch ($action) {
                 $indicator = $form->getIndicator($indicatorID, $series, $recordID);
                 $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+                $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
                 $t_form->display('print_subindicators_ajax.tpl');
             }
         }
@@ -209,14 +211,6 @@ switch ($action) {
         else
         {
             echo 'Form is incomplete';
-        }
-
-        break;
-    case 'cancel':
-        /* This endpoint has been deprecated as of 8/31/2023 */
-        if (is_numeric($_POST['cancel']))
-        {
-            echo $form->deleteRecord((int)$_POST['cancel']);
         }
 
         break;
@@ -385,6 +379,7 @@ switch ($action) {
             $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+            $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
             $t_form->assign('is_admin', $login->checkGroup(1));
 
             switch ($action) {
@@ -426,7 +421,7 @@ switch ($action) {
                 $tabText = 'Request #' . (int)$_GET['recordID'];
                 $main->assign('tabText', $tabText);
 
-                $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
+                $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" />');
 
                 $main->assign('login', $t_login->fetch('login.tpl'));
                 $main->assign('app_js_path', APP_JS_PATH);

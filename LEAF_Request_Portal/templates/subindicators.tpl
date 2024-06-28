@@ -27,8 +27,11 @@
             </label>
             <!--{else}-->
             <span <!--{if $indicator.format == null || $indicator.format == 'fileupload' || $indicator.format == 'image' }-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
-                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: #d00;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
+                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><br />
             </span>
+            <!--{/if}-->
+            <!--{if $indicator.format == ''}-->
+                <!--{$indicator.html}-->
             <!--{/if}-->
             </div>
         <!--{else}-->
@@ -46,8 +49,7 @@
                     <!--{/if}-->
             </span>
             <!--{/if}-->
-            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="sensitive. Click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
-                <!--{/if}-->
+        <!--{/if}-->
         </div>
         <div class="response blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
         <!--{if $indicator.isMasked == 1 && $indicator.value != ''}-->
@@ -277,6 +279,7 @@
                             selected: values.some(v => decodeHTMLEntities(v) === o)
                         }));
                         const choices = new Choices(elSelect, {
+                            placeholderValue: 'Type here to search',
                             allowHTML: false,
                             removeItemButton: true,
                             editItems: true,
@@ -373,7 +376,7 @@
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
-                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
@@ -451,7 +454,7 @@
             <span class="text" style="position:relative;">
                 <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="background: url(dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value|sanitize}-->" />
                 <input class="ui-helper-hidden-accessible" id="<!--{$indicator.indicatorID|strip_tags}-->_focusfix" type="text" />
-                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Incorrect Date</span>
+                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Date formatted incorrectly</span>
             </span>
             <script>
             $(function() {
@@ -555,7 +558,7 @@
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
-                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
@@ -725,7 +728,7 @@
                             formData.append('series', series);
                             $.ajax({
                                 type: 'POST',
-                                url: `./api/form/${recordID}`,
+                                url: `<!--{$portal_url}-->api/form/${recordID}`,
                                 data: formData,
                                 success: (res) => {
                                     loaderEl.style.display = 'none';
@@ -773,7 +776,7 @@
                         <div id="file_<!--{$recordID|strip_tags}-->_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->_<!--{$counter}-->" 
                             style="background-color:<!--{if $counter % 2 == 1}-->#e4f2ff<!--{else}-->#d7e5ff<!--{/if}-->; padding: 4px; display: flex; align-items: center" >
                             <img src="dynicons/?img=mail-attachment.svg&amp;w=16" alt="" /> 
-                            <a href="file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
+                            <a href="<!--{$portal_url}-->file.php?form=<!--{$recordID|strip_tags}-->&amp;id=<!--{$indicator.indicatorID|strip_tags}-->&amp;series=<!--{$indicator.series|strip_tags}-->&amp;file=<!--{$counter}-->" target="_blank"><!--{$file|sanitize}--></a>
                             <span style="display: inline-block; margin-left: auto; padding: 4px">
                                 <button type="button" class="link"
                                     title="delete file <!--{$file|sanitize}-->"
@@ -789,7 +792,7 @@
                                 dialog_confirm.setSaveHandler(function() {
                                     $.ajax({
                                         type: 'POST',
-                                        url: "ajaxIndex.php?a=deleteattachment&recordID=<!--{$recordID|strip_tags}-->&indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&series=<!--{$indicator.series|strip_tags}-->",
+                                        url: "<!--{$portal_url}-->ajaxIndex.php?a=deleteattachment&recordID=<!--{$recordID|strip_tags}-->&indicatorID=<!--{$indicator.indicatorID|strip_tags}-->&series=<!--{$indicator.series|strip_tags}-->",
                                         data: {
                                             recordID: <!--{$recordID|strip_tags}-->,
                                             indicatorID: <!--{$indicator.indicatorID|strip_tags}-->,

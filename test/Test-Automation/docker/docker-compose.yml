@@ -1,0 +1,46 @@
+services:
+  test-api:
+    image: test-api:latest
+    container_name: test-api
+    build:
+      context: ./..
+      dockerfile: docker/test-api.dockerfile
+    env_file:
+      - ./leaf_selenium.env
+    networks:
+      - leaf
+      - ui-test
+    volumes:
+      - ./index.php:/app/index.php
+      - ../src:/app/src
+      - ../testng.xml:/app/testng.xml
+
+  chrome:
+    image: custom-selenium-chrome
+    container_name: selenium-chrome
+    networks:
+      - ui-test
+      - leaf
+    ports:
+      - "4445:4445"
+      - "5900:5900"
+      - "7900:7900"
+    shm_size: '2g'
+    environment:
+      - SE_NODE_MAX_INSTANCES=2
+      - SE_NODE_MAX_SESSIONS=2
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - SE_NODE_SESSION_TIMEOUT=600  # Increased session timeout
+      - SE_SESSION_REQUEST_TIMEOUT=60000  # Increased request timeout
+      - SE_SESSION_RETRY_INTERVAL=5000  # Increased retry interval
+    healthcheck:
+      test: curl --fail http://localhost:4445/wd/hub/status || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+networks:
+  ui-test:
+    name: ui-test
+  leaf:
+    external: true

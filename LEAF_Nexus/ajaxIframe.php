@@ -41,11 +41,11 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6') || strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 7'))
 {
-    $main->assign('logo', '<img src="images/VA_icon_small_ie6.png" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
+    $main->assign('logo', '<img src="images/VA_icon_small_ie6.png" alt="VA seal, U.S. Department of Veterans Affairs" />');
 }
 else
 {
-    $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
+    $main->assign('logo', '<img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" />');
 }
 
 $t_login->assign('name', XSSHelpers::xscrub($oc_login->getName()));

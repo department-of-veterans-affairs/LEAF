@@ -6,15 +6,13 @@ export default {
         'focusedFormRecord',
         'siteSettings',
         'noForm',
+        'mainFormID',
 
         'openFormHistoryDialog',
         'openConfirmDeleteFormDialog',
+        'openEditCollaboratorsDialog',
     ],
     computed: {
-        mainFormID() {
-            return this.focusedFormRecord?.parentID === '' ?
-                this.focusedFormRecord.categoryID : this.focusedFormRecord?.parentID || '';
-        },
         /**
          * @returns {array} of categories records that are internal forms of the main form
          */
@@ -100,6 +98,11 @@ export default {
                 <li>
                     <button type="button" @click="openFormHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history">
                         <span role="img" aria="" alt="">🕗&nbsp;</span>View History
+                    </button>
+                </li>
+                <li>
+                    <button type="button" @click="openEditCollaboratorsDialog" title="Edit Special Write Access">
+                        <span role="img" aria="" alt="">🔒&nbsp;</span>Customize Write Access
                     </button>
                 </li>
                 <li>

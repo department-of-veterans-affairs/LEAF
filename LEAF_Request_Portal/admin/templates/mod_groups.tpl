@@ -307,7 +307,7 @@ function populateMembers(groupID, members) {
     let memberCt = -1;
     let adminCt = (members.length - 1);
     for(let i in members) {
-        if(members[i].active == 1 && members[i].backupID == "") {
+        if(members[i].active == 1) {
             memberCt++;
         }
     }
@@ -315,7 +315,7 @@ function populateMembers(groupID, members) {
     let countTxt = (memberCt > 0) ? (' + ' + memberCt + ' others') : '';
     let countAdminTxt = (adminCt > 0) ? (' + ' + adminCt + ' others') : '';
     for(let i in members) {
-        if (members[i].active == 1 && members[i].backupID == "" && groupID != 1) {
+        if (members[i].active == 1 && groupID != 1) {
             if (j == 0) {
                 $('#members' + groupID).append('<div class="groupUserFirst">' + toTitleCase(members[i].Fname) + ' ' + toTitleCase(members[i].Lname) + countTxt + '</div>');
             }
@@ -505,10 +505,9 @@ function getGroupList() {
                     function openGroup(groupID, parentGroupID, groupName) {
                         $.ajax({
                             type: 'GET',
-                            url: '../api/group/' + groupID + '/membersWBackups',
-                            success: function(response) {
-                                if (response.status.code == 2) {
-                                    let res = response.data;
+                            url: '../api/group/' + groupID + '/members',
+                            success: function(res) {
+                                if (Array.isArray(res)) {
                                     dialog.clear();
                                     dialog.setTitle("Edit Group");
                                     let button_deleteGroup = '<div><button id="deleteGroup_' + groupID + '" class="usa-button usa-button--secondary leaf-btn-small leaf-marginTop-1rem">Delete Group</button></div>';
@@ -517,18 +516,17 @@ function getGroupList() {
                                         '<a class="leaf-group-link" href="<!--{$orgchartPath}-->/?a=view_group&groupID=' + groupID + '" title="groupID: ' + groupID + '" target="_blank"><h2 role="heading" tabindex="-1">' + groupName + '</h2></a><br /><h3 role="heading" tabindex="-1" class="leaf-marginTop-1rem">Add Employee</h3><div id="employeeSelector"></div><br/><br/><hr/><div id="employees"></div>');
 
                                     $('#employees').html('<div id="employee_table" style="display: table-header-group"></div><br /><div id="showInactive" class="fas fa-angle-right" style="cursor: pointer;"></div><div id="inactive_table" style="display: none"></div>');
-                                    let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Nexus</th><th>Actions</th></tr></thead><tbody>';
-                                    let inactive_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Local</th><th>Nexus</th><th>Actions</th></tr></thead><tbody>';
+                                    let employee_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th title="Inherited from Nexus" style="text-align: center;">Inherited</th><th style="text-align: center;">Actions</th></tr></thead><tbody>';
+                                    let inactive_table = '<br/><table class="table-bordered"><thead><tr><th>Name</th><th>Username</th><th>Backups</th><th>Actions</th></tr></thead><tbody>';
                                     let counter = 0;
                                     for(let i in res) {
                                         if (res[i].backupID == '') {
                                             let employeeName = `<td class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 700;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${toTitleCase(res[i].Lname)}, ${toTitleCase(res[i].Fname)}</a></td>`;
                                             let employeeUserName = `<td  class="leaf-user-link" title="${res[i].empUID} - ${res[i].userName}" style="font-size: 1em; font-weight: 600;"><a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${res[i].empUID}" target="_blank">${res[i].userName}</a></td>`;
                                             let backups = `<td style="font-size: 0.8em">`;
-                                            let isLocal = `<td style="font-size: 0.8em;">${res[i].locallyManaged > 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
-                                            let isRegional = `<td style="font-size: 0.8em;">${res[i].regionallyManaged ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
-                                            let removeButton = `<td style="font-size: 0.8em; text-align: center;"><button id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Remove this user from this group">Remove</button>`;
-                                            let addToNexusButton = `<button id="addNexusMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; margin-left: 2px !important; min-width: 4rem;" title="Add this user to Nexus group">Add to Nexus</button>`;
+                                            let isInherited = `<td style="font-size: 0.8em; text-align: center;">${res[i].locallyManaged == 0 ? '<span style="color: green; font-size: 1.2rem; margin: 1rem;">&#10004;</span>' : ''}</td>`;
+                                            let addToNexus = `${res[i].locallyManaged != 0 ? `<button type="button" id="addNexusMember_${counter}" class="usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; margin: auto; min-width: 4rem;" title="Add this user to Nexus group">Add to Nexus</button>` : ''}`;
+                                            let removeButton = `<td style="font-size: 0.8em; text-align: center;">${addToNexus}<button type="button" id="removeMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; min-width: 4rem;" title="Remove this user from this group">Remove</button>`;
 
                                             // Check for Backups
                                             for (let j in res) {
@@ -541,21 +539,14 @@ function getGroupList() {
 
                                             if (res[i].active === 1) {
                                                 let actions = `${removeButton}`;
-                                                if (res[i].regionallyManaged === false) {
-                                                    actions += `${addToNexusButton}`;
-                                                }
+
                                                 actions += '</td>';
-                                                employee_table += `<tr class="id-${res[i].empUID}">${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
+                                                employee_table += `<tr class="id-${res[i].empUID}">${employeeName}${employeeUserName}${backups}${isInherited}${actions}</tr>`;
                                             } else {
-                                                let pruneMemberButton = '';
-                                                if (res[i].regionallyManaged === false) {
-                                                    pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="pruneMember_${counter}" class="usa-button usa-button--secondary leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Prune this user from this group">Prune</button>`;
-                                                } else {
-                                                    pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="reActivateMember_${counter}" class="usa-button usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Reactivate this user for this group">Reactivate</button>`;
-                                                }
+                                                let pruneMemberButton = `<td style="font-size: 0.8em; text-align: center;"><button id="reActivateMember_${counter}" class="usa-button usa-button leaf-btn-small leaf-font0-8rem" style="font-size: 0.8em; display: inline-block; float: left; margin: auto; min-width: 4rem;" title="Reactivate this user for this group">Reactivate</button>`;
                                                 let actions = `${pruneMemberButton}`;
                                                 actions += '</td>';
-                                                inactive_table += `<tr>${employeeName}${employeeUserName}${backups}${isLocal}${isRegional}${actions}</tr>`;
+                                                inactive_table += `<tr>${employeeName}${employeeUserName}${backups}${actions}</tr>`;
                                             }
                                             counter++;
                                         }
@@ -592,6 +583,7 @@ function getGroupList() {
                                                     dialog_confirm.setContent('Are you sure you want to add this member to Nexus group?');
                                                     dialog_confirm.setSaveHandler(function () {
                                                         addNexusMember(groupID, res[i].empUID);
+                                                        reactivateMember(groupID, res[i].userName);
                                                         dialog_confirm.hide();
                                                         dialog.hide();
                                                     });
@@ -609,13 +601,8 @@ function getGroupList() {
                                                 });
 
                                                 $('#reActivateMember_' + counter).on('click', function () {
-                                                    dialog_confirm.setContent('Are you sure you want to Reactivate this member?');
-                                                    dialog_confirm.setSaveHandler(function () {
-                                                        reactivateMember(groupID, res[i].userName);
-                                                        dialog_confirm.hide();
-                                                        dialog.hide();
-                                                    });
-                                                    dialog_confirm.show();
+                                                    reactivateMember(groupID, res[i].userName);
+                                                    dialog.hide();
                                                 });
                                             }
                                             counter++;
@@ -728,7 +715,7 @@ function getGroupList() {
                                                             row.style.backgroundColor = "#aea";
                                                             row.classList.add(`id-${selectedUser.empUID}`);
                                                             row.classList.add(`user-to-add`);
-                                                            
+
                                                             let employeeName = row.insertCell(0);
                                                             employeeName.classList.add("leaf-user-link");
                                                             employeeName.title = `${selectedUser.empUID} - ${selectedUser.userName}`;
@@ -741,9 +728,8 @@ function getGroupList() {
 
                                                             let backups = row.insertCell(2);
                                                             let isLocal = row.insertCell(3);
-                                                            let isRegional = row.insertCell(4);
 
-                                                            let removeButton = row.insertCell(5);
+                                                            let removeButton = row.insertCell(4);
                                                             removeButton.style.cssText = "font-size: 0.8em; text-align: center;";
 
                                                             employeeName.innerHTML = `+ <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=${selectedUser.empUID}" target="_blank">${toTitleCase(selectedUser.lastName)}, ${toTitleCase(selectedUser.firstName)}</a>`;
@@ -808,7 +794,7 @@ function getGroupList() {
                                         dialog.show();
                                     }, 0);
                                 } else {
-                                    displayDialogOk(response.status['message']);
+                                    displayDialogOk(res);
                                 }
                             },
                             cache: false

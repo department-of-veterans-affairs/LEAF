@@ -22,9 +22,9 @@ LEAF_Request_Portal/files/custom_dev*
 LEAF_Request_Portal/files/temp_leaf_timeline_data.txt
 
 LEAF_Request_Portal/templates/custom_override/*
-LEAF_Request_Nexus/templates/custom_override/*
+LEAF_Nexus/templates/custom_override/*
 LEAF_Request_Portal/qrcode/cache/tmp*
-LEAF_Request_Nexus/qrcode/cache/tmp*
+LEAF_Nexus/qrcode/cache/tmp*
 
 LEAF_Request_Portal/sources/DbConfig.php
 libs/dynicons/cache/*.svg
@@ -40,3 +40,5 @@ LEAF_Request_Portal/UPLOADS
 
 docker/nginx/nginx.conf
 libs/css/leaf.js
+
+x-test/API-tests/result_cache/*

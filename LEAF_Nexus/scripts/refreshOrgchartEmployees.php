@@ -23,7 +23,7 @@ $globalDB = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB)
 $oc_login->loginUser();
 
 // prevent updating if orgchart is the same
-if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
+if (@strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
     echo 1; // success value
 } else {
 
@@ -34,11 +34,11 @@ if (strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
 
         $startTime = time();
         // echo "Refresh Orgchart Employees Start\n";
-        updateLocalOrgchartBatch();
+        $success = updateLocalOrgchartBatch();
 
         $endTime = time();
         // echo "Refresh Complete!\nCompletion time: " . date("U.v", $endTime-$startTime) . " seconds";
-        echo 1; // success value
+        echo (int)$success; // success value
     }
 }
 
@@ -137,7 +137,7 @@ function updateLocalOrgchartBatch()
     $localEmployees = OC_DB->query($localEmployeeSql);
 
     if (count($localEmployees) == 0) {
-        return;
+        return TRUE;
     }
 
     $localEmployeeUsernames = [];
@@ -149,14 +149,37 @@ function updateLocalOrgchartBatch()
 
     // chunk it so we can go over this data.
     $localEmployeeUsernamesChunked = array_chunk($localEmployeeUsernames, 100);
-
+    $loopDidnotFail = true;
     // loop over the chunked names so we can limit how much data this will be inserting at a time.
     foreach ($localEmployeeUsernamesChunked as $localEmployeeUsernames) {
         // get employees from the nexus based on the username
-        updateEmployeeDataBatch($localEmployeeUsernames);
+        $returnStatus = updateEmployeeDataBatch($localEmployeeUsernames);
+        if($returnStatus == false){
+            $loopDidnotFail = false;
+        }
     }
-}
 
+    return $loopDidnotFail;
+}
+/**
+ * @param getEmployeeUIDs array $localEmployeeUsernames
+ * @return [$localEmpUIDs,$localEmpArray]
+ */
+function getEmployeeUIDs(array $localEmployeeUsernames): array {
+    global $oc_db;
+
+    // get local empuids, need to gather employees that have been added.
+    $localEmployeeImplode = implode(",",array_fill(1, count($localEmployeeUsernames), '?'));
+    $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (". $localEmployeeImplode .")";
+    $localEmpUIDs = $oc_db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
+
+    $localEmpArray = [];
+    foreach ($localEmpUIDs as $localUsername) {
+        $localEmpArray[$localUsername['userName']] = $localUsername['empUID'];
+    }
+
+    return [$localEmpUIDs,$localEmpArray];
+}
 
 function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 {
@@ -177,25 +200,21 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
 
     // STEP 1: Get the employees updated
     // get org employees
+    $orgEmployeeImplode = implode(",", array_fill(1, count($localEmployeeUsernames), '?'));
     $orgEmployeeSql = "SELECT empUID, userName, lastName, firstName, middleName, phoneticLastName, phoneticFirstName, domain, deleted, lastUpdated
     		FROM employee
-    		WHERE userName IN (" . implode(",", array_fill(1, count($localEmployeeUsernames), '?')) . ")";
+    		WHERE userName IN (" . $orgEmployeeImplode . ")";
 
     $orgEmployeeRes = $globalDB->prepared_query($orgEmployeeSql, $localEmployeeUsernames);
 
     // get local empuids
-    $localEmployeeSql = "SELECT empUID, userName FROM employee WHERE userName IN (".implode(",",array_fill(1, count($localEmployeeUsernames), '?')).")";
-    $localEmpUIDs = OC_DB->prepared_query($localEmployeeSql,$localEmployeeUsernames);
-
-    $localEmpArray = [];
-    foreach ($localEmpUIDs as $localUsername) {
-        $localEmpArray[$localUsername['userName']] = $localUsername['empUID'];
-    }
+    list($localEmpUIDs,$localEmpArray) = getEmployeeUIDs($localEmployeeUsernames);
 
     //if for some reason there is no data, we need to stop right there.
     if (empty($orgEmployeeRes)) {
         return FALSE;
     }
+
     foreach ($orgEmployeeRes as $orgEmployee) {
 
         $nationalEmpUIDs[] = (int) $orgEmployee['empUID'];
@@ -215,7 +234,8 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     }
 
     $localDeletedEmployees = array_diff(array_column($localEmpUIDs, 'userName'), array_column($orgEmployeeRes, 'userName'));
-    $deletedEmployeesSql = "UPDATE employee SET deleted=UNIX_TIMESTAMP(NOW()) WHERE userName IN (" . implode(",", array_fill(1, count($localDeletedEmployees), '?')) . ")";
+    $deletedEmployeesImplode = implode(",", array_fill(1, count($localDeletedEmployees), '?'));
+    $deletedEmployeesSql = "UPDATE employee SET deleted=UNIX_TIMESTAMP(NOW()) WHERE userName IN (" . $deletedEmployeesImplode . ")";
 
     if (!empty($localDeletedEmployees)) {
         OC_DB->prepared_query($deletedEmployeesSql,array_values($localDeletedEmployees));
@@ -243,21 +263,36 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     if (empty($orgEmployeeDataRes)) {
         return FALSE;
     }
+
+    // regather employee data since we may have inserted items
+    list($localEmpUIDs,$localEmpArray) = getEmployeeUIDs($localEmployeeUsernames);
+
     foreach ($orgEmployeeDataRes as $orgEmployeeData) {
 
-        $localEmployeeDataArray[] = [
-            // this will need to be checked into further I cannot silence this warning without possibly breaking things.
-            'empUID' => $localEmpArray[$orgEmployeeData['userName']],
-            'indicatorID' => $orgEmployeeData['indicatorID'],
-            'data' => $orgEmployeeData['data'],
-            'author' => $orgEmployeeData['author'],
-            'timestamp' => $orgEmployeeData['timestamp'],
-        ];
+        // if this user is not found, we will skip adding data for them.
+        if (empty($localEmpArray[$orgEmployeeData['userName']])) {
+            continue;
+        }
+        else
+        {
+            $localEmployeeDataArray[] = [
+                'empUID' => $localEmpArray[$orgEmployeeData['userName']],
+                'indicatorID' => $orgEmployeeData['indicatorID'],
+                'data' => $orgEmployeeData['data'],
+                'author' => $orgEmployeeData['author'],
+                'timestamp' => $orgEmployeeData['timestamp'],
+            ];
+        }
+
+
     }
 
-    OC_DB->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
+    // make sure data array has data before attempting to insert data
+    if (!empty($localEmployeeDataArray)) {
+        $oc_db->insert_batch('employee_data',$localEmployeeDataArray,['indicatorID','data','author','timestamp']);
+    }
 
-
+    return TRUE;
 }
 
 /*

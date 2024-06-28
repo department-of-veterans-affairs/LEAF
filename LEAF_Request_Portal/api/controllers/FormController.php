@@ -255,11 +255,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/[digit]/cancel', function ($args) use ($form) {
-            return $form->deleteRecord((int)$args[0], $_POST['comment']);
-        });
-
-        $this->index['POST']->register('form/[digit]/delete', function ($args) use ($form) {
-            return $form->permanentlyDeleteRecord((int)$args[0]);
+            return $form->cancelRecord((int)$args[0], $_POST['comment']);
         });
 
         $this->index['POST']->register('form/[digit]/reminder/[digit]', function ($args) use ($form) {

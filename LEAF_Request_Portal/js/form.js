@@ -146,11 +146,22 @@ var LeafForm = function (containerID) {
       }
 
       let options = uniqueList.map(o => XSSHelpers.stripAllTags(o.trim()));
-
       if (!isLevel2 && options.length> 0 && dropdownInfo[iID].crosswalkHasHeader === true) {
         dropdownInfo[iID].headerName = options[0];
       }
-      return options.filter(o => o !== dropdownInfo[iID].headerName && o !== "").sort().reverse();
+      options = options.filter(o => o !== dropdownInfo[iID].headerName && o !== "");
+      options = options.sort(
+          (a, b) => a.localeCompare(
+            b,
+            undefined,
+            {
+              numeric: true,
+              sensitivity: 'base',
+            }
+          )
+      );
+      options = options.reverse();
+      return options;
     }
 
     function setSelectOptions(arrOptions = [], iID, formdata) {
@@ -262,7 +273,7 @@ var LeafForm = function (containerID) {
         }).catch(err => console.log('could not get file contents', err));
 
       } else {
-        console.log('unexpected number of crosswalk conditions.  check indicator condition entry')
+        console.log('unexpected number of crosswalk conditions.  check indicator condition entry for ', indID)
       }
     }
 
@@ -307,26 +318,13 @@ var LeafForm = function (containerID) {
 
     /**
      * returns true if any of the selected values are in the comparisonValues
-     * @param {array} multiChoiceElements array of option elements or checkboxes
+     * @param {array} multiChoiceSelections array of option values
      * @param {array} comparisonValues array of values to compare against
      * @returns
      */
-    const valIncludesMultiselOption = (
-      multiChoiceElements = [],
-      comparisonValues = []
-    ) => {
+    const valIncludesMultiselOption = (multiChoiceSelections = [], comparisonValues = []) => {
       let result = false;
-      //get the values associated with the selection elements
-      let vals = multiChoiceElements.map((sel) => {
-        if (sel?.label) {
-          //multiselect option
-          return sanitize(sel.label.replaceAll("\r", "").trim());
-        } else {
-          //checkboxes
-          return sanitize(sel.value.replaceAll("\r", "").trim());
-        }
-      });
-      vals.forEach((v) => {
+      multiChoiceSelections.forEach((v) => {
         if (comparisonValues.includes(v)) {
           result = true;
         }
@@ -347,7 +345,7 @@ var LeafForm = function (containerID) {
       elEmptyOption.selected = true;
     };
     /**
-     * used to get the sanitized input value for radio and dropdown parents
+     * used to get the sanitized input value for single option parent controllers
      * @param {*} pFormat format of the parent according to conditions object
      * @param {*} pIndID id of the parent according to the conditions object
      * @returns string.
@@ -355,17 +353,12 @@ var LeafForm = function (containerID) {
     const getParentValue = (pFormat = "", pIndID = 0) => {
       let val = "";
       if (pFormat === "radio") {
-        val =
-          sanitize(
-            document
-              .querySelector(`input[id^="${pIndID}_radio"]:checked`)
-              ?.value.trim()
-          ) || "";
+        val = document.querySelector(`input[id^="${pIndID}_radio"]:checked`)?.value || "";
       }
-      if (pFormat === "dropdown") {
-        val = sanitize(document.getElementById(pIndID)?.value.trim()) || "";
+      if (["dropdown", "currency", "number"].includes(pFormat)) {
+        val = document.getElementById(pIndID)?.value || "";
       }
-      return val;
+      return sanitize(val).trim();
     };
 
     /* clear out potential entries and set validator for hidden questions */
@@ -431,110 +424,87 @@ var LeafForm = function (containerID) {
         const parentComparisonValues = cond.selectedParentValue.trim();
         const outcome = cond.selectedOutcome.toLowerCase();
 
-        switch (cond.selectedOp) {
+        //multioption formats options will be a string of values separated with \n
+        const arrCompareValues = parentComparisonValues
+          .split("\n")
+          .map((option) => option.replaceAll("\r", "").trim());
+        //actual selected elements for multiselect and checkboxes (option or input elements)
+        const selectionElements = parentFormat === "multiselect" ?
+          Array.from(
+            document.getElementById(parent_id)?.selectedOptions || []
+          ) :
+          Array.from(
+            document.querySelectorAll(
+              `input[type="checkbox"][id^="${parent_id}"]:checked`
+            ) || []
+          );
+        const multiSelValues = selectionElements.map((sel) => {
+          return sel?.label ?   //multiselect : checkboxes
+            sanitize(sel.label.replaceAll("\r", "").trim()) :
+            sanitize(sel.value.replaceAll("\r", "").trim())
+        });
+        //selected value for a radio or single select dropdown
+        const parent_val = getParentValue(parentFormat, parent_id);
+        //make both arrays for consistency and filter out any empties
+        let val =  multiOptionFormats.includes(parentFormat) ? multiSelValues : [parent_val];
+        val = val.filter(v => v !== '');
+
+        let comparison = null;
+        const op = cond.selectedOp;
+        switch (op) {
           case "==":
-            //these are repetitive, but potentially more confusing in a method because of their alteration of variables and comparison differences between operators
-            if (multiOptionFormats.includes(parentFormat)) {
-              //values from the condition to compare against. For multioption formats this will be a string of values separated with \n
-              const arrCompareValues = parentComparisonValues
-                .split("\n")
-                .map((option) => option.replaceAll("\r", "").trim());
-              //actual selected elements for multiselect and checkboxes (option or input elements)
-              const selectionElements =
-                parentFormat === "multiselect"
-                  ? Array.from(
-                      document.getElementById(parent_id)?.selectedOptions || []
-                    )
-                  : Array.from(
-                      document.querySelectorAll(
-                        `input[type="checkbox"][id^="${parent_id}"]:checked`
-                      ) || []
-                    );
-              //hide and show should be mutually exclusive and only matter once, so don't continue if it has already become true
-              if (
-                ["hide", "show"].includes(outcome) &&
-                !hideShowConditionMet &&
-                valIncludesMultiselOption(selectionElements, arrCompareValues)
-              ) {
-                hideShowConditionMet = true;
-              }
-              //likewise if there are mult controllers for a prefill then they should have the same prefill value
-              if (
-                outcome === "pre-fill" &&
-                childPrefillValue === "" &&
-                valIncludesMultiselOption(selectionElements, arrCompareValues)
-              ) {
-                childPrefillValue = cond.selectedChildValue.trim();
-              }
-            } else {
-              const parent_val = getParentValue(parentFormat, parent_id);
-              if (
-                ["hide", "show"].includes(outcome) &&
-                !hideShowConditionMet &&
-                parentComparisonValues === parent_val
-              ) {
-                hideShowConditionMet = true;
-              }
-              if (
-                outcome === "pre-fill" &&
-                childPrefillValue === "" &&
-                parentComparisonValues === parent_val
-              ) {
-                childPrefillValue = cond.selectedChildValue.trim();
-              }
+          case "!=":
+            //define comparison for value equality checking
+            comparison = multiOptionFormats.includes(parentFormat) ?
+              valIncludesMultiselOption(val, arrCompareValues) :
+              val[0] !== undefined && val[0] === arrCompareValues[0];
+            if(op === "!=") {
+              comparison = !comparison;
             }
             break;
-          case "!=":
-            if (multiOptionFormats.includes(parentFormat)) {
-              const arrCompareValues = parentComparisonValues
-                .split("\n")
-                .map((option) => option.replaceAll("\r", "").trim());
-              const selectionElements =
-                parentFormat === "multiselect"
-                  ? Array.from(
-                      document.getElementById(parent_id)?.selectedOptions || []
-                    )
-                  : Array.from(
-                      document.querySelectorAll(
-                        `input[type="checkbox"][id^="${parent_id}"]:checked`
-                      ) || []
-                    );
-
-              if (
-                ["hide", "show"].includes(outcome) &&
-                !hideShowConditionMet &&
-                !valIncludesMultiselOption(selectionElements, arrCompareValues)
-              ) {
-                hideShowConditionMet = true;
-              }
-              if (
-                outcome === "pre-fill" &&
-                childPrefillValue === "" &&
-                !valIncludesMultiselOption(selectionElements, arrCompareValues)
-              ) {
-                childPrefillValue = cond.selectedChildValue.trim();
-              }
-            } else {
-              const parent_val = getParentValue(parentFormat, parent_id);
-              if (
-                ["hide", "show"].includes(outcome) &&
-                !hideShowConditionMet &&
-                parentComparisonValues !== parent_val
-              ) {
-                hideShowConditionMet = true;
-              }
-              if (
-                outcome === "pre-fill" &&
-                childPrefillValue === "" &&
-                parentComparisonValues !== parent_val
-              ) {
-                childPrefillValue = cond.selectedChildValue.trim();
+          case 'lt':
+          case 'lte':
+          case 'gt':
+          case 'gte':
+            const arrNumVals = val
+              .filter(v => !isNaN(v))
+              .map(v => +v);
+            const arrNumComp = arrCompareValues
+              .filter(v => !isNaN(v))
+              .map(v => +v);
+            const useOrEqual = op.endsWith('e');
+            const useGreaterThan = op.startsWith('g');
+            if(arrNumComp.length > 0) {
+              for (let i = 0; i < arrNumVals.length; i++) {
+                const currVal = arrNumVals[i];
+                if(useGreaterThan === true) {
+                  //unlikely to be set up with more than one comp val, but checking just in case
+                  comparison = useOrEqual === true ? currVal >= Math.max(...arrNumComp) : currVal > Math.max(...arrNumComp);
+                } else {
+                  comparison = useOrEqual === true ? currVal <= Math.min(...arrNumComp) : currVal < Math.min(...arrNumComp);
+                }
+                if(comparison === true) {
+                  break;
+                }
               }
             }
             break;
           default:
-            console.log(cond.selectedOp);
+            console.log(op);
             break;
+        }
+        if (
+          ["hide", "show"].includes(outcome) &&
+          comparison === true
+        ) {
+          hideShowConditionMet = true;
+        }
+        if (
+          outcome === "pre-fill" &&
+          childPrefillValue === "" &&
+          comparison === true
+        ) {
+          childPrefillValue = cond.selectedChildValue.trim();
         }
       });
 
@@ -653,7 +623,6 @@ var LeafForm = function (containerID) {
 
     //confirm that the parent indicators exist on the form (in case of archive/deletion)
     let confirmedParElsByIndID = [];
-    let notFoundParElsByIndID = [];
     let crosswalks = [];
     for (let entry in formConditionsByChild) {
       const formConditions = formConditionsByChild[entry].conditions || [];
@@ -667,29 +636,25 @@ var LeafForm = function (containerID) {
         } else {
           let parentEl = null;
           switch (c.parentFormat.toLowerCase()) {
-            case "radio": //radio buttons use indID_radio1, indID_radio2 etc
-              parentEl = document.querySelector(
-                `input[id^="${c.parentIndID}_radio"]`
-              );
+            case "radio":
+              parentEl = document.querySelector(`input[id^="${c.parentIndID}_radio"]`);
               break;
-            case "checkboxes": //checkboxes use indID_0, indID_1 etc
+            case "checkboxes":
               parentEl = document.querySelector(`input[id^="${c.parentIndID}_"]`);
               break;
-            default: //multisel, dropdown, text use input id=indID.
+            default: //multisel, dropdown, inputs
               parentEl = document.getElementById(c.parentIndID);
               break;
           }
           if (parentEl !== null) {
             confirmedParElsByIndID.push(parseInt(c.parentIndID));
           } else {
-            notFoundParElsByIndID.push(parseInt(c.parentIndID));
             console.log(`Element associated with controller ${c.parentIndID} was not found in the DOM`)
           }
         }
       });
     }
     confirmedParElsByIndID = Array.from(new Set(confirmedParElsByIndID));
-    notFoundParElsByIndID = Array.from(new Set(notFoundParElsByIndID));
     crosswalks = Array.from(new Set(crosswalks));
 
     /*filter: current format is not raw_data, current and saved formats match,
@@ -701,7 +666,7 @@ var LeafForm = function (containerID) {
       ].conditions.filter(c =>
         currentFormat !== 'raw_data' &&
         currentFormat === c.childFormat.toLowerCase() &&
-        !notFoundParElsByIndID.includes(parseInt(c.parentIndID))
+        (c.selectedOutcome === "crosswalk" || confirmedParElsByIndID.includes(+c.parentIndID))
       );
     }
     confirmedParElsByIndID.forEach((id) => {

@@ -23,12 +23,18 @@ $file_paths_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'nationa
 $site = new App\Leaf\Site($file_paths_db, $_SERVER['SCRIPT_FILENAME']);
 
 if ($site->error) {
-    throw new Exception("Sorry the page you are looking for could not be found, please check the url and try again.");
+    http_response_code(404);
+    die();
 } else {
     $my_path = $site->getPortalPath();
     if (!defined('PORTAL_PATH')) define('PORTAL_PATH', $my_path);
     if (!defined('LEAF_NEXUS_URL')) define('LEAF_NEXUS_URL', getenv('APP_URL_NEXUS') . trim($my_path) . '/');
     $site_paths = $site->getSitePath();
+
+    if (isset($site_paths['decommissionTimestamp']) && $site_paths['decommissionTimestamp'] > 0) {
+        http_response_code(404);
+        die();
+    }
 }
 
 /** Here down is old loader stuff, will be deprecated once we can verify that they are no longer being used. */

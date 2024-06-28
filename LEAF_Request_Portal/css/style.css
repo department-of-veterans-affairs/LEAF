@@ -211,7 +211,7 @@ span#headerHelp {
   position: absolute;
   top: 8px;
   right: 10px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: normal;
 }
 
@@ -226,10 +226,82 @@ span#headerLogin {
 
 span#headerMenu {
   position: relative;
-  top: 55px;
+  top: 53px;
   float: right;
   font-size: 12px;
   font-weight: normal;
+}
+
+table .btn_leaf_grid_sort {
+  cursor: pointer;
+  padding: 4px;
+  margin: 0;
+  border: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+}
+
+/* menu.tpl elements include nav and 1st level ul */
+#headerMenuNav {
+  font-size: 12px;
+}
+#headerMenuNav > ul {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+#headerMenu > nav > ul > li {
+  box-sizing: border-box;
+  height: 24px;
+  margin: 0;
+}
+#headerMenu .controlled-element {
+  position: absolute;
+  top: calc(100% - 2px);
+}
+#headerMenu .controlled-element.is-shown {
+  display: block;
+}
+#headerMenuNav > ul > li > button,
+#headerMenuNav > ul > li > a {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0.25rem;
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  text-decoration: none;
+  color: black;
+}
+#headerMenuNav > ul > li > button:hover,
+#headerMenuNav > ul > li > button:focus,
+#headerMenuNav > ul > li > button:active,
+#headerMenuNav > ul > li > a:hover,
+#headerMenuNav > ul > li > a:focus,
+#headerMenuNav > ul > li > a:active {
+  color: white;
+}
+#headerMenu_links a {
+  display: block;
+}
+/* menu_links.tpl */
+ul#headerMenu_links_list {
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+}
+/* menu_help.tpl */
+#help_admin_info {
+  padding: 0.5rem 0 0 0;
+  line-height: 1.6;
 }
 
 #headerMenu > a,
@@ -270,8 +342,8 @@ span#headerMenu {
   display: none;
   position: absolute;
   background-color: white;
-  box-shadow: 0 2px 60px #8e8e8e;
-  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,25,0.2);
+  padding: 0.5em 0.75em;
   border: 1px solid black;
   right: 0px;
   z-index: 100;
@@ -497,6 +569,7 @@ span.printResponse {
   letter-spacing: 0.01rem;
   line-height: 150%;
   color: rgba(0, 0, 0, 0.8);
+  word-break: break-word;
 }
 
 div.printResponse::-webkit-scrollbar {
@@ -607,26 +680,56 @@ table.agenda {
 }
 
 table.leaf_grid {
-  border: 1px solid black;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin: 2px;
 }
 
 table.leaf_grid th {
   font-weight: normal;
-  border: 1px solid white;
   padding: 4px 2px 4px 2px;
   font-size: 12px;
   background-color: rgb(209, 223, 255);
+  border-top: 1px solid black;
 }
 table.leaf_grid th:hover,
 table.leaf_grid th:focus {
   background-color: #79a2ff;
-  border: 1px solid white;
 }
 
 table.leaf_grid > tbody {
   background-color: white;
+}
+
+table.leaf_grid th:first-child,
+table.leaf_grid td:first-child {
+  border-left: 1px solid black;
+}
+
+table.leaf_grid thead tr th,
+table.leaf_grid tbody tr td,
+table.leaf_grid tfoot tr td {
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+  transition: filter 0.25s;
+}
+
+table.leaf_grid>tbody>tr>td {
+  padding: 8px;
+}
+
+.leaf_grid-loading tr td {
+  background: linear-gradient(90deg, #ffffff, #dbdbdb, #ffffff);
+  animation: leaf_grid-loading 30s linear infinite;
+}
+
+@keyframes leaf_grid-loading {
+  0% {
+      background-position: 0 0;
+  }
+  100% {
+      background-position: 1200px 0;
+  }
 }
 
 .agenda th {
@@ -867,20 +970,20 @@ div[id*="xhrDialog"] {
 
 .comments_time {
   float: right;
-  color: #8c8c8c;
-  font-size: 80%;
+  color: #707070;
 }
 
 .comments_message {
   margin-left: 20px;
   padding-top: 4px;
+  word-break: break-word;
 }
 
 .tools {
   background-color: #c0dbff;
 }
 
-button.tools {
+button.tools, button#showSinglePage {
   background-color: #e8f2ff;
   padding: 2px;
   margin: 0px;
@@ -894,6 +997,10 @@ button.tools {
   font-size: 14px;
   text-align: left;
   width: 99%;
+}
+button#showSinglePage {
+    display: flex;
+    align-items: center;
 }
 
 button.tools:hover,
@@ -1127,7 +1234,7 @@ div.workflowbox {
 span.browsecounter a {
   padding: 4px;
   margin-right: 4px;
-  font-size: 140%;
+  font-size: 1.125rem;
   font-weight: bold;
   background-color: black;
   color: white;
@@ -1142,7 +1249,7 @@ span.browsetitle a {
 }
 
 span.browsetypes {
-  font-size: 80%;
+  font-size: 11px;
   color: #707070;
 }
 
@@ -1194,6 +1301,16 @@ button.buttonNorm {
   margin: 2px;
   cursor: pointer;
   font-size: 12px;
+}
+button.depInbox {
+  cursor: pointer;
+  text-align: left;
+  width:100%;
+  padding: 0.5rem;
+  border:0;
+  display:flex;
+  gap: 0.25rem;
+  justify-content:space-between;
 }
 
 .checkable {
@@ -1259,7 +1376,7 @@ button.buttonNorm {
 
   span#headerMenu {
     position: absolute;
-    top: 95px;
+    top: 93px;
     right: 4px;
     font-size: 12px;
     font-weight: normal;

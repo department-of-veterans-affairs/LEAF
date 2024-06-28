@@ -85,7 +85,9 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
     $main->assign('status', 'You appear to be using Microsoft Internet Explorer version 6. Some portions of this website may not display correctly unless you use Internet Explorer version 10 or higher.');
 }
 
-$main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA logo and Seal, U.S. Department of Veterans Affairs" />');
+//$settings = $db->query_kv('SELECT * FROM settings', 'setting', 'data');
+
+$main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA seal, U.S. Department of Veterans Affairs" />');
 
 $t_login->assign('name', $login->getName());
 
@@ -216,7 +218,7 @@ switch ($action) {
 
         $main->assign('body', $t_form->fetch('form_editor_vue.tpl'));
 
-        $tabText = 'Form Editor Testing';
+        $tabText = 'Form Editor';
         break;
     case 'form':
         $t_form = new Smarty;
@@ -317,7 +319,7 @@ switch ($action) {
                     break;
                 case 'mod_templates_reports':
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
-                    $tabText = 'Editor';
+                    $tabText = 'Report Template Editor';
 
                     break;
                 case 'mod_templates_email':
@@ -433,7 +435,10 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $t_form->assign('app_css_path', APP_CSS_PATH);
         $t_form->assign('app_js_path', APP_JS_PATH);
-        $main->assign('javascripts', array(APP_JS_PATH . '/choicesjs/choices.min.js'));
+        $main->assign('javascripts', array(
+            APP_JS_PATH . '/choicesjs/choices.min.js',
+            APP_JS_PATH . '/LEAF/XSSHelpers.js',
+        ));
         $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_combined_inbox.tpl')));
@@ -451,8 +456,16 @@ switch ($action) {
         $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
         $main->assign('javascripts', array(APP_JS_PATH . '/LEAF/XSSHelpers.js',
                                            '../js/formQuery.js'));
-
-        $t_form->assign('timeZones', DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'));
+        $tz_additional = array(
+            "America/Puerto_Rico",
+            "Pacific/Guam",
+            "Pacific/Saipan",
+            "Pacific/Pago_Pago",
+            "Asia/Manila",
+        );
+        $tzones = array_merge(DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US'), $tz_additional);
+        sort($tzones);
+        $t_form->assign('timeZones', $tzones);
 
         $t_form->assign('importTags', LEAF_SETTINGS['orgchartImportTags'][0]);
 //   		$main->assign('stylesheets', array('css/mod_groups.css'));
@@ -508,6 +521,7 @@ switch ($action) {
         $t_form->assign('APIroot', '../api/');
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_account_updater.tpl')));
+        $tabText = 'Account Updater';
         break;
     case 'access_matrix':
         $t_form = new Smarty;
@@ -546,7 +560,7 @@ switch ($action) {
         {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
-
+        $tabText = 'Import Data';
         break;
     case 'site_designer':
         $t_form = new Smarty;
@@ -610,6 +624,13 @@ switch ($action) {
         }
         $o_login = $t_login->fetch('login.tpl');
 
+        if($action === "")
+        {
+            $tabText = 'Admin Panel';
+        } else
+        {
+            $tabText = 'System Administration';
+        }
         break;
 }
 

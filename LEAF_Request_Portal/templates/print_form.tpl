@@ -13,7 +13,7 @@
         <!--{if $submitted == 0}-->
             <div id="progressSidebar" style="border: 1px solid black">
                 <div
-                    style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">
+                    style="background-color: #b74141; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">
                     Form completion progress</div>
                 <div id="progressControl"
                     style="padding: 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%">
@@ -90,7 +90,7 @@
             <form id='note_form'>
                 <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
                 <input type='text' id='note' name='note' placeholder='Enter a note!' />
-                <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
+                <button type="button" id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</button>
             </form>
         </div>
         <!--{section name=i loop=$comments}-->
@@ -531,25 +531,58 @@ function doSubmit(recordID) {
                         selectedParentOptionsLI !== null)) {
 
                     if (comparison !== true) { //no need to re-assess if it has already become true
-                        const val = multiChoiceFormats.includes(parentFormat) ? arrParVals : elParentInd?.innerText
-                            .trim();
+                        let val = multiChoiceFormats.includes(parentFormat) ?
+                            arrParVals :
+                            [
+                                (elParentInd?.innerText || '').trim()
+                            ];
+                        val = val.filter(v => v !== '');
 
-                        let compVal = '';
+                        let compVal = [];
                         if (multiChoiceFormats.includes(parentFormat)) {
                             compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
                             compVal = compVal.map(v => v.trim());
                         } else {
-                            compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim();
+                            compVal = [
+                                $('<div/>').html(conditions[i].selectedParentValue).text().trim()
+                            ];
                         }
-
-                        switch (conditions[i].selectedOp) {
+                        const op = conditions[i].selectedOp;
+                        switch (op) {
                             case '==':
-                                comparison = multiChoiceFormats.includes(parentFormat) ? valIncludesMultiselOption(val,
-                                    compVal) : val === compVal;
+                                comparison = multiChoiceFormats.includes(parentFormat) ?
+                                    valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] === compVal[0];
                                 break;
                             case '!=':
-                                comparison = multiChoiceFormats.includes(parentFormat) ? !valIncludesMultiselOption(val,
-                                    compVal) : val !== compVal;
+                                comparison = multiChoiceFormats.includes(parentFormat) ?
+                                    !valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] !== compVal[0];
+                                break;
+                            case 'lt':
+                            case 'lte':
+                            case 'gt':
+                            case 'gte':
+                                const arrNumVals = val
+                                    .filter(v => !isNaN(v))
+                                    .map(v => +v);
+                                const arrNumComp = compVal
+                                    .filter(v => !isNaN(v))
+                                    .map(v => +v);
+                                const orEq = op.includes('e');
+                                const gtr = op.includes('g');
+                                if(arrNumComp.length > 0) {
+                                    for (let i = 0; i < arrNumVals.length; i++) {
+                                        const currVal = arrNumVals[i];
+                                        if(gtr === true) {
+                                            //unlikely to be set up with more than one comp val, but checking just in case
+                                            comparison = orEq === true ? currVal >= Math.max(...arrNumComp) : currVal > Math.max(...arrNumComp);
+                                        } else {
+                                            comparison = orEq === true ? currVal <= Math.min(...arrNumComp) : currVal < Math.min(...arrNumComp);
+                                        }
+                                        if(comparison === true) {
+                                            break;
+                                        }
+                                    }
+                                }
                                 break;
                             default:
                                 console.log(conditions[i].selectedOp);
@@ -1033,7 +1066,7 @@ function doSubmit(recordID) {
 
         async function admin_changeStep() {
             dialog.setTitle('Change Step');
-            dialog.setContent('Set to this step: <br />' +
+            dialog.setContent('<label id="newStep_label" for="newStep">Set to this step:</label> <br />' +
                 '<div id="changeStep"></div><br /><br />' +
                 'Comments:<br />' +
                 '<textarea id="changeStep_comment" type="text" style="width: 90%; padding: 4px" aria-label="Comments"></textarea>' +
@@ -1085,7 +1118,7 @@ function doSubmit(recordID) {
                 url: 'api/workflow/steps',
                 dataType: 'json',
                 success: function(res) {
-                    let steps = '<select id="newStep" class="chosen" style="width: 250px">';
+                    let steps = '<select id="newStep" class="chosen">';
                     let steps2 = '';
                     let stepCounter = 0;
                     let allStepsData = res;
@@ -1122,7 +1155,12 @@ function doSubmit(recordID) {
                         newstep.trigger('chosen:updated');
                     });
 
-                    $('.chosen').chosen({ disable_search_threshold: 6 });
+                    $('.chosen').chosen({
+                        width: '100%',
+                        disable_search_threshold: 6
+                    });
+                    $(`#newStep_chosen input.chosen-search-input`).attr('role', 'combobox');
+                    $(`#newStep_chosen input.chosen-search-input`).attr('aria-labelledby', 'newStep_label');
                     dialog.indicateIdle();
                     dialog.setSaveHandler(function() {
                         $.ajax({

@@ -33,6 +33,7 @@ class Email
     private array $emailBCC = array();
 
     public array $smartyVariables = array();
+    public array $smartyEmailVariables = array();
 
     private object $position;
 
@@ -50,11 +51,14 @@ class Email
 
     private int $recordID;
 
+    private string $emailRegex = "/(\w+@[a-z_\-]+?\.[a-z]{2,6})$/i";
+
     const SEND_BACK = -1;
     const NOTIFY_NEXT = -2;
     const NOTIFY_COMPLETE = -3;
     const EMAIL_REMINDER = -4;
     const AUTOMATED_EMAIL_REMINDER = -5;
+    const CANCEL_REQUEST = -7;
 
     public function __construct()
     {
@@ -181,7 +185,12 @@ class Email
         if (($tplVar != '') && ($strContent != '')) {
             $smarty->assign($tplVar, $strContent);
         } else {
-            $smarty->assign($this->smartyVariables);
+            $isEmailToCc = str_ends_with($tplFile, "_emailCc.tpl") || str_ends_with($tplFile, "_emailTo.tpl");
+            if($isEmailToCc) {
+                $smarty->assign($this->smartyEmailVariables);
+            } else {
+                $smarty->assign($this->smartyVariables);
+            }
         }
         $htmlOutput = $smarty->fetch($tplFile);
         return $htmlOutput;
@@ -212,10 +221,9 @@ class Email
      */
     public function addRecipient(string|null $address, bool $requiredAddress = false): bool
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0){
+        if (preg_match($this->emailRegex, $address) == 0){
             return false;
         }
-
         if ($this->emailRecipient == ''){
             $this->emailRecipient = $address;
         } else {
@@ -277,10 +285,9 @@ class Email
 
     public function addCcBcc(string|null $address, bool $requiredAddress = false, bool $isBcc = false): bool
     {
-        if (preg_match('/(\w+@[a-zA-Z_)+?\.[a-zA-Z]{2,6})/', $address) == 0) {
+        if (preg_match($this->emailRegex, $address) == 0){
             return false;
         }
-
         if ( !$this->isExistingRecipient($address) || ($requiredAddress)  ) {
           if (!$isBcc) {
               $this->emailCC[] = $address;
@@ -354,8 +361,15 @@ class Email
      */
     private function logEmailSent(int $recordID): void
     {
+        $recipients = $this->emailRecipient;
+        foreach($this->emailCC as $cc) {
+            $recipients.=", ".$cc;
+        };
         $email_tracker = new EmailTracker($this->portal_db);
-        $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $this->emailRecipient, 'Subject: ' . $this->emailSubject);
+
+        // the second argument in this method is a list of recipients. The format needs to be "Recipient(s): <email@address.com>[, <email@address.com>]"
+        // this list of recipients is used in the processPriorStepsEmailed method below and expects this format.
+        $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $recipients, 'Subject: ' . $this->emailSubject);
     }
 
     /**
@@ -495,13 +509,16 @@ class Email
         $hasEmailTemplate = $this->getFilepath($tplLocation);
         $emailTemplate = __DIR__ . '/../templates/email/' . $hasEmailTemplate;
         if (file_exists($emailTemplate)) {
-            $emailList = file($emailTemplate, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
-            // For each line in template, add that email address, if valid
-            foreach($emailList as $emailAddress) {
-                if ($isCc) {
-                    $this->addCcBcc(XSSHelpers::xscrub($emailAddress), true);
-                } else {
-                    $this->addRecipient(XSSHelpers::xscrub($emailAddress), true);
+            $emailContentList =  explode(PHP_EOL, trim($this->setContent($emailTemplate)));
+            foreach($emailContentList as $emailAddress) {
+                $eAddress = trim(strip_tags(htmlspecialchars_decode($emailAddress, ENT_QUOTES | ENT_HTML5 )));
+                //filter blanks.  addCcBcc and addRec both have email regex checks with set start and end vals
+                if($eAddress !== "") {
+                    if ($isCc) {
+                        $this->addCcBcc($eAddress, true);
+                    } else {
+                        $this->addRecipient($eAddress, true);
+                    }
                 }
             }
         }
@@ -559,150 +576,15 @@ class Email
      * @param array $newVariables associative array where the keys are the variable names and the values are the variable values
      * @return void
      */
-    function addSmartyVariables(array $newVariables): void
+    function addSmartyVariables(array $newVariables, bool $setEmailVariables = false): void
     {
-        $this->smartyVariables = array_merge($this->smartyVariables, $newVariables);
-    }
-
-    /**
-     * Get the field values of the current record
-     */
-    private function getFields(int $recordID): array
-    {
-        $vars = array(':recordID' => $recordID);
-        $strSQL = 'SELECT `data`.`indicatorID`, `data`.`series`, `data`.`data`, `indicators`.`format`, `indicators`.`default`, `indicators`.`is_sensitive` FROM `data`
-            JOIN `indicators` USING (`indicatorID`)
-            WHERE `recordID` = :recordID';
-
-        $fields = $this->portal_db->prepared_query($strSQL, $vars);
-
-        $formattedFields = array();
-
-        foreach($fields as $field)
-        {
-            if ($field["is_sensitive"] == 1) {
-                $formattedFields[$field['indicatorID']] = "**********";
-                continue;
-            }
-
-            $format = strtolower($field["format"]);
-            $data = $field["data"];
-
-            switch(true) {
-                case (str_starts_with($format, "grid") != false):
-                    $data = $this->buildGrid(unserialize($data));
-                    break;
-                case (str_starts_with($format, "checkboxes") != false):
-                case (str_starts_with($format, "multiselect") != false):
-                    $data = $this->buildMultiselect(unserialize($data));
-                    break;
-                case (str_starts_with($format, "radio") != false):
-                case (str_starts_with($format, "checkbox") != false):
-                    if ($data == "no") {
-                        $data = "";
-                    }
-                    break;
-                case ($format == "fileupload"):
-                case ($format == "image"):
-                    $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
-                    break;
-                case ($format == "orgchart_group"):
-                    $data = $this->getOrgchartGroup((int) $data);
-                    break;
-                case ($format == "orgchart_position"):
-                    $data = $this->getOrgchartPosition((int) $data);
-                    break;
-                case ($format == "orgchart_employee"):
-                    $data = $this->getOrgchartEmployee((int) $data);
-                    break;
-            }
-
-            $formattedFields[$field['indicatorID']] = $data !== "" ? $data : $field["default"];
+        if ($setEmailVariables === true) {
+            $this->smartyEmailVariables = array_merge($this->smartyEmailVariables, $newVariables);
+        } else {
+            $this->smartyVariables = array_merge($this->smartyVariables, $newVariables);
         }
-
-        return $formattedFields;
     }
 
-    // method for building grid
-    private function buildGrid(array $data): string
-    {
-        // get the grid in the form of array
-        $cells = $data['cells'];
-        $headers = $data['names'];
-
-        // build the grid
-        $grid = "<table><tr>";
-
-        foreach($headers as $header) {
-            if ($header !== " ") {
-                $grid .= "<th>{$header}</th>";
-            }
-        }
-        $grid .= "</tr>";
-
-        foreach($cells as $row) {
-            $grid .= "<tr>";
-            foreach($row as $column) {
-                $grid .= "<td>{$column}</td>";
-            }
-            $grid .= "</tr>";
-        }
-        $grid .= "</table>";
-
-        return $grid;
-    }
-
-    private function buildMultiselect(array $data): string
-    {
-        // filter out non-selected selections
-        $data = array_filter($data, function($x) { return $x !== "no"; });
-        // comma separate to be readable in email
-        $formattedData = implode(",", $data);
-
-        return $formattedData;
-    }
-
-    private function buildFileLink(string $data, string $id, string $series): string
-    {
-        // split the file names out into an array
-        $data = explode("\n", $data);
-        $buffer = [];
-
-        // parse together the links to each file
-        foreach($data as $index => $file) {
-            $buffer[] = "<a href=\"{$this->siteRoot}file.php?form={$this->recordID}&id={$id}&series={$series}&file={$index}\">{$file}</a>";
-        }
-
-        // separate the links by comma
-        $formattedData = implode(", ", $buffer);
-        return $formattedData;
-    }
-
-    private function getOrgchartEmployee(int $data): string
-    {
-        $employeeData = $this->employee->lookupEmpUID($data)[0];
-        $employeeName = $employeeData["firstName"]." ".$employeeData["lastName"];
-
-        return $employeeName;
-    }
-
-    // method for building orgchart group, position, employee
-    private function getOrgchartGroup(int $data): string
-    {
-        // reference the group by id
-        $group = new Group($this->portal_db, $this->login);
-        $groupName = $group->getGroupName($data);
-
-        return $groupName;
-    }
-
-    private function getOrgchartPosition(int $data): string
-    {
-        $position = new \Orgchart\Position($this->nexus_db, $this->login);
-        $positionName = $position->getTitle($data);
-
-        return $positionName;
-    }
 
     /**
      * Purpose: Add approvers to email from given record ID*
@@ -747,7 +629,7 @@ class Email
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
-                if (strlen($approver['approverID']) > 0) {
+                if (!empty($approver['approverID']) && strlen($approver['approverID']) > 0) {
                     $tmp = $dir->lookupLogin($approver['approverID']);
                     if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                         $this->addRecipient($tmp[0]['Email']);
@@ -798,7 +680,7 @@ class Email
 
                         $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
 
-                        // empuid is required to move forward, make sure this exists before continuing. 
+                        // empuid is required to move forward, make sure this exists before continuing.
                         // This can be a result of user not setting a user in form field
                         if(is_array($resEmpUID) && !empty($resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']])){
 
@@ -850,8 +732,8 @@ class Email
                         $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
                         $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
-                        
-                        // groupid is required to move forward, make sure this exists before continuing. 
+
+                        // groupid is required to move forward, make sure this exists before continuing.
                         // This can be a result of user not setting a group in form field
                         if(is_array($resGroupID) && !empty($resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']])){
                             $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
@@ -868,14 +750,7 @@ class Email
             $return_value = $this->sendMail($recordID);
         } elseif ($emailTemplateID === -4) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
-            $vars = array(':recordID' => $recordID);
-            $strSQL =  "SELECT rec.userID, rec.serviceID, ser.service, rec.title,
-                            rec.lastStatus
-                        FROM records AS rec
-                        LEFT JOIN services AS ser USING (serviceID)
-                        WHERE recordID=:recordID";
-
-            $recordInfo = $this->portal_db->prepared_query($strSQL, $vars);
+            $recordInfo = $this->getRecord($recordID);
 
             $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
 
@@ -899,10 +774,91 @@ class Email
                 $this->addRecipient($tmp[0]['Email']);
             }
             $return_value = $this->sendMail($recordID);
+        } elseif ($emailTemplateID === -7) {
+            $recordInfo = $this->getRecord($recordID);
+            $comments = $this->getDeletedComments($recordID);
+
+            $comment = $comments[0]['comment'] === '' ? '' : 'Reason for cancelling: ' . $comments[0]['comment'] . '<br /><br />';
+
+            $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
+
+            $this->addSmartyVariables(array(
+                "truncatedTitle" => $title,
+                "fullTitle" => $recordInfo[0]['title'],
+                "recordID" => $recordID,
+                "service" => $recordInfo[0]['service'],
+                "lastStatus" => $comments[0]['actionType'],
+                "siteRoot" => $this->siteRoot,
+                "field" => null,
+                "comment" => $comment
+            ));
+
+            $this->processPriorStepsEmailed($this->getPriorStepsEmailed($recordID));
+            $this->setTemplateByID($emailTemplateID);
+            $this->sendMail($recordID);
         } elseif ($emailTemplateID > 1) {
             $return_value = $this->sendMail($recordID); // Check for custom event to finalize email on Notify Next
         }
 
         return $return_value;
+    }
+
+    private function getRecord(int $recordID): array
+    {
+        $vars = array(':recordID' => $recordID);
+        $strSQL =  "SELECT `rec`.`userID`, `rec`.`serviceID`, `ser`.`service`, `rec`.`title`,
+                        `rec`.`lastStatus`
+                    FROM `records` AS `rec`
+                    LEFT JOIN `services` AS `ser` USING (`serviceID`)
+                    WHERE `recordID` = :recordID";
+
+        $recordInfo = $this->portal_db->prepared_query($strSQL, $vars);
+
+        return $recordInfo;
+    }
+
+    private function getDeletedComments(int $recordID): array
+    {
+        $vars = array(':recordID' => $recordID);
+        $strSQL =  "SELECT `comment`, `actionType`
+                    FROM `action_history`
+                    WHERE `recordID` = :recordID
+                    AND `actionType` = 'deleted'
+                    ORDER BY `actionID` DESC";
+
+        $recordInfo = $this->portal_db->prepared_query($strSQL, $vars);
+
+        return $recordInfo;
+    }
+
+    private function getPriorStepsEmailed(int $recordID): array
+    {
+        // get the email_tracker data for this record
+        $vars = array(':recordID' => $recordID);
+        $sql = 'SELECT `recipients`
+                FROM `email_tracker`
+                WHERE `recordID` = :recordID';
+
+        $return_result = $this->portal_db->prepared_query($sql, $vars);
+
+        return $return_result;
+    }
+
+    private function processPriorStepsEmailed(array $email_recipients): void
+    {
+        $recipient_list = array();
+
+        foreach ($email_recipients as $recipient) {
+            $clean_list = str_replace('Recipient(s): ', '', $recipient['recipients']);
+
+            $list = explode(',', $clean_list);
+
+            foreach ($list as $email) {
+                if (!in_array(trim($email), $recipient_list)) {
+                    array_push($recipient_list, trim($email));
+                    $this->addRecipient(trim($email));
+                }
+            }
+        }
     }
 }

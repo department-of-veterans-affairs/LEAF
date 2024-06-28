@@ -60,35 +60,36 @@ export default {
                 :formNode="formNode">
             </form-question-display>
             
-            <!-- NOTE: ul for drop zones -->
-            <ul class="form-index-listing-ul" :id="'drop_area_parent_'+ indicatorID"
+            <!-- NOTE: ul for drop zones always needs to be here in edit mode even if there are no current children -->
+            <ul v-if="formNode.child !== null || !previewMode"
+                class="form-index-listing-ul" :id="'drop_area_parent_'+ indicatorID"
                 data-effect-allowed="move"
                 @drop.stop="onDrop($event)"
                 @dragover.prevent
                 @dragenter.prevent="onDragEnter"
                 @dragleave="onDragLeave">
 
-                <template v-if="formNode.child">
-                    <form-index-listing v-for="(child, k, i) in formNode.child"
-                        :id="'index_listing_' + child.indicatorID"
-                        :categoryID="categoryID"
-                        :formPage=formPage
-                        :depth="depth + 1"
-                        :parentID="indicatorID"
-                        :indicatorID="child.indicatorID"
-                        :formNode="child"
-                        :index="i"
-                        :key="'index_list_item_' + child.indicatorID"
-                        :draggable="!previewMode"
-                        @dragstart.stop="startDrag"> 
-                    </form-index-listing>
-                </template>
+                <form-index-listing v-for="(listItem, idx) in formNode.child"
+                    :id="'index_listing_' + listItem.indicatorID"
+                    :categoryID="categoryID"
+                    :formPage=formPage
+                    :depth="depth + 1"
+                    :parentID="indicatorID"
+                    :indicatorID="listItem.indicatorID"
+                    :formNode="listItem"
+                    :index="idx"
+                    :key="'index_list_item_' + listItem.indicatorID"
+                    :draggable="!previewMode"
+                    @dragstart.stop="startDrag">
+                </form-index-listing>
             </ul>
+            <div v-if="depth === 0 && !previewMode" style="padding:0.5rem;">
+                <button type="button" class="btn-general new_section_question"
+                    title="Add Question to Section"
+                    @click="newQuestion(formNode.indicatorID)">
+                    + Add Question to Section
+                </button>
+            </div>
         </div>
-        <button v-if="depth === 0 && !previewMode" type="button" class="btn-general new_section_question"
-            title="Add Question to Section"
-            @click="newQuestion(formNode.indicatorID)">
-            + Add Question to Section
-        </button>
     </li>`
 }

@@ -11,6 +11,6 @@ SET SQL_SAFE_UPDATES = 1;
 
 INSERT INTO `settings` (`setting`, `data`) VALUES ('timeZone', 'America/New_York');
 
-UPDATE `settings` SET `data` = '202062600' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2020062600' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
