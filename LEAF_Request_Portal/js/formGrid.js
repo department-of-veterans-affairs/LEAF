@@ -20,32 +20,32 @@ var LeafFormGrid = function (containerID, options) {
   var postRenderFunc = null;
   let postSortRequestFunc = null;
   var rootURL = "";
-  var isRenderingVirtualHeader = true;
   var isRenderingBody = false;
   let renderHistory = {}; // index of rendered recordIDs
+  let processedCallbackBuffer = false; // processed callback buffers for all records
+  let renderCache = {}; // cache of rows with processed callbacks
+  let disabledRenderCache = false;
+  let sortDirection = {}; // map of sort direction for each key
+  let rowHeight = 0;
+  let stickyHeaderOffset = 0;
 
   $("#" + containerID).html(
-    '<div id="' +
-      prefixID +
-      'grid"></div><div id="' +
-      prefixID +
-      'form" style="display: none"></div>'
+    `<div id="${prefixID}grid"></div>
+    <div id="${prefixID}form" style="display: none"></div>`
   );
 
   $("#" + prefixID + "grid").html(
-    '<div style="position: relative"><div id="' +
-      prefixID +
-      'gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div></div><div id="' +
-      prefixID +
-      'table_stickyHeader" style="display: none"></div><table id="' +
-      prefixID +
-      'table" class="leaf_grid"><thead id="' +
-      prefixID +
-      'thead" aria-label="Search Results"></thead><tbody id="' +
-      prefixID +
-      'tbody"></tbody><tfoot id="' +
-      prefixID +
-      'tfoot"></tfoot></table>'
+    `<div style="position: relative">
+      <div id="${prefixID}gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div>
+    </div>
+    <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
+      aria-label="Search Results" aria-live="assertive">
+    </span>
+    <table id="${prefixID}table" class="leaf_grid">
+      <thead id="${prefixID}thead" style="position: sticky; top: 0px"></thead>
+      <tbody id="${prefixID}tbody"></tbody>
+      <tfoot id="${prefixID}tfoot" class="leaf_grid-loading"></tfoot>
+    </table>`
   );
 
   if (options == undefined) {
@@ -76,13 +76,12 @@ var LeafFormGrid = function (containerID, options) {
           v = v.replaceAll(">", "&gt;");
           let elDiv = document.createElement("div");
           elDiv.innerHTML = v;
-          let text = elDiv.innerText;
-          if (showScriptTags !== true)
-            text = text.replaceAll(
-              /(<script[\s\S]*?>)|(<\/script[\s\S]*?>)/gi,
-              ""
-            );
-          return text;
+          let scripts = elDiv.getElementsByTagName('script');
+          for(let i = 0; i < scripts.length; i++) {
+              let script = scripts[i];
+              script.remove();
+          }
+          return elDiv.innerHTML;
         });
         cells[ci] = arrRowVals.slice();
       });
@@ -122,20 +121,18 @@ var LeafFormGrid = function (containerID, options) {
     }
 
     //populates table
-    for (var i = 0; i < rows; i++) {
-      var gridRow = "<tr>";
-      var rowBuffer = [];
-
+    for (let i = 0; i < rows; i++) {
       //makes array of cells
-      for (var j = 0; j < columns; j++) {
+      let rowBuffer = [];
+      for (let j = 0; j < columns; j++) {
         rowBuffer.push('<td style="width:100px"></td>');
       }
 
       //for all values with matching column id, replaces cell with value
-      for (var j = 0; j < values.columns.length; j++) {
+      for (let j = 0; j < values.columns.length; j++) {
         tDelim = j == values.columns.length - 1 ? "" : delim;
         if (columnOrder.indexOf(values.columns[j]) !== -1) {
-          var value =
+          let value =
             values.cells[i] === undefined || values.cells[i][j] === undefined
               ? ""
               : values.cells[i][j];
@@ -148,16 +145,14 @@ var LeafFormGrid = function (containerID, options) {
       }
 
       //combines cells into html and pushes row to body buffer
-      gridRow += rowBuffer.join("") + delimLF + "</tr>";
+      const gridRow = "<tr>" + rowBuffer.join("") + delimLF + "</tr>";
       gridBodyBuffer += gridRow;
     }
     return (
-      '<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;"><thead>' +
-      gridHeadBuffer +
-      delimLF +
-      "</thead><tbody>" +
-      gridBodyBuffer +
-      "</tbody></table>"
+      `<table class="table" style="word-wrap:break-word; max-width: 100%; padding: 20px; text-align: center; table-layout: fixed;">
+        <thead>${gridHeadBuffer}${delimLF}</thead>
+        <tbody>${gridBodyBuffer}</tbody>
+      </table>`
     );
   }
 
@@ -217,8 +212,7 @@ var LeafFormGrid = function (containerID, options) {
       cache: false,
     });
   }
-
-  var headerToggle = 0;
+  let renderRequest = 0;
   // header format: {name, indicatorID, sortable, editable, visible, [callback]}
   // callback receives {recordID, indicatorID, cellContainerID} within the scope of loadData()
   /**
@@ -226,160 +220,141 @@ var LeafFormGrid = function (containerID, options) {
    */
   function setHeaders(headersIn) {
     headers = headersIn;
-    var temp = '<tr id="' + prefixID + "thead_tr" + '">';
-    var virtualHeader = '<tr id="' + prefixID + "tVirt_tr" + '">';
+    let temp = `<tr id="${prefixID}thead_tr">`;
     if (showIndex) {
-      temp +=
-        '<th tabindex="0" id="' +
-        prefixID +
-        'header_UID" style="text-align: center">UID</th>';
-      virtualHeader +=
-        '<th id="Vheader_UID" style="text-align: center">UID</th>';
+      temp += `<th scope="col" tabindex="0" id="${prefixID}header_UID" style="text-align: center" role="button">
+        UID
+        <span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
+      </th>`;
     }
     $("#" + prefixID + "thead").html(temp);
 
     if (showIndex) {
       $("#" + prefixID + "header_UID").css("cursor", "pointer");
-      $("#" + prefixID + "header_UID").on("click", null, null, function (data) {
-        if (headerToggle == 0) {
-          sort("recordID", "asc", postSortRequestFunc);
-          headerToggle = 1;
-        } else {
-          sort("recordID", "desc", postSortRequestFunc);
-          headerToggle = 0;
+      $("#" + prefixID + "header_UID").on("click keydown", null, null, function (event) {
+        if(event.type === "click" || event?.which === 13) {
+          if(sortDirection['recordID'] == undefined || sortDirection['recordID'] == 'desc') {
+            sort("recordID", "asc", postSortRequestFunc);
+          } else {
+            sort("recordID", "desc", postSortRequestFunc);
+          }
+          renderRequest = 0;
+          renderBody(0, virtualIndex);
+          window.scrollTo(scrollX, scrollY); // compensate for browser reflow
         }
-        renderBody(0, Infinity);
       });
     }
 
-    for (var i in headers) {
+    let domThead = document.querySelector(`#${prefixID}thead_tr`);
+    for (let i in headers) {
       if (headers[i].visible == false) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
-      $("#" + prefixID + "thead_tr").append(
-        '<th id="' +
-          prefixID +
-          "header_" +
-          headers[i].indicatorID +
-          '" tabindex="0"  style="text-align:' +
-          align +
-          '">' +
-          headers[i].name +
-          '<span id="' +
-          prefixID +
-          "header_" +
-          headers[i].indicatorID +
-          '_sort" class="' +
-          prefixID +
-          'sort"></span></th>'
-      );
-      virtualHeader +=
-        '<th id="Vheader_' +
-        headers[i].indicatorID +
-        '" style="text-align:' +
-        align +
-        '">' +
-        headers[i].name +
-        "</th>";
+      domThead.insertAdjacentHTML('beforeend', `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" role="button">
+        ${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
+        </th>`);
+
       if (headers[i].sortable == undefined || headers[i].sortable == true) {
         $("#" + prefixID + "header_" + headers[i].indicatorID).css(
           "cursor",
           "pointer"
         );
         $("#" + prefixID + "header_" + headers[i].indicatorID).on(
-          "click",
+          "click keydown",
           null,
           headers[i].indicatorID,
-          function (data) {
-            if (headerToggle == 0) {
-              sort(data.data, "asc", postSortRequestFunc);
-              headerToggle = 1;
-            } else {
-              sort(data.data, "desc", postSortRequestFunc);
-              headerToggle = 0;
-            }
-            renderBody(0, Infinity);
-          }
-        );
-        //using enter key to sort the the table heads for 508 compliance
-        $("#" + prefixID + "header_" + headers[i].indicatorID).on(
-          "keydown",
-          null,
-          headers[i].indicatorID,
-          function (data) {
-            if (data.keyCode == 13) {
-              if (headerToggle == 0) {
-                sort(data.data, "asc", postSortRequestFunc);
-                headerToggle = 1;
+          function (event) {
+            if(event.type === "click" || event?.which === 13) {
+              if(sortDirection[event.data] == undefined || sortDirection[event.data] == 'desc') {
+                sort(event.data, "asc", postSortRequestFunc);
               } else {
-                sort(data.data, "desc", postSortRequestFunc);
-                headerToggle = 0;
+                sort(event.data, "desc", postSortRequestFunc);
               }
-              renderBody(0, Infinity);
+              renderRequest = 0;
+              renderBody(0, virtualIndex);
+              window.scrollTo(scrollX, scrollY); // compensate for browser reflow
             }
           }
         );
       }
     }
     $("#" + prefixID + "thead").append("</tr>");
-    virtualHeader += "</tr>";
 
     $("#" + prefixID + "table>thead>tr>th").css({
-      border: "1px solid black",
       padding: "4px 2px 4px 2px",
       "font-size": "12px",
     });
 
-    // sticky headers
-    var scrolled = false;
-    var initialTop;
+    if(document.onscrollend != undefined) {
+      document.onscrollend = handleScroll;
+    } else {
+      // safari compatibility
+      let scrollTimer;
+      document.onscroll = function() {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(handleScroll, 100);
+      };
+    }
 
-    $("#" + prefixID + "table_stickyHeader").html(
-      "<table><thead>" + virtualHeader + "</thead></table>"
-    );
-    $(window).on("resize", function () {
-      renderVirtualHeader();
-    });
-    $(window).on("scroll", function () {
-      scrolled = true;
-    });
-    var renderRequest = [];
-    setInterval(function () {
-      scrollPos = $(window).scrollTop();
-      tableHeight = $("#" + prefixID + "table").height();
-      pageHeight = $(window).height();
-      if (
-        scrolled &&
-        $("#" + prefixID + "thead").offset() != undefined &&
-        isRenderingVirtualHeader
-      ) {
-        scrolled = false;
-        initialTop = $("#" + prefixID + "thead").offset().top;
+    let scrollX, scrollY, virtualIndex;
+    function handleScroll() {
+      scrollY = window.scrollY;
+      scrollX = window.scrollX;
 
-        if (scrollPos > initialTop && scrollPos < tableHeight + initialTop) {
-          $("#" + prefixID + "table_stickyHeader").css("display", "inline");
-          $("#" + prefixID + "table_stickyHeader").css({
-            position: "absolute",
-            top: scrollPos + "px",
-          });
-        } else {
-          $("#" + prefixID + "table_stickyHeader").css("display", "none");
+      if ($("#" + prefixID + "thead").offset() != undefined) {
+        tableHeight = document.querySelector(`#${prefixID}tbody`).offsetHeight;
+        let tableTop = document.querySelector(`#${prefixID}tbody`).getBoundingClientRect().top * -1;
+        virtualIndex = (tableTop / rowHeight) + defaultLimit;
+
+        // render additional segment right before the user scrolls to it
+        if (
+          virtualIndex > currentRenderIndex &&
+          isDataLoaded &&
+          isRenderingBody
+        ) {
+          if (renderRequest < currentRenderIndex) {
+            renderBody(currentRenderIndex, virtualIndex - currentRenderIndex);
+            window.scrollTo(scrollX, scrollY); // compensate for browser reflow
+          }
         }
       }
+    }
 
-      // render additional segment right before the user scrolls to it
-      if (
-        scrollPos + pageHeight * 1.2 > tableHeight &&
-        isDataLoaded &&
-        isRenderingBody
-      ) {
-        if (renderRequest[currentRenderIndex] == undefined) {
-          renderRequest[currentRenderIndex] = 1;
-          renderBody(currentRenderIndex, defaultLimit);
-        }
+    // sticky header UX
+    const domHeader = document.querySelector(`#${prefixID}thead`);
+    const observer = new IntersectionObserver((evt) => {
+      if(evt[0].boundingClientRect.y != evt[0].intersectionRect.y) {
+        $("#" + prefixID + "table thead tr th").css({
+          "filter": "invert(1) grayscale(1)",
+          height: "1.3rem",
+          "border-top": "1px solid white"
+        });
+        $("#" + prefixID + "table thead tr th:first-child").css({
+          "border-left": "1px solid white"
+        });
+        $("#" + prefixID + "table thead tr th:last-child").css({
+          "border-right": "1px solid white"
+        });
+      } else {
+        $("#" + prefixID + "table thead tr th").css({
+          "filter": "invert(0)",
+          height: "auto",
+          "border-top": "1px solid black"
+        });
+        $("#" + prefixID + "table thead tr th:first-child").css({
+          "border-left": "1px solid black"
+        });
+        $("#" + prefixID + "table thead tr th:last-child").css({
+          "border-right": "1px solid black"
+        });
       }
-    }, 100);
+    }, {
+      rootMargin: -stickyHeaderOffset - 1 + 'px 0px 0px 0px',
+      threshold: [1],
+    });
+    
+    observer.observe(domHeader);
   }
 
   /**
@@ -390,45 +365,25 @@ var LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    */
   function sort(key, order, callback) {
+    sortDirection[key] = order;
+    const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
+    const headerText = document.querySelector(headerSelector)?.innerText || "";
     if (key != "recordID" && currLimit != Infinity) {
       renderBody(0, Infinity);
     }
 
     $("." + prefixID + "sort").css("display", "none");
+    $(`th[id*="${prefixID}header_"]`).removeAttr('aria-sort');
     if (order.toLowerCase() == "asc") {
-      $("#" + prefixID + "header_" + key).attr("aria-live", "assertive");
-      $("#" + prefixID + "header_" + key).attr(
-        "aria-label",
-        "Sorting by ascending " + key
-      );
-      $("#" + prefixID + "header_" + key + "_sort").html(
-        '<div style="position: absolute" aria-label="Sorting by ascending ' +
-          key +
-          '"></div>' +
-          " &#9650;"
-      );
-      $("#" + prefixID + "header_" + key + "_sort").css(
-        "vertical-align",
-        "super"
-      );
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", ascending.");
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▲</span>');
+      $(headerSelector).attr('aria-sort', 'ascending');
     } else {
-      $("#" + prefixID + "header_" + key).attr("aria-live", "assertive");
-      $("#" + prefixID + "header_" + key).attr(
-        "aria-label",
-        "Sorting by descending " + key
-      );
-      $("#" + prefixID + "header_" + key + "_sort").html(
-        '<div style="position: absolute" aria-label="Sorting by descending ' +
-          key +
-          '"></div>' +
-          " &#9660;"
-      );
-      $("#" + prefixID + "header_" + key + "_sort").css(
-        "vertical-align",
-        "sub"
-      );
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", descending.");
+      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▼</span>');
+      $(headerSelector).attr('aria-sort', 'descending');
     }
-    $("#" + prefixID + "header_" + key + "_sort").css("display", "inline");
+    $(headerSelector + "_sort").css("display", "inline");
     var array = [];
     var isIndicatorID = $.isNumeric(key);
     var isDate = false;
@@ -437,9 +392,7 @@ var LeafFormGrid = function (containerID, options) {
     var tDate;
     for (let i in currentData) {
       if (currentData[i][key] == undefined) {
-        currentData[i][key] = $(
-          "#" + prefixID + currentData[i].recordID + "_" + key
-        ).html();
+        currentData[i][key] = document.querySelector(`#${prefixID}${currentData[i].recordID}_${key}`).innerHTML;
         currentData[i][key] =
           currentData[i][key] == undefined ? "" : currentData[i][key];
       }
@@ -565,44 +518,10 @@ var LeafFormGrid = function (containerID, options) {
 
   /**
    * @memberOf LeafFormGrid
+   * @deprecated No-longer needed due to the end of IE7 support
    */
   function renderVirtualHeader() {
-    if (!isRenderingVirtualHeader) {
-      return false;
-    }
-
-    var virtHeaderSizes = [];
-    $("#" + prefixID + "thead>tr>th").each(function () {
-      virtHeaderSizes.push($(this).css("width"));
-    });
-
-    $("#" + prefixID + "table_stickyHeader > table").css({
-      width: $("#" + prefixID + "thead").css("width"),
-      height: "30px",
-    });
-    $("#" + prefixID + "table_stickyHeader > table > thead > tr > th").each(
-      function (idx) {
-        $(this).css({
-          width: virtHeaderSizes[idx],
-          padding: "2px",
-          "font-weight": "normal",
-        });
-      }
-    );
-
-    $("#" + prefixID + "table_stickyHeader > table").css({
-      border: "1px solid black",
-      "border-collapse": "collapse",
-      margin: "0 2px 0",
-    });
-    $("#" + prefixID + "table_stickyHeader > table > thead > tr").css({
-      "background-color": "black",
-      color: "white",
-    });
-    $("#" + prefixID + "table_stickyHeader > table > thead > tr > th").css(
-      "border",
-      "1px solid #e0e0e0"
-    );
+    return false;
   }
 
   /**
@@ -611,6 +530,7 @@ var LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    */
   function renderBody(startIdx, limit) {
+    renderRequest = currentRenderIndex;
     isRenderingBody = true;
     if (preRenderFunc != null) {
       preRenderFunc();
@@ -621,24 +541,21 @@ var LeafFormGrid = function (containerID, options) {
     }
     currLimit = limit;
 
-    var fullRender = false;
     if (startIdx == undefined || startIdx == 0) {
       startIdx = 0;
-      $("#" + prefixID + "tbody").empty();
+      document.querySelector(`#${prefixID}tbody`).innerHTML = '';
       renderHistory = {};
-      fullRender = true;
+      currentRenderIndex = 0;
+      renderRequest = 0;
     }
 
     var buffer = "";
     var callbackBuffer = [];
+    let outputBuffer = []; // buffer of pre-rendered rows
 
     var colspan = showIndex ? headers.length + 1 : headers.length;
     if (currentData.length == 0) {
-      $("#" + prefixID + "tbody").append(
-        '<tr><td colspan="' +
-          colspan +
-          '" style="text-align: center">No Results</td></tr>'
-      );
+      document.querySelector(`#${prefixID}tbody`).innerHTML = `<tr><td colspan="${colspan}" style="text-align: center">No Results</td></tr>`;
     }
     var counter = 0;
     var validateHtml = document.createElement("div");
@@ -654,6 +571,14 @@ var LeafFormGrid = function (containerID, options) {
       }
 
       renderHistory[currentData[i].recordID] = 1;
+
+      if(renderCache[currentData[i].recordID] != undefined) {
+        outputBuffer.push(renderCache[currentData[i].recordID]);
+        counter++;
+
+        currentRenderIndex = i + 1;
+        continue;
+      }
       buffer +=
         '<tr id="' + prefixID + "tbody_tr" + currentData[i].recordID + '">';
       if (showIndex) {
@@ -689,47 +614,18 @@ var LeafFormGrid = function (containerID, options) {
             if (currentData[i].s1 == undefined) {
               currentData[i].s1 = {};
             }
-            data.data =
-              currentData[i].s1["id" + headers[j].indicatorID] != undefined
-                ? currentData[i].s1["id" + headers[j].indicatorID]
-                : "";
+            data.data = '';
+            if(currentData[i].s1["id" + headers[j].indicatorID] != undefined) {
+              data.data = currentData[i].s1["id" + headers[j].indicatorID];
+            }
             validateHtml.innerHTML = data.data;
             data.data = validateHtml.innerHTML;
-            if (
-              currentData[i].s1["id" + headers[j].indicatorID + "_htmlPrint"] !=
-              undefined
-            ) {
-              var htmlPrint =
-                '<textarea id="data_' +
-                currentData[i].recordID +
-                "_" +
-                headers[j].indicatorID +
-                '_1" style="display: none">' +
-                data.data +
-                "</textarea>";
-              htmlPrint += currentData[i].s1[
-                "id" + headers[j].indicatorID + "_htmlPrint"
-              ]
-                .replace(
-                  /{{ iID }}/g,
-                  currentData[i].recordID + "_" + headers[j].indicatorID
-                )
+            if (currentData[i].s1[`id${headers[j].indicatorID}_htmlPrint`] != undefined) {
+              let htmlPrint = `<textarea id="data_${currentData[i].recordID}_${headers[j].indicatorID}_1" style="display: none">${data.data}</textarea>`;
+              htmlPrint += currentData[i].s1[`id${headers[j].indicatorID}_htmlPrint`]
+                .replace(/{{ iID }}/g, currentData[i].recordID + "_" + headers[j].indicatorID)
                 .replace(/{{ recordID }}/g, currentData[i].recordID);
-              buffer +=
-                '<td id="' +
-                prefixID +
-                currentData[i].recordID +
-                "_" +
-                headers[j].indicatorID +
-                '" data-editable="' +
-                editable +
-                '" data-record-id="' +
-                currentData[i].recordID +
-                '" data-indicator-id="' +
-                headers[j].indicatorID +
-                '">' +
-                htmlPrint +
-                "</td>";
+              buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-editable="${editable}" data-record-id="${currentData[i].recordID}" data-indicator-id="${headers[j].indicatorID}">${htmlPrint}</td>`;
             } else {
               if (headers[j].cols !== undefined) {
                 if (
@@ -753,35 +649,10 @@ var LeafFormGrid = function (containerID, options) {
                   );
                 }
               }
-              buffer += `<td id="${prefixID + currentData[i].recordID}_${
-                headers[j].indicatorID
-              }"
-                                           data-editable="${editable}"
-                                           data-record-id="${
-                                             currentData[i].recordID
-                                           }"
-                                           data-indicator-id="${
-                                             headers[j].indicatorID
-                                           }"
-                                           data-format="${
-                                             currentData[i].s1[
-                                               "id" +
-                                                 headers[j].indicatorID +
-                                                 "_format"
-                                             ]
-                                           }">
-                                            ${data.data}</td>`;
+              buffer += `<td id="${prefixID + currentData[i].recordID}_${headers[j].indicatorID}" data-editable="${editable}" data-record-id="${currentData[i].recordID}" data-indicator-id="${headers[j].indicatorID}">${data.data}</td>`;
             }
           } else if (headers[j].callback != undefined) {
-            buffer +=
-              '<td id="' +
-              prefixID +
-              currentData[i].recordID +
-              "_" +
-              headers[j].indicatorID +
-              '" data-clickable="' +
-              editable +
-              '"></td>';
+            buffer += `<td id="${prefixID}${currentData[i].recordID}_${headers[j].indicatorID}" data-clickable="${editable}"></td>`;
           } else {
             buffer +=
               '<td id="' +
@@ -792,7 +663,7 @@ var LeafFormGrid = function (containerID, options) {
               '"></td>';
           }
 
-          if (headers[j].callback != undefined) {
+          if (headers[j].callback != undefined && (renderCache[currentData[i].recordID] == undefined || renderCache[currentData[i].recordID][data.indicatorID] == undefined)) {
             callbackBuffer.push(
               (function (funct, data) {
                 return function () {
@@ -814,33 +685,40 @@ var LeafFormGrid = function (containerID, options) {
       buffer += "</tr>";
       counter++;
 
-      if (fullRender) {
-        currentRenderIndex = i + 1;
-      }
+      currentRenderIndex = i + 1;
     }
 
+    let domTableBody = document.querySelector(`#${prefixID}tbody`);
+    domTableBody.insertAdjacentHTML('beforeend', buffer);
+
+    for (let i in outputBuffer) {
+      domTableBody.appendChild(outputBuffer[i]);
+    }
+
+    if(rowHeight == 0) {
+      rowHeight = domTableBody.offsetHeight / currentRenderIndex;
+    }
+    fillerHeight = (rowHeight * (currentData.length - currentRenderIndex));
     if (
-      currentRenderIndex + limit >= currentData.length ||
+      currentRenderIndex >= currentData.length ||
       limit == undefined
     ) {
-      $("#" + prefixID + "tfoot").html("");
+      document.querySelector(`#${prefixID}tfoot`).innerHTML = '';
     } else {
-      $("#" + prefixID + "tfoot").html(
-        "<tr><td colspan=" +
-          colspan +
-          ' style="padding: 8px; background-color: #feffd1; font-size: 120%; font-weight: bold"><img src="' +
-          rootURL +
-          'images/indicator.gif" style="vertical-align: middle" alt="" /> Loading more results...</td></tr>'
-      );
+      let tfootBuf = `<tr style="height: ${fillerHeight}px">`;
+      document.querySelectorAll(`#${prefixID}thead_tr th`).forEach(el => {
+        tfootBuf += `<td></td>`;
+      });
+      tfootBuf += `</tr>`;
+      document.querySelector(`#${prefixID}tfoot`).innerHTML = tfootBuf;
     }
 
-    $("#" + prefixID + "tbody").append(buffer);
-    $("#" + prefixID + "tbody td[data-editable=true]").addClass(
-      "table_editable"
-    );
-    $("#" + prefixID + "tbody td[data-clickable=true]").addClass(
-      "table_editable"
-    );
+    document.querySelectorAll(`#${prefixID}tbody td[data-editable=true]`).forEach(el => {
+      el.classList.add('table_editable');
+    });
+    document.querySelectorAll(`#${prefixID}tbody td[data-clickable=true]`).forEach(el => {
+      el.classList.add('table_editable');
+    });
     $("#" + prefixID + "tbody").unbind("click"); //prevents multiple firing on same report builder element, which causes subsequent problems with icheck
     $("#" + prefixID + "tbody").on(
       "click",
@@ -860,14 +738,23 @@ var LeafFormGrid = function (containerID, options) {
       callbackBuffer[i]();
     }
 
-    $("#" + prefixID + "table>tbody>tr>td").css({
-      border: "1px solid black",
-      padding: "8px",
-    });
     if (postRenderFunc != null) {
       postRenderFunc();
     }
-    renderVirtualHeader();
+
+    // Cache rendered content
+    if(limit == Infinity && !processedCallbackBuffer && !disabledRenderCache) {
+      renderCache = {};
+      processedCallbackBuffer = true;
+      for (let i in currentData) {
+        for(let j in headers) {
+          let id = currentData[i].recordID;
+          if (renderCache[id] == undefined) {
+            renderCache[id] = document.querySelector(`#${prefixID}tbody_tr${currentData[i].recordID}`);
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -886,6 +773,7 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
+   * @deprecated See example.tpl for more efficient formGrid usage.
    * @memberOf LeafFormGrid
    */
   function loadData(recordIDs, callback) {
@@ -937,6 +825,7 @@ var LeafFormGrid = function (containerID, options) {
         if (postProcessDataFunc != null) {
           currentData = postProcessDataFunc(currentData);
         }
+        document.querySelector(`#${prefixID}table`).setAttribute('aria-rowcount', currentData.length);
         sort("recordID", "desc");
         renderBody(0, defaultLimit);
 
@@ -956,6 +845,8 @@ var LeafFormGrid = function (containerID, options) {
   function setData(data) {
     isDataLoaded = true;
     currentData = data;
+    processedCallbackBuffer = false;
+    document.querySelector(`#${prefixID}table`).setAttribute('aria-rowcount', currentData.length);
   }
 
   /**
@@ -992,12 +883,19 @@ var LeafFormGrid = function (containerID, options) {
         'dynicons/?img=x-office-spreadsheet.svg&w=16" alt="" /> Export</button>'
     );
 
-    $("#" + prefixID + "getExcel").on("click", function () {
+    $("#" + prefixID + "getExcel").on("click", async function () {
+      // get indicator formats in case they need special handling (e.g. dates)
+      let iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format").then(res => res.json());
+      let indicatorFormats = {};
+      iFormatData.forEach(i => {
+        indicatorFormats[i.indicatorID] = i.format;
+      });
+
       if (currentRenderIndex != currentData.length) {
         renderBody(0, Infinity);
       }
-      var output = [];
-      var headers = [];
+      let output = [];
+      let headers = [];
       //removes triangle symbols so that ascii chars are not present in exported headers.
       $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
         $(val).html("");
@@ -1007,30 +905,32 @@ var LeafFormGrid = function (containerID, options) {
       });
       output.push(headers); //first row will be headers
 
-      var line = [];
-      var i = 0;
-      var thisSite = document.createElement("a");
-      var numColumns = headers.length - 1;
+      let line = [];
+      let i = 0;
+      let numColumns = headers.length - 1;
       document
         .querySelectorAll("#" + prefixID + "tbody>tr>td")
         .forEach(function (val) {
-          var foundScripts = val.querySelectorAll("script");
+          let foundScripts = val.querySelectorAll("script");
 
-          for (var tIdx = 0; tIdx < foundScripts.length; tIdx++) {
+          for (let tIdx = 0; tIdx < foundScripts.length; tIdx++) {
             foundScripts[tIdx].parentNode.removeChild(foundScripts[tIdx]);
           }
 
-          var trimmedText = val.innerText.trim();
+          let trimmedText = val.innerText.trim();
           line[i] = trimmedText;
-          //prevent some values from being interpretted as dates by excel
-          const dataFormat = val.getAttribute("data-format");
-          const testDateFormat = /^\d+[\/-]\d+([\/-]\d+)?$/;
-          line[i] =
-            dataFormat !== null &&
-            dataFormat !== "date" &&
-            testDateFormat.test(line[i])
-              ? `="${line[i]}"`
-              : line[i];
+          //prevent some values from being interpreted as dates by excel
+          const dataFormat = indicatorFormats[val.getAttribute("data-indicator-id")];
+          const testExcelDateFormat = /^\d{1,2}[\/-]\d{1,2}([\/-]\d{2,4})?$/; // Excel thinks these are dates
+          const isNumber = /^\d+$/;
+
+          if(dataFormat == 'text') {
+              if(isNumber.test(line[i]) // workaround for excel's handling of very large numbers (e.g. serial number)
+                 || testExcelDateFormat.test(line[i])) {
+                  line[i] = `="${line[i]}"`;
+              }
+          }
+
           if (i == 0 && headers[i] == "UID") {
             line[i] =
               '=HYPERLINK("' +
@@ -1060,8 +960,8 @@ var LeafFormGrid = function (containerID, options) {
         rows += '"' + thisRow.join('","') + '",\r\n';
       });
 
-      var download = document.createElement("a");
-      var now = new Date().getTime();
+      let download = document.createElement("a");
+      let now = new Date().getTime();
       download.setAttribute(
         "href",
         "data:text/csv;charset=utf-8," + encodeURIComponent(rows)
@@ -1137,6 +1037,15 @@ var LeafFormGrid = function (containerID, options) {
     return null;
   }
 
+  /**
+   * @memberOf LeafFormGrid
+   * Disables the sticky header
+   */
+  function disableStickyHeader() {
+    document.querySelector(`#${prefixID}thead`).style.position = 'static';
+    document.querySelector(`#${prefixID}thead`).style.top = 'auto';
+  }
+
   return {
     getPrefixID: function () {
       return prefixID;
@@ -1152,6 +1061,13 @@ var LeafFormGrid = function (containerID, options) {
     },
     hideIndex: hideIndex,
     setHeaders: setHeaders,
+    getNumHeaders: () => {
+      if(showIndex) {
+        return headers.length + 1;
+      } else {
+        return headers.length;
+      }
+    },
     sort: sort,
     renderVirtualHeader: renderVirtualHeader,
     renderBody: renderBody,
@@ -1173,8 +1089,14 @@ var LeafFormGrid = function (containerID, options) {
     },
     getDataByIndex: getDataByIndex,
     getDataByRecordID: getDataByRecordID,
-    disableVirtualHeader: function () {
-      isRenderingVirtualHeader = false;
+    disableStickyHeader: disableStickyHeader,
+    disableVirtualHeader: function () { // backward compat
+      disableStickyHeader();
+    },
+    disableRenderCache: () => disabledRenderCache = true,
+    setStickyHeaderOffset: function (offset) {
+      document.querySelector(`#${prefixID}thead`).style.top = offset;
+      stickyHeaderOffset = Number(offset.replace('px', ''));
     },
     stop: function () {
       isRenderingBody = false;

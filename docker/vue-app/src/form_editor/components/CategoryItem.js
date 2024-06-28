@@ -27,7 +27,7 @@ export default {
             return stapledForms;
         },
         isStapledToOtherForm() {
-            return this.allStapledFormCatIDs.includes(this.catID);
+            return this.allStapledFormCatIDs?.[this.catID] > 0;
         },
         /**
          * @returns {string} form name / description
@@ -87,7 +87,7 @@ export default {
                 </router-link>
             </td>
             <td class="formPreviewDescription">{{ formDescription }}</td>
-            <td v-if="availability !== 'supplemental'">{{ workflowDescription }}</td>
+            <td v-if="availability !== 'supplemental'" style="height: 40px; padding: 0"><a :href="'?a=workflow&workflowID='+ workflowID">{{ workflowDescription }}</a></td>
             <td v-else>
                 <div v-if="isStapledToOtherForm" style="display: flex; justify-content: center;">
                     <span role="img" aria="">📑</span>&nbsp;Stapled

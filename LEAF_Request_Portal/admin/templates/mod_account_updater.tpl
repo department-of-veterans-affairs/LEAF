@@ -44,7 +44,7 @@ label input {
     margin-left: 0.25rem;
     cursor: pointer;
 }
-table th:not([id^="Vheader"]) {
+table th {
     background-color: #252f3e;
     color: white;
     font-weight: normal;
@@ -361,8 +361,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
             .then(res => res.json()).then(data => {
                 let groupInfo = {};
                 //filter groups directly associated with old account (position handled differently)
-                const selectedAccountGroups = data.filter(g => g.members.some(m => m.userName === oldAccount &&
-                        (parseInt(m.locallyManaged) === 1 || m.regionallyManaged === true)));
+                const selectedAccountGroups = data.filter(g => g.members.some(m => m.userName === oldAccount));
 
                 selectedAccountGroups.forEach(g => {
                     let oldMemberSettings = g.members.find(m => m.userName === oldAccount);
@@ -410,7 +409,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             callback: function(data, blob) {
                                 const k = `group_${data.recordID}`;
                                 const isLocal = parseInt(groupInfo[k].oldMemberSettings.locallyManaged) === 1;
-                                const isRegional = groupInfo[k].oldMemberSettings.regionallyManaged === true;
+                                const isRegional = !isLocal;
 
                                 const displayName = `${groupInfo[k].oldMemberSettings.lastName}, ${groupInfo[k].oldMemberSettings.firstName}`;
                                 const username = `${groupInfo[k].oldMemberSettings.userName}`;
@@ -423,7 +422,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                                 document.getElementById(data.cellContainerID).innerHTML = htmlContent;
                             }
                         },
-                        {   //the input selector can't be an id because the same value will be given to the Vheader
+                        {
                             name: `<label for="confirm_group_updates">Select All Groups
                                 <input type="checkbox" class="confirm_group_updates" onclick="checkAll(event)" checked />
                             </label>`,
@@ -748,7 +747,7 @@ function enqueueTask(res = {}, accountAndTaskInfo = {}, queue = {}) {
             indicatorID: res[recordID]?.indicatorID || 0,
             positionTitle: res[recordID]?.positionTitle || 0,
             locallyManaged: res[recordID]?.oldMemberSettings?.locallyManaged,
-            regionallyManaged: res[recordID]?.oldMemberSettings?.regionallyManaged,
+            regionallyManaged: !res[recordID]?.oldMemberSettings?.locallyManaged,
             newAccountExistsInGroup: res[recordID]?.newAccountExistsInGroup,
             newAccountExistsForPosition: res[recordID]?.newAccountExistsForPosition
         }

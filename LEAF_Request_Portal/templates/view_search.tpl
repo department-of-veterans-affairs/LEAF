@@ -37,8 +37,8 @@ function renderResult(leafSearch, res) {
             priority = '';
             priorityStyle = '';
             if(blob[data.recordID].priority == -10) {
-                priority = '<span style="color: red"> ( Emergency ) </span>';
-                priorityStyle = ' style="background-color: red; color: black"';
+                priority = '<span style="color:#c00000;"> (&nbsp;Emergency&nbsp;)</span>';
+                priorityStyle = ' style="background-color:#FF4040; color: black"';
             }
 
             document.querySelector(`#${data.cellContainerID}`).innerHTML =
@@ -222,7 +222,8 @@ function main() {
         else if(isJSON) {
             for(let i in advSearch) {
                 if(advSearch[i].id != 'data'
-                    && advSearch[i].id != 'dependencyID') {
+                    && advSearch[i].id != 'dependencyID'
+                    && advSearch[i].id != 'stepAction') {
                     query.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match, advSearch[i].gate);
                 }
                 else {

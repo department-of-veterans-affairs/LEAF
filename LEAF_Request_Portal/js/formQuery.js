@@ -302,7 +302,7 @@ var LeafFormQuery = function () {
     if (query.getData != undefined && query.getData.length == 0) {
       delete query.getData;
     }
-    if (query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 1000) {
+    if (query.limit == undefined || isNaN(query.limit) || parseInt(query.limit) > 1000 || !isFinite(query.limit)) {
       return getBulkData();
     }
 
@@ -331,6 +331,7 @@ var LeafFormQuery = function () {
     updateTerm,
     updateDataTerm,
     setQuery: (inc) => query = inc,
+    setBatchSize: (size) => batchSize = size,
     setLimit,
     setLimitOffset,
     setRootURL: (url) => rootURL = url,
@@ -342,6 +343,7 @@ var LeafFormQuery = function () {
     onSuccess,
     onProgress,
     setAbortSignal,
+    getResults: () => results,
     execute
   };
 };

@@ -13,7 +13,7 @@
         <!--{if $submitted == 0}-->
             <div id="progressSidebar" style="border: 1px solid black">
                 <div
-                    style="background-color: #d76161; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">
+                    style="background-color: #b74141; padding: 8px; margin: 0px; color: white; text-shadow: black 0.1em 0.1em 0.2em; font-weight: bold; text-align: center; font-size: 120%">
                     Form completion progress</div>
                 <div id="progressControl"
                     style="padding: 16px; text-align: center; background-color: #ffaeae; font-weight: bold; font-size: 120%">
@@ -90,7 +90,7 @@
             <form id='note_form'>
                 <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />
                 <input type='text' id='note' name='note' placeholder='Enter a note!' />
-                <div id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</div>
+                <button type="button" id='add_note' class='button' onclick="submitNote(<!--{$recordID|strip_tags}-->)">Post</button>
             </form>
         </div>
         <!--{section name=i loop=$comments}-->

@@ -1,4 +1,4 @@
-For Help contact your primary admin:
+For Help contact your primary admin
 <div id="help-primary-admin" style="font-weight:bold;">Searching...</div>
 <script type="text/javascript">
     let observPrimaryAdmin = new IntersectionObserver(function(entities) {
@@ -8,20 +8,16 @@ For Help contact your primary admin:
                 url: "api/system/primaryadmin",
                 dataType: "json",
                 success: function(response) {
-                    var emailString = response['Email'] != '' ? " - " + response['Email'] : '';
-                    if(response["Fname"] !== undefined)
-                    {
-                        $('#help-primary-admin').html(response['Fname'] + " " + response['Lname'] + emailString);
-                    }
-                    else if(response["userName"] !== undefined)
-                    {
-                        $('#help-primary-admin').html(response['userName']);
-                    }
-                    else
-                    {
-                        $('#help-primary-admin').html('Primary Admin has not been set.');
-                    }
-                        
+                    const fullName = ((response['Fname'] || '') + ' ' + (response['Lname'] || '')).trim();
+                    const userName = response["userName"] || '';
+                    const nameDisplay = fullName || userName;
+                    const email = response['Email'] || '';
+
+                    const adminInfo = email !== '' ?
+                        '<div>Primary Admin:</div>' + nameDisplay + ' - <br/><a href="mailto:' + email+ '">' + email + '</a>' :
+                        'Primary Admin has not been set.';
+
+                    $('#help-primary-admin').html('<div id="help_admin_info">' + adminInfo + '</div>');
                 }
             });
         }

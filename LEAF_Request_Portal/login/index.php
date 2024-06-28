@@ -26,7 +26,8 @@ function getBaseDir()
 //$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
 $protocol = 'https://';
 
-$authURL = $protocol . AUTH_URL . '/auth_token/index.php?r=' . base64_encode(getBaseDir());
+$authURL = $protocol . HTTP_HOST . getBaseDir() . '/auth_cookie/index.php?r=' . base64_encode(getBaseDir());
+$authCertURL = $protocol . AUTH_CERT_URL . '/auth_token/index.php?r=' . base64_encode(getBaseDir());
 
 ?>
 <!DOCTYPE html>
@@ -42,7 +43,7 @@ $authURL = $protocol . AUTH_URL . '/auth_token/index.php?r=' . base64_encode(get
 <body>
 <div id="header">
     <div>
-      <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA logo and Seal, U.S. Department of Veterans Affairs" /></span>
+      <span style="position: absolute"><img src="../images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" /></span>
       <span id="headerLabel"><?php echo htmlentities($settings['subHeading']); ?></span>
       <span id="headerDescription"><?php echo htmlentities($settings['heading']); ?></span>
     </div>
@@ -63,7 +64,9 @@ When logging into this system, you agree to the following:<br />
     This information system is provided for U.S. Government-authorized use only. Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.<br /><br />
 
     <div style="font-size: 150%">
-        <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV/CAC card</b><img src="../dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV/CAC card" title="Icon for PIV/CAC card" /></div></a>
+        <a href="<?php echo $authCertURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV/CAC card</b><img src="../dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" alt="Icon for PIV/CAC card" title="Icon for PIV/CAC card" /></div></a>
+        <br>
+        <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>Windows Login</b><img src="../dynicons/?img=system-log-out.svg&amp;w=32" style="padding-left: 8px" alt="Icon for Windows Login" title="Icon for Windows Login" /></div></a>
     </div>
 </div>
 

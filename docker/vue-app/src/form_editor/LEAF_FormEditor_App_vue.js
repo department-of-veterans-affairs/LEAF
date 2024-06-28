@@ -11,7 +11,7 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             CSRFToken: CSRFToken,
-            hasDevConsoleAccess: +hasDevConsoleAccess,
+            hasDevConsoleAccess: hasDevConsoleAccess,
             ajaxResponseMessage: '',
 
             siteSettings: {},
@@ -23,7 +23,7 @@ export default {
             appIsLoadingCategories: true,
 
             categories: {},
-            allStapledFormCatIDs: [],         //cat IDs of forms stapled to anything
+            allStapledFormCatIDs: {},    //table of cat IDs of forms stapled to anything, val is num times used
             advancedMode: false,
 
             /* modal properties */
@@ -55,7 +55,6 @@ export default {
             hasDevConsoleAccess: this.hasDevConsoleAccess,
             getSiteSettings: this.getSiteSettings,
             setDefaultAjaxResponseMessage: this.setDefaultAjaxResponseMessage,
-            editIndicatorPrivileges: this.editIndicatorPrivileges,
             selectIndicator: this.selectIndicator,
             updateCategoriesProperty: this.updateCategoriesProperty,
             updateStapledFormsInfo: this.updateStapledFormsInfo,
@@ -213,23 +212,24 @@ export default {
          */
         getEnabledCategories() {
             this.appIsLoadingCategories = true;
-            $.ajax({
-                type: 'GET',
-                url: `${this.APIroot}formStack/categoryList/allWithStaples`,
-                success: (res) => {
-                    this.categories = {};
-                    for(let i in res) {
-                        this.categories[res[i].categoryID] = res[i];
-                        res[i].stapledFormIDs.forEach(id => {
-                            if (!this.allStapledFormCatIDs.includes(id)) {
-                                this.allStapledFormCatIDs.push(id);
-                            }
-                        });
-                    }
-                    this.appIsLoadingCategories = false;
-                },
-                error: (err)=> console.log(err)
-            });
+            try {
+                fetch(`${this.APIroot}formStack/categoryList/allWithStaples`).then(res => {
+                    res.json().then(data => {
+                        this.allStapledFormCatIDs = {};
+                        this.categories = {};
+                        for(let i in data) {
+                            this.categories[data[i].categoryID] = data[i];
+                            data[i].stapledFormIDs.forEach(id => {
+                                this.allStapledFormCatIDs[id] = this.allStapledFormCatIDs[id] === undefined ?
+                                    1 : this.allStapledFormCatIDs[id] + 1;
+                            });
+                        }
+                        this.appIsLoadingCategories = false;
+                    });
+                });
+            } catch(error) {
+                console.log('error getting categories', error);
+            }
         },
         /**
          * @returns {Object} of all records from the portal's settings table.  Followup Leaf Secure check if leafSecure date exists
@@ -276,10 +276,9 @@ export default {
             let secureCalls = [
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}form/indicator/list`,
+                    url: `${this.APIroot}form/indicator/list?x-filterData=timeAdded`,
                     success: (res)=> {},
                     error: (err) => console.log(err),
-                    cache: false,
                 }),
 
                 this.fetchLEAFSRequests(true)
@@ -355,8 +354,14 @@ export default {
             const formID = catID;
             if(removeStaple === true) {
                 this.categories[formID].stapledFormIDs = this.categories[formID].stapledFormIDs.filter(id => id !== stapledCatID);
+                if(this.allStapledFormCatIDs?.[stapledCatID] > 0) {
+                    this.allStapledFormCatIDs[stapledCatID] = this.allStapledFormCatIDs[stapledCatID] - 1;
+                } else {
+                    console.log("check staple calc")
+                }
             } else {
-                this.allStapledFormCatIDs = Array.from(new Set([...this.allStapledFormCatIDs, stapledCatID]));
+                this.allStapledFormCatIDs[stapledCatID] = this.allStapledFormCatIDs[stapledCatID] === undefined ?
+                    1 : this.allStapledFormCatIDs[stapledCatID] + 1;
                 this.categories[formID].stapledFormIDs = Array.from(new Set([...this.categories[formID].stapledFormIDs, stapledCatID]));
             }
         },
@@ -445,7 +450,7 @@ export default {
             this.showFormDialog = true;
         },
         openEditCollaboratorsDialog() {
-            this.setCustomDialogTitle('<h2>Editing Collaborators</h2>');
+            this.setCustomDialogTitle('<h2>Customize Write Access</h2>');
             this.setFormDialogComponent('edit-collaborators-dialog');
             this.dialogButtonText = {confirm: 'Add', cancel: 'Close'};
             this.showFormDialog = true;
@@ -472,7 +477,7 @@ export default {
                 title = `<h2>Adding new Section</h2>`;
             } else {
                 title = indicatorID === null ?
-                `<h2>Adding question to ${parentID}</h2>` : `<h2>Editing indicator ${indicatorID}</h2>`;
+                `<h2>Adding question to ${parentID}</h2>` : `<h2>Editing indicatorID ${indicatorID}</h2>`;
             }
             this.dialogData = {
                 indicatorID,

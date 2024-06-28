@@ -2,7 +2,7 @@ import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
 import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
 
-import BrowserAndRestoreMenu from "../components/BrowserAndRestoreMenu.js";
+import BrowserMenu from "../components/BrowserMenu.js";
 import FormBrowser from '../components/FormBrowser.js';
 
 export default {
@@ -11,7 +11,7 @@ export default {
         LeafFormDialog,
         NewFormDialog,
         ImportFormDialog,
-        BrowserAndRestoreMenu,
+        BrowserMenu,
         FormBrowser
     },
     inject: [
@@ -31,7 +31,7 @@ export default {
             }
         });
     },
-    template: `<BrowserAndRestoreMenu />
+    template: `<BrowserMenu />
     <section>
         <div v-if="appIsLoadingCategories" class="page_loading">
             Loading... 
@@ -42,7 +42,7 @@ export default {
         <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
             <template #dialog-content-slot>
-                <component :is="dialogFormContent"></component>
+                <component :is="dialogFormContent" @import-form="getEnabledCategories"></component>
             </template>
         </leaf-form-dialog>
     </section>`

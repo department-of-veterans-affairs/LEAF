@@ -1,31 +1,31 @@
 <div id="maincontent">
 
-<a href="../?a=browse_group" tabindex="-1">
-    <span class="menuButton" style="background-color: #cb9ed7" tabindex="0">
+<a href="../?a=browse_group">
+    <span class="menuButton" style="background-color: #cb9ed7">
         <img class="menuIcon" src="../dynicons/?img=preferences-desktop-theme.svg&amp;w=96" style="position: relative" alt="" />
         <span class="menuText">Search Groups</span><br />
         <span class="menuDesc">View groups such as services, sub-sections, etc.</span>
     </span>
 </a>
 
-<a href="?a=admin_refresh_directory" tabindex="-1">
-    <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
+<a href="?a=admin_refresh_directory">
+    <span class="menuButton" style="background-color: #ffefa5">
         <img class="menuIcon" src="../dynicons/?img=system-software-update.svg&amp;w=96" style="position: relative" alt="" />
         <span class="menuText">Refresh Directory</span><br />
         <span class="menuDesc">Update account list from Active Directory</span>
     </span>
 </a>
 
-<a href="?a=setup_medical_center" tabindex="-1">
-    <span class="menuButton" style="background-color: #c6ffbe" tabindex="0">
+<a href="?a=setup_medical_center">
+    <span class="menuButton" style="background-color: #c6ffbe">
         <img class="menuIcon" src="../dynicons/?img=preferences-system.svg&amp;w=96" style="position: relative" alt="" />
         <span class="menuText">Setup Wizard</span><br />
         <span class="menuDesc">Initial setup for VA Medical Centers</span>
     </span>
 </a>
 
-<a href="?a=mod_templates_reports" tabindex="-1">
-    <span class="menuButton" style="background-color: black" tabindex="0">
+<a href="?a=mod_templates_reports">
+    <span class="menuButton" style="background-color: black">
         <img class="menuIcon" src="../dynicons/?img=utilities-terminal.svg&amp;w=76" style="position: relative" alt="" />
         <span class="menuText" style="color: white">Report Programmer</span><br />
         <span class="menuDesc" style="color: white">Advanced Reports and Custom Pages</span>
@@ -38,38 +38,38 @@
 <br style="clear: both" />
 <br />
 
-<div id="btn_programmerMode" class="buttonNorm" tabindex="0">Other Tools</div>
+<button id="btn_programmerMode" class="buttonNorm" style="padding:0.5rem;">Other Tools</button>
 
 <div id="programmerMode" style="display: none">
 <hr />
 Programmer Options:<br />
 
-<a href="../?a=browse_search" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
+<a href="../?a=browse_search">
+    <span class="menuButtonSmall" style="background-color: #414141">
         <img class="menuIconSmall" src="../dynicons/?img=system-search.svg&amp;w=72" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Search</span><br />
         <span class="menuDescSmall" style="color: white">All-in-one search</span>
     </span>
 </a>
 
-<a href="#" onclick="newEmployee()" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: #414141" tabindex="0">
+<a href="#" onclick="newEmployee()">
+    <span class="menuButtonSmall" style="background-color: #414141">
         <img class="menuIconSmall" src="../dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Import Employee</span><br />
         <span class="menuDescSmall" style="color: white">Old tool to import employees into the database</span>
     </span>
 </a>
 
-<a href="?a=import_employees_from_spreadsheet" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
+<a href="?a=import_employees_from_spreadsheet">
+    <span class="menuButtonSmall" style="background-color: black">
         <img class="menuIconSmall" src="../dynicons/?img=list-add.svg&amp;w=72" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Spreadsheet Import</span><br />
         <span class="menuDescSmall" style="color: white">Batch add employees from spreadsheet</span>
     </span>
 </a>
 
-<a href="?a=mod_system" tabindex="-1">
-    <span class="menuButtonSmall" style="background-color: black" tabindex="0">
+<a href="?a=mod_system">
+    <span class="menuButtonSmall" style="background-color: black">
         <img class="menuIconSmall" src="../dynicons/?img=preferences-desktop.svg&amp;w=72" style="position: relative" alt="" />
         <span class="menuTextSmall" style="color: white">Change Site Name</span><br />
         <span class="menuDescSmall" style="color: white">Edit site name and other parameters</span>
@@ -78,8 +78,8 @@ Programmer Options:<br />
 
 
 
-<a href="?a=admin_update_database" tabindex="-1">
-    <span class="menuButton" style="background-color: #ffefa5" tabindex="0">
+<a href="?a=admin_update_database">
+    <span class="menuButton" style="background-color: #ffefa5">
         <img class="menuIcon" src="../dynicons/?img=application-x-executable.svg&amp;w=96" style="position: relative" alt=""  />
         <span class="menuText">Update Database</span><br />
         <span class="menuDesc">Updates the system database, if available</span>

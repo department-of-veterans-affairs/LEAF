@@ -58,6 +58,7 @@ class Email
     const NOTIFY_COMPLETE = -3;
     const EMAIL_REMINDER = -4;
     const AUTOMATED_EMAIL_REMINDER = -5;
+    const CANCEL_REQUEST = -7;
 
     public function __construct()
     {
@@ -360,8 +361,15 @@ class Email
      */
     private function logEmailSent(int $recordID): void
     {
+        $recipients = $this->emailRecipient;
+        foreach($this->emailCC as $cc) {
+            $recipients.=", ".$cc;
+        };
         $email_tracker = new EmailTracker($this->portal_db);
-        $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $this->emailRecipient, 'Subject: ' . $this->emailSubject);
+
+        // the second argument in this method is a list of recipients. The format needs to be "Recipient(s): <email@address.com>[, <email@address.com>]"
+        // this list of recipients is used in the processPriorStepsEmailed method below and expects this format.
+        $email_tracker->postEmailTracker($recordID, 'Recipient(s): ' . $recipients, 'Subject: ' . $this->emailSubject);
     }
 
     /**
@@ -621,7 +629,7 @@ class Email
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
-                if (strlen($approver['approverID']) > 0) {
+                if (!empty($approver['approverID']) && strlen($approver['approverID']) > 0) {
                     $tmp = $dir->lookupLogin($approver['approverID']);
                     if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                         $this->addRecipient($tmp[0]['Email']);
@@ -672,7 +680,7 @@ class Email
 
                         $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
 
-                        // empuid is required to move forward, make sure this exists before continuing. 
+                        // empuid is required to move forward, make sure this exists before continuing.
                         // This can be a result of user not setting a user in form field
                         if(is_array($resEmpUID) && !empty($resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']])){
 
@@ -724,8 +732,8 @@ class Email
                         $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
 
                         $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
-                        
-                        // groupid is required to move forward, make sure this exists before continuing. 
+
+                        // groupid is required to move forward, make sure this exists before continuing.
                         // This can be a result of user not setting a group in form field
                         if(is_array($resGroupID) && !empty($resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']])){
                             $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
@@ -742,14 +750,7 @@ class Email
             $return_value = $this->sendMail($recordID);
         } elseif ($emailTemplateID === -4) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
-            $vars = array(':recordID' => $recordID);
-            $strSQL =  "SELECT rec.userID, rec.serviceID, ser.service, rec.title,
-                            rec.lastStatus
-                        FROM records AS rec
-                        LEFT JOIN services AS ser USING (serviceID)
-                        WHERE recordID=:recordID";
-
-            $recordInfo = $this->portal_db->prepared_query($strSQL, $vars);
+            $recordInfo = $this->getRecord($recordID);
 
             $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
 
@@ -773,10 +774,91 @@ class Email
                 $this->addRecipient($tmp[0]['Email']);
             }
             $return_value = $this->sendMail($recordID);
+        } elseif ($emailTemplateID === -7) {
+            $recordInfo = $this->getRecord($recordID);
+            $comments = $this->getDeletedComments($recordID);
+
+            $comment = $comments[0]['comment'] === '' ? '' : 'Reason for cancelling: ' . $comments[0]['comment'] . '<br /><br />';
+
+            $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
+
+            $this->addSmartyVariables(array(
+                "truncatedTitle" => $title,
+                "fullTitle" => $recordInfo[0]['title'],
+                "recordID" => $recordID,
+                "service" => $recordInfo[0]['service'],
+                "lastStatus" => $comments[0]['actionType'],
+                "siteRoot" => $this->siteRoot,
+                "field" => null,
+                "comment" => $comment
+            ));
+
+            $this->processPriorStepsEmailed($this->getPriorStepsEmailed($recordID));
+            $this->setTemplateByID($emailTemplateID);
+            $this->sendMail($recordID);
         } elseif ($emailTemplateID > 1) {
             $return_value = $this->sendMail($recordID); // Check for custom event to finalize email on Notify Next
         }
 
         return $return_value;
+    }
+
+    private function getRecord(int $recordID): array
+    {
+        $vars = array(':recordID' => $recordID);
+        $strSQL =  "SELECT `rec`.`userID`, `rec`.`serviceID`, `ser`.`service`, `rec`.`title`,
+                        `rec`.`lastStatus`
+                    FROM `records` AS `rec`
+                    LEFT JOIN `services` AS `ser` USING (`serviceID`)
+                    WHERE `recordID` = :recordID";
+
+        $recordInfo = $this->portal_db->prepared_query($strSQL, $vars);
+
+        return $recordInfo;
+    }
+
+    private function getDeletedComments(int $recordID): array
+    {
+        $vars = array(':recordID' => $recordID);
+        $strSQL =  "SELECT `comment`, `actionType`
+                    FROM `action_history`
+                    WHERE `recordID` = :recordID
+                    AND `actionType` = 'deleted'
+                    ORDER BY `actionID` DESC";
+
+        $recordInfo = $this->portal_db->prepared_query($strSQL, $vars);
+
+        return $recordInfo;
+    }
+
+    private function getPriorStepsEmailed(int $recordID): array
+    {
+        // get the email_tracker data for this record
+        $vars = array(':recordID' => $recordID);
+        $sql = 'SELECT `recipients`
+                FROM `email_tracker`
+                WHERE `recordID` = :recordID';
+
+        $return_result = $this->portal_db->prepared_query($sql, $vars);
+
+        return $return_result;
+    }
+
+    private function processPriorStepsEmailed(array $email_recipients): void
+    {
+        $recipient_list = array();
+
+        foreach ($email_recipients as $recipient) {
+            $clean_list = str_replace('Recipient(s): ', '', $recipient['recipients']);
+
+            $list = explode(',', $clean_list);
+
+            foreach ($list as $email) {
+                if (!in_array(trim($email), $recipient_list)) {
+                    array_push($recipient_list, trim($email));
+                    $this->addRecipient(trim($email));
+                }
+            }
+        }
     }
 }

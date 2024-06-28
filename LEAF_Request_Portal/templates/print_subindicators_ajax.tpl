@@ -32,6 +32,9 @@
 
             </script>
         <!--{/if}-->
+        <!--{if $indicator.format == ''}-->
+            <!--{$indicator.htmlPrint}-->
+        <!--{/if}-->
         <!--{if $indicator.format == 'textarea'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
                 <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->
@@ -134,7 +137,7 @@
             <!--{if $indicator.value[0] != ''}-->
             <!--{assign var='idx' value=0}-->
             <!--{foreach from=$indicator.value item=file}-->
-            <a href="<!--{$abs_portal_path}-->/file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse">
+            <a href="<!--{$portal_url}-->file.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->" target="_blank" class="printResponse">
                 <img src="dynicons/?img=mail-attachment.svg&amp;w=24" alt="" /><!--{$file}--></a><br />
             <!--{assign var='idx' value=$idx+1}-->
             <!--{/foreach}-->
@@ -151,9 +154,9 @@
             <!--{foreach from=$indicator.value item=file}-->
                 <!--{if $indicator.value != '[protected data]'}-->
                 <img alt="image upload: <!--{$file}-->"
-                    src="<!--{$abs_portal_path}-->/image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->"
+                    src="<!--{$portal_url}-->image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->"
                     style="max-width: 200px"
-                    onclick="window.open('<!--{$abs_portal_path}-->/image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" />
+                    onclick="window.open('<!--{$portal_url}-->image.php?form=<!--{$recordID}-->&amp;id=<!--{$indicator.indicatorID}-->&amp;series=<!--{$indicator.series}-->&amp;file=<!--{$idx}-->', 'newName', 'width=550', 'height=550'); return false;" />
                 <!--{assign var='idx' value=$idx+1}-->
                 <!--{else}-->
                 [protected data]
@@ -227,7 +230,8 @@
                 <!--{if $indicator.displayedValue != ''}-->
                     <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$indicator.value|escape}-->"><!--{$indicator.displayedValue|sanitize}--></a>
                 <!--{else}-->
-                Loading...
+                    empUID #:<!--{$indicator.value|escape }--> (disabled account)<br>
+                    Recorded on <!--{$indicator.timestamp|date_format}--> by <!--{$indicator.userID|escape}-->
                 <!--{/if}-->
             </div>
             <!--{else}-->
