@@ -187,7 +187,7 @@ class FormStack
         }
 
         $this->updateConditionRelations($formIndicatorsAdded);
-        return true;
+        return $formCategoryID;
     }
 
     private function importIndicator($indicatorPackage, $categoryID, $parentID = null, $overwriteExisting = false, $formIndicatorsAdded = null)

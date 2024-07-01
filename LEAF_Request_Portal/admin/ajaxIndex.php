@@ -108,9 +108,10 @@ switch ($action) {
         break;
     case 'manualImportForm':
            $formStack = new Portal\FormStack($db, $login);
+           $formReg = "/^form_[0-9a-f]{5}$/i";
            $result = $formStack->importForm();
 
-        if ($result === true)
+        if (preg_match($formReg, $result))
         {   session_write_close();
             header('Location: ./?a=form');
             exit();

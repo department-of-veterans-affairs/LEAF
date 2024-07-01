@@ -208,9 +208,10 @@ export default {
             }
         },
         /**
+         * @param {string} catID new form ID used to route after importing a form from within the form editor
          * @returns {object} main keys are categoryIDs. Values are obj w fields from non-built-in, enabled categories and workflows tables
          */
-        getEnabledCategories() {
+        getEnabledCategories(catID = '') {
             this.appIsLoadingCategories = true;
             try {
                 fetch(`${this.APIroot}formStack/categoryList/allWithStaples`).then(res => {
@@ -225,6 +226,14 @@ export default {
                             });
                         }
                         this.appIsLoadingCategories = false;
+                        if(catID && /^form_[0-9a-f]{5}$/i.test(catID) === true) {
+                            this.$router.push({
+                                name:'category',
+                                query:{
+                                    formID: catID,
+                                }
+                            });
+                        }
                     });
                 });
             } catch(error) {
@@ -513,6 +522,7 @@ export default {
         openImportFormDialog() {
             this.setCustomDialogTitle('<h2>Import Form</h2>');
             this.setFormDialogComponent('import-form-dialog');
+            this.dialogButtonText = {confirm: 'Import', cancel: 'Close'};
             this.showFormDialog = true;  
         },
         openFormHistoryDialog(catID = '') {
