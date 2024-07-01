@@ -324,7 +324,7 @@ var LeafFormGrid = function (containerID, options) {
     // sticky header UX
     const domHeader = document.querySelector(`#${prefixID}thead`);
     const observer = new IntersectionObserver((evt) => {
-      if(evt[0].boundingClientRect.y != evt[0].intersectionRect.y) {
+      if(evt[0].boundingClientRect.y == evt[0].intersectionRect.y) {
         $("#" + prefixID + "table thead tr th").css({
           "filter": "invert(1) grayscale(1)",
           height: "1.3rem",
@@ -350,8 +350,9 @@ var LeafFormGrid = function (containerID, options) {
         });
       }
     }, {
+      root: document.querySelector(`#${prefixID}table`),
       rootMargin: -stickyHeaderOffset - 1 + 'px 0px 0px 0px',
-      threshold: [1],
+      threshold: 1,
     });
     
     observer.observe(domHeader);

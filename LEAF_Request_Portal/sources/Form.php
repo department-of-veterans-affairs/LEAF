@@ -1091,9 +1091,17 @@ class Form
                       ':indicatorID' => $key,
                       ':series' => $series, );
 
-        $res = $this->db->prepared_query('SELECT data, format FROM data
-                                            LEFT JOIN indicators USING (indicatorID)
-                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
+        $sql = "SELECT `format`, `data` FROM `data`
+            LEFT JOIN `indicators` USING (`indicatorID`)
+            WHERE `recordID`=:recordID AND `indicators`.`indicatorID`=:indicatorID AND `series`=:series";
+
+        $res = $this->db->prepared_query($sql, $vars);
+
+        if(empty($res)) {
+            $vf = array(":indicatorID" => $key);
+            $sqlf = "SELECT `format` FROM `indicators` WHERE `indicatorID`=:indicatorID";
+            $res =  $this->db->prepared_query($sqlf, $vf);
+        }
 
         // handle fileupload indicator type
         if (isset($res[0]['format'])
@@ -1126,20 +1134,41 @@ class Form
             return 0;
         }
 
+        $metadata = array();
+        if($res[0]['format'] === 'orgchart_employee' && is_numeric($_POST[$key])) {
+            $empVars = array(
+                ':empUID' => $_POST[$key],
+            );
+            $empSql = "SELECT `firstName`, `lastName`, `middleName`, `data` AS `email`, `userName` FROM `{$this->oc_dbName}`.`employee`
+                JOIN `{$this->oc_dbName}`.`employee_data` USING (empUID)
+                WHERE `{$this->oc_dbName}`.`employee_data`.`indicatorID`=6 AND `{$this->oc_dbName}`.`employee`.`empUID` = :empUID";
+
+            $empRes = $this->db->prepared_query($empSql, $empVars);
+            if (isset($empRes[0])) {
+                $metadata = array(
+                    'firstName' => $empRes[0]['firstName'],
+                    'lastName' => $empRes[0]['lastName'],
+                    'middleName' => $empRes[0]['middleName'],
+                    'email' => $empRes[0]['email'],
+                    'userName' => $empRes[0]['userName'],
+                );
+            }
+        }
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series,
                       ':data' => trim($_POST[$key]),
+                      ':metadata' => count($metadata) > 0 ? json_encode($metadata) : null,
                       ':timestamp' => time(),
                       ':userID' => $this->login->getUserID(), );
 
-        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
-                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
-                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
+        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, metadata, timestamp, userID)
+                                            VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)
+                                            ON DUPLICATE KEY UPDATE data=:data, metadata=:metadata, timestamp=:timestamp, userID=:userID', $vars);
 
         if (!$duplicate) {
-            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
+            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)', $vars);
         }
         /*  signatures (not yet implemented)
         $vars = array(':recordID' => $recordID,
@@ -2634,9 +2663,9 @@ class Form
 			    break;
                     }
 
-
-                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
-                    if (isset($item['dataOrgchart']))
+                    $isProtected = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1;
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = $isProtected ? '[protected data]' : $item['data'];
+                    if (isset($item['dataOrgchart']) && !$isProtected)
                     {
                         $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
                     }
@@ -3180,17 +3209,18 @@ class Form
 
                     break;
                 case 'categoryID':
+                    if (!str_contains($joins,'lj_category_count')) {
+                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
+                    }
                     if ($q['operator'] != '!=')
                     {
                         // Backwards Compatibility
-                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
-                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID = :categoryID{$count}";
+                        $conditions .= "{$gate}lj_category_count.categoryID = :categoryID{$count}";
                     }
                     else
                     {
                         // Backwards Compatibility
-                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
-                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID != :categoryID{$count}";
+                        $conditions .= "{$gate}lj_category_count.categoryID != :categoryID{$count}";
                     }
 
                     break;
@@ -3233,8 +3263,8 @@ class Form
                             /*case 'destruction':
                                 $conditions .= "{$gate}(categories.destructionAge IS NOT NULL AND ".
                                     "records_workflow_state.stepID IS NULL AND submitted != 0)";
-                                if (!strpos($joins,'category_count')) {
-                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                if (!str_contains($joins,'lj_category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
                                 $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
@@ -3296,8 +3326,8 @@ class Form
                                 $conditions .= "{$gate}(categories.destructionAge IS NULL OR ".
                                     "(records_workflow_state.stepID IS NOT NULL OR submitted = 0)".
                                 ")";
-                                if (!strpos($joins,'category_count')) {
-                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                if (!str_contains($joins,'lj_category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
                                 $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
@@ -3700,8 +3730,10 @@ class Form
         $recordIDs = '';
         foreach ($res as $item)
         {
+            if(!isset($data[$item['recordID']])) {
+                $recordIDs .= $item['recordID'] . ',';
+            }
             $data[$item['recordID']] = $item;
-            $recordIDs .= $item['recordID'] . ',';
         }
         $recordIDs = trim($recordIDs, ',');
         $recordIDs = $recordIDs ?: 0;

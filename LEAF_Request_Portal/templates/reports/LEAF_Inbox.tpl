@@ -220,7 +220,13 @@
     };
 
     function scrubHTML(input) {
+        if(input == undefined) {
+            return '';
+        }
         let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
         return t.textContent;
     }
 

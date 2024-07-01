@@ -1121,7 +1121,7 @@
                                     $('#<!--{$indicator.indicatorID|strip_tags}-->').trigger('change');
                                     $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('');
                                 },
-                                fail: function(err) {
+                                error: function(err) {
                                     console.log(err);
                                 }
                             });
