@@ -240,6 +240,19 @@
     const allowedToCcFormats = {
         "orgchart_employee": 1,
     }
+
+    $(function(){
+        $('#emailToCode').on("keyup", function(e) {
+            this.value = this.value.replace(/[,;:\s]/g, '\n');
+            this.value = this.value.replace(/(.)\n?\n/g, '$1\n');
+        });
+
+        $('#emailCcCode').on("keyup", function(e) {
+            this.value = this.value.replace(/[,;:\s]/g, '\n');
+            this.value = this.value.replace(/(.)\n?\n/g, '$1\n');
+        });
+    });
+
     /**
     * Force show or hide the right nav despite screen width
     * @param {bool} showNav
@@ -275,7 +288,7 @@
         return data;
     }
 
-    /** 
+    /**
     * used on load and as a listener on email To CC fields
     * displays a message if non-orgchart employee format indicators are referenced in these areas
     */
@@ -1182,7 +1195,7 @@
     }
     //loads components when the document loads
     $(document).ready(function() {
-        getIndicators(); //get indicators to make format table 
+        getIndicators(); //get indicators to make format table
         getForms(); //get forms for quick search and indicator format info
 
         dialog = new dialogController(
