@@ -802,18 +802,23 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
+            $actionUserID = $this->login->getUserID();
+            $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+
             // actionID 4 = delete
             $vars = array(':recordID' => $recordID,
-                        ':userID' => $this->login->getUserID(),
-                        ':dependencyID' => 0,
-                        ':actionType' => 'deleted',
-                        ':actionTypeID' => 4,
-                        ':time' => time(),
-                        ':comment' => XSSHelpers::xscrub($comment));
+                ':userID' => $actionUserID ,
+                ':dependencyID' => 0,
+                ':actionType' => 'deleted',
+                ':actionTypeID' => 4,
+                ':time' => time(),
+                ':comment' => XSSHelpers::xscrub($comment),
+                ':userMetadata' => $userMetadata,
+            );
             $sql = 'INSERT INTO `action_history`
-                        (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
+                        (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`, `userMetadata`)
                     VALUES
-                        (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+                        (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
 
             $res = $this->db->prepared_query($sql, $vars);
 
@@ -1393,16 +1398,21 @@ class Form
 
                 $res = $this->db->prepared_query($sql, $vars);
 
+                $actionUserID = $this->login->getUserID();
+                $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+
                 // write history data, actionID 6 = filled dependency
                 $vars = array(':recordID' => $recordID,
-                            ':userID' => $this->login->getUserID(),
+                            ':userID' => $actionUserID,
                             ':dependencyID' => 5,
                             ':actionType' => 'submit',
                             ':actionTypeID' => 6,
                             ':time' => time(),
-                            ':comment' => '', );
-                $sql = 'INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+                            ':comment' => '',
+                            ':userMetadata' => $userMetadata,
+                        );
+                $sql = 'INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
+                        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
 
                 $res = $this->db->prepared_query($sql, $vars);
 
@@ -2869,16 +2879,22 @@ class Form
             $user = $dir->lookupLogin($userID);
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
 
+            $actionUserID = $this->login->getUserID();
+            $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+
             $comment = "Initiator changed to {$name}";
-            $vars2 = array(':recordID' => (int)$recordID,
-                ':userID' => $this->login->getUserID(),
+            $vars2 = array(
+                ':recordID' => (int)$recordID,
+                ':userID' => $actionUserID,
                 ':dependencyID' => 0,
                 ':actionType' => 'changeInitiator',
                 ':actionTypeID' => 8,
                 ':time' => time(),
-                ':comment' => $comment, );
-            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+                ':comment' => $comment,
+                ':userMetadata' => $userMetadata,
+            );
+            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)', $vars2);
 
             return $userID;
         }

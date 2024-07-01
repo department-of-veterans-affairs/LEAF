@@ -140,6 +140,33 @@ class FormWorkflow
     }
 
     /**
+     * queries for information used for portal data.metadata and action_history.userMetadata fields
+     * @param string $id - user identifier. could be an empUID (string from data.data field) or a userName
+     * @param bool $isEmpID - explicitly specifies identifier type for where clause
+     * */
+    public function getInfoForUserMetadata(string $id, bool $isEmpID = true): ?string
+    {
+        $idType = $isEmpID ? 'empUID' : 'userName';
+        $metaVars = array(':id' => $id);
+        $metaSQL = "SELECT `firstName`, `lastName`, `middleName`, `data` AS `email`, `userName`, `empUID` FROM `employee`
+            JOIN `employee_data` USING (`empUID`)
+            WHERE `employee_data`.`indicatorID`=6 AND `employee`.`{$idType}` = :id";
+
+        $resMetadata = $this->oc_db->prepared_query($metaSQL, $metaVars);
+        $userMetadata = isset($resMetadata[0]) ?
+            json_encode(
+                array(
+                    'firstName' => $resMetadata[0]['firstName'],
+                    'lastName' => $resMetadata[0]['lastName'],
+                    'middleName' => $resMetadata[0]['middleName'],
+                    'email' => $resMetadata[0]['email'],
+                    'userName' => $resMetadata[0]['userName'],
+                )
+            ) : null;
+        return $userMetadata;
+    }
+
+    /**
      * includePersonDesignatedData efficiently merges approver data to $srcRecords, for a
      * given list of $pdRecordList and $pdIndicators.
      * 
@@ -998,25 +1025,28 @@ class FormWorkflow
                     UPDATE filled = :filled, time = :time';
                 $this->db->prepared_query($strSQL2, $vars2);
 
+                $actionUserID = $this->login->getUserID();
+                $userMetadata  = $this->getInfoForUserMetadata($actionUserID, false);
 
                 // don't write duplicate log entries
                 $vars2 = array(
                     ':recordID' => $this->recordID,
-                    ':userID' => $this->login->getUserID(),
+                    ':userID' => $actionUserID,
                     ':stepID' => $actionable['stepID'],
                     ':dependencyID' => $dependencyID,
                     ':actionType' => $actionType,
                     ':actionTypeID' => 8,
                     ':time' => $time,
                     ':comment' => $comment,
+                    ':userMetadata' => $userMetadata,
                 );
                 $logKey = sha1(serialize($vars2));
                 if (!isset($logCache[$logKey]))
                 {
                     // write log
                     $logCache[$logKey] = 1;
-                    $strSQL2 ='INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment)
-                        VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+                    $strSQL2 ='INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
+                        VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
                     $this->db->prepared_query($strSQL2, $vars2);
 
                 }
@@ -1815,20 +1845,25 @@ class FormWorkflow
         {
             $comment = "Moved to {$stepName} step";
         }
+
+        $actionUserID = $this->login->getUserID();
+        $userMetadata  = $this->getInfoForUserMetadata($actionUserID, false);
+
         // write log entry
         $vars2 = array(
             ':recordID' => $this->recordID,
-            ':userID' => $this->login->getUserID(),
+            ':userID' => $actionUserID,
             ':dependencyID' => 0,
             ':actionType' => 'move',
             ':actionTypeID' => 8,
             ':time' => time(),
             ':comment' => $comment,
+            ':userMetadata' => $userMetadata,
         );
         $strSQL2 = 'INSERT INTO action_history
-            (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+            (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
             VALUES
-            (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+            (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
         $this->db->prepared_query($strSQL2, $vars2);
 
         $vars2 = array(':recordID' => $this->recordID);
