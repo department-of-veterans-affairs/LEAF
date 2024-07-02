@@ -146,11 +146,11 @@ class FormWorkflow
      * */
     public function getInfoForUserMetadata(string $id, bool $isEmpID = true): ?string
     {
-        $idType = $isEmpID ? 'empUID' : 'userName';
+        $idType = $isEmpID === true ? 'empUID' : 'userName';
         $metaVars = array(':id' => $id);
         $metaSQL = "SELECT `firstName`, `lastName`, `middleName`, `data` AS `email`, `userName`, `empUID` FROM `employee`
             JOIN `employee_data` USING (`empUID`)
-            WHERE `employee_data`.`indicatorID`=6 AND `employee`.`{$idType}` = :id";
+            WHERE `employee`.`deleted`=0 AND`employee_data`.`indicatorID`=6 AND `employee`.`{$idType}` = :id";
 
         $resMetadata = $this->oc_db->prepared_query($metaSQL, $metaVars);
         $userMetadata = isset($resMetadata[0]) ?
