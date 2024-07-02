@@ -28,7 +28,7 @@ var LeafFormGrid = function (containerID, options) {
   let sortDirection = {}; // map of sort direction for each key
   let rowHeight = 0;
   let stickyHeaderOffset = 0;
-  let usingSetDataBlob = false; // if clients used setDataBlob first
+  let usingSetData = false; // backward compatibility
 
   $("#" + containerID).html(
     `<div id="${prefixID}grid"></div>
@@ -843,11 +843,15 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
-   * Set the working data set
+   * Set the working data set (uncommon)
+   * 
+   * setDataBlob() is more commonly used
+   * 
    * @params array - Expects format: [{recordID}, ...]
    * @memberOf LeafFormGrid
    */
   function setData(data) {
+    usingSetData = true;
     isDataLoaded = true;
     currentData = data;
     processedCallbackBuffer = false;
@@ -855,19 +859,23 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
+   * Set the working data set
    * @params object - If setData() is not used, this expects {id: {recordID, ...}}
    * @memberOf LeafFormGrid
    */
   function setDataBlob(data) {
     dataBlob = data;
-    if(currentData.length == 0 || usingSetDataBlob) {
-      usingSetDataBlob = true;
+    if(!usingSetData) {
       if(Array.isArray(data)) {
-        setData(data);
+        currentData = data;
       }
       else {
-        setData(Object.keys(data).map(key => data[key]));
+        currentData = Object.keys(data).map(key => data[key]);
       }
+
+      isDataLoaded = true;
+      processedCallbackBuffer = false;
+      document.querySelector(`#${prefixID}table`).setAttribute('aria-rowcount', currentData.length);
     }
   }
 
