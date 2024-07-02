@@ -855,6 +855,14 @@ var LeafFormGrid = function (containerID, options) {
    */
   function setDataBlob(data) {
     dataBlob = data;
+    if(currentData.length == 0) {
+      if(Array.isArray(data)) {
+        setData(data);
+      }
+      else {
+        setData(Object.keys(data).map(key => data[key]));
+      }
+    }
   }
 
   /**
