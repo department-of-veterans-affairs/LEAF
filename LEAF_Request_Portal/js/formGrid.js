@@ -852,6 +852,7 @@ var LeafFormGrid = function (containerID, options) {
   }
 
   /**
+   * @params object - If setData() is not used, this expects {id: {recordID, ...}}
    * @memberOf LeafFormGrid
    */
   function setDataBlob(data) {

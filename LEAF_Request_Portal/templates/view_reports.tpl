@@ -1274,13 +1274,7 @@ $(function() {
         function renderGrid(res) {
             grid.setDataBlob(res);
 
-            var tGridData = [];
-            for(let i in res) {
-                tGridData.push(res[i]);
-            }
-
             if(<!--{$version}--> >= 3) {
-                grid.setData(tGridData);
                 let sortKey = 'recordID';
                 let sortDirection = 'desc';
                 if(sortPreference.key != undefined && sortPreference.order != undefined) {
