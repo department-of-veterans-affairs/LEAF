@@ -28,6 +28,7 @@ var LeafFormGrid = function (containerID, options) {
   let sortDirection = {}; // map of sort direction for each key
   let rowHeight = 0;
   let stickyHeaderOffset = 0;
+  let usingSetDataBlob = false; // if clients used setDataBlob first
 
   $("#" + containerID).html(
     `<div id="${prefixID}grid"></div>
@@ -858,7 +859,8 @@ var LeafFormGrid = function (containerID, options) {
    */
   function setDataBlob(data) {
     dataBlob = data;
-    if(currentData.length == 0) {
+    if(currentData.length == 0 || usingSetDataBlob) {
+      usingSetDataBlob = true;
       if(Array.isArray(data)) {
         setData(data);
       }
