@@ -303,8 +303,9 @@ class FormWorkflow
                 }
 
                 // Only amend group name for group designated records
-                if($v['dependencyID'] == -3) {      
-                    $groupName = isset($groupNames[$group['groupID']]) ? $groupNames[$group['groupID']] : 'Warning: Group has not been imported into the User Access Group';
+                if($v['dependencyID'] == -3) {
+                    $groupName = isset($groupNames[$dRecords[$v['recordID']]['data']]) ?
+                        $groupNames[$dRecords[$v['recordID']]['data']] : 'Warning: Group has not been imported into the User Access Group';
                     $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $groupName . ')';
                     $srcRecords[$i]['approverName'] = $groupName;
                     $srcRecords[$i]['approverUID'] = 'groupID:' . $dRecords[$v['recordID']]['data'];
