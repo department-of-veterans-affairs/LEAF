@@ -255,11 +255,9 @@ class Form
     {
         $categories = explode(',', $categoryIDs);
         $fullFormPages = array();
-        $catReg = "/^form_[0-9a-f]{5}$/i";
-
         foreach($categories as $catID) {
-            if(preg_match($catReg, $catID)) {
-                $form = $this->getFormByCategory($catID, $parseTemplate);
+            $form = $this->getFormByCategory($catID, $parseTemplate);
+            if(is_array($form) && count($form) > 0) {
                 $fullFormPages = array_merge($fullFormPages, $form);
             }
         }
