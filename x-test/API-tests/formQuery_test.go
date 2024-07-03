@@ -27,7 +27,7 @@ func TestPendingGroupDesignatedNames(t *testing.T) {
 	rec568 := res[568].UnfilledDependencyData
 	rec581 := res[581].UnfilledDependencyData
 	rec550 := res[550].UnfilledDependencyData
-	rec531 := res[531].UnfilledDependencyData
+	rec690 := res[690].UnfilledDependencyData
 
 	got := rec568["-3"].ApproverName
 	want := "AS TEST GROUP 1"
@@ -47,10 +47,10 @@ func TestPendingGroupDesignatedNames(t *testing.T) {
 		t.Errorf("dependency group 550 name = %v, want = %v", got, want)
 	}
 
-	got = rec531["-3"].ApproverName
+	got = rec690["-3"].ApproverName
 	want = "Office of Associate Director of Patient Care Services"
 	if !cmp.Equal(got, want) {
-		t.Errorf("dependency group 531 name = %v, want = %v", got, want)
+		t.Errorf("dependency group 690 name = %v, want = %v", got, want)
 	}
 }
 
