@@ -1138,32 +1138,15 @@ class Form
         if (!$this->hasWriteAccess($recordID, 0, $key)) {
             return 0;
         }
-
-        $metadata = array();
+        $userMetadata = null;
         if($res[0]['format'] === 'orgchart_employee' && is_numeric($_POST[$key])) {
-            $empVars = array(
-                ':empUID' => $_POST[$key],
-            );
-            $empSql = "SELECT `firstName`, `lastName`, `middleName`, `data` AS `email`, `userName` FROM `{$this->oc_dbName}`.`employee`
-                JOIN `{$this->oc_dbName}`.`employee_data` USING (empUID)
-                WHERE `{$this->oc_dbName}`.`employee_data`.`indicatorID`=6 AND `{$this->oc_dbName}`.`employee`.`empUID` = :empUID";
-
-            $empRes = $this->db->prepared_query($empSql, $empVars);
-            if (isset($empRes[0])) {
-                $metadata = array(
-                    'firstName' => $empRes[0]['firstName'],
-                    'lastName' => $empRes[0]['lastName'],
-                    'middleName' => $empRes[0]['middleName'],
-                    'email' => $empRes[0]['email'],
-                    'userName' => $empRes[0]['userName'],
-                );
-            }
+            $userMetadata = $this->getFormWorkflow()->getInfoForUserMetadata($_POST[$key], true);
         }
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series,
                       ':data' => trim($_POST[$key]),
-                      ':metadata' => count($metadata) > 0 ? json_encode($metadata) : null,
+                      ':metadata' => $userMetadata,
                       ':timestamp' => time(),
                       ':userID' => $this->login->getUserID(), );
 
