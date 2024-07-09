@@ -113,7 +113,7 @@ func TestForm_IsMaskable(t *testing.T) {
 	}
 }
 
-func TestForm_NonadminCannotCancelOwnSubmittedRecord(t *testing.T) {
+func TestForm_NonadminCannotCancelOwnResolvedRecord(t *testing.T) {
 	// Setup conditions
 	postData := url.Values{}
 	postData.Set("CSRFToken", CsrfToken)
@@ -133,11 +133,26 @@ func TestForm_NonadminCannotCancelOwnSubmittedRecord(t *testing.T) {
 		t.Errorf("Could not create record for TestForm_NonadminCannotCancelOwnSubmittedRecord: " + err.Error())
 	}
 
+	// Submit the form
 	postData = url.Values{}
 	postData.Set("CSRFToken", CsrfToken)
 	client.PostForm(RootURL+`api/form/`+strconv.Itoa(recordID)+`/submit`, postData)
 
-	// Non-admin shouldn't be able to cancel a submitted record
+	// Move to last step
+	postData = url.Values{}
+	postData.Set("CSRFToken", CsrfToken)
+	postData.Set("stepID", "4")
+	postData.Set("comment", "")
+	client.PostForm(RootURL+`api/formWorkflow/`+strconv.Itoa(recordID)+`/step`, postData)
+
+	// Take the last action and resolve the workflow
+	postData = url.Values{}
+	postData.Set("CSRFToken", CsrfToken)
+	postData.Set("actionType", "approve")
+	postData.Set("dependencyID", "-3")
+	client.PostForm(RootURL+`api/formWorkflow/`+strconv.Itoa(recordID)+`/apply`, postData)
+
+	// Non-admin shouldn't be able to cancel a resolved record
 	postData = url.Values{}
 	postData.Set("CSRFToken", CsrfToken)
 

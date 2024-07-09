@@ -772,7 +772,9 @@ class Form
     /**
      * cancelRecord marks a record as cancelled.
      *
-     * Only admins should be able to cancel submitted records.
+     * Only admins should be able to cancel resolved records.
+     * Requestors can cancel at any time.
+     * People with access to the current step can cancel.
      *
      * @param int $recordID
      * @param string $comment
@@ -784,21 +786,23 @@ class Form
         $return_value = 'Please contact your administrator';
 
         $vars = array(':recordID' => $recordID);
-        $sql = 'SELECT `submitted`
+        $sql = 'SELECT `userID`, `submitted`, `stepID`
                     FROM `records`
+                    LEFT JOIN records_workflow_state USING (`recordID`)
                     WHERE `recordID` = :recordID';
-        $resIsSubmitted = $this->db->prepared_query($sql, $vars);
+        $res = $this->db->prepared_query($sql, $vars);
 
-        if ($resIsSubmitted[0]['submitted'] != 0 && !$this->login->checkGroup(1)) {
-            $return_value = 'To help avoid confusion in the process, Please contact your administrator to cancel this request.';
-        } else if ($this->hasWriteAccess($recordID)) {
+        if ($res[0]['submitted'] > 0 && $res[0]['stepID'] == null && !$this->login->checkGroup(1)) {
+            $return_value = 'An administrator is required to cancel a resolved request';
+        }
+        else if ($this->hasWriteAccess($recordID) || strtolower($res[0]['userID']) == strtolower($this->login->getUserID())) {
             $vars = array(':recordID' => $recordID,
                         ':time' => time());
             $sql = 'UPDATE `records`
                     SET `deleted` = :time
                     WHERE `recordID` = :recordID';
 
-            $res = $this->db->prepared_query($sql, $vars);
+            $this->db->prepared_query($sql, $vars);
 
             // actionID 4 = delete
             $vars = array(':recordID' => $recordID,
@@ -813,7 +817,7 @@ class Form
                     VALUES
                         (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
 
-            $res = $this->db->prepared_query($sql, $vars);
+            $this->db->prepared_query($sql, $vars);
 
             // delete state
             $vars = array(':recordID' => $recordID);
@@ -829,7 +833,7 @@ class Form
                     FROM `tags`
                     WHERE `recordID` = :recordID';
 
-            $res = $this->db->prepared_query($sql, $vars);
+            $this->db->prepared_query($sql, $vars);
 
             // need to send emails to everyone upstream from the currect step.
             $this->notifyPriorSteps($recordID);
