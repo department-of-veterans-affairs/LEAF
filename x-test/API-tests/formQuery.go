@@ -2,6 +2,8 @@ package main
 
 type FormQueryResponse map[int]FormQueryRecord
 
+type FormQueryData map[string]any
+
 type FormQueryRecord struct {
 	RecordID                int                      `json:"recordID"`
 	ServiceID               int                      `json:"serviceID"`
@@ -26,6 +28,7 @@ type FormQueryRecord struct {
 	CategoryIDs             []string                 `json:"categoryIDs"`
 	DestructionAge          int                      `json:"destructionAge"`
 	ActionHistory           []FormQueryActionHistory `json:"action_history"`
+	S1                      FormQueryData            `json:"s1"`
 }
 
 type FormQueryActionHistory struct {
