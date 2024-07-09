@@ -4,6 +4,13 @@ export default {
         return {
             initialFocusElID: 'formPacket',
             files: null,
+            userMessage: '',
+            inputStyles: {
+                padding: "1.25rem 0.5rem",
+                border: "1px solid #cadff0",
+                borderRadius: "2px",
+                backgroundColor: "#f2f2f8",
+            }
         }
     },
     inject: [
@@ -22,6 +29,7 @@ export default {
     methods: {
         onSave() {
             if (this.files !== null) {
+                this.userMessage = "Form is being imported ...";
                 let pkg = new FormData();
                 pkg.append('formPacket', this.files[0]);
                 pkg.append('CSRFToken', this.CSRFToken);
@@ -34,12 +42,12 @@ export default {
                     cache: false,
                     data: pkg,
                     success: (res) => {
-                        if(+res !== 1) {
+                        const formReg = /^form_[0-9a-f]{5}$/i;
+                        if(formReg.test(res) !== true) {
                             alert(res);
                         }
                         this.closeFormDialog();
-                        this.$emit('import-form');
-                        //TODO: update return val to ID of imported form - might be more ideal to route to FE view
+                        this.$emit('import-form', res);
                     },
                     error: err => console.log('form import error', err),
                 })
@@ -58,6 +66,7 @@ export default {
     template: `
             <div id="file_control" style="margin: 1em 0; min-height: 50px;">
                 <label for="formPacket">Select LEAF Form Packet to import:</label>
-                <input id="formPacket" name="formPacket" type="file" @change="attachForm"/>
+                <input id="formPacket" name="formPacket" type="file" @change="attachForm" :style=inputStyles />
+                <div v-if="userMessage" style="padding: 0.5rem 0"><b>{{ userMessage }}</b></div>
             </div>`
 }
