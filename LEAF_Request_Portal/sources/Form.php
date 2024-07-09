@@ -775,6 +775,8 @@ class Form
      * Only admins should be able to cancel resolved records.
      * Requestors can cancel at any time.
      * People with access to the current step can cancel.
+     * 
+     * A comment must be provided for cancellation unless it's an unsubmitted request.
      *
      * @param int $recordID
      * @param string $comment
@@ -796,6 +798,11 @@ class Form
             $return_value = 'An administrator is required to cancel a resolved request';
         }
         else if ($this->hasWriteAccess($recordID) || strtolower($res[0]['userID']) == strtolower($this->login->getUserID())) {
+            if($res[0]['submitted'] > 0 &&
+                ($comment == null || trim($comment) == '')) {
+                return 'Please explain the reason for cancellation';
+            }
+
             $vars = array(':recordID' => $recordID,
                         ':time' => time());
             $sql = 'UPDATE `records`

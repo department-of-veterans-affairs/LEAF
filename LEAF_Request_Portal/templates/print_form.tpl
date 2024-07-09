@@ -687,8 +687,15 @@ function doSubmit(recordID) {
 
     function cancelRequest() {
         dialog_confirm.setContent(
-            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?<br /><textarea id="cancel_comment" cols=30 rows=3 placeholder="Enter Comment"></textarea>'
+            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?<br /><textarea id="cancel_comment" cols=30 rows=3 placeholder="Please provide the reason for cancellation"></textarea>'
         );
+        dialog_confirm.setRequired(<!--{$recordID|strip_tags|escape}-->, function() {
+            let comment = document.querySelector('#cancel_comment').value;
+            if(comment.trim() == '') {
+                return true;
+            }
+            return false;
+        });
 
         dialog_confirm.setSaveHandler(function() {
             let comment = $('#cancel_comment').val();
