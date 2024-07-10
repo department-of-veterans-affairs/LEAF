@@ -2,7 +2,7 @@
 <form id="confirm_record" enctype="multipart/form-data" action="javascript:void(0);">
     <div>
         <div id="confirm_loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 100px; width: 360px">Loading... <img src="images/largespinner.gif" alt="" title="loading..." /></div>
-        <div id="confirm_xhr" style="font-size: 130%; width: 400px; height: 120px; padding: 16px; overflow: auto"></div>
+        <div id="confirm_xhr" style="font-size: 130%; width: 400px; min-height: 120px; padding: 16px; overflow: auto"></div>
         <div style="position: absolute; left: 10px; font-size: 140%"><button class="buttonNorm" id="confirm_button_cancelchange"><img src="dynicons/?img=edit-undo.svg&amp;w=32" alt="" title="No" /> No</button></div>
         <div style="text-align: right; padding-right: 6px"><button class="buttonNorm" id="confirm_button_save"><img src="dynicons/?img=dialog-apply.svg&amp;w=32" alt="" title="Yes" /><span id="confirm_saveBtnText"> Yes</span></button></div><br />
     </div>

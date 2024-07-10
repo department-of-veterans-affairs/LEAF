@@ -778,7 +778,7 @@ class Email
             $recordInfo = $this->getRecord($recordID);
             $comments = $this->getDeletedComments($recordID);
 
-            $comment = $comments[0]['comment'] === '' ? '' : 'Reason for cancelling: ' . $comments[0]['comment'] . '<br /><br />';
+            $comment = $comments[0]['comment'] === '' ? '' : $comments[0]['comment'];
 
             $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
 

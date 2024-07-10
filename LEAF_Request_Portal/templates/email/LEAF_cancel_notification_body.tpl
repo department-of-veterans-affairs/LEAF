@@ -1,12 +1,11 @@
-A request that you were a part of has been cancelled.<br />
-Request #{{$recordID}} - {{$fullTitle}}.<br /><br />
-This is a notification only and no action is required on your part.<br /><br />
+For your awareness, the following request has been cancelled:<br /><br />
+<b>Request #{{$recordID}} - {{$fullTitle}}</b><br /><br />
 
-{{$comment}}
+Reason: {{$comment}}
 
-Request title: <a href="{{$siteRoot}}?a=printview&recordID={{$recordID}}" target="_blank">
-    {{$fullTitle}}</a><br />
-Request status: {{$lastStatus}}<br /><br />
+<br /><br /><br />
+You are receiving this email because you have participated in this record's process in the past.<br /><br />
+
 Request Link: <a href="{{$siteRoot}}?a=printview&recordID={{$recordID}}" target="_blank">
     {{$siteRoot}}?a=printview&recordID={{$recordID}}</a><br /><br />
 <br />

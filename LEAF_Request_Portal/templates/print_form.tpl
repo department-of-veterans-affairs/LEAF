@@ -686,8 +686,10 @@ function doSubmit(recordID) {
     }
 
     function cancelRequest() {
+        dialog_confirm.setTitle('Confirm');
+        <!--{if $submitted > 0}-->
         dialog_confirm.setContent(
-            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?<br /><textarea id="cancel_comment" cols=30 rows=3 placeholder="Please provide the reason for cancellation"></textarea>'
+            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?<br style="clear: both" /><br />The following reason will be emailed as a notification:<br /><textarea id="cancel_comment" style="width: 100%" rows=3></textarea>'
         );
         dialog_confirm.setRequired(<!--{$recordID|strip_tags|escape}-->, function() {
             let comment = document.querySelector('#cancel_comment').value;
@@ -696,6 +698,11 @@ function doSubmit(recordID) {
             }
             return false;
         });
+        <!--{else}-->
+        dialog_confirm.setContent(
+            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to cancel this request?'
+        );
+        <!--{/if}-->
 
         dialog_confirm.setSaveHandler(function() {
             let comment = $('#cancel_comment').val();
@@ -716,8 +723,9 @@ function doSubmit(recordID) {
                 cache: false
             });
         });
-        dialog_confirm.show();
-        $('#cancel_comment').focus();
+        dialog_confirm.show().then(() => {
+            $('#cancel_comment').focus();
+        });
     }
 
     function changeTitle() {

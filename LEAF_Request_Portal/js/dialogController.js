@@ -73,14 +73,18 @@ dialogController.prototype.hide = function() {
 };
 
 dialogController.prototype.show = function() {
-    //Stack clear for some events.  This helps ensure modal content is mounted before trying to set styles.
-    setTimeout(() => {
-        if($('#' + this.contentID).html() == '') {
-            $('#' + this.loadIndicatorID).css('visibility', 'visible');
-        }
-        $('#' + this.containerID).dialog('open');
-        $('#' + this.containerID).css('visibility', 'visible');
-    });
+	let promise = new Promise((resolve, reject) => {
+		//Stack clear for some events.  This helps ensure modal content is mounted before trying to set styles.
+		setTimeout(() => {
+			if($('#' + this.contentID).html() == '') {
+				$('#' + this.loadIndicatorID).css('visibility', 'visible');
+			}
+			$('#' + this.containerID).dialog('open');
+			$('#' + this.containerID).css('visibility', 'visible');
+			resolve();
+		});
+	});
+	return promise;
 };
 
 dialogController.prototype.setContent = function(content) {

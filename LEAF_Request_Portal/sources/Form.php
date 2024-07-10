@@ -40,6 +40,8 @@ class Form
 
     private $formWorkflow;
 
+    private $dir; // employee directory
+
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -53,6 +55,20 @@ class Form
         $this->employee = new \Orgchart\Employee($oc_db, $oc_login);
         $this->position = new \Orgchart\Position($oc_db, $oc_login);
         $this->group = new \Orgchart\Group($oc_db, $oc_login);
+    }
+
+    /**
+     * getDirectory initializes and returns an instance of VAMC_Directory
+     * @return object
+     */
+    private function getDirectory(): object
+    {
+        if (!isset($this->dir))
+        {
+            $this->dir = new VAMC_Directory;
+        }
+
+        return $this->dir;
     }
 
     /**
@@ -692,7 +708,7 @@ class Form
             $vars
         );
 
-        $dir = new VAMC_Directory;
+        $dir = $this->getDirectory();
 
         $res2 = array();
         foreach ($res as $line)
@@ -853,8 +869,11 @@ class Form
 
     private function notifyPriorSteps(int $recordID): void
     {
+        $dir = $this->getDirectory();
+        $currUser = $dir->lookupLogin($this->login->getUserID());
+
         $email = new Email();
-        $email->setSender('leaf.noreply@va.gov');
+        $email->setSender($currUser[0]['Email']);
 
         $email->attachApproversAndEmail($recordID, Email::CANCEL_REQUEST, $this->login);
     }
@@ -999,7 +1018,7 @@ class Form
             );
         }
 
-        $dir = new VAMC_Directory;
+        $dir = $this->getDirectory();
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
 
@@ -2747,7 +2766,7 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
-            $dir = new VAMC_Directory;
+            $dir = $this->getDirectory();
 
             $total = count($res);
 
@@ -2902,7 +2921,7 @@ class Form
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
-            $dir = new VAMC_Directory;
+            $dir = $this->getDirectory();
 
             $user = $dir->lookupLogin($userID);
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
@@ -3809,7 +3828,7 @@ class Form
 
             if ($joinActionHistory)
             {
-                $dir = new VAMC_Directory;
+                $dir = $this->getDirectory();
 
                 $actionHistorySQL =
                        'SELECT recordID, stepID, userID, time, description,
@@ -3868,7 +3887,7 @@ class Form
             }
 
             if ($joinRecordResolutionBy === true) {
-                $dir = new VAMC_Directory;
+                $dir = $this->getDirectory();
 
                 $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType
                 FROM action_history
@@ -4626,8 +4645,11 @@ class Form
         if (time() - $last_email[0]['timestamp'] > 86400
             || $day_last_sent !== $current_day
         ) {
+            $dir = $this->getDirectory();
+            $currUser = $dir->lookupLogin($this->login->getUserID());
+    
             $email = new Email();
-            $email->setSender('leaf.noreply@va.gov');
+            $email->setSender($currUser[0]['Email']);
             $email->addSmartyVariables(array(
                 "daysSince" => $days
             ));
