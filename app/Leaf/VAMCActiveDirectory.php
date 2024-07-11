@@ -27,9 +27,10 @@ class VAMCActiveDirectory
 
     // Imports data from \t and \n delimited file of format:
     // Name	Business Phone	Description	Modified	E-Mail Address	User Logon Name
-    public function importADData($data)
+    public function importADData($file)
     {
-        $rawdata = explode("\r\n", $data);
+        $data = $this->getData($file);
+        $rawdata = explode("\r\n", $data['data']);
         $rawheaders = trim(array_shift($rawdata));
         $headers = explode(',', $rawheaders);
         $idx = 0;
@@ -221,6 +222,30 @@ class VAMCActiveDirectory
         echo "... Done.\n";
 
         echo "Total: $count";
+    }
+
+    private function getData(string $file): array
+    {
+        $vars = array(':file' => $file);
+        $sql = 'SELECT `data`
+                FROM `cache`
+                WHERE `cacheID` = :file';
+
+        $data = $this->db->prepared_query($sql, $vars);
+
+        $this->removeData($file);
+
+        return $data;
+    }
+
+    private function removeData(string $file): void
+    {
+        $vars = array(':file' => $file);
+        $sql = 'DELETE
+                FROM `cache`
+                WHERE `cacheID` = :file';
+
+        $this->db->prepared_query($sql, $vars);
     }
 
     // workaround for excel
