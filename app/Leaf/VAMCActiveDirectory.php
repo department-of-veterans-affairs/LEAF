@@ -30,7 +30,7 @@ class VAMCActiveDirectory
     public function importADData($file)
     {
         $data = $this->getData($file);
-        $rawdata = explode("\r\n", $data['data']);
+        $rawdata = explode("\r\n", $data[0]['data']);
         $rawheaders = trim(array_shift($rawdata));
         $headers = explode(',', $rawheaders);
         $idx = 0;
@@ -233,7 +233,7 @@ class VAMCActiveDirectory
 
         $data = $this->db->prepared_query($sql, $vars);
 
-        $this->removeData($file);
+        //$this->removeData($file);
 
         return $data;
     }
@@ -246,6 +246,12 @@ class VAMCActiveDirectory
                 WHERE `cacheID` = :file';
 
         $this->db->prepared_query($sql, $vars);
+    }
+
+    private function trimField2(string &$value, string $key): void
+    {
+        $value = trim($value);
+        $value = trim($value, '.');
     }
 
     // workaround for excel
