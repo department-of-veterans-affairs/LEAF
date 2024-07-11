@@ -104,101 +104,95 @@ class VAMCActiveDirectory
     public function importData()
     {
         $time = time();
-        $sql = 'INSERT INTO employee (userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
+        $sql1 = 'INSERT INTO employee (userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
                     VALUES (:loginName, :lname, :fname, :midIni, :phoneticFname, :phoneticLname, :domain, :lastUpdated, uuid())';
 
-        $pq = $this->db->prepare($sql);
         $count = 0;
 
         $userKeys = array_keys($this->users);
 
-        foreach ($userKeys as $key)
-        {
+        foreach ($userKeys as $key) {
             $phoneticFname = metaphone($this->users[$key]['fname']);
             $phoneticLname = metaphone($this->users[$key]['lname']);
 
-            $sql = 'SELECT SQL_NO_CACHE * FROM employee WHERE username = :loginName';
-            $pq2 = $this->db->prepare($sql);
-            $pq2->bindParam(':loginName', $this->users[$key]['loginName']);
-            $pq2->execute();
-            $res = $pq2->fetchAll();
+            $vars = array(':loginName' => $this->users[$key]['loginName']);
+            $sql = 'SELECT SQL_NO_CACHE *
+                    FROM employee
+                    WHERE username = :loginName';
+
+            $res = $this->db->prepared_query($sql, $vars);
 
             if (count($res) > 0) {
                 echo "Updating data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} \n";
 
-                $sql = "INSERT INTO employee_data (empUID, indicatorID, data, author)
-                            VALUES (:empUID, :indicatorID, :data, 'system')
-                            ON DUPLICATE KEY UPDATE data=:data";
+                $vars = array(':empUID' => $res[0]['empUID'],
+                            ':indicatorID' => 6,
+                            ':data' => $this->users[$key]['email']);
+                $sql = "INSERT INTO `employee_data` (`empUID`, `indicatorID`, `data`, `author`)
+                        VALUES (:empUID, :indicatorID, :data, 'system')
+                        ON DUPLICATE KEY UPDATE `data` = :data";
 
-                $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
-                $id = 6;
-                $pq3->bindParam(':indicatorID', $id);
-                $pq3->bindParam(':data', $this->users[$key]['email']);
-                $pq3->execute();
+                $pq3 = $this->db->prepared_query($sql, $vars);
 
-                $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
-                $id = 5;
-                $pq3->bindParam(':indicatorID', $id);
-                $pq3->bindParam(':data', $this->fixIfHex($this->users[$key]['phone']));
-                $pq3->execute();
+                $vars = array(':empUID' => $res[0]['empUID'],
+                            ':indicatorID' => 5,
+                            ':data' => $this->fixIfHex($this->users[$key]['phone']));
 
-                $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
-                $id = 8;
-                $pq3->bindParam(':indicatorID', $id);
-                $pq3->bindParam(':data', $this->fixIfHex($this->users[$key]['roomNum']));
-                $pq3->execute();
+                $pq3 = $this->db->prepared_query($sql, $vars);
 
-                $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $res[0]['empUID']);
-                $id = 23;
-                $pq3->bindParam(':indicatorID', $id);
-                $pq3->bindParam(':data', $this->fixIfHex($this->users[$key]['title']));
-                $pq3->execute();
+                $vars = array(':empUID' => $res[0]['empUID'],
+                            ':indicatorID' => 8,
+                            ':data' => $this->fixIfHex($this->users[$key]['roomNum']));
+
+                $pq3 = $this->db->prepared_query($sql, $vars);
+
+                $vars = array(':empUID' => $res[0]['empUID'],
+                            ':indicatorID' => 23,
+                            ':data' => $this->fixIfHex($this->users[$key]['title']));
+
+                $pq3 = $this->db->prepared_query($sql, $vars);
 
                 // don't store mobile # if it's the same as the primary phone #
                 if ($this->users[$key]['phone'] != $this->users[$key]['mobile']) {
-                    $pq3 = $this->db->prepare($sql);
-                    $pq3->bindParam(':empUID', $res[0]['empUID']);
-                    $id = 16;
-                    $pq3->bindParam(':indicatorID', $id);
-                    $pq3->bindParam(':data', $this->fixIfHex($this->users[$key]['mobile']));
-                    $pq3->execute();
+                    $vars = array(':empUID' => $res[0]['empUID'],
+                            ':indicatorID' => 16,
+                            ':data' => $this->fixIfHex($this->users[$key]['mobile']));
+
+                    $pq3 = $this->db->prepared_query($sql, $vars);
                 }
 
-                $sql = 'UPDATE employee SET lastName=:lname,
-                                firstName=:fname,
-                                middleName=:midIni,
-                                phoneticFirstName=:phoneticFname,
-                                phoneticLastName=:phoneticLname,
-                				domain=:domain,
-                                lastUpdated=:lastUpdated,
-                				deleted = 0
-                            WHERE username=:userName';
+                $vars = array(':lname' => $this->users[$key]['lname'],
+                            ':fname' => $this->users[$key]['fname'],
+                            ':midIni' => $this->users[$key]['midIni'],
+                            ':phoneticFname' => $phoneticFname,
+                            ':phoneticLname' => $phoneticLname,
+                            ':domain' => $this->users[$key]['domain'],
+                            ':lastUpdated' => $time,
+                            ':userName' => $this->users[$key]['loginName']);
+                $sql = 'UPDATE employee
+                        SET lastName = :lname,
+                            firstName = :fname,
+                            middleName = :midIni,
+                            phoneticFirstName = :phoneticFname,
+                            phoneticLastName = :phoneticLname,
+                			domain = :domain,
+                            lastUpdated = :lastUpdated,
+                			deleted = 0
+                        WHERE username = :userName';
 
-                $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':userName', $this->users[$key]['loginName']);
-                $pq3->bindParam(':lname', $this->users[$key]['lname']);
-                $pq3->bindParam(':fname', $this->users[$key]['fname']);
-                $pq3->bindParam(':midIni', $this->users[$key]['midIni']);
-                $pq3->bindParam(':phoneticFname', $phoneticFname);
-                $pq3->bindParam(':phoneticLname', $phoneticLname);
-                $pq3->bindParam(':domain', $this->users[$key]['domain']);
-                $pq3->bindParam(':lastUpdated', $time);
-                $pq3->execute();
+                $pq3 = $this->db->prepared_query($sql, $vars);
             } else {
-                $pq->bindParam(':loginName', $this->users[$key]['loginName']);
-                $pq->bindParam(':lname', $this->users[$key]['lname']);
-                $pq->bindParam(':fname', $this->users[$key]['fname']);
-                $pq->bindParam(':midIni', $this->users[$key]['midIni']);
-                $pq->bindParam(':phoneticFname', $phoneticFname);
-                $pq->bindParam(':phoneticLname', $phoneticLname);
-                $pq->bindParam(':domain', $this->users[$key]['domain']);
-                $pq->bindParam(':lastUpdated', $time);
+                $vars = array(':loginName', $this->users[$key]['loginName'],
+                            ':lname', $this->users[$key]['lname'],
+                            ':fname', $this->users[$key]['fname'],
+                            ':midIni', $this->users[$key]['midIni'],
+                            ':phoneticFname', $phoneticFname,
+                            ':phoneticLname', $phoneticLname,
+                            ':domain', $this->users[$key]['domain'],
+                            ':lastUpdated', $time);
 
-                $pq->execute();
+                $pq = $this->db->prepared_query($sql1, $vars);
+
                 echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
 
                 $lastEmpUID = $this->db->lastInsertId();
@@ -212,12 +206,10 @@ class VAMCActiveDirectory
                             VALUES (:empUID, :indicatorID, :data, 'system')
                             ON DUPLICATE KEY UPDATE data=:data";
 
-                $pq3 = $this->db->prepare($sql);
-                $pq3->bindParam(':empUID', $lastEmpUID);
-                $id = 6;
-                $pq3->bindParam(':indicatorID', $id);
-                $pq3->bindParam(':data', $this->users[$key]['email']);
-                $pq3->execute();
+                $vars = array(':empUID', $lastEmpUID,
+                            ':indicatorID', 6,
+                            ':data', $this->users[$key]['email']);
+                $pq3 = $this->db->prepared_query($sql, $vars);
                 $count++;
             }
 
