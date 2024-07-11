@@ -3,24 +3,26 @@
 require_once getenv('APP_LIBS_PATH') . '/globals.php';
 require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
 
+$db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+
 /**
  * update recordIDs stuck at step -1
- * @param recordIDs string of comma sep record IDs to update
+ * @param object $db database
+ * @param string $recordIDs string of comma sep record IDs to update
  */
-function update_stepID_minus_one($recordIDs) {
+function update_stepID_minus_one($db, $recordIDs) {
 	$vars = array(':recordIDs' => $recordIDs);
-	$res = $this->db->prepared_query('UPDATE records SET
+	$db->prepared_query('UPDATE records SET
 		submitted=0, isWritableUser=1, lastStatus="Re-opened for editing"
 		WHERE FIND_IN_SET(recordID, :recordIDs)', $vars);
 
-	$res = $this->db->prepared_query('UPDATE records_dependencies SET
+	$db->prepared_query('UPDATE records_dependencies SET
 		filled=0 WHERE FIND_IN_SET(recordID, :recordIDs)', $vars);
 	// delete state
-	$this->db->prepared_query('DELETE FROM records_workflow_state
+	$db->prepared_query('DELETE FROM records_workflow_state
 		WHERE FIND_IN_SET(recordID, :recordIDs)', $vars);
 }
 
-$db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
 
 $log_file = fopen("nextStepID_log.txt", "w") or die("unable to open file");
@@ -64,12 +66,12 @@ foreach($portal_records as $rec) {
                     $recordIDsArr = array_column($resStuck, 'recordID');
                     $recordIDsSet = implode(',', $recordIDsArr);
 
-                    update_stepID_minus_one($recordIDs);
+                    update_stepID_minus_one($db, $recordIDsSet);
                 }
 
                 //fix workflow route next step ID setting
                 if (count($res_routes) > 0) {
-                    $sql_update = "UPDATE workflow_routes SET nextStepID = 0 WHERE nextStepID = -1 AND actionType = 'sendback'"
+                    $sql_update = "UPDATE workflow_routes SET nextStepID = 0 WHERE nextStepID = -1 AND actionType = 'sendback'";
                     $db->query($sql_update) ?? [];
                 }
             }
