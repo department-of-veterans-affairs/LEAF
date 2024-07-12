@@ -51,20 +51,20 @@ class VAMCActiveDirectory
                 return 'invalid service';
             }
 
-            $lname = trim($t[$csvdeIdx['sn']]);
-            $fname = trim($t[$csvdeIdx['givenName']]);
-            $midIni = trim($t[$csvdeIdx['initials']]);
-            $email = $t[$csvdeIdx['mail']] ? $t[$csvdeIdx['mail']] : null;
-            $phone = $t[$csvdeIdx['telephoneNumber']] ? $t[$csvdeIdx['telephoneNumber']] : null;
+            $lname = isset($t[$csvdeIdx['sn']]) ? trim($t[$csvdeIdx['sn']]) : '';
+            $fname = isset($t[$csvdeIdx['givenName']]) ? trim($t[$csvdeIdx['givenName']]) : '';
+            $midIni = isset($t[$csvdeIdx['initials']]) ? trim($t[$csvdeIdx['initials']]) : '';
+            $email = isset($csvdeIdx['mail']) && isset($t[$csvdeIdx['mail']]) ? $t[$csvdeIdx['mail']] : null;
+            $phone = isset($t[$csvdeIdx['telephoneNumber']]) ? $t[$csvdeIdx['telephoneNumber']] : null;
             $pager = isset($t[94]) ? $t[94] : null;
-            $roomNum = $t[$csvdeIdx['physicalDeliveryOfficeName']] ? $t[$csvdeIdx['physicalDeliveryOfficeName']] : null;
-            $title = $t[$csvdeIdx['title']] ? $t[$csvdeIdx['title']] : null;
-            $service = $t[$csvdeIdx['description']] ? $t[$csvdeIdx['description']] : null;
+            $roomNum = isset($t[$csvdeIdx['physicalDeliveryOfficeName']]) ? $t[$csvdeIdx['physicalDeliveryOfficeName']] : null;
+            $title = isset($t[$csvdeIdx['title']]) ? $t[$csvdeIdx['title']] : null;
+            $service = isset($t[$csvdeIdx['description']]) ? $t[$csvdeIdx['description']] : null;
             $mailcode = isset($t[98]) ? $t[98] : null;
-            $loginName = $t[$csvdeIdx['sAMAccountName']] ? $t[$csvdeIdx['sAMAccountName']] : null;
+            $loginName = isset($t[$csvdeIdx['sAMAccountName']]) ? $t[$csvdeIdx['sAMAccountName']] : null;
             $objectGUID = null;
             $mobile = isset($t[$csvdeIdx['mobile']]) ? $t[$csvdeIdx['mobile']] : null;
-            $domain = $t[$csvdeIdx['DN']] ? $t[$csvdeIdx['DN']] : null;
+            $domain = isset($t[$csvdeIdx['DN']]) ? $t[$csvdeIdx['DN']] : null;
             $domain = $this->parseVAdomain($domain);
 
             $id = md5(strtoupper($lname) . strtoupper($fname) . strtoupper($midIni));
@@ -196,11 +196,7 @@ class VAMCActiveDirectory
 
                 echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
 
-                $lastEmpUID = $this->db->lastInsertId();
-
-                if ($pq->errorCode() != '00000') {
-                    print_r($pq->errorInfo());
-                }
+                $lastEmpUID = $this->db->getLastInsertId();
 
                 // prioritize adding email to DB
                 $sql = "INSERT INTO employee_data (empUID, indicatorID, data, author)
@@ -233,7 +229,7 @@ class VAMCActiveDirectory
 
         $data = $this->db->prepared_query($sql, $vars);
 
-        //$this->removeData($file);
+        $this->removeData($file);
 
         return $data;
     }

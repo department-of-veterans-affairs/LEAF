@@ -1,4 +1,10 @@
 <?php
+require_once 'scheduled-task-commands/globals.php';
+require_once APP_PATH . '/Leaf/Db.php';
+require_once APP_PATH . '/Leaf/VAMCActiveDirectory.php';
+
+$startTime = microtime(true);
+
 if (count($argv) < 1) {
     // no argument supplied
     exit();
@@ -6,22 +12,12 @@ if (count($argv) < 1) {
 
 $file = $argv[1];
 
-echo $file;
-/*
 $national_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_orgchart');
 $dir = new Leaf\VAMCActiveDirectory($national_db);
 
-$sql = 'SELECT `data`
-        FROM `cache`
-        WHERE `cacheID` = ' . $file;
+$dir->importADData($file);
 
-$data = $db->query($sql);
+$endTime = microtime(true);
+$totalTime = round(($endTime - $startTime)/60, 2);
 
-$dir->importADData($data['data']);
-
-$sql = 'DELETE
-        FROM `cache`
-        WHERE `cacheID` = ' . $file;
-
-$db->query($sql);
-*/
+error_log(print_r($file . " took " . $totalTime . " minutes to complete.", true));
