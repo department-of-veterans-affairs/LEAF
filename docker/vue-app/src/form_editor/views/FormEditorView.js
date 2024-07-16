@@ -300,30 +300,24 @@ export default {
          * get details for the form specified in the url param.
          */
         getFormFromQueryParam() {
-            const formReg = /^form_[0-9a-f]{5}$/i;
-            if (formReg.test(this.queryID || '') === true) {
-                const formID = this.queryID;
-                if (this.categories[formID] === undefined) {
-                    this.focusedFormID = '';
-                    this.focusedFormTree = [];
+            const formID = this.queryID;
+            if (this.categories[formID] === undefined) {
+                this.focusedFormID = '';
+                this.focusedFormTree = [];
+            } else {
+                //an internal would need to be explicitly entered, but would cause issues
+                const parID = this.categories[formID].parentID;
+                if (parID === '') {
+                    this.getFormByCategoryID(formID, true);
                 } else {
-                    //an internal would need to be explicitly entered, but would cause issues
-                    const parID = this.categories[formID].parentID;
-                    if (parID === '') {
-                        this.getFormByCategoryID(formID, true);
-                    } else {
-                        this.$router.push({
-                            name:'category',
-                            query:{
-                                formID: parID,
-                                internalID: formID
-                            }
-                        });
-                    }
+                    this.$router.push({
+                        name:'category',
+                        query:{
+                            formID: parID,
+                            internalID: formID
+                        }
+                    });
                 }
-
-            } else { //if the value of formID is not a valid catID nav back to browser view
-                this.$router.push({ name:'browser' });
             }
         },
         /**
