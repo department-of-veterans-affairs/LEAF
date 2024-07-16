@@ -19,6 +19,20 @@ class VAMCActiveDirectory
 
     private $users = array();
 
+    private $headers = array('sn' => 'lname',
+                'givenName' => 'fname',
+                'initials' => 'midIni',
+                'mail' => 'email',
+                'telephoneNumber' => 'phone',
+                94 => 'pager',
+                'physicalDeliveryOfficeName' => 'roomNum',
+                'title' => 'title',
+                'description' => 'service',
+                98 => 'mailcode',
+                'sAMAccountName' => 'loginName',
+                'mobile' => 'mobile',
+                'DN' => 'domain');
+
     // Connect to the database
     public function __construct($national_db)
     {
@@ -32,18 +46,9 @@ class VAMCActiveDirectory
         $data = $this->getData($file);
         $rawdata = explode("\r\n", $data[0]['data']);
         $rawheaders = trim(array_shift($rawdata));
-        $headers = explode(',', $rawheaders);
-        $idx = 0;
-        $csvdeIdx = array();
+        $rawheaders = explode(',', $rawheaders);
 
-        foreach ($headers as $header) {
-            $csvdeIdx[$header] = $idx;
-            $idx++;
-        }
-
-        $count = 0;
-
-        foreach ($rawdata as $line) {
+        foreach ($rawdata as $key => $line) {
             $t = $this->splitWithEscape($line);
             array_walk($t, array($this, 'trimField2'));
 
@@ -51,44 +56,42 @@ class VAMCActiveDirectory
                 return 'invalid service';
             }
 
-            $lname = isset($t[$csvdeIdx['sn']]) ? trim($t[$csvdeIdx['sn']]) : '';
-            $fname = isset($t[$csvdeIdx['givenName']]) ? trim($t[$csvdeIdx['givenName']]) : '';
-            $midIni = isset($t[$csvdeIdx['initials']]) ? trim($t[$csvdeIdx['initials']]) : '';
-            $email = isset($csvdeIdx['mail']) && isset($t[$csvdeIdx['mail']]) ? $t[$csvdeIdx['mail']] : null;
-            $phone = isset($t[$csvdeIdx['telephoneNumber']]) ? $t[$csvdeIdx['telephoneNumber']] : null;
-            $pager = isset($t[94]) ? $t[94] : null;
-            $roomNum = isset($t[$csvdeIdx['physicalDeliveryOfficeName']]) ? $t[$csvdeIdx['physicalDeliveryOfficeName']] : null;
-            $title = isset($t[$csvdeIdx['title']]) ? $t[$csvdeIdx['title']] : null;
-            $service = isset($t[$csvdeIdx['description']]) ? $t[$csvdeIdx['description']] : null;
-            $mailcode = isset($t[98]) ? $t[98] : null;
-            $loginName = isset($t[$csvdeIdx['sAMAccountName']]) ? $t[$csvdeIdx['sAMAccountName']] : null;
-            $objectGUID = null;
-            $mobile = isset($t[$csvdeIdx['mobile']]) ? $t[$csvdeIdx['mobile']] : null;
-            $domain = isset($t[$csvdeIdx['DN']]) ? $t[$csvdeIdx['DN']] : null;
-            $domain = $this->parseVAdomain($domain);
+            foreach ($t as $t_key => $val) {
+                $head_check = $rawheaders[$t_key];
 
-            $id = md5(strtoupper($lname) . strtoupper($fname) . strtoupper($midIni));
+                if (!isset($this->headers[$head_check])) {
+                    return 'invalid header';
+                }
 
-            if ($lname != '') {
-                $this->users[$id]['lname'] = $lname;
-                $this->users[$id]['fname'] = $fname;
-                $this->users[$id]['midIni'] = $midIni;
-                $this->users[$id]['email'] = $email;
-                $this->users[$id]['phone'] = $phone;
-                $this->users[$id]['pager'] = $pager;
-                $this->users[$id]['roomNum'] = $roomNum;
-                $this->users[$id]['title'] = $title;
-                $this->users[$id]['service'] = $service;
-                $this->users[$id]['mailcode'] = $mailcode;
-                $this->users[$id]['loginName'] = $loginName;
-                $this->users[$id]['objectGUID'] = $objectGUID;
-                $this->users[$id]['mobile'] = $mobile;
-                $this->users[$id]['domain'] = $domain;
+                $write_data[$key][$this->headers[$head_check]] = $val;
+            }
+        }
+
+        $count = 0;
+
+        foreach ($write_data as $employee) {
+            if ($employee['lname'] != '') {
+                $id = md5(strtoupper($employee['lname']) . strtoupper($employee['fname']) . strtoupper($employee['midIni']));
+
+                $this->users[$id]['lname'] = $employee['lname'];
+                $this->users[$id]['fname'] = $employee['fname'];
+                $this->users[$id]['midIni'] = $employee['midIni'];
+                $this->users[$id]['email'] = $employee['email'];
+                $this->users[$id]['phone'] = $employee['phone'];
+                $this->users[$id]['pager'] = $employee['pager'];
+                $this->users[$id]['roomNum'] = $employee['roomNum'];
+                $this->users[$id]['title'] = $employee['title'];
+                $this->users[$id]['service'] = $employee['service'];
+                $this->users[$id]['mailcode'] = $employee['mailcode'];
+                $this->users[$id]['loginName'] = $employee['loginName'];
+                $this->users[$id]['objectGUID'] = null;
+                $this->users[$id]['mobile'] = $employee['mobile'];
+                $this->users[$id]['domain'] = $employee['domain'];
                 $this->users[$id]['source'] = 'ad';
-                echo "Grabbing data for $lname, $fname\n";
+                //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
             } else {
-                echo "{$loginName} probably not a user, skipping.\n";
+                echo "{$employee['loginName']} probably not a user, skipping.\n";
             }
 
             if ($count > 100) {
