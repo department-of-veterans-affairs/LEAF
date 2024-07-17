@@ -68,6 +68,7 @@ class VAMCActiveDirectory
         }
 
         $count = 0;
+        $active_users = array();
 
         foreach ($write_data as $employee) {
             if ($employee['lname'] != '') {
@@ -84,6 +85,7 @@ class VAMCActiveDirectory
                 $this->users[$id]['service'] = $employee['service'];
                 $this->users[$id]['mailcode'] = $employee['mailcode'];
                 $this->users[$id]['loginName'] = $employee['loginName'];
+                $active_users[] = $employee['loginName'];
                 $this->users[$id]['objectGUID'] = null;
                 $this->users[$id]['mobile'] = $employee['mobile'];
                 $this->users[$id]['domain'] = $employee['domain'];
@@ -91,7 +93,8 @@ class VAMCActiveDirectory
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
             } else {
-                echo "{$employee['loginName']} probably not a user, skipping.\n";
+                $message = "{$employee['loginName']} probably not a user, skipping.\n";
+                error_log($message, 3, '/var/www/php-logs/ad_processing.log');
             }
 
             if ($count > 100) {
@@ -99,6 +102,11 @@ class VAMCActiveDirectory
                 $count = 0;
             }
         }
+
+        error_log(print_r($active_users, true), 3, '/var/www/php-logs/active_users.log');
+
+        // Disable users not in this array
+        //$this->disableDeletedEmployees($active_users);
 
         $this->importData(); // import any remaining entries
     }
@@ -127,7 +135,7 @@ class VAMCActiveDirectory
             $res = $this->db->prepared_query($sql, $vars);
 
             if (count($res) > 0) {
-                echo "Updating data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} \n";
+                //echo "Updating data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} \n";
 
                 $vars = array(':empUID' => $res[0]['empUID'],
                             ':indicatorID' => 6,
@@ -136,25 +144,25 @@ class VAMCActiveDirectory
                         VALUES (:empUID, :indicatorID, :data, 'system')
                         ON DUPLICATE KEY UPDATE `data` = :data";
 
-                $pq3 = $this->db->prepared_query($sql, $vars);
+                $this->db->prepared_query($sql, $vars);
 
                 $vars = array(':empUID' => $res[0]['empUID'],
                             ':indicatorID' => 5,
                             ':data' => $this->fixIfHex($this->users[$key]['phone']));
 
-                $pq3 = $this->db->prepared_query($sql, $vars);
+                $this->db->prepared_query($sql, $vars);
 
                 $vars = array(':empUID' => $res[0]['empUID'],
                             ':indicatorID' => 8,
                             ':data' => $this->fixIfHex($this->users[$key]['roomNum']));
 
-                $pq3 = $this->db->prepared_query($sql, $vars);
+                $this->db->prepared_query($sql, $vars);
 
                 $vars = array(':empUID' => $res[0]['empUID'],
                             ':indicatorID' => 23,
                             ':data' => $this->fixIfHex($this->users[$key]['title']));
 
-                $pq3 = $this->db->prepared_query($sql, $vars);
+                $this->db->prepared_query($sql, $vars);
 
                 // don't store mobile # if it's the same as the primary phone #
                 if ($this->users[$key]['phone'] != $this->users[$key]['mobile']) {
@@ -162,7 +170,7 @@ class VAMCActiveDirectory
                             ':indicatorID' => 16,
                             ':data' => $this->fixIfHex($this->users[$key]['mobile']));
 
-                    $pq3 = $this->db->prepared_query($sql, $vars);
+                    $this->db->prepared_query($sql, $vars);
                 }
 
                 $vars = array(':lname' => $this->users[$key]['lname'],
@@ -184,7 +192,7 @@ class VAMCActiveDirectory
                 			deleted = 0
                         WHERE username = :userName';
 
-                $pq3 = $this->db->prepared_query($sql, $vars);
+                $this->db->prepared_query($sql, $vars);
             } else {
                 $vars = array(':loginName', $this->users[$key]['loginName'],
                             ':lname', $this->users[$key]['lname'],
@@ -195,9 +203,9 @@ class VAMCActiveDirectory
                             ':domain', $this->users[$key]['domain'],
                             ':lastUpdated', $time);
 
-                $pq = $this->db->prepared_query($sql1, $vars);
+                $this->db->prepared_query($sql1, $vars);
 
-                echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
+                //echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
 
                 $lastEmpUID = $this->db->getLastInsertId();
 
@@ -209,7 +217,7 @@ class VAMCActiveDirectory
                 $vars = array(':empUID', $lastEmpUID,
                             ':indicatorID', 6,
                             ':data', $this->users[$key]['email']);
-                $pq3 = $this->db->prepared_query($sql, $vars);
+                $this->db->prepared_query($sql, $vars);
                 $count++;
             }
 
@@ -221,6 +229,17 @@ class VAMCActiveDirectory
         echo "... Done.\n";
 
         echo "Total: $count";
+    }
+
+    private function disableDeletedEmployees(array $active_users): void
+    {
+        $vars = array(':timestamp' => time(),
+                ':users' => implode($active_users));
+        $sql = 'UPDATE `employee`
+                SET `deleted` = :timestamp
+                WHERE `userName` NOT IN (:users)';
+
+        $this->db->prepared_query($sql, $vars);
     }
 
     private function getData(string $file): array
