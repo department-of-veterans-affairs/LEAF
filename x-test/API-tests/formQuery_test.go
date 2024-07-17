@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"github.com/google/go-cmp/cmp"
 )
 
 func getFormQuery(url string) (FormQueryResponse, error) {
@@ -17,6 +18,40 @@ func getFormQuery(url string) (FormQueryResponse, error) {
 	err := json.Unmarshal(b, &m)
 
 	return m, err
+}
+
+func TestPendingGroupDesignatedNames(t *testing.T) {
+	xFilter := `recordID,categoryIDs,categoryNames,date,title,service,submitted,priority,stepID,blockingStepID,lastStatus,stepTitle,action_history.time,unfilledDependencyData`
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"stepID","operator":"=","match":"actionable","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","categoryName","status","unfilledDependencies"],"sort":{},"limit":10000,"limitOffset":0}&x-filterData=` + xFilter)
+
+	rec568 := res[568].UnfilledDependencyData
+	rec581 := res[581].UnfilledDependencyData
+	rec550 := res[550].UnfilledDependencyData
+	rec531 := res[531].UnfilledDependencyData
+
+	got := rec568["-3"].ApproverName
+	want := "AS TEST GROUP 1"
+	if !cmp.Equal(got, want) {
+		t.Errorf("dependency group 568 name = %v, want = %v", got, want)
+	}
+
+	got = rec581["-3"].ApproverName
+	want = "Aluminum Home"
+	if !cmp.Equal(got, want) {
+		t.Errorf("dependency group 581 name = %v, want = %v", got, want)
+	}
+
+	got = rec550["-3"].ApproverName
+	want = "AS Test Group"
+	if !cmp.Equal(got, want) {
+		t.Errorf("dependency group 550 name = %v, want = %v", got, want)
+	}
+
+	got = rec531["-3"].ApproverName
+	want = "Office of Associate Director of Patient Care Services"
+	if !cmp.Equal(got, want) {
+		t.Errorf("dependency group 531 name = %v, want = %v", got, want)
+	}
 }
 
 func TestFormQuery_HomepageQuery(t *testing.T) {
