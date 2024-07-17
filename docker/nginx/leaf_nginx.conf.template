@@ -133,6 +133,22 @@ server {
         add_header x-debug-args-info "$args" always;
     }
 
+    location ~ /selenium-tests/(.*?)$ {
+        set $selen_pod ${SEL_POD}:9000;
+        fastcgi_pass $selen_pod;
+        fastcgi_index index.php;
+        
+        #fixes timeouts
+        fastcgi_read_timeout 600;
+        include fastcgi_params;
+        gzip on;
+
+        # debuging
+        add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
+        add_header x-debug-path-info "$fastcgi_path_info" always;
+        add_header x-debug-args-info "$args" always;
+    }
+
 
 
     #location /adminer {

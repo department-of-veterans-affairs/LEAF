@@ -25,6 +25,9 @@ services:
   chrome:
     image: custom-selenium-chrome
     container_name: selenium-chrome
+    build:
+      context: ./..
+      dockerfile: docker/selenium.dockerfile
     networks:
       - ui-test
       - leaf
