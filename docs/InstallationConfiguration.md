@@ -38,10 +38,7 @@ docker network create leaf-sql
 
 ### Checking Email
 
-Fake SMTP server is installed as part of the Docker stack to receive email locally from the system. Navigate to https://localhost:5080/email to view emails sent from the system.
-
-- Username: tester
-- Password: tester
+smtp4dev is installed as part of the Docker stack to receive email locally from the system. Navigate to http://localhost:5080/ to view emails sent from the system.
 
 ### Vue Development
 
