@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"github.com/google/go-cmp/cmp"
 )
 
 func getFormQuery(url string) (FormQueryResponse, error) {
@@ -17,6 +18,35 @@ func getFormQuery(url string) (FormQueryResponse, error) {
 	err := json.Unmarshal(b, &m)
 
 	return m, err
+}
+
+func TestPendingGroupDesignatedNames(t *testing.T) {
+	xFilter := `recordID,categoryIDs,categoryNames,date,title,service,submitted,priority,stepID,blockingStepID,lastStatus,stepTitle,action_history.time,unfilledDependencyData`
+	res, _ := getFormQuery(RootURL + `api/form/query?q={"terms":[{"id":"stepID","operator":"=","match":"actionable","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["service","categoryName","status","unfilledDependencies"],"sort":{},"limit":10000,"limitOffset":0}&x-filterData=` + xFilter)
+
+	rec581 := res[581].UnfilledDependencyData
+	rec690 := res[690].UnfilledDependencyData
+	rec550 := res[550].UnfilledDependencyData
+
+	//testing two groups that exist to avoid chance false pass
+	got := rec581["-3"].ApproverName
+	want := "Aluminum Home"
+	if !cmp.Equal(got, want) {
+		t.Errorf("dependency group 581 name = %v, want = %v", got, want)
+	}
+
+	got = rec690["-3"].ApproverName
+	want = "Office of Associate Director of Patient Care Services"
+	if !cmp.Equal(got, want) {
+		t.Errorf("dependency group 690 name = %v, want = %v", got, want)
+	}
+
+	//group that does not exist in the portal for warning display
+	got = rec550["-3"].ApproverName
+	want = "Warning: Group has not been imported into the User Access Group"
+	if !cmp.Equal(got, want) {
+		t.Errorf("dependency group 550 warning = %v, want = %v", got, want)
+	}
 }
 
 func TestFormQuery_HomepageQuery(t *testing.T) {

@@ -29,6 +29,7 @@ type FormQueryRecord struct {
 	DestructionAge          int                      `json:"destructionAge"`
 	ActionHistory           []FormQueryActionHistory `json:"action_history"`
 	S1                      FormQueryData            `json:"s1"`
+	UnfilledDependencyData  UnfilledDependencyData   `json:"unfilledDependencyData"`
 }
 
 type FormQueryActionHistory struct {
@@ -41,4 +42,12 @@ type FormQueryActionHistory struct {
 	ActionType          string `json:"actionType"`
 	Comment             string `json:"comment"`
 	ApproverName        string `json:"approverName"`
+}
+
+type UnfilledDependencyData map[string]UnfilledDependency
+
+type UnfilledDependency struct{
+	Description            string    `json:"description"`
+	ApproverName           string    `json:"approverName"`
+	ApproverUID            string 	 `json:"approverUID"`
 }
