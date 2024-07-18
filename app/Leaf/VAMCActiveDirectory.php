@@ -31,7 +31,8 @@ class VAMCActiveDirectory
                 98 => 'mailcode',
                 'sAMAccountName' => 'loginName',
                 'mobile' => 'mobile',
-                'DN' => 'domain');
+                'DN' => 'domain',
+                'objectGUID' => 'guid');
 
     // Connect to the database
     public function __construct($national_db)
@@ -69,6 +70,7 @@ class VAMCActiveDirectory
 
         $count = 0;
         $active_users = array();
+        $guid = array();
 
         foreach ($write_data as $employee) {
             if ($employee['lname'] != '') {
@@ -87,6 +89,7 @@ class VAMCActiveDirectory
                 $this->users[$id]['loginName'] = $employee['loginName'];
                 $active_users[] = $employee['loginName'];
                 $this->users[$id]['objectGUID'] = null;
+                $guid[] = $this->fixIfHex($employee['objectGUID']);
                 $this->users[$id]['mobile'] = $employee['mobile'];
                 $this->users[$id]['domain'] = $employee['domain'];
                 $this->users[$id]['source'] = 'ad';
@@ -104,6 +107,7 @@ class VAMCActiveDirectory
         }
 
         error_log(print_r($active_users, true), 3, '/var/www/php-logs/active_users.log');
+        error_log(print_r($guid, true), 3, '/var/www/php-logs/guid.log');
 
         // Disable users not in this array
         //$this->disableDeletedEmployees($active_users);
@@ -234,7 +238,7 @@ class VAMCActiveDirectory
     private function disableDeletedEmployees(array $active_users): void
     {
         $vars = array(':timestamp' => time(),
-                ':users' => implode($active_users));
+                ':users' => implode(',', $active_users));
         $sql = 'UPDATE `employee`
                 SET `deleted` = :timestamp
                 WHERE `userName` NOT IN (:users)';
@@ -392,7 +396,7 @@ class VAMCActiveDirectory
     //tests stringToFix for format X'...', if it matches, it's a hex value, is decoded and returned
     private function fixIfHex($stringToFix)
     {
-        if(substr( $stringToFix, 0, 2 ) === "X'") {
+        if (substr( $stringToFix, 0, 2 ) === "X'") {
             $stringToFix = ltrim($stringToFix, "X'");
             $stringToFix = rtrim($stringToFix, "'");
             $stringToFix = hex2bin($stringToFix);
