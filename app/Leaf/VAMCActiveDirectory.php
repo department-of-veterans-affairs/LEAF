@@ -11,7 +11,7 @@
     + Multiple data sources
     + Buffered inserts for low memory usage
 */
-namespace Leaf;
+namespace App\Leaf;
 
 class VAMCActiveDirectory
 {
