@@ -866,8 +866,12 @@ var LeafFormGrid = function (containerID, options) {
       if(Array.isArray(data)) {
         currentData = data;
       }
-      else {
+      else if(typeof data === 'object') {
         currentData = Object.keys(data).map(key => data[key]);
+      }
+      else {
+        console.error('Invalid setDataBlob format');
+        return;
       }
 
       isDataLoaded = true;
