@@ -114,7 +114,9 @@ class VAMCActiveDirectory
         error_log(print_r($active_users, true), 3, '/var/www/php-logs/active_users.log');
 
         // Disable users not in this array
-        //$this->disableDeletedEmployees($active_users);
+        $this->preventRecycledUserName($active_users);
+        $this->disableDeletedEmployees($active_users);
+
 
         $this->importData(); // import any remaining entries
     }
@@ -237,6 +239,30 @@ class VAMCActiveDirectory
         echo "... Done.\n";
 
         echo "Total: $count";
+    }
+
+    private function preventRecycledUserName($active_users)
+    {
+        // get all non active users
+        $vars = array(':users' => implode(',', $active_users));
+        $sql = 'SELECT `userName`
+                FROM `employee`
+                WHERE `userName` NOT IN (:users)
+                AND LEFT(`userName`, 8) <> "deleted_"';
+
+        $deleted_users = $this->db->prepared_query($sql, $vars);
+
+        foreach ($deleted_users as $user) {
+            $vars = array(':deleted_user' => 'deleted_' . $user['userName'],
+                        ':user' => $user['userName'],
+                        ':timestamp' => time());
+            $sql = 'UPDATE `employee`
+                    SET `userName` = :deleted_user,
+                        `deleted` = :timestamp
+                    WHERE `userName` = :user';
+
+            $this->db->prepared_query($sql, $vars);
+        }
     }
 
     private function disableDeletedEmployees(array $active_users): void
