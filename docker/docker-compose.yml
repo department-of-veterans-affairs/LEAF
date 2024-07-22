@@ -1,8 +1,7 @@
-version: "3.7"
+name: leaf
 
 services:
-    leaf_vue_ui:
-        container_name: leaf_vue_ui
+    vue-ui:
         env_file:
             - ./env_files/vue_ui_local.env
         build:
@@ -17,9 +16,7 @@ services:
             - leaf-sql
             - leaf
 
-    leaf-php-8:
-        image: leaf-fpm
-        container_name: leaf-fpm
+    php-fpm:
         env_file:
             - ./env_files/globals_local.env
             - ./env_files/secrets.env
@@ -63,9 +60,7 @@ services:
             - REMOTE_USER=${REMOTE_USER}
             - APACHE_RUN_USER=build_user
 
-    leaf-nginx:
-        image: leaf-nginx
-        container_name: leaf-nginx
+    nginx:
         env_file:
             - ./env_files/nginx_local.env
         build:
@@ -77,16 +72,16 @@ services:
             - ./nginx/src:/var/www/html
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
         volumes_from:
-            - leaf-php-8
+            - php-fpm
         ports:
             - 80:${HTTP_PORT}
             - 443:${HTTPS_PORT}
         depends_on:
-            - leaf-php-8
+            - php-fpm
         networks:
             - leaf
 
-    leaf-smtp:
+    smtp4dev:
         image: rnwood/smtp4dev
         container_name: leaf-smtp
         env_file:
@@ -97,8 +92,7 @@ services:
         networks:
             - leaf
 
-    leaf-adminer:
-        container_name: leaf-adminer
+    adminer:
         image: adminer
         environment:
             ADMINER_DEFAULT_SERVER: leaf-mysql
@@ -107,9 +101,8 @@ services:
         networks:
             - leaf-sql
 
-    leaf-mysql:
+    mysql:
         image: mysql:8.0
-        container_name: leaf-mysql
         ports:
             - "3306:3306"
         env_file:
@@ -134,16 +127,15 @@ services:
             - ./mysql/db/boilerplate:/leaf-boilerplate
             - ./mysql/dev_db:/leaf-dev_db
 
-    leaf-api-test-helper:
+    api-test-helper:
         image: golang
-        container_name: leaf-api-test-helper
         volumes:
             - "../x-test/api-test-helper/:/app"
             - "../x-test/API-tests/:/API-tests"
         ports:
             - "8000:8000"
         env_file:
-            - ./env_files/mysql_local.env
+            - ./env_files/globals_local.env
             - ./env_files/secrets.env
         networks:
             - leaf
