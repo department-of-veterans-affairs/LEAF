@@ -70,10 +70,15 @@ class VAMCActiveDirectory
 
         $count = 0;
         $active_users = array();
-        $guid = array();
 
         foreach ($write_data as $employee) {
-            if ($employee['lname'] != '') {
+            if (
+                isset($employee['lname'])
+                && $employee['lname'] != ''
+                && isset($employee['loginName'])
+                && $employee['loginName'] != ''
+                && !is_numeric($employee['loginName'])
+            ) {
                 $id = md5(strtoupper($employee['lname']) . strtoupper($employee['fname']) . strtoupper($employee['midIni']));
 
                 $this->users[$id]['lname'] = $employee['lname'];
@@ -81,22 +86,21 @@ class VAMCActiveDirectory
                 $this->users[$id]['midIni'] = $employee['midIni'];
                 $this->users[$id]['email'] = $employee['email'];
                 $this->users[$id]['phone'] = $employee['phone'];
-                $this->users[$id]['pager'] = $employee['pager'];
+                $this->users[$id]['pager'] = isset($employee['pager']) ? $employee['pager'] : null;
                 $this->users[$id]['roomNum'] = $employee['roomNum'];
                 $this->users[$id]['title'] = $employee['title'];
                 $this->users[$id]['service'] = $employee['service'];
-                $this->users[$id]['mailcode'] = $employee['mailcode'];
+                $this->users[$id]['mailcode'] = isset($employee['mailcode']) ? $employee['mailcode'] : null;
                 $this->users[$id]['loginName'] = $employee['loginName'];
                 $active_users[] = $employee['loginName'];
                 $this->users[$id]['objectGUID'] = null;
-                $guid[] = $this->fixIfHex($employee['objectGUID']);
                 $this->users[$id]['mobile'] = $employee['mobile'];
                 $this->users[$id]['domain'] = $employee['domain'];
                 $this->users[$id]['source'] = 'ad';
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
             } else {
-                $message = "{$employee['loginName']} probably not a user, skipping.\n";
+                $message = "{$employee['loginName']} - {$employee['lname']} probably not a user, skipping.\n";
                 error_log($message, 3, '/var/www/php-logs/ad_processing.log');
             }
 
@@ -107,7 +111,6 @@ class VAMCActiveDirectory
         }
 
         error_log(print_r($active_users, true), 3, '/var/www/php-logs/active_users.log');
-        error_log(print_r($guid, true), 3, '/var/www/php-logs/guid.log');
 
         // Disable users not in this array
         //$this->disableDeletedEmployees($active_users);
