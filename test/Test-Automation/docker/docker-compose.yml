@@ -15,6 +15,7 @@ services:
       - ./index.php:/app/index.php
       - ../src:/app/src
       - ../testng.xml:/app/testng.xml
+      - ../ExtentReports:/app/reports
     depends_on:
       - chrome
     environment:
