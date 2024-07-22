@@ -12,8 +12,8 @@ if (count($argv) < 1) {
 
 $file = $argv[1];
 
-$national_db = new Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_orgchart');
-$dir = new Leaf\VAMCActiveDirectory($national_db);
+$national_db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_orgchart');
+$dir = new App\Leaf\VAMCActiveDirectory($national_db);
 
 $dir->importADData($file);
 
