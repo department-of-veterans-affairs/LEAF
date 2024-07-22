@@ -6,6 +6,7 @@ target/
 output/
 Test-Automation.iml
 Test-Automation/
+Test-Automation/ExtentReports
 Test-Automation/**/*.html
 Test-Automation/**/*.iml
 Test-Automation/**/*.output/
