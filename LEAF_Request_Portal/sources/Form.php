@@ -816,52 +816,53 @@ class Form
         else if ($this->hasWriteAccess($recordID) || strtolower($res[0]['userID']) == strtolower($this->login->getUserID())) {
             if($res[0]['submitted'] > 0 &&
                 ($comment == null || trim($comment) == '')) {
-                return 'Please explain the reason for cancellation';
+                $return_value = 'Please explain the reason for cancellation';
             }
+            else {
+                $vars = array(':recordID' => $recordID,
+                            ':time' => time());
+                $sql = 'UPDATE `records`
+                        SET `deleted` = :time
+                        WHERE `recordID` = :recordID';
 
-            $vars = array(':recordID' => $recordID,
-                        ':time' => time());
-            $sql = 'UPDATE `records`
-                    SET `deleted` = :time
-                    WHERE `recordID` = :recordID';
+                $this->db->prepared_query($sql, $vars);
 
-            $this->db->prepared_query($sql, $vars);
+                // actionID 4 = delete
+                $vars = array(':recordID' => $recordID,
+                            ':userID' => $this->login->getUserID(),
+                            ':dependencyID' => 0,
+                            ':actionType' => 'deleted',
+                            ':actionTypeID' => 4,
+                            ':time' => time(),
+                            ':comment' => XSSHelpers::xscrub($comment));
+                $sql = 'INSERT INTO `action_history`
+                            (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
+                        VALUES
+                            (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
 
-            // actionID 4 = delete
-            $vars = array(':recordID' => $recordID,
-                        ':userID' => $this->login->getUserID(),
-                        ':dependencyID' => 0,
-                        ':actionType' => 'deleted',
-                        ':actionTypeID' => 4,
-                        ':time' => time(),
-                        ':comment' => XSSHelpers::xscrub($comment));
-            $sql = 'INSERT INTO `action_history`
-                        (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
-                    VALUES
-                        (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+                $this->db->prepared_query($sql, $vars);
 
-            $this->db->prepared_query($sql, $vars);
+                // delete state
+                $vars = array(':recordID' => $recordID);
+                $sql = 'DELETE
+                        FROM `records_workflow_state`
+                        WHERE `recordID` = :recordID';
 
-            // delete state
-            $vars = array(':recordID' => $recordID);
-            $sql = 'DELETE
-                    FROM `records_workflow_state`
-                    WHERE `recordID` = :recordID';
+                $this->db->prepared_query($sql, $vars);
 
-            $this->db->prepared_query($sql, $vars);
+                // delete tags
+                $vars = array(':recordID' => $recordID);
+                $sql = 'DELETE
+                        FROM `tags`
+                        WHERE `recordID` = :recordID';
 
-            // delete tags
-            $vars = array(':recordID' => $recordID);
-            $sql = 'DELETE
-                    FROM `tags`
-                    WHERE `recordID` = :recordID';
+                $this->db->prepared_query($sql, $vars);
 
-            $this->db->prepared_query($sql, $vars);
+                // need to send emails to everyone upstream from the currect step.
+                $this->notifyPriorSteps($recordID);
 
-            // need to send emails to everyone upstream from the currect step.
-            $this->notifyPriorSteps($recordID);
-
-            $return_value = 1;
+                $return_value = 1;
+            }
         }
 
         return $return_value;
