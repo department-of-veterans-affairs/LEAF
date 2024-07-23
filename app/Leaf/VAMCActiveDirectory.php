@@ -69,7 +69,6 @@ class VAMCActiveDirectory
         }
 
         $count = 0;
-        $active_users = array();
 
         foreach ($write_data as $employee) {
             if (
@@ -93,7 +92,6 @@ class VAMCActiveDirectory
                 $this->users[$id]['service'] = $employee['service'];
                 $this->users[$id]['mailcode'] = isset($employee['mailcode']) ? $employee['mailcode'] : null;
                 $this->users[$id]['loginName'] = $employee['loginName'];
-                $active_users[] = $employee['loginName'];
                 $this->users[$id]['objectGUID'] = null;
                 $this->users[$id]['mobile'] = $employee['mobile'];
                 $this->users[$id]['domain'] = $employee['domain'];
@@ -101,7 +99,9 @@ class VAMCActiveDirectory
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
             } else {
-                $message = "{$employee['loginName']} - {$employee['lname']} probably not a user, skipping.\n";
+                $ln = isset($employee['loginName']) ? $employee['loginName'] : 'no login name';
+                $lan = isset($employee['lname']) ? $employee['lname'] : 'no last name';
+                $message = "{$ln} - {$lan} probably not a user, skipping.\n";
                 error_log($message, 3, '/var/www/php-logs/ad_processing.log');
             }
 
@@ -111,12 +111,8 @@ class VAMCActiveDirectory
             }
         }
 
-        error_log(print_r($active_users, true), 3, '/var/www/php-logs/active_users.log');
-
         // Disable users not in this array
-        $this->preventRecycledUserName($active_users);
-        $this->disableDeletedEmployees($active_users);
-
+        $this->preventRecycledUserName();
 
         $this->importData(); // import any remaining entries
     }
@@ -241,39 +237,14 @@ class VAMCActiveDirectory
         echo "Total: $count";
     }
 
-    private function preventRecycledUserName($active_users)
+    private function preventRecycledUserName(): void
     {
-        // get all non active users
-        $vars = array(':users' => implode(',', $active_users));
-        $sql = 'SELECT `userName`
-                FROM `employee`
-                WHERE `userName` NOT IN (:users)
+        $sql = 'UPDATE `employee`
+                SET `userName` = concat("deleted_", `userName`)
+                WHERE `deleted` > 0
                 AND LEFT(`userName`, 8) <> "deleted_"';
 
-        $deleted_users = $this->db->prepared_query($sql, $vars);
-
-        foreach ($deleted_users as $user) {
-            $vars = array(':deleted_user' => 'deleted_' . $user['userName'],
-                        ':user' => $user['userName'],
-                        ':timestamp' => time());
-            $sql = 'UPDATE `employee`
-                    SET `userName` = :deleted_user,
-                        `deleted` = :timestamp
-                    WHERE `userName` = :user';
-
-            $this->db->prepared_query($sql, $vars);
-        }
-    }
-
-    private function disableDeletedEmployees(array $active_users): void
-    {
-        $vars = array(':timestamp' => time(),
-                ':users' => implode(',', $active_users));
-        $sql = 'UPDATE `employee`
-                SET `deleted` = :timestamp
-                WHERE `userName` NOT IN (:users)';
-
-        $this->db->prepared_query($sql, $vars);
+        $this->db->prepared_query($sql, array());
     }
 
     private function getData(string $file): array
