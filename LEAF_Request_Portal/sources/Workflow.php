@@ -543,6 +543,7 @@ class Workflow
 
         $this->db->prepared_query($strSQL, $vars);
 
+        //Update corresponding email_templates record
         $vars = array(
             ':emailTo' => "{$newName}_emailTo.tpl",
             ':emailCc' => "{$newName}_emailCc.tpl",
@@ -551,7 +552,6 @@ class Workflow
             ':body' => "{$newName}_body.tpl",
             ':newLabel' => $desc);
 
-        //Update corresponding email_templates record
         $strSQL = "UPDATE email_templates 
             SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body 
             WHERE body=:oldBody AND emailTemplateID > 1";
