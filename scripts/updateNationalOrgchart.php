@@ -20,4 +20,4 @@ $dir->importADData($file);
 $endTime = microtime(true);
 $totalTime = round(($endTime - $startTime)/60, 2);
 
-error_log(print_r($file . " took " . $totalTime . " minutes to complete.", true));
+error_log(print_r($file . " took " . $totalTime . " minutes to complete.", true), 3 , '/var/www/php-logs/ad_processing.log');
