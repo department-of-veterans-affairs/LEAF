@@ -75,15 +75,13 @@ services:
             - leaf
 
     leaf-smtp:
-        image: pelentan/fake-smtp:1.0
+        image: rnwood/smtp4dev
         container_name: leaf-smtp
         env_file:
             - ./env_files/globals_local.env
             - ./env_files/secrets.env
         ports:
-            - "2525:25"
-            - "5080:5080"
-        restart: "always"
+            - "5080:80"
         networks:
             - leaf
 
@@ -106,7 +104,6 @@ services:
             - ./env_files/mysql_local.env
             - ./env_files/secrets.env
         command: mysqld --sql_mode="NO_ENGINE_SUBSTITUTION" # set same mode as prod
-        restart: "always"
         #healthcheck:
         #  test: "mysqladmin ping -h localhost -u $${MYSQL_USER} -p$${MYSQL_PASSWORD}"
         #  start_interval: 1s

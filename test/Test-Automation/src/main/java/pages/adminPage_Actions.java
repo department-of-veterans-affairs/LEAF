@@ -2,6 +2,7 @@ package main.java.pages;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.devtools.v123.page.Page;
 import org.openqa.selenium.support.FindBy;
 import main.java.factory.PageinstancesFactory;
 
@@ -41,7 +42,7 @@ public class adminPage_Actions extends BasePage {
     @FindBy(linkText="Use a form made by the LEAF community")
     WebElement LEAFlibrary;
 
-    @FindBy(linkText="Site Settings")
+    @FindBy(xpath="//span[contains(text(),'Site Settings')]")
     WebElement siteSettings;
 
     @FindBy(linkText="Report Builder")
@@ -102,7 +103,7 @@ public class adminPage_Actions extends BasePage {
     public UserAccessGroupsPageActions clickUserAccessGroups(){
      setExplicitWaitForElementToBeClickable(adminUserAccessGroupIcon,30);
      adminUserAccessGroupIcon.click();
-     return new UserAccessGroupsPageActions();
+     return PageinstancesFactory.getInstance(UserAccessGroupsPageActions.class);
     }
 
     public ServiceChiefsPageActions clickServiceChiefs(){
@@ -132,7 +133,7 @@ public class adminPage_Actions extends BasePage {
     public SiteSettingsPageActions clickSiteSettings(){
      setExplicitWaitForElementToBeClickable(siteSettings,30);
      siteSettings.click();
-     return new SiteSettingsPageActions();
+     return PageinstancesFactory.getInstance(SiteSettingsPageActions.class);
     }
 
    public UnresolvedRequestPageActions clickUnresolvedRequest(){
