@@ -83,7 +83,7 @@ foreach($portal_records as $rec) {
                         }
 
                         $sqlUpdateMetadata .= " END";
-                        //NOTE: needed if batching.
+                        //NOTE: this clause needed if batching (might be necessary for a few portals).
                         //$sqlUpdateMetadata .= " WHERE `userMetadata` IS NULL";
 
                         try {
@@ -104,6 +104,7 @@ foreach($portal_records as $rec) {
                                 $log_file,
                                 "Caught Exception (update action_history usermetadata case): " . $e->getMessage() . "\r\n"
                             );
+                            $error_count += 1;
                         }
 
                     } catch (Exception $e) {
@@ -148,7 +149,8 @@ $time_diff = date_diff($time_start, $time_end);
 
 fwrite(
     $log_file,
-    "\r\n-----------------------\r\nProcess took: " . $time_diff->format('%H hr, %i min, %S sec, %f mcr') . "\r\n"
+    "\r\n-----------------------\r\nProcess took: " . $time_diff->format('%H hr, %i min, %S sec, %f mcr') . "\r\n".
+    "total portals: " . $pcount . ", portals with updates: " . $updated_count . ", portals without updates: " . $no_entries_count . ", error count: " . $error_count . "\r\n"
 );
 
 fclose($log_file);
