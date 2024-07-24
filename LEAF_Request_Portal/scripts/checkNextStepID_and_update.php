@@ -6,7 +6,8 @@ require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
 $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
 /**
- * update recordIDs stuck at step -1
+ * update recordIDs stuck at step -1.
+ * This should mirror Form.php->openForEditing, which was not called at ~FormWorkflow +1352 for the stuck requests
  * @param object $db database
  * @param string $recordIDs string of comma sep record IDs to update
  */
@@ -47,7 +48,7 @@ foreach($portal_records as $rec) {
         //look for next step -1 and workflow routes that have a next step of -1
         //these can be independent of each other since wf could have been updated or requests might not be stuck yet
         try {
-            $sql_routes = "SELECT `workflowID`, `stepID`, `nextStepID` FROM `workflow_routes` WHERE `nextStepID`=-1";
+            $sql_routes = "SELECT `workflowID`, `stepID`, `nextStepID` FROM `workflow_routes` WHERE `nextStepID`=-1 AND actionType = 'sendback'";
             $res_routes = $db->query($sql_routes) ?? [];
 
             $sql_rws = "SELECT `recordID` FROM `records_workflow_state` WHERE `stepID`=-1";
@@ -65,14 +66,23 @@ foreach($portal_records as $rec) {
                 if(count($resStuck) > 0) {
                     $recordIDsArr = array_column($resStuck, 'recordID');
                     $recordIDsSet = implode(',', $recordIDsArr);
-
-                    update_stepID_minus_one($db, $recordIDsSet);
+                    fwrite(
+                        $log_file,
+                        "requests: " . $recordIDsSet . "\r\n"
+                    );
+                    //uncomment to run request updates
+                    //update_stepID_minus_one($db, $recordIDsSet);
                 }
 
                 //fix workflow route next step ID setting
                 if (count($res_routes) > 0) {
-                    $sql_update = "UPDATE workflow_routes SET nextStepID = 0 WHERE nextStepID = -1 AND actionType = 'sendback'";
-                    $db->query($sql_update) ?? [];
+                    fwrite(
+                        $log_file,
+                        "number of affected route entries: " . count($res_routes) . "\r\n"
+                    );
+                    //uncomment to run workflow update
+                    //$sql_update = "UPDATE workflow_routes SET nextStepID = 0 WHERE nextStepID = -1 AND actionType = 'sendback'";
+                    //$db->query($sql_update) ?? [];
                 }
             }
 
@@ -96,7 +106,7 @@ $time_diff = date_diff($time_start, $time_end);
 
 fwrite(
     $log_file,
-    "\r\ntotal: ". $total .", count: ". $pcount. ", issues: ". $issues ."\r\nProcess took: " . $time_diff->format('%i min, %S sec, %f mcr') . "\r\n"
+    "\r\ntotal portals: ". $total .", total checked: ". $pcount. ", issues found: ". $issues ."\r\nProcess took: " . $time_diff->format('%i min, %S sec, %f mcr') . "\r\n"
 );
 
 fclose($log_file);
