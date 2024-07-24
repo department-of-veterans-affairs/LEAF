@@ -456,8 +456,12 @@
                     url: '../api/workflow/events',
                     data: ajaxData,
                     cache: false
-                }).done(function() {
-                    alert('Event was successfully created.');
+                }).done(function(res) {
+                    if(+res === 1) {
+                        alert('Event was successfully created.');
+                    } else {
+                        alert(res);
+                    }
                     listEvents();
                 }).fail(function(error) {
                     alert(error);
@@ -681,7 +685,10 @@
                             url: '../api/workflow/editEvent/_' + event,
                             data: ajaxData,
                             cache: false
-                        }).done(function() {
+                        }).done(function(res) {
+                            if(+res !== 1) {
+                                alert(res);
+                            }
                             listEvents();
                         }).fail(function(error) {
                             alert(error);

@@ -521,13 +521,8 @@ class Workflow
             return 'Event not found, please try again.';
         }
 
-        $vars = array(':eventID' => $name);
-
-        $strSQL = 'SELECT eventDescription FROM events WHERE eventID=:eventID';
-
-        $oldLabel = $this->db->prepared_query($strSQL, $vars);
-
-        $vars = array(':eventID' => $name,
+        $vars = array(
+            ':eventID' => $name,
             ':eventDescription' => $desc,
             ':newEventID' => $newName,
             ':eventType' => $type,
@@ -538,20 +533,28 @@ class Workflow
                 'DateSelected' => $data['Date Selected'],
                 'DaysSelected' => $data['Days Selected'],
                 'AdditionalDaysSelected' => $data['Additional Days Selected']
-            )));
+            ))
+        );
 
-        $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData WHERE eventID=:eventID';
+        //Update events record
+        $strSQL = "UPDATE events 
+            SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData 
+            WHERE eventID=:eventID";
 
         $this->db->prepared_query($strSQL, $vars);
 
-        $vars = array(':label' => $oldLabel[0]['eventDescription'],
+        $vars = array(
             ':emailTo' => "{$newName}_emailTo.tpl",
             ':emailCc' => "{$newName}_emailCc.tpl",
             ':subject' => "{$newName}_subject.tpl",
+            ':oldBody' => "{$name}_body.tpl",
             ':body' => "{$newName}_body.tpl",
             ':newLabel' => $desc);
 
-        $strSQL = 'UPDATE email_templates SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body WHERE label=:label';
+        //Update corresponding email_templates record
+        $strSQL = "UPDATE email_templates 
+            SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body 
+            WHERE body=:oldBody AND emailTemplateID > 1";
 
         $this->db->prepared_query($strSQL, $vars);
 
@@ -563,7 +566,7 @@ class Workflow
         }
 
         $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::EVENTS, [
-            new LogItem("events", "eventDescription",  $_POST['description']),
+            new LogItem("events", "eventDescription",  $desc),
             new LogItem("events", "eventID",  $name)
         ]);
 
@@ -1054,25 +1057,18 @@ class Workflow
         if (file_exists("../templates/email/custom_override/{$event}_emailCc.tpl"))
             unlink("../templates/email/custom_override/{$event}_emailCc.tpl");
 
+        //Delete events record
         $vars = array(':eventID' => $event);
-
-        $strSQL = 'SELECT eventDescription FROM events WHERE eventID=:eventID';
-
-        $label = $this->db->prepared_query($strSQL, $vars);
-
         $strSQL = 'DELETE FROM events WHERE eventID=:eventID';
+        $this->db->prepared_query($strSQL, $vars);
 
-        $this->db->prepared_query($strSQL, $vars); // Delete Event
+        //Delete corresponding email_templates record
+        $vars = array(':body' => $event."_body.tpl");
+        $strSQL = 'DELETE FROM email_templates WHERE body=:body AND emailTemplateID > 1';
+        $this->db->prepared_query($strSQL, $vars);
 
         $event = str_replace('CustomEvent_', '', $event);
         $event = str_replace('_', ' ', $event);
-
-        $vars = array(':label' => $label[0]['eventDescription']);
-
-        $strSQL = 'DELETE FROM email_templates WHERE label=:label';
-
-        $this->db->prepared_query($strSQL, $vars); // Delete Email Event
-
         $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EVENTS, [
             new LogItem("events", "eventID",  $event)
         ]);
