@@ -23,12 +23,12 @@ public class WorkflowEditorTests extends BaseTest {
 
     @Test
     public void validateCreateWorkflow() {
-        workflowEditorPageActions.createWorkflow("TestWorkflow-2");
+        workflowEditorPageActions.createWorkflow("TestWorkflow-3");
     }
 
     @Test
     public void validateDeleteWorkflow() {
-        workflowEditorPageActions.deleteWorkflow("TestWorkflow-2");
+        workflowEditorPageActions.deleteWorkflow("TestWorkflow-3");
     }
 
 }
