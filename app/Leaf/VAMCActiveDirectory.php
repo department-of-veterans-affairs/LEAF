@@ -84,7 +84,7 @@ class VAMCActiveDirectory
                 $this->users[$id]['lname'] = $employee['lname'];
                 $this->users[$id]['fname'] = $employee['fname'];
                 $this->users[$id]['midIni'] = $employee['midIni'];
-                $this->users[$id]['email'] = $employee['email'];
+                $this->users[$id]['email'] = isset($employee['email']) ? $employee['email'] : null;
                 $this->users[$id]['phone'] = $employee['phone'];
                 $this->users[$id]['pager'] = isset($employee['pager']) ? $employee['pager'] : null;
                 $this->users[$id]['roomNum'] = $employee['roomNum'];
