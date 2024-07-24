@@ -140,8 +140,8 @@ services:
         image: test-api:latest
         container_name: test-api
         build:
-            context: ./..
-            dockerfile: ./selenium-tests/test-api.dockerfile
+            context: ../
+            dockerfile: docker/selenium-tests/test-api.dockerfile
         env_file:
             - ./selenium-tests/leaf_selenium.env
         networks:
@@ -163,8 +163,8 @@ services:
         image: custom-selenium-chrome
         container_name: selenium-chrome
         build:
-            context: ./..
-            dockerfile: ./selenium-tests/selenium.dockerfile
+            context: ./
+            dockerfile: selenium-tests/selenium.dockerfile
         networks:
             - ui-test
             - leaf

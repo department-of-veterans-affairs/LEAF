@@ -11,12 +11,12 @@ COPY ./docker/selenium-tests/index.php /var/www/html/selenium-tests/index.php
 WORKDIR /app
 COPY ./docker/selenium-tests/startup.sh startup.sh
 RUN ["chmod", "+x", "startup.sh"]
+
 # Copy the source code from the local machine to the container's /app directory
 COPY ./test/Test-Automation/src src
 
 
 # Copy the Project Object Model (POM) file to the container's /app directory
-# COPY pom.xml .
 COPY ./test/Test-Automation/pom.xml .
 COPY ./test/Test-Automation/testng.xml .
 
