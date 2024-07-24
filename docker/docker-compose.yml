@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
     leaf_vue_ui:
         container_name: leaf_vue_ui
