@@ -73,6 +73,19 @@ public class BasePage {
 	public static void setExplicitWait(int seconds) {
 		explicitWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
 		log.info("Waiting for Element to appear for " + seconds + " seconds");
+		System.out.println("Waiting for Element to appear for " + seconds + " seconds");
+	}
+
+	/**
+	 * Sets the explicit wait time for WebDriver.
+	 *
+	 * @param seconds the number of seconds to wait
+	 */
+	public static void setExplicitWaitForAlert(int seconds) {
+		explicitWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
+		// Wait for the alert to be present
+		explicitWait.until(ExpectedConditions.alertIsPresent());
+
 	}
 
 	/**
@@ -161,5 +174,10 @@ public class BasePage {
 			log.error("Element not found or not clickable, Exception thrown: " + e.getMessage(), e);
 			throw e;
 		}
+	}
+
+	public void scrollToView(WebElement element){
+		js = (JavascriptExecutor) driver;
+		js.executeScript("arguments[0].scrollIntoView();", element);
 	}
 }
