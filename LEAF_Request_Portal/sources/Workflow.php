@@ -520,7 +520,21 @@ class Workflow
         if ($name === null || $newName === null || $type === null) {
             return 'Event not found, please try again.';
         }
+        $desc = trim($desc);
 
+        //Check for an existing email_templates record with a label that matches desc to avoid inconsistencies.
+        //Return information for user if a match is found.  Trim for back compat.
+        $vars = array(
+            ':label' => $desc,
+            ':body' => $name . "_body.tpl",
+        );
+        $strSQL = "SELECT `label` FROM `email_templates` WHERE TRIM(`label`) = :label AND `body` != :body";
+        $res = $this->db->prepared_query($strSQL, $vars);
+        if(count($res) > 0) {
+            return 'Please use a different description.';
+        }
+
+        //Update events record
         $vars = array(
             ':eventID' => $name,
             ':eventDescription' => $desc,
@@ -536,7 +550,6 @@ class Workflow
             ))
         );
 
-        //Update events record
         $strSQL = "UPDATE events 
             SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData 
             WHERE eventID=:eventID";
@@ -996,7 +1009,21 @@ class Workflow
         if ($name === null || $type === null) {
             return 'Error creating event, please try again.';
         }
+        $desc = trim($desc);
 
+        //Check for an existing email_templates record with a label that matches desc to avoid inconsistencies.
+        //Return information for user if a match is found.  Trim for back compat.
+        $vars = array(
+            ':label' => $desc,
+            ':body' => $name . "_body.tpl",
+        );
+        $strSQL = "SELECT `label` FROM `email_templates` WHERE TRIM(`label`) = :label AND `body` != :body";
+        $res = $this->db->prepared_query($strSQL, $vars);
+        if(count($res) > 0) {
+            return 'Please use a different description.';
+        }
+
+        //insert events record
         $vars = array(':eventID' => $name,
             ':description' => $desc,
             ':eventType' => $type,
@@ -1011,6 +1038,7 @@ class Workflow
 
         $this->db->prepared_query($strSQL, $vars);
 
+        //insert email_templates record
         $vars = array(':description' => $desc,
             ':emailTo' => $name . '_emailTo.tpl',
             ':emailCc' => $name . '_emailCc.tpl',
