@@ -83,8 +83,7 @@ foreach($portal_records as $rec) {
                         }
 
                         $sqlUpdateMetadata .= " END";
-                        //NOTE: this clause needed if batching (might be necessary for a few portals).
-                        //$sqlUpdateMetadata .= " WHERE `userMetadata` IS NULL";
+                        $sqlUpdateMetadata .= " WHERE `userMetadata` IS NULL";
 
                         try {
                             $db->prepared_query($sqlUpdateMetadata, $metaVars);
