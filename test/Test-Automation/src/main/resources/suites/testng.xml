@@ -7,7 +7,10 @@
         <parameter name="environment" value="remote"/>
         <test thread-count="1" name="Test" parallel="classes">
             <classes>
-                <class name="test.java.FormEditorTests"></class>
+                <class name="test.java.UserAccessGroupsTests"> </class>
+                <class name="test.java.WorkflowEditorTests"> </class>
+                <class name="test.java.SiteSettingTests"> </class>
+                <class name="test.java.FormEditorTests"> </class>
             </classes>
         </test> <!-- Test -->
 </suite> <!-- Suite -->

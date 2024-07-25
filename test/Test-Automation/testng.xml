@@ -4,7 +4,10 @@
 	<test name="Forms Workflow">
 		<parameter name = "env" value="qa"/>
 			<classes>
-				<class name="test.java.formWorkflow.FormEditorTests"/>
+				<class name="test.java.UserAccessGroupsTests"/>
+				<class name="test.java.FormEditorTests"/>
+				<class name="test.java.SiteSettingTests"/>
+				<class name="test.java.WorkflowEditorTests"/>
 			</classes>
 	</test>
 
