@@ -26,7 +26,6 @@ $oc_login->loginUser();
 if (@strtolower($oc_config->dbName) == strtolower(DIRECTORY_DB)) {
     echo 1; // success value
 } else {
-
     if (!empty($_GET['userName']) && !empty($_GET['empUID'])) {
         updateUserInfo($_GET['userName'], $_GET['empUID']);
         echo 1;
@@ -153,10 +152,12 @@ function updateLocalOrgchartBatch()
     // chunk it so we can go over this data.
     $localEmployeeUsernamesChunked = array_chunk($localEmployeeUsernames, 100);
     $loopDidnotFail = true;
+
     // loop over the chunked names so we can limit how much data this will be inserting at a time.
     foreach ($localEmployeeUsernamesChunked as $localEmployeeUsernames) {
         // get employees from the nexus based on the username
         $returnStatus = updateEmployeeDataBatch($localEmployeeUsernames);
+
         if ($returnStatus == false) {
             $loopDidnotFail = false;
         }
@@ -180,6 +181,7 @@ function getEmployeeUIDs(array $localEmployeeUsernames): array
     $localEmpUIDs = $oc_db->prepared_query($localEmployeeSql,$localEmployeeUsernames);
 
     $localEmpArray = [];
+
     foreach ($localEmpUIDs as $localUsername) {
         $localEmpArray[strtoupper($localUsername['userName'])] = $localUsername['empUID'];
     }
@@ -291,7 +293,6 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     list($localEmpUIDs,$localEmpArray) = getEmployeeUIDs($localEmployeeUsernames);
 
     foreach ($orgEmployeeDataRes as $orgEmployeeData) {
-
         // if this user is not found, we will skip adding data for them.
         if (empty($localEmpArray[strtoupper($orgEmployeeData['userName'])])) {
             continue;
@@ -304,8 +305,6 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
                 'timestamp' => $orgEmployeeData['timestamp'],
             ];
         }
-
-
     }
 
     // make sure data array has data before attempting to insert data
