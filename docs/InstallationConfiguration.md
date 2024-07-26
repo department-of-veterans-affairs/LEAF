@@ -18,7 +18,7 @@
 2. Right click on this new folder.  At the bottom of the pop-up, click on "Show More Options".  Click on "Open Git Bash Here".
 
 3. In the new terminal that opens up, enter these commands: 
-##
+######
 <tab><tab>git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
 
   - 
