@@ -994,7 +994,7 @@ CREATE TABLE `employee` (
 
 INSERT INTO `employee` (`empUID`, `userName`, `lastName`, `firstName`, `middleName`, `phoneticFirstName`, `phoneticLastName`, `domain`, `deleted`, `lastUpdated`, `new_empUUID`) VALUES
 (1,	'tester',	'tester',	'tester',	'testerAllReady',	'mghnn',	'kzy',	'VTR-2351',	0,	1623196990,	'4c5007fa-56d8-4c34-8357-13223fea45f3'),
-(2,	'VTRPAZMICKIE0',	'O\'Hane',	'Tracy',	'Spencer',	'trcy',	'hn',	'VTR-931',	0,	1623606593,	'ed0c706d-997e-4a72-97d7-7b7ae715c9ed'),
+(2,	'VTRPAZMICKIE',	'O\'Hane',	'Tracy',	'Spencer',	'trcy',	'hn',	'VTR-931',	0,	1623606593,	'ed0c706d-997e-4a72-97d7-7b7ae715c9ed'),
 (3,	'VTRHLQJANETH',	'Kutch-Kutch',	'Spencer',	'Howell',	'spncr',	'ktch',	'VTR-2013',	0,	1623606595,	'f6916955-b8bf-4157-9f21-64cb6f1770cf'),
 (4,	'VTRFAUFELECIA',	'Schultz',	'P\'huong',	'Boyer',	'phng',	'schltz',	'VTR-2275',	0,	1623606597,	'3f08eb8a-e9d5-4a99-a36f-57130c5a9fd3'),
 (5,	'VTRGRCAYANA',	'Simonis',	'Esteban-Esteban',	'Hills',	'stbn',	'smns',	'VTR-2762',	0,	1623606599,	'7d949975-944b-4b46-a01f-fb05f9ba0c8d'),
