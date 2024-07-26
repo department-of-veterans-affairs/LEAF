@@ -28,17 +28,17 @@
 4. The last can take several minutes.  Some errors may pop up if you've run this before. These can be ignored if everything comes up. 
   You should see at least what is below.  The times may be different.
   
-  [+] Running 10/10<br/>
-      ✔ Network docker_ui-test          Created        0.0s  
-      ✔ Container leaf-smtp             Started        4.9s  
-      ✔ Container selenium-chrome       Started        5.7s  
-      ✔ Container leaf-adminer          Started        5.3s  
-      ✔ Container leaf_vue_ui           Started        4.2s  
-      ✔ Container leaf-fpm              Started        5.7s  
-      ✔ Container leaf-mysql            Started        5.2s  
-      ✔ Container leaf-api-test-helper  Started        5.7s  
-      ✔ Container test-api              Started        6.3s  
-      ✔ Container leaf-nginx            Started        6.2x           
+      [+] Running 10/10<br/>
+          ✔ Network docker_ui-test          Created        0.0s  
+          ✔ Container leaf-smtp             Started        4.9s  
+          ✔ Container selenium-chrome       Started        5.7s  
+          ✔ Container leaf-adminer          Started        5.3s  
+          ✔ Container leaf_vue_ui           Started        4.2s  
+          ✔ Container leaf-fpm              Started        5.7s  
+          ✔ Container leaf-mysql            Started        5.2s  
+          ✔ Container leaf-api-test-helper  Started        5.7s  
+          ✔ Container test-api              Started        6.3s  
+          ✔ Container leaf-nginx            Started        6.2x           
                    
 5. Open your browser and go to https://host.docker.internal/ 
   - LEAF Sites.  These are the two primary sites you will use to access LEAF
