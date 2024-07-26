@@ -21,9 +21,10 @@
   - git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
   - cd LEAF
   - sh RunMe.sh  
-  
+
 4. The last can take several minutes.  Some errors may pop up if you've run this before. These can be ignored if everything comes up. 
   You should see at least what is below.  The times may be different.
+  
       ✔ Network docker_ui-test          Created        0.0s  
       ✔ Container leaf-smtp             Started        4.9s  
       ✔ Container selenium-chrome       Started        5.7s  
