@@ -129,12 +129,10 @@ services:
         extra_hosts:
             - host.docker.internal:host-gateway
 
-    test-api:
-        image: test-api:latest
-        container_name: test-api
+    selenium-api:
         build:
             context: ../
-            dockerfile: docker/selenium-tests/test-api.dockerfile
+            dockerfile: docker/selenium-tests/selenium-api.dockerfile
         env_file:
             - ./selenium-tests/leaf_selenium.env
         networks:
