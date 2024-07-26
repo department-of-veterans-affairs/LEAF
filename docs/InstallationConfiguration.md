@@ -29,7 +29,7 @@
   You should see at least what is below.  The times may be different.
   
       [+] Running 10/10<br/>
-      <table style="border: none;">
+      <table style="border-collapse: collapse; border: none;">
         <tr style="border: none;">
           <td style="border: none;">✔ Network docker_ui-test</td>
           <td style="border: none;">          Created  </td>
