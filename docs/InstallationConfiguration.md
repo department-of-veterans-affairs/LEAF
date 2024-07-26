@@ -3,31 +3,44 @@
 ## Prerequisites
 
 - Install Git
-- Install Docker for Desktop
+  - https://git-scm.com/downloads  Pick the one for your computer's OS
+  - Just "next, next, next" until you get to the Configuring the line ending conversions window.  Choose "Chechout as-is, commit as-is".  Then "next, next, next, install". 
+- Install Docker
+  - For Windows:  https://www.docker.com/
+  - For Mac: https://docs.docker.com/desktop/install/mac-install/
+  - For Linux: Should be your distro's installer (yum, apt, dm, etc) docker.
   - Enable setting: "Add the *.docker.internal names to the host's etc/hosts file" or associate `host.docker.internal` with localhost (127.0.0.1).
 
 ## Installation
 
-1. Run the command:
-  - `git config --global core.autocrlf false`
-    - Or ensure that `./docker/mysql/dev_bootstrap.sh uses the LF end-of-line sequence instead of CRLF.
-2. Copy this project into a directory on your computer:
-  - `git clone https://github.com/department-of-veterans-affairs/LEAF.git`
+1. Open File Explorer.  Create a new folder for the code.  For example "leaf-code".
+2. Right click on this new folder.  At the bottom of the pop-up, click on "Show More Options".  Click on "Open Git Bash Here".
+3. In the new terminal that opens up, enter these commands: 
+  - git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
+  - cd LEAF
+  - sh RunMe.sh   Note:  
+4. The last can take several minutes.  Some errors may pop up if you've run this before. These can be ignored if everything comes up. 
+  You should see at least what is below.  The times may be different.
+      ✔ Network docker_ui-test          Created        0.0s  
+      ✔ Container leaf-smtp             Started        4.9s  
+      ✔ Container selenium-chrome       Started        5.7s  
+      ✔ Container leaf-adminer          Started        5.3s  
+      ✔ Container leaf_vue_ui           Started        4.2s  
+      ✔ Container leaf-fpm              Started        5.7s  
+      ✔ Container leaf-mysql            Started        5.2s  
+      ✔ Container leaf-api-test-helper  Started        5.7s  
+      ✔ Container test-api              Started        6.3s  
+      ✔ Container leaf-nginx            Started        6.2x                         
+5. Open your browser and go to https://host.docker.internal/ 
+  - Request Portal<Need description >
+  - Nexus <need description>
+  - Automated tests.  These are one button tests that will make sure everything is working correctly.
+    - API Tester:  These are tests primarily for api's that can be targeted by client-side javascript calls.
+    - End-to-End Tests:  This is a set of tests meant to verify that all different components of LEAF are working correctly together.
+    - SMTP Server:  This takes you to the GUI for the fake mail system so you can verify emails are going out.
+    - phpinfo():  For geeks.  This shows the current setup of the PHP engine.
 
-## Configuration
 
-A couple docker networks need to be created:
-
-```shell
-docker network create leaf
-docker network create leaf-sql
-```
-
-## Running
-
-1. Navigate to the LEAF/docker directory
-2. Run the command `docker compose up --build -d`
-3. Navigate to https://host.docker.internal/ in your browser.
 
 ### Exploring Database
 
@@ -68,5 +81,4 @@ sass (leaf.css and related fonts and assets) builds to /libs/css
 #### Docker
 
 1. In `docker/docker-compose.yml`, comment out the line `- 443:443`
-2. In `docker/php/Dockerfile`, comment out the line `EXPOSE 443`.
-3. Rebuild the images with `docker compose build --no-cache`
+2. Rebuild the images with `docker compose build --no-cache`

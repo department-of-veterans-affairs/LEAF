@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Select Components Ensure Open Git Bash and Open Git Gui
-# Configure the line ending conversions Checkout as-is commit as-is
 
 echo "Create docker networks"
 
@@ -19,4 +17,5 @@ cd docker
 
 echo "Build the docker containers"
 
+git checkout master
 docker compose up --build -d
