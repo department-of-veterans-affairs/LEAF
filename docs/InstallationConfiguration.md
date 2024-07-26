@@ -29,18 +29,18 @@
   You should see at least what is below.  The times may be different.
   
       [+] Running 10/10<br/>
-      <table>
+      <table style="border: none;">
         <tr><td>✔ Network docker_ui-test</td><td>          Created  </td><td>      0.0s  </td></tr>
-      </table>
-          ✔ Container leaf-smtp             Started        4.9s  
-          ✔ Container selenium-chrome       Started        5.7s  
-          ✔ Container leaf-adminer          Started        5.3s  
-          ✔ Container leaf_vue_ui           Started        4.2s  
-          ✔ Container leaf-fpm              Started        5.7s  
-          ✔ Container leaf-mysql            Started        5.2s  
-          ✔ Container leaf-api-test-helper  Started        5.7s  
-          ✔ Container test-api              Started        6.3s  
-          ✔ Container leaf-nginx            Started        6.2x           
+        <tr><td>  ✔ Container leaf-smtp </td><td>            Started </td><td>       4.9s  </td></tr>
+        <tr><td>  ✔ Container selenium-chrome </td><td>      Started </td><td>       5.7s  </td></tr>
+        <tr><td>  ✔ Container leaf-adminer </td><td>         Started </td><td>       5.3s  </td></tr>
+        <tr><td>  ✔ Container leaf_vue_ui </td><td>          Started </td><td>       4.2s  </td></tr>
+        <tr><td>  ✔ Container leaf-fpm </td><td>             Started </td><td>       5.7s  </td></tr>
+        <tr><td>  ✔ Container leaf-mysql </td><td>           Started </td><td>       5.2s  </td></tr>
+        <tr><td>  ✔ Container leaf-api-test-helper</td><td>  Started </td><td>       5.7s  </td></tr>
+        <tr><td>  ✔ Container test-api </td><td>             Started </td><td>       6.3s  </td></tr>
+        <tr><td>  ✔ Container leaf-nginx </td><td>           Started </td><td>       6.2x  </td></tr>
+      </table>        
                    
 5. Open your browser and go to https://host.docker.internal/ 
   - LEAF Sites.  These are the two primary sites you will use to access LEAF
