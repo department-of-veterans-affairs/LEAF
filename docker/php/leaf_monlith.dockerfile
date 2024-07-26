@@ -1,4 +1,4 @@
-FROM php:8.2-fpm as base
+FROM php:8.2-fpm AS base
 
 RUN docker-php-ext-install pdo pdo_mysql
 
@@ -26,13 +26,13 @@ COPY docker/php/ssmtp/revaliases /etc/ssmtp/revaliases
 # install minimal procps (ps aux) and cleanup afterwards
 RUN apt update && apt install --no-install-recommends -y procps && apt clean
 
-FROM base as dev 
+FROM base AS dev 
 # xdebug
 # RUN pecl config-set php_ini "$PHP_INI_DIR/php.ini"
 # RUN pecl install xdebug && docker-php-ext-enable xdebug
 # COPY /docker/php/etc/xdebug.ini "$PHP_INI_DIR/conf.d/xdebug.ini"
 
-FROM base as prod
+FROM base AS prod
 COPY ./LEAF_Nexus /var/www/html/LEAF_Nexus
 COPY ./LEAF_Request_Portal /var/www/html/LEAF_Request_Portal
 COPY ./libs /var/www/html/libs

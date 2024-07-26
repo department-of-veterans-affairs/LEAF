@@ -153,7 +153,6 @@ services:
     chrome:
         image: custom-selenium-chrome
         container_name: selenium-chrome
-        platform: linux/amd64
         build:
             context: ./
             dockerfile: selenium-tests/selenium.dockerfile
