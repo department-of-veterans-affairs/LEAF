@@ -30,7 +30,10 @@
   
       [+] Running 10/10<br/>
       <table style="border: none;">
-        <tr style="border: none;"><td>✔ Network docker_ui-test</td><td>          Created  </td><td>      0.0s  </td></tr>
+        <tr style="border: none;">
+          <td style="border: none;">✔ Network docker_ui-test</td>
+          <td style="border: none;">          Created  </td>
+          <td style="border: none;">      0.0s  </td></tr>
         <tr style="border: none;"><td>  ✔ Container leaf-smtp </td><td>            Started </td><td>       4.9s  </td></tr>
         <tr style="border: none;"><td>  ✔ Container selenium-chrome </td><td>      Started </td><td>       5.7s  </td></tr>
         <tr style="border: none;"><td>  ✔ Container leaf-adminer </td><td>         Started </td><td>       5.3s  </td></tr>
