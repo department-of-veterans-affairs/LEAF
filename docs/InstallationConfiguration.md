@@ -20,10 +20,10 @@
 3. In the new terminal that opens up, enter these commands: 
 ######
     git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
-
-  - 
-  - cd LEAF
-  - sh RunMe.sh  
+######
+    cd LEAF
+######
+    sh RunMe.sh  
 
 4. The last can take several minutes.  Some errors may pop up if you've run this before. These can be ignored if everything comes up. 
   You should see at least what is below.  The times may be different.
@@ -63,8 +63,8 @@ This container is used for the Form Editor and Site Designer Vue apps, and for t
 #### Devlopment mode
 
 Log in to container, access the terminal, and run the command:
-
-`npm run dev`
+######
+    npm run dev
 
 Webpack will watch for changes to /docker/vue-app/src
 
@@ -73,8 +73,8 @@ Webpack will watch for changes to /docker/vue-app/src
 #### Production mode
 
 Log in to container, access the terminal, and run the command:
-
-`npm run build`
+######
+    npm run build
 
 form editor and site designer apps builds to respective folders under /libs/js/vue-dest
 sass (leaf.css and related fonts and assets) builds to /libs/css
