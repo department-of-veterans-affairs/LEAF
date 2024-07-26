@@ -24,7 +24,7 @@
 
 4. The last can take several minutes.  Some errors may pop up if you've run this before. These can be ignored if everything comes up. 
   You should see at least what is below.  The times may be different.
-  
+
       ✔ Network docker_ui-test          Created        0.0s  
       ✔ Container leaf-smtp             Started        4.9s  
       ✔ Container selenium-chrome       Started        5.7s  
@@ -43,7 +43,8 @@
   - Automated tests.  These are one button tests that will make sure everything is working correctly.
     - API Tester:  These are tests primarily for api's that can be targeted by client-side javascript calls.
     - End-to-End Tests:  This is a set of tests meant to verify that all different components of LEAF are working correctly together.
-      Note:  This particular test is extensive and will take a significant amount of time.  The new page will be blank until it finishes running and then will bring back an intereactive results page.
+    
+      *Note:  This particular test is extensive and will take a significant amount of time.  The new page will be blank until it finishes running and then will bring back an intereactive results page.
   - Dev Corner.  These are used by developers.
     - Adminer:  This takes you to the login for a Gui for the MySQL database.
       - Username: tester
