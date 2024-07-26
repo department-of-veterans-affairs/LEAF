@@ -7,9 +7,16 @@
   - Just "next, next, next" until you get to the Configuring the line ending conversions window.  Choose "Chechout as-is, commit as-is".  Then "next, next, next, install". 
 - Install Docker
   - For Windows:  https://www.docker.com/
+    After install, open Docker Desktop and do the following steps:
+    - Click Settings (the gear icon at top)
+    - Click General on leaf-hand pane
+    - Scroll down to "Use the WSL 2 based engine (Windows Home can only run the WSL 2 backend)"
+    - Click box for "Add the *.docker.internal names to the host's /etc/hosts file (Requires password)"
+    - Click "Apply & Restart".  Accept and approve everything.
   - For Mac: https://docs.docker.com/desktop/install/mac-install/
+    After install, you may need to do the above for the hosts file.
   - For Linux: Should be your distro's installer (yum, apt, dm, etc) install docker.
-  - Enable setting: "Add the *.docker.internal names to the host's etc/hosts file" or associate `host.docker.internal` with localhost (127.0.0.1).
+    After install, you may need to manually add the line into the hosts file.
 
 ## Installation
 
