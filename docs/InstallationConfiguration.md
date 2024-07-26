@@ -30,8 +30,8 @@
   
       [+] Running 10/10<br/>
       <table style="border-collapse: collapse; border: none;">
-        <tr style="border: none;">
-          <td style="border: none;">✔ Network docker_ui-test</td>
+        <tr style="border-collapse: collapse; border: none;">
+          <td style="border-collapse: collapse; border: none;">✔ Network docker_ui-test</td>
           <td style="border: none;">          Created  </td>
           <td style="border: none;">      0.0s  </td></tr>
         <tr style="border: none;"><td>  ✔ Container leaf-smtp </td><td>            Started </td><td>       4.9s  </td></tr>
