@@ -29,7 +29,9 @@
   You should see at least what is below.  The times may be different.
   
       [+] Running 10/10<br/>
-          ✔ Network docker_ui-test          Created        0.0s  
+      <table>
+        <tr><td>✔ Network docker_ui-test</td><td>          Created  </td><td>      0.0s  </td></tr>
+      </table>
           ✔ Container leaf-smtp             Started        4.9s  
           ✔ Container selenium-chrome       Started        5.7s  
           ✔ Container leaf-adminer          Started        5.3s  
