@@ -18,7 +18,10 @@
 2. Right click on this new folder.  At the bottom of the pop-up, click on "Show More Options".  Click on "Open Git Bash Here".
 
 3. In the new terminal that opens up, enter these commands: 
-  - git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
+##
+<tab><tab>git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
+
+  - 
   - cd LEAF
   - sh RunMe.sh  
 
@@ -43,7 +46,7 @@
   - Automated tests.  These are one button tests that will make sure everything is working correctly.
     - API Tester:  These are tests primarily for api's that can be targeted by client-side javascript calls.
     - End-to-End Tests:  This is a set of tests meant to verify that all different components of LEAF are working correctly together.
-    
+
       *Note:  This particular test is extensive and will take a significant amount of time.  The new page will be blank until it finishes running and then will bring back an intereactive results page.
   - Dev Corner.  These are used by developers.
     - Adminer:  This takes you to the login for a Gui for the MySQL database.
