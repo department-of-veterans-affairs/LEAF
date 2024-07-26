@@ -19,7 +19,7 @@
 
 3. In the new terminal that opens up, enter these commands: 
 ######
-<tab><tab>git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
+    git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
 
   - 
   - cd LEAF
