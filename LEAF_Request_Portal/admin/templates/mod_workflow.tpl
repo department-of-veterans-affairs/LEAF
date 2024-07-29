@@ -457,11 +457,10 @@
                     data: ajaxData,
                     cache: false
                 }).done(function(res) {
-                    if(+res === 1) {
-                        alert('Event was successfully created.');
-                    } else {
+                    if(+res !== 1) {
                         alert(res);
                     }
+                    //TODO: add and reopen stepInfo instead of events list.
                     listEvents();
                 }).fail(function(error) {
                     alert(error);
@@ -2433,7 +2432,7 @@
     }
 
     function buildRoutesList(stepID, workflowID) {
-        let allRoutes = [...routes];
+        let allRoutes = structuredClone(routes);
         let hasSubmit = false;
         allRoutes.forEach(r => {
             if(r.actionType === "sendback") {
