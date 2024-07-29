@@ -6777,7 +6777,7 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (505,	1694021485,	0,	'VTRGBKJEANNINE',	'Requestor is not tester',	0,	'Submitted',	1694021504,	0,	0,	1),
 (506,	1694021485,	0,	'tester',	'Available for test case',	0,	'Note',	1694021504,	0,	0,	1),
 (507,	1695395480,	15,	'tester',	'Complex',	0,	'Submitted',	1695395485,	0,	0,	1),
-(508,	1697229337,	201,	'VTRPAZMICKIE0',	'Test backup of initiator',	0,	'Submitted',	1697554108,	0,	0,	1),
+(508,	1697229337,	201,	'VTRVVTELLIE',	'Test backup of initiator',	0,	'Submitted',	1697554108,	0,	0,	1),
 (509,	1699044418,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044434,	0,	0,	1),
 (510,	1699044418,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044434,	0,	0,	1),
 (511,	1699044418,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044434,	0,	0,	1),

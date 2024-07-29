@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -86,8 +87,12 @@ func TestFormQuery_NonadminQueryActionable(t *testing.T) {
 		t.Errorf("Record 503 should be actionable because tester is backup of person designated")
 	}
 
-	if _, exists := res[504]; !exists {
-		t.Errorf("Record 504 should be actionable because tester is backup of initiator")
+	if _, exists := res[504]; exists {
+		t.Errorf("Record 504 should not be actionable because initiator is disabled")
+	}
+
+	if _, exists := res[508]; !exists {
+		t.Errorf("Record 508 should be actionable because tester is backup of initiator")
 	}
 
 	if _, exists := res[505]; exists {
