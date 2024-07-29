@@ -25,6 +25,12 @@ public class UserAccessGroupsPageActions  extends BasePage {
     @FindBy(xpath ="//button[contains(text(),'Import group')]")
     WebElement importGroupButton;
 
+    @FindBy(xpath = "//input[@aria-label='Search for user to add as ']")
+    WebElement importGroupTitle;
+
+    @FindBy(id = "button_import")
+    WebElement buttonImport;
+
     @FindBy(xpath ="//button[contains(text(),'Show group History')]")
     WebElement showGroupHistoryButton;
 
@@ -235,6 +241,28 @@ public class UserAccessGroupsPageActions  extends BasePage {
 
             }
         }
+    }
+
+    public boolean importGroup(String groupName){
+        importGroupButton.click();
+        setExplicitWaitForElementToBeVisible(buttonImport,30);
+        importGroupTitle.clear();
+        importGroupTitle.sendKeys(groupName);
+        buttonImport.click();
+        boolean groupExists = false;
+
+        for(int i = 0; i<groupList.size(); i++){
+            String actGroupName = groupList.get(i).getText();
+            System.out.println("actGroupName: " +actGroupName);
+            if(groupName.equals(actGroupName.trim())) {
+                groupExists = true;
+                break;
+            }
+        }
+        return groupExists;
+
+
+
     }
 
         public boolean verifyGroupDeleted(String groupName) {
