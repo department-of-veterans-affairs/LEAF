@@ -17,6 +17,7 @@
     After install, you may need to do the above for the hosts file.
   - For Linux: Should be your distro's installer (yum, apt, dm, etc) install docker.
     After install, you may need to manually add the line into the hosts file.
+  - Default installation of Docker may not set it to run automatically on computer start up.  You may need to click on the Docker Desktop icon to start.
 
 ## Installation
 
