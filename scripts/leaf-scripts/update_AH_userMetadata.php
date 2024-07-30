@@ -19,6 +19,9 @@ $updated_count = 0;
 $no_entries_count = 0;
 $error_count = 0;
 
+//used during update query to limit query
+$caselimit = 2500;
+
 foreach($portal_records as $rec) {
     $portal_db = $rec['portal_database'];
     $orgchart_db = $rec['orgchart_database'];
@@ -28,7 +31,6 @@ foreach($portal_records as $rec) {
         //************ PORTAL (first use) ************ */
         $db->query("USE `{$portal_db}`");
 
-        //get distinct userIDs from portal's action_history table
         try {
             $usersQ = "SELECT DISTINCT `userID` FROM `action_history`";
 
@@ -38,7 +40,7 @@ foreach($portal_records as $rec) {
             if($numIDs > 0) {
                 fwrite(
                     $log_file,
-                    "\r\nUnique action history userID count for " . $portal_db . ": " . $numIDs . "\r\n-----------------------\r\n"
+                    "\r\nUnique action history userID count for " . $portal_db . ": " . $numIDs . "\r\n"
                 );
 
                 try {
@@ -57,54 +59,69 @@ foreach($portal_records as $rec) {
 
                     try {
                         $resEmployeeInfo = $db->prepared_query($qEmployee, $v) ?? [];
+                        $resCount = count($resEmployeeInfo);
 
-                        //************ switch to PORTAL to update metadata ************ */
+                        fwrite(
+                            $log_file,
+                            "Unique orgchart result count for portal " . $portal_db . ": " . $resCount . "\r\n"
+                        );
+
+                        //************ switch to PORTAL to update metadata in batches************ */
                         $db->query("USE `{$portal_db}`");
 
-                        //build CASE statement for org_emp indicators
-                        $sqlUpdateMetadata = "UPDATE `action_history`
-                            SET `userMetadata` = CASE `userID` ";
+                        $totalBatches = intdiv($resCount, $caselimit);
+                        foreach(range(0, $totalBatches) as $batchcount) { //this will include the last partial batch
+                            $curr_emp_slice = array_slice($resEmployeeInfo, $batchcount * $caselimit, $caselimit);
 
-                        $metaVars = array();
-                        foreach ($resEmployeeInfo as $idx => $emp) {
-                            $isActive = $emp['deleted'] === 0;
-                            $metadata = json_encode(
-                                array(
-                                    'userName' => $isActive ? $emp['userName'] : '',
-                                    'firstName' => $isActive ? $emp['firstName'] : '',
-                                    'lastName' => $isActive ? $emp['lastName'] : '',
-                                    'middleName' => $isActive ? $emp['middleName'] : '',
-                                    'email' => $isActive ? $emp['email'] : ''
-                                )
-                            );
-                            $metaVars[":user_" . $idx] = $emp['userName'];
-                            $metaVars[":meta_" . $idx] = $metadata;
-                            $sqlUpdateMetadata .= " WHEN :user_" . $idx . " THEN :meta_" . $idx;
+                            //build and exec CASE statement for each batch
+                            $sqlUpdateMetadata = "UPDATE `action_history`
+                                SET `userMetadata` = CASE `userID` ";
+
+                            $metaVars = array();
+                            foreach ($curr_emp_slice as $idx => $emp) {
+                                $isActive = $emp['deleted'] === 0;
+                                $metadata = json_encode(
+                                    array(
+                                        'userName' => $isActive ? $emp['userName'] : '',
+                                        'firstName' => $isActive ? $emp['firstName'] : '',
+                                        'lastName' => $isActive ? $emp['lastName'] : '',
+                                        'middleName' => $isActive ? $emp['middleName'] : '',
+                                        'email' => $isActive ? $emp['email'] : ''
+                                    )
+                                );
+                                $metaVars[":user_" . $idx] = $emp['userName'];
+                                $metaVars[":meta_" . $idx] = $metadata;
+                                $sqlUpdateMetadata .= " WHEN :user_" . $idx . " THEN :meta_" . $idx;
+                            }
+
+                            $sqlUpdateMetadata .= " END";
+                            $sqlUpdateMetadata .= " WHERE `userMetadata` IS NULL";
+
+                            try {
+                                $db->prepared_query($sqlUpdateMetadata, $metaVars);
+
+                                fwrite(
+                                    $log_file,
+                                    "... batch: " . $batchcount . " ..."
+                                );
+
+                            } catch (Exception $e) {
+                                fwrite(
+                                    $log_file,
+                                    "Caught Exception (update action_history usermetadata case batch): " . $e->getMessage() . "\r\n"
+                                );
+                                $error_count += 1;
+                            }
                         }
 
-                        $sqlUpdateMetadata .= " END";
-                        $sqlUpdateMetadata .= " WHERE `userMetadata` IS NULL";
+                        $updated_count += 1;
+                        $portal_time_end = date_create();
+                        $portal_time_diff = date_diff($portal_time_start, $portal_time_end);
 
-                        try {
-                            $db->prepared_query($sqlUpdateMetadata, $metaVars);
-                            $updated_count += 1;
-
-                            $portal_time_end = date_create();
-                            $portal_time_diff = date_diff($portal_time_start, $portal_time_end);
-
-                            fwrite(
-                                $log_file,
-                                "Portal update took: " . $portal_time_diff->format('%H hr, %i min, %S sec, %f mcr') . "\r\n"
-                            );
-
-
-                        } catch (Exception $e) {
-                            fwrite(
-                                $log_file,
-                                "Caught Exception (update action_history usermetadata case): " . $e->getMessage() . "\r\n"
-                            );
-                            $error_count += 1;
-                        }
+                        fwrite(
+                            $log_file,
+                            "Portal update took: " . $portal_time_diff->format('%H hr, %i min, %S sec, %f mcr') . "\r\n"
+                        );
 
                     } catch (Exception $e) {
                         fwrite(
