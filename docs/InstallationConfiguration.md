@@ -7,49 +7,37 @@
   - Just "next, next, next" until you get to the Configuring the line ending conversions window.  Choose "Chechout as-is, commit as-is".  Then "next, next, next, install". 
 - Install Docker
   - For Windows:  https://www.docker.com/
-    After install, open Docker Desktop and do the following steps:
+  - For Mac: https://docs.docker.com/desktop/install/mac-install/
+  - For Linux: Should be your distro's installer (yum, apt, dm, etc) install docker.
+  - If you installed Docker Desktop, open it up and do the following steps:
     - Click Settings (the gear icon at top)
     - Click General on leaf-hand pane
     - Scroll down to "Use the WSL 2 based engine (Windows Home can only run the WSL 2 backend)"
     - Click box for "Add the *.docker.internal names to the host's /etc/hosts file (Requires password)"
     - Click "Apply & Restart".  Accept and approve everything.
-  - For Mac: https://docs.docker.com/desktop/install/mac-install/
-    After install, you may need to do the above for the hosts file.
-  - For Linux: Should be your distro's installer (yum, apt, dm, etc) install docker.
-    After install, you may need to manually add the line into the hosts file.
-  - Default installation of Docker may not set it to run automatically on computer start up.  You may need to click on the Docker Desktop icon to start.
+  - If you did a linux install, you'll need to update the hosts file to point #.docker.internal to localhost (127.0.0.1)
+  - Default installation of Docker may not set it to run automatically on computer start up.  You may need to click on the Docker Desktop icon to start.  When the GUI comes up, select all containers and hit the "Play" button to start them.
 
 ## Installation
 
-1. Open File Explorer.  Create a new folder for the code.  For example "leaf-code".
-
-2. Right click on this new folder.  At the bottom of the pop-up, click on "Show More Options".  Click on "Open Git Bash Here".
-
-3. In the new terminal that opens up, enter these commands: 
+Open up a terminal and enter these commands: 
 ######
     git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
 ######
-    cd LEAF
+    cd LEAF/docker
 ######
-    sh RunMe.sh  
+    docker network create leaf
+    docker network create leaf-sql
+    docker volume create leaf-php-data
+    docker volume create leaf-lib
 
-4. The last can take several minutes.  Some errors may pop up if you've run this before. These can be ignored if everything comes up. 
-  You should see at least what is below.  The times may be different.
-  
-      [+] Running 10/10<br/>
-      <table style="border-collapse: collapse; border: none;">
-        <tr><td>✔ Network docker_ui-test</td><td>          Created  </td><td>      0.0s  </td></tr>
-        <tr><td>  ✔ Container leaf-smtp </td><td>            Started </td><td>       4.9s  </td></tr>
-        <tr><td>  ✔ Container selenium-chrome </td><td>      Started </td><td>       5.7s  </td></tr>
-        <tr><td>  ✔ Container leaf-adminer </td><td>         Started </td><td>       5.3s  </td></tr>
-        <tr><td>  ✔ Container leaf_vue_ui </td><td>          Started </td><td>       4.2s  </td></tr>
-        <tr><td>  ✔ Container leaf-fpm </td><td>             Started </td><td>       5.7s  </td></tr>
-        <tr><td>  ✔ Container leaf-mysql </td><td>           Started </td><td>       5.2s  </td></tr>
-        <tr><td>  ✔ Container leaf-api-test-helper</td><td>  Started </td><td>       5.7s  </td></tr>
-        <tr><td>  ✔ Container test-api </td><td>             Started </td><td>       6.3s  </td></tr>
-        <tr><td>  ✔ Container leaf-nginx </td><td>           Started </td><td>       6.2x  </td></tr>
-      </table>        
-                   
+## Running
+
+1. Make sure you're in the LEAF/docker directory
+2. Run the command 
+###### 
+    docker compose up --build -d
+4. The first time this is run can take several minutes.                   
 5. Open your browser and go to https://host.docker.internal/ 
   - LEAF Sites.  These are the two primary sites you will use to access LEAF
     - Request Portal: A low code/no code workflow management tool utilized to digitize administrative business processes
