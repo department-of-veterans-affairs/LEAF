@@ -15,7 +15,7 @@
     - Scroll down to "Use the WSL 2 based engine (Windows Home can only run the WSL 2 backend)"
     - Click box for "Add the *.docker.internal names to the host's /etc/hosts file (Requires password)"
     - Click "Apply & Restart".  Accept and approve everything.
-  - If you did a linux install, you'll need to update the hosts file to point #.docker.internal to localhost (127.0.0.1)
+  - If you did a linux install, you'll need to update the hosts file to point *.docker.internal to localhost (127.0.0.1)
   - Default installation of Docker may not set it to run automatically on computer start up.  You may need to click on the Docker Desktop icon to start.  When the GUI comes up, select all containers and hit the "Play" button to start them.
 
 ## Installation
