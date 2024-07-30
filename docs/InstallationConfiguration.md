@@ -1,21 +1,8 @@
 # LEAF Development Environment
 
 ## Prerequisites
-
-- Install Git
-  - https://git-scm.com/downloads  Pick the one for your computer's OS
-- Install Docker
-  - For Windows:  https://www.docker.com/
-  - For Mac: https://docs.docker.com/desktop/install/mac-install/
-  - For Linux: Should be your distro's installer (yum, apt, dm, etc) install docker.
-  - If you installed Docker Desktop, open it up and do the following steps:
-    - Click Settings (the gear icon at top)
-    - Click General on leaf-hand pane
-    - Scroll down to "Use the WSL 2 based engine (Windows Home can only run the WSL 2 backend)"
-    - Click box for "Add the *.docker.internal names to the host's /etc/hosts file (Requires password)"
-    - Click "Apply & Restart".  Accept and approve everything.
-  - If you did a linux install, you'll need to update the hosts file to point *.docker.internal to localhost (127.0.0.1)
-  - Default installation of Docker may not set it to run automatically on computer start up.  You may need to click on the Docker Desktop icon to start.  When the GUI comes up, select all containers and hit the "Play" button to start them.
+- Git
+- Docker:  You'll need to ensure that your hosts file has a line pointing *.docker.internal to localhost (127.0.0.1)
 
 ## Installation
 
@@ -35,11 +22,11 @@ Open up a terminal and enter these commands:
 ## Running
 
 1. Make sure you're in the LEAF/docker directory
-2. Run the command 
+2. Run the below command.  Note that this can take several minutes the first time it is run.
 ###### 
     docker compose up --build -d
-4. The first time this is run can take several minutes.                   
-5. Open your browser and go to https://host.docker.internal/ 
+
+3. Open your browser and go to https://host.docker.internal/ 
   - LEAF Sites.  These are the two primary sites you will use to access LEAF
     - Request Portal: A low code/no code workflow management tool utilized to digitize administrative business processes
     - Nexus: Digitized organizational charts to visually display the relationship of positions within LEAF. 
@@ -55,10 +42,11 @@ Open up a terminal and enter these commands:
     - SMTP Server:  This takes you to the GUI for the fake mail system so you can verify emails are going out.
     - phpinfo():  For geeks.  This shows the current setup of the PHP engine.
 
+## Development
 
 ### Vue Development
 
-This container is used for the Form Editor and Site Designer Vue apps, and for the updated admin-side SASS files.
+The leaf_vue_ui container is used for the Form Editor and Site Designer Vue apps, and for the updated admin-side SASS files.
 
 #### Devlopment mode
 
@@ -79,9 +67,3 @@ Log in to container, access the terminal, and run the command:
 form editor and site designer apps builds to respective folders under /libs/js/vue-dest
 sass (leaf.css and related fonts and assets) builds to /libs/css
 
-### Running without HTTPS
-
-#### Docker
-
-1. In `docker/docker-compose.yml`, comment out the line `- 443:443`
-2. Rebuild the images with `docker compose build --no-cache`
