@@ -4,7 +4,6 @@
 
 - Install Git
   - https://git-scm.com/downloads  Pick the one for your computer's OS
-  - Just "next, next, next" until you get to the Configuring the line ending conversions window.  Choose "Chechout as-is, commit as-is".  Then "next, next, next, install". 
 - Install Docker
   - For Windows:  https://www.docker.com/
   - For Mac: https://docs.docker.com/desktop/install/mac-install/
@@ -21,6 +20,8 @@
 ## Installation
 
 Open up a terminal and enter these commands: 
+######    
+    git config --global core.autocrlf false
 ######
     git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
 ######
