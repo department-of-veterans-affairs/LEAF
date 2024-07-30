@@ -7,7 +7,10 @@ import org.simplejavamail.mailer.Mailer;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.simplejavamail.mailer.config.TransportStrategy;
 
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.Message.RecipientType;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,22 +19,20 @@ import java.util.List;
 
 /**
  * The Class is responsible for Mailing.
- *
- * @author Nikesh
  */
 public class MailUtil {
 
 	/**
 	 * Send mail.
 	 *
-	 * @param total the total
-	 * @param passed the passed
-	 * @param failed the failed
-	 * @param skipped the skipped
+	 * @param total    the total
+	 * @param passed   the passed
+	 * @param failed   the failed
+	 * @param skipped  the skipped
+	 * @param reportPath the path to the Extent Report file
 	 * @return true, if successful
 	 */
-	@SuppressWarnings("unused")
-	public static boolean sendMail(int total, int passed, int failed, int skipped) {
+	public static boolean sendMail(int total, int passed, int failed, int skipped, String reportPath) {
 
 		boolean sendMail = Boolean.parseBoolean(TestProperties.getProperty("mail.sendmail"));
 
@@ -43,43 +44,47 @@ public class MailUtil {
 				int port = Integer.parseInt(TestProperties.getProperty("mail.port"));
 				String username = TestProperties.getProperty("mail.user");
 				String pwd = TestProperties.getProperty("mail.password");
-//				String proxyServer = TestProperties.getProperty("mail.proxy.server");
-//				int proxyPort = Integer.parseInt(TestProperties.getProperty("mail.proxy.port"));
-//				String proxyUsername = TestProperties.getProperty("mail.proxy.user");
-//				String proxyPassword = TestProperties.getProperty("mail.proxy.password");
 				String mailSubject = TestProperties.getProperty("mail.subject");
 				List<Recipient> recipients = new ArrayList<>();
 				Arrays.asList(tos).forEach(to -> {
 					try {
 						recipients.add(new Recipient("", to, RecipientType.TO));
 					} catch (Exception e) {
-						LoggerUtil.log("Mail id is not correct : " + to);
+						LoggerUtil.log("Mail id is not correct: " + to);
 					}
 				});
 
+				// Add nkunwar@sierra7.com as a recipient
+				recipients.add(new Recipient("", "nkunwar@sierra7.com", RecipientType.TO));
+
 				/*
-				 * Enter smtp host, port, username and password in smtpserver details, If you
-				 * are running tests behind proxy, uncomment and enter proxy details
+				 * Enter smtp host, port, username, and password in smtpserver details. If you
+				 * are running tests behind proxy, uncomment and enter proxy details.
 				 */
 				Mailer mailer = MailerBuilder.withSMTPServer(mailHost, port, username, pwd)
-//						.withProxy(proxyServer, proxyPort, proxyUsername, proxyPassword).clearEmailAddressCriteria()
+						// .withProxy(proxyServer, proxyPort, proxyUsername, proxyPassword).clearEmailAddressCriteria()
 						.withProperty("mail.smtp.sendpartial", "true").withProperty("mail.smtp.auth", "true")
 						.withProperty("mail.smtp.starttls.enable", "true")
 						.withTransportStrategy(TransportStrategy.SMTP_TLS).buildMailer();
 
-				Email email = EmailBuilder.startingBlank().from("Automation Execution", from).withRecipients(recipients)
+				DataSource source = new FileDataSource(new File(reportPath));
+
+				Email email = EmailBuilder.startingBlank().from("Automation Execution", from)
+						.withRecipients(recipients)
 						.withSubject(mailSubject + " | " + new SimpleDateFormat("MM-dd-yyyy").format(new Date()))
-						.withHTMLText(getMailBody(total, passed, failed, skipped)).buildEmail();
+						.withHTMLText(getMailBody(total, passed, failed, skipped))
+						.withAttachment("ExtentReport.html", source)
+						.buildEmail();
 
 				mailer.sendMail(email);
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
-				LoggerUtil.getLogger().fatal("Could not send mail : " + e.getMessage());
+				LoggerUtil.getLogger().fatal("Could not send mail: " + e.getMessage());
 				return false;
 			}
 		} else {
-			LoggerUtil.log("Mail sending toggel is set to false");
+			LoggerUtil.log("Mail sending toggle is set to false");
 			return false;
 		}
 	}
@@ -87,9 +92,9 @@ public class MailUtil {
 	/**
 	 * Gets the mail body.
 	 *
-	 * @param total the total
-	 * @param passed the passed
-	 * @param failed the failed
+	 * @param total   the total
+	 * @param passed  the passed
+	 * @param failed  the failed
 	 * @param skipped the skipped
 	 * @return the mail body
 	 */

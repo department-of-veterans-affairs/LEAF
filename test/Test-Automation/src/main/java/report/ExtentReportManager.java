@@ -18,6 +18,7 @@ public class ExtentReportManager {
 
 	/** The extent reports. */
 	private static ExtentReports extentReports;
+	public static String reportFilePath = Constants. REPORT_DIRECTORY;
 
 	/** The map. */
 	private static Map<Long, ExtentTest> map = new HashMap<>();
