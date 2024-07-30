@@ -28,19 +28,11 @@ Open up a terminal and enter these commands:
 
 3. Open your browser and go to https://host.docker.internal/ 
   - LEAF Sites.  These are the two primary sites you will use to access LEAF
-    - Request Portal: A low code/no code workflow management tool utilized to digitize administrative business processes
-    - Nexus: Digitized organizational charts to visually display the relationship of positions within LEAF. 
   - Automated tests.  These are one button tests that will make sure everything is working correctly.
-    - API Tester:  These are tests primarily for api's that can be targeted by client-side javascript calls.
-    - End-to-End Tests:  This is a set of tests meant to verify that all different components of LEAF are working correctly together.
-
-      *Note:  This particular test is extensive and will take a significant amount of time.  The new page will be blank until it finishes running and then will bring back an intereactive results page.
   - Dev Corner.  These are used by developers.
-    - Adminer:  This takes you to the login for a Gui for the MySQL database.
+    - The Adminer site will require the below credentials.  
       - Username: tester
       - Password: tester
-    - SMTP Server:  This takes you to the GUI for the fake mail system so you can verify emails are going out.
-    - phpinfo():  For geeks.  This shows the current setup of the PHP engine.
 
 ## Development
 
