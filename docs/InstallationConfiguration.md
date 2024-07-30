@@ -27,12 +27,6 @@ Open up a terminal and enter these commands:
     docker compose up --build -d
 
 3. Open your browser and go to https://host.docker.internal/ 
-  - LEAF Sites.  These are the two primary sites you will use to access LEAF
-  - Automated tests.  These are one button tests that will make sure everything is working correctly.
-  - Dev Corner.  These are used by developers.
-    - The Adminer site will require the below credentials.  
-      - Username: tester
-      - Password: tester
 
 ## Development
 
