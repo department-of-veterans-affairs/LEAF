@@ -499,7 +499,7 @@ class Workflow
         return $res;
     }
 
-    /** //NOTE: needs automated test
+    /**
      * Purpose: Edit event information
      * @param string $name Name of event being passed through
      * @param string $newName New Name of event being passed through
@@ -554,15 +554,18 @@ class Workflow
             WHERE eventID=:eventID";
         $this->db->prepared_query($strSQL, $vars);
 
-        //check for an existing corresponding non-system email template record before doing anything further
-        $vars = array(
-            ':oldBody' => "{$name}_body.tpl",
-        );
+        $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::EVENTS, [
+            new LogItem("events", "eventDescription",  $desc),
+            new LogItem("events", "eventID",  $name)
+        ]);
+
+        //check for corresponding non-system email template record before updating and renaming files
+        $vars = array(':oldBody' => $name . "_body.tpl");
         $strSQL = "SELECT email_templateID FROM `email_templates` WHERE body=:oldBody AND emailTemplateID > 1";
         $res = $this->db->prepared_query($strSQL, $vars);
 
         if(count($res) === 1) {
-            //update corresponding email_templates record, update file names, log data action
+            //update email_templates record
             $vars = array(
                 ':emailTo' => "{$newName}_emailTo.tpl",
                 ':emailCc' => "{$newName}_emailCc.tpl",
@@ -577,17 +580,13 @@ class Workflow
 
             $this->db->prepared_query($strSQL, $vars);
 
+            //rename files
             if (file_exists("../templates/email/custom_override/{$name}_body.tpl")) {
                 rename("../templates/email/custom_override/{$name}_body.tpl", "../templates/email/custom_override/{$newName}_body.tpl");
                 rename("../templates/email/custom_override/{$name}_subject.tpl", "../templates/email/custom_override/{$newName}_subject.tpl");
                 rename("../templates/email/custom_override/{$name}_emailTo.tpl", "../templates/email/custom_override/{$newName}_emailTo.tpl");
                 rename("../templates/email/custom_override/{$name}_emailCc.tpl", "../templates/email/custom_override/{$newName}_emailCc.tpl");
             }
-
-            $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::EVENTS, [
-                new LogItem("events", "eventDescription",  $desc),
-                new LogItem("events", "eventID",  $name)
-            ]);
         }
         return 1;
     }
@@ -1087,10 +1086,12 @@ class Workflow
         $strSQL = 'DELETE FROM events WHERE eventID=:eventID';
         $this->db->prepared_query($strSQL, $vars);
 
-        //check for an existing corresponding non-system email template record before doing anything further
-        $vars = array(
-            ':oldBody' => $event . "_body.tpl",
-        );
+        $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EVENTS, [
+            new LogItem("events", "eventID",  $event)
+        ]);
+
+        //check for corresponding non-system email template record before deleting email_templates record and unlinking templates
+        $vars = array(':oldBody' => $event . "_body.tpl");
         $strSQL = "SELECT email_templateID FROM `email_templates` WHERE body=:oldBody AND emailTemplateID > 1";
         $res = $this->db->prepared_query($strSQL, $vars);
 
@@ -1100,7 +1101,7 @@ class Workflow
             $strSQL = 'DELETE FROM email_templates WHERE body=:body AND emailTemplateID > 1';
             $this->db->prepared_query($strSQL, $vars);
 
-            // Delete Custom Emails
+            // Delete Custom Email Templates
             if (file_exists("../templates/email/custom_override/{$event}_body.tpl"))
                 unlink("../templates/email/custom_override/{$event}_body.tpl");
             if (file_exists("../templates/email/custom_override/{$event}_subject.tpl"))
@@ -1109,13 +1110,8 @@ class Workflow
                 unlink("../templates/email/custom_override/{$event}_emailTo.tpl");
             if (file_exists("../templates/email/custom_override/{$event}_emailCc.tpl"))
                 unlink("../templates/email/custom_override/{$event}_emailCc.tpl");
-
-            $event = str_replace('CustomEvent_', '', $event);
-            $event = str_replace('_', ' ', $event);
-            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EVENTS, [
-                new LogItem("events", "eventID",  $event)
-            ]);
         }
+
         return 1;
     }
 
