@@ -70,7 +70,7 @@ foreach($portal_records as $rec) {
         $db->query("USE `{$portal_db}`");
 
         try {
-            $usersQ = "SELECT DISTINCT `userID` FROM `action_history`";
+            $usersQ = "SELECT DISTINCT `userID` FROM `action_history` WHERE userMetadata IS NULL";
 
             $resUniqueIDs = $db->query($usersQ) ?? [];
             $numIDs = count($resUniqueIDs);
@@ -121,7 +121,7 @@ foreach($portal_records as $rec) {
 
                         fwrite(
                             $log_file,
-                            "... batch: " . $batchcount . " ..."
+                            " ... batch: " . $batchcount
                         );
 
                     } catch (Exception $e) {
