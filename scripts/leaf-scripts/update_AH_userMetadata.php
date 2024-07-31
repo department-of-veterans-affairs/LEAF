@@ -51,13 +51,13 @@ foreach($portal_records as $rec) {
 
             fwrite(
                 $log_file,
-                "Orgchart map info took: " . $orgchart_time_diff->format('%i min, %S sec, %f mcr') . "\r\n"
+                "Orgchart " . $orgchart_db . " map info took: " . $orgchart_time_diff->format('%i min, %S sec, %f mcr') . "\r\n"
             );
 
         } catch (Exception $e) {
             fwrite(
                 $log_file,
-                "Caught Exception (orgchart connect): " . $e->getMessage() . "\r\n"
+                "Caught Exception (orgchart connect): " . $orgchart_db . " " . $e->getMessage() . "\r\n"
             );
             $error_count += 1;
         }
