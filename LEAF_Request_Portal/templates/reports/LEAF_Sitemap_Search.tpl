@@ -1207,12 +1207,6 @@ $(async function() {
         function renderGrid(res) {
             grid.setDataBlob(res);
 
-            let tGridData = [];
-            for(let i in res) {
-                tGridData.push(res[i]);
-            }
-
-            grid.setData(tGridData);
             let sortKey = 'recordID';
             let sortDirection = 'desc';
             if(sortPreference.key != undefined && sortPreference.order != undefined) {
