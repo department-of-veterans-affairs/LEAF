@@ -816,7 +816,8 @@ function showJSONendpoint() {
     delete query.limit;
     delete query.limitOffset;
     let queryString = JSON.stringify(query);
-    let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
+    let xFilterData = '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
+    let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + xFilterData;
     let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
@@ -867,6 +868,7 @@ function showJSONendpoint() {
                 buffer += `async function main() {
                     \u00A0\u00A0\u00A0\u00A0let query = new LeafFormQuery();
                     \u00A0\u00A0\u00A0\u00A0query.importQuery(${queryString});
+                    \u00A0\u00A0\u00A0\u00A0query.setExtraParams("${xFilterData}"); // minimizes network utilization
                     \u00A0\u00A0\u00A0\u00A0let results = await query.execute();
                     \u00A0\u00A0\u00A0\u00A0// Do something with the results
                     }
