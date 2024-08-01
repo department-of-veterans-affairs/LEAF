@@ -1,5 +1,9 @@
 FROM php:8.1.28-fpm-bullseye
 
+# Set container to EST
+ENV TZ=America/New_York
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Update package index and install OpenJDK 11 and Maven
 RUN apt update
 RUN apt install -y openjdk-11-jdk maven
