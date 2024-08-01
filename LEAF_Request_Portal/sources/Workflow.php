@@ -540,14 +540,13 @@ class Workflow
             ':eventDescription' => $desc,
             ':newEventID' => $newName,
             ':eventType' => $type,
-            ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
-                'NotifyNext' => $data['Notify Next'],
-                'NotifyGroup' => $data['Notify Group'],
-                'AutomateEmailGroup' => $data['Automate Email Group'],
-                'DateSelected' => $data['Date Selected'],
-                'DaysSelected' => $data['Days Selected'],
-                'AdditionalDaysSelected' => $data['Additional Days Selected']
-            ))
+            ':eventData' => json_encode(
+                    array(
+                        'NotifyRequestor' => $data['Notify Requestor'],
+                        'NotifyNext' => $data['Notify Next'],
+                        'NotifyGroup' => $data['Notify Group'],
+                )
+            )
         );
         $strSQL = "UPDATE events 
             SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData 
@@ -1032,15 +1031,18 @@ class Workflow
         }
 
         //insert events record
-        $vars = array(':eventID' => $name,
+        $vars = array(
+            ':eventID' => $name,
             ':description' => $desc,
             ':eventType' => $type,
-            ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
-                'NotifyNext' => $data['Notify Next'],
-                'NotifyGroup' => $data['Notify Group'],
-                'AutomateEmailGroup' => $data['Automate Email Group'],
-                'DateSelected' => $data['Date Selected'],
-                'DaysSelected'=> $data['Days Selected'])));
+            ':eventData' => json_encode(
+                array(
+                    'NotifyRequestor' => $data['Notify Requestor'],
+                    'NotifyNext' => $data['Notify Next'],
+                    'NotifyGroup' => $data['Notify Group'],
+                )
+            )
+        );
 
         $strSQL = "INSERT INTO events (eventID, eventDescription, eventType, eventData) VALUES (:eventID, :description, :eventType, :eventData)";
 
