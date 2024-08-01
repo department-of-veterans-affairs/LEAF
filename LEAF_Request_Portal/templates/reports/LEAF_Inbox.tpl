@@ -512,11 +512,13 @@
         formGrid.setDataBlob(res);
         formGrid.hideIndex();
         formGrid.setHeaders(headers);
+        let tGridData = [];
         let hasServices = false;
         recordIDs.forEach(recordID => {
             if (res[recordID].service != null) {
                 hasServices = true;
             }
+            tGridData.push(res[recordID]);
         });
         // remove service column if there's no services
         if (hasServices == false) {
@@ -528,6 +530,7 @@
             }
             formGrid.setHeaders(tHeaders);
         }
+        formGrid.setData(tGridData);
         const priorityHeader = formGrid.headers().find(h => h.indicatorID === 'priority') || null;
         if (priorityHeader === null) {
             formGrid.sort('recordID', 'asc');
