@@ -56,6 +56,9 @@ public class WorkflowEditorPageActions extends BasePage {
     @FindBy(id="workflows_chosen")
     WebElement workflowDropdown;
 
+    @FindBy(id="workflows")
+    WebElement workflowSelect;
+
     @FindBy(xpath="//a[@class='chosen-single']//span[1]")
     WebElement workflowDropdownName;
 
@@ -68,6 +71,17 @@ public class WorkflowEditorPageActions extends BasePage {
     @FindBy(xpath="//ul[@class='chosen-results']//li")
     List<WebElement> workFlowList;
 
+    @FindBy(id = "workflow_rename")
+    WebElement workflowRenameInput;
+
+    @FindBy(id = "button_cancelchange")
+    WebElement cancelRenameButton;
+
+    @FindBy(id = "actionText")
+    WebElement actionInput;
+
+    @FindBy(id = "actionTextPasttense")
+    WebElement actionTextPasttenseInput;
 
     public void createWorkflow(String workflowName){
         setExplicitWaitForElementToBeVisible(newWorkflowBtn, 10);
@@ -75,6 +89,36 @@ public class WorkflowEditorPageActions extends BasePage {
         setExplicitWaitForElementToBeClickable(workflowTitle, 10);
         workflowTitle.sendKeys(workflowName);
         saveBtn.click();
+        setExplicitWaitForElementToBeClickable(workflowDropdown, 10);
+        Boolean isWorkflowCreated = workflowDropdownName.getText().contains(workflowName);
+        Assert.assertEquals(isWorkflowCreated, true);
+    }
+
+    public void renameWorkflow(String workflowName) throws InterruptedException {
+        setExplicitWaitForElementToBeVisible(newWorkflowBtn, 10);
+        renameWorkflowBtn.click();
+
+        setExplicitWaitForElementToBeClickable(saveBtn, 30);
+        clickElement(workflowRenameInput);
+        workflowRenameInput.clear();
+        workflowRenameInput.sendKeys(workflowName);
+        saveBtn.click();
+        Thread.sleep(10000);
+        setExplicitWaitForElementToBeClickable(workflowDropdownName, 30);
+        Boolean isWorkflowCreated = workflowDropdownName.getText().contains(workflowName);
+        Assert.assertEquals(isWorkflowCreated, true);
+    }
+
+    public void copyWorkflow(String workflowName) throws InterruptedException {
+        setExplicitWaitForElementToBeVisible(newWorkflowBtn, 10);
+        duplicateWorkflowBtn.click();
+
+        setExplicitWaitForElementToBeClickable(saveBtn, 30);
+        clickElement(workflowTitle);
+        workflowTitle.clear();
+        workflowTitle.sendKeys(workflowName);
+        saveBtn.click();
+        Thread.sleep(10000);
         setExplicitWaitForElementToBeClickable(workflowDropdown, 10);
         Boolean isWorkflowCreated = workflowDropdownName.getText().contains(workflowName);
         Assert.assertEquals(isWorkflowCreated, true);
@@ -97,12 +141,36 @@ public class WorkflowEditorPageActions extends BasePage {
         setExplicitWaitForElementToBeVisible(workflowDropdown, 20);
         workflowDropdown.click();
 
-        for (WebElement actWorkFlowName :workFlowList)
+        for (WebElement workFlow :workFlowList)
         {
-            Assert.assertFalse(actWorkFlowName.getText().equals(WorkflowName));
+            String actWorkFlowName = workFlow.getText();
+            Assert.assertFalse(actWorkFlowName.equals(WorkflowName));
         }
 
     }
 
-}
 
+    public void cleanUp(String WorkflowName){
+
+        for (WebElement workFlow :workFlowList){
+            if (workFlow.getText().contains(WorkflowName))
+                    workFlow.click();
+        }
+        if (deleteWorkflowBtn != null){
+                    scrollToView(deleteWorkflowBtn);
+                }
+
+                setExplicitWaitForElementToBeVisible(deleteWorkflowBtn, 10);
+                deleteWorkflowBtn.click();
+                setExplicitWaitForElementToBeVisible(deleteConfirmMsg, 10);
+                Assert.assertEquals(deleteConfirmMsg.getText(), "Are you sure you want to delete this workflow?");
+                deleteConfirmBtn.click();
+                setExplicitWaitForElementToBeVisible(deleteWorkflowBtn, 20);
+                driver.navigate().refresh();
+                setExplicitWaitForElementToBeVisible(workflowDropdown, 20);
+                scrollToView(workflowDropdown);
+                setExplicitWaitForElementToBeVisible(workflowDropdown, 20);
+ //               workflowDropdown.click();
+            }
+
+        }
