@@ -34,8 +34,14 @@
 const CSRFToken = '<!--{$CSRFToken}-->';
 
 function scrubHTML(input) {
-        let t = new DOMParser().parseFromString(input, 'text/html').body;
-        return t.textContent;
+    if(input == undefined) {
+        return '';
+    }
+    let t = new DOMParser().parseFromString(input, 'text/html').body;
+    while(input != t.textContent) {
+        return scrubHTML(t.textContent);
+    }
+    return t.textContent;
 }
 
 function loadWorkflow(recordID, prefixID) {
@@ -439,16 +445,10 @@ function loadSearchPrereqs() {
             var groupNames = [];
             var groupIDmap = {};
             var tmp = document.createElement('div');
-            var temp;
             let grid = {};
 
             for(let i in res) {
-                temp = res[i].name;
-                tmp.innerHTML = temp;
-                temp = tmp.textContent || tmp.innerText || '';
-                temp = temp.replace(/[^\040-\176]/g, '');
-
-                resIndicatorList[res[i].indicatorID] = temp;
+                resIndicatorList[res[i].indicatorID] = scrubHTML(res[i].name);
 
                 if(groupList[res[i].categoryID] == undefined) {
                     groupList[res[i].categoryID] = [];
@@ -502,6 +502,7 @@ function loadSearchPrereqs() {
                     const isDisabled = res.find(ele => ele.indicatorID === indID).isDisabled;
                     const isArchivedClass = isDisabled > 0 ? ' is-archived' : '';
                     const isArchivedText = isDisabled > 0 ? ' (Archived)' : '';
+
                     buffer += `<div class="indicatorOption${isArchivedClass}" id="indicatorOption_${indID}" style="display: none"><label class="checkable leaf_check" for="indicators_${indID}" title="indicatorID: ${indID}\n${resIndicatorList[indID]}${isArchivedText}" >`;
                     buffer += `<input type="checkbox" class="icheck leaf_check parent" id="indicators_${indID}" name="indicators[${indID}]" value="${indID}" />`
                     buffer += `<span class="leaf_check"></span> ${resIndicatorList[indID]}${isArchivedText}</label>`;
@@ -735,14 +736,9 @@ function editLabels() {
             indicatorSort[curID] = i + 1;
         });
         var tmp = document.createElement('div');
-        var temp;
         for(let i in resSelectList) {
             if(resIndicatorList[resSelectList[i]] != undefined) {
-                temp = $('#id_' + resSelectList[i]).val();
-                tmp.innerHTML = temp;
-                temp = tmp.textContent || tmp.innerText || '';
-                temp = temp.replace(/[^\040-\176]/g, '');
-                resIndicatorList[resSelectList[i]] = temp;
+                resIndicatorList[resSelectList[i]] = scrubHTML($('#id_' + resSelectList[i]).val());
             }
         }
         gridColorData = Object.assign({ }, tempColorData);
@@ -816,15 +812,18 @@ function openShareDialog() {
 
 function showJSONendpoint() {
     let pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
-    leafSearch.getLeafFormQuery().setLimit(0, 10000);
-    let queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
+    let query = leafSearch.getLeafFormQuery().getQuery();
+    delete query.limit;
+    delete query.limitOffset;
+    let queryString = JSON.stringify(query);
     let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
     let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
-    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of 10,000 records has been preset</b>.</p><br />'
+    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
                            + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
+                           + '<button id="copy" class="buttonNorm" style="float: right">Copy to Clipboard</button>'
                            + '<select id="format">'
                            + '<option value="json">JSON</option>'
                            + '<option value="htmltable">HTML Table</option>'
@@ -832,10 +831,11 @@ function showJSONendpoint() {
                            + '<option value="csv">CSV</option>'
                            + '<option value="xml">XML</option>'
                            + '<option value="debug">Plaintext</option>'
+                           + '<option value="leafFormQuery">JavaScript Template</option>'
                            + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
                            + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
-                           + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
+                           + '<br /><div id="exportPathContainer" contenteditable="true" spellcheck="false" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; min-height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
                            + '<a href="report.php?a=LEAF_Data_Dictionary" target="_blank">Data Dictionary Reference</a>'
                            + '<br /><br />'
                            + '<fieldset>'
@@ -860,14 +860,44 @@ function showJSONendpoint() {
         switch($('#format').val()) {
             case 'json':
                 $('#exportFormat').html('');
+                document.querySelector('#exportPath').style.display = 'inline';
+                break;
+            case 'leafFormQuery':
+                let buffer = "<scr"+"ipt>\n";
+                buffer += `async function main() {
+                    \u00A0\u00A0\u00A0\u00A0let query = new LeafFormQuery();
+                    \u00A0\u00A0\u00A0\u00A0query.importQuery(${queryString});
+                    \u00A0\u00A0\u00A0\u00A0let results = await query.execute();
+                    \u00A0\u00A0\u00A0\u00A0// Do something with the results
+                    }
+                    document.addEventListener('DOMContentLoaded', main);\n`;
+                buffer += "</scr"+"ipt>";
+                document.querySelector('#exportFormat').innerText = buffer;
+                document.querySelector('#exportPath').style.display = 'none';
                 break;
             default:
+                document.querySelector('#exportPath').style.display = 'inline';
                 $('#exportFormat').append('format=' + $('#format').val());
                 $("#formatStatus").show().text("Format changed to " + $('#format').val());
                 $("#formatStatus").fadeOut(3000);
                 break;
         }
     }
+
+    function selectExample() {
+        let selection = window.getSelection();
+        let range = document.createRange();
+        range.selectNodeContents(document.querySelector('#exportPathContainer'));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        return selection;
+    }
+
+    document.querySelector('#copy').addEventListener('click', () => {
+        navigator.clipboard.writeText(selectExample().focusNode.innerText);
+        $("#formatStatus").show().text("Copied!");
+        $("#formatStatus").fadeOut(3000);
+    });
 
     $('#format').on('change', function() {
         setExportFormat();
@@ -1227,10 +1257,7 @@ $(function() {
             }
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
-            var tmp = document.createElement('div');
-            tmp.innerHTML = temp.name;
-            temp.name = tmp.textContent || tmp.innerText || '';
-            temp.name = temp.name.replace(/[^\040-\176]/g, '');
+            temp.name = scrubHTML(temp.name);
             if($.isNumeric(resSelectList[i][0]) || $.isNumeric(resSelectList[i])) {
                     headers.push(temp);
                     leafSearch.getLeafFormQuery().getData(temp.indicatorID);
@@ -1313,6 +1340,7 @@ $(function() {
         });
 
         // show top results asap
+        document.querySelector('#reportStats').innerText = `Loading...`;
         let queryFirstBatch = new LeafFormQuery();
         queryFirstBatch.setQuery(structuredClone(leafSearch.getLeafFormQuery().getQuery()));
         queryFirstBatch.sort('recordID', 'DESC');

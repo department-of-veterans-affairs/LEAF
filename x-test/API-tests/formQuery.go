@@ -2,6 +2,8 @@ package main
 
 type FormQueryResponse map[int]FormQueryRecord
 
+type FormQueryData map[string]any
+
 type FormQueryRecord struct {
 	RecordID                int                      `json:"recordID"`
 	ServiceID               int                      `json:"serviceID"`
@@ -26,6 +28,8 @@ type FormQueryRecord struct {
 	CategoryIDs             []string                 `json:"categoryIDs"`
 	DestructionAge          int                      `json:"destructionAge"`
 	ActionHistory           []FormQueryActionHistory `json:"action_history"`
+	S1                      FormQueryData            `json:"s1"`
+	UnfilledDependencyData  UnfilledDependencyData   `json:"unfilledDependencyData"`
 }
 
 type FormQueryActionHistory struct {
@@ -38,4 +42,12 @@ type FormQueryActionHistory struct {
 	ActionType          string `json:"actionType"`
 	Comment             string `json:"comment"`
 	ApproverName        string `json:"approverName"`
+}
+
+type UnfilledDependencyData map[string]UnfilledDependency
+
+type UnfilledDependency struct{
+	Description            string    `json:"description"`
+	ApproverName           string    `json:"approverName"`
+	ApproverUID            string 	 `json:"approverUID"`
 }

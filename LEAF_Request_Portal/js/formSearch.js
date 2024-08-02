@@ -216,6 +216,10 @@ var LeafFormSearch = function (containerID) {
                 firstChild();
             }
             for (var i = 0; i < advSearch.length; i++) {
+                if(typeof advSearch[i].match == 'string') {
+                    advSearch[i].match = advSearch[i].match.replaceAll('%26', '&');
+                }
+
                 $("#" + prefixID + "widgetTerm_" + i).val(advSearch[i].id);
                 $("#" + prefixID + "widgetTerm_" + i).trigger("chosen:updated");
                 if (
@@ -881,7 +885,6 @@ var LeafFormSearch = function (containerID) {
                             callback();
                         }
                     },
-                    cache: false,
                 });
                 break;
             case "userID":

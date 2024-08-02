@@ -222,7 +222,7 @@ var LeafFormGrid = function (containerID, options) {
     headers = headersIn;
     let temp = `<tr id="${prefixID}thead_tr">`;
     if (showIndex) {
-      temp += `<th scope="col" tabindex="0" id="${prefixID}header_UID" style="text-align: center" role="button">
+      temp += `<th scope="col" tabindex="0" id="${prefixID}header_UID" style="text-align: center" role="button" aria-label="Sort by unique ID">
         UID
         <span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
       </th>`;
@@ -251,7 +251,7 @@ var LeafFormGrid = function (containerID, options) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
-      domThead.insertAdjacentHTML('beforeend', `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" role="button">
+      domThead.insertAdjacentHTML('beforeend', `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" role="button" aria-label="Sort by ${headers[i].name}">
         ${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
         </th>`);
 
@@ -324,7 +324,7 @@ var LeafFormGrid = function (containerID, options) {
     // sticky header UX
     const domHeader = document.querySelector(`#${prefixID}thead`);
     const observer = new IntersectionObserver((evt) => {
-      if(evt[0].boundingClientRect.y != evt[0].intersectionRect.y) {
+      if(evt[0].boundingClientRect.y == evt[0].intersectionRect.y) {
         $("#" + prefixID + "table thead tr th").css({
           "filter": "invert(1) grayscale(1)",
           height: "1.3rem",
@@ -350,8 +350,9 @@ var LeafFormGrid = function (containerID, options) {
         });
       }
     }, {
+      root: document.querySelector(`#${prefixID}table`),
       rootMargin: -stickyHeaderOffset - 1 + 'px 0px 0px 0px',
-      threshold: [1],
+      threshold: 1,
     });
     
     observer.observe(domHeader);
@@ -367,21 +368,24 @@ var LeafFormGrid = function (containerID, options) {
   function sort(key, order, callback) {
     sortDirection[key] = order;
     const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
-    const headerText = document.querySelector(headerSelector)?.innerText || "";
+    let headerText = '';
+    for(let i in headers) {
+      if(headers[i].indicatorID == key) {
+        headerText = headers[i].name;
+        break;
+      }
+    }
     if (key != "recordID" && currLimit != Infinity) {
       renderBody(0, Infinity);
     }
 
     $("." + prefixID + "sort").css("display", "none");
-    $(`th[id*="${prefixID}header_"]`).removeAttr('aria-sort');
     if (order.toLowerCase() == "asc") {
       $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", ascending.");
       $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▲</span>');
-      $(headerSelector).attr('aria-sort', 'ascending');
     } else {
       $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", descending.");
       $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▼</span>');
-      $(headerSelector).attr('aria-sort', 'descending');
     }
     $(headerSelector + "_sort").css("display", "inline");
     var array = [];
