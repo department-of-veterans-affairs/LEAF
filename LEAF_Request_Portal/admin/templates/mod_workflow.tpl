@@ -388,7 +388,7 @@
      * Purpose: Create new custom event
      * @events Custom Event List
      */
-    function newEvent(events) {
+    function newEvent(events, params = null) {
         $('.workflowStepInfo').css('display', 'none');
         dialog.clear();
         dialog.setTitle('Create Event');
@@ -459,9 +459,24 @@
                 }).done(function(res) {
                     if(+res !== 1) {
                         alert(res);
+                        listEvents();
+
+                    } else {
+                        if(params !== null) {
+                            const { stepID, action } = params;
+                            const postEventData = { eventID: eventName, CSRFToken: CSRFToken };
+                            const workflowID = currentWorkflow;
+                            postEvent(stepID, action, workflowID, postEventData, function(res) {
+                                if (+res === 1) {
+                                    dialog.hide();
+                                    loadWorkflow(workflowID, null, params);
+                                }
+                            });
+                        } else {
+                            listEvents();
+                        }
                     }
-                    //TODO: add and reopen stepInfo instead of events list.
-                    listEvents();
+
                 }).fail(function(error) {
                     alert(error);
                 });
@@ -502,10 +517,11 @@
     /**
      * Purpose: Dialog for adding events
      * @workdflowID Current Workflow ID for email reminder
-     * @stepID Step ID holding the action for email reminder
-     * @actionType Action type for email reminder
+     * @params jsplumb params including action, stepID, nextStepID
      */
-    function addEventDialog(workflowID, stepID, actionType) {
+    function addEventDialog(workflowID, params) {
+        const actionType = params.action;
+        const stepID = params.stepID;
         $('.workflowStepInfo').css('display', 'none');
         dialog.setTitle('Add Event');
         let eventDialogContent =
@@ -523,7 +539,7 @@
                 dialog.indicateIdle();
                 $('#addEventDialog').html(addEventContent(res));
                 $('#createEvent').on('click', function() {
-                    newEvent(res);
+                    newEvent(res, params);
                 });
                 $('#eventID').chosen({disable_search_threshold: 5});
                 $('#xhrDialog').css('overflow', 'visible');
@@ -535,7 +551,7 @@
                                     CSRFToken: CSRFToken};
 
                     postEvent(stepID, actionType, workflowID, ajaxData, function (res) {
-                        loadWorkflow(workflowID);
+                        loadWorkflow(workflowID, null, params);
                     });
 
                     dialog.hide();
@@ -1530,7 +1546,7 @@
             }
             output += `<li style="padding-top: 8px">
                 <button type="button" class="buttonNorm" id="event_${currentWorkflow}_${stepID}_${params.action}"
-                    onclick="addEventDialog('${currentWorkflow}', '${stepID}', '${params.action}');">Add Event
+                    onclick="addEventDialog('${currentWorkflow}', params);">Add Event
                 </button>
             </li>`;
             output += '</ul></div>';
@@ -1541,8 +1557,8 @@
             $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
         });
         $('#stepInfo_' + stepID).css({
-            left: evt.pageX || 200 + 'px',
-            top: evt.pageY || 300 + 'px'
+            left: (evt?.pageX || 200) + 'px',
+            top: (evt?.pageY || 300) + 'px'
         });
     }
 
@@ -2194,13 +2210,14 @@
                 }
             },
             error: (err) => console.log(err),
-            cache: false
+            cache: false,
+            async: false
         });
     }
 
     var currentWorkflow = 0;
 
-    function loadWorkflow(workflowID, stepID = null) {
+    function loadWorkflow(workflowID, stepID = null, params = null) {
         currentWorkflow = workflowID;
         jsPlumb.reset();
         endPoints = [];
@@ -2303,6 +2320,16 @@
                 $('#workflow').css('height', 300 + maxY + 'px');
                 drawRoutes(workflowID, stepID);
                 buildStepList(steps);
+                if(params !== null) {
+                    const elAction = document.querySelector(`div[class*="action-${params?.stepID}-${params?.action}-"]`);
+                    let position = { pageX: 200, pageY: 300 };
+                    if(elAction !== null) {
+                        const rect = elAction.getBoundingClientRect();
+                        position.pageX = Number.parseInt(rect?.left || 200);
+                        position.pageY = Number.parseInt(rect?.bottom || 300);
+                    }
+                    showActionInfo(params, position);
+                }
 
                 if(window.location.href.indexOf(`?a=workflow&workflowID=${workflowID}`) == -1) {
                     window.history.pushState('', '', `?a=workflow&workflowID=${workflowID}`);
@@ -2985,10 +3012,11 @@
     }
 
     /**
+     * add a routing event to a specific workflow action
      * @param int stepID
      * @param string action
      * @param int workflowID
-     * @param string event
+     * @param object event, eg { eventID: 'event id', CSRFToken: 'token' }
      * @param closure callback
      *
      * @return array
