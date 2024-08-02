@@ -15,6 +15,7 @@ define("PHONEIID", 5);
 define("EMAILIID", 6);
 define("LOCATIONIID", 8);
 define("ADTITLEIID", 23);
+define("DELETEDDATE", 'deleted_' . gmdate('my', time()) . '_');
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
@@ -72,7 +73,7 @@ function updateUserInfo(string $userName, int $empUID)
     #used to disable if not found in national
     $sql3 = "UPDATE `employee`
             SET `deleted` = :deleted,
-                `userName` = CONCAT('deleted_', `userName`)
+                `userName` = CONCAT(".DELETEDDATE.", `userName`)
             WHERE `userName` = :userName";
 
     $sql4 = "SELECT `userName`, `deleted`, `lastUpdated`
@@ -120,9 +121,9 @@ function updateUserInfo(string $userName, int $empUID)
                 ':userName' => $userName
             );
             $sql = "UPDATE `employee`
-                SET `deleted` = :deleted,
-                    `userName` = CONCAT('deleted_', `userName`)
-                WHERE `userName` = :userName";
+                    SET `deleted` = :deleted,
+                        `userName` = CONCAT(".DELETEDDATE.", `userName`)
+                    WHERE `userName` = :userName";
 
             $db->prepared_query($sql4, $vars);
         }
@@ -258,7 +259,7 @@ function updateEmployeeDataBatch(array $localEmployeeUsernames = [])
     $deletedEmployeesImplode = implode(",", array_fill(1, count($localDeletedEmployees), '?'));
     $deletedEmployeesSql = "UPDATE `employee`
                             SET `deleted` = UNIX_TIMESTAMP(NOW()),
-                                `userName` = CONCAT('deleted_', `userName`)
+                                `userName` = CONCAT(".DELETEDDATE.", `userName`)
                             WHERE `userName` IN (" . $deletedEmployeesImplode . ")";
 
     if (!empty($localDeletedEmployees)) {
