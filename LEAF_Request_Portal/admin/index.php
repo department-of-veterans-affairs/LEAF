@@ -33,6 +33,7 @@ if (!$login->checkGroup(1))
     echo 'You must be in the administrator group to access this section.';
     exit();
 }
+$hasCustomCode = file_exists("./templates/custom_override/view_admin_menu.tpl");
 
 $main = new Smarty;
 $t_login = new Smarty;
@@ -357,8 +358,13 @@ switch ($action) {
 
         if ($login->checkGroup(1))
         {
-            $main->assign('body', $t_form->fetch('admin_sync_services.tpl'));
+            if($hasCustomCode) {
+                $main->assign('body', '<h3>Sync has been prevented to avoid potential issues.</h3>');
+            } else {
+                $main->assign('body', $t_form->fetch('admin_sync_services.tpl'));
+            }
         }
+
         else
         {
             $main->assign('body', 'You require System Administrator level access to view this section.');
@@ -639,6 +645,7 @@ $main->assign('leafSecure', XSSHelpers::sanitizeHTML($settings['leafSecure']));
 $main->assign('login', $t_login->fetch('login.tpl'));
 $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
+$t_menu->assign('hasCustomCode', $hasCustomCode ? "1" : "0");
 $t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 $t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
 $o_menu = $t_menu->fetch('menu.tpl');
