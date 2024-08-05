@@ -359,7 +359,6 @@ switch ($action) {
         {
             $main->assign('body', $t_form->fetch('admin_sync_services.tpl'));
         }
-
         else
         {
             $main->assign('body', 'You require System Administrator level access to view this section.');
