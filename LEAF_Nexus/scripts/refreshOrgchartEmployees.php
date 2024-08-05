@@ -15,7 +15,7 @@ define("PHONEIID", 5);
 define("EMAILIID", 6);
 define("LOCATIONIID", 8);
 define("ADTITLEIID", 23);
-define("DELETEDDATE", 'deleted_' . gmdate('my', time()) . '_');
+define("DELETEDDATE", 'disabled_' . time() . '_');
 
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
