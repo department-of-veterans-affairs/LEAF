@@ -76,9 +76,7 @@
                     <li><a href="?a=mod_templates_reports">LEAF Programmer</a></li>
                     <li><a href="?a=mod_file_manager">File Manager</a></li>
                     <li><a href="../?a=search">Search Database</a></li>
-                    <!--{if $hasCustomCode == 0}-->
                     <li><a href="?a=admin_sync_services">Sync Services</a></li>
-                    <!--{/if}-->
                     <li><a href="?a=admin_update_database">Update Database</a></li>
                 </ul>
             </li>
