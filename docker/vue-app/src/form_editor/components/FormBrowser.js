@@ -65,7 +65,7 @@ export default {
             <span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">{{secureStatusText}}</span>
             <a id="secureBtn" :href="secureBtnLink" target="_blank" class="buttonNorm">{{secureBtnText}}</a>
         </div>
-
+        
         <!-- form browser tables -->
         <div id="form_browser_tables">
             <h3>Active Forms:</h3>
@@ -119,5 +119,9 @@ export default {
             </table>
             <p v-else style="margin-bottom: 2rem;">No Supplemental Forms</p>
         </div>
+
+        <h3 style="margin-top: 4rem">
+            <a href="./?a=form" class="leaf-crumb-link" style="margin-left: auto">Use Original Form Editor</a>
+        </h3>
     </template>`
 }

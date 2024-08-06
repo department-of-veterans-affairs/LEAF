@@ -3,6 +3,55 @@ SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
+DROP TABLE IF EXISTS `action_history`;
+CREATE TABLE `action_history` (
+  `actionID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `recordID` mediumint unsigned NOT NULL,
+  `userID` varchar(50) NOT NULL,
+  `stepID` smallint NOT NULL DEFAULT '0',
+  `dependencyID` smallint NOT NULL,
+  `actionType` varchar(50) NOT NULL,
+  `actionTypeID` tinyint unsigned NOT NULL,
+  `time` int unsigned NOT NULL,
+  `comment` text,
+  PRIMARY KEY (`actionID`),
+  KEY `time` (`time`),
+  KEY `recordID` (`recordID`),
+  KEY `actionTypeID` (`actionTypeID`),
+  KEY `dependencyID` (`dependencyID`),
+  KEY `actionType` (`actionType`),
+  CONSTRAINT `action_history_ibfk_2` FOREIGN KEY (`actionTypeID`) REFERENCES `action_types` (`actionTypeID`),
+  CONSTRAINT `fk_records_action_history_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `action_history` (`actionID`, `recordID`, `userID`, `stepID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`) VALUES
+(1,	958,	'tester',	0,	0,	'changeInitiator',	8,	1699055105,	'Initiator changed to Ollie Flatley'),
+(2,	530,	'tester',	0,	0,	'changeInitiator',	8,	1699056198,	'Initiator changed to Alysa Dare'),
+(3,	530,	'tester',	0,	0,	'move',	8,	1699056206,	'Moved to Requestor Followup step'),
+(4,	7,	'tester',	0,	0,	'move',	8,	1700253479,	'Moved to Requestor Followup step'),
+(5,	7,	'tester',	3,	-2,	'sendback',	8,	1700253822,	''),
+(6,	9,	'tester',	1,	9,	'approve',	8,	1716939853,	''),
+(7,	9,	'tester',	2,	9,	'approve',	8,	1716939855,	''),
+(8,	9,	'tester',	3,	-2,	'approve',	8,	1716939857,	''),
+(9,	9,	'tester',	4,	-3,	'approve',	8,	1716939859,	'');
+
+DROP TABLE IF EXISTS `action_types`;
+CREATE TABLE `action_types` (
+  `actionTypeID` tinyint unsigned NOT NULL AUTO_INCREMENT,
+  `actionTypeDesc` varchar(50) NOT NULL,
+  PRIMARY KEY (`actionTypeID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `action_types` (`actionTypeID`, `actionTypeDesc`) VALUES
+(1,	'approved'),
+(2,	'disapproved'),
+(3,	'deferred'),
+(4,	'deleted'),
+(5,	'undeleted'),
+(6,	'filled dependency'),
+(7,	'unfilled dependency'),
+(8,	'Generic');
+
 DROP TABLE IF EXISTS `actions`;
 CREATE TABLE `actions` (
   `actionType` varchar(50) NOT NULL,
@@ -10,8 +59,8 @@ CREATE TABLE `actions` (
   `actionTextPasttense` varchar(50) NOT NULL,
   `actionIcon` varchar(50) NOT NULL,
   `actionAlignment` varchar(20) NOT NULL,
-  `sort` tinyint(4) NOT NULL,
-  `fillDependency` tinyint(4) NOT NULL,
+  `sort` tinyint NOT NULL,
+  `fillDependency` tinyint NOT NULL,
   `deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`actionType`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -26,59 +75,14 @@ INSERT INTO `actions` (`actionType`, `actionText`, `actionTextPasttense`, `actio
 ('sign',	'Sign',	'Signed',	'application-certificate.svg',	'right',	0,	1,	0),
 ('submit',	'Submit',	'Submitted',	'gnome-emblem-default.svg',	'right',	0,	1,	0);
 
-DROP TABLE IF EXISTS `action_history`;
-CREATE TABLE `action_history` (
-  `actionID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `userID` varchar(50) NOT NULL,
-  `stepID` smallint(6) NOT NULL DEFAULT '0',
-  `dependencyID` smallint(6) NOT NULL,
-  `actionType` varchar(50) NOT NULL,
-  `actionTypeID` tinyint(3) unsigned NOT NULL,
-  `time` int(10) unsigned NOT NULL,
-  `comment` text,
-  PRIMARY KEY (`actionID`),
-  KEY `time` (`time`),
-  KEY `recordID` (`recordID`),
-  KEY `actionTypeID` (`actionTypeID`),
-  KEY `dependencyID` (`dependencyID`),
-  KEY `actionType` (`actionType`),
-  CONSTRAINT `action_history_ibfk_2` FOREIGN KEY (`actionTypeID`) REFERENCES `action_types` (`actionTypeID`),
-  CONSTRAINT `fk_records_action_history_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `action_history` (`actionID`, `recordID`, `userID`, `stepID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`) VALUES
-(1,	958,	'tester',	0,	0,	'changeInitiator',	8,	1699055105,	'Initiator changed to Ollie Flatley'),
-(2,	530,	'tester',	0,	0,	'changeInitiator',	8,	1699056198,	'Initiator changed to Alysa Dare'),
-(3,	530,	'tester',	0,	0,	'move',	8,	1699056206,	'Moved to Requestor Followup step'),
-(4,	7,	'tester',	0,	0,	'move',	8,	1700253479,	'Moved to Requestor Followup step'),
-(5,	7,	'tester',	3,	-2,	'sendback',	8,	1700253822,	'');
-
-DROP TABLE IF EXISTS `action_types`;
-CREATE TABLE `action_types` (
-  `actionTypeID` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
-  `actionTypeDesc` varchar(50) NOT NULL,
-  PRIMARY KEY (`actionTypeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `action_types` (`actionTypeID`, `actionTypeDesc`) VALUES
-(1,	'approved'),
-(2,	'disapproved'),
-(3,	'deferred'),
-(4,	'deleted'),
-(5,	'undeleted'),
-(6,	'filled dependency'),
-(7,	'unfilled dependency'),
-(8,	'Generic');
-
 DROP TABLE IF EXISTS `approvals`;
 CREATE TABLE `approvals` (
-  `approvalID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `approvalID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `recordID` mediumint unsigned NOT NULL,
   `userID` varchar(50) NOT NULL,
-  `groupID` mediumint(9) NOT NULL DEFAULT '0',
+  `groupID` mediumint NOT NULL DEFAULT '0',
   `approvalType` varchar(50) NOT NULL,
-  `time` int(10) unsigned NOT NULL,
+  `time` int unsigned NOT NULL,
   `comment` text,
   PRIMARY KEY (`approvalID`),
   KEY `time` (`time`),
@@ -86,7 +90,7 @@ CREATE TABLE `approvals` (
   KEY `groupID` (`groupID`),
   KEY `record_group` (`recordID`,`groupID`),
   KEY `record_time` (`recordID`,`time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `categories`;
@@ -95,19 +99,19 @@ CREATE TABLE `categories` (
   `parentID` varchar(50) NOT NULL,
   `categoryName` varchar(50) NOT NULL,
   `categoryDescription` varchar(255) NOT NULL,
-  `workflowID` smallint(6) NOT NULL,
-  `sort` tinyint(3) NOT NULL DEFAULT '0',
-  `needToKnow` tinyint(4) NOT NULL DEFAULT '0',
-  `formLibraryID` smallint(6) DEFAULT NULL,
-  `visible` tinyint(4) NOT NULL DEFAULT '1',
-  `disabled` tinyint(4) NOT NULL DEFAULT '0',
+  `workflowID` smallint NOT NULL,
+  `sort` tinyint NOT NULL DEFAULT '0',
+  `needToKnow` tinyint NOT NULL DEFAULT '0',
+  `formLibraryID` smallint DEFAULT NULL,
+  `visible` tinyint NOT NULL DEFAULT '1',
+  `disabled` tinyint NOT NULL DEFAULT '0',
   `type` varchar(50) NOT NULL DEFAULT '',
-  `destructionAge` mediumint(8) unsigned DEFAULT NULL,
-  `lastModified` int(10) unsigned NOT NULL DEFAULT '0',
+  `destructionAge` mediumint unsigned DEFAULT NULL,
+  `lastModified` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`categoryID`),
   KEY `parentID` (`parentID`),
   KEY `destructionAge` (`destructionAge`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `categories` (`categoryID`, `parentID`, `categoryName`, `categoryDescription`, `workflowID`, `sort`, `needToKnow`, `formLibraryID`, `visible`, `disabled`, `type`, `destructionAge`, `lastModified`) VALUES
 ('form_2ca98',	'',	'Complex Form',	'',	1,	0,	0,	NULL,	1,	0,	'',	NULL,	1695395465),
@@ -123,14 +127,14 @@ INSERT INTO `categories` (`categoryID`, `parentID`, `categoryName`, `categoryDes
 
 DROP TABLE IF EXISTS `category_count`;
 CREATE TABLE `category_count` (
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
   `categoryID` varchar(20) NOT NULL,
-  `count` tinyint(3) unsigned NOT NULL,
+  `count` tinyint unsigned NOT NULL,
   PRIMARY KEY (`recordID`,`categoryID`),
   KEY `categoryID` (`categoryID`),
   CONSTRAINT `category_count_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`),
   CONSTRAINT `fk_records_category_count_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `category_count` (`recordID`, `categoryID`, `count`) VALUES
 (1,	'leaf_secure',	1),
@@ -1099,13 +1103,13 @@ INSERT INTO `category_count` (`recordID`, `categoryID`, `count`) VALUES
 DROP TABLE IF EXISTS `category_privs`;
 CREATE TABLE `category_privs` (
   `categoryID` varchar(20) NOT NULL,
-  `groupID` mediumint(9) NOT NULL,
-  `readable` tinyint(4) NOT NULL,
-  `writable` tinyint(4) NOT NULL,
+  `groupID` mediumint NOT NULL,
+  `readable` tinyint NOT NULL,
+  `writable` tinyint NOT NULL,
   UNIQUE KEY `categoryID` (`categoryID`,`groupID`),
   KEY `groupID` (`groupID`),
   CONSTRAINT `category_privs_ibfk_2` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `category_staples`;
@@ -1115,23 +1119,24 @@ CREATE TABLE `category_staples` (
   UNIQUE KEY `category_stapled` (`categoryID`,`stapledCategoryID`),
   KEY `categoryID` (`categoryID`),
   CONSTRAINT `category_staples_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `data`;
 CREATE TABLE `data` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `indicatorID` smallint(5) NOT NULL,
-  `series` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `recordID` mediumint unsigned NOT NULL,
+  `indicatorID` smallint NOT NULL,
+  `series` tinyint unsigned NOT NULL DEFAULT '1',
   `data` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `metadata` json DEFAULT NULL,
+  `timestamp` int unsigned NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
   UNIQUE KEY `unique` (`recordID`,`indicatorID`,`series`),
   KEY `indicator_series` (`indicatorID`,`series`),
   KEY `fastdata` (`indicatorID`,`data`(10)),
   FULLTEXT KEY `data` (`data`),
   CONSTRAINT `fk_records_data_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `userID`) VALUES
 (1,	-4,	1,	'271',	1692287247,	'tester'),
@@ -1145,7 +1150,7 @@ INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `u
 (5,	-4,	1,	'87',	1692288075,	'tester'),
 (5,	-2,	1,	'test',	1692288077,	'tester'),
 (5,	-1,	1,	'25',	1692288075,	'tester'),
-(6,	2,	1,	'a:3:{s:5:\"cells\";a:2:{i:0;a:3:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";}i:1;a:3:{i:0;s:1:\"a\";i:1;s:1:\"b\";i:2;s:1:\"c\";}}s:5:\"names\";a:4:{i:0;s:5:\"Col 1\";i:1;s:5:\"Col 2\";i:2;s:5:\"Col 3\";i:3;s:2:\" \";}s:7:\"columns\";a:3:{i:0;s:8:\"col_7664\";i:1;s:8:\"col_15d5\";i:2;s:8:\"col_c80a\";}}',	1693263167,	'tester'),
+(6,	2,	1,	'a:3:{s:5:\"cells\";a:2:{i:0;a:3:{i:0;s:1:\"1\";i:1;s:1:\"2\";i:2;s:1:\"3\";}i:1;a:3:{i:0;s:1:\"a\";i:1;s:1:\"b\";i:2;s:1:\"c\";}}s:5:\"names\";a:4:{i:0;s:5:\"Col 1\";i:1;s:5:\"Col 2\";i:2;s:5:\"Col 3\";i:3;s:1:\" \";}s:7:\"columns\";a:3:{i:0;s:8:\"col_7664\";i:1;s:8:\"col_15d5\";i:2;s:8:\"col_c80a\";}}',	1693263167,	'tester'),
 (7,	3,	1,	'12345',	1702053663,	'tester'),
 (7,	4,	1,	'80675',	1694021464,	'tester'),
 (7,	5,	1,	'44839',	1694021464,	'tester'),
@@ -3598,7 +3603,7 @@ INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `u
 (496,	5,	1,	'94951',	1694021485,	'tester'),
 (496,	8,	1,	'117',	1695331225,	'tester'),
 (496,	10,	1,	'261',	1695339087,	'tester'),
-(497,	3,	1,	'31470',	1694021485,	'tester'),
+(497,	3,	1,	'The apple, orange or pear',	1694021485,	'tester'),
 (497,	4,	1,	'86910',	1694021485,	'tester'),
 (497,	5,	1,	'51317',	1694021485,	'tester'),
 (497,	8,	1,	'205',	1695331225,	'tester'),
@@ -3823,7 +3828,7 @@ INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `u
 (550,	3,	1,	'93571',	1699044419,	'tester'),
 (550,	4,	1,	'29127',	1699044419,	'tester'),
 (550,	5,	1,	'23270',	1699044419,	'tester'),
-(550,	9,	1,	'200',	1699044484,	'tester'),
+(550,	9,	1,	'9999',	1699044484,	'tester'),
 (551,	3,	1,	'90185',	1699044419,	'tester'),
 (551,	4,	1,	'14620',	1699044419,	'tester'),
 (551,	5,	1,	'13428',	1699044419,	'tester'),
@@ -5450,9 +5455,9 @@ INSERT INTO `data` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `u
 DROP TABLE IF EXISTS `data_action_log`;
 CREATE TABLE `data_action_log` (
   `empUID` varchar(36) DEFAULT NULL,
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `action` varchar(45) DEFAULT NULL,
-  `userID` int(11) DEFAULT NULL,
+  `userID` int DEFAULT NULL,
   `timestamp` datetime DEFAULT NULL,
   `userDisplay` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -5465,17 +5470,17 @@ DROP TABLE IF EXISTS `data_cache`;
 CREATE TABLE `data_cache` (
   `cacheKey` varchar(32) NOT NULL,
   `data` text NOT NULL,
-  `timestamp` int(11) NOT NULL,
+  `timestamp` int NOT NULL,
   UNIQUE KEY `cacheKey` (`cacheKey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 DROP TABLE IF EXISTS `data_extended`;
 CREATE TABLE `data_extended` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `indicatorID` smallint(6) NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
+  `indicatorID` smallint NOT NULL,
   `data` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL,
+  `timestamp` int unsigned NOT NULL,
   `userID` varchar(50) NOT NULL,
   KEY `recordID_indicatorID` (`recordID`,`indicatorID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -5483,16 +5488,17 @@ CREATE TABLE `data_extended` (
 
 DROP TABLE IF EXISTS `data_history`;
 CREATE TABLE `data_history` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `indicatorID` smallint(5) NOT NULL,
-  `series` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `recordID` mediumint unsigned NOT NULL,
+  `indicatorID` smallint NOT NULL,
+  `series` tinyint unsigned NOT NULL DEFAULT '1',
   `data` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `metadata` json DEFAULT NULL,
+  `timestamp` int unsigned NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
   KEY `recordID` (`recordID`,`indicatorID`,`series`),
   KEY `timestamp` (`timestamp`),
   CONSTRAINT `fk_records_data_history_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `data_history` (`recordID`, `indicatorID`, `series`, `data`, `timestamp`, `userID`) VALUES
 (530,	9,	1,	'205',	1699056186,	'tester'),
@@ -5500,7 +5506,7 @@ INSERT INTO `data_history` (`recordID`, `indicatorID`, `series`, `data`, `timest
 
 DROP TABLE IF EXISTS `data_log_items`;
 CREATE TABLE `data_log_items` (
-  `data_action_log_fk` int(11) NOT NULL,
+  `data_action_log_fk` int NOT NULL,
   `tableName` varchar(75) NOT NULL,
   `column` varchar(75) NOT NULL,
   `value` text NOT NULL,
@@ -6006,10 +6012,10 @@ INSERT INTO `data_log_items` (`data_action_log_fk`, `tableName`, `column`, `valu
 
 DROP TABLE IF EXISTS `dependencies`;
 CREATE TABLE `dependencies` (
-  `dependencyID` smallint(6) NOT NULL AUTO_INCREMENT,
+  `dependencyID` smallint NOT NULL AUTO_INCREMENT,
   `description` varchar(50) NOT NULL,
   PRIMARY KEY (`dependencyID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES
 (-3,	'Group Designated by the Requestor'),
@@ -6022,8 +6028,8 @@ INSERT INTO `dependencies` (`dependencyID`, `description`) VALUES
 
 DROP TABLE IF EXISTS `dependency_privs`;
 CREATE TABLE `dependency_privs` (
-  `dependencyID` smallint(6) NOT NULL,
-  `groupID` mediumint(9) NOT NULL,
+  `dependencyID` smallint NOT NULL,
+  `groupID` mediumint NOT NULL,
   UNIQUE KEY `dependencyID` (`dependencyID`,`groupID`),
   KEY `groupID` (`groupID`),
   CONSTRAINT `fk_privs_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`)
@@ -6034,9 +6040,9 @@ INSERT INTO `dependency_privs` (`dependencyID`, `groupID`) VALUES
 
 DROP TABLE IF EXISTS `destruction_log`;
 CREATE TABLE `destruction_log` (
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
   `categoryID` varchar(20) NOT NULL,
-  `destructionTime` int(10) unsigned DEFAULT '0',
+  `destructionTime` int unsigned DEFAULT '0',
   PRIMARY KEY (`recordID`),
   KEY `destructionTime` (`destructionTime`),
   KEY `destructionForm` (`categoryID`)
@@ -6045,14 +6051,14 @@ CREATE TABLE `destruction_log` (
 
 DROP TABLE IF EXISTS `email_reminders`;
 CREATE TABLE `email_reminders` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `workflowID` smallint(6) NOT NULL,
-  `stepID` smallint(6) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `workflowID` smallint NOT NULL,
+  `stepID` smallint NOT NULL,
   `actionType` varchar(50) NOT NULL,
-  `frequency` smallint(5) NOT NULL,
-  `recipientGroupID` mediumint(9) NOT NULL,
+  `frequency` smallint NOT NULL,
+  `recipientGroupID` mediumint NOT NULL,
   `emailTemplate` text NOT NULL,
-  `startDateIndicatorID` smallint(5) NOT NULL,
+  `startDateIndicatorID` smallint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `routeID` (`workflowID`,`stepID`,`actionType`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -6060,7 +6066,7 @@ CREATE TABLE `email_reminders` (
 
 DROP TABLE IF EXISTS `email_templates`;
 CREATE TABLE `email_templates` (
-  `emailTemplateID` mediumint(8) NOT NULL AUTO_INCREMENT,
+  `emailTemplateID` mediumint NOT NULL AUTO_INCREMENT,
   `label` varchar(255) NOT NULL,
   `emailTo` text,
   `emailCc` text,
@@ -6068,7 +6074,7 @@ CREATE TABLE `email_templates` (
   `body` text NOT NULL,
   PRIMARY KEY (`emailTemplateID`),
   UNIQUE KEY `label` (`label`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `email_templates` (`emailTemplateID`, `label`, `emailTo`, `emailCc`, `subject`, `body`) VALUES
 (-5,	'Automated Email Reminder',	'LEAF_automated_reminder_emailTo.tpl',	'LEAF_automated_reminder_emailCc.tpl',	'LEAF_automated_reminder_subject.tpl',	'LEAF_automated_reminder_body.tpl'),
@@ -6080,16 +6086,16 @@ INSERT INTO `email_templates` (`emailTemplateID`, `label`, `emailTo`, `emailCc`,
 
 DROP TABLE IF EXISTS `email_tracker`;
 CREATE TABLE `email_tracker` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `recordID` mediumint unsigned NOT NULL,
   `userID` varchar(50) DEFAULT NULL,
-  `timestamp` int(10) NOT NULL,
+  `timestamp` int NOT NULL,
   `recipients` text NOT NULL,
   `subject` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `recordID` (`recordID`),
   CONSTRAINT `fk_records_email_tracker_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `email_tracker` (`id`, `recordID`, `userID`, `timestamp`, `recipients`, `subject`) VALUES
 (1,	508,	NULL,	1697553997,	'Recipient(s): Tracy.O\'Hane0@fake-email.com, tester.tester@fake-email.com, Rhona.Goodwin@fake-email.com',	'Subject: RETURNED Test backup of initiator (#508) to AS - Service'),
@@ -6116,12 +6122,12 @@ INSERT INTO `events` (`eventID`, `eventDescription`, `eventType`, `eventData`) V
 
 DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
-  `groupID` mediumint(9) NOT NULL AUTO_INCREMENT,
-  `parentGroupID` mediumint(9) DEFAULT NULL,
+  `groupID` mediumint NOT NULL AUTO_INCREMENT,
+  `parentGroupID` mediumint DEFAULT NULL,
   `name` varchar(250) NOT NULL,
   `groupDescription` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`groupID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`, `groupDescription`) VALUES
 (-1,	NULL,	'Quadrad',	''),
@@ -6155,30 +6161,40 @@ INSERT INTO `groups` (`groupID`, `parentGroupID`, `name`, `groupDescription`) VA
 (205,	NULL,	'Office of Associate Director of Patient Care Services',	''),
 (206,	NULL,	'Group A',	'');
 
+DROP TABLE IF EXISTS `indicator_mask`;
+CREATE TABLE `indicator_mask` (
+  `indicatorID` smallint NOT NULL,
+  `groupID` mediumint NOT NULL,
+  UNIQUE KEY `indicatorID_2` (`indicatorID`,`groupID`),
+  KEY `indicatorID` (`indicatorID`),
+  KEY `groupID` (`groupID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
 DROP TABLE IF EXISTS `indicators`;
 CREATE TABLE `indicators` (
-  `indicatorID` smallint(5) NOT NULL AUTO_INCREMENT,
+  `indicatorID` smallint NOT NULL AUTO_INCREMENT,
   `name` text NOT NULL,
   `format` text NOT NULL,
   `description` varchar(50) DEFAULT NULL,
   `default` text,
-  `parentID` smallint(6) DEFAULT NULL,
+  `parentID` smallint DEFAULT NULL,
   `categoryID` varchar(20) DEFAULT NULL,
   `html` text,
   `htmlPrint` text,
   `conditions` text,
   `jsSort` varchar(255) DEFAULT NULL,
-  `required` tinyint(4) NOT NULL DEFAULT '0',
-  `sort` tinyint(4) NOT NULL DEFAULT '1',
+  `required` tinyint NOT NULL DEFAULT '0',
+  `sort` tinyint NOT NULL DEFAULT '1',
   `timeAdded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `disabled` int(10) unsigned NOT NULL DEFAULT '0',
-  `is_sensitive` tinyint(4) NOT NULL DEFAULT '0',
+  `disabled` int unsigned NOT NULL DEFAULT '0',
+  `is_sensitive` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`indicatorID`),
   KEY `categoryID` (`categoryID`),
   KEY `parentID` (`parentID`),
   KEY `sort` (`sort`),
   CONSTRAINT `indicators_ibfk_1` FOREIGN KEY (`categoryID`) REFERENCES `categories` (`categoryID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `indicators` (`indicatorID`, `name`, `format`, `description`, `default`, `parentID`, `categoryID`, `html`, `htmlPrint`, `conditions`, `jsSort`, `required`, `sort`, `timeAdded`, `disabled`, `is_sensitive`) VALUES
 (-8,	'Approval Officials',	'',	NULL,	NULL,	NULL,	'leaf_devconsole',	NULL,	NULL,	NULL,	NULL,	0,	2,	'2019-12-13 17:09:58',	0,	0),
@@ -6205,63 +6221,53 @@ INSERT INTO `indicators` (`indicatorID`, `name`, `format`, `description`, `defau
 (14,	'Reviewer 1',	'orgchart_employee',	'',	'',	NULL,	'form_f8b95',	NULL,	NULL,	NULL,	NULL,	1,	0,	'2023-10-25 22:56:24',	0,	0),
 (15,	'Reviewer 2',	'orgchart_employee',	'',	'',	14,	'form_f8b95',	NULL,	NULL,	NULL,	NULL,	1,	0,	'2023-10-25 22:56:33',	0,	0);
 
-DROP TABLE IF EXISTS `indicator_mask`;
-CREATE TABLE `indicator_mask` (
-  `indicatorID` smallint(5) NOT NULL,
-  `groupID` mediumint(9) NOT NULL,
-  UNIQUE KEY `indicatorID_2` (`indicatorID`,`groupID`),
-  KEY `indicatorID` (`indicatorID`),
-  KEY `groupID` (`groupID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
 DROP TABLE IF EXISTS `notes`;
 CREATE TABLE `notes` (
-  `noteID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `noteID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `recordID` mediumint unsigned NOT NULL,
   `note` text NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int unsigned NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
-  `deleted` tinyint(4) DEFAULT NULL,
+  `deleted` tinyint DEFAULT NULL,
   PRIMARY KEY (`noteID`),
   KEY `recordID` (`recordID`),
   CONSTRAINT `fk_records_notes_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `process_query`;
 CREATE TABLE `process_query` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `userID` varchar(50) DEFAULT NULL,
   `url` text,
-  `lastProcess` int(10) unsigned NOT NULL,
+  `lastProcess` int unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `lastProcess` (`lastProcess`),
   FULLTEXT KEY `url` (`url`),
   FULLTEXT KEY `userid_url` (`userID`,`url`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `records`;
 CREATE TABLE `records` (
-  `recordID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-  `date` int(10) unsigned NOT NULL,
-  `serviceID` smallint(5) NOT NULL DEFAULT '0',
+  `recordID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `date` int unsigned NOT NULL,
+  `serviceID` smallint NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
   `title` text,
-  `priority` tinyint(4) NOT NULL DEFAULT '0',
+  `priority` tinyint NOT NULL DEFAULT '0',
   `lastStatus` varchar(200) DEFAULT NULL,
-  `submitted` int(10) NOT NULL DEFAULT '0',
-  `deleted` int(10) NOT NULL DEFAULT '0',
-  `isWritableUser` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `isWritableGroup` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `submitted` int NOT NULL DEFAULT '0',
+  `deleted` int NOT NULL DEFAULT '0',
+  `isWritableUser` tinyint unsigned NOT NULL DEFAULT '1',
+  `isWritableGroup` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`recordID`),
   KEY `date` (`date`),
   KEY `deleted` (`deleted`),
   KEY `serviceID` (`serviceID`),
   KEY `userID` (`userID`),
   KEY `submitted` (`submitted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `priority`, `lastStatus`, `submitted`, `deleted`, `isWritableUser`, `isWritableGroup`) VALUES
 (1,	1692287010,	0,	'tester',	'LEAF Secure Certification',	0,	NULL,	0,	1692287465,	1,	1),
@@ -6269,12 +6275,12 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (3,	1692287472,	0,	'tester',	'LEAF Secure Certification',	0,	'Approved',	1692287490,	1692287512,	0,	1),
 (4,	1692287968,	0,	'tester',	'LEAF Secure Certification',	0,	NULL,	0,	1692287993,	1,	1),
 (5,	1692288069,	0,	'tester',	'LEAF Secure Certification',	0,	'Submitted',	1692288081,	0,	0,	1),
-(6,	1693258385,	0,	'tester',	'untitled',	0,	NULL,	0,	0,	1,	1),
+(6,	1693258385,	0,	'VTRSHHZOFIA',	'TestFormQuery_DescendingIndex',	0,	NULL,	0,	0,	1,	1),
 (7,	1694021464,	0,	'tESTER',	'Requestor followup - Different Username case sensitivity',	0,	'Re-opened for editing',	0,	0,	1,	1),
-(8,	1694021464,	0,	'tester',	'Available for test case',	0,	'Approved',	1694021485,	0,	0,	1),
-(9,	1694021464,	0,	'tester',	'Available for test case',	0,	'Approved',	1694021485,	0,	0,	1),
-(10,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
-(11,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
+(8,	1694021464,	0,	'tester',	'TestFormWorkflow_ApplyAction',	0,	'Approved',	1694021485,	0,	0,	1),
+(9,	1694021464,	0,	'tester',	'TestFormQuery_GroupClickedApprove',	0,	'Approved',	1694021485,	0,	0,	1),
+(10,	1694021465,	0,	'tester',	'TestFormWorkflow_ApplyAction',	0,	'Submitted',	1694021485,	0,	0,	1),
+(11,	1694021465,	0,	'tester',	'Employee Metadata Posts Correctly',	0,	'Submitted',	1694021485,	0,	0,	1),
 (12,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
 (13,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
 (14,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
@@ -6760,7 +6766,7 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (494,	1694021484,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021503,	0,	0,	1),
 (495,	1694021485,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021503,	0,	0,	1),
 (496,	1694021485,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021503,	0,	0,	1),
-(497,	1694021485,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021503,	0,	0,	1),
+(497,	1694021485,	0,	'tester',	'Stopwords not required for match all',	0,	'Submitted',	1694021503,	0,	0,	1),
 (498,	1694021485,	0,	'tester',	'Data contains: apple, pear',	0,	'Submitted',	1694021503,	0,	0,	1),
 (499,	1694021485,	0,	'tester',	'Data contains: apple, pear, orange',	0,	'Submitted',	1694021503,	0,	0,	1),
 (500,	1694021485,	0,	'tester',	'Multiple Person Designated 1/1',	0,	'Submitted',	1698275300,	0,	0,	1),
@@ -6813,7 +6819,7 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (547,	1699044419,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044435,	0,	0,	1),
 (548,	1699044419,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044435,	0,	0,	1),
 (549,	1699044419,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044435,	0,	0,	1),
-(550,	1699044419,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044435,	0,	0,	1),
+(550,	1699044419,	0,	'tester',	'warning displays when pending group not in portal',	0,	'Submitted',	1699044435,	0,	0,	1),
 (551,	1699044419,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044435,	0,	0,	1),
 (552,	1699044419,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044435,	0,	0,	1),
 (553,	1699044419,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044435,	0,	0,	1),
@@ -6844,7 +6850,7 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (578,	1699044420,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044436,	0,	0,	1),
 (579,	1699044420,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044436,	0,	0,	1),
 (580,	1699044420,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044436,	0,	0,	1),
-(581,	1699044420,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044436,	0,	0,	1),
+(581,	1699044420,	0,	'tester',	'group designated name is correct',	0,	'Submitted',	1699044436,	0,	0,	1),
 (582,	1699044420,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044436,	0,	0,	1),
 (583,	1699044420,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044436,	0,	0,	1),
 (584,	1699044420,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044436,	0,	0,	1),
@@ -6953,7 +6959,7 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (687,	1699044424,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044439,	0,	0,	1),
 (688,	1699044424,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044439,	0,	0,	1),
 (689,	1699044424,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044439,	0,	0,	1),
-(690,	1699044424,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044439,	0,	0,	1),
+(690,	1699044424,	0,	'tester',	'group designated name is correct',	0,	'Submitted',	1699044439,	0,	0,	1),
 (691,	1699044424,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044439,	0,	0,	1),
 (692,	1699044424,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044439,	0,	0,	1),
 (693,	1699044424,	0,	'tester',	'Available for test case',	0,	'Submitted',	1699044439,	0,	0,	1),
@@ -7225,16 +7231,16 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 
 DROP TABLE IF EXISTS `records_dependencies`;
 CREATE TABLE `records_dependencies` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `dependencyID` smallint(6) NOT NULL,
-  `filled` tinyint(3) NOT NULL DEFAULT '0',
-  `time` int(10) unsigned DEFAULT NULL,
+  `recordID` mediumint unsigned NOT NULL,
+  `dependencyID` smallint NOT NULL,
+  `filled` tinyint NOT NULL DEFAULT '0',
+  `time` int unsigned DEFAULT NULL,
   UNIQUE KEY `recordID` (`recordID`,`dependencyID`),
   KEY `filled` (`dependencyID`,`filled`),
   KEY `time` (`time`),
   CONSTRAINT `fk_records_dependencies_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE,
   CONSTRAINT `fk_records_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `records_dependencies` (`recordID`, `dependencyID`, `filled`, `time`) VALUES
 (3,	-1,	0,	1692287493),
@@ -7250,11 +7256,11 @@ INSERT INTO `records_dependencies` (`recordID`, `dependencyID`, `filled`, `time`
 (8,	-1,	1,	1694126647),
 (8,	5,	1,	1694021485),
 (8,	9,	1,	1694126651),
-(9,	-3,	0,	NULL),
-(9,	-2,	0,	1694021485),
+(9,	-3,	1,	1716939859),
+(9,	-2,	1,	1716939857),
 (9,	-1,	1,	1694130219),
 (9,	5,	1,	1694021485),
-(9,	9,	0,	NULL),
+(9,	9,	1,	1716939855),
 (10,	-3,	0,	NULL),
 (10,	-2,	0,	1694021485),
 (10,	-1,	0,	NULL),
@@ -12004,12 +12010,12 @@ INSERT INTO `records_dependencies` (`recordID`, `dependencyID`, `filled`, `time`
 
 DROP TABLE IF EXISTS `records_step_fulfillment`;
 CREATE TABLE `records_step_fulfillment` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `stepID` smallint(6) NOT NULL,
-  `fulfillmentTime` int(10) unsigned NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
+  `stepID` smallint NOT NULL,
+  `fulfillmentTime` int unsigned NOT NULL,
   UNIQUE KEY `recordID` (`recordID`,`stepID`) USING BTREE,
   CONSTRAINT `fk_records_step_fulfillment_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `records_step_fulfillment` (`recordID`, `stepID`, `fulfillmentTime`) VALUES
 (3,	-3,	1692287493),
@@ -12017,6 +12023,10 @@ INSERT INTO `records_step_fulfillment` (`recordID`, `stepID`, `fulfillmentTime`)
 (8,	1,	1694126647),
 (8,	2,	1694126651),
 (8,	3,	1694126654),
+(9,	1,	1716939853),
+(9,	2,	1716939855),
+(9,	3,	1716939857),
+(9,	4,	1716939859),
 (500,	8,	1698275281),
 (501,	8,	1698275239),
 (502,	7,	1697554890),
@@ -12026,9 +12036,9 @@ INSERT INTO `records_step_fulfillment` (`recordID`, `stepID`, `fulfillmentTime`)
 
 DROP TABLE IF EXISTS `records_workflow_state`;
 CREATE TABLE `records_workflow_state` (
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `stepID` smallint(6) NOT NULL,
-  `blockingStepID` tinyint(4) unsigned NOT NULL DEFAULT '0',
+  `recordID` mediumint unsigned NOT NULL,
+  `stepID` smallint NOT NULL,
+  `blockingStepID` tinyint unsigned NOT NULL DEFAULT '0',
   `lastNotified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `initialNotificationSent` tinyint(1) DEFAULT '0',
   UNIQUE KEY `recordID` (`recordID`,`stepID`),
@@ -12039,7 +12049,6 @@ CREATE TABLE `records_workflow_state` (
 INSERT INTO `records_workflow_state` (`recordID`, `stepID`, `blockingStepID`, `lastNotified`, `initialNotificationSent`) VALUES
 (5,	-3,	0,	'2023-08-17 16:01:21',	0),
 (8,	4,	0,	'2023-09-07 22:45:09',	0),
-(9,	1,	0,	'2023-09-06 17:31:25',	0),
 (10,	1,	0,	'2023-09-06 17:31:25',	0),
 (11,	1,	0,	'2023-09-06 17:31:25',	0),
 (12,	1,	0,	'2023-09-06 17:31:25',	0),
@@ -12992,8 +13001,8 @@ INSERT INTO `records_workflow_state` (`recordID`, `stepID`, `blockingStepID`, `l
 
 DROP TABLE IF EXISTS `route_events`;
 CREATE TABLE `route_events` (
-  `workflowID` smallint(6) NOT NULL,
-  `stepID` smallint(6) NOT NULL,
+  `workflowID` smallint NOT NULL,
+  `stepID` smallint NOT NULL,
   `actionType` varchar(50) NOT NULL,
   `eventID` varchar(40) NOT NULL,
   UNIQUE KEY `workflowID_2` (`workflowID`,`stepID`,`actionType`,`eventID`),
@@ -13015,57 +13024,17 @@ INSERT INTO `route_events` (`workflowID`, `stepID`, `actionType`, `eventID`) VAL
 (-1,	-3,	'approve',	'std_email_notify_next_approver'),
 (-1,	-1,	'submit',	'std_email_notify_next_approver');
 
-DROP TABLE IF EXISTS `services`;
-CREATE TABLE `services` (
-  `serviceID` smallint(5) NOT NULL AUTO_INCREMENT,
-  `service` varchar(100) NOT NULL,
-  `abbreviatedService` varchar(25) NOT NULL,
-  `groupID` mediumint(9) DEFAULT NULL,
-  PRIMARY KEY (`serviceID`),
-  KEY `groupID` (`groupID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `services` (`serviceID`, `service`, `abbreviatedService`, `groupID`) VALUES
-(14,	'Iron Sports',	'amethyst',	14),
-(15,	'Bronze Music',	'erin',	204),
-(26,	'Rubber Music',	'indigo',	204),
-(27,	'Steel Beauty',	'emerald',	204),
-(28,	'Cotton Movies & Books',	'cerulean',	28),
-(29,	'Bronze Kids',	'red',	28),
-(30,	'Wooden Beauty',	'peach',	28),
-(33,	'Marble Home',	'burgundy',	14),
-(35,	'Marble Health & Books',	'jade',	204),
-(36,	'Rubber Grocery',	'taupe',	204),
-(67,	'Wooden Clothing & Tools',	'maroon',	204),
-(68,	'Wool Games',	'fuchsia',	204),
-(74,	'Plastic Jewelry',	'grey',	74),
-(75,	'Steel Movies',	'byzantium',	74),
-(79,	'Copper Electronics & Sports',	'azure',	79),
-(80,	'Copper Music & Books',	'amethyst',	204),
-(81,	'Concrete Music',	'lime',	79),
-(82,	'Plastic Electronics',	'grey',	79),
-(86,	'Cotton Automotive',	'azure',	74),
-(90,	'Concrete Electronics',	'orange',	90),
-(91,	'Leather Grocery',	'byzantium',	28),
-(92,	'Cotton Computers',	'byzantium',	90),
-(102,	'Plastic Clothing & Toys',	'rose',	74),
-(103,	'Marble Games',	'carmine',	74),
-(200,	'AS Test Group',	'',	201),
-(201,	'AS - Service',	'',	201),
-(204,	'Office of the Director ELT',	'',	204),
-(205,	'Office of Associate Director of Patient Care Services',	'',	201);
-
 DROP TABLE IF EXISTS `service_chiefs`;
 CREATE TABLE `service_chiefs` (
-  `serviceID` smallint(5) NOT NULL,
+  `serviceID` smallint NOT NULL,
   `userID` varchar(50) NOT NULL,
   `backupID` varchar(50) NOT NULL DEFAULT '',
   `locallyManaged` tinyint(1) DEFAULT '0',
-  `active` tinyint(4) NOT NULL DEFAULT '1',
+  `active` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`userID`,`serviceID`,`backupID`),
   KEY `serviceID` (`serviceID`),
   KEY `userID` (`userID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `service_chiefs` (`serviceID`, `userID`, `backupID`, `locallyManaged`, `active`) VALUES
 (15,	'tester',	'',	0,	1),
@@ -13108,12 +13077,52 @@ INSERT INTO `service_chiefs` (`serviceID`, `userID`, `backupID`, `locallyManaged
 (102,	'VTRVXHCONCEPTION',	'',	0,	1),
 (68,	'VTRZAZSHARLENE',	'',	0,	1);
 
+DROP TABLE IF EXISTS `services`;
+CREATE TABLE `services` (
+  `serviceID` smallint NOT NULL AUTO_INCREMENT,
+  `service` varchar(100) NOT NULL,
+  `abbreviatedService` varchar(25) NOT NULL,
+  `groupID` mediumint DEFAULT NULL,
+  PRIMARY KEY (`serviceID`),
+  KEY `groupID` (`groupID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `services` (`serviceID`, `service`, `abbreviatedService`, `groupID`) VALUES
+(14,	'Iron Sports',	'amethyst',	14),
+(15,	'Bronze Music',	'erin',	204),
+(26,	'Rubber Music',	'indigo',	204),
+(27,	'Steel Beauty',	'emerald',	204),
+(28,	'Cotton Movies & Books',	'cerulean',	28),
+(29,	'Bronze Kids',	'red',	28),
+(30,	'Wooden Beauty',	'peach',	28),
+(33,	'Marble Home',	'burgundy',	14),
+(35,	'Marble Health & Books',	'jade',	204),
+(36,	'Rubber Grocery',	'taupe',	204),
+(67,	'Wooden Clothing & Tools',	'maroon',	204),
+(68,	'Wool Games',	'fuchsia',	204),
+(74,	'Plastic Jewelry',	'grey',	74),
+(75,	'Steel Movies',	'byzantium',	74),
+(79,	'Copper Electronics & Sports',	'azure',	79),
+(80,	'Copper Music & Books',	'amethyst',	204),
+(81,	'Concrete Music',	'lime',	79),
+(82,	'Plastic Electronics',	'grey',	79),
+(86,	'Cotton Automotive',	'azure',	74),
+(90,	'Concrete Electronics',	'orange',	90),
+(91,	'Leather Grocery',	'byzantium',	28),
+(92,	'Cotton Computers',	'byzantium',	90),
+(102,	'Plastic Clothing & Toys',	'rose',	74),
+(103,	'Marble Games',	'carmine',	74),
+(200,	'AS Test Group',	'',	201),
+(201,	'AS - Service',	'',	201),
+(204,	'Office of the Director ELT',	'',	204),
+(205,	'Office of Associate Director of Patient Care Services',	'',	201);
+
 DROP TABLE IF EXISTS `sessions`;
 CREATE TABLE `sessions` (
   `sessionKey` varchar(40) NOT NULL,
   `variableKey` varchar(40) NOT NULL DEFAULT '',
   `data` text NOT NULL,
-  `lastModified` int(10) unsigned NOT NULL,
+  `lastModified` int unsigned NOT NULL,
   UNIQUE KEY `sessionKey` (`sessionKey`,`variableKey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -13129,7 +13138,7 @@ CREATE TABLE `settings` (
 
 INSERT INTO `settings` (`setting`, `data`) VALUES
 ('adPath',	'{}'),
-('dbversion',	'2023100500'),
+('dbversion',	'2024052000'),
 ('emailBCC',	'{}'),
 ('emailCC',	'{}'),
 ('heading',	'New LEAF Site'),
@@ -13146,7 +13155,7 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 
 DROP TABLE IF EXISTS `short_links`;
 CREATE TABLE `short_links` (
-  `shortID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `shortID` mediumint unsigned NOT NULL AUTO_INCREMENT,
   `type` varchar(20) NOT NULL,
   `hash` varchar(64) NOT NULL,
   `data` text NOT NULL,
@@ -13161,25 +13170,45 @@ INSERT INTO `short_links` (`shortID`, `type`, `hash`, `data`) VALUES
 
 DROP TABLE IF EXISTS `signatures`;
 CREATE TABLE `signatures` (
-  `signatureID` mediumint(9) NOT NULL AUTO_INCREMENT,
+  `signatureID` mediumint NOT NULL AUTO_INCREMENT,
   `signature` text NOT NULL,
-  `recordID` mediumint(8) unsigned NOT NULL,
-  `stepID` smallint(6) NOT NULL,
-  `dependencyID` smallint(6) NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
+  `stepID` smallint NOT NULL,
+  `dependencyID` smallint NOT NULL,
   `message` longtext NOT NULL,
   `signerPublicKey` text NOT NULL,
   `userID` varchar(50) NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL,
+  `timestamp` int unsigned NOT NULL,
   PRIMARY KEY (`signatureID`),
   UNIQUE KEY `recordID_stepID_depID` (`recordID`,`stepID`,`dependencyID`),
   CONSTRAINT `fk_records_signatures_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `sites`;
+CREATE TABLE `sites` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `launchpadID` mediumint unsigned NOT NULL,
+  `site_type` varchar(8) NOT NULL,
+  `site_path` varchar(250) NOT NULL,
+  `site_uploads` varchar(250) DEFAULT NULL,
+  `portal_database` varchar(250) DEFAULT NULL,
+  `orgchart_path` varchar(250) DEFAULT NULL,
+  `orgchart_database` varchar(250) DEFAULT NULL,
+  `decommissionTimestamp` int DEFAULT '0',
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `site_path` (`site_path`),
+  KEY `site_type` (`site_type`),
+  KEY `launchpadID` (`launchpadID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `step_dependencies`;
 CREATE TABLE `step_dependencies` (
-  `stepID` smallint(6) NOT NULL,
-  `dependencyID` smallint(6) NOT NULL,
+  `stepID` smallint NOT NULL,
+  `dependencyID` smallint NOT NULL,
   UNIQUE KEY `stepID` (`stepID`,`dependencyID`),
   KEY `dependencyID` (`dependencyID`),
   CONSTRAINT `fk_step_dependencyID` FOREIGN KEY (`dependencyID`) REFERENCES `dependencies` (`dependencyID`),
@@ -13202,36 +13231,36 @@ INSERT INTO `step_dependencies` (`stepID`, `dependencyID`) VALUES
 
 DROP TABLE IF EXISTS `step_modules`;
 CREATE TABLE `step_modules` (
-  `stepID` smallint(6) NOT NULL,
+  `stepID` smallint NOT NULL,
   `moduleName` varchar(50) NOT NULL,
   `moduleConfig` text NOT NULL,
   UNIQUE KEY `stepID_moduleName` (`stepID`,`moduleName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `tags`;
 CREATE TABLE `tags` (
-  `recordID` mediumint(8) unsigned NOT NULL,
+  `recordID` mediumint unsigned NOT NULL,
   `tag` varchar(50) NOT NULL,
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int unsigned NOT NULL DEFAULT '0',
   `userID` varchar(50) NOT NULL,
   UNIQUE KEY `recordID` (`recordID`,`tag`),
   KEY `tag` (`tag`),
   CONSTRAINT `fk_records_tags_deletion` FOREIGN KEY (`recordID`) REFERENCES `records` (`recordID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 DROP TABLE IF EXISTS `template_history_files`;
 CREATE TABLE `template_history_files` (
-  `file_id` int(11) NOT NULL AUTO_INCREMENT,
+  `file_id` int NOT NULL AUTO_INCREMENT,
   `file_parent_name` text,
   `file_name` text,
   `file_path` text,
-  `file_size` mediumint(9) DEFAULT NULL,
+  `file_size` mediumint DEFAULT NULL,
   `file_modify_by` text,
   `file_created` text,
   PRIMARY KEY (`file_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `template_history_files` (`file_id`, `file_parent_name`, `file_name`, `file_path`, `file_size`, `file_modify_by`, `file_created`) VALUES
 (1,	'Mass_data_generate',	'1694021344_Mass_data_generate.tpl',	'../templates_history/leaf_programmer/1694021344_Mass_data_generate.tpl',	1729,	'tester tester',	'2023-09-06 05:29:04'),
@@ -13249,14 +13278,14 @@ INSERT INTO `template_history_files` (`file_id`, `file_parent_name`, `file_name`
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `userID` varchar(50) NOT NULL,
-  `groupID` mediumint(9) NOT NULL,
+  `groupID` mediumint NOT NULL,
   `backupID` varchar(50) NOT NULL DEFAULT '',
   `primary_admin` tinyint(1) NOT NULL DEFAULT '0',
   `locallyManaged` tinyint(1) DEFAULT '0',
-  `active` tinyint(4) NOT NULL DEFAULT '1',
+  `active` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`userID`,`groupID`,`backupID`),
   KEY `groupID` (`groupID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `users` (`userID`, `groupID`, `backupID`, `primary_admin`, `locallyManaged`, `active`) VALUES
 ('tester',	1,	'',	0,	0,	1),
@@ -13309,27 +13338,11 @@ INSERT INTO `users` (`userID`, `groupID`, `backupID`, `primary_admin`, `locallyM
 ('VTRXSNELIZA',	203,	'',	0,	0,	1),
 ('VTRYZIORA',	107,	'',	0,	0,	1);
 
-DROP TABLE IF EXISTS `workflows`;
-CREATE TABLE `workflows` (
-  `workflowID` smallint(6) NOT NULL AUTO_INCREMENT,
-  `initialStepID` smallint(6) NOT NULL DEFAULT '0',
-  `description` varchar(64) NOT NULL,
-  PRIMARY KEY (`workflowID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-INSERT INTO `workflows` (`workflowID`, `initialStepID`, `description`) VALUES
-(-2,	-4,	'Leaf Developer Console'),
-(-1,	-3,	'LEAF Secure Certification'),
-(1,	1,	'General Workflow'),
-(2,	5,	'Test Requestor Followup'),
-(3,	7,	'Service Chief'),
-(4,	8,	'Multiple person designated');
-
 DROP TABLE IF EXISTS `workflow_routes`;
 CREATE TABLE `workflow_routes` (
-  `workflowID` smallint(6) NOT NULL,
-  `stepID` smallint(6) NOT NULL,
-  `nextStepID` smallint(6) NOT NULL,
+  `workflowID` smallint NOT NULL,
+  `stepID` smallint NOT NULL,
+  `nextStepID` smallint NOT NULL,
   `actionType` varchar(50) NOT NULL,
   `displayConditional` text NOT NULL,
   UNIQUE KEY `workflowID` (`workflowID`,`stepID`,`actionType`),
@@ -13364,17 +13377,17 @@ INSERT INTO `workflow_routes` (`workflowID`, `stepID`, `nextStepID`, `actionType
 
 DROP TABLE IF EXISTS `workflow_steps`;
 CREATE TABLE `workflow_steps` (
-  `workflowID` smallint(6) NOT NULL,
-  `stepID` smallint(6) NOT NULL AUTO_INCREMENT,
+  `workflowID` smallint NOT NULL,
+  `stepID` smallint NOT NULL AUTO_INCREMENT,
   `stepTitle` varchar(64) NOT NULL,
   `stepBgColor` varchar(10) NOT NULL DEFAULT '#fffdcd',
   `stepFontColor` varchar(10) NOT NULL DEFAULT 'black',
   `stepBorder` varchar(20) NOT NULL DEFAULT '1px solid black',
   `jsSrc` varchar(128) NOT NULL,
-  `posX` smallint(6) DEFAULT NULL,
-  `posY` smallint(6) DEFAULT NULL,
-  `indicatorID_for_assigned_empUID` smallint(6) DEFAULT NULL,
-  `indicatorID_for_assigned_groupID` smallint(6) DEFAULT NULL,
+  `posX` smallint DEFAULT NULL,
+  `posY` smallint DEFAULT NULL,
+  `indicatorID_for_assigned_empUID` smallint DEFAULT NULL,
+  `indicatorID_for_assigned_groupID` smallint DEFAULT NULL,
   `requiresDigitalSignature` tinyint(1) DEFAULT NULL,
   `stepData` text,
   PRIMARY KEY (`stepID`),
@@ -13394,3 +13407,20 @@ INSERT INTO `workflow_steps` (`workflowID`, `stepID`, `stepTitle`, `stepBgColor`
 (3,	7,	'Service Chief',	'#fffdcd',	'black',	'1px solid black',	'',	625,	135,	NULL,	NULL,	NULL,	NULL),
 (4,	8,	'Reviewer 1',	'#fffdcd',	'black',	'1px solid black',	'',	526,	147,	14,	NULL,	NULL,	NULL),
 (4,	9,	'Reviewer 2',	'#fffdcd',	'black',	'1px solid black',	'',	530,	242,	15,	NULL,	NULL,	NULL);
+
+DROP TABLE IF EXISTS `workflows`;
+CREATE TABLE `workflows` (
+  `workflowID` smallint NOT NULL AUTO_INCREMENT,
+  `initialStepID` smallint NOT NULL DEFAULT '0',
+  `description` varchar(64) NOT NULL,
+  PRIMARY KEY (`workflowID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `workflows` (`workflowID`, `initialStepID`, `description`) VALUES
+(-2,	-4,	'Leaf Developer Console'),
+(-1,	-3,	'LEAF Secure Certification'),
+(1,	1,	'General Workflow'),
+(2,	5,	'Test Requestor Followup'),
+(3,	7,	'Service Chief'),
+(4,	8,	'Multiple person designated');
+

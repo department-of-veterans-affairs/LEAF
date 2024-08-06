@@ -1,74 +1,57 @@
-# Prerequisites
+# LEAF Development Environment
 
-Install Git
+## Prerequisites
+- Git
+- Docker:  You'll need to ensure that your hosts file has a line pointing *.docker.internal to localhost (127.0.0.1)
 
-Install Docker for Desktop
+## Installation
 
-# Installation
+Open up a terminal and enter these commands: 
+######    
+    git config --global core.autocrlf false
 
-Open Git Bash
-Run the command `git config --global core.autocrlf false`
-Clone this project into a directory on your computer (example: C:\Desktop\Projects).
-`git clone <repo url>`
-
-# Configuration
-
-Initial setup will require you to setup a couple networks to allow for a full build
-
-`docker network create leaf`
-
-`docker network create traefik`
-
-`docker network create leaf-sql`
-
-## Docker Compose
-
-Open up a terminal and navigate to the LEAF/docker directory.
-Run the command `docker compose up --build -d`
-Docker will build the local environment based on the docker-compose.yml file.
-Check to see that docker is running your local environment.
-
-Adding -p before `up` allows you to name your dockers, so for example database
-moves from mariadb to mysql you can keep the two containers separate. for example `docker compose -p leaf_20 up --build -d`
+  - Or ensure that `./docker/mysql/dev_bootstrap.sh uses the LF end-of-line sequence instead of CRLF.
+######
+    git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
+######
+    cd LEAF/docker
+######
+    docker network create leaf
+    docker network create leaf-sql
+    docker volume create leaf-php-data
+    docker volume create leaf-lib
 
 ## Running
 
-Navigate to https://host.docker.internal/LEAF_Nexus or https://host.docker.internal/LEAF_Request_Portal in your browser. There is another entry point that will allow for running of testing scripts located at https://host.docker.internal/ clicking on the links for testing will run the tests within the browser.
+1. Make sure you're in the LEAF/docker directory
+2. Run the below command.  Note that this can take several minutes the first time it is run.
+###### 
+    docker compose up --build -d
 
-## Exploring Database
+3. Open your browser and go to https://host.docker.internal/ 
 
-`http://localhost:8080/` this will get you into the database to allow for data adjustments and additions.
+## Development
 
-Username: tester
-Password: tester
+### Vue Development
 
-## Checking Email
+The leaf_vue_ui container is used for the Form Editor and Site Designer Vue apps, and for the updated admin-side SASS files.
 
-Fake SMTP server is installed as part of the Docker stack to receive email locally from the system. Navigate to https://localhost:5080/email to view emails sent from the system.
+#### Devlopment mode
 
-Username: tester
-Password: tester
+Log in to container, access the terminal, and run the command:
+######
+    npm run dev
 
-## Vue Development
+Webpack will watch for changes to /docker/vue-app/src
 
-This container is used for the Form Editor and Site Designer Vue apps, and for the updated admin-side SASS files.
-
-Dev mode: Log in to container, bash, and run the command:
-
-npm run dev
-
-webpack will watch for changes to /docker/vue-app/src
 **Remember to build for production if src files have been edited**
 
-Production mode: Log in to container, bash, and run the command:
+#### Production mode
 
-npm run build
+Log in to container, access the terminal, and run the command:
+######
+    npm run build
 
 form editor and site designer apps builds to respective folders under /libs/js/vue-dest
 sass (leaf.css and related fonts and assets) builds to /libs/css
 
-## Running without HTTPS
-
-### Docker
-
-In `docker/docker-compose.yml`, comment out the line `- 443:443`. Next, in `docker/php/Dockerfile`, comment out the line `EXPOSE 443`. Finally, rebuild the images with `docker compose build --no-cache` and navigate to http://host.docker.internal/LEAF_Nexus or http://host.docker.internal/LEAF_Request_Portal.

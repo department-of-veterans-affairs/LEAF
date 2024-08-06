@@ -220,13 +220,6 @@ export default {
         </div>
         <div v-if="!loading" id="edit-properties-other-properties">
             <div style="display:flex; justify-content: space-between;">
-                <button type="button" id="editFormPermissions" class="btn-general"
-                    style="width: fit-content;"
-                    @click="openEditCollaboratorsDialog"
-                    :title="hasCollaborators ? 'Manage Collaborators (Collaborators present)' : 'Manage Collaborators'">
-                    <span v-if="hasCollaborators" role="img" aria="">🔓︎&nbsp;</span>
-                    Edit Special Write Access
-                </button>
                 <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog(focusedFormRecord.categoryID)"
                     style="display: none;">
                 </button>
@@ -234,7 +227,7 @@ export default {
             <template v-if="!isSubForm">
                 <div class="panel-properties">
                     <div id="workflow_info" v-if="!isStaple && workflowRecords.length > 0">
-                        <label for="workflowID">Workflow
+                        <label for="workflowID">Workflow: 
                             <select id="workflowID" name="select-workflow" @change="updateWorkflow"
                                 title="select workflow"
                                 v-model.number="workflowID"
@@ -248,7 +241,7 @@ export default {
                                     <option v-if="parseInt(r.workflowID) > 0"
                                         :value="r.workflowID"
                                         :selected="workflowID === parseInt(r.workflowID)">
-                                        ID#{{r.workflowID}}: {{truncateText(r.description,32)}}
+                                        ID#{{r.workflowID}}: {{truncateText(decodeAndStripHTML(r.description),32)}}
                                     </option>
                                 </template>
                             </select>
@@ -259,13 +252,24 @@ export default {
                     </div>
                     <div v-if="!workflowsLoading && workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
-                    <label for="availability" title="When hidden, users will not be able to select this form">Availability
+                    <label for="availability" title="When hidden, users will not be able to select this form">Status: 
                         <select id="availability" title="Select Availability" v-model.number="visible" @change="updateAvailability">
                             <option value="1" :selected="visible === 1">Available</option>
                             <option value="0" :selected="visible === 0">Hidden</option>
                         </select>
                     </label>
-                    <label for="formType">Form Type
+                    <div v-if="focusedFormIsSensitive" style="display:flex; color: #a00;">
+                        <div style="display:flex; align-items: center;"><b>Need to know: </b></div> &nbsp;
+                        <div style="display:flex; align-items: center;">Forced On because sensitive fields are present</div>
+                    </div>
+                    <label v-else for="needToKnow"
+                        title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know: 
+                        <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#a00' : 'black'}" @change="updateNeedToKnow">
+                            <option value="0" :selected="!isNeedToKnow">Off</option>
+                            <option value="1" style="color: #a00;" :selected="isNeedToKnow">On</option>
+                        </select>
+                    </label>
+                    <label for="formType">Form Type: 
                         <select id="formType" title="Change type of form" v-model="type" @change="updateType">
                             <option value="" :selected="type === ''">Standard</option>
                             <option value="parallel_processing" :selected="type === 'parallel_processing'">Parallel Processing</option>
@@ -281,17 +285,6 @@ export default {
                             </select>
                         </label>
                     </div>
-                    <div v-if="focusedFormIsSensitive" style="display:flex; color: #a00;">
-                        <div style="display:flex; align-items: center;"><b>Need to know: {{isNeedToKnow ? 'on' : 'off'}}</b></div> &nbsp;
-                        <div style="display:flex; align-items: center; font-size:90%;">(forced on because sensitive fields are present)</div>
-                    </div>
-                    <label v-else for="needToKnow"
-                        title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know
-                        <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#a00' : 'black'}" @change="updateNeedToKnow">
-                            <option value="0" :selected="!isNeedToKnow">Off</option>
-                            <option value="1" style="color: #a00;" :selected="isNeedToKnow">On</option>
-                        </select>
-                    </label>
                 </div>
             </template>
             <div v-else style="margin-top: auto;">This is an Internal Form</div>

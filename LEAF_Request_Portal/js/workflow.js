@@ -187,11 +187,13 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 error: function (response) {
                     if (data["dependencyID"] === null) {
                         $("#workflowbox_dep" + data["dependencyID"]).html(
-                            '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Requirement from current step is missing<br/> Please contact administrator to add requirement to current step</div>'
+                            `<div style="border: 2px solid red; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error ${response.status}: ${response.responseText}</div>`
                         );
                     } else {
                         $("#workflowbox_dep" + data["dependencyID"]).html(
-                            '<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error: Workflow Events may not have triggered</div>'
+                            `<div style="border: 2px solid red; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Error ${response.status}: ${response.responseText}
+                                <p>Workflow Events may not have triggered</p>
+                            </div>`
                         );
                     }
                 },
@@ -207,7 +209,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         // draw frame and header
         let stepDescription =
             step.description == null
-                ? "Your workflow is missing a requirement. Please check your workflow."
+                ? "Error: The configuration in the Workflow Editor is incomplete."
                 : step.description;
 
         $("#" + containerID).append(
@@ -669,7 +671,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             response.comment != null
                         ) {
                             text +=
-                                '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px">' +
+                                '<div style="font-size: 80%; padding: 4px 8px 4px 8px">Comment:<br /><div style="font-weight: normal; padding-left: 16px; font-size: 12px; word-break:break-word;">' +
                                 response.comment +
                                 "</div></div>";
                         }
@@ -727,7 +729,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             response.comment != null
                         ) {
                             text +=
-                                '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
+                                '<div style="padding: 4px 16px"><fieldset style="border: 1px solid black;word-break:break-word;"><legend class="noprint">Comment</legend><span style="font-size: 80%; font-weight: normal">' +
                                 response.comment +
                                 "</span></fieldset></div>";
                         }

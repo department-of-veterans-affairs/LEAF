@@ -17,7 +17,7 @@ var printer = function () {
     var requestInfo = new Object();
     var internalInfo = new Array();
     var homeQR = document.createElement("img");
-    var homeURL = encodeURIComponent($('a[href="./"]')[0].href);
+    const homeURL = encodeURIComponent(portal_path + '/');
     //get QR code of record
     homeQR.setAttribute("class", "print nodisplay");
     homeQR.setAttribute("style", "width: 72px");
@@ -186,7 +186,6 @@ var printer = function () {
         var splitTitle = [];
         var splitOption = [];
         var format = indicator.format;
-        console.log(indicator.format);
         if (
           format === "text" &&
           ((indicator.value && indicator.value.length > 30) ||

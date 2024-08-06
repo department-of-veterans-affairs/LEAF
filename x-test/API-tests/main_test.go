@@ -14,16 +14,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var rootURL = "https://host.docker.internal/LEAF_Request_Portal/"
-var natOrgURL = "https://host.docker.internal/LEAF_NationalNexus/"
-var orgURL = "https://host.docker.internal/LEAF_Nexus/"
+const RootURL = "https://host.docker.internal/LEAF_Request_Portal/"
+const NationalOrgchartURL = "https://host.docker.internal/LEAF_NationalNexus/"
+const RootOrgchartURL = "https://host.docker.internal/LEAF_Nexus/"
+
 var dbHost = "leaf-mysql"
 var dbUsername = os.Getenv("MYSQL_USER")
 var dbPassword = os.Getenv("MYSQL_PASSWORD")
 var testPortalDbName = "leaf_portal_API_testing"
 var testNexusDbName = "leaf_users_API_testing"
 
-var csrfToken string
+var CsrfToken string
 
 var tr = &http.Transport{
 	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -38,10 +39,9 @@ var client = &http.Client{
 
 // TestMain performs initial setup and logs into the dev environment.
 // In dev, the current username is set via REMOTE_USER docker environment
-// Tests must not trigger Fatal. See teardownTestDB()
 func TestMain(m *testing.M) {
 
-	req, _ := http.NewRequest("GET", rootURL, nil)
+	req, _ := http.NewRequest("GET", RootURL, nil)
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.46")
 	res, err := client.Do(req)
 	if err != nil {
@@ -56,9 +56,11 @@ func TestMain(m *testing.M) {
 
 	startIdx := strings.Index(body, "var CSRFToken = '") + 17
 	endIdx := strings.Index(body[startIdx:], "';")
-	csrfToken = body[startIdx : startIdx+endIdx]
+	CsrfToken = body[startIdx : startIdx+endIdx]
 
 	setupTestDB()
+
+	updateTestDBSchema()
 
 	code := m.Run()
 

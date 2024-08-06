@@ -27,8 +27,11 @@
             </label>
             <!--{else}-->
             <span <!--{if $indicator.format == null || $indicator.format == 'fileupload' || $indicator.format == 'image' }-->tabindex="0"<!--{/if}--> id="format_label_<!--{$indicator.indicatorID|strip_tags}-->">
-                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><!--{if $indicator.is_sensitive == 1}--><span style="margin-left: 8px; color: #d00;">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span> <!--{/if}--><br />
+                <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><br />
             </span>
+            <!--{/if}-->
+            <!--{if $indicator.format == ''}-->
+                <!--{$indicator.html}-->
             <!--{/if}-->
             </div>
         <!--{else}-->
@@ -46,8 +49,7 @@
                     <!--{/if}-->
             </span>
             <!--{/if}-->
-            <!--{if $indicator.is_sensitive == 1}--><span role="button" aria-label="sensitive. Click here to toggle display" tabindex="0" id="<!--{$indicator.indicatorID|strip_tags}-->_sensitive" style="margin-left: 8px; color: #d00; background-repeat: no-repeat; background-image: url('dynicons/?img=eye_invisible.svg&w=16'); background-position-x: 70px;" onclick="toggleSensitive(<!--{$indicator.indicatorID|strip_tags}-->);" onkeydown="if (event.keyCode==13){ this.click(); }">*&nbsp;Sensitive &nbsp; &nbsp; &nbsp;</span><span id="sensitiveStatus" aria-label="sensitive data hidden" style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" role="status" aria-live="assertive" aria-atomic="true"></span> <!--{/if}-->
-                <!--{/if}-->
+        <!--{/if}-->
         </div>
         <div class="response blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
         <!--{if $indicator.isMasked == 1 && $indicator.value != ''}-->
@@ -277,6 +279,7 @@
                             selected: values.some(v => decodeHTMLEntities(v) === o)
                         }));
                         const choices = new Choices(elSelect, {
+                            placeholderValue: 'Type here to search',
                             allowHTML: false,
                             removeItemButton: true,
                             editItems: true,
@@ -373,7 +376,7 @@
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
-                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
@@ -451,7 +454,7 @@
             <span class="text" style="position:relative;">
                 <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="background: url(dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value|sanitize}-->" />
                 <input class="ui-helper-hidden-accessible" id="<!--{$indicator.indicatorID|strip_tags}-->_focusfix" type="text" />
-                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Incorrect Date</span>
+                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Date formatted incorrectly</span>
             </span>
             <script>
             $(function() {
@@ -555,7 +558,7 @@
             <!--{if $indicator.required == 1}-->
             formRequired["id<!--{$indicator.indicatorID}-->"] = {
                 setRequired: function() {
-                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val() == '');
+                    return ($('#<!--{$indicator.indicatorID|strip_tags}-->').val().trim() == '');
                 },
                 setSubmitError: function() {
                     $([document.documentElement, document.body]).animate({
@@ -1118,7 +1121,7 @@
                                     $('#<!--{$indicator.indicatorID|strip_tags}-->').trigger('change');
                                     $('#loadingIndicator_<!--{$indicator.indicatorID}-->').html('');
                                 },
-                                fail: function(err) {
+                                error: function(err) {
                                     console.log(err);
                                 }
                             });

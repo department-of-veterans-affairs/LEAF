@@ -68,7 +68,6 @@ export default {
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>
                 <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Restore Fields
-                <a href="./?a=form#" class="leaf-crumb-link" style="margin-left: auto; font-size:80%;">Back to old Form Editor</a>
             </h2>
             <h3>List of disabled fields available for recovery</h3>
             <div>Deleted fields and associated data will be not display in the Report Builder</div>

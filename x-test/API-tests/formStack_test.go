@@ -2,17 +2,17 @@ package main
 
 import (
 	"encoding/json"
-	"net/url"
 	"io"
 	"log"
-	"testing"
+	"net/url"
 	"strconv"
+	"testing"
 
 	"github.com/google/go-cmp/cmp"
 )
 
 func TestFormStack_Version(t *testing.T) {
-	got, _ := httpGet(rootURL + "api/formStack/version")
+	got, _ := httpGet(RootURL + "api/formStack/version")
 	want := `"1"`
 
 	if !cmp.Equal(got, want) {
@@ -22,12 +22,12 @@ func TestFormStack_Version(t *testing.T) {
 
 func postNewForm() string {
 	postData := url.Values{}
-	postData.Set("CSRFToken", csrfToken)
+	postData.Set("CSRFToken", CsrfToken)
 	postData.Set("name", "Test New Form")
 	postData.Set("description", "Test New Form Description")
 	postData.Set("parentID", "")
 
-	res, _ := client.PostForm(rootURL+`api/formEditor/new`, postData)
+	res, _ := client.PostForm(RootURL+`api/formEditor/new`, postData)
 	bodyBytes, _ := io.ReadAll(res.Body)
 
 	var c string
@@ -51,7 +51,6 @@ func getFormStack(url string) FormStackResponse {
 	return m
 }
 
-
 func TestFormStack_NewFormProperties(t *testing.T) {
 	catID := postNewForm()
 
@@ -61,7 +60,7 @@ func TestFormStack_NewFormProperties(t *testing.T) {
 		t.Errorf("new form return value length, got = %v, want = %v", gotLen, wantLen)
 	}
 
-	res := getFormStack(rootURL + `api/formStack/categoryList/all`)
+	res := getFormStack(RootURL + `api/formStack/categoryList/all`)
 
 	categoryTable := map[string]*FormStackCategory{}
 	for _, v := range res {
@@ -70,7 +69,7 @@ func TestFormStack_NewFormProperties(t *testing.T) {
 	}
 
 	category := categoryTable[catID]
-	if(category == nil) {
+	if category == nil {
 		t.Errorf("New Form not found in table")
 		return
 	}

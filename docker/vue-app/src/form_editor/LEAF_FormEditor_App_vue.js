@@ -11,7 +11,7 @@ export default {
             libsPath: libsPath,
             orgchartPath: orgchartPath,
             CSRFToken: CSRFToken,
-            hasDevConsoleAccess: +hasDevConsoleAccess,
+            hasDevConsoleAccess: hasDevConsoleAccess,
             ajaxResponseMessage: '',
 
             siteSettings: {},
@@ -208,9 +208,10 @@ export default {
             }
         },
         /**
+         * @param {string} catID new form ID used to route after importing a form from within the form editor
          * @returns {object} main keys are categoryIDs. Values are obj w fields from non-built-in, enabled categories and workflows tables
          */
-        getEnabledCategories() {
+        getEnabledCategories(catID = '') {
             this.appIsLoadingCategories = true;
             try {
                 fetch(`${this.APIroot}formStack/categoryList/allWithStaples`).then(res => {
@@ -225,6 +226,14 @@ export default {
                             });
                         }
                         this.appIsLoadingCategories = false;
+                        if(catID && /^form_[0-9a-f]{5}$/i.test(catID) === true) {
+                            this.$router.push({
+                                name:'category',
+                                query:{
+                                    formID: catID,
+                                }
+                            });
+                        }
                     });
                 });
             } catch(error) {
@@ -276,10 +285,9 @@ export default {
             let secureCalls = [
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}form/indicator/list`,
+                    url: `${this.APIroot}form/indicator/list?x-filterData=timeAdded`,
                     success: (res)=> {},
                     error: (err) => console.log(err),
-                    cache: false,
                 }),
 
                 this.fetchLEAFSRequests(true)
@@ -451,7 +459,7 @@ export default {
             this.showFormDialog = true;
         },
         openEditCollaboratorsDialog() {
-            this.setCustomDialogTitle('<h2>Editing Collaborators</h2>');
+            this.setCustomDialogTitle('<h2>Customize Write Access</h2>');
             this.setFormDialogComponent('edit-collaborators-dialog');
             this.dialogButtonText = {confirm: 'Add', cancel: 'Close'};
             this.showFormDialog = true;
@@ -514,6 +522,7 @@ export default {
         openImportFormDialog() {
             this.setCustomDialogTitle('<h2>Import Form</h2>');
             this.setFormDialogComponent('import-form-dialog');
+            this.dialogButtonText = {confirm: 'Import', cancel: 'Close'};
             this.showFormDialog = true;  
         },
         openFormHistoryDialog(catID = '') {

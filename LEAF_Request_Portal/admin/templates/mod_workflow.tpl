@@ -1,19 +1,19 @@
 <div id="workflow_editor">
     <div id="sideBar">
         <div>
-            <label id="steps_label" for="workflow_steps"> Workflow Steps:</label>
-            <div id="stepList"></div>
-        </div>
-        <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();">
-            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Step
-        </button>
-
-        <div style="margin-top:0.5rem;">
             <label id="workflows_label" for="workflows"> Workflows:</label>
             <div id="workflowList"></div>
         </div>
         <button type="button" id="btn_newWorkflow" class="buttonNorm" onclick="newWorkflow();">
             <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Workflow
+        </button>
+
+        <div style="margin-top:0.5rem;">
+            <label id="steps_label" for="workflow_steps"> Workflow Steps:</label>
+            <div id="stepList"></div>
+        </div>
+        <button type="button" id="btn_createStep" class="buttonNorm" onclick="createStep();">
+            <img src="../dynicons/?img=list-add.svg&w=26" alt="" /> New Step
         </button>
 
         <hr />
@@ -79,7 +79,10 @@
             let workflowID;
 
             postWorkflow(function(workflow_id) {
-                loadWorkflowList(workflow_id);
+                let url = new URL(window.location.href);
+                url.searchParams.set('workflowID', workflow_id);
+                window.history.replaceState(null, null, url.toString());
+                loadWorkflowList();
                 dialog.hide();
             });
         });
@@ -956,24 +959,31 @@
     }
 
     function newDependency(stepID) {
+        let saving = false;
         dialog.setTitle('Create a new requirement');
         dialog.setContent(
             '<br /><label for="description">Requirement Label: </label><input type="text" id="description"/><br /><br />Requirements determine the WHO and WHAT part of the process.<br />Example: "Fiscal Team Review"'
         );
 
         dialog.setSaveHandler(function() {
-                $.ajax({
-                        type: 'POST',
-                        url: '../api/workflow/dependencies',
-                        data: {description: $('#description').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        dialog.hide();
-                        dependencyGrantAccess(res, stepID);
-                    },
-                    error: (err) => console.log(err),
-                });
+            saving = true;
+            $.ajax({
+                    type: 'POST',
+                    url: '../api/workflow/dependencies',
+                    data: {description: $('#description').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    dialog.hide();
+                    dependencyGrantAccess(res, stepID);
+                },
+                error: (err) => console.log(err),
+            });
+        });
+        dialog.setCancelHandler(function() {
+            if(saving === false) {
+                showStepInfo(stepID);
+            }
         });
         dialog.show();
     }
@@ -1017,8 +1027,8 @@
 
                 buffer += '</select></div>';
                 buffer +=
-                    '<br /><br /><br /><div>If a requirement does not exist: <button type="button" class="buttonNorm" style="font-size:1rem;padding:0.25em;" onclick="newDependency(' + stepID +
-                    ')">Create a new requirement</button></div>';
+                    '<br /><br /><br /><div>If a requirement does not exist: ' +
+                    '<button type="button" id="btn_newDependency" class="buttonNorm" style="font-size:1rem;padding:0.25em;">Create a new requirement</button></div>';
                 $('#dependencyList').html(buffer);
                 $('#xhrDialog').css('overflow', 'visible');
                 $('#dependencyID').chosen({
@@ -1027,6 +1037,10 @@
                 updateChosenAttributes("dependencyID", "requirements_label", "Select Requirement");
 
                 let saving = false;
+                $('#btn_newDependency').on('click', ()=> {
+                    saving = true;
+                    newDependency(stepID);
+                });
                 dialog.setCancelHandler(function() {
                     if(saving === false) {
                         showStepInfo(stepID);
@@ -1515,7 +1529,7 @@
             </li>`;
             output += '</ul></div>';
             output +=
-                `<hr /><div style="padding: 4px"><button type="button" class="buttonNorm" 
+                `<hr /><div style="padding: 4px"><button type="button" class="buttonNorm"
                     onclick="removeAction('${currentWorkflow}', '${stepID}', '${params.nextStepID}', '${params.action}', ${reopenStepID})">Remove Action</button></div>`;
             $('#stepInfo_' + stepID).html(output);
             $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
@@ -1755,13 +1769,14 @@
         }
     }
 
-    /** 
+    /**
     * close the step or action info modal.
     * @param {string} stepID - active modal step
     * @param {string} reopenStepID - used to reopen the stepinfo modal if viewing actions via the stepinfo modal
     */
     function closeStepInfo(stepID = "", reopenStepID = null) {
         $('.workflowStepInfo').css('display', 'none');
+        $('.workflowStep').attr('aria-expanded', false);
         $('#stepInfo_' + stepID).html("");
         if(reopenStepID === null) {
             $(`#workflow_steps_chosen input.chosen-search-input`).focus();
@@ -1781,6 +1796,7 @@
     function modalSetup(stepID) {
         const modalEl = document.getElementById('stepInfo_' + stepID);
         if(modalEl !== null) {
+            $('#step_' + stepID).attr('aria-expanded', true);
             const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
             const first = interActiveEls[0] || null
             const last = interActiveEls[interActiveEls.length - 1] || null;
@@ -1801,6 +1817,7 @@
 
     function showStepInfo(stepID) {
         $('.workflowStepInfo').off();
+        $('.workflowStep').attr('aria-expanded', false);
         $('.workflowStepInfo').html('');
         if ($('#stepInfo_' + stepID).css('display') != 'none') { // hide info window on second step click
             $('.workflowStepInfo').css('display', 'none');
@@ -1843,7 +1860,7 @@
             if(stepID !== -1) {
                 routeOptions += `<option value="-1">Requestor</option>`;
                 routeOptions += `<option value="${stepID}">Self</option>`;
-            }  
+            }
             routeOptions += `${step_options}</select><div>`;
         }
         const actionList = buildRoutesList(+stepID, +currentWorkflow);
@@ -1938,7 +1955,7 @@
                                     tDeps[depID] = 1;
                                     output += `<li>
                                         <b tabindex=0 title="depID: ${res[i].dependencyID}"
-                                            onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess('${res[i].dependencyID},${stepID})">
+                                            onkeydown="onKeyPressClick(event)" onclick="dependencyGrantAccess(${res[i].dependencyID},${stepID})">
                                             ${res[i].description}
                                         </b>
                                         ${control_editDependency} ${control_unlinkDependency}
@@ -2034,7 +2051,7 @@
                     cache: false
                 });
                 break;
-        } 
+        }
     }
 
     var endPoints = [];
@@ -2165,11 +2182,6 @@
                 });
                 jsPlumb.setSuspendDrawing(false, true);
 
-                let actionOverlays = Array.from(document.querySelectorAll('div.jtk-overlay.workflowAction'));
-                actionOverlays.forEach(ao => {
-                    ao.setAttribute('tabindex', 0);
-                    ao.addEventListener('keydown', onKeyPressClick);
-                });
                 //if user came via stepinfo key nav re-open that modal
                 if(stepID !== null) {
                     showStepInfo(stepID);
@@ -2194,20 +2206,19 @@
 
         $('#workflow').html('');
         $('#workflow').append(
-            '<div tabindex="0" class="workflowStep" id="step_-1" tabindex="0">Requestor</div><div class="workflowStepInfo" id="stepInfo_-1"></div>'
+            `<button type="button" class="workflowStep" id="step_-1"
+                aria-label="workflow step: Requestor"
+                aria-controls="stepInfo_-1"
+                aria-expanded="false"
+                onclick="showStepInfo(-1)">
+                Requestor
+            </button>
+            <div class="workflowStepInfo" id="stepInfo_-1"></div>`
         );
         $('#step_-1').css({
             'left': 180 + 40 + 'px',
             'top': 80 + 40 + 'px',
             'background-color': '#e0e0e0'
-        });
-        $('#workflow').append(
-            '<div tabindex="0" class="workflowStep" id="step_0">End</div><div class="workflowStepInfo" id="stepInfo_0"></div>'
-        );
-        $('#step_0').css({
-            'left': 180 + 40 + 'px',
-            'top': 80 + 40 + 'px',
-            'background-color': '#ff8181'
         });
 
         $.ajax({
@@ -2233,9 +2244,14 @@
                         }
                     }
 
-                    $('#workflow').append('<div tabindex="0" class="workflowStep" id="step_' + res[i]
-                        .stepID + '">' + res[i].stepTitle + ' ' + emailNotificationIcon +
-                        '</div><div class="workflowStepInfo" id="stepInfo_' + res[i].stepID + '"></div>'
+                    $('#workflow').append(`<button type="button" class="workflowStep" id="step_${res[i].stepID}"
+                        aria-label="workflow step: ${res[i].stepTitle}"
+                        aria-controls="stepInfo_${res[i].stepID}"
+                        aria-expanded="false"
+                        onclick="showStepInfo(${res[i].stepID})">
+                            ${res[i].stepTitle} ${emailNotificationIcon}
+                        </button>
+                        <div class="workflowStepInfo" id="stepInfo_${res[i].stepID}"></div>`
                     );
 
                     $('#step_' + res[i].stepID).css({
@@ -2258,41 +2274,47 @@
                         });
                     }
 
-                    // attach click event
-                    $('#step_' + res[i].stepID).on('click keydown', null, res[i].stepID, function(e) {
-                        if (e.type === 'keydown' && e.which === 13 || e.type === 'click') {
-                            showStepInfo(e.data);
-                        }
-                    });
-
                     if (maxY < posY) {
                         maxY = posY;
                     }
                 }
-                // draw the last step
+                //append and draw the last step
+                $('#workflow').append(`<button type="button" class="workflowStep" id="step_0"
+                    aria-label="Workflow End"
+                    aria-controls="stepInfo_0"
+                    aria-expanded="false"
+                    onclick="showStepInfo(0)">
+                        End
+                    </button>
+                    <div class="workflowStepInfo" id="stepInfo_0"></div>`
+                );
                 $('#step_0').css({
                     'left': 180 + 400 + 'px',
                     'top': 160 + maxY + 'px',
                     'background-color': '#ff8181'
                 });
-                // attach click events for first and last step
-                $('#step_-1').on('click', null, -1, function(e) {
-                    showStepInfo(e.data);
-                });
-                $('#step_0').on('click', null, 0, function(e) {
-                    showStepInfo(e.data);
-                });
 
                 $('#workflow').css('height', 300 + maxY + 'px');
                 drawRoutes(workflowID, stepID);
                 buildStepList(steps);
+
+                if(window.location.href.indexOf(`?a=workflow&workflowID=${workflowID}`) == -1) {
+                    window.history.pushState('', '', `?a=workflow&workflowID=${workflowID}`);
+                }
             },
             error: (err) => console.log(err),
             cache: false
         });
     }
 
-    function loadWorkflowList(workflowID) {
+    function loadWorkflowList() {
+        // Don't show built-in workflows unless 'dev' exists as a GET parameter
+        let devMode = false;
+        let urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('dev') != null) {
+            devMode = true;
+        }
+        
         $.ajax({
             async: false,
             type: 'GET',
@@ -2310,6 +2332,10 @@
                         firstWorkflowID = res[i].workflowID;
                     }
                     workflows[res[i].workflowID] = res[i];
+
+                    if(Number(res[i].workflowID) < 0 && !devMode) {
+                        continue;
+                    }
                     output += '<option value="' + res[i].workflowID + '" description = "' + res[i]
                         .description +
                         '"><b>' + res[i].description +
@@ -2400,7 +2426,7 @@
     }
 
     function buildRoutesList(stepID, workflowID) {
-        let allRoutes = [...routes];
+        let allRoutes = structuredClone(routes);
         let hasSubmit = false;
         allRoutes.forEach(r => {
             if(r.actionType === "sendback") {
@@ -2489,7 +2515,11 @@
                         alert("Prerequisite action needed:\n\n" + res);
                         dialog.hide();
                     } else {
-                        loadWorkflowList(res);
+                        let url = new URL(window.location.href);
+                        url.searchParams.set('workflowID', res);
+                        window.history.replaceState(null, null, url.toString());
+
+                        loadWorkflowList();
                         workflowDescription = $('#workflow_rename').val();
                         dialog.hide();
                     }
@@ -2582,7 +2612,12 @@
 
             updateRoutes(workflowID, old_steps);
             updateRouteEvents(currentWorkflow, workflowID, old_steps);
-            loadWorkflowList(workflowID);
+
+            let url = new URL(window.location.href);
+            url.searchParams.set('workflowID', workflowID);
+            window.history.replaceState(null, null, url.toString());
+
+            loadWorkflowList();
         });
         dialog.show();
     }
@@ -3145,6 +3180,7 @@
     $(document).on('mousedown', function(e) {
         let container = $(".workflowStepInfo");
         if (!container.is(e.target) && container.has(e.target).length === 0) {
+            $('.workflowStep').attr('aria-expanded', false);
             container.hide();
         }
     });

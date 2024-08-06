@@ -209,7 +209,13 @@ export default {
          * @returns tree to display.  shorthand for template iterator.
          */
         fullFormTree() {
-            return this.usePreviewTree ? this.previewTree : this.focusedFormTree;
+            let baseTree = this.usePreviewTree ? this.previewTree : this.focusedFormTree;
+            baseTree.forEach(page => {
+                if(page.child !== null && !Array.isArray(page.child)) {
+                    page.child = this.transformFormTreeChild(page.child);
+                }
+            });
+            return baseTree;
         },
         /**
          * @returns boolean.  used to watch for index or parentID changes.  triggers sorting update if true
@@ -238,6 +244,40 @@ export default {
         },
     },
     methods: {
+        /*
+         * Backward compatibility: certain properties are pre-sanitized server-side, and must be decoded before rendering
+         * TODO: Migrate to markdown
+         */
+        decodeHTMLEntities(txt) {
+            let tmp = document.createElement("textarea");
+            tmp.innerHTML = txt;
+            return tmp.value;
+        },
+        backwardCompatNames(obj) {
+            for(let i in obj) {
+                obj[i].name = this.decodeHTMLEntities(obj[i].name);
+                if(obj[i].child != null) {
+                    obj[i].child = this.backwardCompatNames(obj[i].child);
+                }
+            }
+            return obj;
+        },
+        /**
+         * Used to transform objects into ordered lists based on sort property
+         * @param {object} obj
+         * @returns {array}
+         */
+        transformFormTreeChild(childObj) {
+            let tree = [];
+            for(let c in childObj) {
+                if(childObj[c].child !== null) {
+                    childObj[c].child = this.transformFormTreeChild(childObj[c].child);
+                }
+                tree.push(childObj[c]);
+            }
+            tree.sort((a, b) =>  a.sort - b.sort);
+            return tree;
+        },
         /**
          * updates the position of the form options area in large screen displays
          */
@@ -260,30 +300,24 @@ export default {
          * get details for the form specified in the url param.
          */
         getFormFromQueryParam() {
-            const formReg = /^form_[0-9a-f]{5}$/i;
-            if (formReg.test(this.queryID || '') === true) {
-                const formID = this.queryID;
-                if (this.categories[formID] === undefined) {
-                    this.focusedFormID = '';
-                    this.focusedFormTree = [];
+            const formID = this.queryID;
+            if (this.categories[formID] === undefined) {
+                this.focusedFormID = '';
+                this.focusedFormTree = [];
+            } else {
+                //an internal would need to be explicitly entered, but would cause issues
+                const parID = this.categories[formID].parentID;
+                if (parID === '') {
+                    this.getFormByCategoryID(formID, true);
                 } else {
-                    //an internal would need to be explicitly entered, but would cause issues
-                    const parID = this.categories[formID].parentID;
-                    if (parID === '') {
-                        this.getFormByCategoryID(formID, true);
-                    } else {
-                        this.$router.push({
-                            name:'category',
-                            query:{
-                                formID: parID,
-                                internalID: formID
-                            }
-                        });
-                    }
+                    this.$router.push({
+                        name:'category',
+                        query:{
+                            formID: parID,
+                            internalID: formID
+                        }
+                    });
                 }
-
-            } else { //if the value of formID is not a valid catID nav back to browser view
-                this.$router.push({ name:'browser' });
             }
         },
         /**
@@ -300,8 +334,10 @@ export default {
                 this.setDefaultAjaxResponseMessage();
                 $.ajax({
                     type: 'GET',
-                    url: `${this.APIroot}form/_${catID}?childkeys=nonnumeric`,
+                    url: `${this.APIroot}form/_${catID}?context=formEditor`,
                     success: (res) => {
+                        res = this.backwardCompatNames(res);
+
                         let query = {
                             formID: this.queryID,
                         }
@@ -351,15 +387,13 @@ export default {
             if (primaryID !== '' && this.formPreviewIDs !== '') {
                 this.appIsLoadingForm = true;
                 this.setDefaultAjaxResponseMessage();
+
                 try {
-                    fetch(`${this.APIroot}form/specified?childkeys=nonnumeric&categoryIDs=${this.formPreviewIDs}`).then(res => {
+                    fetch(`${this.APIroot}form/specified?categoryIDs=${this.formPreviewIDs}`).then(res => {
                         res.json().then(data => {
-                            if(data?.status?.code === 2) {
-                                this.previewTree = data.data || [];
-                                this.focusedFormID = primaryID;
-                            } else {
-                                console.log(data);
-                            }
+                            this.previewTree = data || [];
+                            this.previewTree = this.backwardCompatNames(this.previewTree);
+                            this.focusedFormID = primaryID;
                             this.appIsLoadingForm = false;
                         }).catch(err => console.log(err));
                     }).catch(err => console.log(err));
@@ -757,7 +791,6 @@ export default {
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>
                 <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Editor
-                <a href="./?a=form#" class="leaf-crumb-link" style="margin-left: auto; font-size:80%;">Back to old Form Editor</a>
             </h2>
             <!-- TOP INFO PANEL -->
             <edit-properties-panel :key="'panel_' + focusedFormID" :hasCollaborators="hasCollaborators"></edit-properties-panel>

@@ -140,6 +140,33 @@ class FormWorkflow
     }
 
     /**
+     * queries for information used for portal data.metadata and action_history.userMetadata fields
+     * @param string $id - user identifier. could be an empUID (string from data.data field) or a userName
+     * @param bool $isEmpID - explicitly specifies identifier type for where clause
+     * */
+    public function getInfoForUserMetadata(string $id, bool $isEmpID = true): ?string
+    {
+        $idType = $isEmpID === true ? 'empUID' : 'userName';
+        $metaVars = array(':id' => $id);
+        $metaSQL = "SELECT `firstName`, `lastName`, `middleName`, `data` AS `email`, `userName`, `empUID` FROM `employee`
+            JOIN `employee_data` USING (`empUID`)
+            WHERE `employee`.`deleted`=0 AND`employee_data`.`indicatorID`=6 AND `employee`.`{$idType}` = :id";
+
+        $resMetadata = $this->oc_db->prepared_query($metaSQL, $metaVars);
+        $userMetadata = isset($resMetadata[0]) ?
+            json_encode(
+                array(
+                    'firstName' => $resMetadata[0]['firstName'],
+                    'lastName' => $resMetadata[0]['lastName'],
+                    'middleName' => $resMetadata[0]['middleName'],
+                    'email' => $resMetadata[0]['email'],
+                    'userName' => $resMetadata[0]['userName'],
+                )
+            ) : null;
+        return $userMetadata;
+    }
+
+    /**
      * includePersonDesignatedData efficiently merges approver data to $srcRecords, for a
      * given list of $pdRecordList and $pdIndicators.
      * 
@@ -303,8 +330,9 @@ class FormWorkflow
                 }
 
                 // Only amend group name for group designated records
-                if($v['dependencyID'] == -3) {      
-                    $groupName = isset($groupNames[$group['groupID']]) ? $groupNames[$group['groupID']] : 'Warning: Group has not been imported into the User Access Group';
+                if($v['dependencyID'] == -3) {
+                    $groupName = isset($groupNames[$dRecords[$v['recordID']]['data']]) ?
+                        $groupNames[$dRecords[$v['recordID']]['data']] : 'Warning: Group has not been imported into the User Access Group';
                     $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $groupName . ')';
                     $srcRecords[$i]['approverName'] = $groupName;
                     $srcRecords[$i]['approverUID'] = 'groupID:' . $dRecords[$v['recordID']]['data'];
@@ -811,20 +839,22 @@ class FormWorkflow
      * @param int $dependencyID
      * @param string $actionType
      * @param string (optional) $comment
-     * @return array {status(int), errors[string]}
+     * @return string|array {errors(array), comment(string)} Returns a string on client-side error, containing the error message
      */
-    public function handleAction(int $dependencyID, string $actionType, ?string $comment = ''): array
+    public function handleAction(int $dependencyID, string $actionType, ?string $comment = ''): string|array
     {
         if (!is_numeric($dependencyID))
         {
-            return array('status' => 0, 'errors' => array('Invalid ID: dependencyID'));
+            http_response_code(400);
+            return 'Invalid ID: dependencyID';
         }
 
         $errors = array();
 
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
-            return array('status' => 0, 'errors' => array('Invalid Token'));
+            http_response_code(400);
+            return 'Invalid Token';
         }
 
         $comment = XSSHelpers::sanitizeHTML($comment);
@@ -853,7 +883,8 @@ class FormWorkflow
                 case 1: // service chief
                     if (!$this->login->checkService($res[0]['serviceID']))
                     {
-                        return array('status' => 0, 'errors' => array('Your account is not registered as a Service Chief'));
+                        http_response_code(403);
+                        return 'Your account is not registered as a Service Chief';
                     }
 
                     break;
@@ -869,7 +900,8 @@ class FormWorkflow
 
                     if (count($resQuad) == 0)
                     {
-                        return array('status' => 0, 'errors' => array('Your account is not registered as an Executive Leadership Team member'));
+                        http_response_code(403);
+                        return 'Your account is not registered as an Executive Leadership Team member';
                     }
 
                     break;
@@ -889,7 +921,8 @@ class FormWorkflow
                     $userAuthorized = $this->checkEmployeeAccess($empUID);
 
                     if(!$userAuthorized){
-                        return array('status' => 0, 'errors' => array('User account does not match'));
+                        http_response_code(403);
+                        return 'User account does not match';
                     }
 
                     break;
@@ -909,7 +942,8 @@ class FormWorkflow
 
                         if (!$userAuthorized)
                         {
-                            return array('status' => 0, 'errors' => array('User account does not match'));
+                            http_response_code(403);
+                            return 'User account does not match';
                         }
                     }
 
@@ -929,12 +963,14 @@ class FormWorkflow
 
                     if (!$this->login->checkGroup($groupID))
                     {
-                        return array('status' => 0, 'errors' => array('User account is not part of the designated group'));
+                        http_response_code(403);
+                        return 'User account is not part of the designated group';
                     }
 
                     break;
                 default:
-                    return array('status' => 0, 'errors' => array('Invalid Operation'));
+                    http_response_code(400);
+                    return 'Invalid Operation';
 
                     break;
             }
@@ -953,7 +989,8 @@ class FormWorkflow
 
 
         if(count($res) == 0) {
-            return array('status' => 0, 'errors' => array('This page is out of date. Please refresh for the latest status.'));
+            http_response_code(409);
+            return 'This page is out of date. Please refresh for the latest status.';
         }
 
         $logCache = array();
@@ -989,25 +1026,28 @@ class FormWorkflow
                     UPDATE filled = :filled, time = :time';
                 $this->db->prepared_query($strSQL2, $vars2);
 
+                $actionUserID = $this->login->getUserID();
+                $userMetadata  = $this->getInfoForUserMetadata($actionUserID, false);
 
                 // don't write duplicate log entries
                 $vars2 = array(
                     ':recordID' => $this->recordID,
-                    ':userID' => $this->login->getUserID(),
+                    ':userID' => $actionUserID,
                     ':stepID' => $actionable['stepID'],
                     ':dependencyID' => $dependencyID,
                     ':actionType' => $actionType,
                     ':actionTypeID' => 8,
                     ':time' => $time,
                     ':comment' => $comment,
+                    ':userMetadata' => $userMetadata,
                 );
                 $logKey = sha1(serialize($vars2));
                 if (!isset($logCache[$logKey]))
                 {
                     // write log
                     $logCache[$logKey] = 1;
-                    $strSQL2 ='INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment)
-                        VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+                    $strSQL2 ='INSERT INTO action_history (recordID, userID, stepID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
+                        VALUES (:recordID, :userID, :stepID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
                     $this->db->prepared_query($strSQL2, $vars2);
 
                 }
@@ -1193,13 +1233,17 @@ class FormWorkflow
                     }
                 } // End update the record's workflow state
             }
+            else {
+                http_response_code(400);
+                return 'Invalid action and step combination';
+            }
         }
 
 
         $comment_post = array('date' => date('M j', $time), 'user_name' => $this->login->getName(), 'comment' => $comment, 'responder' => $resActionData[0]['actionTextPasttense'], 'nextStep' => $res2[0]['nextStepID']);
 
 
-        return array('status' => 1, 'errors' => $errors, 'comment' => $comment_post);
+        return array('errors' => $errors, 'comment' => $comment_post);
     }
 
 
@@ -1651,7 +1695,7 @@ class FormWorkflow
                 default:
                 break;
             }
-
+            $data = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $data);
             $formattedFields["content"][$field['indicatorID']] = $data !== "" ? $data : $field["default"];
             $formattedFields["to_cc_content"][$field['indicatorID']] = $emailValue;
         }
@@ -1802,20 +1846,25 @@ class FormWorkflow
         {
             $comment = "Moved to {$stepName} step";
         }
+
+        $actionUserID = $this->login->getUserID();
+        $userMetadata  = $this->getInfoForUserMetadata($actionUserID, false);
+
         // write log entry
         $vars2 = array(
             ':recordID' => $this->recordID,
-            ':userID' => $this->login->getUserID(),
+            ':userID' => $actionUserID,
             ':dependencyID' => 0,
             ':actionType' => 'move',
             ':actionTypeID' => 8,
             ':time' => time(),
             ':comment' => $comment,
+            ':userMetadata' => $userMetadata,
         );
         $strSQL2 = 'INSERT INTO action_history
-            (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
+            (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
             VALUES
-            (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+            (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
         $this->db->prepared_query($strSQL2, $vars2);
 
         $vars2 = array(':recordID' => $this->recordID);
