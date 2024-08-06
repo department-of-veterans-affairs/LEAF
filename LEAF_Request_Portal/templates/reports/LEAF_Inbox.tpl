@@ -538,7 +538,7 @@
             formGrid.sort('priority', 'asc');
         }
         formGrid.renderBody();
-        //formGrid.loadData(tGridData.map(v => v.recordID).join(','));
+
         $('#' + formGrid.getPrefixID() + 'table').css('width', '99%');
         $('#' + formGrid.getPrefixID() + 'header_title').css('width', '60%');
         $('#depContainerIndicator_' + stepID).css('display', 'none');

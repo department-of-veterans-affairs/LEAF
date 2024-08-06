@@ -2426,7 +2426,7 @@
     }
 
     function buildRoutesList(stepID, workflowID) {
-        let allRoutes = [...routes];
+        let allRoutes = structuredClone(routes);
         let hasSubmit = false;
         allRoutes.forEach(r => {
             if(r.actionType === "sendback") {

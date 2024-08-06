@@ -5,13 +5,22 @@ var LeafPreview = function(domID) {
 
     $('#' + domID).html('');
 
+    /*
+    * Backward compatibility: certain name properties are pre-sanitized server-side, and must be decoded before rendering
+    * TODO: Migrate to markdown
+    */
+    function decodeHTMLEntities(txt) {
+       let tmp = document.createElement("textarea");
+       tmp.innerHTML = txt;
+       return tmp.value;
+    }
     function renderField(field, isChild) {
         var required = field.required == 1 ? '<span style="color: red">* Required</span>': '';
         var style_isChild = '';
         if(isChild == undefined) {
             style_isChild = 'font-weight: bold';
         }
-        var out = '<span style="'+style_isChild+'">' + field.name +'</span> '+ required + '<br />';
+        var out = '<span style="'+style_isChild+'">' + decodeHTMLEntities(field.name) +'</span> '+ required + '<br />';
         switch(field.format) {
             case 'textarea':
                 out += '<textarea style="width: 100%"></textarea>';
