@@ -372,46 +372,61 @@ var LeafForm = function (containerID) {
       return sanitize(val).trim();
     };
 
-    /* hide the question. clear out potential entries and set validator for hidden questions */
-    //NOTE: this currently sets validator for all but only clears the controlled question
-    const clearValues = (childFormat = "", childIndID = 0) => {
-      $("#" + childIndID).val(""); //clears most formats
-      $(`input[id^="${childIndID}_"]`).prop("checked", false); //radio and checkbox(es) formats
-      $(`input[id^="${childIndID}_radio0"]`).prop("checked", true);
-
-      $(`#grid_${childIndID}_1_input tbody td`) //grid table data
-      .each(function () {
-        if ($("textarea", this).length) {
-          $("textarea", this).val('');
-        } else if ($("select", this).length) {
-          $("select", this).val('');
-        } else if ($("input", this).length) {
-          $("input", this).val('');
-        }
-      });
-
-      if (childFormat === "multiselect") {
-        clearMultiSelectChild($("#" + childIndID), childIndID);
-      }
-
-      let arrValidatorIDs = [ childIndID ];
+    /*hide the question and any subquestions. clear out potential entries and set validator for hidden questions */
+    const clearValues = (childIndID = 0) => {
       const arrSubchildren = Array.from(
         document.querySelectorAll(`.response.blockIndicator_${childIndID} div.response[class*="blockIndicator_"]`)
       );
+
+      //parse the IDs of any additional subquestions
+      let arrChildAndSubquestionIDs = [ childIndID ];
       arrSubchildren.forEach(element => {
         const id = +element.className.match(/(\d+)$/)?.[0];
         if(id > 0) {
-          arrValidatorIDs.push(id);
+          arrChildAndSubquestionIDs.push(id);
         }
       });
-      arrValidatorIDs.forEach(id => {
+
+      arrChildAndSubquestionIDs.forEach(id => {
+        //clear values for questions in a hidden state.
+        $("#" + id).val(""); //most formats
+        $(`input[id^="${id}_"]`).prop("checked", false); //radio and checkbox(es) formats
+
+        $(`#grid_${id}_1_input tbody td`) //grid table data
+        .each(function () {
+          if ($("textarea", this).length) {
+            $("textarea", this).val('');
+          } else if ($("select", this).length) {
+            $("select", this).val('');
+          } else if ($("input", this).length) {
+            $("input", this).val('');
+          }
+        });
+
+        const isMultiselectQuestion = document.querySelector(`select[id="${id}"][multiple]`) !== null;
+        if (isMultiselectQuestion) {
+          clearMultiSelectChild($("#" + id), id);
+        }
+
+        const isRadioQuestion = document.querySelector(`input[id^="${id}_radio"]`) !== null;
+        if(isRadioQuestion) {
+          const radioEmpty = $(`input[id^="${id}_radio0"]`); //need to add hidden empty input to clear radio
+          if (radioEmpty.length === 0) {
+            $(`div.response.blockIndicator_${id}`).prepend(
+              `<input id="${id}_radio0" name="${id}" value="" style="display:none;" />`
+            );
+          }
+          $(`input[id^="${id}_radio0"]`).prop("checked", true);
+        }
+
+        //if the question is required, use the alternate validator
         if (
           childRequiredValidators[id].validator !== undefined &&
           dialog !== null
         ) {
           dialog.requirements[id] = hideShowValidator;
         }
-      })
+      });
     };
 
     /**
@@ -429,12 +444,6 @@ var LeafForm = function (containerID) {
       //get child input elements
       const elChildInput = $("#" + childID); //input els for text, multiselect, dropdown and orgchart formats
 
-      const radioEmpty = $(`input[id^="${childID}_radio0"]`); //radio format
-      if (childFormat === "radio" && radioEmpty.length === 0) {
-        $(`div.response.blockIndicator_${childID}`).prepend(
-          `<input id="${childID}_radio0" name="${childID}" value="" style="display:none;" />`
-        );
-      }
       const elChildRadioBtns = $(`input[id^="${childID}_radio"]`);
       const elChildCheckboxes = $(`input[type="checkbox"][id^="${childID}"]`); //checkboxes format
 
@@ -551,7 +560,7 @@ var LeafForm = function (containerID) {
       switch (co) {
         case "hide":
           if (hideShowConditionMet === true) {
-            clearValues(childFormat, childID);
+            clearValues(childID);
             elChildResponse.classList.add('response-hidden');
             elsChild.hide();
           } else {
@@ -564,7 +573,7 @@ var LeafForm = function (containerID) {
             elChildResponse.classList.remove('response-hidden');
             elsChild.show();
           } else {
-            clearValues(childFormat, childID);
+            clearValues(childID);
             elChildResponse.classList.add('response-hidden');
             elsChild.hide();
           }
@@ -628,21 +637,6 @@ var LeafForm = function (containerID) {
           console.log(co);
           break;
       }
-      //clear stack again before checking for hidden elements
-      setTimeout(() => {
-        const closestHidden = elChildResponse.closest('.response-hidden');
-        if (closestHidden !== null) {
-          clearValues(childFormat, childID);
-        }
-
-        elChildInput.trigger("change");
-        $(`input[id^="${childID}_"]`).trigger("change"); //radio and checkboxes
-        if (chosenShouldUpdate) {
-          elChildInput.chosen().val(elChildInput.val());
-          elChildInput.chosen({ width: "100%" });
-          elChildInput.trigger("chosen:updated");
-        }
-      });
     };
 
 
