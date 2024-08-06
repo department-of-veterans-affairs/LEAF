@@ -107,11 +107,6 @@ function renderResult(leafSearch, res) {
         return data2;
     });
 
-    let tGridData = [];
-    for(let i in res) {
-        tGridData.push(res[i]);
-    }
-    grid.setData(tGridData);
     grid.sort('recordID', 'desc');
     grid.renderBody();
     grid.announceResults();

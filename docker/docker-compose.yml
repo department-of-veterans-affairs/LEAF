@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
     leaf_vue_ui:
         container_name: leaf_vue_ui
@@ -31,12 +29,6 @@ services:
                 - BUILD_UID=${BUILD_UID}
                 - SMTP_HOST=leaf-smtp
                 - MAIL_HUB=leaf-smtp
-        #depends_on:
-        #  leaf-mysql:
-        #    condition: service_healthy
-        #depends_on:
-        #  leaf-mysql:
-        #    condition: service_healthy
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
@@ -52,10 +44,6 @@ services:
             - ../libs:/var/www/html/libs # temp step.  Will shift to below later
             - ../docker/mysql/db:/var/www/db
             - ./php/dev:/var/www/html/dev
-            # - leaf-lib:/var/www/html/libs
-            # - ../test:/var/www/html/test
-            # - ../test_server:/var/www/html/test_server
-            # - ./docker/php/conf.d/xdebug.ini  # Not sure what this is even for.
         networks:
             - leaf-sql
             - leaf
@@ -121,11 +109,6 @@ services:
         #  start_interval: 1s
         #  timeout: 1s
         #  retries: 5
-        #healthcheck:
-        #  test: "mysqladmin ping -h localhost -u $${MYSQL_USER} -p$${MYSQL_PASSWORD}"
-        #  start_interval: 1s
-        #  timeout: 1s
-        #  retries: 5
         networks:
             - leaf-sql
         volumes:
@@ -153,6 +136,56 @@ services:
         extra_hosts:
             - host.docker.internal:host-gateway
 
+    test-api:
+        image: test-api:latest
+        container_name: test-api
+        build:
+            context: ../
+            dockerfile: docker/selenium-tests/test-api.dockerfile
+        env_file:
+            - ./selenium-tests/leaf_selenium.env
+        networks:
+            - leaf
+            - ui-test
+        volumes:
+            - ./selenium-tests/index.php:/app/index.php
+            - ../test/Test-Automation/src:/app/src
+            - ../test/Test-Automation/testng.xml:/app/testng.xml
+            - ../test/Test-Automation/ExtentReports:/app/ExtentReports
+        depends_on:
+            - chrome
+        environment:
+            - ENVIRONMENT=remote
+            - ENV_URL=http://host.docker.internal/LEAF_Request_Portal/admin/
+            - HUB_URL=http://selenium-chrome:4445/wd/hub
+
+    chrome:
+        image: custom-selenium-chrome
+        container_name: selenium-chrome
+        build:
+            context: ./
+            dockerfile: selenium-tests/selenium.dockerfile
+        networks:
+            - ui-test
+            - leaf
+        ports:
+            - "4445:4445"
+            - "5900:5900"
+            - "7900:7900"
+        shm_size: '2g'
+        environment:
+            - SE_NODE_MAX_INSTANCES=2
+            - SE_NODE_MAX_SESSIONS=2
+            - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+            - SE_NODE_SESSION_TIMEOUT=600
+            - SE_SESSION_REQUEST_TIMEOUT=60000
+            - SE_SESSION_RETRY_INTERVAL=5000
+        healthcheck:
+            test: curl --fail http://localhost:4445/wd/hub/status || exit 1
+            interval: 5s
+            timeout: 10s
+            retries: 5
+
 volumes:
     leaf-php-data:
         external: true
@@ -166,3 +199,4 @@ networks:
         external: true
     leaf:
         external: true
+    ui-test:
