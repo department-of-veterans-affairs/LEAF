@@ -102,6 +102,7 @@ class DbUpdate
 
             if ($settings['dbversion'] == $this->current_version) {
                 $this->message .= ucwords($this->portal) . ' Db Update failed.' . $this->EOL . $this->EOL;
+                http_response_code(500);
             } else {
                 $this->message .= 'Database updated to: '. $settings['dbversion'] . $this->EOL . $this->EOL;
                 $this->initilize();
