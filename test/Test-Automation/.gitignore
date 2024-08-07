@@ -19,3 +19,4 @@ Screenshot/*.png
 TestResult.html
 index.html
 /ExtentReports/
+test/Test-Automation/ExtentReports/*
