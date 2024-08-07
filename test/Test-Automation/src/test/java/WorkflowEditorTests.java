@@ -43,9 +43,17 @@ public class WorkflowEditorTests extends BaseTest {
         workflowEditorPageActions.deleteWorkflow("Copy_TestWorkflow-3");
     }
 
-    @AfterClass
+ /**   @AfterClass
     public void deleteAllWorkflows(){
         workflowEditorPageActions.cleanUp("Rename_TestWorkflow-3");
     }
+ **/
+
+ @Test
+ public void Test005_validateAddNewStep() throws InterruptedException {
+     workflowEditorPageActions.addApprovedWorkflow("New-WF-Step");
+ }
+
+
 
 }

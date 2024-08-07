@@ -15,6 +15,7 @@ public class adminPage_Actions extends BasePage {
     @FindBy(linkText="Home")
     WebElement homePageBtn;
 
+
     @FindBy(linkText="Report Builder")
     WebElement reportBuilderBtn;
 
@@ -105,6 +106,7 @@ public class adminPage_Actions extends BasePage {
      adminUserAccessGroupIcon.click();
      return PageinstancesFactory.getInstance(UserAccessGroupsPageActions.class);
     }
+
 
     public ServiceChiefsPageActions clickServiceChiefs(){
      setExplicitWaitForElementToBeClickable(serviceChiefsIcon,30);
