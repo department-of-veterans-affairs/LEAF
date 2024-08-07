@@ -228,7 +228,7 @@
             <!--{if trim($indicator.value) != ''}-->
             <div style="padding: 0px">
                 <!--{if $indicator.displayedValue != ''}-->
-                    <a href="<!--{$orgchartPath}-->/?a=view_employee&empUID=<!--{$indicator.value|escape}-->"><!--{$indicator.displayedValue|sanitize}--></a>
+                    <div><!--{$indicator.displayedValue|sanitize}--></div>
                 <!--{else}-->
                     empUID #:<!--{$indicator.value|escape }--> (disabled account)<br>
                     Recorded on <!--{$indicator.timestamp|date_format}--> by <!--{$indicator.userID|escape}-->

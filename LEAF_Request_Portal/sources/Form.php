@@ -559,14 +559,14 @@ class Form
                 $form[$idx]['raw'] = $data[0]['data'];
             }
             // special handling for org chart data types
-            else if ($data[0]['format'] == 'orgchart_employee'
-                && !empty($data[0]['data']))
+            else if ($data[0]['format'] == 'orgchart_employee')
             {
-                $empRes = $this->employee->lookupEmpUID($data[0]['data']);
-                if (!empty($empRes)) {
-                    $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
-                } else {
-                    $form[$idx]['displayedValue'] = '';
+                $form[$idx]['displayedValue'] = '';
+                if (!empty($data[0]['data']) && isset($data[0]['metadata'])) {
+                    $orgchartInfo = json_decode($data[0]['metadata'], true);
+                    if(!empty($orgchartInfo['userName'])) {
+                        $form[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                    }
                 }
             }
             else if ($data[0]['format'] == 'orgchart_position'
@@ -2588,15 +2588,13 @@ class Form
                             }
                             break;
                         case 'orgchart_employee':
-                            $empRes = $this->employee->lookupEmpUID($item['data']);
-                            if (isset($empRes[0]))
-                            {
-                                $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
-                                $item['dataOrgchart'] = $empRes[0];
-                            }
-                            else
-                            {
-                                $item['data'] = '';
+                            $item['data'] = '';
+                            if (isset($item['metadata'])) {
+                                $orgchartInfo = json_decode($item['metadata'], true);
+                                if(!empty($orgchartInfo['userName'])) {
+                                    $item['data'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                                    $item['dataOrgchart'] = $orgchartInfo;
+                                }
                             }
                             break;
                         case 'orgchart_position':
@@ -4286,7 +4284,7 @@ class Form
             {
                 $var = array(':series' => (int)$series,
                              ':recordID' => (int)$recordID, );
-                $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID, userID FROM data
+                $res2 = $this->db->prepared_query('SELECT data, metadata, timestamp, indicatorID, groupID, userID FROM data
                 									LEFT JOIN indicator_mask USING (indicatorID)
                 									WHERE indicatorID IN (' . $indicatorList . ') AND series=:series AND recordID=:recordID', $var);
 
@@ -4294,6 +4292,7 @@ class Form
                 {
                     $idx = $resIn['indicatorID'];
                     $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
+                    $data[$idx]['metadata'] = isset($resIn['metadata']) ? $resIn['metadata'] : null;
                     $data[$idx]['timestamp'] = isset($resIn['timestamp']) ? $resIn['timestamp'] : 0;
                     $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
                     $data[$idx]['userID'] = isset($resIn['userID']) ? $resIn['userID'] : '';
@@ -4363,11 +4362,12 @@ class Form
                 // special handling for org chart data types
                 if ($field['format'] == 'orgchart_employee')
                 {
-                    $empRes = $this->employee->lookupEmpUID($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = '';
-                    if (isset($empRes[0]))
-                    {
-                      $child[$idx]['displayedValue'] = ($child[$idx]['isMasked']) ? '[protected data]' : "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    if (isset($data[$idx]['metadata'])) {
+                        $orgchartInfo = json_decode($data[$idx]['metadata'], true);
+                        if(!empty($orgchartInfo['userName'])) {
+                            $child[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                        }
                     }
                 }
                 if ($field['format'] == 'orgchart_position')
