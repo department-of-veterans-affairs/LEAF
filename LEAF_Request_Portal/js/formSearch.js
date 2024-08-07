@@ -216,13 +216,18 @@ var LeafFormSearch = function (containerID) {
                 firstChild();
             }
             for (var i = 0; i < advSearch.length; i++) {
+                if(typeof advSearch[i].match == 'string') {
+                    advSearch[i].match = advSearch[i].match.replaceAll('%26', '&');
+                }
+
                 $("#" + prefixID + "widgetTerm_" + i).val(advSearch[i].id);
                 $("#" + prefixID + "widgetTerm_" + i).trigger("chosen:updated");
                 if (
                     advSearch[i].indicatorID != undefined ||
                     advSearch[i].id == "serviceID" ||
                     advSearch[i].id == "categoryID" ||
-                    advSearch[i].id == "stepID"
+                    advSearch[i].id == "stepID" ||
+                    advSearch[i].id == "stepAction"
                 ) {
                     renderWidget(
                         i,
@@ -690,6 +695,50 @@ var LeafFormSearch = function (containerID) {
         }
     }
 
+    // getStepActionOptions retrieves data to support stepAction queries
+    async function getStepActionOptions(stepWorkflowIdx, widgetID) {
+        let stepID = $("#" + prefixID + "widgetIndicator_" + widgetID).val();
+        let options = '';
+        if(stepID != '') {
+            let actions = (await getWorkflowStepActions(stepWorkflowIdx[stepID]))[stepID];
+            options = `<select id="${prefixID}widgetMat_${widgetID}" class="chosen" aria-label="options" style="width: 250px">`;
+            for(let i in actions) {
+                options += `<option value="${actions[i].actionType}">${actions[i].actionTextPasttense}</option>`;
+            }
+            options += '</select>';
+        }
+
+        return options;
+    }
+
+    // getWorkflowStepActions retrieves data to support stepAction queries
+    async function getWorkflowStepActions(workflowID) {
+        let url = `./api/workflow/${workflowID}/route?x-filterData=workflowID,stepID,actionType,actionTextPasttense`;
+        if(rootURL != '') {
+            url = rootURL + `api/workflow/${workflowID}/route?x-filterData=workflowID,stepID,actionType,actionTextPasttense`;
+        }
+        if(cache[`api/workflow/${workflowID}/route`] == undefined) {
+            cache[`api/workflow/${workflowID}/route`] = $.ajax({
+                type: "GET",
+                url
+            }).then(res => {
+                let workflowStepActions = {};
+                for(let i in res) {
+                    workflowStepActions[res[i].stepID] = workflowStepActions[res[i].stepID] || [];
+                    workflowStepActions[res[i].stepID].push({
+                        actionType: res[i].actionType,
+                        actionTextPasttense: res[i].actionTextPasttense
+                    });
+                }
+                return workflowStepActions;
+            }).catch(err => {
+                console.error(err);
+            });
+        }
+
+        return cache[`api/workflow/${workflowID}/route`];
+    }
+
     /**
      * @memberOf LeafFormSearch
      */
@@ -836,7 +885,6 @@ var LeafFormSearch = function (containerID) {
                             callback();
                         }
                     },
-                    cache: false,
                 });
                 break;
             case "userID":
@@ -922,8 +970,7 @@ var LeafFormSearch = function (containerID) {
                         if (callback != undefined) {
                             callback();
                         }
-                    },
-                    cache: false,
+                    }
                 });
                 break;
             case "stepID":
@@ -1450,6 +1497,76 @@ var LeafFormSearch = function (containerID) {
                         '" style="width: 200px" />'
                 );
                 break;
+            case "stepAction":
+                    $("#" + prefixID + "widgetCondition_" + widgetID).html(`<select id="${prefixID}widgetCod_${widgetID}" style="width: 140px" class="chosen" aria-label="categoryID">
+                            <option value="=">IS</option>
+                            <option value="!=">IS NOT</option>
+                        </select>`);
+                    $("#" + prefixID + "widgetMatch_" + widgetID).html('');
+                    if(rootURL == "") {
+                        url = "./api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description";
+                    } else {
+                        url = rootURL + "api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description";
+                    }
+
+                    if(cache['api/workflow/steps'] == undefined) {
+                        cache['api/workflow/steps'] = $.ajax({
+                            type: "GET",
+                            url,
+                            dataType: "json"
+                        }).then(res => {
+                            // Hide standard workflows unless the GET parameter "dev" exists
+                            if(new URLSearchParams(window.location.search).get('dev') == null) {
+                                res = res.filter(step => step.workflowID > 0);
+                            }
+                            return res;
+                        }).catch(err => console.error(err));
+                    }
+
+                    let workflowStepsData = await cache['api/workflow/steps'];
+
+                    let groupedStepData = {};
+                    for(let i in workflowStepsData) {
+                        groupedStepData[workflowStepsData[i].workflowID] = groupedStepData[workflowStepsData[i].workflowID] || {};
+                        groupedStepData[workflowStepsData[i].workflowID].description = workflowStepsData[i].description;
+                        groupedStepData[workflowStepsData[i].workflowID].steps = groupedStepData[workflowStepsData[i].workflowID].steps || {};
+                        groupedStepData[workflowStepsData[i].workflowID].steps[workflowStepsData[i].stepID] = workflowStepsData[i].stepTitle;
+                    }
+
+                    let workflowSteps = `<select id="${prefixID}widgetIndicator_${widgetID}" class="chosen" aria-label="workflow steps" style="width: 250px">`;
+                    let stepWorkflowIdx = {};
+                    workflowSteps += `<option value="">Select a workflow step...</option>`;
+                    for(let i in groupedStepData) {
+                        workflowSteps += `<optgroup label="${groupedStepData[i].description}">`;
+                        for(let j in groupedStepData[i].steps) {
+                            workflowSteps += `<option value="${j}">${groupedStepData[i].steps[j]}</option>`;
+                            stepWorkflowIdx[j] = i;
+                        }
+                        workflowSteps += `</optgroup>`;
+                    }
+                    workflowSteps += "</select>";
+                    $("#" + prefixID + "widgetTerm_" + widgetID).after(
+                        workflowSteps
+                    );
+
+                    if (callback != undefined) {
+                        callback();
+                    }
+
+                    let options = await getStepActionOptions(stepWorkflowIdx, widgetID);
+                    renderSingleSelectInputType(widgetID, options);
+
+                    $("#" + prefixID + "widgetIndicator_" + widgetID).on("change", async () => {
+                        options = await getStepActionOptions(stepWorkflowIdx, widgetID);
+                        renderSingleSelectInputType(widgetID, options);
+                    });
+
+                    $(`#${prefixID}widgetTerm_${widgetID}_chosen`).css("display", "none");
+
+                    if (callback != undefined) {
+                        callback();
+                    }
+                break;
             default:
                 $("#" + prefixID + "widgetCondition_" + widgetID).html(
                     '<select id="' +
@@ -1501,14 +1618,15 @@ var LeafFormSearch = function (containerID) {
             widgetCounter +
             '" style="width: 150px" class="chosen" aria-label="condition">\
                             <option value="stepID">Current Status</option>\
-            				<option value="data">Data Field</option>\
+            				<option value="data">Data Field ...</option>\
             				<option value="dateSubmitted">Date Submitted</option>\
                             <option value="userID">Initiator</option>\
             				<option value="serviceID">Service</option>\
             				<option value="title">Title</option>\
             				<option value="categoryID">Type</option>\
                             <option value="recordID">Record ID</option>\
-            				<option value="dependencyID">Requirement</option>\
+                            <option value="stepAction">Record Actions ...</option>\
+            				<option value="dependencyID">Requirement ...</option>\
             				</select></td>\
 			            <td id="' +
             prefixID +
@@ -1559,7 +1677,7 @@ var LeafFormSearch = function (containerID) {
         for (var i = 0; i < widgetCounter; i++) {
             if ($("#" + prefixID + "widgetTerm_" + i).val() != undefined) {
                 term = $("#" + prefixID + "widgetTerm_" + i).val();
-                if (term != "data" && term != "dependencyID") {
+                if (term != "data" && term != "dependencyID" && term != "stepAction") {
                     id = $("#" + prefixID + "widgetTerm_" + i).val();
                     cod = $("#" + prefixID + "widgetCod_" + i).val();
                     match = $("#" + prefixID + "widgetMat_" + i).val();

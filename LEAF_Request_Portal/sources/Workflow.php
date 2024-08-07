@@ -377,7 +377,7 @@ class Workflow
             return 'Restricted command.';
         }
 
-        if ($action == 'sendback') {
+        if ($action === 'sendback') {
             $required = json_encode(array ('required' => false));
         } else {
             $required = '';

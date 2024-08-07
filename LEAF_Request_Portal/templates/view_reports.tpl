@@ -21,7 +21,7 @@
 <div id="saveLinkContainer" style="display: none">
     <div id="reportTitleDisplay" style="font-size: 200%; padding-left: 8px;"></div>
     <input id="reportTitle" type="text" aria-label="Text" style="font-size: 200%; width: 50%" placeholder="Untitled Report" />
-    <p id="reportStats" style="position: absolute; padding-left: 8px; z-index: 1"></p>
+    <br /><span id="reportStats" style="padding-left: 8px; z-index: 1"></span><button id="btn_abort" class="buttonNorm" style="display: none">Stop and show results</button>
 </div>
 
 <div id="results" style="display: none">Loading...</div>
@@ -34,8 +34,14 @@
 const CSRFToken = '<!--{$CSRFToken}-->';
 
 function scrubHTML(input) {
-        let t = new DOMParser().parseFromString(input, 'text/html').body;
-        return t.textContent;
+    if(input == undefined) {
+        return '';
+    }
+    let t = new DOMParser().parseFromString(input, 'text/html').body;
+    while(input != t.textContent) {
+        return scrubHTML(t.textContent);
+    }
+    return t.textContent;
 }
 
 function loadWorkflow(recordID, prefixID) {
@@ -72,20 +78,21 @@ function addHeader(column) {
                 name: 'Title',
                 indicatorID: 'title',
                 callback: function(data, blob) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].title);
-                    $('#'+data.cellContainerID).on('click', function(){
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].title;
+                    document.querySelector(`#${data.cellContainerID}`).addEventListener('click', () => {
                         changeTitle(data, $('#'+data.cellContainerID).html());
-                });
+                    });
             }});
             break;
         case 'service':
             filterData['service'] = 1;
+            leafSearch.getLeafFormQuery().join('service');
             headers.push({
                 name: 'Service',
                 indicatorID: 'service',
                 editable: false,
                 callback: function(data, blob) {
-                $('#'+data.cellContainerID).html(blob[data.recordID].service);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
             }});
             break;
         case 'type':
@@ -101,7 +108,7 @@ function addHeader(column) {
                          types += blob[data.recordID].categoryNames[i] + ' | ';
                      }
                      types = types.substr(0, types.length - 3);
-                     $('#'+data.cellContainerID).html(types);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = types;
             }});
             break;
         case 'status':
@@ -118,7 +125,7 @@ function addHeader(column) {
                      if(blob[data.recordID].deleted > 0) {
                          status += ', Cancelled';
                      }
-                     $('#'+data.cellContainerID).html(status);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = status;
             }});
             break;
         case 'initiator':
@@ -127,7 +134,7 @@ function addHeader(column) {
             leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html(blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName);
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName;
             }});
             break;
         case 'dateCancelled':
@@ -138,7 +145,7 @@ function addHeader(column) {
                 name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].deleted > 0) {
                     var date = new Date(blob[data.recordID].deleted * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
                 }
             }});
             headers.push({
@@ -146,7 +153,7 @@ function addHeader(column) {
                 if(blob[data.recordID].action_history != undefined) {
                     var cancelData = blob[data.recordID].action_history.pop();
                     if(cancelData != undefined && cancelData.actionType === 'deleted') {
-                        $('#'+data.cellContainerID).html(cancelData.approverName);
+                        document.querySelector(`#${data.cellContainerID}`).innerHTML = cancelData.approverName;
                     }
                 }
             }});
@@ -156,7 +163,7 @@ function addHeader(column) {
             headers.push({
                 name: 'Date Initiated', indicatorID: 'dateInitiated', editable: false, callback: function(data, blob) {
                 var date = new Date(blob[data.recordID].date * 1000);
-                $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
             }});
             break;
         case 'dateResolved':
@@ -166,13 +173,13 @@ function addHeader(column) {
                 name: 'Date Resolved', indicatorID: 'dateResolved', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionData != undefined) {
                     var date = new Date(blob[data.recordID].recordResolutionData.fulfillmentTime * 1000);
-                    $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
                 }
             }});
             headers.push({
                 name: 'Action Taken', indicatorID: 'typeResolved', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionData != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionData.lastStatus);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].recordResolutionData.lastStatus;
                 }
             }});
             break;
@@ -182,21 +189,21 @@ function addHeader(column) {
             headers.push({
                 name: 'Resolved By', indicatorID: 'resolvedBy', editable: false, callback: function(data, blob) {
                 if(blob[data.recordID].recordResolutionBy != undefined) {
-                    $('#'+data.cellContainerID).html(blob[data.recordID].recordResolutionBy.resolvedBy);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].recordResolutionBy.resolvedBy;
                 }
             }});
             break;
         case 'actionButton':
             headers.unshift({
                 name: 'Action', indicatorID: 'actionButton', editable: false, callback: function(data, blob) {
-                $('#'+data.cellContainerID).html('<div tabindex="0" class="buttonNorm">Take Action</div>');
-                $('#'+data.cellContainerID).on('keydown', function(e) {
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = '<div tabindex="0" class="buttonNorm">Take Action</div>';
+                document.querySelector(`#${data.cellContainerID}`).addEventListener('keydown', function(e) {
                     if (e.which === 13) {
                         e.preventDefault();
                         loadWorkflow(data.recordID, grid.getPrefixID());
                     }
                 });
-                $('#'+data.cellContainerID).on('click', function() {
+                document.querySelector(`#${data.cellContainerID}`).addEventListener('click', function() {
                     loadWorkflow(data.recordID, grid.getPrefixID());
                 });
             }});
@@ -223,7 +230,7 @@ function addHeader(column) {
                          }
                      }
                      buffer += '</table>';
-                     $('#'+data.cellContainerID).html(buffer);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = buffer;
             }});
             break;
         case 'approval_history':
@@ -252,7 +259,7 @@ function addHeader(column) {
                                + delimLF + '</tr>';
                      }
                      buffer += '</table>';
-                     $('#'+data.cellContainerID).html(buffer);
+                     document.querySelector(`#${data.cellContainerID}`).innerHTML = buffer;
                  }});
             break;
         case 'days_since_last_action':
@@ -304,7 +311,7 @@ function addHeader(column) {
                     else {
                         daysSinceAction = "Not Submitted";
                     }
-                    $('#'+data.cellContainerID).html(daysSinceAction);
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = daysSinceAction;
                 }
             });
             break;
@@ -338,7 +345,7 @@ function addHeader(column) {
                         content = new Date(fulfillmentTime + destMilliseconds).toLocaleDateString();
                     }
                 }
-                $('#'+data.cellContainerID).html(content);
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = content;
             }});
             break;
         default:
@@ -356,11 +363,10 @@ function addHeader(column) {
                         if(blob[data.recordID].recordsDependencies != undefined
                             && blob[data.recordID].recordsDependencies[depID] != undefined) {
                             var date = new Date(blob[data.recordID].recordsDependencies[depID].time * 1000);
-                            $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                            document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
                             if(tDepHeader[depID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-                                $('#' + headerID).html(blob[data.recordID].recordsDependencies[depID].description);
-                                $('#Vheader_' + column).html(blob[data.recordID].recordsDependencies[depID].description);
+                                document.querySelector(`#${headerID}`).innerHTML = blob[data.recordID].recordsDependencies[depID].description;
                                 tDepHeader[depID] = 1;
                             }
                         }
@@ -381,12 +387,11 @@ function addHeader(column) {
                         if(blob[data.recordID].stepFulfillment != undefined
                             && blob[data.recordID].stepFulfillment[stepID] != undefined) {
                             var date = new Date(blob[data.recordID].stepFulfillment[stepID].time * 1000);
-                            $('#'+data.cellContainerID).html(date.toLocaleDateString().replace(/[^ -~]/g,'')); // IE11 encoding workaround: need regex replacement
+                            document.querySelector(`#${data.cellContainerID}`).innerHTML = date.toLocaleDateString();
 
                             if(tStepHeader[stepID] == 0) {
                                 headerID = data.cellContainerID.substr(0, data.cellContainerID.indexOf('_') + 1) + 'header_' + column;
-                                $('#' + headerID).html(blob[data.recordID].stepFulfillment[stepID].step);
-                                $('#Vheader_' + column).html(blob[data.recordID].stepFulfillment[stepID].step);
+                                document.querySelector(`#${headerID}`).innerHTML = blob[data.recordID].stepFulfillment[stepID].step;
                                 tStepHeader[stepID] = 1;
                             }
                         }
@@ -440,16 +445,10 @@ function loadSearchPrereqs() {
             var groupNames = [];
             var groupIDmap = {};
             var tmp = document.createElement('div');
-            var temp;
             let grid = {};
 
             for(let i in res) {
-                temp = res[i].name;
-                tmp.innerHTML = temp;
-                temp = tmp.textContent || tmp.innerText || '';
-                temp = temp.replace(/[^\040-\176]/g, '');
-
-                resIndicatorList[res[i].indicatorID] = temp;
+                resIndicatorList[res[i].indicatorID] = scrubHTML(res[i].name);
 
                 if(groupList[res[i].categoryID] == undefined) {
                     groupList[res[i].categoryID] = [];
@@ -503,6 +502,7 @@ function loadSearchPrereqs() {
                     const isDisabled = res.find(ele => ele.indicatorID === indID).isDisabled;
                     const isArchivedClass = isDisabled > 0 ? ' is-archived' : '';
                     const isArchivedText = isDisabled > 0 ? ' (Archived)' : '';
+
                     buffer += `<div class="indicatorOption${isArchivedClass}" id="indicatorOption_${indID}" style="display: none"><label class="checkable leaf_check" for="indicators_${indID}" title="indicatorID: ${indID}\n${resIndicatorList[indID]}${isArchivedText}" >`;
                     buffer += `<input type="checkbox" class="icheck leaf_check parent" id="indicators_${indID}" name="indicators[${indID}]" value="${indID}" />`
                     buffer += `<span class="leaf_check"></span> ${resIndicatorList[indID]}${isArchivedText}</label>`;
@@ -651,7 +651,6 @@ function updateHeaderColors(){
                 bg_color = '#D1DFFF';
             }
             let elHeader = document.getElementById(grid.getPrefixID() + "header_" + header.indicatorID);
-            let elVHeader = document.getElementById("Vheader_" + header.indicatorID);
             let arrRGB = [];  //convert from hex to RGB
             for (let i = 1; i < 7; i += 2) {
                 arrRGB.push(parseInt(bg_color.slice(i, i + 2), 16));
@@ -663,9 +662,7 @@ function updateHeaderColors(){
             //pick text color based on bgcolor, apply to headers
             let textColor = maxVal < 128 || (sum < 350 && arrRGB[1] < 225) ? 'white' : 'black';
             elHeader.style.setProperty('background-color', bg_color);
-            elVHeader.style.setProperty('background-color', bg_color);
             elHeader.style.setProperty('color', textColor);
-            elVHeader.style.setProperty('color', textColor);
         }
     });
 }
@@ -739,14 +736,9 @@ function editLabels() {
             indicatorSort[curID] = i + 1;
         });
         var tmp = document.createElement('div');
-        var temp;
         for(let i in resSelectList) {
             if(resIndicatorList[resSelectList[i]] != undefined) {
-                temp = $('#id_' + resSelectList[i]).val();
-                tmp.innerHTML = temp;
-                temp = tmp.textContent || tmp.innerText || '';
-                temp = temp.replace(/[^\040-\176]/g, '');
-                resIndicatorList[resSelectList[i]] = temp;
+                resIndicatorList[resSelectList[i]] = scrubHTML($('#id_' + resSelectList[i]).val());
             }
         }
         gridColorData = Object.assign({ }, tempColorData);
@@ -820,15 +812,19 @@ function openShareDialog() {
 
 function showJSONendpoint() {
     let pwd = document.URL.substr(0,document.URL.lastIndexOf('?'));
-    leafSearch.getLeafFormQuery().setLimit(0, 10000);
-    let queryString = JSON.stringify(leafSearch.getLeafFormQuery().getQuery());
-    let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
+    let query = leafSearch.getLeafFormQuery().getQuery();
+    delete query.limit;
+    delete query.limitOffset;
+    let queryString = JSON.stringify(query);
+    let xFilterData = '&x-filterData=recordID,'+ Object.keys(filterData).join(',');
+    let jsonPath = pwd + leafSearch.getLeafFormQuery().getRootURL() + 'api/form/query/?q=' + queryString + xFilterData;
     let powerQueryURL = '<!--{$powerQueryURL}-->' + window.location.pathname;
 
     dialog_message.setTitle('Data Endpoints');
-    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><p><b>A configurable limit of 10,000 records has been preset</b>.</p><br />'
+    dialog_message.setContent('<p>This provides a live data source for custom dashboards or automated programs.</p><br />'
                            + '<button id="shortenLink" class="buttonNorm" style="float: right">Shorten Link</button>'
                            + '<button id="expandLink" class="buttonNorm" style="float: right; display: none">Expand Link</button>'
+                           + '<button id="copy" class="buttonNorm" style="float: right">Copy to Clipboard</button>'
                            + '<select id="format">'
                            + '<option value="json">JSON</option>'
                            + '<option value="htmltable">HTML Table</option>'
@@ -836,10 +832,11 @@ function showJSONendpoint() {
                            + '<option value="csv">CSV</option>'
                            + '<option value="xml">XML</option>'
                            + '<option value="debug">Plaintext</option>'
+                           + '<option value="leafFormQuery">JavaScript Template</option>'
                            + '<option value="x-visualstudio">Visual Studio (testing)</option>'
                            + '</select>'
                            + '<span id="formatStatus" style="background-color:green; padding:5px 5px; color:white; display:none;"></span>'
-                           + '<br /><div id="exportPathContainer" contenteditable="true" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
+                           + '<br /><div id="exportPathContainer" contenteditable="true" spellcheck="false" style="border: 1px solid gray; padding: 4px; margin-top: 4px; width: 95%; min-height: 100px; word-break: break-all;"><span id="exportPath">'+ jsonPath +'</span><span id="exportFormat"></span></div>'
                            + '<a href="report.php?a=LEAF_Data_Dictionary" target="_blank">Data Dictionary Reference</a>'
                            + '<br /><br />'
                            + '<fieldset>'
@@ -864,14 +861,45 @@ function showJSONendpoint() {
         switch($('#format').val()) {
             case 'json':
                 $('#exportFormat').html('');
+                document.querySelector('#exportPath').style.display = 'inline';
+                break;
+            case 'leafFormQuery':
+                let buffer = "<scr"+"ipt>\n";
+                buffer += `async function main() {
+                    \u00A0\u00A0\u00A0\u00A0let query = new LeafFormQuery();
+                    \u00A0\u00A0\u00A0\u00A0query.importQuery(${queryString});
+                    \u00A0\u00A0\u00A0\u00A0query.setExtraParams("${xFilterData}"); // minimizes network utilization
+                    \u00A0\u00A0\u00A0\u00A0let results = await query.execute();
+                    \u00A0\u00A0\u00A0\u00A0// Do something with the results
+                    }
+                    document.addEventListener('DOMContentLoaded', main);\n`;
+                buffer += "</scr"+"ipt>";
+                document.querySelector('#exportFormat').innerText = buffer;
+                document.querySelector('#exportPath').style.display = 'none';
                 break;
             default:
+                document.querySelector('#exportPath').style.display = 'inline';
                 $('#exportFormat').append('format=' + $('#format').val());
                 $("#formatStatus").show().text("Format changed to " + $('#format').val());
                 $("#formatStatus").fadeOut(3000);
                 break;
         }
     }
+
+    function selectExample() {
+        let selection = window.getSelection();
+        let range = document.createRange();
+        range.selectNodeContents(document.querySelector('#exportPathContainer'));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        return selection;
+    }
+
+    document.querySelector('#copy').addEventListener('click', () => {
+        navigator.clipboard.writeText(selectExample().focusNode.innerText);
+        $("#formatStatus").show().text("Copied!");
+        $("#formatStatus").fadeOut(3000);
+    });
 
     $('#format').on('change', function() {
         setExportFormat();
@@ -1166,7 +1194,7 @@ $(function() {
     });
     var extendedToolbar = false;
     $('#generateReport').off();
-    $('#generateReport').on('click', function() {
+    $('#generateReport').on('click', async function() {
         $('#results').fadeIn(700);
         $('#saveLinkContainer').fadeIn(700);
         $('#step_2').slideUp(700);
@@ -1177,7 +1205,6 @@ $(function() {
             if(!isSearchingDeleted(leafSearch)) {
                 leafSearch.getLeafFormQuery().addTerm('deleted', '=', 0);
             }
-            leafSearch.getLeafFormQuery().join('service');
             headers = [];
         }
         else if(!isSearchingDeleted(leafSearch)) {
@@ -1232,10 +1259,7 @@ $(function() {
             }
             temp.name = resIndicatorList[temp.indicatorID] != undefined ? resIndicatorList[temp.indicatorID] : '';
             temp.sort = indicatorSort[temp.indicatorID] == undefined ? 0 : indicatorSort[temp.indicatorID];
-            var tmp = document.createElement('div');
-            tmp.innerHTML = temp.name;
-            temp.name = tmp.textContent || tmp.innerText || '';
-            temp.name = temp.name.replace(/[^\040-\176]/g, '');
+            temp.name = scrubHTML(temp.name);
             if($.isNumeric(resSelectList[i][0]) || $.isNumeric(resSelectList[i])) {
                     headers.push(temp);
                     leafSearch.getLeafFormQuery().getData(temp.indicatorID);
@@ -1252,13 +1276,7 @@ $(function() {
         function renderGrid(res) {
             grid.setDataBlob(res);
 
-            var tGridData = [];
-            for(let i in res) {
-                tGridData.push(res[i]);
-            }
-
             if(<!--{$version}--> >= 3) {
-                grid.setData(tGridData);
                 let sortKey = 'recordID';
                 let sortDirection = 'desc';
                 if(sortPreference.key != undefined && sortPreference.order != undefined) {
@@ -1300,8 +1318,7 @@ $(function() {
             clicked = false; //global to reduce dblclicks
         }
 
-        let batchSize = 1000;
-        let offset = 0;
+        let abortController = new AbortController();
         let queryResult = {};
         let abortLoad = false;
         let masquerade = '';
@@ -1312,56 +1329,65 @@ $(function() {
             addMasqueradeParam = '&masquerade=nonAdmin';
         }
 
-        leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
+        document.querySelector('#btn_abort').style.display = 'inline';
+        document.querySelector('#btn_abort').addEventListener('click', function() {
+            abortController.abort();
+            abortLoad = true;
+        });
+
+        // show top results asap
+        document.querySelector('#reportStats').innerText = `Loading...`;
+        let queryFirstBatch = new LeafFormQuery();
+        queryFirstBatch.setQuery(structuredClone(leafSearch.getLeafFormQuery().getQuery()));
+        queryFirstBatch.sort('recordID', 'DESC');
+        queryFirstBatch.setLimit(50);
+        queryFirstBatch.setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
+        let firstBatch = await queryFirstBatch.execute();
+        renderGrid(firstBatch);
+
+        leafSearch.getLeafFormQuery().setBatchSize(1000);
+        leafSearch.getLeafFormQuery().setLimit(Infinity); // Backward compat: limit shouldn't exist
         leafSearch.getLeafFormQuery().setExtraParams('&x-filterData=recordID,'+ Object.keys(filterData).join(',') + addMasqueradeParam);
-
-        leafSearch.getLeafFormQuery().onSuccess(function(res, resStatus, resJqXHR) {
-            queryResult = Object.assign(queryResult, res);
-
-            if((Object.keys(res).length == batchSize
-                    || resJqXHR.getResponseHeader('leaf-query') == 'continue')
-                && !abortLoad) {
-                $('#reportStats').html(`Loading ${offset}+ records <button id="btn_abort" class="buttonNorm">Stop</button>`);
-                $('#btn_abort').on('click', function() {
-                    abortLoad = true;
-                });
-                offset += batchSize;
-                leafSearch.getLeafFormQuery().setLimit(offset, batchSize);
-                leafSearch.getLeafFormQuery().execute();
-            }
-            else {
-                let partialLoad = '';
-                if(abortLoad) {
-                    partialLoad = ' (partially loaded)';
-                }
-                $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
-                renderGrid(queryResult);
-                //update Checkpoint Date Step header text if still needed (should be rare)
-                if(tStepHeader.some(ele => ele === 0)) {
-                    $.ajax({
-                        type: 'GET',
-                        url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
-                        dataType: 'json',
-                        success: (res) => {
-                            let div = document.createElement('div');
-                            res.forEach(step => {
-                                if(tStepHeader[step.stepID] === 0) {
-                                    const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
-                                    $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
-                                    $('#Vheader_stepID_' + step.stepID).text(title);
-                                    tStepHeader[step.stepID] = 1;
-                                }
-                            });
-
-                        },
-                        error: (err) => console.log(err),
-                    });
-                }
-            }
+        leafSearch.getLeafFormQuery().setAbortSignal(abortController.signal);
+        leafSearch.getLeafFormQuery().onProgress(progress => {
+            document.querySelector('#reportStats').innerText = `Loading ${progress}+ records`;
+            document.querySelector(`#${grid.getPrefixID()}tfoot`).innerHTML = `<tr>
+                <td colspan="${grid.getNumHeaders()}" style="padding: 8px; font-size: 120%; font-weight: bold">
+                <img src="./images/indicator.gif" style="vertical-align: middle" alt="" /> Loading ${progress}+ records
+                </td>
+            </tr>`;
         });
 
         // get data
-        leafSearch.getLeafFormQuery().execute();
+        leafSearch.getLeafFormQuery().execute().then(queryResult => {
+            let partialLoad = '';
+            if(abortLoad) {
+                partialLoad = ' (partially loaded)';
+            }
+            document.querySelector('#btn_abort').style.display = 'none';
+            $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
+            renderGrid(queryResult);
+            //update Checkpoint Date Step header text if still needed (should be rare)
+            if(tStepHeader.some(ele => ele === 0)) {
+                $.ajax({
+                    type: 'GET',
+                    url: './api/workflow/steps?x-filterData=workflowID,stepID,stepTitle,description',
+                    dataType: 'json',
+                    success: (res) => {
+                        let div = document.createElement('div');
+                        res.forEach(step => {
+                            if(tStepHeader[step.stepID] === 0) {
+                                const title = XSSHelpers.stripAllTags($(div).html(step.stepTitle || "").text());
+                                $('#' + grid.getPrefixID() + 'header_stepID_' + step.stepID).text(title);
+                                tStepHeader[step.stepID] = 1;
+                            }
+                        });
+
+                    },
+                    error: (err) => console.log(err),
+                });
+            }
+        });
 
         // create save link once
         if(!extendedToolbar) {
@@ -1371,7 +1397,7 @@ $(function() {
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="dynicons/?img=gnome-applications-science.svg&w=32" alt="" /> Modify Search</button> ');
             $('#' + grid.getPrefixID() + 'gridToolbar').append(' <button type="button" class="buttonNorm" onclick="showJSONendpoint();"><img src="dynicons/?img=applications-other.svg&w=16" alt="" /> JSON</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button id="newRequestButton" class="buttonNorm"  style="display: none; position: absolute; bottom: 0; left: 0" type="button" onclick="createRequest(categoryID)"><img src="dynicons/?img=list-add.svg&amp;w=16" alt="" />Create Row</button><p id="newRecordWarning" style="display: none; position: absolute; top: 0; left: 0; color:#d00">A new request was created, but it was not returned by the current query.</p>');
             extendedToolbar = true;
 
 

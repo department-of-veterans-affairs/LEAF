@@ -44,7 +44,7 @@ label input {
     margin-left: 0.25rem;
     cursor: pointer;
 }
-table th:not([id^="Vheader"]) {
+table th {
     background-color: #252f3e;
     color: white;
     font-weight: normal;
@@ -422,7 +422,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                                 document.getElementById(data.cellContainerID).innerHTML = htmlContent;
                             }
                         },
-                        {   //the input selector can't be an id because the same value will be given to the Vheader
+                        {
                             name: `<label for="confirm_group_updates">Select All Groups
                                 <input type="checkbox" class="confirm_group_updates" onclick="checkAll(event)" checked />
                             </label>`,
@@ -797,7 +797,7 @@ function findAssociatedRequests(empSel, empSelNew) {
         taskType: ''
     }
 
-    document.getElementById(`${empSel.prefixID}input`).value = `username_disabled:${oldAccount}`;
+    document.getElementById(`${empSel.prefixID}input`).value = `username.disabled:${oldAccount}`;
     document.getElementById(`${empSelNew.prefixID}input`).value = `username:${newAccount}`;
 
     document.getElementById('run').style.display = 'none';

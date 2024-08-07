@@ -8,14 +8,22 @@
 <h1>LEAF Development Environment</h1>
 <h2>LEAF Sites</h2>
 <ul>
-    <li><a href="./LEAF_Request_Portal">Request Portal</a></li>
-    <li><a href="./LEAF_Nexus">Nexus</a></li>
+    <li><a href="./LEAF_Request_Portal" target="_blank">Request Portal</a></li> A low code/no code workflow management tool utilized to digitize administrative business processes
+    <li><a href="./LEAF_Nexus" target="_blank">Nexus</a></li>  Digitized organizational charts to visually display the relationship of positions within LEAF.
 </ul>
 
-<h2>Testing Helpers</h2>
+<h2>Automated Tests</h2> These are one button tests that will make sure everything is working correctly.
 <ul>
-    <li><a href="http://localhost:8000/api/v1/test" target="_blank">API tester</a></li>
-    <li><a href="dev/phpinfo.php">phpinfo()</a></li>
+    <li><a href="http://host.docker.internal:8000/api/v1/test" target="_blank">API tester</a></li>  These are tests primarily for api's that can be targeted by client-side javascript calls.
+    <li><a href="http://host.docker.internal/selenium-tests" target="_blank">End-to-End tests</a></li> This is a set of tests meant to verify that all different components of LEAF are working correctly together.
+    <br/>*Note:  This particular test is extensive and will take a significant amount of time.  The new page will be blank until it finishes running and then will bring back an intereactive results page.
+</ul>
+
+<h2>Dev Corner</h2>
+<ul>
+    <li><a href="http://host.docker.internal:8080/" target="_blank">Adminer</a></li> This takes you to the login for a Gui for the MySQL database.  Get the username and password from the local .env file.
+    <li><a href="http://host.docker.internal:5080/" target="_blank">SMTP Server</a></li>  This takes you to the GUI for the fake mail system so you can verify emails are going out.
+    <li><a href="dev/phpinfo.php" target="_blank">phpinfo()</a></li> For geeks.  This shows the current setup of the PHP engine.
 </ul>
 
 </body>

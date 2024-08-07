@@ -16,3 +16,4 @@ if (!defined('AUTH_CERT_URL')) define('AUTH_CERT_URL', getenv('APP_URL_AUTH_CERT
 if (!defined('AUTH_TYPE')) define('AUTH_TYPE', getenv('APP_AUTH_TYPE'));
 if (!defined('CIPHER_KEY')) define('CIPHER_KEY', getenv('APP_CIPHER_KEY'));
 if (!defined('LIB_PATH')) define('LIB_PATH', getenv('APP_LIB_PATH'));
+if (!defined('APP_PATH')) define('APP_PATH', getenv('APP_PATH'));

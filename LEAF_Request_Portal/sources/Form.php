@@ -255,11 +255,9 @@ class Form
     {
         $categories = explode(',', $categoryIDs);
         $fullFormPages = array();
-        $catReg = "/^form_[0-9a-f]{5}$/i";
-
         foreach($categories as $catID) {
-            if(preg_match($catReg, $catID)) {
-                $form = $this->getFormByCategory($catID, $parseTemplate);
+            $form = $this->getFormByCategory($catID, $parseTemplate);
+            if(is_array($form) && count($form) > 0) {
                 $fullFormPages = array_merge($fullFormPages, $form);
             }
         }
@@ -461,12 +459,12 @@ class Form
 
     /**
      * Get a form's indicator and all children, including data if available
-     * 
+     *
      * Flags:
      *  $_GET['context'] If the context is set to "formEditor", an additional "isMaskable" property indicates
      *                   whether the field has Special Access Restrictions assigned. Used in the Form Editor
      *                   to provide a visual indicator.
-     * 
+     *
      * @param int $indicatorID
      * @param int $series
      * @param int $recordID
@@ -508,7 +506,9 @@ class Form
             }
             else {
                 $vars = array(':indicatorID' => $indicatorID);
-                $data = $this->db->prepared_query('SELECT * FROM indicators WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
+                $data = $this->db->prepared_query('SELECT * FROM indicators
+                                                    LEFT JOIN indicator_mask USING (indicatorID)
+                                                    WHERE indicatorID=:indicatorID AND disabled = 0', $vars);
                 $this->cache['getIndicator_'.$indicatorID] = $data;
             }
         }
@@ -531,6 +531,7 @@ class Form
             $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
             $form[$idx]['displayedValue'] = ''; // used for Org Charts
             $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ? $data[0]['timestamp'] : 0;
+            $form[$idx]['userID'] = $data[0]['userID'];
             if(!$forceReadOnly) {
                 $form[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $data[0]['categoryID']);
                 $form[$idx]['isMasked'] = isset($data[0]['groupID']) ? $this->isMasked($data[0]['indicatorID'], $recordID) : 0;
@@ -770,9 +771,9 @@ class Form
 
     /**
      * cancelRecord marks a record as cancelled.
-     * 
+     *
      * Only admins should be able to cancel submitted records.
-     * 
+     *
      * @param int $recordID
      * @param string $comment
      *
@@ -799,18 +800,23 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
+            $actionUserID = $this->login->getUserID();
+            $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+
             // actionID 4 = delete
             $vars = array(':recordID' => $recordID,
-                        ':userID' => $this->login->getUserID(),
-                        ':dependencyID' => 0,
-                        ':actionType' => 'deleted',
-                        ':actionTypeID' => 4,
-                        ':time' => time(),
-                        ':comment' => XSSHelpers::xscrub($comment));
+                ':userID' => $actionUserID ,
+                ':dependencyID' => 0,
+                ':actionType' => 'deleted',
+                ':actionTypeID' => 4,
+                ':time' => time(),
+                ':comment' => XSSHelpers::xscrub($comment),
+                ':userMetadata' => $userMetadata,
+            );
             $sql = 'INSERT INTO `action_history`
-                        (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`)
+                        (`recordID`, `userID`, `dependencyID`, `actionType`, `actionTypeID`, `time`, `comment`, `userMetadata`)
                     VALUES
-                        (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+                        (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
 
             $res = $this->db->prepared_query($sql, $vars);
 
@@ -830,10 +836,21 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
+            // need to send emails to everyone upstream from the currect step.
+            $this->notifyPriorSteps($recordID);
+
             $return_value = 1;
         }
 
         return $return_value;
+    }
+
+    private function notifyPriorSteps(int $recordID): void
+    {
+        $email = new Email();
+        $email->setSender('leaf.noreply@va.gov');
+
+        $email->attachApproversAndEmail($recordID, Email::CANCEL_REQUEST, $this->login);
     }
 
     public function restoreRecord($recordID)
@@ -1077,9 +1094,17 @@ class Form
                       ':indicatorID' => $key,
                       ':series' => $series, );
 
-        $res = $this->db->prepared_query('SELECT data, format FROM data
-                                            LEFT JOIN indicators USING (indicatorID)
-                                            WHERE recordID=:recordID AND indicatorID=:indicatorID AND series=:series', $vars);
+        $sql = "SELECT `format`, `data` FROM `data`
+            LEFT JOIN `indicators` USING (`indicatorID`)
+            WHERE `recordID`=:recordID AND `indicators`.`indicatorID`=:indicatorID AND `series`=:series";
+
+        $res = $this->db->prepared_query($sql, $vars);
+
+        if(empty($res)) {
+            $vf = array(":indicatorID" => $key);
+            $sqlf = "SELECT `format` FROM `indicators` WHERE `indicatorID`=:indicatorID";
+            $res =  $this->db->prepared_query($sqlf, $vf);
+        }
 
         // handle fileupload indicator type
         if (isset($res[0]['format'])
@@ -1111,23 +1136,27 @@ class Form
         if (!$this->hasWriteAccess($recordID, 0, $key)) {
             return 0;
         }
-
+        $userMetadata = null;
+        if($res[0]['format'] === 'orgchart_employee' && is_numeric($_POST[$key])) {
+            $userMetadata = $this->getFormWorkflow()->getInfoForUserMetadata($_POST[$key], true);
+        }
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series,
                       ':data' => trim($_POST[$key]),
+                      ':metadata' => $userMetadata,
                       ':timestamp' => time(),
                       ':userID' => $this->login->getUserID(), );
 
-        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, timestamp, userID)
-                                            VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)
-                                            ON DUPLICATE KEY UPDATE data=:data, timestamp=:timestamp, userID=:userID', $vars);
+        $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, metadata, timestamp, userID)
+                                            VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)
+                                            ON DUPLICATE KEY UPDATE data=:data, metadata=:metadata, timestamp=:timestamp, userID=:userID', $vars);
 
         if (!$duplicate) {
-            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :timestamp, :userID)', $vars);
+            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)', $vars);
         }
-
+        /*  signatures (not yet implemented)
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
                       ':series' => $series, );
@@ -1138,7 +1167,7 @@ class Form
 
         if (strpos($res[0]['format'], 'signature') == 0) {
             // $this->writeSignature($recordID);
-        }
+        }*/
         return 1;
     }
 
@@ -1379,16 +1408,21 @@ class Form
 
                 $res = $this->db->prepared_query($sql, $vars);
 
+                $actionUserID = $this->login->getUserID();
+                $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+
                 // write history data, actionID 6 = filled dependency
                 $vars = array(':recordID' => $recordID,
-                            ':userID' => $this->login->getUserID(),
+                            ':userID' => $actionUserID,
                             ':dependencyID' => 5,
                             ':actionType' => 'submit',
                             ':actionTypeID' => 6,
                             ':time' => time(),
-                            ':comment' => '', );
-                $sql = 'INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)';
+                            ':comment' => '',
+                            ':userMetadata' => $userMetadata,
+                        );
+                $sql = 'INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
+                        VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
 
                 $res = $this->db->prepared_query($sql, $vars);
 
@@ -2420,7 +2454,7 @@ class Form
 
     /* getCustomData iterates through an array of $recordID_list and incorporates any associated data
      * specified by $indicatorID_list (string of ID#'s delimited by ',')
-     * 
+     *
      * WARNING: $alreadyCheckedReadAccess can only be set to true if $recordID_list has been
      *          processed by checkReadAccess().
      *
@@ -2620,9 +2654,9 @@ class Form
 			    break;
                     }
 
-
-                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1 ? '[protected data]' : $item['data'];
-                    if (isset($item['dataOrgchart']))
+                    $isProtected = isset($indicatorMasks[$item['indicatorID']]) && $indicatorMasks[$item['indicatorID']] == 1;
+                    $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID']] = $isProtected ? '[protected data]' : $item['data'];
+                    if (isset($item['dataOrgchart']) && !$isProtected)
                     {
                         $out[$item['recordID']]['s' . $item['series']]['id' . $item['indicatorID'] . '_orgchart'] = $item['dataOrgchart'];
                     }
@@ -2855,16 +2889,22 @@ class Form
             $user = $dir->lookupLogin($userID);
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
 
+            $actionUserID = $this->login->getUserID();
+            $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+
             $comment = "Initiator changed to {$name}";
-            $vars2 = array(':recordID' => (int)$recordID,
-                ':userID' => $this->login->getUserID(),
+            $vars2 = array(
+                ':recordID' => (int)$recordID,
+                ':userID' => $actionUserID,
                 ':dependencyID' => 0,
                 ':actionType' => 'changeInitiator',
                 ':actionTypeID' => 8,
                 ':time' => time(),
-                ':comment' => $comment, );
-            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment)
-                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment)', $vars2);
+                ':comment' => $comment,
+                ':userMetadata' => $userMetadata,
+            );
+            $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
+                                            VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)', $vars2);
 
             return $userID;
         }
@@ -2917,28 +2957,70 @@ class Form
     /**
      * parseBooleanQuery transforms a user's query to add implied "+" prefixes when
      * a "MATCH ALL" condition is selected.
-     * 
+     *
      * @param $query
      * @return string Transformed query
      */
     private function parseBooleanQuery(string $query): string
     {
-        $words = explode(' ', $query);
+        $fulltext_stopwords = array(
+            'a' => 1,
+            'about' => 1,
+            'an' => 1,
+            'are' => 1,
+            'as' => 1,
+            'at' => 1,
+            'be' => 1,
+            'by' => 1,
+            'com' => 1,
+            'de' => 1,
+            'en' => 1,
+            'for' => 1,
+            'from' => 1,
+            'how' => 1,
+            'i' => 1,
+            'in' => 1,
+            'is' => 1,
+            'it' => 1,
+            'la' => 1,
+            'of' => 1,
+            'on' => 1,
+            'or' => 1,
+            'that'=> 1,
+            'the'=> 1,
+            'this'=> 1,
+            'to' => 1,
+            'was' => 1,
+            'what' => 1,
+            'when' => 1,
+            'where' => 1,
+            'who' => 1,
+            'will' => 1,
+            'with' => 1,
+            'und' => 1,
+            'www' => 1,
+        );
+        $words = explode(' ', trim($query));
+
+        //Prevent stopwords and words less than 3 characters from being required,
+        //since that could cause no results even if the data entry contained them.
         foreach($words as $k => $word) {
-            $firstChar = substr($word, 0, 1);
-            if($firstChar != '+' && $firstChar != '-') {
-                $words[$k] = '+' . $words[$k];
+            $searchWord = trim($word);
+            $firstChar = substr($searchWord, 0, 1);
+            if(strlen($searchWord) > 2 && $fulltext_stopwords[strtolower($searchWord)] !== 1 && $firstChar !== '+' && $firstChar !== '-') {
+                $words[$k] = '+' . $searchWord;
+            } else {
+                $words[$k] = $searchWord;
             }
         }
-
         return implode(' ', $words);
     }
 
     /**
      * query parses a JSON formatted user query defined in formQuery.js.
-     * 
+     *
      * Returns an array on success, and string/int for malformed queries
-     * 
+     *
      * @param string JSON formatted string of the query
      * @return mixed
      */
@@ -3124,17 +3206,18 @@ class Form
 
                     break;
                 case 'categoryID':
+                    if (!str_contains($joins,'lj_category_count')) {
+                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
+                    }
                     if ($q['operator'] != '!=')
                     {
                         // Backwards Compatibility
-                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
-                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID = :categoryID{$count}";
+                        $conditions .= "{$gate}lj_category_count.categoryID = :categoryID{$count}";
                     }
                     else
                     {
                         // Backwards Compatibility
-                        $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
-                        $conditions .= "{$gate}lj_categoryID{$count}.categoryID != :categoryID{$count}";
+                        $conditions .= "{$gate}lj_category_count.categoryID != :categoryID{$count}";
                     }
 
                     break;
@@ -3177,8 +3260,8 @@ class Form
                             /*case 'destruction':
                                 $conditions .= "{$gate}(categories.destructionAge IS NOT NULL AND ".
                                     "records_workflow_state.stepID IS NULL AND submitted != 0)";
-                                if (!strpos($joins,'category_count')) {
-                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                if (!str_contains($joins,'lj_category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
                                 $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
@@ -3186,11 +3269,11 @@ class Form
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
-                                    $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
-                									WHERE stepID=:stepID{$count}) rj_stepID{$count}
-                									USING (recordID) ";
-                                    // Backwards Compatibility
-                                    $conditions .= "{$gate}rj_stepID{$count}.stepID = :stepID{$count}";
+                                    if (!str_contains($joins,'lj_records_workflow_state')) {
+                                        $joins .= "LEFT JOIN records_workflow_state lj_records_workflow_state USING (recordID) ";
+                                    }
+
+                                    $conditions .= "{$gate}lj_records_workflow_state.stepID = :stepID{$count}";
                                 }
                                 else
                                 {
@@ -3240,8 +3323,8 @@ class Form
                                 $conditions .= "{$gate}(categories.destructionAge IS NULL OR ".
                                     "(records_workflow_state.stepID IS NOT NULL OR submitted = 0)".
                                 ")";
-                                if (!strpos($joins,'category_count')) {
-                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_categoryID{$count} USING (recordID) ";
+                                if (!str_contains($joins,'lj_category_count')) {
+                                    $joins .= "LEFT JOIN (SELECT * FROM category_count WHERE count > 0) lj_category_count USING (recordID) ";
                                 }
                                 $joins .= "LEFT JOIN categories USING (categoryID) ";
                                 $joins .= "LEFT JOIN records_workflow_state USING (recordID) ";
@@ -3249,11 +3332,11 @@ class Form
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
-                                    $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
-                									WHERE stepID != :stepID{$count}) rj_stepID{$count}
-                									USING (recordID) ";
-                                    // Backwards Compatibility
-                                    $conditions .= "{$gate}rj_stepID{$count}.stepID != :stepID{$count}";
+                                    if (!str_contains($joins,'lj_records_workflow_state')) {
+                                        $joins .= "LEFT JOIN records_workflow_state lj_records_workflow_state USING (recordID) ";
+                                    }
+
+                                    $conditions .= "{$gate}lj_records_workflow_state.stepID != :stepID{$count}";
                                 }
                                 else
                                 {
@@ -3362,6 +3445,10 @@ class Form
 
                                         $operator = 'AGAINST';
                                         $dataMatch = "({$dataMatch} IN BOOLEAN MODE)";
+                                    } else {
+                                        //Temporary means to handle quotes for non BOOLEAN MODE text searches.
+                                        //TODO: remove this on move to markdown
+                                        $vars[":data{$count}"] = htmlentities(trim($vars[":data{$count}"]), ENT_QUOTES);
                                     }
                                     break;
                             }
@@ -3396,6 +3483,59 @@ class Form
 								USING (recordID) ";
                     $conditions .= "{$gate}lj_dependency{$count}.dependencyID = :indicatorID{$count}";
 
+                    break;
+                case 'stepAction':
+                    if (!isset($q['indicatorID']) || !is_numeric($q['indicatorID']))
+                    {
+                        return 0;
+                    }
+
+                    switch($operator) {
+                        case "=":
+                            $vars[':indicatorID' . $count] = $q['indicatorID']; // this is the stepID
+                            // This checks if someone has taken a specific action for a stepID
+                            // OUTER JOIN gets the most recent action for a specific stepID, since there can be
+                            // loops within a workflow, and people can take different actions later
+                            $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
+                                                    LEFT OUTER JOIN action_history sFA_ah{$count}
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID 
+                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.time < sFA_ah{$count}.time)
+                                            WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL) lj_action_history{$count}
+                                            USING (recordID) ";
+                            // Check if the step was fulfilled. This reduces confusion for multi-requirement steps (which would have multiple actions)
+                            $joins .= "LEFT JOIN (SELECT recordID, stepID, fulfillmentTime FROM records_step_fulfillment
+                                            WHERE stepID=:indicatorID{$count}) lj_action_history_fulfillment{$count}
+                                            USING (recordID) ";
+                            $conditions .= "{$gate}(lj_action_history{$count}.stepID=:indicatorID{$count}
+                                                    AND lj_action_history_fulfillment{$count}.fulfillmentTime IS NOT NULL
+                                                    AND lj_action_history{$count}.actionType=:stepAction{$count}
+                                                )";
+                            break;
+                        case "!=":
+                            // This checks if someone has taken a specific action for a stepID
+                            // OUTER JOIN gets the most recent action for a specific stepID, since there can be
+                            // loops within a workflow, and people can take different actions later
+                            $vars[':indicatorID' . $count] = $q['indicatorID']; // this is the stepID
+                            $joins .= "LEFT JOIN (SELECT ah.recordID, ah.stepID, ah.actionType FROM action_history ah
+                                                    LEFT OUTER JOIN action_history sFA_ah{$count}
+                                                        ON (ah.recordID = sFA_ah{$count}.recordID
+                                                            AND ah.stepID = sFA_ah{$count}.stepID 
+                                                            AND ah.time < sFA_ah{$count}.time)
+                                            WHERE ah.stepID=:indicatorID{$count} AND sFA_ah{$count}.recordID IS NULL AND ah.actionType=:stepAction{$count}) lj_action_history{$count}
+                                            USING (recordID) ";
+                            $conditions .= "{$gate}lj_action_history{$count}.stepID IS NULL";
+                            break;
+                        case "not implemented": // disabled
+                            // This checks if a specific action has never been taken for a stepID
+                            $vars[':indicatorID' . $count] = $q['indicatorID'];
+                            $joins .= "LEFT JOIN (SELECT recordID, stepID FROM action_history
+                                        WHERE stepID=:indicatorID{$count}
+                                            AND actionType=:stepAction{$count}) lj_action_history{$count}
+                                        USING (recordID) ";
+                            $conditions .= "{$gate}lj_action_history{$count}.stepID IS NULL";
+                            break;
+                    }
                     break;
                 default:
                     return 0;
@@ -3501,6 +3641,10 @@ class Form
                     $sort = 'ORDER BY date ';
 
                     break;
+                case 'recordID':
+                    $sort = 'ORDER BY recordID ';
+
+                    break;
                 case 'title':
                     $sort = 'ORDER BY title ';
 
@@ -3521,7 +3665,7 @@ class Form
                     break;
             }
         }
-        
+
         // avoid extra sort when using fulltext index
         if($usingFulltextIndex) {
             $sort = '';
@@ -3583,8 +3727,10 @@ class Form
         $recordIDs = '';
         foreach ($res as $item)
         {
+            if(!isset($data[$item['recordID']])) {
+                $recordIDs .= $item['recordID'] . ',';
+            }
             $data[$item['recordID']] = $item;
-            $recordIDs .= $item['recordID'] . ',';
         }
         $recordIDs = trim($recordIDs, ',');
         $recordIDs = $recordIDs ?: 0;
@@ -3850,7 +3996,8 @@ class Form
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
             $temp['categoryName'] = $item['categoryName'];
-            $temp['disabled'] = ($item['disabled'] == 1) ? 'Archived' : 'Deletion Date: '. $delDateFormat;
+            // TODO: change the below name. New output should use new property names instead of recycling existing ones.
+            $temp['disabled'] = ($item['disabled'] == 1) ? 'Archived' : 'Scheduled Deletion Date: '. $delDateFormat;
             $disabledIndicatorList[] = $temp;
         }
 
@@ -4139,7 +4286,7 @@ class Form
             {
                 $var = array(':series' => (int)$series,
                              ':recordID' => (int)$recordID, );
-                $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID FROM data
+                $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID, userID FROM data
                 									LEFT JOIN indicator_mask USING (indicatorID)
                 									WHERE indicatorID IN (' . $indicatorList . ') AND series=:series AND recordID=:recordID', $var);
 
@@ -4149,6 +4296,7 @@ class Form
                     $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
                     $data[$idx]['timestamp'] = isset($resIn['timestamp']) ? $resIn['timestamp'] : 0;
                     $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
+                    $data[$idx]['userID'] = isset($resIn['userID']) ? $resIn['userID'] : '';
                 }
             }
             else if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
@@ -4184,7 +4332,7 @@ class Form
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
                 $child[$idx]['has_code'] = trim($field['html']) != '' || trim($field['htmlPrint']) != '';
-
+                $child[$idx]['userID'] = isset($data[$idx]['userID']) ? $data[$idx]['userID'] : '';
                 if(isset($_GET['context']) && $_GET['context'] == 'formEditor') {
                     $child[$idx]['isMaskable'] = isset($data[$idx]['groupID']) ? 1 : 0;
                 }

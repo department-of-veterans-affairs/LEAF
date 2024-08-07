@@ -36,13 +36,14 @@
 $(function() {
     $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="" /></div>');
 
-    $.ajax({
-    	type: 'GET',
-        url: "../scripts/updateDatabase.php",
-        success: function(response) {
-            $('#groupList').html('<pre>' + response + '</pre>');
-        }
-    });
+    fetch('../scripts/updateDatabase.php')
+        .then(res => res.text())
+        .then(data => {
+            $('#groupList').html('<pre>' + data + '</pre>');
+        })
+        .catch(err => {
+            $('#groupList').html('Error updating database. This issue has been automatically reported.');
+        });
 });
 
 /* ]]> */
