@@ -20,7 +20,7 @@ ALTER TABLE `employee_data` ADD CONSTRAINT `empUID_rel` FOREIGN KEY (`empUID`) R
 ALTER TABLE `relation_position_employee` ADD CONSTRAINT `empUID_rel_position` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `relation_group_employee` ADD CONSTRAINT `empUID_rel_group` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `relation_employee_backup` ADD CONSTRAINT `empUID_rel_backup` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
-ALTER TABLE `relation_employee_backup` ADD CONSTRAINT `empUID_rel_backup2` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE `relation_employee_backup` ADD CONSTRAINT `empUID_rel_backup2` FOREIGN KEY (`backupEmpUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `employee_privileges` ADD CONSTRAINT `empUID_rel_privs` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `employee_data_history` ADD CONSTRAINT `empUID_rel_history` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
@@ -51,7 +51,7 @@ ALTER TABLE `employee_data` ADD CONSTRAINT `empUID_rel` FOREIGN KEY (`empUID`) R
 ALTER TABLE `relation_position_employee` ADD CONSTRAINT `empUID_rel_position` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `relation_group_employee` ADD CONSTRAINT `empUID_rel_group` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `relation_employee_backup` ADD CONSTRAINT `empUID_rel_backup` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
-ALTER TABLE `relation_employee_backup` ADD CONSTRAINT `empUID_rel_backup2` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE `relation_employee_backup` ADD CONSTRAINT `empUID_rel_backup2` FOREIGN KEY (`backupEmpUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `employee_privileges` ADD CONSTRAINT `empUID_rel_privs` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `employee_data_history` ADD CONSTRAINT `empUID_rel_history` FOREIGN KEY (`empUID`) REFERENCES `employee`(`empUID`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
