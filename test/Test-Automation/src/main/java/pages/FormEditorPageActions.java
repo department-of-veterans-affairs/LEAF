@@ -7,6 +7,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
 
+import java.util.List;
+
 /**
  * This class contains actions related to the Form Editor page.
  * It extends the BasePage class to utilize common page functionalities.
@@ -14,6 +16,8 @@ import org.testng.Assert;
 public class FormEditorPageActions extends BasePage {
 
     private static final Logger log = LogManager.getLogger(FormEditorPageActions.class);
+    private static final String formsPageURL = "https://host.docker.internal/LEAF_Request_Portal/admin/?a=form_vue#/";
+
 
     // Web elements on the Form Editor page
     @FindBy(id = "createFormButton")
@@ -22,11 +26,26 @@ public class FormEditorPageActions extends BasePage {
     @FindBy(id = "name")
     WebElement formLabel;
 
+    @FindBy(xpath = "//b[contains(text(),'Remove')]")
+    WebElement removeButton;
+
+    @FindBy(id = "supplemental_forms")
+    List<WebElement> formTable;
+
+    @FindBy(xpath = "//table[@id='supplemental_forms']//tr//th")
+    WebElement formTableHeaderfcontains;
+
     @FindBy(id = "description")
     WebElement formDescription;
 
-    @FindBy(xpath = "//div[contains(text(),' Delete this form')]")
+    @FindBy(xpath = "//button[@title='delete this form']")
     WebElement deleteButton;
+
+    @FindBy(xpath = "//div[@id='mergedForms']//following::div")
+    WebElement mergeFormMessage;
+
+    @FindBy(xpath = "//button[@title='delete this form']")
+    WebElement FOR;
 
     @FindBy(id = "confirm_saveBtnText")
     WebElement confirmDeleteButton;
@@ -37,7 +56,7 @@ public class FormEditorPageActions extends BasePage {
     @FindBy(id = "confirm_button_cancelchange")
     WebElement selectCancel;
 
-    @FindBy(xpath = "//*[text()=' Staple other form']")
+    @FindBy(xpath = "//button[contains(text(),'Staple other form ')]")
     WebElement stapleForm;
 
     @FindBy(id = "mergedForms")
@@ -46,11 +65,17 @@ public class FormEditorPageActions extends BasePage {
     @FindBy(id = "stapledCategoryID")
     WebElement formOptions;
 
-    @FindBy(xpath = "//span[@id='ui-id-3']//following::span[1]")
+    @FindBy(id = "button_cancelchange")
     WebElement dialogueCloseBtn;
+
+    @FindBy(id = "select-form-to-staple")
+    WebElement selectFormDropDown;
 
     @FindBy(xpath = "//button[contains(@id,'main_form_form')]//span[2]")
     WebElement Form;
+
+    @FindBy(linkText = "Form Browser")
+    WebElement formLink;
 
     @FindBy(xpath = "//button[text()=' + Add Section ']")
     WebElement AddSection;
@@ -67,6 +92,13 @@ public class FormEditorPageActions extends BasePage {
     @FindBy(xpath = "//button[text()=' + Add Question to Section ']")
     WebElement AddQuestionToHeader;
 
+    @FindBy(xpath = "//table[@id='supplemental_forms']//tr")
+    List<WebElement> row;
+
+
+    @FindBy(xpath = "//div[contains(text(),'Test-Description')]//following-sibling::div")
+    WebElement donotDeleteWarning;
+
     /**
      * Constructor for FormEditorPageActions.
      *
@@ -76,11 +108,23 @@ public class FormEditorPageActions extends BasePage {
         super(driver);
     }
 
+    public void clickCloseStaple() {
+        setExplicitWaitForElementToBeVisible(dialogueCloseBtn,30);
+        dialogueCloseBtn.click();
+    }
+
     /**
      * Clicks the "Create Form" button.
      */
     public void clickCreateForm() {
         clickElement(createForm);
+    }
+
+    /**
+     * Clicks the "Create Form" link.
+     */
+    public void clickCreateFormLink() {
+        clickElement(formLink);
     }
 
     /**
@@ -105,7 +149,7 @@ public class FormEditorPageActions extends BasePage {
      * Clicks the "Save" button.
      */
     public void clickSave() {
-        clickElement(saveButton);
+        saveButton.click();;
     }
 
     /**
@@ -210,16 +254,47 @@ public class FormEditorPageActions extends BasePage {
      */
     public void deleteForm(String FormName) {
         Boolean formDeleted = null;
+        setExplicitWaitForElementToBeVisible(deleteButton, 30);
         if (deleteButton.isDisplayed()) {
             deleteButton.click();
-            setExplicitWaitForElementToBeVisible(confirmDeleteButton, 20);
-            confirmDeleteButton.click();
+            setExplicitWaitForElementToBeVisible(saveButton, 20);
+            saveButton.click();
         }
-        formDeleted = checkFormExists(FormName);
-        Assert.assertEquals(formDeleted, true);
-        log.info("Validating Form Deleted Successfully");
     }
 
+    public void openAndDeleteForm(String FormName) {
+        openForm(FormName);
+
+        setExplicitWaitForElementToBeVisible(deleteButton, 30);
+        if (deleteButton.isDisplayed()) {
+            deleteButton.click();
+            setExplicitWaitForElementToBeVisible(saveButton, 20);
+            saveButton.click();
+        }
+    }
+
+
+    public void clickStapleForm(){
+        setExplicitWaitForElementToBeVisible(stapleForm,30);
+        stapleForm.click();
+    }
+
+    public boolean verifyDNDWarning()
+    {
+        setExplicitWaitForElementToBeVisible(donotDeleteWarning,30);
+        String DNDWarning = donotDeleteWarning.getText();
+        return DNDWarning.contains("This form still has stapled forms attached");
+
+    }
+
+    public void clickDeleteFormButton(){
+        if (deleteButton.isDisplayed()) {
+            deleteButton.click();
+            setExplicitWaitForElementToBeVisible(saveButton, 20);
+
+        }
+
+    }
     /**
      * Cancels the deletion of a form by its name.
      *
@@ -237,23 +312,107 @@ public class FormEditorPageActions extends BasePage {
         log.info("Validating Form Not Deleted Successfully");
     }
 
+    //div[@id='mergedForms']//following::div
+
+
     /**
      * Staples another form by its name.
      *
      * @param StapleOtherFormName the name of the form to staple
      */
-    public void stapleForm(String StapleOtherFormName) {
+    public void stapleForm(String StapleOtherFormName) throws InterruptedException {
         setExplicitWaitForElementToBeVisible(stapleForm, 20);
         stapleForm.click();
         setExplicitWaitForElementToBeVisible(mergeForm, 10);
-        mergeForm.click();
-        setExplicitWaitForElementToBeVisible(formOptions, 10);
-        Select dropDown = new Select(formOptions);
+        selectFormDropDown.click();
+        Select dropDown = new Select(selectFormDropDown);
         dropDown.selectByVisibleText(StapleOtherFormName);
         saveButton.click();
+        setExplicitWaitForElementToBeVisible(removeButton, 30);
         log.info("Stapling " + StapleOtherFormName);
         Boolean formStapled = mergeForm.getText().contains(StapleOtherFormName);
         dialogueCloseBtn.click();
         Assert.assertEquals(formStapled, true);
     }
+
+    public void createForm(String inputFormName) {
+        clickCreateForm(); // Click on the 'Create Form' button
+        enterFormName(inputFormName); // Enter the form name
+        enterDescription("Test-Description"); // Enter the form description
+        clickSave(); // Click the 'Save' button
+    }
+
+
+    public boolean isFormDeleted(String formName) {
+        String beforeXpath = "//table[@id='supplemental_forms']//tr[";
+        String afterXpath = "]//a";
+        boolean formDeleted = true;
+        for (int i = 2; i < row.size(); i++) {
+            String actFormName = driver.findElement(By.xpath(beforeXpath + i + afterXpath)).getText();
+            if (actFormName.equals(formName)) {
+                formDeleted = false;
+                break;
+            }
+
+        }
+        return formDeleted;
+    }
+
+    public void openForm(String formName) {
+        driver.navigate().to(formsPageURL);
+        String beforeXpath = "//table[@id='supplemental_forms']//tr[";
+        String afterXpath = "]//a";
+        for (int i = 2; i < row.size(); i++) {
+            WebElement openForm = driver.findElement(By.xpath(beforeXpath + i + afterXpath));
+            String actFormName = openForm.getText();
+            if (actFormName.equals(formName)) {
+                openForm.click();
+                break;
+            }
+
+        }
+    }
+
+    public boolean checkFormDeleted(String expFormName){
+        if (formTable.size() < 0){
+            Assert.assertEquals(formTable.size() < 0,true);
+            return true;
+        }
+        else{
+        return isFormDeleted(expFormName);
+                }
+    }
+
+    public void removeStapleForm(){
+        stapleForm.click();
+        setExplicitWaitForElementToBeVisible(removeButton,30);
+        removeButton.click();
+        setExplicitWaitForElementToBeVisible(mergeForm,10);
+        setExplicitWaitForElementToBeVisible(dialogueCloseBtn,30);
+        dialogueCloseBtn.click();
+        setExplicitWaitForElementToBeVisible(stapleForm,30);
+    }
+
+    public boolean verifyStapleFormRemoved(){
+
+        if(removeButton.isDisplayed())
+        {
+            return  true;
+        }
+        else
+            return false;
+    }
+
+    public boolean verifyAlertMessage(){
+        setExplicitWaitForAlert(30);
+        // Switch to the alert
+        Alert alert = driver.switchTo().alert();
+        // Get the text of the alert
+        String alertText = alert.getText();
+        alert.accept();
+        return alertText.contains("Please remove all stapled forms before deleting.");
+
+    }
+
+
 }

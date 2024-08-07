@@ -1,6 +1,7 @@
 package test.java;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import main.java.report.ExtentReportManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -54,20 +55,30 @@ public class BaseTest {
 	 * This method logs the results and sends an email summary of the test execution.
 	 * @param context The test context containing information about the test execution.
 	 */
-	@AfterSuite(alwaysRun = true)
+
+   	@AfterSuite(alwaysRun = true)
 	public void wrapAllUp(ITestContext context) {
 		int total = context.getAllTestMethods().length;
 		int passed = context.getPassedTests().size();
 		int failed = context.getFailedTests().size();
 		int skipped = context.getSkippedTests().size();
-		LoggerUtil.log("Total number of test cases : " + total);
-		LoggerUtil.log("Number of test cases Passed : " + passed);
-		LoggerUtil.log("Number of test cases Failed : " + failed);
-		LoggerUtil.log("Number of test cases Skipped  : " + skipped);
-		boolean mailSent = MailUtil.sendMail(total, passed, failed, skipped); // Send email with the test results
-		LoggerUtil.log("Mail sent : " + mailSent);
+
+		LoggerUtil.log("Total number of test cases: " + total);
+		LoggerUtil.log("Number of test cases Passed: " + passed);
+		LoggerUtil.log("Number of test cases Failed: " + failed);
+		LoggerUtil.log("Number of test cases Skipped: " + skipped);
+
+	// Ensure Extent Report is flushed
+		ExtentReportManager.getExtentReports().flush();
+		String reportPath = ExtentReportManager.reportFilePath; // Use the reportFilePath variable
+
+	// Send email with the test results and report path
+		boolean mailSent = MailUtil.sendMail(total, passed, failed, skipped, reportPath);
+
+		LoggerUtil.log("Mail sent: " + mailSent);
 		LoggerUtil.log("************************** Test Execution Finished ************************************");
-	}
+}
+
 
 	/**
 	 * Setup method that runs before each test class.

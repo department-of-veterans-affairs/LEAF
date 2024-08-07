@@ -148,11 +148,6 @@
             return data2;
         });
 
-        let tGridData = [];
-        for(let i in res) {
-            tGridData.push(res[i]);
-        }
-        grid.setData(tGridData);
         grid.sort(sort.column, sort.direction);
         grid.renderBody();
         grid.announceResults();

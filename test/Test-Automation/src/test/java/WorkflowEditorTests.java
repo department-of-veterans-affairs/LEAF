@@ -2,6 +2,7 @@ package test.java;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import main.java.factory.PageinstancesFactory;
@@ -22,13 +23,29 @@ public class WorkflowEditorTests extends BaseTest {
     }
 
     @Test
-    public void validateCreateWorkflow() {
-        workflowEditorPageActions.createWorkflow("TestWorkflow-2");
+    public void Test001_validateCreateWorkflow() {
+        workflowEditorPageActions.createWorkflow("TestWorkflow-3");
     }
 
     @Test
-    public void validateDeleteWorkflow() {
-        workflowEditorPageActions.deleteWorkflow("TestWorkflow-2");
+    public void Test002_validateRenameWorkflow() throws InterruptedException {
+        workflowEditorPageActions.renameWorkflow("Rename_TestWorkflow-3");
+    }
+
+    @Test
+    public void Test003_validateCopyWorkflow() throws InterruptedException {
+        workflowEditorPageActions.copyWorkflow("Copy_TestWorkflow-3");
+    }
+
+
+    @Test
+    public void Test004_validateDeleteWorkflow() {
+        workflowEditorPageActions.deleteWorkflow("Copy_TestWorkflow-3");
+    }
+
+    @AfterClass
+    public void deleteAllWorkflows(){
+        workflowEditorPageActions.cleanUp("Rename_TestWorkflow-3");
     }
 
 }

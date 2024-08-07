@@ -6,13 +6,12 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
+import java.util.List;
 
 /**
  * The Class BasePage is the base class for all page classes.
@@ -73,6 +72,19 @@ public class BasePage {
 	public static void setExplicitWait(int seconds) {
 		explicitWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
 		log.info("Waiting for Element to appear for " + seconds + " seconds");
+		System.out.println("Waiting for Element to appear for " + seconds + " seconds");
+	}
+
+	/**
+	 * Sets the explicit wait time for WebDriver.
+	 *
+	 * @param seconds the number of seconds to wait
+	 */
+	public static void setExplicitWaitForAlert(int seconds) {
+		explicitWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
+		// Wait for the alert to be present
+		explicitWait.until(ExpectedConditions.alertIsPresent());
+
 	}
 
 	/**
@@ -91,6 +103,15 @@ public class BasePage {
 			throw e;
 		}
 	}
+
+	public void waitForPageToLoad(String text,int seconds) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(seconds)); // Timeout set to 30 seconds
+		// Wait for the element to be visible
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@class='chosen-single']//span[1]")));
+
+		// Wait for the element to contain text
+		wait.until(ExpectedConditions.not(ExpectedConditions.textToBe(By.xpath("//a[@class='chosen-single']//span[1]"),
+				text)));}
 
 	/**
 	 * Waits explicitly for an element to be visible.
@@ -160,6 +181,30 @@ public class BasePage {
 		} catch (NoSuchElementException | TimeoutException e) {
 			log.error("Element not found or not clickable, Exception thrown: " + e.getMessage(), e);
 			throw e;
+		}
+	}
+
+	public void scrollToView(WebElement element){
+		js = (JavascriptExecutor) driver;
+		js.executeScript("arguments[0].scrollIntoView();", element);
+	}
+
+	public void selectByVisibleText(WebElement element, String text){
+
+		Select dropDown = new Select(element);
+		dropDown.selectByVisibleText(text);
+	}
+
+	public void selectByPartialText(WebElement element, String partialText) {
+
+		Select select = new Select(element);
+		List<WebElement> options = select.getOptions();
+
+		for (WebElement option : options) {
+			if (option.getText().contains(partialText)) {
+				option.click();
+				break;
+			}
 		}
 	}
 }
