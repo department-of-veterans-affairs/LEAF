@@ -71,12 +71,12 @@ public class UserAccessGroupsTests extends BaseTest {
     @Test
     public void TC007_validateGroupDeleted() throws InterruptedException {
         userAccessGroupsPageActions.deleteGroup(groupName);
-         Assert.assertFalse(userAccessGroupsPageActions.verifyGroupDeleted(groupName));
+         Assert.assertTrue(userAccessGroupsPageActions.verifyGroupDeleted(groupName));
     }
 
 
     @Test
-    public void TC008_validateNoGroupsFoundMessage() {
+    public void TC008_validateNoGroupsFoundMessage() throws InterruptedException {
         Assert.assertTrue(userAccessGroupsPageActions.messageNotFound());
 
     }
