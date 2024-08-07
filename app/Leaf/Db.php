@@ -11,6 +11,7 @@
 
 namespace App\Leaf;
 
+
 class Db
 {
     private $db;                        // The database object
@@ -285,9 +286,10 @@ class Db
             
             ini_set('display_errors', '1');
             ini_set('display_startup_errors', '1');
-            error_reporting(E_ALL ^ E_WARNING);
+            error_reporting(E_ALL ^ E_WARNING ^ E_DEPRECATED);
             // this is only for testing, this should be removed before flight
-            $this->db->query("SET SESSION MAX_EXECUTION_TIME=1;");   
+            //$this->db->query("SET SESSION MAX_EXECUTION_TIME=1;");   
+            ini_set('memory_limit', '3048M');
                     
         }
 
@@ -314,7 +316,9 @@ class Db
                 if ($this->runErrors) {
                     $this->show_data(["sql" => $sql, "exception" => $e]);
                 }
-            }
+        
+            } 
+
         } else {
             $this->log[] = 'Dry run: query not executed';
         }

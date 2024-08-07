@@ -140,6 +140,7 @@ services:
         volumes:
             - "../x-test/api-test-helper/:/app"
             - "../x-test/API-tests/:/API-tests"
+            - "../x-test/loadrandomdata/:/loadrandomdata"
         ports:
             - "8000:8000"
         env_file:
