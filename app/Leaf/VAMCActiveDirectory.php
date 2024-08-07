@@ -240,9 +240,9 @@ class VAMCActiveDirectory
     private function preventRecycledUserName(): void
     {
         $sql = 'UPDATE `employee`
-                SET `userName` = concat("deleted_", `userName`)
+                SET `userName` = concat("disabled_", ' . time() . '_,  `userName`)
                 WHERE `deleted` > 0
-                AND LEFT(`userName`, 8) <> "deleted_"';
+                AND LEFT(`userName`, 9) <> "disabled_"';
 
         $this->db->prepared_query($sql, array());
     }
