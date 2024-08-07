@@ -1528,7 +1528,6 @@ class Form
 
         function count_required(array $dataTable, array $formNode, bool $parentOrSelfHidden = false, int &$rt, int &$ra)
         {
-            error_log($formNode['indicatorID'] . " parent hidden?: " . ($parentOrSelfHidden ? "yes " : "no ") . $rt . " " .$ra);
             //don't care about any of this if the question is in a hidden state
             if($parentOrSelfHidden === false) {
                 //Check for conditions and if the state is hidden.
@@ -1562,13 +1561,11 @@ class Form
                                     if (in_array($parentFormat, $multiChoiceParentFormats)) {
                                         //true if the current data value includes any of the condition values
                                         foreach ($currentParentDataValue as $v) {
-                                            error_log($v);
                                             if (in_array($v, $conditionParentValue)) {
                                                 $conditionMet = true;
                                                 break;
                                             }
                                         }
-                                        error_log($currentParentDataValue[0]);
                                     } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
                                         $conditionMet = true;
                                     }
@@ -1656,7 +1653,6 @@ class Form
                                     }
                                 }
                                 $answered = !$gridContainsEmptyValue;
-                                error_log("grid " . $formNode['indicatorID'] . " is " . ($answered ? " answered" : "not answered") . "\r\n");
 
                             } else {
                                 //checkbox(es) - only one needed
@@ -1666,7 +1662,6 @@ class Form
                                         break;
                                     }
                                 }
-                                error_log("format " . $format . ", " . $formNode['indicatorID'] . " is " . ($answered ? " answered" : "not answered") . "\r\n");
                             }
 
                         //any other format, confirm the element is not an empty string
@@ -1676,7 +1671,6 @@ class Form
                     }
 
                     if($answered === true) {
-                        error_log($formNode['indicatorID'] . " " . $format . " required and answered");
                         $ra += 1;
                     }
                 }

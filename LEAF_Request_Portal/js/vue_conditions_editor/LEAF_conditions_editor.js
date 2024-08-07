@@ -673,11 +673,13 @@ const ConditionsEditor = Vue.createApp({
      * @returns {Object} current conditions object
      */
     conditions() {
+      const parentVal = this.parentFormat === 'checkbox' ?
+        "1" : XSSHelpers.stripAllTags(this.selectedParentValue);
       return {
         childIndID: parseInt(this.childIndicator?.indicatorID || 0),
         parentIndID: parseInt(this.selectedParentIndicator?.indicatorID || 0),
         selectedOp: this.selectedOperator,
-        selectedParentValue: XSSHelpers.stripAllTags(this.selectedParentValue),
+        selectedParentValue: parentVal,
         selectedChildValue: XSSHelpers.stripAllTags(this.selectedChildValue),
         selectedOutcome: this.selectedOutcome.toLowerCase(),
         crosswalkFile: this.crosswalkFile,
@@ -797,7 +799,7 @@ const ConditionsEditor = Vue.createApp({
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
                                                     If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
                                                     {{getOperatorText(c)}} <strong>
-                                                      <span v-if="c.parentFormat==='checkbox'">{{ c.selectedParentValue === '1' ? 'checked':'not checked' }}</span>
+                                                      <span v-if="c.parentFormat==='checkbox'">checked</span>
                                                       <span v-else>{{ decodeAndStripHTML(c.selectedParentValue) }}</span>
                                                     </strong> 
                                                     then {{c.selectedOutcome}} this question.
@@ -919,11 +921,7 @@ const ConditionsEditor = Vue.createApp({
                       </select>
                     </div>
                     <div v-else-if="parentFormat==='checkbox'" style="display:flex;align-items:center;gap:0.25rem;">
-                      <input type="checkbox" id="ifthen_checkbox_compare" style="margin:0;"
-                      :checked="conditions.selectedParentValue==='1'" @change="updateSelectedOptionValue($event.target, 'parent')"/>
-                      <label for="ifthen_checkbox_compare" style="white-space:nowrap;">
-                        {{ conditions.selectedParentValue==='1' ? 'checked' : 'not checked' }}
-                      </label>
+                      checked
                     </div>
                   </template>
                   <!-- LOADED DROPDOWNS AND CROSSWALKS -->
