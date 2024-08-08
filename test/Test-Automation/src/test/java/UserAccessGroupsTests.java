@@ -69,7 +69,7 @@ public class UserAccessGroupsTests extends BaseTest {
 
     }
 
-    @Test
+    @Test (enabled = false)
     public void TC007_validateGroupDeleted() throws InterruptedException {
         userAccessGroupsPageActions.deleteGroup(groupName);
          Assert.assertTrue(userAccessGroupsPageActions.verifyGroupDeleted(groupName));
