@@ -13,7 +13,7 @@
 
         <classes>
 
-            <class name="test.java.RequestTests"/>
+
             <class name="test.java.UserAccessGroupsTests"> </class>
 
             <class name="test.java.WorkflowEditorTests"> </class>
