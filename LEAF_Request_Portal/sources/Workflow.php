@@ -377,7 +377,10 @@ class Workflow
             return 'Restricted command.';
         }
 
-        if ($action == 'sendback') {
+        if ($action === 'sendback') {
+            if ($nextStepID !== 0) { //correct for potential copy issue.  requestor is sometimes referred to by -1 in the editor
+                $nextStepID = 0;
+            }
             $required = json_encode(array ('required' => false));
         } else {
             $required = '';
