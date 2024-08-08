@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import test.java.FormEditorTests;
 
 public class SiteSettingTests extends BaseTest {
     private static final Logger log = LogManager.getLogger(FormEditorTests.class);

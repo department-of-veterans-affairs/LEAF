@@ -2,7 +2,7 @@ package test.java;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testng.annotations.AfterClass;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import main.java.factory.PageinstancesFactory;
@@ -43,9 +43,18 @@ public class WorkflowEditorTests extends BaseTest {
         workflowEditorPageActions.deleteWorkflow("Copy_TestWorkflow-3");
     }
 
-    @AfterClass
+ /**   @AfterClass
     public void deleteAllWorkflows(){
         workflowEditorPageActions.cleanUp("Rename_TestWorkflow-3");
     }
+ **/
+
+ @Test
+ public void Test005_validateAddNewStep() throws InterruptedException {
+     workflowEditorPageActions.createWorkflow("Test_WF_Step");
+     Assert.assertTrue(workflowEditorPageActions.verifyAddStep());
+ }
+
+
 
 }
