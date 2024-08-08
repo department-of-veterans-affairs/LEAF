@@ -177,6 +177,17 @@ services:
             timeout: 10s
             retries: 5
 
+    playwright:
+        build:
+            context: ../
+            dockerfile: docker/playwright/playwright.dockerfile
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        volumes:
+            - ../x-test/end2end/:/usr/app
+        networks:
+            - leaf
+
 volumes:
     leaf-php-data:
         external: true
