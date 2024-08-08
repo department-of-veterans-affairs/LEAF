@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import test.java.FormEditorTests;
 
 
 public class UserAccessGroupsTests extends BaseTest {

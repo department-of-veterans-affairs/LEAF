@@ -114,4 +114,16 @@ public class HomePageActions extends BasePage {
 
 
        }
+
+    public  boolean verifyAllertOnBlankTitle(String requestTitle) throws InterruptedException {
+        setExplicitWaitForElementToBeVisible(selectNewrequest,30);
+        selectNewrequest.click();
+        setExplicitWaitForElementToBeClickable(requestTitleInput, 30);
+        formRequestCheckbox.click();
+        proceedButton.click();
+        setExplicitWaitForAlert(30);
+       String alertMessage = getAlertText();
+       return alertMessage.equals("Title must not be blank in Step 1.");
+
+    }
 }

@@ -14,10 +14,12 @@ public class RetryAnalyzerUtil implements IRetryAnalyzer {
 
     @Override
     public boolean retry(ITestResult result) {
-        if(retryCount< maxRetryCount){
-            retryCount++;
-            LoggerUtil.log("Retrying" + result.getName() + "again, attempt" + retryCount);
-            return true;
+        if(!result.isSuccess()) {
+            if (retryCount < maxRetryCount) {
+                retryCount++;
+                LoggerUtil.log("Retrying" + result.getName() + "again, attempt" + retryCount);
+                return true;
+            }
         }
         return false;
     }
