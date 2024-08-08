@@ -2,16 +2,13 @@ package test.java;
 
 import main.java.factory.PageinstancesFactory;
 import main.java.pages.HomePageActions;
-import main.java.pages.SiteSettingsPageActions;
 import main.java.pages.adminPage_Actions;
 import main.java.util.CommonUtility;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class RequestTests extends BaseTest{
+public class RequestTests extends BaseTest {
     adminPage_Actions adminPageActions;
 
     HomePageActions homePageActions;
@@ -37,5 +34,11 @@ public class RequestTests extends BaseTest{
         Assert.assertTrue(isRequestCreated);
     }
 
+
+    @Test
+    public void TC003_validateAlert() throws InterruptedException {
+        boolean isRequestCreated = homePageActions.verifyAllertOnBlankTitle(requestTitle);
+        Assert.assertTrue(isRequestCreated);
+    }
 
 }

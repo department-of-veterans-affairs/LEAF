@@ -5,7 +5,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;
-import test.java.BaseTest;
 
 import java.util.List;
 
@@ -139,7 +138,7 @@ public class WorkflowEditorPageActions extends BasePage {
         workflowRenameInput.clear();
         workflowRenameInput.sendKeys(workflowName);
         saveBtn.click();
-        Thread.sleep(10000);
+        Thread.sleep(5000);
         setExplicitWaitForElementToBeClickable(workflowDropdownName, 30);
         Boolean isWorkflowCreated = workflowDropdownName.getText().contains(workflowName);
         Assert.assertEquals(isWorkflowCreated, true);
@@ -186,13 +185,16 @@ public class WorkflowEditorPageActions extends BasePage {
         setExplicitWaitForElementToBeClickable(newWorkflowBtn,30);
     }
 
-    public void addStep(){
+    public boolean verifyAddStep() {
+
         newStepBtn.click();
         setExplicitWaitForElementToBeClickable(stepTitleInput,30);
         stepTitleInput.sendKeys("Approval");
         saveBtn.click();
         setExplicitWaitForElementToBeClickable(newWorkflowBtn,40);
         scrollToView(homeLink);
+        performActionWithRetries(approvalBtn);
+        return approvalBtn.isDisplayed();
     }
 
     public void cleanUp(String WorkflowName){
@@ -220,15 +222,22 @@ public class WorkflowEditorPageActions extends BasePage {
 
     public  void addApprovedWorkflow(String workflowName) throws InterruptedException {
             createWorkflow(workflowName);
-            addStep();
-        Thread.sleep(10000);
-            approvalBtn.click();
-            Thread.sleep(10000);
+            verifyAddStep();
+
+        dragAndDropByOffset(approvalBtn);
+        requesterBtn.click();
+        performActionWithRetries(stepActionsChkBx);
             stepActionsChkBx.click();
             createRouteSelect.click();
 
                 selectByPartialText(createRouteSelect,"Approval");
+                performActionWithRetries(approvalBtn);
                 approvalBtn.click();
+      performActionWithRetries(stepActionsChkBx);
+        stepActionsChkBx.click();
+        createRouteSelect.click();
+
+        selectByPartialText(createRouteSelect,"End");
             }
 
         }
