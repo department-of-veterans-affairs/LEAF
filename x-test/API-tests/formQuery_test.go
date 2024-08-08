@@ -196,14 +196,9 @@ func TestFormQuery_DescendingIndex(t *testing.T) {
 	}
 }
 
-/*
-* Reading of metadata values will be added in a future deployment
-* The orgchart value is still from the orgchart lookup, not the metadata field
-	// "strconv"
-	// "github.com/google/go-cmp/cmp"
 
-func TestFormQuery_Employee_Metadata(t *testing.T) {
-	//values that should be assigned to S1 ind orchart value when form data are read
+/* post a new employee to an orgchart format question and then confirm expected values on metadata property */
+func TestFormQuery_Employee_Metadata_Has_Expected_Values(t *testing.T) {
 	mock_orgchart_employee := Orgchart_employee_metadata{
 		FirstName: "Ramon",
 		LastName: "Watsica",
@@ -212,7 +207,6 @@ func TestFormQuery_Employee_Metadata(t *testing.T) {
 		UserName: "VTRYCXBETHANY",
 	}
 
-	//post and confirm post success
 	postData := url.Values{}
 	postData.Set("CSRFToken", CsrfToken)
 	postData.Set("8", "201")
@@ -230,7 +224,6 @@ func TestFormQuery_Employee_Metadata(t *testing.T) {
 	}
 
 	formRes, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"categoryID","operator":"=","match":"form_5ea07","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":[],"sort":{},"getData":["8"],"limit":10000,"limitOffset":0}&x-filterData=recordID,title`)
-
 	if _, exists := formRes[11]; !exists {
 		t.Errorf("Record 11 should be readable")
 	}
@@ -272,10 +265,4 @@ func TestFormQuery_Employee_Metadata(t *testing.T) {
 	if !cmp.Equal(got, want) {
 		t.Errorf("userName got = %v, want = %v", got, want)
 	}
-	got = strconv.Itoa(org_emp_md.EmpUID)
-	want = "201"
-	if !cmp.Equal(got, want) {
-		t.Errorf("userName got = %v, want = %v", got, want)
-	}
 }
-*/
