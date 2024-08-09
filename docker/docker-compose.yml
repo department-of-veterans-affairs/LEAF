@@ -184,7 +184,7 @@ services:
         stdin_open: true # docker run -i
         tty: true        # docker run -t
         volumes:
-            - ../x-test/end2end/:/usr/app
+            - ../x-test/end2end/:/usr/app/leaf
         ports:
             - "8001:8001"
         networks:
