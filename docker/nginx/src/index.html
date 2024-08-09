@@ -3,21 +3,52 @@
 <head>
     <title>LEAF Development Environment</title>
 </head>
+<style>
+    table {
+        border-collapse: collapse;
+    }
+    td {
+        padding: 4px;
+        border: 1px solid black;
+    }
+</style>
 <body>
 
 <h1>LEAF Development Environment</h1>
 <h2>LEAF Sites</h2>
-<ul>
-    <li><a href="./LEAF_Request_Portal" target="_blank">Request Portal</a></li> A low code/no code workflow management tool utilized to digitize administrative business processes
-    <li><a href="./LEAF_Nexus" target="_blank">Nexus</a></li>  Digitized organizational charts to visually display the relationship of positions within LEAF.
-</ul>
+<table>
+    <tr>
+        <td><a href="http://host.docker.internal:8001/api/v1/db/leaf_portal" target="_blank">Request Portal</a></td>
+        <td>A low code/no code workflow management tool utilized to digitize administrative business processes
+            <ul>
+                <li><a href="http://host.docker.internal:8001/api/v1/db/leaf_portal_API_testing" target="_blank">View Test DB</a> - Preloaded database with standardized test data</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="./LEAF_Nexus" target="_blank">Nexus</a></td>
+        <td>Manage facility-level user groups and organizational charts.</td>
+    </tr>
+</table>
 
-<h2>Automated Tests</h2> These are one button tests that will make sure everything is working correctly.
-<ul>
-    <li><a href="http://host.docker.internal:8000/api/v1/test" target="_blank">API tester</a></li>  These are tests primarily for api's that can be targeted by client-side javascript calls.
-    <li><a href="http://host.docker.internal/selenium-tests" target="_blank">End-to-End tests</a></li> This is a set of tests meant to verify that all different components of LEAF are working correctly together.
-    <br/>*Note:  This particular test is extensive and will take a significant amount of time.  The new page will be blank until it finishes running and then will bring back an intereactive results page.
-</ul>
+<h2>Automated Tests</h2>
+<p>Deployment requires all tests to be passing</p>
+<table>
+    <tr>
+        <td><a href="http://host.docker.internal:8000/api/v1/test" target="_blank">API tester</a></td>
+        <td>These are tests primarily for api's that can be targeted by client-side javascript calls.</td>
+    </tr>
+    <tr>
+        <td><a href="http://host.docker.internal/selenium-tests" target="_blank">End-to-End tests</a></td>
+        <td>This is a set of tests meant to verify that all different components of LEAF are working correctly together.
+            <br/>*Note:  This particular test is extensive and will take a significant amount of time.  The new page will be blank until it finishes running and then will bring back an intereactive results page.
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://host.docker.internal:8001/api/v1/test" target="_blank">End-to-End tests (Playwright)</a></td>
+        <td>Prerequisite: The API tester must be run to populate the test database. This only needs to be done once.</td>
+    </tr>
+</table>
 
 <h2>Dev Corner</h2>
 <ul>

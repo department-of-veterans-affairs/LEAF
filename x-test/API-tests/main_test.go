@@ -18,7 +18,7 @@ const RootURL = "https://host.docker.internal/LEAF_Request_Portal/"
 const NationalOrgchartURL = "https://host.docker.internal/LEAF_NationalNexus/"
 const RootOrgchartURL = "https://host.docker.internal/LEAF_Nexus/"
 
-var dbHost = "leaf-mysql"
+var dbHost = os.Getenv("MYSQL_HOST")
 var dbUsername = os.Getenv("MYSQL_USER")
 var dbPassword = os.Getenv("MYSQL_PASSWORD")
 var testPortalDbName = "leaf_portal_API_testing"
