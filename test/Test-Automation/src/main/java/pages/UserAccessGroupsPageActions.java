@@ -123,10 +123,11 @@ public class UserAccessGroupsPageActions  extends BasePage {
     @FindBy(xpath = "//i[@class='fas fa-exclamation-circle']//parent::p")
     WebElement notFoundMessage;
 
-    public boolean messageNotFound(){
+    public boolean messageNotFound() throws InterruptedException {
         String expectedMessage = "No matching groups or users found.";
         String actualMessage ;
         userGroupsSearch.sendKeys("invalid test");
+        Thread.sleep(5000);
         setExplicitWaitForElementToBeVisible(notFoundMessage,30);
 
         actualMessage = notFoundMessage.getText();
@@ -170,7 +171,7 @@ public class UserAccessGroupsPageActions  extends BasePage {
     }
 
     public boolean verifySelectedEmployee(String expEmployeeName, String groupName) {
-
+    setExplicitWaitForElementToBeVisible(employeeName,30);
        String actEmployeeName = employeeName.getText();
 
         return actEmployeeName.equals(expEmployeeName);
@@ -265,10 +266,12 @@ public class UserAccessGroupsPageActions  extends BasePage {
 
     }
 
-        public boolean verifyGroupDeleted(String groupName) {
+        public boolean verifyGroupDeleted(String groupName) throws InterruptedException {
             setExplicitWaitForElementToBeVisible(userGroupsHeading, 30);
             String actGroupName = "";
             boolean groupDeleted = true;
+            setExplicitWaitForElementToBeVisible(getUserGroupList,30);
+            Thread.sleep(5000);
             if (getUserGroupList.isDisplayed()) {
                 for (int i = 0; i < groupList.size(); i++) {
                     actGroupName = groupList.get(i).getText();
