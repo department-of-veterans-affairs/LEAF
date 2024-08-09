@@ -61,6 +61,7 @@ func TestMain(m *testing.M) {
 	setupTestDB()
 
 	updateTestDBSchema()
+	updateTestOrgchartDBSchema()
 
 	code := m.Run()
 

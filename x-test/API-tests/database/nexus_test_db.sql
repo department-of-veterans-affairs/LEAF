@@ -5194,7 +5194,7 @@ CREATE TABLE `settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `settings` (`setting`, `data`) VALUES
-('dbversion',	'2021060800'),
+('dbversion',	'2020062600'),
 ('heading',	'LEAF Dev/Testing Organizational Chart'),
 ('primaryAdmin',	'tester'),
 ('salt',	'0.458632366227575'),

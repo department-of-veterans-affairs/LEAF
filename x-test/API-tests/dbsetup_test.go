@@ -88,6 +88,13 @@ func updateTestDBSchema() {
 	}
 }
 
+func updateTestOrgchartDBSchema() {
+	res, _ := httpGet(RootOrgchartURL + `scripts/updateDatabase.php`)
+	if strings.Contains(res, `Db Update failed`) {
+		log.Fatal(`Could not update database schema: ` + res)
+	}
+}
+
 // teardownTestDB reroutes the standard LEAF dev environment back to the original configuration
 func teardownTestDB() {
 	db, err := sql.Open("mysql", mysqlDSN)
