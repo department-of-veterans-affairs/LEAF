@@ -203,14 +203,13 @@ class Employee extends Data
     {
         $global_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 
-        $national_employees_list = $this->getEmployeeByUserName($local_employees, $global_db);
-        $local_employees_uid = $this->getEmployeeByUserName($local_employees, $this->db);
+        $national_employees_list = $this->getEmployeeByUserName($local_employees, $global_db)['data'];
+        $local_employees_uid = $this->getEmployeeByUserName($local_employees, $this->db)['data'];
 
         $results = [];
 
         if (!empty($national_employees_list)) {
             $local_employee_array = $this->userNameUidList($local_employees_uid);
-
             $national_employee_uids = [];
             $local_array = [];
             $local_data_array = [];
@@ -344,8 +343,10 @@ class Employee extends Data
     {
         if (!empty($deleted_employees)) {
             $sql = "UPDATE `employee`
-                    SET `deleted` = UNIX_TIMESTAMP(NOW())
-                    WHERE `userName` IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
+                    SET `deleted` = UNIX_TIMESTAMP(NOW()),
+                        `userName` = CONCAT('disabled_', UNIX_TIMESTAMP(NOW()), '_', `userName`)
+                    WHERE `userName` IN (" . implode(',', array_fill(1, count($deleted_employees), '?')) . ")
+                    AND LEFT(`userName`, 9) <> 'disabled_';";
 
             $result = $this->db->prepared_query($sql, array_values($deleted_employees));
 
@@ -383,18 +384,20 @@ class Employee extends Data
         foreach ($national_list['data'] as $employee) {
             $national_employee_uids[] = (int) $employee['empUID'];
 
-            $local_employee_array[] = [
-                'empUID' => (empty($local_list[$employee['userName']]) ? null : $local_list[$employee['userName']]),
-                'userName' => $employee['userName'],
-                'lastName' => $employee['lastName'],
-                'firstName' => $employee['firstName'],
-                'middleName' => $employee['middleName'],
-                'phoneticFirstName' => $employee['phoneticFirstName'],
-                'phoneticLastName' => $employee['phoneticLastName'],
-                'domain' => $employee['domain'],
-                'deleted' => $employee['deleted'],
-                'lastUpdated' => $employee['lastUpdated']
-            ];
+            if (!empty($local_list[$employee['userName']])) {
+                $local_employee_array[] = [
+                    'empUID' => $local_list[$employee['userName']],
+                    'userName' => $employee['userName'],
+                    'lastName' => $employee['lastName'],
+                    'firstName' => $employee['firstName'],
+                    'middleName' => $employee['middleName'],
+                    'phoneticFirstName' => $employee['phoneticFirstName'],
+                    'phoneticLastName' => $employee['phoneticLastName'],
+                    'domain' => $employee['domain'],
+                    'deleted' => $employee['deleted'],
+                    'lastUpdated' => $employee['lastUpdated']
+                ];
+            }
         }
     }
 
@@ -410,13 +413,15 @@ class Employee extends Data
     private function prepareDataArray(array &$local_data_array, array $national_list, array $local_list): void
     {
         foreach ($national_list['data'] as $employee) {
-            $local_data_array[] = [
-                'empUID' => (empty($local_list[$employee['userName']]) ? null : $local_list[$employee['userName']]),
-                'indicatorID' => $employee['indicatorID'],
-                'data' => $employee['data'],
-                'author' => $employee['author'],
-                'timestamp' => $employee['timestamp'],
-            ];
+            if (!empty($local_list[$employee['userName']])) {
+                $local_data_array[] = [
+                    'empUID' => $local_list[$employee['userName']],
+                    'indicatorID' => $employee['indicatorID'],
+                    'data' => $employee['data'],
+                    'author' => $employee['author'],
+                    'timestamp' => $employee['timestamp'],
+                ];
+            }
         }
     }
 
@@ -448,7 +453,7 @@ class Employee extends Data
     private function getAllEmployees(Db $db): array
     {
         $vars = array();
-        $sql = 'SELECT `userName`
+        $sql = 'SELECT LOWER(`userName`) AS `userName`
                 FROM `employee`';
 
         $result = $db->prepared_query($sql, $vars);
@@ -494,9 +499,9 @@ class Employee extends Data
      */
     public function getEmployeeByUserName(array $user_names, Db $db): array
     {
-        $sql = "SELECT `empUID`, `userName`, `lastName`, `firstName`, `middleName`,
-                    `phoneticLastName`, `phoneticFirstName`, `domain`, `deleted`,
-                    `lastUpdated`
+        $sql = "SELECT `empUID`, LOWER(`userName`) AS `userName`, `lastName`,
+                    `firstName`, `middleName`, `phoneticLastName`,
+                    `phoneticFirstName`, `domain`, `deleted`, `lastUpdated`
                 FROM `employee`
                 WHERE `userName` IN (" . implode(",", array_fill(1, count($user_names), '?')) . ")";
         $result = $db->prepared_query($sql, $user_names);
@@ -790,22 +795,25 @@ class Employee extends Data
      */
     public function disableAccount($empUID)
     {
-        if (!is_numeric($empUID))
-        {
+        if (!is_numeric($empUID)) {
             return false;
         }
+
         $memberships = $this->login->getMembership();
-        if (!isset($memberships['groupID'][1]))
-        {
+
+        if (!isset($memberships['groupID'][1])) {
             throw new Exception('Administrator access required to disable accounts');
         }
 
         $vars = array(':empUID' => $empUID,
                       ':time' => time(),
         );
-        $res = $this->db->prepared_query('UPDATE employee
-                                            SET deleted=:time
-                                            WHERE empUID=:empUID', $vars);
+        $sql = "UPDATE `employee`
+                SET `deleted` = :time,
+                    `userName` = CONCAT('disabled_', UNIX_TIMESTAMP(NOW()), '_', `userName`)
+                WHERE `empUID` = :empUID
+                AND LEFT(`userName`, 9) <> 'disabled_'";
+        $this->db->prepared_query($sql, $vars);
 
         return true;
     }
@@ -830,9 +838,11 @@ class Employee extends Data
         $vars = array(':empUID' => $empUID,
                 ':time' => 0,
         );
-        $res = $this->db->prepared_query('UPDATE employee
-                                            SET deleted=:time
-                                            WHERE empUID=:empUID', $vars);
+        $sql = "UPDATE `employee`
+                SET `deleted` = :time,
+                    `userName` = SUBSTRING_INDEX(`userName`, '_', -1)
+                WHERE `empUID` = :empUID";
+        $res = $this->db->prepared_query($sql, $vars);
 
         return true;
     }
@@ -924,7 +934,7 @@ class Employee extends Data
             return $this->cache["lookupEmpUID_{$empUID}"];
         }
 
-        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName, domain, 
+        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName, domain,
                         deleted, lastUpdated, new_empUUID, data as email FROM {$this->tableName}
                     LEFT JOIN employee_data USING (empUID)
                     WHERE empUID = :empUID
@@ -1114,7 +1124,7 @@ class Employee extends Data
                         AND deleted = 0
                         {$this->limit}";
 
-        $vars = array(':phone' => $this->parseWildcard('*' . $phone)); 
+        $vars = array(':phone' => $this->parseWildcard('*' . $phone));
 
         return $this->db->prepared_query($sql, $vars);
     }
@@ -1336,7 +1346,7 @@ class Employee extends Data
                 {
                     $this->log[] = 'Format Detected: Email';
                 }
-                
+
                 if(substr(strtolower($input), 0, 15) === 'email_disabled:') {
                     $input = str_replace('email_disabled:', '', strtolower($input));
                     $searchResult = $this->lookupEmail($input, true);
