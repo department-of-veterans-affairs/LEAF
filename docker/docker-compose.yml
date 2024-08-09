@@ -142,7 +142,7 @@ services:
             - ./selenium-tests/index.php:/app/index.php
             - ../test/Test-Automation/src:/app/src
             - ../test/Test-Automation/testng.xml:/app/testng.xml
-            - ../test/Test-Automation/ExtentReports:/app/reports
+            - ../test/Test-Automation/ExtentReports:/app/ExtentReports
         depends_on:
             - chrome
         environment:
