@@ -178,6 +178,23 @@ services:
             timeout: 10s
             retries: 5
 
+    playwright:
+        build:
+            context: ../
+            dockerfile: docker/playwright/playwright.dockerfile
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        volumes:
+            - ../x-test/end2end/:/usr/app/leaf
+        ports:
+            - "8001:8001"
+        env_file:
+            - ./env_files/globals_local.env
+            - ./env_files/secrets.env
+        networks:
+            - leaf
+            - leaf-sql
+
 volumes:
     leaf-php-data:
         external: true
