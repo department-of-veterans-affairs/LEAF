@@ -287,8 +287,8 @@ class Db
             ini_set('display_errors', '1');
             ini_set('display_startup_errors', '1');
             error_reporting(E_ALL ^ E_WARNING ^ E_DEPRECATED);
-            // this is only for testing, this should be removed before flight
-            //$this->db->query("SET SESSION MAX_EXECUTION_TIME=1;");   
+            // this is the only way to get the to big of queries to fail, memory limits are my issue well before a speed issue is hit.
+            $this->db->query("SET SESSION MAX_EXECUTION_TIME=1000;");   
             ini_set('memory_limit', '3048M');
                     
         }
@@ -306,9 +306,12 @@ class Db
 
                 // we want to only do this if we are getting an errorcode (need more looking) and that we are able to defer
                 if ($e->getCode() === 'HY000' && $this->canDeferLargeQueries ) {
-
+                
                     // dump query off to process_query
+                    $this->store_large_query($sql, $vars);
+                    // give the response code 
                     http_response_code(202);
+                    // give some error message to the end user to let humans know what is going on.
                     exit("The data you are requesting is taking a bit longer than expected.");
                     
                 }
@@ -335,11 +338,51 @@ class Db
 
             // we want to only do this if we are getting an errorcode (need more looking) and that we are able to defer
             if ($e->getCode() === 'HY000' && $this->canDeferLargeQueries ) {
+               
                 // dump query off to process_query
+                $this->store_large_query($sql, $vars);
+                // give the response code 
                 http_response_code(202);
+                // give some error message to the end user to let humans know what is going on.
                 exit("The data you are requesting is taking a bit longer than expected.");
+
             }
 
+        }
+    }
+
+    private function store_large_query(string $sql,array $vars): void{
+
+        $this->db->query("SET SESSION MAX_EXECUTION_TIME=0;");   
+        $data = [
+            ':userID' => $_SESSION['userID'] ,
+            ':thesql' => $sql,
+            ':thedata' => json_encode($vars),
+            ':lastProcess' => 0
+        ];
+        $processQuerySql = 'INSERT INTO process_query (`userID`,`sql`,`data`,`lastProcess`)
+                    VALUES (:userID,:thesql,:thedata,:lastProcess)
+                    ON DUPLICATE KEY UPDATE lastProcess=0';
+        $this->prepared_query($processQuerySql, $data);
+                    
+    }
+
+    private function has_large_query(string $sql,array $vars){
+        $data = [
+            ':userID' => $_SESSION['userID'] ,
+            ':thesql' => $sql,
+            ':thedata' => json_encode($vars),
+            
+        ];
+        $processQuerySql = 'SELECT `id`,`userID`,`sql`,`data`,`lastProcess` FROM  process_query 
+                    WHERE `userID` = :userID AND `sql` = :thesql AND `data` = :thedata AND `lastProcess` > 0';
+        $results = $this->prepared_query($processQuerySql, $data);
+
+        if(empty($results)){
+            return [];
+        }
+        else{
+            return $results[0];
         }
     }
 
