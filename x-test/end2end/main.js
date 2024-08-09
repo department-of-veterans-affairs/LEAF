@@ -4,11 +4,7 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const mysql = require('mysql2/promise');
 
-var db;
-
 function main() {
-  connectDB();
-
   const server = http.createServer((req, res) => {
     let paths = [
       {url: '/api/v1/test', func: (req, res) => {
@@ -17,15 +13,15 @@ function main() {
       {url: '/api/v1/data', func: (req, res) => {
         retrieveData(req, res);
       }},
-      {url: '/api/v1/db/leaf_portal_API_testing', func: (req, res) => {
-        setupDB();
+      {url: '/api/v1/db/leaf_portal_API_testing', func: async (req, res) => {
+        await setupDB();
         res.writeHead(302, {
           'Location': 'https://host.docker.internal/LEAF_Request_Portal'
         });
         res.end('Switched to leaf_portal_API_testing DB');
       }},
-      {url: '/api/v1/db/leaf_portal', func: (req, res) => {
-        teardownDB();
+      {url: '/api/v1/db/leaf_portal', func: async (req, res) => {
+        await teardownDB();
         res.writeHead(302, {
           'Location': 'https://host.docker.internal/LEAF_Request_Portal'
         });
@@ -52,12 +48,18 @@ function main() {
 }
 
 async function connectDB() {
-  db = await mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: 'national_leaf_launchpad'
-  });
+  try {
+    let db = mysql.createConnection({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
+      database: 'national_leaf_launchpad'
+    });
+    return db;
+
+  } catch(err) {
+    throw err;
+  }
 }
 
 var startedTests = false;
@@ -94,6 +96,13 @@ async function runTests(req, res) {
 
 // setupDB switches the active DB to the test database
 async function setupDB() {
+  let db;
+  try {
+    db = await connectDB();
+  } catch(err) {
+    return;
+  }
+
   try {
     await db.query('USE leaf_portal_API_testing');
   } catch(err) {
@@ -109,15 +118,26 @@ async function setupDB() {
   } catch(err) {
     console.err(err);
   }
+
+  db.end();
 }
 
 // teardownDB switches the active DB back to the default
 async function teardownDB() {
+  let db;
+  try {
+    db = await connectDB();
+  } catch(err) {
+    return;
+  }
+
   try {
     await db.query('UPDATE sites SET portal_database="leaf_portal" WHERE id=1');
   } catch(err) {
     console.err(err);
   }
+
+  db.end();
 }
 
 function retrieveData(req, res) {
