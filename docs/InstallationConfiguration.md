@@ -7,26 +7,30 @@
 ## Installation
 
 Open up a terminal and enter these commands: 
-######    
+```
     git config --global core.autocrlf false
-
+```
   - Or ensure that `./docker/mysql/dev_bootstrap.sh uses the LF end-of-line sequence instead of CRLF.
-######
+
+```
     git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
-######
+
     cd LEAF/docker
-######
+
     docker network create leaf
     docker network create leaf-sql
     docker volume create leaf-php-data
     docker volume create leaf-lib
+```
 
 ## Running
 
 1. Make sure you're in the LEAF/docker directory
-2. Run the below command.  Note that this can take several minutes the first time it is run.
-###### 
+2. Run the below command. Note that this can take several minutes the first time it is run.
+
+```
     docker compose up --build -d
+```
 
 3. Open your browser and go to https://host.docker.internal/ 
 
@@ -39,8 +43,9 @@ The leaf_vue_ui container is used for the Form Editor and Site Designer Vue apps
 #### Devlopment mode
 
 Log in to container, access the terminal, and run the command:
-######
+```
     npm run dev
+```
 
 Webpack will watch for changes to /docker/vue-app/src
 
@@ -49,8 +54,9 @@ Webpack will watch for changes to /docker/vue-app/src
 #### Production mode
 
 Log in to container, access the terminal, and run the command:
-######
+```
     npm run build
+```
 
 form editor and site designer apps builds to respective folders under /libs/js/vue-dest
 sass (leaf.css and related fonts and assets) builds to /libs/css
