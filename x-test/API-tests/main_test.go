@@ -14,7 +14,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const RootURL = "https://host.docker.internal/LEAF_Request_Portal/"
+const RootURL = "https://host.docker.internal/Test_Request_Portal/"
 const NationalOrgchartURL = "https://host.docker.internal/LEAF_NationalNexus/"
 const RootOrgchartURL = "https://host.docker.internal/LEAF_Nexus/"
 
