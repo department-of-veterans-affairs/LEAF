@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('change title', async ({ page }) => {
-  await page.goto('https://host.docker.internal/LEAF_Request_Portal/');
+  await page.goto('https://host.docker.internal/Test_Request_Portal/');
 
   let randNum = Math.random();
   let uniqueText = `LEAF Test Site ${randNum}`;

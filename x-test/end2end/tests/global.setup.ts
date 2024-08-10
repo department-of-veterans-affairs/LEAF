@@ -16,12 +16,4 @@ setup('setup database', async ({ }) => {
         await fetch('http://host.docker.internal:8000/api/v1/test').then(res => res.text());
         console.log('API tester finished running.');
     }
-
-    try {
-        await db.query('USE national_leaf_launchpad');
-
-        await db.query('UPDATE sites SET portal_database="leaf_portal_API_testing" WHERE id=1');
-    } catch (err) {
-        console.error(err);
-    }
 });
