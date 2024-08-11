@@ -1,11 +1,32 @@
 import { test, expect } from '@playwright/test';
 
-test('search record ID', async ({ page }) => {
+test('search record ID using quick search', async ({ page }, testInfo) => {
   await page.goto('https://host.docker.internal/Test_Request_Portal/');
 
   await page.getByLabel('Enter your search text').click();
   await page.getByLabel('Enter your search text').fill('500');
-  await expect(page.getByRole('link', { name: '500' })).toBeVisible();
+  await expect(page.getByRole('link', { name: '500' })).toBeInViewport();
+
+  const screenshot = await page.screenshot();
+  await testInfo.attach('screenshot', { body: screenshot, contentType: 'image/png' });
+});
+
+test('search record ID using advanced options', async ({ page }, testInfo) => {
+  await page.goto('https://host.docker.internal/Test_Request_Portal/');
+
+  await page.getByRole('button', { name: 'Advanced Options' }).click();
+  await expect(page.getByRole('button', { name: 'Apply Filters' })).toBeInViewport();
+  await page.getByRole('cell', { name: 'Current Status' }).locator('a').click();  
+  await expect(page.getByRole('option', { name: 'Record ID' })).toBeInViewport();
+  await page.getByRole('option', { name: 'Record ID' }).click();
+  await page.getByLabel('text', { exact: true }).click();
+  await page.getByLabel('text', { exact: true }).fill('500');
+  await page.getByRole('button', { name: 'Apply Filters' }).click();
+  await expect(page.getByRole('link', { name: '500' })).toBeInViewport();
+
+  const screenshot = await page.screenshot();
+  await testInfo.attach('screenshot', { body: screenshot, contentType: 'image/png' });
+
 });
 
 test('new record', async ({ page }, testInfo) => {
@@ -33,6 +54,9 @@ test('new record', async ({ page }, testInfo) => {
 test('table header background color is inverted when scrolled down', async ({ page }, testInfo) => {
   await page.goto('https://host.docker.internal/Test_Request_Portal/');
 
+  // The homepage runs an async request, and we need to wait for it to complete
+  // before navigating to the end of the page.
+  // TODO: maybe this this locator can be improved to avoid relying on the "Searching for records" text
   await expect(page.locator('#searchContainer')).not.toContainText('Searching for records');
   await page.keyboard.press('End');
 
