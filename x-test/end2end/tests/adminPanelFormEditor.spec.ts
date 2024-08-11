@@ -1,12 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test('change field heading', async ({ page }) => {
-  await page.goto('https://host.docker.internal/Test_Request_Portal/');
+  await page.goto('https://host.docker.internal/Test_Request_Portal/admin/');
 
   let randNum = Math.random();
   let uniqueText = `Single line text ${randNum}`;
 
-  await page.getByRole('link', { name: 'Admin Panel' }).click();
   await page.getByRole('button', { name: ' Form Editor Create and' }).click();
   await page.getByRole('link', { name: 'General Form' }).click();
   await page.getByTitle('edit indicator 3').click();

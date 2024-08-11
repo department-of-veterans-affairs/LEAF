@@ -1,12 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test('change title', async ({ page }) => {
-  await page.goto('https://host.docker.internal/Test_Request_Portal/');
+  await page.goto('https://host.docker.internal/Test_Request_Portal/admin/');
 
   let randNum = Math.random();
   let uniqueText = `LEAF Test Site ${randNum}`;
 
-  await page.getByRole('link', { name: 'Admin Panel' }).click();
   await page.getByRole('button', { name: ' Site Settings Edit site' }).click();
 
   // This is necessary because the input field starts off empty on this page

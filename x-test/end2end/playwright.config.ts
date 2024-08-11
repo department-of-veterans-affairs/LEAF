@@ -37,19 +37,16 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    /*
     {
-      name: 'setup db',
+      name: 'reset test DB',
       testMatch: /global\.setup\.ts/,
-      teardown: 'teardown db',
     },
-    {
-      name: 'teardown db',
-      testMatch: /global\.teardown\.ts/,
-    },
+    */
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      dependencies: ['setup db'],
+      //dependencies: ['reset test DB'],
     },
 
     /*
