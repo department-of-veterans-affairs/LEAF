@@ -25,8 +25,8 @@ services:
             dockerfile: docker/php/leaf_monlith.dockerfile
             args:
                 - BUILD_UID=${BUILD_UID}
-                - SMTP_HOST=leaf-smtp
-                - MAIL_HUB=leaf-smtp
+                - SMTP_HOST=smtp4dev
+                - MAIL_HUB=smtp4dev
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
