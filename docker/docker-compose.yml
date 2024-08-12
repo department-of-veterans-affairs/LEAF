@@ -148,7 +148,7 @@ services:
             - chrome
         environment:
             - ENVIRONMENT=remote
-            - ENV_URL=http://host.docker.internal/Test_Request_Portal/admin/
+            - ENV_URL=http://host.docker.internal/LEAF_Request_Portal/admin/
             - HUB_URL=http://selenium-chrome:4445/wd/hub
 
     chrome:
