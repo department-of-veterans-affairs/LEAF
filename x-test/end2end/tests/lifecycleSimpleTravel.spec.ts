@@ -22,6 +22,7 @@ test('navigate to Workflow Editor and create a travel workflow', async ({ page }
   // Workaround: Since the drag handles can overlap sometimes (maybe due to async rendering
   // in the jsPlumb library?), we'll move the requestor step out of the way first.
   // TODO: fix the workflow editor since end-users might have the same issue
+  await expect(page.getByLabel('workflow step: Requestor', { exact: true })).toBeVisible();
   await page.getByLabel('workflow step: Requestor', { exact: true }).hover();
   await page.mouse.down();
   await page.mouse.move(0, 150);
