@@ -16,7 +16,7 @@ import (
 
 const RootURL = "https://host.docker.internal/Test_Request_Portal/"
 const NationalOrgchartURL = "https://host.docker.internal/LEAF_NationalNexus/"
-const RootOrgchartURL = "https://host.docker.internal/LEAF_Nexus/"
+const RootOrgchartURL = "https://host.docker.internal/Test_Nexus/"
 
 var dbHost = os.Getenv("MYSQL_HOST")
 var dbUsername = os.Getenv("MYSQL_USER")
