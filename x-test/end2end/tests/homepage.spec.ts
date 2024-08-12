@@ -4,7 +4,9 @@ test('search record ID using quick search', async ({ page }, testInfo) => {
   await page.goto('https://host.docker.internal/Test_Request_Portal/');
 
   await page.getByLabel('Enter your search text').click();
-  await page.getByLabel('Enter your search text').fill('500');
+
+  // Use .pressSequentially since the UX does search-as-you-type
+  await page.getByLabel('Enter your search text').pressSequentially('500');
   await expect(page.getByRole('link', { name: '500' })).toBeInViewport();
 
   const screenshot = await page.screenshot();
