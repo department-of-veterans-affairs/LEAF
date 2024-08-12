@@ -261,13 +261,14 @@ class Db
     public function prepared_query($sql, $vars, $dry_run = false): array
     {
 
-        /*$largeQueryResponse = $this->has_large_query($sql,$vars);
+        $largeQueryResponse = $this->has_large_query($sql,$vars);
+        var_dump($largeQueryResponse);exit('here');
         if(empty($largeQueryResponse)){
             $directory = __DIR__ . '/../files/temp/processedQuery/';
             $currentFileName = $directory . $largeQueryResponse['id'] . '_' . $largeQueryResponse['userID'] . '.json';
             var_dump($currentFileName);
             exit();
-        }*/
+        }
 
         if ($this->limit != '') {
             $sql = "{$sql} {$this->limit}";
