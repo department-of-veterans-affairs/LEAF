@@ -76,7 +76,7 @@ func main() {
 		addForm(formid, randomdata.SillyName(), workflowID)
 	}
 
-	addRecords(formid, 750000)
+	addRecords(formid, 100)
 }
 
 func workflowExists(description string) (int64, bool) {

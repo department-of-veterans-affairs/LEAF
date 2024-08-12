@@ -260,6 +260,15 @@ class Db
 
     public function prepared_query($sql, $vars, $dry_run = false): array
     {
+
+        /*$largeQueryResponse = $this->has_large_query($sql,$vars);
+        if(empty($largeQueryResponse)){
+            $directory = __DIR__ . '/../files/temp/processedQuery/';
+            $currentFileName = $directory . $largeQueryResponse['id'] . '_' . $largeQueryResponse['userID'] . '.json';
+            var_dump($currentFileName);
+            exit();
+        }*/
+
         if ($this->limit != '') {
             $sql = "{$sql} {$this->limit}";
             $this->limit = '';
@@ -288,7 +297,7 @@ class Db
             ini_set('display_startup_errors', '1');
             error_reporting(E_ALL ^ E_WARNING ^ E_DEPRECATED);
             // this is the only way to get the to big of queries to fail, memory limits are my issue well before a speed issue is hit.
-            $this->db->query("SET SESSION MAX_EXECUTION_TIME=1000;");   
+            //$this->db->query("SET SESSION MAX_EXECUTION_TIME=1;");   
             ini_set('memory_limit', '3048M');
                     
         }
@@ -353,18 +362,25 @@ class Db
 
     private function store_large_query(string $sql,array $vars): void{
 
-        $this->db->query("SET SESSION MAX_EXECUTION_TIME=0;");   
+        // this is for testing purposes, when you have the max execution time set to a low number this gets caught up in it as well. 
+        $this->query("SET SESSION MAX_EXECUTION_TIME=0;");   
+
         $data = [
-            ':userID' => $_SESSION['userID'] ,
+            ':userID' => $_SESSION['userID'],
             ':thesql' => $sql,
             ':thedata' => json_encode($vars),
             ':lastProcess' => 0
         ];
-        $processQuerySql = 'INSERT INTO process_query (`userID`,`sql`,`data`,`lastProcess`)
-                    VALUES (:userID,:thesql,:thedata,:lastProcess)
-                    ON DUPLICATE KEY UPDATE lastProcess=0';
-        $this->prepared_query($processQuerySql, $data);
-                    
+
+
+        // if this does not exist we will store it. on duplicate update stopped working after the db reset.
+        if(empty($this->has_large_query($sql,$vars))){
+            $processQuerySql = 'INSERT INTO process_query (`userID`,`sql`,`data`,`lastProcess`)
+                        VALUES (:userID,:thesql,:thedata,:lastProcess)
+                        ON DUPLICATE KEY UPDATE lastProcess=0';
+            $this->prepared_query($processQuerySql, $data);
+        
+        }
     }
 
     private function has_large_query(string $sql,array $vars){

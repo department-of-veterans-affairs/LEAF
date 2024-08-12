@@ -6,25 +6,31 @@ error_reporting(E_ALL ^ E_WARNING);
 
 $currDir = dirname(__FILE__);
 
-require_once 'globals.php';
-require_once APP_PATH . '/Leaf/Db.php';
-require_once APP_PATH . '/Leaf/Email.php';
-$db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
+require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
+$protocol = 'https';
+$request_uri = str_replace(['/var/www/html/', '/scripts'], '', $currDir);
+$siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
+$directory = __DIR__ . '/../files/temp/processedQuery/';
+$login->setBaseDir('../');
+$login->loginUser();
+$dir = new Portal\VAMC_Directory;
 
+$form = new Portal\Form($db, $login);
 $vars = [];
 $processQueryTotalSQL = 'SELECT id,userID FROM process_query';
 $processQueryTotalRes = $db->prepared_query($processQueryTotalSQL, $vars);
 // make sure our memory limit did not get reduced, we need to make sure we are not having scripts take it all up.
 
+$email = new Portal\Email();
+$email->setSiteRoot($siteRoot);
+
 if (!empty($processQueryTotalRes)) {
 
     foreach ($processQueryTotalRes as $processQuery) {
-
-        // remove the previous file
         $currentFileName = $directory . $processQuery['id'] . '_' . $processQuery['userID'] . '.json';
-        if (is_file($currentFileName)) {
+        if(is_file($currentFileName)){
             unlink($currentFileName);
         }
 

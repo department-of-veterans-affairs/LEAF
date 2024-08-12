@@ -10,7 +10,9 @@ CREATE TABLE `process_query` (
     `data` TEXT NULL DEFAULT NULL,
 	`lastProcess` INT(10) UNSIGNED NOT NULL,
 	PRIMARY KEY (`id`),
-	INDEX `lastProcess` (`lastProcess`)
+	INDEX `lastProcess` (`lastProcess`),
+
+FULLTEXT INDEX `userid_url` (`userID`,`sql`,`data`)
 
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8;

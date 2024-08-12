@@ -9,10 +9,9 @@ error_reporting(E_ALL);
 
 $currDir = dirname(__FILE__);
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
-exit('here');
 
 $protocol = 'https';
-
+$db->query("SET SESSION MAX_EXECUTION_TIME=0;");   
 $request_uri = str_replace(['/var/www/html/','/scripts'],'',$currDir);
 
 $siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
@@ -33,7 +32,6 @@ $processQueryTotalSQL = 'SELECT id,userID,`sql`,`data`,lastProcess FROM process_
 $processQueryTotalRes = $db->query($processQueryTotalSQL);
 // make sure our memory limit did not get reduced, we need to make sure we are not having scripts take it all up.
 
-echo ini_get('memory_limit') . "\r\n";
 if (!empty($processQueryTotalRes)) {
 
     foreach ($processQueryTotalRes as $processQuery) {
@@ -48,17 +46,12 @@ if (!empty($processQueryTotalRes)) {
             continue;
         }
 
-        // id for inspection
-        echo "Working ID {$processQuery['id']} \r\n";
-        // memory check how are we doing on that?
-        echo "Memory Usage " . memory_get_usage() . "\r\n";
-
         // log out user
         $login->logout();
         $login->loginUser($processQuery['userID']);
         $form = new Portal\Form($db, $login);
         // do the processing
-        $data = $db->prepared_query($processQuery['sql'], json_decode($processQuery['data']));
+        $data = $db->prepared_query($processQuery['sql'], json_decode($processQuery['data'],true));
         file_put_contents($currentFileName, json_encode($data));
 
         $user = $dir->lookupLogin($processQuery['userID'], true);
@@ -66,7 +59,7 @@ if (!empty($processQueryTotalRes)) {
         // update the timestamp
         $sqlUpdate = "UPDATE process_query SET lastProcess = :lastProcess WHERE id = :id";
         $varUpdate = [':lastProcess' => time(), ':id' => $processQuery['id']];
-        $this->db->prepared_query($sqlUpdate, $varUpdate);
+        $db->prepared_query($sqlUpdate, $varUpdate);
 
         // only notify if we are sending on the first hop, this will be updated somewhat regularly? We need to keep things alive for excel scripts
         if ($processQuery['lastProcess'] == 0) {
@@ -79,7 +72,6 @@ if (!empty($processQueryTotalRes)) {
             $email->addRecipient($user[0]['email']);
             $didMailSend = $email->sendMail();
             unset($email);
-            echo "Attempted to send email \r\n";
         }
 
         unset($form);
