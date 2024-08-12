@@ -196,6 +196,61 @@ func TestFormQuery_DescendingIndex(t *testing.T) {
 	}
 }
 
+func TestFormQuery_Employee_Field_OrgchartInfo(t *testing.T) {
+	//Values associated with orgchart data.
+	mock_orgchart_employee := Orgchart_employee_metadata{
+		FirstName: "Shirlene",
+		LastName: "Greenholt",
+		MiddleName: "Parisian",
+		Email: "Shirlene.Greenholt@fake-email.com",
+		UserName: "VTRKMWROSEANN",
+	}
+
+	formRes, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"categoryID","operator":"=","match":"form_5ea07","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":[],"sort":{},"getData":["8"],"limit":10000,"limitOffset":0}&x-filterData=recordID,title`)
+	if _, exists := formRes[30]; !exists {
+		t.Errorf("Record 30 should be readable")
+	}
+
+	recData := formRes[30].S1
+
+	metadataInterface := recData["id8_orgchart"]
+	orgchart := metadataInterface.(map[string]interface {})
+	b, _ := json.Marshal(orgchart)
+
+	var org_emp_md Orgchart_employee_metadata
+	err := json.Unmarshal(b, &org_emp_md)
+	if err != nil {
+		t.Error("Error on orgchart_employee_metadata unmarshal")
+	}
+
+	got := org_emp_md.FirstName
+	want := mock_orgchart_employee.FirstName
+	if !cmp.Equal(got, want) {
+		t.Errorf("firstName got = %v, want = %v", got, want)
+	}
+	got = org_emp_md.LastName
+	want = mock_orgchart_employee.LastName
+	if !cmp.Equal(got, want) {
+		t.Errorf("lastName got = %v, want = %v", got, want)
+	}
+	got = org_emp_md.MiddleName
+	want = mock_orgchart_employee.MiddleName
+	if !cmp.Equal(got, want) {
+		t.Errorf("middleName got = %v, want = %v", got, want)
+	}
+	got = org_emp_md.Email
+	want = mock_orgchart_employee.Email
+	if !cmp.Equal(got, want) {
+		t.Errorf("email got = %v, want = %v", got, want)
+	}
+	got = org_emp_md.UserName
+	want = mock_orgchart_employee.UserName
+	if !cmp.Equal(got, want) {
+		t.Errorf("userName got = %v, want = %v", got, want)
+	}
+}
+
+
 /*
 * Reading of metadata values will be added in a future deployment
 * The orgchart value is still from the orgchart lookup, not the metadata field
