@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-// This test simulates the whole lifecycle of a request from implementation, submisison, and approval.
+// This test simulates the whole lifecycle of a request which covers: implementation,
+// submission, approval, and reporting.
 test.describe.configure({ mode: 'serial' });
 
 // Generate unique text to help ensure that fields are being filled correctly.
