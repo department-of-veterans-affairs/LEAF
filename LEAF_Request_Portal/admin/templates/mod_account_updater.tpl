@@ -797,7 +797,7 @@ function findAssociatedRequests(empSel, empSelNew) {
         taskType: ''
     }
 
-    document.getElementById(`${empSel.prefixID}input`).value = `username_disabled:${oldAccount}`;
+    document.getElementById(`${empSel.prefixID}input`).value = `username.disabled:${oldAccount}`;
     document.getElementById(`${empSelNew.prefixID}input`).value = `username:${newAccount}`;
 
     document.getElementById('run').style.display = 'none';

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -82,10 +83,19 @@ func setupTestDB() {
 }
 
 func updateTestDBSchema() {
+	fmt.Print("Updating DB Schema: Request Portal... ")
 	res, _ := httpGet(RootURL + `scripts/updateDatabase.php`)
 	if strings.Contains(res, `Db Update failed`) {
-		log.Fatal(`Could not update database schema: ` + res)
+		log.Fatal(`Could not update Request Portal schema: ` + res)
 	}
+	fmt.Println("OK")
+
+	fmt.Print("Updating DB Schema: Nexus (Orgchart)... ")
+	res, _ = httpGet(NationalOrgchartURL + `scripts/updateDatabase.php`)
+	if strings.Contains(res, `Db Update failed`) {
+		log.Fatal(`Could not update Nexus (Orgchart) schema: ` + res)
+	}
+	fmt.Println("OK")
 }
 
 // teardownTestDB reroutes the standard LEAF dev environment back to the original configuration
