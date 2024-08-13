@@ -24,14 +24,14 @@
 $(function() {
     $('#groupList').html('<div style="border: 2px solid black; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; width: 95%">Loading... <img src="../images/largespinner.gif" alt="" /></div>');
 
-    $.ajax({
-        url: "../scripts/updateDatabase.php",
-        dataType: "text",
-        success: function(response) {
-            $('#groupList').html('<pre>' + response + '</pre>');
-        },
-        cache: false
-    });
+    fetch('../scripts/updateDatabase.php')
+        .then(res => res.text())
+        .then(data => {
+            $('#groupList').html('<pre>' + data + '</pre>');
+        })
+        .catch(err => {
+            $('#groupList').html('Error updating database. This issue has been automatically reported.');
+        });
 });
 
 /* ]]> */
