@@ -6280,7 +6280,7 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (8,	1694021464,	0,	'tester',	'TestFormWorkflow_ApplyAction',	0,	'Approved',	1694021485,	0,	0,	1),
 (9,	1694021464,	0,	'tester',	'TestFormQuery_GroupClickedApprove',	0,	'Approved',	1694021485,	0,	0,	1),
 (10,	1694021465,	0,	'tester',	'TestFormWorkflow_ApplyAction',	0,	'Submitted',	1694021485,	0,	0,	1),
-(11,	1694021465,	0,	'tester',	'Employee Metadata Posts Correctly',	0,	'Submitted',	1694021485,	0,	0,	1),
+(11,	1694021465,	0,	'tester',	'TestFormQuery_Employee_Format__Orgchart_Has_Expected_Values',	0,	'Submitted',	1694021485,	0,	0,	1),
 (12,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
 (13,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
 (14,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
