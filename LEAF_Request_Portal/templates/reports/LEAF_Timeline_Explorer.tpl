@@ -1202,6 +1202,7 @@ function start() {
 
 let numTotalCategories = Infinity;
 $(function() {
+    document.querySelector('title').innerText = 'Timeline Explorer - <!--{$title}-->';
     queryFirstDateSubmitted = $('#showDateSubmitted').val();
 
     $.ajax({

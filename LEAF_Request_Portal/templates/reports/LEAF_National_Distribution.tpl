@@ -1,10 +1,6 @@
 <!--{if $empMembership['groupID'][1]}-->
 <script src="<!--{$app_js_path}-->/LEAF/intervalQueue.js"></script>
-<style>
-li {
-    padding: 8px;
-}
-</style>
+
 <div id="loadingIndicator"><h1>Loading...</h1>
     <h2 id="loadingStatus"></h2>
 </div>
@@ -29,7 +25,7 @@ li {
 
 var sites;
 $(function() {
-
+    document.querySelector('title').innerText = 'National Distribution - <!--{$title}-->';
     $('#prepare').on('click', function() {
         $.ajax({
             url: './utils/LEAF_exportStandardConfig.php',

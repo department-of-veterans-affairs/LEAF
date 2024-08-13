@@ -7,9 +7,9 @@
         }
     </script>
     {if $tabText != ''}
-    <title>{$tabText|sanitize} - {$title|sanitize} | {$city|sanitize}</title>
+    <title>{$tabText|sanitize} - {$title|sanitize}, {$city|sanitize}</title>
     {else}
-    <title>{$title|sanitize} | {$city|sanitize}</title>
+    <title>{$title|sanitize}, {$city|sanitize}</title>
     {/if}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css" media="screen">

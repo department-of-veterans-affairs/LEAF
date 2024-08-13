@@ -444,6 +444,7 @@ switch ($action) {
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
 
         $o_login = $t_login->fetch('login.tpl');
+        $tabText = 'Search Database';
 
         break;
 
