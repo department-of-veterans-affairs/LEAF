@@ -3269,11 +3269,11 @@ class Form
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
-                                    $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
-                									WHERE stepID=:stepID{$count}) rj_stepID{$count}
-                									USING (recordID) ";
-                                    // Backwards Compatibility
-                                    $conditions .= "{$gate}rj_stepID{$count}.stepID = :stepID{$count}";
+                                    if (!str_contains($joins,'lj_records_workflow_state')) {
+                                        $joins .= "LEFT JOIN records_workflow_state lj_records_workflow_state USING (recordID) ";
+                                    }
+
+                                    $conditions .= "{$gate}lj_records_workflow_state.stepID = :stepID{$count}";
                                 }
                                 else
                                 {
@@ -3332,11 +3332,11 @@ class Form
                             default:
                                 if (is_numeric($vars[':stepID' . $count]))
                                 {
-                                    $joins .= "LEFT JOIN (SELECT * FROM records_workflow_state
-                									WHERE stepID != :stepID{$count}) rj_stepID{$count}
-                									USING (recordID) ";
-                                    // Backwards Compatibility
-                                    $conditions .= "{$gate}rj_stepID{$count}.stepID != :stepID{$count}";
+                                    if (!str_contains($joins,'lj_records_workflow_state')) {
+                                        $joins .= "LEFT JOIN records_workflow_state lj_records_workflow_state USING (recordID) ";
+                                    }
+
+                                    $conditions .= "{$gate}lj_records_workflow_state.stepID != :stepID{$count}";
                                 }
                                 else
                                 {

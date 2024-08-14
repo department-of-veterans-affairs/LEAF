@@ -201,6 +201,17 @@ func TestFormQuery_DescendingIndex(t *testing.T) {
 	}
 }
 
+// TestFormQuery_FindTwoSteps looks for records on stepID 3 OR -3
+func TestFormQuery_FindTwoSteps(t *testing.T) {
+	res, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"stepID","operator":"=","match":"3","gate":"AND"},{"id":"stepID","operator":"=","match":"-3","gate":"OR"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":[],"sort":{}}&x-filterData=recordID,stepID`)
+
+	for _, record := range res {
+		if record.StepID != 3 && record.StepID != -3 {
+			t.Errorf(`RecordID #%v StepID = %v. want = stepID is 3 OR -3`, record.RecordID, record.StepID)
+		}
+	}
+}
+
 /*
 * Reading of metadata values will be added in a future deployment
 * The orgchart value is still from the orgchart lookup, not the metadata field

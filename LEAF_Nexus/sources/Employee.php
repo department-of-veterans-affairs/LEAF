@@ -1347,7 +1347,7 @@ class Employee extends Data
                     $this->log[] = 'Format Detected: Email';
                 }
 
-                if(substr(strtolower($input), 0, 15) === 'email_disabled:') {
+                if (substr(strtolower($input), 0, 15) === 'email_disabled:') {
                     $input = str_replace('email_disabled:', '', strtolower($input));
                     $searchResult = $this->lookupEmail($input, true);
                 } else if (substr(strtolower($input), 0, 9) === 'disabled:'){
@@ -1378,28 +1378,12 @@ class Employee extends Data
 
                 break;
             //explicit search for disabled accounts
-            case substr(strtolower($input), 0, 18) === 'username_disabled:':
+            case substr(strtolower($input), 0, 18) === 'username.disabled:':
                 if ($this->debug)
                 {
-                    $this->log[] = 'Format Detected: Loginname';
+                    $this->log[] = 'Format Detected: Loginname (disabled)';
                 }
-                $input = str_replace('username_disabled:', '', strtolower($input));
-                $searchResult = $this->lookupLogin($input, true);
-                break;
-            case substr(strtolower($input), 0, 9) === 'disabled:':
-                if ($this->debug)
-                {
-                    $this->log[] = 'Format Detected: Loginname';
-                }
-                $input = str_replace('disabled:', '', strtolower($input));
-                $searchResult = $this->lookupLogin($input, true);
-                break;
-            case substr(strtolower($input), 0, 14) === 'disabled.user:':
-                if ($this->debug)
-                {
-                    $this->log[] = 'Format Detected: Loginname';
-                }
-                $input = str_replace('disabled.user:', '', strtolower($input));
+                $input = str_replace('username.disabled:', '', strtolower($input));
                 $searchResult = $this->lookupLogin($input, true);
                 break;
             // Format: ID number
