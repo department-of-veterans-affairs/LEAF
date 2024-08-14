@@ -10,9 +10,9 @@ COMMIT;
 /**** Revert DB *****
 START TRANSACTION;
 
-ALTER TABLE `relation_employee_backup` DROP INDEX `backupEmpUID`;
+ALTER TABLE `employee` CHANGE COLUMN `userName` `userName` varchar(30) NOT NULL;
 
-UPDATE `settings` SET `data` = '2020062600' WHERE `settings`.`setting` = 'dbversion';
+UPDATE `settings` SET `data` = '2023092100' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
 */
