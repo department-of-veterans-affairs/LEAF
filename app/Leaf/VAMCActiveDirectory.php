@@ -240,7 +240,7 @@ class VAMCActiveDirectory
     private function preventRecycledUserName(): void
     {
         $sql = 'UPDATE `employee`
-                SET `userName` = concat("disabled_", ' . time() . '_,  `userName`)
+                SET `userName` = concat("disabled_", UNIX_TIMESTAMP(NOW()), "_",  `userName`)
                 WHERE `deleted` > 0
                 AND LEFT(`userName`, 9) <> "disabled_"';
 
