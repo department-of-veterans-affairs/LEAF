@@ -29,6 +29,7 @@ LEAF_Request_Portal/templates_c/email/custom_override/*
 LEAF_Request_Portal/templates/reports/custom_dev*
 LEAF_Request_Portal/files/custom_dev*
 LEAF_Request_Portal/files/temp_leaf_timeline_data.txt
+LEAF_Request_Portal/files/temp/processedQuery
 
 LEAF_Request_Portal/templates/custom_override/*
 LEAF_Nexus/templates/custom_override/*

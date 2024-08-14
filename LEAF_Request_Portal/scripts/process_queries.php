@@ -3,9 +3,6 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 // this file will need to be added, Pete's destruction ticket has it already.
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
 
 $currDir = dirname(__FILE__);
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
@@ -16,8 +13,6 @@ $request_uri = str_replace(['/var/www/html/','/scripts'],'',$currDir);
 
 $siteRoot = "{$protocol}://" . HTTP_HOST . '/' . $request_uri . '/';
 
-$login->setBaseDir('../');
-
 $dir = new Portal\VAMC_Directory;
 
 
@@ -27,7 +22,7 @@ $vars = [
     ':lastProcess' => strtotime("30 minutes ago")
     //':lastProcess' => time()
 ];
-
+$db->checkLargeQueries = false;
 $processQueryTotalSQL = 'SELECT id,userID,`sql`,`data`,lastProcess FROM process_query';
 $processQueryTotalRes = $db->query($processQueryTotalSQL);
 // make sure our memory limit did not get reduced, we need to make sure we are not having scripts take it all up.
@@ -38,23 +33,20 @@ if (!empty($processQueryTotalRes)) {
 
         // similar logic used for the directory in the form, probably want to do cleanup here. not sure of options at this time.
         $directory = __DIR__ . '/../files/temp/processedQuery/';
+        if(!is_dir($directory)){
+            mkdir($directory);
+        }
         $currentFileName = $directory . $processQuery['id'] . '_' . $processQuery['userID'] . '.json';
-
         // looking at skipping ones that are created already, maybe look at time as well? Not sure how I would want to handle that
         if (is_file($currentFileName)) {
             echo "Skipping file creation due to file existing already.\r\n";
             continue;
         }
 
-        // log out user
-        $login->logout();
-        $login->loginUser($processQuery['userID']);
-        $form = new Portal\Form($db, $login);
         // do the processing
         $data = $db->prepared_query($processQuery['sql'], json_decode($processQuery['data'],true));
         file_put_contents($currentFileName, json_encode($data));
 
-        $user = $dir->lookupLogin($processQuery['userID'], true);
 
         // update the timestamp
         $sqlUpdate = "UPDATE process_query SET lastProcess = :lastProcess WHERE id = :id";
@@ -63,6 +55,7 @@ if (!empty($processQueryTotalRes)) {
 
         // only notify if we are sending on the first hop, this will be updated somewhat regularly? We need to keep things alive for excel scripts
         if ($processQuery['lastProcess'] == 0) {
+            $user = $dir->lookupLogin($processQuery['userID'], true);
 
             $email = new Portal\Email();
             $email->setSiteRoot($siteRoot);
@@ -74,7 +67,6 @@ if (!empty($processQueryTotalRes)) {
             unset($email);
         }
 
-        unset($form);
         // do we have a good run with memory?
         echo "Memory Usage " . memory_get_usage() . "\r\n";
     }

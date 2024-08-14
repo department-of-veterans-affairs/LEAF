@@ -41,6 +41,7 @@ class Db
     
     /** @var bool $canDeferLargeQueries environment configuration to allow or disallow large queries */
     private $canDeferLargeQueries = true;
+    public $checkLargeQueries = false;
 
     // Connect to the database
     public function __construct($host, $user, $pass, $database, $abortOnError = false)
@@ -261,13 +262,34 @@ class Db
     public function prepared_query($sql, $vars, $dry_run = false): array
     {
 
-        $largeQueryResponse = $this->has_large_query($sql,$vars);
-        var_dump($largeQueryResponse);exit('here');
-        if(empty($largeQueryResponse)){
-            $directory = __DIR__ . '/../files/temp/processedQuery/';
-            $currentFileName = $directory . $largeQueryResponse['id'] . '_' . $largeQueryResponse['userID'] . '.json';
-            var_dump($currentFileName);
-            exit();
+        if($this->checkLargeQueries == true && stristr($sql,'records') !== false){
+            $this->checkLargeQueries = false;
+            $largeQueryResponse = $this->has_large_query($sql,$vars);
+            
+            if(!empty($largeQueryResponse)){
+
+
+                // current db selected
+                $database = $this->query("SELECT DATABASE()");
+
+                // look at national, we need the path
+                $this->query("USE `national_leaf_launchpad`");
+
+                $site_path_array = $this->prepared_query("SELECT site_path from `sites` WHERE portal_database = ?", [$database[0]['DATABASE()']] );
+                
+                // like it never even happened
+                $this->query("USE `{$database[0]['DATABASE()']}`");
+
+                // this is something I would like some better options for this seems cludgy to me
+                $directory = __DIR__.'/../..'.$site_path_array[0]['site_path'].'/files/temp/processedQuery/';
+                $currentFileName = $directory . $largeQueryResponse['id'] . '_' . $largeQueryResponse['userID'] . '.json';
+
+                $currentData = file_get_contents($currentFileName);
+                header('Content-Type: application/json; charset=utf-8');
+
+                echo $currentData;
+                exit();
+            }
         }
 
         if ($this->limit != '') {
@@ -291,17 +313,7 @@ class Db
             }
         }
 
-        // if we are looking at a ajax request we will want to not want that request go into the queue. This may need some tweaking
-        if (!$this->isAjaxCall && stristr($sql, 'records') !== FALSE) {
-            
-            ini_set('display_errors', '1');
-            ini_set('display_startup_errors', '1');
-            error_reporting(E_ALL ^ E_WARNING ^ E_DEPRECATED);
-            // this is the only way to get the to big of queries to fail, memory limits are my issue well before a speed issue is hit.
-            //$this->db->query("SET SESSION MAX_EXECUTION_TIME=1;");   
-            ini_set('memory_limit', '3048M');
-                    
-        }
+        
 
         if ($dry_run == false && $this->dryRun == false) {
             
