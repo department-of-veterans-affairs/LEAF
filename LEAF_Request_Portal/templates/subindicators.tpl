@@ -397,7 +397,7 @@
         <!--{if $indicator.format == 'number' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
                 <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|strip_tags}-->" style="font-size: 1.3em; font-family: monospace" />
-                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Data must be numeric</span>
+                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: #c00; display: none">Data must be numeric</span>
             </span>
             <script type="text/javascript">
             formValidator["id<!--{$indicator.indicatorID}-->"] = {
@@ -454,7 +454,7 @@
             <span class="text" style="position:relative;">
                 <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="background: url(dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value|sanitize}-->" />
                 <input class="ui-helper-hidden-accessible" id="<!--{$indicator.indicatorID|strip_tags}-->_focusfix" type="text" />
-                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Date formatted incorrectly</span>
+                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: #c00; display: none">Date formatted incorrectly</span>
             </span>
             <script>
             $(function() {
@@ -520,7 +520,7 @@
         <!--{if $indicator.format == 'currency' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text">
                 $<input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="font-size: 1.3em; font-family: monospace" /> (Amount in USD)
-                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Value must be a valid currency</span>
+                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: #c00; display: none">Value must be a valid currency</span>
             </span>
             <script type="text/javascript">
             formValidator["id<!--{$indicator.indicatorID}-->"] = {
@@ -863,7 +863,7 @@
         <!--{if $indicator.format == 'orgchart_group' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
             <div id="grpSel_<!--{$indicator.indicatorID|strip_tags}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|strip_tags}-->" style="display: none" />
-            <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Invalid Group</span>
+            <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: #c00; display: none">Invalid Group</span>
             <script>
             formValidator["id<!--{$indicator.indicatorID}-->"] = {
                 setValidator: function() {
@@ -1056,10 +1056,10 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'orgchart_employee' && ($indicator.isMasked == 0 || $indicator.data == '')}-->
-            <div id="loadingIndicator_<!--{$indicator.indicatorID}-->" style="color: red; font-weight: bold; font-size: 140%"></div>
+            <div id="loadingIndicator_<!--{$indicator.indicatorID}-->" style="color: #c00; font-weight: bold; font-size: 140%"></div>
             <div id="empSel_<!--{$indicator.indicatorID}-->"></div>
             <input id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" value="<!--{$indicator.value|sanitize}-->" style="display: none" />
-            <!--{* <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: red; display: none">Account must not be a 'Zero' account.</span>
+            <!--{* <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: #c00; display: none">Account must not be a 'Zero' account.</span>
             <script type="text/javascript">
                 formValidator["id<!--{$indicator.indicatorID}-->"] = {
                     setValidator: function() {
