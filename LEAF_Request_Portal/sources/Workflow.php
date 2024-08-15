@@ -560,7 +560,7 @@ class Workflow
 
         //check for corresponding non-system email template record before updating and renaming files
         $vars = array(':oldBody' => $name . "_body.tpl");
-        $strSQL = "SELECT email_templateID FROM `email_templates` WHERE body=:oldBody AND emailTemplateID > 1";
+        $strSQL = "SELECT emailTemplateID FROM `email_templates` WHERE body=:oldBody AND emailTemplateID > 1";
         $res = $this->db->prepared_query($strSQL, $vars);
 
         if(count($res) === 1) {
@@ -1094,7 +1094,7 @@ class Workflow
 
         //check for corresponding non-system email template record before deleting email_templates record and unlinking templates
         $vars = array(':oldBody' => $event . "_body.tpl");
-        $strSQL = "SELECT email_templateID FROM `email_templates` WHERE body=:oldBody AND emailTemplateID > 1";
+        $strSQL = "SELECT emailTemplateID FROM `email_templates` WHERE body=:oldBody AND emailTemplateID > 1";
         $res = $this->db->prepared_query($strSQL, $vars);
 
         if(count($res) === 1) {
