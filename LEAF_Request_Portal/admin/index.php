@@ -641,7 +641,7 @@ $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
 $t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 $t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
-$o_menu = $t_menu->fetch('menu.tpl');
+$o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
