@@ -84,7 +84,7 @@ switch ($action) {
             }
             else
             {
-                echo '<img src="dynicons/?img=emblem-readonly.svg&amp;w=96" alt="error" style="float: left" /><div style="font: 36px verdana">This field is currently read-only OR the field is not associated with any forms on this request.</div>';
+                echo '<img src="dynicons/?img=emblem-readonly.svg&amp;w=96" alt="" style="float: left" /><div style="font: 36px verdana">This field is currently read-only OR the field is not associated with any forms on this request.</div>';
             }
         }
 

@@ -452,9 +452,9 @@
         <!--{/if}-->
         <!--{if $indicator.format == 'date' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span class="text" style="position:relative;">
-                <input type="text" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="background: url(dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value|sanitize}-->" />
+                <input type="text" title="date format MM/DD/YYYY" id="<!--{$indicator.indicatorID|strip_tags}-->" name="<!--{$indicator.indicatorID|strip_tags}-->" style="background: url(dynicons/?img=office-calendar.svg&w=16); background-repeat: no-repeat; background-position: 4px center; padding-left: 24px; font-size: 1.3em; font-family: monospace" value="<!--{$indicator.value|sanitize}-->" />
                 <input class="ui-helper-hidden-accessible" id="<!--{$indicator.indicatorID|strip_tags}-->_focusfix" type="text" />
-                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: #c00; display: none">Date formatted incorrectly</span>
+                <span id="<!--{$indicator.indicatorID|strip_tags}-->_error" style="color: #c00; display: none">Please use MM/DD/YYYY date format.</span>
             </span>
             <script>
             $(function() {

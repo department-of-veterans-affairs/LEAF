@@ -123,7 +123,7 @@ function processInboxData(depID, res, csrftoken) {
                 var cellContainer = $('#'+data.cellContainerID);
                 cellContainer.attr('tabindex', '0').attr('aria-label', listRecord.title);
                 cellContainer.html('<a href="index.php?a=printview&recordID='+ data.recordID + '" target="_blank">' + listRecord.title + '</a>'
-                    + ' <button id="'+ data.cellContainerID +'_preview" class="buttonNorm">Quick View</button>'
+                    + ' <button type="button" id="'+ data.cellContainerID +'_preview" class="buttonNorm">Quick View</button>'
                     + '<div id="inboxForm_' + depID + '_' + data.recordID +'" style="background-color: white; display: none; height: 300px; overflow: scroll"></div>');
                 $('#'+data.cellContainerID + '_preview').on('click', function() {
                     $('#'+data.cellContainerID + '_preview').hide();
@@ -178,7 +178,7 @@ function processInboxData(depID, res, csrftoken) {
             }},
         {name: 'Action', indicatorID: 'action', editable: false, sortable: false, callback: function(data, blob) {
                 var depDescription = 'Take Action';
-                $('#'+data.cellContainerID).html('<button class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" onclick="loadWorkflow('+ data.recordID +', \''+ depID +'\', \''+ formGrid.getPrefixID() +'\', \''+csrftoken+'\');">'+ depDescription +'</button>');
+                $('#'+data.cellContainerID).html('<button type="button" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" onclick="loadWorkflow('+ data.recordID +', \''+ depID +'\', \''+ formGrid.getPrefixID() +'\', \''+csrftoken+'\');">'+ depDescription +'</button>');
             }}
     ]);
 

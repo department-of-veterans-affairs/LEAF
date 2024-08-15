@@ -91,10 +91,10 @@
             <!--{foreach from=$indicator.options item=option}-->
                     <input type="hidden" name="<!--{$indicator.indicatorID|strip_tags|escape}-->[<!--{$idx}-->]" value="no" /> <!-- dumb workaround -->
                     <!--{if $option == $indicator.data[$idx]}-->
-                        <br /><img class="print" src="images/checkbox-yes.png" alt="checked" />
+                        <br /><img class="print" src="images/checkbox-yes.png" alt="" />
                         <!--{$option|strip_tags|escape}-->
                     <!--{else}-->
-                        <br /><img class="print" src="images/checkbox-no.png" alt="not checked" />
+                        <br /><img class="print" src="images/checkbox-no.png" alt=" />
                         <!--{$option|strip_tags|escape}-->
                     <!--{/if}-->
                     <!--{assign var='idx' value=$idx+1}-->

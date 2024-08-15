@@ -632,7 +632,7 @@ export default {
     template: `<div id="condition_editor_dialog_content">
             <!-- LOADING SPINNER -->
             <div v-if="appIsLoadingIndicators" class="page_loading">
-                Loading... <img src="../images/largespinner.gif" alt="loading..." />
+                Loading... <img src="../images/largespinner.gif" alt="" />
             </div>
             <div v-else id="condition_editor_inputs">
                 <!-- NOTE: DELETION DIALOG -->

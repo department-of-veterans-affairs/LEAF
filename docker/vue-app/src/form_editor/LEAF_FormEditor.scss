@@ -496,38 +496,41 @@ table[class$="SelectorTable"] th {
                 height: 100%;
                 left: 0;
                 top: 0;
-                .icon_move_container {
+            }
+            .icon_move_container {
+                @include flexcenter;
+                cursor: move;
+                position: absolute;
+                width: 1rem;
+                left: 0;
+                top: 0;
+                flex-direction: column;
+                gap: 0.625rem;
+                .icon_drag {
+                    opacity: 0.6;
+                }
+                .icon_move {
                     @include flexcenter;
-                    align-self: flex-start;
-                    flex-direction: column;
-                    gap: 0.5rem;
-                    .icon_drag {
-                        opacity: 0.6;
-                    }
-                    .icon_move {
-                        @include flexcenter;
-                        cursor: pointer;
-                        width: 0;
-                        height: 0;
-                        background-color: transparent;
-                        border-radius: 2px;
-                        border: 6px solid transparent;
-                        &.up {
-                            margin-top: 0.25rem;
-                            border-bottom: 10px solid $BG-DarkNavy;
-                            border-top: 2px;
-                            &:hover, &:focus, &:active {
-                                outline: none !important;
-                                border-bottom: 10px solid $USWDS_Cyan;
-                            }
+                    cursor: pointer;
+                    width: 0;
+                    height: 0;
+                    background-color: transparent;
+                    border-radius: 2px;
+                    border: 7px solid transparent;
+                    &.up {
+                        border-bottom: 12px solid $BG-DarkNavy;
+                        border-top: 2px;
+                        &:hover, &:focus, &:active {
+                            outline: none !important;
+                            border-bottom: 12px solid $USWDS_Cyan;
                         }
-                        &.down {
-                            border-top: 10px solid $BG-DarkNavy;
-                            border-bottom: 2px;
-                            &:hover, &:focus, &:active {
-                                outline: none !important;
-                                border-top: 10px solid $USWDS_Cyan;
-                            }
+                    }
+                    &.down {
+                        border-top: 12px solid $BG-DarkNavy;
+                        border-bottom: 2px;
+                        &:hover, &:focus, &:active {
+                            outline: none !important;
+                            border-top: 12px solid $USWDS_Cyan;
                         }
                     }
                 }

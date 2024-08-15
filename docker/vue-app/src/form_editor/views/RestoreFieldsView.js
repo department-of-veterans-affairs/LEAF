@@ -74,7 +74,7 @@ export default {
 
             <div v-if="disabledFields === null" class="page_loading">
                 Loading...
-                <img src="../images/largespinner.gif" alt="loading..." />
+                <img src="../images/largespinner.gif" alt="" />
             </div>
             <table v-else class="usa-table leaf-whitespace-normal">
                 <thead>

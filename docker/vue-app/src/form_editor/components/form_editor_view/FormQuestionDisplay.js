@@ -76,18 +76,20 @@ export default {
                 <button v-show="!previewMode" type="button" :id="'index_listing_' + indicatorID + '_button'"
                 :title="'drag to move question (' + indicatorID + ')'"
                 class="drag_question_button" @click="focusIndicator(indicatorID)">
-                    <div class="icon_move_container">
-                        <span role="img" aria="" alt="" class="icon_drag">∷</span>
-                        <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move up" role="button" title="move item up"
-                            @click.stop="moveListItem($event, indicatorID, true)"
-                            @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">
-                        </div>
-                        <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move down" role="button" title="move item down"
-                            @click.stop="moveListItem($event, indicatorID, false)"
-                            @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
-                        </div>
-                    </div>
                 </button>
+                <div class="icon_move_container">
+                    <span role="img" aria="" alt="" class="icon_drag">∷</span>
+                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move up" role="button"
+                        title="move item up" aria-label="move item up"
+                        @click.stop="moveListItem($event, indicatorID, true)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">
+                    </div>
+                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move down" role="button"
+                        title="move item down" aria-label="move item down"
+                        @click.stop="moveListItem($event, indicatorID, false)"
+                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
+                    </div>
+                </div>
 
                 <!-- TOOLBAR -->
                 <div v-show="!previewMode"

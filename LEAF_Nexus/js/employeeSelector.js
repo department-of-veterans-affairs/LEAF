@@ -45,7 +45,7 @@ employeeSelector.prototype.initialize = function () {
       this.prefixID +
       'iconBusy" src="' +
       t.rootPath +
-      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" /></div>\
+      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="" /></div>\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="' +
       this.prefixID +
       'status" role="status"></span>\

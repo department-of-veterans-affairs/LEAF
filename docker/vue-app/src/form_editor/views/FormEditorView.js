@@ -775,7 +775,7 @@ export default {
     <section id="formEditor_content">
         <div v-if="appIsLoadingForm || appIsLoadingCategories" class="page_loading">
             Loading... 
-            <img src="../images/largespinner.gif" alt="loading..." />
+            <img src="../images/largespinner.gif" alt="" />
         </div>
         <div v-else-if="noForm">
             The form you are looking for ({{ queryID }}) was not found.

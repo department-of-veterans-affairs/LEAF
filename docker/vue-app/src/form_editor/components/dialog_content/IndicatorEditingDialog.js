@@ -643,7 +643,7 @@ export default {
                     aria-atomic="true" aria-live="polite"  role="status"></span>
                 <br/>
                 <div style="display:flex; align-items: center;">
-                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
+                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column" 
                         @click="appAddCell">
                         + Add column
                     </button>&nbsp;Columns ({{gridJSON.length}}):
