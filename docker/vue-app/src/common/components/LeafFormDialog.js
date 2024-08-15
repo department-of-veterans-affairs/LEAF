@@ -5,6 +5,7 @@ export default {
             initialTop: 15,
             modalElementID: 'leaf_dialog_content',
             modalBackgroundID: 'leaf-vue-dialog-background',
+            ariaLabel: '',
 
             elBody: null,
             elModal: null,
@@ -24,6 +25,7 @@ export default {
         this.elModal = document.getElementById(this.modalElementID);
         this.elBackground = document.getElementById(this.modalBackgroundID);
         this.elClose = document.getElementById('leaf-vue-dialog-close');
+        this.ariaLabel = document.querySelector('.leaf-vue-dialog-title')?.textContent || '';
         //helps adjust the modal background coverage
         const min = this.elModal.clientWidth > this.elBody.clientWidth ? this.elModal.clientWidth : this.elBody.clientWidth;
         this.elBackground.style.minHeight = 200 + this.elBody.clientHeight + 'px';
@@ -109,14 +111,12 @@ export default {
     },
     template: `<Teleport to="body">
         <div id="leaf-vue-dialog-background">
-            <div :id="modalElementID" class="leaf-vue-dialog" role="dialog" :style="{top: scrollY + initialTop + 'px'}">
+            <div :id="modalElementID" class="leaf-vue-dialog" role="dialog" :aria-label="ariaLabel" :style="{top: scrollY + initialTop + 'px'}">
                 <div v-html="dialogTitle" :id="modalElementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
-                <div tabindex=0 @click="closeFormDialog" @keypress.enter="closeFormDialog" @keydown.tab="firstTab" id="leaf-vue-dialog-close">&#10005;</div>
-                <div id="record">
-                    <div role="document" style="position: relative;">
-                        <main id="xhr" class="leaf-vue-dialog-content" role="main">
-                            <slot name="dialog-content-slot"></slot>
-                        </main>
+                <button type="button" @click="closeFormDialog" @keydown.tab="firstTab" id="leaf-vue-dialog-close" aria-label="Close">&#10005;</button>
+                <div id="record" style="word-break:break-word; max-height:100vh;overflow-y:auto">
+                    <div id="xhr" class="leaf-vue-dialog-content">
+                        <slot name="dialog-content-slot"></slot>
                     </div>
                     <div id="leaf-vue-dialog-cancel-save">
                         <button type="button" style="width: 90px;"

@@ -1,6 +1,10 @@
 <!--{if $empMembership['groupID'][1]}-->
 <script src="<!--{$app_js_path}-->/LEAF/intervalQueue.js"></script>
-
+<style>
+#body li {
+    padding: 8px;
+}
+</style>
 <div id="loadingIndicator"><h1>Loading...</h1>
     <h2 id="loadingStatus"></h2>
 </div>

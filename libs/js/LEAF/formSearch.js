@@ -26,7 +26,7 @@ var LeafFormSearch = function (containerID) {
       '<div>\
 			    <img id="' +
         prefixID +
-        'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
+        'searchIcon" class="searchIcon" alt="" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
         rootURL +
         'dynicons/?img=search.svg&w=16">\
 			    <img id="' +

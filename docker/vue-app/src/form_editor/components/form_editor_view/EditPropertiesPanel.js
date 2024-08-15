@@ -22,6 +22,12 @@ export default {
     created() {
         this.getWorkflowRecords();
     },
+    mounted() {
+        if(this.focusedFormIsSensitive && +this.needToKnow === 0) {
+            this.needToKnow = 1;
+            this.updateNeedToKnow();
+        }
+    },
     inject: [
         'APIroot',
         'CSRFToken',
@@ -246,9 +252,9 @@ export default {
                                 </template>
                             </select>
                         </label>
-                        <button id="view_workflow" v-if="+focusedFormRecord.workflowID > 0" type="button" class="btn-general">
-                            <a :href="'./?a=workflow&workflowID='+ focusedFormRecord.workflowID" target="_blank">View Workflow</a>
-                        </button>
+                        <a v-if="+focusedFormRecord.workflowID > 0" id="view_workflow" class="btn-general" :href="'./?a=workflow&workflowID='+ focusedFormRecord.workflowID" target="_blank">
+                            View Workflow
+                        </a>
                     </div>
                     <div v-if="!workflowsLoading && workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
@@ -258,7 +264,7 @@ export default {
                             <option value="0" :selected="visible === 0">Hidden</option>
                         </select>
                     </label>
-                    <div v-if="focusedFormIsSensitive" style="display:flex; color: #a00;">
+                    <div v-if="focusedFormIsSensitive && isNeedToKnow" style="display:flex; color: #a00;">
                         <div style="display:flex; align-items: center;"><b>Need to know: </b></div> &nbsp;
                         <div style="display:flex; align-items: center;">Forced On because sensitive fields are present</div>
                     </div>
