@@ -494,9 +494,9 @@ class Employee extends Data
      */
     public function getEmployeeByUserName(array $user_names, Db $db): array
     {
-        $sql = "SELECT `empUID`, `userName`, `lastName`, `firstName`, `middleName`,
-                    `phoneticLastName`, `phoneticFirstName`, `domain`, `deleted`,
-                    `lastUpdated`
+        $sql = "SELECT `empUID`, LOWER(`userName`), `lastName`, `firstName`,
+                    `middleName`, `phoneticLastName`, `phoneticFirstName`,
+                    `domain`, `deleted`, `lastUpdated`
                 FROM `employee`
                 WHERE `userName` IN (" . implode(",", array_fill(1, count($user_names), '?')) . ")";
         $result = $db->prepared_query($sql, $user_names);
@@ -924,7 +924,7 @@ class Employee extends Data
             return $this->cache["lookupEmpUID_{$empUID}"];
         }
 
-        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName, domain, 
+        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName, domain,
                         deleted, lastUpdated, new_empUUID, data as email FROM {$this->tableName}
                     LEFT JOIN employee_data USING (empUID)
                     WHERE empUID = :empUID
@@ -1114,7 +1114,7 @@ class Employee extends Data
                         AND deleted = 0
                         {$this->limit}";
 
-        $vars = array(':phone' => $this->parseWildcard('*' . $phone)); 
+        $vars = array(':phone' => $this->parseWildcard('*' . $phone));
 
         return $this->db->prepared_query($sql, $vars);
     }
@@ -1336,7 +1336,7 @@ class Employee extends Data
                 {
                     $this->log[] = 'Format Detected: Email';
                 }
-                
+
                 if(substr(strtolower($input), 0, 15) === 'email.disabled:') {
                     $input = str_replace('email.disabled:', '', strtolower($input));
                     $searchResult = $this->lookupEmail($input, true);
