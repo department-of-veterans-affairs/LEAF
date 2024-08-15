@@ -448,7 +448,7 @@ class Employee extends Data
     private function getAllEmployees(Db $db): array
     {
         $vars = array();
-        $sql = 'SELECT `userName`
+        $sql = 'SELECT LOWER(`userName`)
                 FROM `employee`';
 
         $result = $db->prepared_query($sql, $vars);
