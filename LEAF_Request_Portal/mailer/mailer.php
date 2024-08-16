@@ -15,8 +15,9 @@ set_time_limit(10);
 $currDir = dirname(__FILE__);
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
-// Mail queue folder
+$errorNotify = new App\Leaf\ErrorNotify();
 
+// Mail queue folder
 $folder = $currDir . '/../templates_c/mailer/';
 $file = '';
 $webMode = false;
@@ -37,7 +38,9 @@ if (strlen($file) == 40) {
         if (mail($email['recipient'], $email['subject'], $email['body'], $email['headers'])) {
             unlink($folder . $file);
         } else {
-            trigger_error('Mail queued: ' . $email['subject']);
+            $errorNotify->logEmailNotices(array('notice: ' => 'Mail queued:',
+                                                'subject: ' => $email['subject']));
+            //trigger_error('Mail queued: ' . $email['subject']); // do we really need this any longer? It just clutters up the log file
         }
     }
 }
@@ -54,19 +57,25 @@ foreach ($queue as $item) {
                 // delete invalid cache
                 unlink($folder . $item);
 
-                trigger_error('Mail no recipient: ' . $email['subject']);
+                $errorNotify->logEmailErrors(array('error: ' => 'Mail no recipient:',
+                                                'subject: ' => $email['subject']));
+                //trigger_error('Mail no recipient: ' . $email['subject']);
             } else {
                 touch($folder . $item);    // reset timer
 
                 if (mail($email['recipient'], $email['subject'], $email['body'], $email['headers'])) {
                     unlink($folder . $item);
-                    trigger_error('Queued mail sent: ' . $email['subject']);
+                    $errorNotify->logEmailNotices(array('notice: ' => 'Queued mail sent:',
+                                                'subject: ' => $email['subject']));
+                    //trigger_error('Queued mail sent: ' . $email['subject']); // do we really need this any longer? It just clutters up the log file
 
                     if ($webMode) {
                         $webLog[] = "Sent {$email['subject']} to {$email['recipient']}";
                     }
                 } else {
-                    trigger_error('Mail queued again: ' . $email['subject']);
+                    $errorNotify->logEmailErrors(array('error: ' => 'Mail queued again:',
+                                                'subject: ' => $email['subject']));
+                    //trigger_error('Mail queued again: ' . $email['subject']);
                 }
             }
         }
