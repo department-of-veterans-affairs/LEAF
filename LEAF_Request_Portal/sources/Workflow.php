@@ -522,7 +522,7 @@ class Workflow
         }
         $desc = trim($desc);
 
-        //Check for an existing email_templates record with a label that matches desc to avoid inconsistencies.
+        //Check for other existing email_templates records with a label that matches desc to avoid inconsistencies.
         //Return information for user if a match is found.  Trim for back compat.
         $vars = array(
             ':label' => $desc,
