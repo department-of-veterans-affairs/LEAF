@@ -1,6 +1,6 @@
+name: leaf
 services:
-    leaf_vue_ui:
-        container_name: leaf_vue_ui
+    vue-ui:
         env_file:
             - ./env_files/vue_ui_local.env
         build:
@@ -15,9 +15,7 @@ services:
             - leaf-sql
             - leaf
 
-    leaf-php-8:
-        image: leaf-fpm
-        container_name: leaf-fpm
+    php-fpm:
         env_file:
             - ./env_files/globals_local.env
             - ./env_files/secrets.env
@@ -27,8 +25,8 @@ services:
             dockerfile: docker/php/leaf_monlith.dockerfile
             args:
                 - BUILD_UID=${BUILD_UID}
-                - SMTP_HOST=leaf-smtp
-                - MAIL_HUB=leaf-smtp
+                - SMTP_HOST=smtp4dev
+                - MAIL_HUB=smtp4dev
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
@@ -37,7 +35,9 @@ services:
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
             - ../LEAF_Nexus:/var/www/html/LEAF_NationalNexus
             - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
+            - ../LEAF_Nexus:/var/www/html/Test_Nexus
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
+            - ../LEAF_Request_Portal:/var/www/html/Test_Request_Portal
             - ../scripts:/var/www/scripts
             - ../health_checks:/var/www/html/health_checks
             - ../app:/var/www/html/app
@@ -51,9 +51,7 @@ services:
             - REMOTE_USER=${REMOTE_USER}
             - APACHE_RUN_USER=build_user
 
-    leaf-nginx:
-        image: leaf-nginx
-        container_name: leaf-nginx
+    nginx:
         env_file:
             - ./env_files/nginx_local.env
         build:
@@ -65,18 +63,17 @@ services:
             - ./nginx/src:/var/www/html
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
         volumes_from:
-            - leaf-php-8
+            - php-fpm
         ports:
             - 80:${HTTP_PORT}
             - 443:${HTTPS_PORT}
         depends_on:
-            - leaf-php-8
+            - php-fpm
         networks:
             - leaf
 
-    leaf-smtp:
+    smtp4dev:
         image: rnwood/smtp4dev
-        container_name: leaf-smtp
         env_file:
             - ./env_files/globals_local.env
             - ./env_files/secrets.env
@@ -85,19 +82,17 @@ services:
         networks:
             - leaf
 
-    leaf-adminer:
-        container_name: leaf-adminer
+    adminer:
         image: adminer
         environment:
-            ADMINER_DEFAULT_SERVER: leaf-mysql
+            ADMINER_DEFAULT_SERVER: mysql
         ports:
             - "8080:8080"
         networks:
             - leaf-sql
 
-    leaf-mysql:
+    mysql:
         image: mysql:8.0
-        container_name: leaf-mysql
         ports:
             - "3306:3306"
         env_file:
@@ -117,16 +112,15 @@ services:
             - ./mysql/db/boilerplate:/leaf-boilerplate
             - ./mysql/dev_db:/leaf-dev_db
 
-    leaf-api-test-helper:
+    api-test-helper:
         image: golang
-        container_name: leaf-api-test-helper
         volumes:
             - "../x-test/api-test-helper/:/app"
             - "../x-test/API-tests/:/API-tests"
         ports:
             - "8000:8000"
         env_file:
-            - ./env_files/mysql_local.env
+            - ./env_files/globals_local.env
             - ./env_files/secrets.env
         networks:
             - leaf
@@ -136,12 +130,10 @@ services:
         extra_hosts:
             - host.docker.internal:host-gateway
 
-    test-api:
-        image: test-api:latest
-        container_name: test-api
+    selenium-api:
         build:
             context: ../
-            dockerfile: docker/selenium-tests/test-api.dockerfile
+            dockerfile: docker/selenium-tests/selenium-api.dockerfile
         env_file:
             - ./selenium-tests/leaf_selenium.env
         networks:
