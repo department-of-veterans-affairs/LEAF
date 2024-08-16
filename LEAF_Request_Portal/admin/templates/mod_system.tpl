@@ -34,7 +34,7 @@
             <div class="leaf-marginTop-halfRem"><span id="leafSecureStatus">Loading...</span></div>
 
             <div>
-                <label for="subHeading" class="usa-label">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</label>
+                <div for="importTags" class="usa-label">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</div>
                 <div class="leaf-marginTop-1rem">
                     <!--{foreach from=$importTags item=importTag}-->
                         <!--{$importTag}--><br />
@@ -117,7 +117,7 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.heading = heading;
-                    $('#headerDescription').html(heading);
+                    $('#logo .leaf-site-title').html(heading);
                 },
                 error: function(err) {
                     console.log(err);
@@ -137,7 +137,7 @@ function saveSettings() {
                 },
                 success: function(res) {
                     siteSettings.subHeading = subHeading;
-                    $('#logo .leaf-site-title').html(subHeading);
+                    $('#headerDescription').html(subHeading);
                 },
                 error: function(err) {
                     console.log(err);
