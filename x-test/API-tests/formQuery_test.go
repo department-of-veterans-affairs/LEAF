@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -193,6 +194,17 @@ func TestFormQuery_DescendingIndex(t *testing.T) {
 
 	if _, exists := res[6]; !exists {
 		t.Errorf(`Record ID should exist because VTRSHHZOFIA is the initiator. want = recordID is not null`)
+	}
+}
+
+// TestFormQuery_FindTwoSteps looks for records on stepID 3 OR -3
+func TestFormQuery_FindTwoSteps(t *testing.T) {
+	res, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"stepID","operator":"=","match":"3","gate":"AND"},{"id":"stepID","operator":"=","match":"-3","gate":"OR"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":[],"sort":{}}&x-filterData=recordID,stepID`)
+
+	for _, record := range res {
+		if record.StepID != 3 && record.StepID != -3 {
+			t.Errorf(`RecordID #%v StepID = %v. want = stepID is 3 OR -3`, record.RecordID, record.StepID)
+		}
 	}
 }
 
