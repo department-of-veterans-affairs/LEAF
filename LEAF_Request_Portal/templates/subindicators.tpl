@@ -197,7 +197,7 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'radio' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-                <span>
+                <span id="radio_options_<!--{$indicator.indicatorID|strip_tags}-->">
                 <!--{counter assign='ctr' print=false}-->
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{if is_array($option)}-->
@@ -231,6 +231,28 @@
             <!--{/foreach}-->
                 </span>
                 <script>
+                $(function() {
+                    //508 modal fix for radio format questions.
+                    //Tab works differently for this format and would take user outside the modal if last on the form
+                    const tabfix = (ev) => {
+                        const elDialog = document.querySelector('div[id^="LeafForm"][id$="_xhrDialog"]');
+                        if(ev?.key === 'Tab' && ev?.shiftKey === false && elDialog !== null) {
+                            const formInputs = Array.from(elDialog.querySelectorAll('input'));
+                            const lastEl = formInputs[formInputs.length - 1];
+                            const elGroupParent = lastEl.closest('#radio_options_<!--{$indicator.indicatorID|strip_tags}-->');
+                            if (elGroupParent !== null) {
+                                ev.preventDefault();
+                                const elClose = elDialog.parentNode.querySelector('.ui-dialog-titlebar-close');
+                                if(elClose !== null) {
+                                    elClose.focus();
+                                }
+                            }
+                        }
+                    }
+                    let elsRadio = Array.from(document.querySelectorAll('#radio_options_<!--{$indicator.indicatorID|strip_tags}--> input'));
+                    elsRadio.forEach(input => input.addEventListener('keydown', tabfix))
+                });
+
                 <!--{if $indicator.required == 1}-->
                 formRequired["id<!--{$indicator.indicatorID}-->"] = {
                     setRequired: function() {
@@ -297,7 +319,11 @@
                             }
                             elEmptyOption.selected = elSelect.value === '';
                         });
-                        document.querySelector('div.response.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> input.choices__input')?.setAttribute('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
+                        let elChoicesInput = document.querySelector('div.response.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> input.choices__input');
+                        if(elChoicesInput !== null) {
+                            elChoicesInput.setAttribute('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
+                            elChoicesInput.setAttribute('role', 'searchbox');
+                        }
                     }
                 });
                 <!--{if $indicator.required == 1}-->

@@ -158,6 +158,9 @@ export default {
             //not a header, or in advanced mode, or the format of the header is already a format other than none
             return this.parentID !== null || this.advancedMode === true || this.format !== '' || hasDevConsoleAccess;
         },
+        showDefaultTextarea() {
+            return !['','raw_data','fileupload','image','grid','checkboxes','multiselect'].includes(this.format);
+        },
         shortLabelTriggered() {
             return this.name.trim().split(' ').length > 2 || this.containsRichText(this.name) || hasDevConsoleAccess;
         },
@@ -648,12 +651,12 @@ export default {
                         + Add column
                     </button>&nbsp;Columns ({{gridJSON.length}}):
                 </div>
-                <div style="overflow-x: scroll;" id="gridcell_col_parent">
+                <div style="overflow-x: auto;" id="gridcell_col_parent">
                     <grid-cell v-if="gridJSON.length === 0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
                     <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
                 </div>
             </div>
-            <div v-show="format !== '' && format !== 'raw_data'" style="margin-top:0.75rem;">
+            <div v-show="showDefaultTextarea" style="margin-top:0.75rem;">
                 <label for="defaultValue">Default Answer</label>
                 <div v-show="orgchartFormats.includes(format)"
                     :id="'modal_orgSel_' + indicatorID"

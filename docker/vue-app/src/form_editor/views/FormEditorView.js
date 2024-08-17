@@ -798,6 +798,8 @@ export default {
             <div id="form_index_and_editing" :data-focus="focusedIndicatorID">
                 <!-- NOTE: INDEX (main + stapled forms, internals) -->
                 <div id="form_index_display">
+                    <div role="status" style="position:absolute;opacity:0"
+                        aria-live="assertive" :aria-label="previewMode ? 'Previewing Form' : 'Editing Form'"></div>
                     <button type="button" id="indicator_toolbar_toggle" class="btn-general preview"
                         @click.stop="toggleToolbars()">
                         <span role="img" aria="" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>

@@ -85,7 +85,7 @@
 
 
     <div id="comments" style="display: none">
-        <h1 id='comment_header'>Comments</h1>
+        <h1 id='comment_header'><label for="note">Comments</label></h1>
         <div id="notes">
             <form id='note_form'>
                 <input type='hidden' name='userID' value='<!--{$userID|strip_tags}-->' />

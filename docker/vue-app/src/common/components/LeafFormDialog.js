@@ -5,7 +5,6 @@ export default {
             initialTop: 15,
             modalElementID: 'leaf_dialog_content',
             modalBackgroundID: 'leaf-vue-dialog-background',
-            ariaLabel: '',
 
             elBody: null,
             elModal: null,
@@ -25,7 +24,7 @@ export default {
         this.elModal = document.getElementById(this.modalElementID);
         this.elBackground = document.getElementById(this.modalBackgroundID);
         this.elClose = document.getElementById('leaf-vue-dialog-close');
-        this.ariaLabel = document.querySelector('.leaf-vue-dialog-title')?.textContent || '';
+
         //helps adjust the modal background coverage
         const min = this.elModal.clientWidth > this.elBody.clientWidth ? this.elModal.clientWidth : this.elBody.clientWidth;
         this.elBackground.style.minHeight = 200 + this.elBody.clientHeight + 'px';
@@ -111,10 +110,11 @@ export default {
     },
     template: `<Teleport to="body">
         <div id="leaf-vue-dialog-background">
-            <div :id="modalElementID" class="leaf-vue-dialog" role="dialog" :aria-label="ariaLabel" :style="{top: scrollY + initialTop + 'px'}">
+            <div :id="modalElementID" class="leaf-vue-dialog" role="dialog" :aria-labelledby="modalElementID + '_drag_handle'"
+                :style="{top: scrollY + initialTop + 'px'}">
                 <div v-html="dialogTitle" :id="modalElementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
                 <button type="button" @click="closeFormDialog" @keydown.tab="firstTab" id="leaf-vue-dialog-close" aria-label="Close">&#10005;</button>
-                <div id="record" style="word-break:break-word; max-height:100vh;overflow-y:auto">
+                <div id="record" style="max-height:100vh;overflow-y:auto">
                     <div id="xhr" class="leaf-vue-dialog-content">
                         <slot name="dialog-content-slot"></slot>
                     </div>

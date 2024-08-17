@@ -36,12 +36,6 @@ export default {
         isHeader() {
             return this.depth === 0;
         },
-        sensitiveImg() {
-            return this.sensitive ? 
-                `<img src="${this.libsPath}dynicons/svg/eye_invisible.svg"
-                    style="width: 16px; margin-left: 4px;" alt="" class="sensitive-icon"
-                    title="This field is sensitive" />` : '';
-        },
         hasCode() {
             return (this.formNode?.html !== '' && this.formNode?.html != null) || (this.formNode?.htmlPrint !== '' && this.formNode?.htmlPrint != null);
         },
@@ -74,11 +68,11 @@ export default {
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
                 <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
                 <button v-show="!previewMode" type="button" :id="'index_listing_' + indicatorID + '_button'"
-                :title="'drag to move question (' + indicatorID + ')'"
-                class="drag_question_button" @click="focusIndicator(indicatorID)">
+                    :title="'drag or click to move indicatorID (' + indicatorID + ')'"
+                    class="drag_question_button" @click="focusIndicator(indicatorID)">
                 </button>
-                <div class="icon_move_container">
-                    <span role="img" aria="" alt="" class="icon_drag">∷</span>
+                <div v-show="!previewMode" class="icon_move_container">
+                    <span role="img" aria-hidden="true" alt="" class="icon_drag">∷</span>
                     <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move up" role="button"
                         title="move item up" aria-label="move item up"
                         @click.stop="moveListItem($event, indicatorID, true)"
@@ -105,26 +99,26 @@ export default {
                             <span role="img" aria="" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
                         <button v-if="hasDevConsoleAccess" type="button" class="btn-general"
-                            @click="editAdvancedOptions(parseInt(indicatorID))"
-                            :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
+                            @click="editAdvancedOptions(parseInt(indicatorID))">
                             Programmer
                         </button>
                         <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"
                             class="btn-general"
-                            @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())" 
-                            :title="conditionalQuestion ? 'Edit conditions for ' + indicatorID + '. Logic present' : 'Edit conditions for ' + indicatorID">
+                            @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())">
                             Modify Logic
                         </button>
                         <button v-if="!isHeader" type="button" class="btn-general"
-                            title="Add sub-question"
+                            aria-label="add sub-question"
                             @click="newQuestion(indicatorID)">
                             + Sub-question
                         </button>
                         <div style="margin-left: auto; grid-area: 1 / 3 / 2 / 4">
-                            <span v-if="sensitive"><img :src="libsPath + 'dynicons/svg/eye_invisible.svg'" style="width: 16px; vertical-align: middle; margin: 0 4px 2px 0" alt="" class="sensitive-icon" title="This field is sensitive" /></span>
-                            <span v-if="hasSpecialAccessRestrictions" role="img" aria="" alt="" title="special access restrictions are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">🔒</span>
-                            <span v-if="conditionalQuestion" role="img" aria="" alt="" title="conditional logic is present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⛓️</span>
-                            <span v-if="hasCode" role="img" aria="" alt="" title="advanced options are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⚙️</span>
+                            <span v-if="sensitive">
+                                <img :src="libsPath + 'dynicons/svg/eye_invisible.svg'" style="width: 16px; vertical-align: middle; margin: 0 4px 2px 0" alt="" class="sensitive-icon" title="This field is sensitive" />
+                            </span>
+                            <span v-if="hasSpecialAccessRestrictions" role="img" alt="special access restrictions are present" title="special access restrictions are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">🔒</span>
+                            <span v-if="conditionalQuestion" role="img" alt="conditional logic is present" title="conditional logic is present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⛓️</span>
+                            <span v-if="hasCode" role="img" alt="advanced options are present" title="advanced options are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⚙️</span>
                         </div>
                     </div>
                 </div>

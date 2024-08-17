@@ -24,8 +24,7 @@ export default {
     },
     mounted() {
         if(this.focusedFormIsSensitive && +this.needToKnow === 0) {
-            this.needToKnow = 1;
-            this.updateNeedToKnow();
+            this.updateNeedToKnow(true);
         }
     },
     inject: [
@@ -154,17 +153,19 @@ export default {
                 error: err => console.log('visibility post err', err)
             })
         },
-        updateNeedToKnow() {
+        updateNeedToKnow(forceOn = false) {
+            const newValue = forceOn ? 1 : this.needToKnow;
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/formNeedToKnow`,
                 data: {
-                    needToKnow: this.needToKnow,
+                    needToKnow: newValue,
                     categoryID: this.formID,
                     CSRFToken: this.CSRFToken
                 },
                 success: () => {
-                    this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
+                    this.updateCategoriesProperty(this.formID, 'needToKnow', newValue);
+                    this.needToKnow = newValue;
                     this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('ntk post err', err)

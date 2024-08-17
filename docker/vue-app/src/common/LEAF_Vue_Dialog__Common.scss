@@ -214,6 +214,9 @@ td a.router-link {
         }
     }
 }
+#history-slice td {
+    word-break:break-word;
+}
 
 
 /* custom checkboxes and radio, choicesjs modifications */

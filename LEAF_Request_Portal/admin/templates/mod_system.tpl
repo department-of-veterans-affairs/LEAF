@@ -30,7 +30,7 @@
 
             <div class="leaf-row-space"></div>
 
-            <label for="leafSecureContent">LEAF Secure Status</label>
+            <div class="usa-label"><b>LEAF Secure Status</b></div>
             <div class="leaf-marginTop-halfRem"><span id="leafSecureStatus">Loading...</span></div>
 
             <div>
