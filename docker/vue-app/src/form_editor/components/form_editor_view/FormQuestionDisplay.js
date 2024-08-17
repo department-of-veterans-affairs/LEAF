@@ -50,7 +50,7 @@ export default {
             const page = this.depth === 0 ? `<div class="form_page">${this.formPage + 1}</div>`: '';
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
-            const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria="" alt="">📌&nbsp;</span>` : '';
+            const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria-hidden="true" alt="">📌&nbsp;</span>` : '';
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
             return `${page}${staple}${name}${shortLabel}${contentRequired}`;
         },
@@ -69,20 +69,19 @@ export default {
                 <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
                 <button v-show="!previewMode" type="button" :id="'index_listing_' + indicatorID + '_button'"
                     :title="'drag or click to move indicatorID (' + indicatorID + ')'"
+                    :aria-label="'drag or click to move indicatorID (' + indicatorID + ')'"
                     class="drag_question_button" @click="focusIndicator(indicatorID)">
                 </button>
                 <div v-show="!previewMode" class="icon_move_container">
                     <span role="img" aria-hidden="true" alt="" class="icon_drag">∷</span>
-                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move up" role="button"
+                    <button v-show="indicatorID === focusedIndicatorID" class="icon_move up"
                         title="move item up" aria-label="move item up"
-                        @click.stop="moveListItem($event, indicatorID, true)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">
-                    </div>
-                    <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move down" role="button"
+                        @click.stop="moveListItem($event, indicatorID, true)">
+                    </button>
+                    <button v-show="indicatorID === focusedIndicatorID" class="icon_move down"
                         title="move item down" aria-label="move item down"
-                        @click.stop="moveListItem($event, indicatorID, false)"
-                        @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
-                    </div>
+                        @click.stop="moveListItem($event, indicatorID, false)">
+                    </button>
                 </div>
 
                 <!-- TOOLBAR -->
@@ -96,7 +95,7 @@ export default {
                             :style="{ 'grid-area': depth === 0 ? '1' : '1 / 1 / 3 / 2', 'height': depth === 0 ? 'auto' : '100%' }"
                             @click.exact="editQuestion(parseInt(indicatorID))"
                             :title="'edit indicator ' + indicatorID">
-                            <span role="img" aria="" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
+                            <span role="img" aria-hidden="true" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
                         <button v-if="hasDevConsoleAccess" type="button" class="btn-general"
                             @click="editAdvancedOptions(parseInt(indicatorID))">

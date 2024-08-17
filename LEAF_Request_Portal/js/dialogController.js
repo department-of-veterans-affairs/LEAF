@@ -65,7 +65,7 @@ dialogController.prototype.setTitle = function(title) {
 	$('#' + this.containerID).dialog('option', 'title', title);
 	//508: update the aria-labelledby attr so that screenreaders announce dialog by its title.
 	//remove describedby from parent because it can cause entire modal to be read upon interaction with buttons
-	const parentLabelledBy = $('#' + this.containerID).parent().attr('aria-labelledBy');
+	const parentLabelledBy = $('#' + this.containerID).parent().attr('aria-labelledby');
 	$('#' + this.containerID).parent().removeAttr('aria-describedby');
 	$('#' + this.containerID).attr('aria-labelledby', parentLabelledBy);
 };

@@ -490,7 +490,7 @@ table[class$="SelectorTable"] th {
                 cursor: move;
                 position: absolute;
                 padding: 0;
-                border: 1px solid $BG_Pearl;
+                border: 1px solid $BG_Pearl !important;
                 border-radius: 4px 0 0 4px;
                 width: 1rem;
                 height: 100%;
@@ -514,23 +514,23 @@ table[class$="SelectorTable"] th {
                     cursor: pointer;
                     width: 0;
                     height: 0;
+                    padding: 0;
                     background-color: transparent;
-                    border-radius: 2px;
-                    border: 7px solid transparent;
+                    border: 7.5px solid transparent;
                     &.up {
-                        border-bottom: 12px solid $BG-DarkNavy;
+                        border-bottom: 14px solid $BG-DarkNavy;
                         border-top: 2px;
                         &:hover, &:focus, &:active {
                             outline: none !important;
-                            border-bottom: 12px solid $USWDS_Cyan;
+                            border-bottom: 14px solid $USWDS_Cyan;
                         }
                     }
                     &.down {
-                        border-top: 12px solid $BG-DarkNavy;
+                        border-top: 14px solid $BG-DarkNavy;
                         border-bottom: 2px;
                         &:hover, &:focus, &:active {
                             outline: none !important;
-                            border-top: 12px solid $USWDS_Cyan;
+                            border-top: 14px solid $USWDS_Cyan;
                         }
                     }
                 }
@@ -669,12 +669,11 @@ table[class$="SelectorTable"] th {
             > div {
                 display: flex; 
                 align-items: center;
-                gap: 3px;
+                gap: 4px 5px;
                 min-width: 260px;
             }
             button {
                 padding: 4px;
-                margin: 2px;
                 font-weight: normal;
             }
             img {

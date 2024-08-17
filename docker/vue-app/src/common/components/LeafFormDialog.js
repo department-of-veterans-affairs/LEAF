@@ -10,6 +10,7 @@ export default {
             elModal: null,
             elBackground: null,
             elClose: null,
+            lastFocus: null,
         }
     },
     inject: [
@@ -19,6 +20,9 @@ export default {
         'dialogButtonText',
         'lastModalTab'
     ],
+    created(){
+        this.lastFocus = document.activeElement || null;
+    },
     mounted() {
         this.elBody = document.querySelector('body');
         this.elModal = document.getElementById(this.modalElementID);
@@ -40,6 +44,9 @@ export default {
     },
     beforeUnmount() {
         window.removeEventListener('resize', this.checkSizes);
+        if(this.lastFocus !== null) {
+            this.lastFocus.focus();
+        }
     },
     methods: {
         checkSizes() {
