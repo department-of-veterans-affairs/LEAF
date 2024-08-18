@@ -24,7 +24,7 @@ export default {
         'onDragEnter',
         'onDragLeave',
         'onDrop',
-        'moveListItem',
+        'clickToMoveListItem',
         'makePreviewKey',
         'newQuestion',
     ],

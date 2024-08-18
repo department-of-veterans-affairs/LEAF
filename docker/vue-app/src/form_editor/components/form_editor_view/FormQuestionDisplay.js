@@ -27,7 +27,7 @@ export default {
         'previewMode',
         'handleNameClick',
         'makePreviewKey',
-        'moveListItem'
+        'clickToMoveListItem'
     ],
     computed: {
         indicatorID() {
@@ -66,7 +66,7 @@ export default {
     },
     template:`<div class="form_editing_area">
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
-                <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
+                <!-- VISIBLE DRAG INDICATOR / CLICK UP DOWN -->
                 <button v-show="!previewMode" type="button" :id="'index_listing_' + indicatorID + '_button'"
                     :title="'drag or click to move indicatorID (' + indicatorID + ')'"
                     :aria-label="'drag or click to move indicatorID (' + indicatorID + ')'"
@@ -74,13 +74,15 @@ export default {
                 </button>
                 <div v-show="!previewMode" class="icon_move_container">
                     <span role="img" aria-hidden="true" alt="" class="icon_drag">∷</span>
-                    <button v-show="indicatorID === focusedIndicatorID" type="button" class="icon_move up"
+                    <button v-show="indicatorID === focusedIndicatorID" type="button"
+                        :id="'click_to_move_up_' + indicatorID" class="icon_move up"
                         title="move item up" aria-label="move item up"
-                        @click.stop="moveListItem($event, indicatorID, true)">
+                        @click.stop="clickToMoveListItem($event, indicatorID, true)">
                     </button>
-                    <button v-show="indicatorID === focusedIndicatorID" type="button" class="icon_move down"
+                    <button v-show="indicatorID === focusedIndicatorID" type="button"
+                        :id="'click_to_move_down_' + indicatorID" class="icon_move down"
                         title="move item down" aria-label="move item down"
-                        @click.stop="moveListItem($event, indicatorID, false)">
+                        @click.stop="clickToMoveListItem($event, indicatorID, false)">
                     </button>
                 </div>
 

@@ -33,6 +33,7 @@ export default {
             hasCollaborators: false,
             fileManagerTextFiles: [],
             ariaStatusFormDisplay: '',
+            clickToMoveID: null,
         }
     },
     components: {
@@ -83,6 +84,15 @@ export default {
     mounted() {
         window.addEventListener("scroll", this.onScroll);
     },
+    updated() {
+        if(this.clickToMoveID !== null) {
+            const btn = document.getElementById(this.clickToMoveID);
+            if (btn !== null) {
+                btn.focus();
+                this.clickToMoveID = null;
+            }
+        }
+    },
     beforeUnmount() {
         window.removeEventListener("scroll", this.onScroll);
     },
@@ -113,7 +123,7 @@ export default {
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
-            moveListItem: this.moveListItem,
+            clickToMoveListItem: this.clickToMoveListItem,
             handleNameClick: this.handleNameClick,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey,
@@ -522,9 +532,10 @@ export default {
          * @param {number} indID of the list item to move
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
-        moveListItem(event = {}, indID = 0, moveup = false) {
+        clickToMoveListItem(event = {}, indID = 0, moveup = false) {
             if(!this.previewMode) {
                 if (event?.keyCode === 32) event.preventDefault();
+                this.clickToMoveID = `click_to_move_${moveup ? 'up' : 'down'}_${indID}`;
                 const parentEl = event?.currentTarget?.closest('ul');
                 const elToMove = document.getElementById(`index_listing_${indID}`);
                 const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
