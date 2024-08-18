@@ -5,6 +5,9 @@
             <a href="./" class="buttonNorm" title="nav to Nexus homepage"><img src="dynicons/?img=go-home.svg&amp;w=16" alt="" />Main Page</a>
         </li>
         {/if}
+        {if isset($isAdmin)}
+            <li><a href="./admin" class="buttonNorm"><img src="dynicons/?img=applications-system.svg&amp;w=16" alt=""/>OC Admin Panel</a></li>
+        {/if}
         <li id="headerMenuHelp_container" style="display: inline-block">
             <button type="button" id="button_showHelp" class="buttonNorm" title="primary admin contact information"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_help">
@@ -43,9 +46,6 @@
                 </script>
             </div>
         </li>
-        {if isset($isAdmin)}
-        <li><a href="./admin" class="buttonNorm"><img src="dynicons/?img=applications-system.svg&amp;w=16" alt=""/>OC Admin Panel</a></li>
-        {/if}
     </ul>
 </nav>
 

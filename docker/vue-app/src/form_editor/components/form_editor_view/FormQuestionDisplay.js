@@ -74,11 +74,11 @@ export default {
                 </button>
                 <div v-show="!previewMode" class="icon_move_container">
                     <span role="img" aria-hidden="true" alt="" class="icon_drag">∷</span>
-                    <button v-show="indicatorID === focusedIndicatorID" class="icon_move up"
+                    <button v-show="indicatorID === focusedIndicatorID" type="button" class="icon_move up"
                         title="move item up" aria-label="move item up"
                         @click.stop="moveListItem($event, indicatorID, true)">
                     </button>
-                    <button v-show="indicatorID === focusedIndicatorID" class="icon_move down"
+                    <button v-show="indicatorID === focusedIndicatorID" type="button" class="icon_move down"
                         title="move item down" aria-label="move item down"
                         @click.stop="moveListItem($event, indicatorID, false)">
                     </button>
@@ -97,7 +97,8 @@ export default {
                             :title="'edit indicator ' + indicatorID">
                             <span role="img" aria-hidden="true" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
-                        <button v-if="hasDevConsoleAccess" type="button" class="btn-general"
+                        <button v-if="hasDevConsoleAccess" type="button"
+                            :id="'programmer_indicator_' + indicatorID" class="btn-general"
                             @click="editAdvancedOptions(parseInt(indicatorID))">
                             Programmer
                         </button>

@@ -640,7 +640,7 @@ table[class$="SelectorTable"] th {
             &:not(.preview) {
                 min-height: 60px;
             }
-            button {
+            button:not(.icon_move) {
                 border: 1px solid $LtNavy;
                 &:hover, &:focus, &:active {
                     border: 1px solid $LEAF_CSS_outline !important;

@@ -52,6 +52,7 @@ export default {
             listForParentIDs: [],
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
+            ariaTextEditorStatus: '',
 
             name: this.removeScriptTags(this.decodeHTMLEntities(this.dialogData?.indicator?.name || '')),
             options: this.dialogData?.indicator?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
@@ -564,11 +565,13 @@ export default {
                 'height': '100px',
                 'padding': '1rem'
             });
+            this.ariaTextEditorStatus = 'Using Advanced formatting.'
         },
         rawNameEditorClick() {
             $('#advNameEditor').css('display', 'block');
             $('#rawNameEditor').css('display', 'none');
             $('#name').trumbowyg('destroy');
+            this.ariaTextEditorStatus = 'Showing formatted code.'
         }
     },
     watch: {
@@ -590,20 +593,19 @@ export default {
     },
     template: `<div id="indicator-editing-dialog-content">
         <div>
+            <div role="status" aria-live="assertive" :aria-label="ariaTextEditorStatus" style="display:absolute;opacity:0;"></div>
             <label for="name">{{ nameLabelText }}</label>
             <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
-            <div style="display:flex; justify-content: space-between;">
-                <button type="button" class="btn-general" id="rawNameEditor"
-                    title="use basic text editor"
-                    @click="rawNameEditorClick" style="display: none; width:135px">
-                    Show formatted code
-                </button>
-                <button type="button" class="btn-general" id="advNameEditor"
-                    title="use advanced text editor" style="width:135px"
-                    @click="advNameEditorClick">
-                    Advanced Formatting
-                </button>
-            </div>
+            <button type="button" class="btn-general" id="rawNameEditor"
+                title="use basic text editor"
+                @click="rawNameEditorClick" style="display: none; width:135px">
+                Show formatted code
+            </button>
+            <button type="button" class="btn-general" id="advNameEditor"
+                title="use advanced text editor" style="width:135px"
+                @click="advNameEditorClick">
+                Advanced Formatting
+            </button>
         </div>
         <div v-show="description !== '' || shortLabelTriggered">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -621,9 +623,9 @@ export default {
                         <option v-for="kv in Object.entries(formats)" 
                         :value="kv[0]" :selected="kv[0] === format" :key="kv[0]">{{ kv[1] }}</option>
                     </select>
-                    <button type="button" id="editing-format-assist" class="btn-general"
-                        @click="toggleSelection($event, 'showDetailedFormatInfo')"
-                        title="select for assistance with format choices" style=" align-self:stretch; margin-left: 3px;">
+                    <button type="button" id="editing-format-assist" class="btn-general" aria-controls="formatDetails" :aria-expanded="showDetailedFormatInfo"
+                        @click="toggleSelection($event, 'showDetailedFormatInfo')" aria-label="show information about the selected format"
+                        title="assistance with format choices" style="align-self:stretch; margin-left: 3px;">
                         {{ formatBtnText }}
                     </button>
                 </div>
@@ -693,13 +695,13 @@ export default {
                     </label>
                 </template>
             </div>
-            <button v-if="isEditingModal" type="button"
+            <button v-if="isEditingModal" type="button" aria-controls="indicator_advanced_attributes" :aria-expanded="showAdditionalOptions"
                 class="btn-general" 
-                title="edit additional options"
+                aria-label="edit additional options"
                 @click="toggleSelection($event, 'showAdditionalOptions')">
                 {{showAdditionalOptions ? 'Hide' : 'Show'}} Advanced Attributes
             </button>
-            <template v-if="showAdditionalOptions">
+            <div id="indicator_advanced_attributes" v-if="showAdditionalOptions">
                 <div class="attribute-row" style="margin-top: 1rem; justify-content: space-between;">
                     <template v-if="isLoadingParentIDs === false">
                         <label for="container_parentID" style="margin-right: 1rem;">Parent Question ID
@@ -717,7 +719,7 @@ export default {
                     </template>
                 </div>
                 <indicator-privileges :indicatorID="indicatorID"></indicator-privileges>
-            </template>
+            </div>
             <span v-show="archived" id="archived-warning">
                 This field will be archived. &nbsp;It can be<br/>re-enabled by using Restore Fields.
             </span>

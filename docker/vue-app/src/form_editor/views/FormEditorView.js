@@ -31,7 +31,8 @@ export default {
             previewTree: [],     //detailed structure of primary form and any staples.  Only used in preview mode, and only if primary has staples.
             focusedIndicatorID: null, //used for form focus management.
             hasCollaborators: false,
-            fileManagerTextFiles: []
+            fileManagerTextFiles: [],
+            ariaStatusFormDisplay: '',
         }
     },
     components: {
@@ -395,6 +396,15 @@ export default {
                             this.previewTree = this.backwardCompatNames(this.previewTree);
                             this.focusedFormID = primaryID;
                             this.appIsLoadingForm = false;
+                            setTimeout(() => {
+                                const btn = document.getElementById('indicator_toolbar_toggle');
+                                if(btn !== null) {
+                                    btn.focus();
+                                    setTimeout(() => {
+                                        this.ariaStatusFormDisplay = 'Previewing form';
+                                    });
+                                }
+                            });
                         }).catch(err => console.log(err));
                     }).catch(err => console.log(err));
                 } catch(error) {
@@ -494,13 +504,16 @@ export default {
          * switch between edit and preview mode
          */
         toggleToolbars() {
+            this.ariaStatusFormDisplay = '';
             this.focusedIndicatorID = null;
             this.previewMode = !this.previewMode;
             this.updateKey += 1;
             if(this.usePreviewTree) {
                 this.getPreviewTree(this.focusedFormID);
+                //preview and needs load - aria will be set in gerPrevTree success
             } else {
                 this.previewTree = [];
+                this.ariaStatusFormDisplay = this.previewMode ? 'Previewing form' : 'Editing form';
             }
         },
         /**
@@ -799,7 +812,7 @@ export default {
                 <!-- NOTE: INDEX (main + stapled forms, internals) -->
                 <div id="form_index_display">
                     <div role="status" style="position:absolute;opacity:0"
-                        aria-live="assertive" :aria-label="previewMode ? 'Previewing Form' : 'Editing Form'"></div>
+                        aria-live="assertive" :aria-label="ariaStatusFormDisplay"></div>
                     <button type="button" id="indicator_toolbar_toggle" class="btn-general preview"
                         @click.stop="toggleToolbars()">
                         <span role="img" aria="" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>
@@ -808,8 +821,7 @@ export default {
                     <template v-if="!previewMode">
                         <button type="button" class="btn-general"
                             :id="'addInternalUse_' + mainFormID"
-                            @click="openNewFormDialog(mainFormID)"
-                            :title="'New Internal-Use Form for ' + mainFormID">
+                            @click="openNewFormDialog(mainFormID)">
                             <span role="img" aria="" alt="">➕&nbsp;</span>
                             Add Internal-Use
                         </button>
@@ -817,8 +829,8 @@ export default {
                         <button v-if="!allStapledFormCatIDs?.[mainFormID] > 0"
                             type="button" class="btn-general"
                             :id="'addStaple_' + mainFormID"
-                            @click="openStapleFormsDialog(mainFormID)" :title="'Staple other form to ' + mainFormID">
-                            <span role="img" aria="" alt="">📌&nbsp;</span>Staple other form
+                            @click="openStapleFormsDialog(mainFormID)">
+                            <span role="img" aria-hidden="true" alt="">📌&nbsp;</span>Staple other form
                         </button>
                     </template>
                     <!-- LAYOUTS (FORMS AND INTERNAL/STAPLE OPTIONS) -->
@@ -829,9 +841,9 @@ export default {
                                     @click="form.stapledFormIDs.length > 0 && previewMode && form.categoryID === queryID ?
                                         getPreviewTree(form.categoryID) : getFormByCategoryID(form.categoryID)"
                                     class="layout-listitem"
-                                    :title="'form ' + form.categoryID">
-                                    <span v-if="form.formContextType === 'staple'" role="img" aria="" alt="">📌&nbsp;</span>
-                                    <span v-if="form.formContextType === 'main form'" role="img" aria="" alt="">📂&nbsp;</span>
+                                    :aria-label="shortFormNameStripped(form.categoryID, 30) + (form.formContextType === 'staple' ? ', stapled form' : ', main form')">
+                                    <span v-if="form.formContextType === 'staple'" role="img" aria-hidden="true" alt="">📌&nbsp;</span>
+                                    <span v-if="form.formContextType === 'main form'" role="img" aria-hidden="true" alt="">📂&nbsp;</span>
                                     <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
                                         {{shortFormNameStripped(form.categoryID, 30)}}&nbsp;
                                     </span>
@@ -858,7 +870,7 @@ export default {
                         <li v-for="(page, i) in fullFormTree" :key="'preview_' + page.indicatorID + '_' + page.categoryID"
                             class="form_menu_preview">
                             {{ i + 1}}.
-                            <span v-if="page.categoryID !== focusedFormID" role="img" aria="" alt="">📌</span>
+                            <span v-if="page.categoryID !== focusedFormID" role="img" aria-hidden="true" alt="">📌</span>
                             {{ shortIndicatorNameStripped(page.description || page.name) }}
                         </li>
                     </ul>
@@ -897,7 +909,7 @@ export default {
                     <div v-if="!previewMode" id="blank_section_preview">
                         <button type="button" class="btn-general"
                             @click="newQuestion(null)"
-                            title="Add new form section">
+                            aria-label="Add new form section">
                             + Add Section
                         </button>
                     </div>

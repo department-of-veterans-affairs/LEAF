@@ -163,6 +163,9 @@ export default {
                 this.ariaStatus = 'Entering new condition';
             }
         },
+        /** post conditions json.
+         * @param {bool} addSelected whether json should include the currently selected condition (deleting saves all but current)
+        */
         postConditions(addSelected = true) {
             if (this.conditionComplete || addSelected === false) {
                 //copy of all conditions on child, and filter using stored JSON val
@@ -217,6 +220,7 @@ export default {
                 this.postConditions(false);
             } else { //X button select from list and open the confirm delete modal
                 this.selectConditionFromList(condition);
+                this.ariaStatus = 'Confirm deletion';
                 this.showRemoveModal = true;
             }
         },

@@ -98,7 +98,11 @@ export default {
         this.getEnabledCategories();
         document.addEventListener('keydown', (event)=> {
             if((event?.key || "").toLowerCase() === "escape" && this.showFormDialog === true) {
-                this.closeFormDialog();
+                //escape is needed to tab out of codemirror editors - don't close the modal if the target is one of those textareas
+                const closestCodeMirror = event.target.closest('.CodeMirror') || null;
+                if(closestCodeMirror === null) {
+                    this.closeFormDialog();
+                }
             }
         })
     },
@@ -392,9 +396,15 @@ export default {
 
         /** DIALOG MODAL RELATED */
         /**
-         * close dialog and reset values
+         * remove DOM aria-disabled attr, close dialog and reset dialog properties
          */
         closeFormDialog() {
+            let elsDOM = Array.from(document.querySelectorAll('body > *' ));
+            elsDOM.forEach(el => {
+                if(el.id !== 'leaf-vue-dialog-background') {
+                    el.removeAttribute('aria-hidden');
+                }
+            });
             this.showFormDialog = false;
             this.dialogTitle = '';
             this.dialogFormContent = '';

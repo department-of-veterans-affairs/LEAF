@@ -3,6 +3,9 @@
         <li>
             <a href="../" class="buttonNorm"><img src="../dynicons/?img=go-home.svg&amp;w=16" alt="" title="Main Page" />Main Page</a>
         </li>
+        {if isset($isAdmin)}
+            <li><a href="./" class="buttonNorm"><img src="../dynicons/?img=applications-system.svg&amp;w=16" alt=""/>OC Admin Panel</a></li>
+        {/if}
         <li id="headerMenuHelp_container" style="display: inline-block">
             <button type="button" id="button_showHelp" class="buttonNorm" title="primary admin contact information"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_help">
@@ -41,9 +44,6 @@
 
             </div>
         </li>
-        {if isset($isAdmin)}
-        <li><a href="./" class="buttonNorm"><img src="../dynicons/?img=applications-system.svg&amp;w=16" alt=""/>OC Admin Panel</a></li>
-        {/if}
     </ul>
 </nav>
 
