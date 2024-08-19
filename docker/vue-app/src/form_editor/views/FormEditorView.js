@@ -89,6 +89,13 @@ export default {
             const btn = document.getElementById(this.clickToMoveID);
             if (btn !== null) {
                 btn.focus();
+                const idArr = this.clickToMoveID.split('_');
+                if(idArr?.[3] && idArr?.[4]) {
+                    this.ariaStatusFormDisplay = `moved indicator ${idArr[4]} ${idArr[3]}`;
+                    setTimeout(() => {
+                        this.ariaStatusFormDisplay = '';
+                    });
+                }
                 this.clickToMoveID = null;
             }
         }
@@ -509,6 +516,7 @@ export default {
          */
         focusIndicator(nodeID = null) {
             this.focusedIndicatorID = nodeID;
+            this.ariaStatusFormDisplay = 'click to move options available';
         },
         /**
          * switch between edit and preview mode
@@ -637,7 +645,9 @@ export default {
             this.listTracker[indID] = item;
         },
         startDrag(event = {}) {
-            if (event?.offsetX > 20) {
+            const classList = event?.target?.classList || [];
+            const dragLimitX = classList.contains('subindicator_heading') ? 30 : 24;
+            if (event?.offsetX > dragLimitX) {
                 event.preventDefault();
             } else {
                 if(!this.previewMode && event?.dataTransfer) {
@@ -822,8 +832,7 @@ export default {
             <div id="form_index_and_editing" :data-focus="focusedIndicatorID">
                 <!-- NOTE: INDEX (main + stapled forms, internals) -->
                 <div id="form_index_display">
-                    <div role="status" style="position:absolute;opacity:0"
-                        aria-live="assertive" :aria-label="ariaStatusFormDisplay"></div>
+                    <div role="status" style="position:absolute;opacity:0" aria-live="assertive" :aria-label="ariaStatusFormDisplay"></div>
                     <button type="button" id="indicator_toolbar_toggle" class="btn-general preview"
                         @click.stop="toggleToolbars()">
                         <span role="img" aria="" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>

@@ -208,7 +208,10 @@ export default {
                         <td><b>Esc</b></td>
                         <td>Escape Full Screen mode</td>
                     </tr>
-                </table><br />
+                </table>
+                <div style="font-size:14px;">
+                    Within the code editor, tab enters a tab character. If using the keyboard to navigate, press escape followed by tab to exit the editor.
+                </div><br />
                 <div class="save_code">
                     <label for="codemirror_html_label">html (for pages where the user can edit data):</label>
                     <button type="button" id="btn_codeSave_html" class="btn-general" @click="saveCodeHTML" aria-label="save html code">

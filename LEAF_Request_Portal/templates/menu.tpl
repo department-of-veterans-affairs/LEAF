@@ -8,15 +8,12 @@
         <li id="headerMenu_container" style="display: inline-block">
             <button type="button" id="button_showLinks" class="buttonNorm" title="site links"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_links">
-                Site Links<span aria-hidden="true">▼</span>
+                Links<span aria-hidden="true">▼</span>
             </button>
             <div id="headerMenu_links" class="controlled-element">
             {include file={$menu_links}}
             </div>
         </li>
-        {if $is_admin == true}
-        <li><a href="./admin/" class="buttonNorm"><img src="dynicons/?img=applications-system.svg&amp;w=16" alt=""/>Admin Panel</a></li>
-        {/if}
         <li id="headerMenuHelp_container" style="display: inline-block">
             <button type="button" id="button_showHelp" class="buttonNorm" title="primary admin contact information"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_help">
@@ -27,6 +24,9 @@
             {include file={$menu_help}}
             </div>
         </li>
+        {if $is_admin == true}
+        <li><a href="./admin/" class="buttonNorm"><img src="dynicons/?img=applications-system.svg&amp;w=16" alt=""/>Admin Panel</a></li>
+        {/if}
     </ul>
 </nav>
 
