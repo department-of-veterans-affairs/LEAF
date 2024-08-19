@@ -134,7 +134,8 @@ export default {
     },
     template: `<Teleport to="body">
         <div id="leaf-vue-dialog-background" aria-disabled="true" aria-hidden="true"></div>
-        <div :id="modalElementID" class="leaf-vue-dialog" role="dialog" aria-modal="true" :aria-labelledby="modalElementID + '_drag_handle'"
+        <div :id="modalElementID" class="leaf-vue-dialog"
+            role="dialog" aria-modal="true" :aria-labelledby="modalElementID + '_drag_handle'" aria-describedby="record"
             :style="{top: scrollY + initialTop + 'px'}">
             <div v-html="dialogTitle" :id="modalElementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
             <button type="button" @click="closeFormDialog" @keydown.tab="firstTab" id="leaf-vue-dialog-close" aria-label="Close">&#10005;</button>

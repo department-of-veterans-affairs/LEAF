@@ -2363,8 +2363,11 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 let workflowID = urlParams.get('workflowID');
                 if (workflowID == undefined) {
-                    workflowDescription = firstWorkflowDescription;
                     workflowID = firstWorkflowID;
+                    workflowDescription = firstWorkflowDescription;
+                } else {
+                    const rec = (res || []).find(wf => +wf.workflowID === +workflowID);
+                    workflowDescription = rec?.description || '';
                 }
                 loadWorkflow(workflowID);
             },
@@ -2500,7 +2503,7 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog.setContent(
             '<label for="workflow_rename">Workflow Name: </label><input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
-            '" tabindex="0"/>');
+            '"/>');
         dialog.setTitle('Rename Workflow');
         dialog.setSaveHandler(function() {
             $.ajax({
