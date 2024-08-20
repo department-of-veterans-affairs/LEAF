@@ -157,6 +157,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
         $email->setSiteRoot($siteRoot);
         // ive seen examples using the attachApproversAndEmail method and some had smarty vars and some did not.
         $title = strlen($record['title']) > 45 ? substr($record['title'], 0, 42) . '...' : $record['title'];
+        $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
         // add in variables for the smarty template
         $pl = (int)$record['daysSince'] > 1 ? 's' : '';
@@ -173,7 +174,7 @@ foreach ($getWorkflowStepsRes as $workflowStep) {
             "daysSince" => $daysSinceText,      //used in email subject.  retaining variable name for backward compat
             "actualDaysAgo" => $lastActionDays, //customized template backward compat
             "reminderBodyText" => $reminderBodyText,
-            "truncatedTitle" => $title,
+            "truncatedTitle" => $truncatedTitle,
             "fullTitle" => $record['title'],
             "recordID" => $record['recordID'],
             "service" => $record['service'],

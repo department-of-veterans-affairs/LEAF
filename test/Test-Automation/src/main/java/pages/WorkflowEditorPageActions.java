@@ -5,7 +5,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;
-import test.java.BaseTest;
 
 import java.util.List;
 
@@ -68,11 +67,20 @@ public class WorkflowEditorPageActions extends BasePage {
     @FindBy(xpath="//button[@id='confirm_button_save']")
     WebElement deleteConfirmBtn;
 
+    @FindBy(xpath = "//ul[@id='actionType-chosen-search-results']")
+    List<WebElement> actionTypeList;
+
     @FindBy(xpath="//ul[@class='chosen-results']//li")
     List<WebElement> workFlowList;
 
     @FindBy(id = "workflow_rename")
     WebElement workflowRenameInput;
+
+    @FindBy(xpath = "//div[id='actionType_chosen']")
+    WebElement actionType;
+
+    @FindBy(xpath = "//div[contains(text(),'Approval')]")
+    WebElement approveButton;
 
     @FindBy(id = "button_cancelchange")
     WebElement cancelRenameButton;
@@ -80,9 +88,35 @@ public class WorkflowEditorPageActions extends BasePage {
     @FindBy(id = "actionText")
     WebElement actionInput;
 
+    @FindBy(xpath = "//button[@aria-label='workflow step: Service Chief']")
+    WebElement newStepAdded;
+
+    @FindBy(xpath = "//div[@class='workflowStepInfo']")
+    WebElement workflowStepInfo;
+
+    @FindBy(xpath = "//input[@id='toggleManageActions']")
+    WebElement stepActionsChkBx;
+
+    @FindBy(xpath = "//select[@id = 'create_route']")
+    WebElement createRouteSelect;
+
     @FindBy(id = "actionTextPasttense")
     WebElement actionTextPasttenseInput;
 
+    @FindBy(xpath = "//button[contains(text(),'Requestor')]")
+    WebElement requesterBtn;
+
+    @FindBy(xpath = "//button[contains(text(),'End')]")
+    WebElement endBtn;
+
+    @FindBy(xpath = "//button[contains(text(),'Approval')]")
+    WebElement approvalBtn;
+
+    @FindBy(linkText = "Home")
+    WebElement homeLink;
+
+    @FindBy(id = "stepTitle")
+    WebElement stepTitleInput;
     public void createWorkflow(String workflowName){
         setExplicitWaitForElementToBeVisible(newWorkflowBtn, 10);
         newWorkflowBtn.click();
@@ -90,6 +124,7 @@ public class WorkflowEditorPageActions extends BasePage {
         workflowTitle.sendKeys(workflowName);
         saveBtn.click();
         setExplicitWaitForElementToBeClickable(workflowDropdown, 10);
+
         Boolean isWorkflowCreated = workflowDropdownName.getText().contains(workflowName);
         Assert.assertEquals(isWorkflowCreated, true);
     }
@@ -103,7 +138,7 @@ public class WorkflowEditorPageActions extends BasePage {
         workflowRenameInput.clear();
         workflowRenameInput.sendKeys(workflowName);
         saveBtn.click();
-        Thread.sleep(10000);
+        Thread.sleep(5000);
         setExplicitWaitForElementToBeClickable(workflowDropdownName, 30);
         Boolean isWorkflowCreated = workflowDropdownName.getText().contains(workflowName);
         Assert.assertEquals(isWorkflowCreated, true);
@@ -146,9 +181,21 @@ public class WorkflowEditorPageActions extends BasePage {
             String actWorkFlowName = workFlow.getText();
             Assert.assertFalse(actWorkFlowName.equals(WorkflowName));
         }
-
+        workflowDropdown.click();
+        setExplicitWaitForElementToBeClickable(newWorkflowBtn,30);
     }
 
+    public boolean verifyAddStep() {
+
+        newStepBtn.click();
+        setExplicitWaitForElementToBeClickable(stepTitleInput,30);
+        stepTitleInput.sendKeys("Approval");
+        saveBtn.click();
+        setExplicitWaitForElementToBeClickable(newWorkflowBtn,40);
+        scrollToView(homeLink);
+        performActionWithRetries(approvalBtn);
+        return approvalBtn.isDisplayed();
+    }
 
     public void cleanUp(String WorkflowName){
 
@@ -171,6 +218,26 @@ public class WorkflowEditorPageActions extends BasePage {
                 scrollToView(workflowDropdown);
                 setExplicitWaitForElementToBeVisible(workflowDropdown, 20);
  //               workflowDropdown.click();
+            }
+
+    public  void addApprovedWorkflow(String workflowName) throws InterruptedException {
+            createWorkflow(workflowName);
+            verifyAddStep();
+
+        dragAndDropByOffset(approvalBtn);
+        requesterBtn.click();
+        performActionWithRetries(stepActionsChkBx);
+            stepActionsChkBx.click();
+            createRouteSelect.click();
+
+                selectByPartialText(createRouteSelect,"Approval");
+                performActionWithRetries(approvalBtn);
+                approvalBtn.click();
+      performActionWithRetries(stepActionsChkBx);
+        stepActionsChkBx.click();
+        createRouteSelect.click();
+
+        selectByPartialText(createRouteSelect,"End");
             }
 
         }
