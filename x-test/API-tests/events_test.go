@@ -207,7 +207,7 @@ func TestEvents_DuplicateDescription_NotAllowed(t *testing.T) {
 
 func TestEvents_EditValidCustomEmailEvent(t *testing.T) {
 	oldEventName := "CustomEvent_event_valid"
-	newEventName := "CustonEvent_event_valid_edited"
+	newEventName := "CustomEvent_event_valid_edited"
 	newOptionsIn := map[string]string {
 		"data[Notify Requestor]": "false",
 		"data[Notify Next]": "false",
