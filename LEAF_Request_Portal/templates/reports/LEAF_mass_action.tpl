@@ -79,3 +79,8 @@
     <div class="progress"></div>
     <div id="errorMessage"></div>
 </div>
+<script>
+$(document).ready(function () {
+    document.querySelector('title').innerText = 'Mass Actions - <!--{$title}-->';
+});
+</script>

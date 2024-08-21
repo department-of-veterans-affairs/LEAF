@@ -63,7 +63,10 @@ dialogController.prototype.clearDialog = function() {
 
 dialogController.prototype.setTitle = function(title) {
 	$('#' + this.containerID).dialog('option', 'title', title);
-	const parentLabelledBy = $('#' + this.containerID).parent().attr('aria-labelledBy');
+	//508: update aria-labelledby attr so JAWS screenreaders announce dialog by its title.
+	//remove describedby from parent because it can cause entire modal to be read upon interaction with buttons.
+	const parentLabelledBy = $('#' + this.containerID).parent().attr('aria-labelledby');
+	$('#' + this.containerID).parent().removeAttr('aria-describedby');
 	$('#' + this.containerID).attr('aria-labelledby', parentLabelledBy);
 };
 

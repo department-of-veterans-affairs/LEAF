@@ -186,7 +186,7 @@ export default {
     template: `<div v-if="appIsGettingData" style="border: 2px solid black; text-align: center; 
         font-size: 24px; font-weight: bold; padding: 16px;">
         Loading... 
-        <img src="../images/largespinner.gif" alt="loading..." />
+        <img src="../images/largespinner.gif" alt="" />
     </div>
     <div v-else id="site_designer_hompage">
         <h3 id="designer_page_header" :class="{editMode: isEditingMode}" style="margin: 1rem 0;">

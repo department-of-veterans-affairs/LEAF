@@ -8,9 +8,9 @@
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {if $tabText != ''}
-        <title>{$tabText} - {$title} | {$city}</title>
+        <title>{$tabText} - {$title}, {$city}</title>
     {else}
-        <title>{$title} | {$city}</title>
+        <title>{$title}, {$city}</title>
     {/if}
     <style type="text/css" media="screen">
         @import "{$app_js_path}/jquery/css/dcvamc/jquery-ui.custom.min.css";
@@ -70,8 +70,8 @@
                 <em class="usa-logo__text">
                     <a onclick="window.location='./'" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
                         <span class="leaf-logo">{$logo}</span>
-                        <span class="leaf-site-title">{$city}</span>
-                        <span id="headerDescription" class="leaf-header-description">{$title}</span>
+                        <h1 class="leaf-site-title">{$title}</h1>
+                        <h2 id="headerDescription" class="leaf-header-description">{$city}</h2>
                     </a>
                 </em>
                 {if $qrcodeURL != ''}

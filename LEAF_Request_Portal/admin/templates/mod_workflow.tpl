@@ -1194,34 +1194,32 @@
         return `
             <table style="margin-bottom:2rem;">
                 <tr>
-                    <td><span id="action_label">Action <span style="color: #c00000">*Required</span></span></td>
+                    <td><label for="actionText" id="action_label">Action <span style="color: #c00000">*Required</span></label></td>
                     <td>
-                        <input id="actionText" type="text" maxlength="50" style="border: 1px solid red"
-                        value="${action?.actionText || ''}" aria-labelledby="action_label"/>
+                        <input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="${action?.actionText || ''}" />
                     </td>
                     <td>eg: Approve</td>
                 </tr>
                 <tr>
-                    <td><span id="action_past_tense_label">Action Past Tense <span style="color: #c00000">*Required</span></span></td>
+                    <td><label for="actionTextPasttense" id="action_past_tense_label">
+                        Action Past Tense <span style="color: #c00000">*Required</span>
+                        </label></td>
                     <td>
-                        <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red"
-                        value="${action?.actionTextPasttense || ''}" aria-labelledby="action_past_tense_label"/>
+                        <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red" value="${action?.actionTextPasttense || ''}" />
                     </td>
                     <td>eg: Approved</td>
                 </tr>
                 <tr>
-                    <td><span id="choose_icon_label">Icon</span></td>
+                    <td><label for="actionIcon" id="choose_icon_label">Icon</label></td>
                     <td>
-                        <input id="actionIcon" type="text" maxlength="50"
-                        value="${action?.actionIcon || ''}" aria-labelledby="choose_icon_label"/>
+                        <input id="actionIcon" type="text" maxlength="50" value="${action?.actionIcon || ''}" />
                     </td>
                     <td>eg: go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></td>
                 </tr>
                 <tr>
-                    <td><span id="action_sort_label">Button Order</span></td>
+                    <td><label for="actionSortNumber" id="action_sort_label">Button Order</label></td>
                     <td>
-                        <input id="actionSortNumber" type="number" min="-128" max="127"
-                        value="${action?.sort || 0}" aria-labelledby="action_sort_label"/>
+                        <input id="actionSortNumber" type="number" min="-128" max="127" value="${action?.sort || 0}" />
                     </td>
                     <td>lower numbers appear first</td>
                 </tr>
@@ -2396,8 +2394,11 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 let workflowID = urlParams.get('workflowID');
                 if (workflowID == undefined) {
-                    workflowDescription = firstWorkflowDescription;
                     workflowID = firstWorkflowID;
+                    workflowDescription = firstWorkflowDescription;
+                } else {
+                    const rec = (res || []).find(wf => +wf.workflowID === +workflowID);
+                    workflowDescription = rec?.description || '';
                 }
                 loadWorkflow(workflowID);
             },
@@ -2533,7 +2534,7 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog.setContent(
             '<label for="workflow_rename">Workflow Name: </label><input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
-            '" tabindex="0"/>');
+            '"/>');
         dialog.setTitle('Rename Workflow');
         dialog.setSaveHandler(function() {
             $.ajax({

@@ -27,7 +27,7 @@ placeholder<br />
     <div style="z-index: 1001; position: absolute; padding: 16px; width: 97%; text-align: center; font-size: 24px; font-weight: bold; background-color: white">Loading... <img src="images/largespinner.gif" alt="" /></div>
 </div>
 
-<div id="busyIndicator" style="visibility: hidden"><img src="images/indicator.gif" alt="Busy..." /></div>
+<div id="busyIndicator" style="visibility: hidden"><img src="images/indicator.gif" alt="" /></div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->

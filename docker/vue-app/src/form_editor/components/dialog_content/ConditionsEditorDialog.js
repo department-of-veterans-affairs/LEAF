@@ -12,6 +12,7 @@ export default {
             selectedChildValue: '',
             showRemoveModal: false,
             showConditionEditor: false,
+            ariaStatus: '',
             selectedConditionJSON: '',
             enabledParentFormats: {
                 "dropdown": 1,
@@ -158,7 +159,13 @@ export default {
             this.selectedParentValue = '';
             this.selectedOutcome = '';
             this.selectedChildValue = '';
+            if(showEditor) {
+                this.ariaStatus = 'Entering new condition';
+            }
         },
+        /** post conditions json.
+         * @param {bool} addSelected whether json should include the currently selected condition (deleting saves all but current)
+        */
         postConditions(addSelected = true) {
             if (this.conditionComplete || addSelected === false) {
                 //copy of all conditions on child, and filter using stored JSON val
@@ -193,6 +200,12 @@ export default {
                             refIndicator.conditions = newConditions;
                             this.showRemoveModal = false;
                             this.newCondition(false);
+                            this.ariaStatus = 'Updated question conditions';
+                            const elClose = document.getElementById('leaf-vue-dialog-close');
+                            if(elClose !== null) {
+                                elClose.focus();
+                            }
+
                         } else { console.log('error adding condition', res) }
                     },
                     error:(err) => console.log(err)
@@ -207,6 +220,7 @@ export default {
                 this.postConditions(false);
             } else { //X button select from list and open the confirm delete modal
                 this.selectConditionFromList(condition);
+                this.ariaStatus = 'Confirm deletion';
                 this.showRemoveModal = true;
             }
         },
@@ -225,6 +239,7 @@ export default {
             this.crosswalkHasHeader = conditionObj?.crosswalkHasHeader || false;
             this.level2IndID = conditionObj?.level2IndID || null;
             this.showConditionEditor = true;
+            this.ariaStatus = 'Editing conditions';
             this.addOrgSelector();
         },
         /**
@@ -336,12 +351,19 @@ export default {
                         selected: arrValues.includes(o.trim())
                     }));
                     const choices = new Choices(elSelectParent, {
+                        placeholderValue: 'Type here to search',
                         allowHTML: false,
                         removeItemButton: true,
                         editItems: true,
                         choices: options.filter(o => o.value !== "")
                     });
                     elSelectParent.choicesjs = choices;
+
+                    let elChoicesInput = document.querySelector('.child_prefill_entry_multi input.choices__input');
+                    if(elChoicesInput !== null) {
+                        elChoicesInput.setAttribute('aria-label', 'child prefill value choices');
+                        elChoicesInput.setAttribute('role', 'searchbox');
+                    }
                 }
 
                 if(outcome === 'pre-fill' && this.multiOptionFormats.includes(this.childFormat) &&
@@ -357,12 +379,19 @@ export default {
                         selected: arrValues.includes(o.trim())
                     }));
                     const choices = new Choices(elSelectChild, {
+                        placeholderValue: 'Type here to search',
                         allowHTML: false,
                         removeItemButton: true,
                         editItems: true,
                         choices: options.filter(o => o.value !== "")
                     });
                     elSelectChild.choicesjs = choices;
+
+                    let elChoicesInput = document.querySelector('.parent_compValue_entry_multi input.choices__input');
+                    if(elChoicesInput !== null) {
+                        elChoicesInput.setAttribute('aria-label', 'parent value choices');
+                        elChoicesInput.setAttribute('role', 'searchbox');
+                    }
                 }
             });
         },
@@ -393,6 +422,16 @@ export default {
         showSetup() {
             return  this.showConditionEditor && this.selectedOutcome &&
                 (this.selectedOutcome === 'crosswalk' || this.selectableParents.length > 0);
+        },
+        conditionOverviewText() {
+            let out = '';
+            if(this.selectedOutcome.toLowerCase() !== 'crosswalk') {
+                out = `If ${this.getIndicatorName(this.parentIndID)} ${this.getOperatorText(this.conditions)} ${this.decodeAndStripHTML(this.selectedParentValue)}
+                    then ${this.selectedOutcome} this question.`
+            } else {
+                out =  `Question options loaded from ${this.conditions.crosswalkFile}`
+            }
+            return out;
         },
         noOptions() {
             return !['', 'crosswalk'].includes(this.selectedOutcome) && this.selectableParents.length < 1;
@@ -608,6 +647,7 @@ export default {
     },
     watch: {
         showRemoveModal(newVal) {
+            //if the remove condition part of the modal is being shown, hide the normal save / cancel area
             const elSaveDiv = document.getElementById('leaf-vue-dialog-cancel-save');
             if (elSaveDiv !== null) {
                 elSaveDiv.style.display = newVal === true ? 'none' : 'flex';
@@ -632,12 +672,14 @@ export default {
     template: `<div id="condition_editor_dialog_content">
             <!-- LOADING SPINNER -->
             <div v-if="appIsLoadingIndicators" class="page_loading">
-                Loading... <img src="../images/largespinner.gif" alt="loading..." />
+                Loading... <img src="../images/largespinner.gif" alt="" />
             </div>
             <div v-else id="condition_editor_inputs">
                 <!-- NOTE: DELETION DIALOG -->
+                <div id="status_condition_entry" role="status" style="position: absolute; opacity:0" aria-live="assertive" :aria-label="ariaStatus"></div>
                 <div v-if="showRemoveModal" id="ifthen_deletion_dialog">
-                    <div>Choose <b>Delete</b> to confirm removal, or <b>cancel</b> to return</div>
+                    <div>Choose <b>Delete</b> to remove this condition, or <b>cancel</b> to return to the editor</div>
+                    <div style="padding: 1rem 0;"><b>{{ conditionOverviewText }}</b></div>
                     <div class="options">
                         <button type="button" class="btn_remove_condition"
                             @click="removeCondition({confirmDelete: true, condition: {}})">
@@ -671,7 +713,7 @@ export default {
                                             </template>
                                             <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived, deleted or is on another page.</div>
                                         </button>
-                                        <button type="button" class="btn_remove_condition"
+                                        <button type="button" class="btn_remove_condition" aria-label="remove this condition"
                                             @click="removeCondition({confirmDelete: false, condition: c})">X
                                         </button>
                                     </li>
@@ -679,7 +721,7 @@ export default {
                             </template>
                         </template>
                     </div>
-                    <button type="button" @click="newCondition" class="btn-confirm new">+ New Condition</button>
+                    <button type="button" @click="newCondition" class="btn-confirm new" aria-label="New Condition">+ New Condition</button>
                     <!-- NOTE: OUTCOME SELECTION and PREFILL AREAS -->
                     <div v-if="showConditionEditor" id="outcome-editor">
                         <label class="ifthen_label" for="outcome_select">Select an outcome</label>
@@ -728,9 +770,9 @@ export default {
                     </div>
                     <div v-if="showSetup" id="if-then-setup">
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                            <h3 style="margin: 0;">IF</h3>
+                            <div tabindex="0" style="margin: 0;font-size:1.25rem"><b>IF</b></div>
                             <!-- NOTE: PARENT CONTROLLER SELECTION -->
-                            <select title="select an indicator" id="controller_select" @change="updateSelectedParentIndicator(parseInt($event.target.value))">
+                            <select title="select controller question" aria-label="select controller question" id="controller_select" @change="updateSelectedParentIndicator(parseInt($event.target.value))">
                                 <option v-if="!conditions.parentIndID" :value="0" selected>Select an Indicator</option>
                                 <option v-for="i in selectableParents" :key="'parent_' + i.indicatorID"
                                 :title="i.name"
@@ -740,18 +782,18 @@ export default {
                                 </option>
                             </select>
                             <!-- NOTE: OPERATOR SELECTION -->
-                            <select v-model="selectedOperator" id="operator_select">
+                            <select v-model="selectedOperator" id="operator_select" title="select condition" aria-label="select condition">
                                 <option v-if="selectedOperator === ''" value="" selected>Select a condition</option>
                                 <option v-for="o in selectedParentOperators" :key="o.val" :value="o.val" >
                                 {{ o.text }}
                                 </option>
                             </select>
                             <!-- NOTE: COMPARED VALUE SELECTIONS -->
-                            <input v-if="numericOperators.includes(selectedOperator)" id="numeric_comparison"
+                            <input v-if="numericOperators.includes(selectedOperator)" id="numeric_comparison" title="enter a numeric value" aria-label="enter a numeric value"
                                 type="number" :value="conditions.selectedParentValue" class="comparison" @change="updateSelectedOptionValue($event.target, 'parent')"
                                 placeholder="enter a number" />
                             <select v-else-if="parentFormat === 'dropdown' || parentFormat==='radio'"
-                                id="parent_compValue_entry_single"
+                                id="parent_compValue_entry_single" title="select a value" aria-label="select a value"
                                 @change="updateSelectedOptionValue($event.target, 'parent')">
                                 <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>
                                 <option v-for="val in selectedParentValueOptions"
@@ -761,7 +803,7 @@ export default {
                             </select>
                             <div v-else-if="parentFormat==='multiselect' || parentFormat==='checkboxes'"
                                 id="parent_choices_wrapper" class="comparison" :key="'comp_' + parentChoicesKey">
-                                <select id="parent_compValue_entry_multi"
+                                <select id="parent_compValue_entry_multi" title="select values" aria-label="select values"
                                     placeholder="select some options" multiple="true"
                                     style="display: none;"
                                     @change="updateSelectedOptionValue($event.target, 'parent')">
@@ -795,8 +837,8 @@ export default {
                         </div>
                     </div>
                     <div v-if="conditionComplete">
-                        <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                            <h3 style="margin: 0; display:inline-block">THEN</h3> '{{getIndicatorName(childIndID)}}'
+                        <div v-if="conditions.selectedOutcome !== 'crosswalk'" tabindex="0">
+                            <span style="margin:0;display:inline-block;font-size=1.25rem"><b>THEN</b></span> '{{getIndicatorName(childIndID)}}'
                             <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
                             <span style="color: #008010; font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
                             </span>
@@ -805,10 +847,10 @@ export default {
                                 be {{conditions.selectedOutcome === "show" ? 'shown' : 'hidden'}}
                                 </span>
                             </span>
-                        </template>
-                        <template v-else>
+                        </div>
+                        <div v-else tabindex="0">
                             <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
-                        </template>
+                        </div>
                     </div>
                     <div v-if="noOptions">No options are currently available for this selection</div>
                 </template>

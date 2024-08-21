@@ -23,7 +23,7 @@ class FormFormatter{
             "variables"=> "indicatorID,".FormatOptions::READ_COLUMN_NAMES.",".FormatOptions::DISPLAY,
             "key"=>"indicatorID",
             "displayColumns"=>"description,name",
-            "loggableColumns"=>"name,format,description,default,parentID,required,is_sensitive,disabled,sort,html,htmlPrint"
+            "loggableColumns"=>"name,format,description,default,parentID,required,is_sensitive,disabled,sort,html,htmlPrint,conditions"
         ]
     ];
 

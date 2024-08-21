@@ -5,7 +5,8 @@ export default {
             allGroups: [],
             groupsWithPrivileges: [],
             group: 0,
-            statusMessageError: ''
+            statusMessageError: '',
+            ariaGroupStatus: '',
         }
     },
     props: {
@@ -64,8 +65,9 @@ export default {
         /**
          * 
          * @param {number} groupID 
+         * @param {string} groupName 
          */
-        removeIndicatorPrivilege(groupID = 0){
+        removeIndicatorPrivilege(groupID = 0, groupName = ''){
             if (groupID !== 0) {
                 $.ajax({
                     method: 'POST',
@@ -77,6 +79,7 @@ export default {
                     success: res => {
                         //console.log(res); //NOTE: followup on this return value ('false').  should server return count(res)?
                         this.groupsWithPrivileges = this.groupsWithPrivileges.filter(g => g.id !== groupID);
+                        this.ariaGroupStatus = `removed group id ${groupID}, ${groupName}`;
                         this.getFormByCategoryID(this.formID);
                         this.showLastUpdate('form_properties_last_update');
                     }, 
@@ -98,6 +101,7 @@ export default {
                     },
                     success: () => {
                         this.groupsWithPrivileges.push({id: this.group.groupID, name: this.group.name});
+                        this.ariaGroupStatus = `added group id ${this.group.groupID}, ${this.group.name}`;
                         this.group = 0;
                         this.getFormByCategoryID(this.formID);
                         this.showLastUpdate('form_properties_last_update');
@@ -114,15 +118,16 @@ export default {
                     If a group is assigned below, everyone else will see "[protected data]".
                 </div>
                 <template v-if="statusMessageError === ''">
+                    <div id="status_group_privs" role="status" :aria-label="ariaGroupStatus" style="position:absolute;opacity:0;" aria-live="assertive"></div>
                     <div v-if="groupsWithPrivileges.length === 0" style="margin:0.5rem 0">No special access restrictions are enabled. Normal access rules apply.</div>
                     <div v-else style="margin:0.5rem 0">
                         <div style="color: #a00;">Special access restrictions are enabled.</div>
                         <ul>
                             <li v-for="g in groupsWithPrivileges" :key="g.name + g.id">
                                 {{g.name}}
-                                <button type="button" @click="removeIndicatorPrivilege(parseInt(g.id))"
+                                <button type="button" @click="removeIndicatorPrivilege(parseInt(g.id), g.name)"
                                     style="margin-left: 3px; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
-                                    :title="'remove ' + g.name">
+                                    :title="'remove ' + g.name" :aria-label="'remove ' + g.name">
                                     <b>[ Remove ]</b>
                                 </button>
                             </li>
@@ -135,7 +140,11 @@ export default {
                     <select id="selectIndicatorPrivileges" v-model="group" style="width:260px;">
                         <option :value="0">Select a Group</option>
                         <option v-for="g in availableGroups" :value="g" :key="'avail_' + g.groupID">{{g.name}} (id{{g.groupID}})</option>
-                    </select><button type="button" class="btn-general" @click="addIndicatorPrivilege" style="margin-left: 3px; align-self:stretch;">Add group</button>
+                    </select>
+                    <button type="button" class="btn-general" @click="addIndicatorPrivilege"
+                    :aria-label="'Add group ' + (group?.name || ', no group selected')" style="margin-left: 3px; align-self:stretch;">
+                        Add group
+                    </button>
                 </div>
             </fieldset>`
 }

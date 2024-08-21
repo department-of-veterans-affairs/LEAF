@@ -12,9 +12,9 @@
 
     <li class="leaf-width-8rem leaf-mob-menu lev2">
         <a href="javascript:void(0);" aria-label="site links submenu" aria-expanded="false" role="button"
-            aria-controls="site_links_submenu">Site Links</a>
+            aria-controls="site_links_submenu">Links</a>
         <ul id="site_links_submenu">
-            <li><a href="{$orgchartPath}" target="_blank">Nexus: Org Charts</a></li>
+            <li><a href="{$orgchartPath}" target="_blank">LEAF Nexus</a></li>
         </ul>
     </li>
 
@@ -102,8 +102,8 @@
         <a href="javascript:void(0);" aria-label="user account menu" aria-expanded="false" role="button"
             aria-controls="user_account_menu"><i class='fas fa-user-circle leaf-usericon'></i></a>
         <ul class="leaf-usernavmenu" id="user_account_menu">
-            <li tabindex="0">User:<br/><span class="leaf-user-menu-name">{$name}</span></li>
-            <li tabindex="0">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name"></span></li>
+            <li tabindex="0" style="padding-left:0.4rem;">User:<br/><span class="leaf-user-menu-name">{$name}</span></li>
+            <li tabindex="0" style="padding-left:0.4rem;">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name"></span></li>
             <li><a href="../?a=logout">Sign Out</a></li>
         </ul>
     </li>
@@ -227,7 +227,7 @@ $('li:has(ul)').on('mouseover click mouseleave focusout', function(e) {
         url: "../api/system/primaryadmin",
         dataType: "json",
         success: function(response) {
-            var emailString = response['Email'] != '' ? " - " + response['Email'] : '';
+            const emailString = response['Email'] != '' ? ' - <br><a href="mailto:' + response['Email'] + '" style="padding:0">' + response['Email'] + '</a>' : '';
             if(response["Fname"] !== undefined)
             {
                 $('#primary-admin').html(response['Fname'] + " " + response['Lname'] + emailString);

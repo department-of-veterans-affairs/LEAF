@@ -701,12 +701,12 @@ function editLabels() {
         if(resIndicatorList[resSelectList[i]] != undefined) {
             buffer += `<tr id="sortID_${resSelectList[i]}">
                 <td>
-                    <input type="color" id="colorPicker${resSelectList[i]}" value="#d1dfff" style="height: 26px;" />
-                    <input type="text" style="min-width: 400px" id="id_${resSelectList[i]}" value="${resIndicatorList[resSelectList[i]]}"/>
+                    <input type="color" aria-label="select header background color" id="colorPicker${resSelectList[i]}" value="#d1dfff" style="height: 26px;" />
+                    <input type="text" aria-label="edit header column text" style="min-width: 400px" id="id_${resSelectList[i]}" value="${resIndicatorList[resSelectList[i]]}"/>
                 </td>
                 <td>
-                    <button class="buttonNorm" onclick="editLabels_down(${resSelectList[i]});"><img src="./dynicons/?img=go-down_red.svg&w=16" alt="move down" /></button>
-                    <button class="buttonNorm" onclick="editLabels_up(${resSelectList[i]});"><img src="./dynicons/?img=go-up.svg&w=16" alt="move up" /></button>
+                    <button type="button" aria-label="move column down" class="buttonNorm" onclick="editLabels_down(${resSelectList[i]});"><img src="./dynicons/?img=go-down_red.svg&w=16" /></button>
+                    <button type="button" aria-label="move column up" class="buttonNorm" onclick="editLabels_up(${resSelectList[i]});"><img src="./dynicons/?img=go-up.svg&w=16" /></button>
                 </td>
                 </tr>`;
         }
@@ -1392,7 +1392,7 @@ $(function() {
         // create save link once
         if(!extendedToolbar) {
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" onclick="openShareDialog()"><img src="dynicons/?img=internet-mail.svg&w=32" alt="" /> Share Report</button> ');
-            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="email report" /> Edit Labels</button> ');
+            $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" id="editLabels" class="buttonNorm" onclick="editLabels()"><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="" /> Edit Labels</button> ');
 
             $('#' + grid.getPrefixID() + 'gridToolbar').css('width', '100%');
             $('#' + grid.getPrefixID() + 'gridToolbar').prepend('<button type="button" class="buttonNorm" id="editReport"><img src="dynicons/?img=gnome-applications-science.svg&w=32" alt="" /> Modify Search</button> ');

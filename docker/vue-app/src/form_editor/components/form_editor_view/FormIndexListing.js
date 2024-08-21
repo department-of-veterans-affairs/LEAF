@@ -24,7 +24,7 @@ export default {
         'onDragEnter',
         'onDragLeave',
         'onDrop',
-        'moveListItem',
+        'clickToMoveListItem',
         'makePreviewKey',
         'newQuestion',
     ],
@@ -85,7 +85,7 @@ export default {
             </ul>
             <div v-if="depth === 0 && !previewMode" style="padding:0.5rem;">
                 <button type="button" class="btn-general new_section_question"
-                    title="Add Question to Section"
+                    aria-label="Add Question to Section"
                     @click="newQuestion(formNode.indicatorID)">
                     + Add Question to Section
                 </button>

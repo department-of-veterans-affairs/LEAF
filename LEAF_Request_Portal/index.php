@@ -341,7 +341,7 @@ switch ($action) {
     case 'cancelled_request':
         $main->assign('useUI', false);
         $body = '<div style="width: 50%; margin: 0px auto; border: 1px solid black; padding: 16px">';
-        $body .= '<img src="dynicons/?img=user-trash-full.svg&amp;w=96" alt="empty" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
+        $body .= '<img src="dynicons/?img=user-trash-full.svg&amp;w=96" alt="" style="float: left"/><span style="font-size: 200%"> Request <b>#' . (int)$_GET['cancelled'] . '</b> has been cancelled!<br /><br /></span></div>';
         $main->assign('body', $body);
 
         break;
@@ -444,6 +444,7 @@ switch ($action) {
         $main->assign('body', $t_form->fetch(customTemplate('view_search.tpl')));
 
         $o_login = $t_login->fetch('login.tpl');
+        $tabText = 'Search Database';
 
         break;
 

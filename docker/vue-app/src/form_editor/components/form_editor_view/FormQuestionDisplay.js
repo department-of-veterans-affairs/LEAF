@@ -27,7 +27,7 @@ export default {
         'previewMode',
         'handleNameClick',
         'makePreviewKey',
-        'moveListItem'
+        'clickToMoveListItem'
     ],
     computed: {
         indicatorID() {
@@ -35,12 +35,6 @@ export default {
         },
         isHeader() {
             return this.depth === 0;
-        },
-        sensitiveImg() {
-            return this.sensitive ? 
-                `<img src="${this.libsPath}dynicons/svg/eye_invisible.svg"
-                    style="width: 16px; margin-left: 4px;" alt="" class="sensitive-icon"
-                    title="This field is sensitive" />` : '';
         },
         hasCode() {
             return (this.formNode?.html !== '' && this.formNode?.html != null) || (this.formNode?.htmlPrint !== '' && this.formNode?.htmlPrint != null);
@@ -56,7 +50,7 @@ export default {
             const page = this.depth === 0 ? `<div class="form_page">${this.formPage + 1}</div>`: '';
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
-            const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria="" alt="">📌&nbsp;</span>` : '';
+            const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria-hidden="true" alt="">📌&nbsp;</span>` : '';
             const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
             return `${page}${staple}${name}${shortLabel}${contentRequired}`;
         },
@@ -72,22 +66,25 @@ export default {
     },
     template:`<div class="form_editing_area">
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
-                <!-- VISIBLE DRAG INDICATOR / UP DOWN -->
+                <!-- VISIBLE DRAG INDICATOR / CLICK UP DOWN -->
                 <button v-show="!previewMode" type="button" :id="'index_listing_' + indicatorID + '_button'"
-                :title="'drag to move question (' + indicatorID + ')'"
-                class="drag_question_button" @click="focusIndicator(indicatorID)">
-                    <div class="icon_move_container">
-                        <span role="img" aria="" alt="" class="icon_drag">∷</span>
-                        <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move up" role="button" title="move item up"
-                            @click.stop="moveListItem($event, indicatorID, true)"
-                            @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, true)">
-                        </div>
-                        <div v-show="indicatorID === focusedIndicatorID" tabindex="0" class="icon_move down" role="button" title="move item down"
-                            @click.stop="moveListItem($event, indicatorID, false)"
-                            @keydown.enter.space.prevent.stop="moveListItem($event, indicatorID, false)">
-                        </div>
-                    </div>
+                    :title="'drag to move indicatorID (' + indicatorID + '). Click for click to move options.'"
+                    :aria-label="'drag to move indicatorID (' + indicatorID + '). Click for click to move options.'"
+                    class="drag_question_button" @click="focusIndicator(indicatorID)">
                 </button>
+                <div v-show="!previewMode" class="icon_move_container">
+                    <span role="img" aria-hidden="true" alt="" class="icon_drag">∷</span>
+                    <button v-show="indicatorID === focusedIndicatorID" type="button"
+                        :id="'click_to_move_up_' + indicatorID" class="icon_move up"
+                        :title="'move indicatorID ' + indicatorID + ' up'" :aria-label="'move indicatorID ' + indicatorID + ' up'"
+                        @click.stop="clickToMoveListItem($event, indicatorID, true)">
+                    </button>
+                    <button v-show="indicatorID === focusedIndicatorID" type="button"
+                        :id="'click_to_move_down_' + indicatorID" class="icon_move down"
+                        :title="'move indicatorID ' + indicatorID + ' down'" :aria-label="'move indicatorID ' + indicatorID + ' down'"
+                        @click.stop="clickToMoveListItem($event, indicatorID, false)">
+                    </button>
+                </div>
 
                 <!-- TOOLBAR -->
                 <div v-show="!previewMode"
@@ -100,29 +97,30 @@ export default {
                             :style="{ 'grid-area': depth === 0 ? '1' : '1 / 1 / 3 / 2', 'height': depth === 0 ? 'auto' : '100%' }"
                             @click.exact="editQuestion(parseInt(indicatorID))"
                             :title="'edit indicator ' + indicatorID">
-                            <span role="img" aria="" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
+                            <span role="img" aria-hidden="true" alt="">✏️&nbsp;</span> {{ depth === 0 ? 'Edit Header' : 'Edit' }}
                         </button>
-                        <button v-if="hasDevConsoleAccess" type="button" class="btn-general"
-                            @click="editAdvancedOptions(parseInt(indicatorID))"
-                            :title="hasCode ? 'Open Advanced Options. Advanced options are present.' : 'Open Advanced Options.'">
+                        <button v-if="hasDevConsoleAccess" type="button"
+                            :id="'programmer_indicator_' + indicatorID" class="btn-general"
+                            @click="editAdvancedOptions(parseInt(indicatorID))">
                             Programmer
                         </button>
                         <button v-if="conditionsAllowed" type="button" :id="'edit_conditions_' + indicatorID"
                             class="btn-general"
-                            @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())" 
-                            :title="conditionalQuestion ? 'Edit conditions for ' + indicatorID + '. Logic present' : 'Edit conditions for ' + indicatorID">
+                            @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())">
                             Modify Logic
                         </button>
                         <button v-if="!isHeader" type="button" class="btn-general"
-                            title="Add sub-question"
+                            aria-label="add sub-question"
                             @click="newQuestion(indicatorID)">
                             + Sub-question
                         </button>
                         <div style="margin-left: auto; grid-area: 1 / 3 / 2 / 4">
-                            <span v-if="sensitive"><img :src="libsPath + 'dynicons/svg/eye_invisible.svg'" style="width: 16px; vertical-align: middle; margin: 0 4px 2px 0" alt="" class="sensitive-icon" title="This field is sensitive" /></span>
-                            <span v-if="hasSpecialAccessRestrictions" role="img" aria="" alt="" title="special access restrictions are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">🔒</span>
-                            <span v-if="conditionalQuestion" role="img" aria="" alt="" title="conditional logic is present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⛓️</span>
-                            <span v-if="hasCode" role="img" aria="" alt="" title="advanced options are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⚙️</span>
+                            <span v-if="sensitive">
+                                <img :src="libsPath + 'dynicons/svg/eye_invisible.svg'" style="width: 16px; vertical-align: middle; margin: 0 4px 2px 0" alt="" class="sensitive-icon" title="This field is sensitive" />
+                            </span>
+                            <span v-if="hasSpecialAccessRestrictions" role="img" alt="special access restrictions are present" title="special access restrictions are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">🔒</span>
+                            <span v-if="conditionalQuestion" role="img" alt="conditional logic is present" title="conditional logic is present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⛓️</span>
+                            <span v-if="hasCode" role="img" alt="advanced options are present" title="advanced options are present" style="text-shadow: 0 0 1px black, 0 0 1px black; cursor: help">⚙️</span>
                         </div>
                     </div>
                 </div>
