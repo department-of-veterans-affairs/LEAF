@@ -5,30 +5,30 @@
 */
 
 function position(positionID) {
-  this.positionID = positionID;
-  this.rootID = 0;
-  this.parentID = 0;
-  this.parentContainerID;
-  this.containerHeader;
+  this.positionID = positionID
+  this.rootID = 0
+  this.parentID = 0
+  this.parentContainerID
+  this.containerHeader
 
-  this.prefixID = "pos" + Math.floor(Math.random() * 1000) + "_";
-  this.data = new Object();
+  this.prefixID = 'pos' + Math.floor(Math.random() * 1000) + '_'
+  this.data = new Object()
 }
 
 position.prototype.initialize = function (parentContainerID) {
-  var t = this;
-  this.parentContainerID = parentContainerID;
+  var t = this
+  this.parentContainerID = parentContainerID
 
-  var prefixedPID = this.prefixID + this.positionID;
-  this.containerHeader = prefixedPID + "_title";
-  var buffer = "";
+  var prefixedPID = this.prefixID + this.positionID
+  this.containerHeader = prefixedPID + '_title'
+  var buffer = ''
   buffer =
     `<div id="${prefixedPID}" class="positionSmall">` +
-      `<div id="${prefixedPID}_numFTE" class="fteCounter"></div>` +
-      `<div tabindex="0" role="button" id="${prefixedPID}_title" class="positionSmall_title"
+    `<div id="${prefixedPID}_numFTE" class="fteCounter"></div>` +
+    `<div tabindex="0" role="button" id="${prefixedPID}_title" class="positionSmall_title"
         aria-expanded="false" aria-controls="${prefixedPID}_controls">
       </div>` +
-      `<div id="${prefixedPID}_container" class="positionSmall_data">
+    `<div id="${prefixedPID}_container" class="positionSmall_data">
         <div id="${prefixedPID}_content"></div>
         <div id="${prefixedPID}_controls" style="visibility: hidden; display: none">
           <a class="button buttonNorm" href="?a=view_position&amp;positionID=${this.positionID}">
@@ -37,171 +37,216 @@ position.prototype.initialize = function (parentContainerID) {
           <button type="button" class="button buttonNorm" onclick="addSubordinate(${this.positionID})">
             <img src="dynicons/?img=list-add.svg&amp;w=32" alt="" /> Add Subordinate
           </button>
+          <button type="button" class="button buttonNorm" onclick='moveCoordinates("${this.prefixID}", "${this.positionID}")'>
+            <img src="dynicons/?img=list-add.svg&amp;w=32" alt="" /> Move Coordinates
+          </button>
         </div>
       </div>
-    </div>`;
-  $("#" + parentContainerID).append(buffer);
+    </div>`
+  $('#' + parentContainerID).append(buffer)
 
-  $("#" + prefixedPID + "_title").on("click keydown mouseenter", function(ev) {
-    const currDisplay =  $("#" + prefixedPID + "_controls").css('display');
-    const isToggle =  [13, 32].includes(ev?.keyCode) || ev.type === "click";
-    if(ev.type === "mouseenter" || (currDisplay === 'none' && isToggle)) {
-        $("#" + prefixedPID + "_controls").css({
-            visibility: "visible",
-            display: "inline",
-        });
-        $("#" + prefixedPID).css("zIndex", "900");
-        $("#" + prefixedPID + "_title").attr("aria-expanded", true);
+  $('#' + prefixedPID + '_title').on('click keydown mouseenter', function (ev) {
+    const currDisplay = $('#' + prefixedPID + '_controls').css('display')
+    const isToggle = [13, 32].includes(ev?.keyCode) || ev.type === 'click'
+    if (ev.type === 'mouseenter' || (currDisplay === 'none' && isToggle)) {
+      $('#' + prefixedPID + '_controls').css({
+        visibility: 'visible',
+        display: 'inline'
+      })
+      $('#' + prefixedPID).css('zIndex', '900')
+      $('#' + prefixedPID + '_title').attr('aria-expanded', true)
     }
-    if(currDisplay === 'inline' && isToggle) {
-        t.unsetFocus();
+    if (currDisplay === 'inline' && isToggle) {
+      t.unsetFocus()
     }
-  });
+  })
 
-  $("#" + prefixedPID + "_container").on("mouseleave focusout", function (ev) {
-    if(ev.type === "mouseleave") {
-        t.unsetFocus();
+  document.querySelector('#' + prefixedPID + '_title').onmouseleave = function (
+    mouse
+  ) {
+    let edge = closestEdge(mouse, this)
+    if (edge === 'top') {
+      t.unsetFocus()
+    }
+  }
+
+  function closestEdge(mouse, elem) {
+    let elemBounding = elem.getBoundingClientRect()
+
+    let elementLeftEdge = elemBounding.left
+    let elementTopEdge = elemBounding.top
+    let elementRightEdge = elemBounding.right
+    let elementBottomEdge = elemBounding.bottom
+
+    let mouseX = mouse.pageX
+    let mouseY = mouse.pageY
+
+    let topEdgeDist = Math.abs(elementTopEdge - mouseY)
+    let bottomEdgeDist = Math.abs(elementBottomEdge - mouseY)
+    let leftEdgeDist = Math.abs(elementLeftEdge - mouseX)
+    let rightEdgeDist = Math.abs(elementRightEdge - mouseX)
+
+    let min = Math.min(topEdgeDist, bottomEdgeDist, leftEdgeDist, rightEdgeDist)
+
+    switch (min) {
+      case leftEdgeDist:
+        return 'left'
+      case rightEdgeDist:
+        return 'right'
+      case topEdgeDist:
+        return 'top'
+      case bottomEdgeDist:
+        return 'bottom'
+    }
+  }
+
+  $('#' + prefixedPID + '_container').on('mouseleave focusout', function (ev) {
+    if (ev.type === 'mouseleave') {
+      t.unsetFocus()
     } else {
-        const curTarget = ev.currentTarget || null;
-        const newTarget = ev.relatedTarget || null;
-        if(curTarget !== null && newTarget !== null) {
-            const containerID = curTarget.id;
-            const newTargetContainer = newTarget.closest('#' + containerID);
-            if(newTargetContainer === null) {
-                t.unsetFocus();
-            }
+      const curTarget = ev.currentTarget || null
+      const newTarget = ev.relatedTarget || null
+      if (curTarget !== null && newTarget !== null) {
+        const containerID = curTarget.id
+        const newTargetContainer = newTarget.closest('#' + containerID)
+        if (newTargetContainer === null) {
+          t.unsetFocus()
         }
+      }
     }
-  });
+  })
 
   //drag handles
-  $("#" + this.containerHeader).on("mouseenter", function () {
-    $("#" + this.containerHeader).addClass("positionSmall_title_drag");
-  });
-  $("#" + this.containerHeader).on("mouseleave", function () {
-    $("#" + this.containerHeader).removeClass("positionSmall_title_drag");
-  });
-};
+  $('#' + this.containerHeader).on('mouseenter', function () {
+    $('#' + this.containerHeader).addClass('positionSmall_title_drag')
+  })
+  $('#' + this.containerHeader).on('mouseleave', function () {
+    $('#' + this.containerHeader).removeClass('positionSmall_title_drag')
+  })
+}
 
-position.prototype.onLoad = function () {};
+position.prototype.onLoad = function () {}
 
-position.prototype.onDrawComplete = function () {};
+position.prototype.onDrawComplete = function () {}
 
 position.prototype.prepContent = function (response) {
-  this.data = response;
-  this.setNumFTE(response[11].data);
-  this.setTitle(response.title);
-  var pd = response[9].data != "" ? "PD#" + response[9].data : "";
+  this.data = response
+  this.setNumFTE(response[11].data)
+  this.setTitle(response.title)
+  var pd = response[9].data != '' ? 'PD#' + response[9].data : ''
   this.setContent(
     response[2].data +
-      " " +
+      ' ' +
       response[13].data +
-      "-" +
+      '-' +
       response[14].data +
-      "<br />" +
+      '<br />' +
       pd
-  );
-  if (response[15].data != "") {
-    var layout = $.parseJSON(response[15].data);
-    $("#" + this.prefixID + this.positionID).css("position", "absolute");
-    var y = 120;
-    var x = 40;
+  )
+  if (response[15].data != '') {
+    var layout = $.parseJSON(response[15].data)
+    $('#' + this.prefixID + this.positionID).css('position', 'absolute')
+    var y = 120
+    var x = 40
     if (layout[this.rootID] != undefined) {
       if (layout[this.rootID].y > 0) {
-        y = layout[this.rootID].y;
+        y = layout[this.rootID].y
       }
       if (layout[this.rootID].x > 0) {
-        x = layout[this.rootID].x;
+        x = layout[this.rootID].x
       }
     } else if (layout[this.parentID] != undefined) {
       if (layout[this.parentID].y > 0) {
-        y = layout[this.parentID].y;
+        y = layout[this.parentID].y
       }
       if (layout[this.parentID].x > 0) {
-        x = layout[this.parentID].x;
+        x = layout[this.parentID].x
       }
     }
 
-    this.setDomPosition(x, y);
+    this.setDomPosition(x, y)
   }
-};
+}
 
 position.prototype.draw = function (data) {
-  var t = this;
+  var t = this
   if (data == undefined) {
     $.ajax({
-      url: "./api/position/" + this.positionID,
+      url: './api/position/' + this.positionID,
       data: { q: this.q },
-      dataType: "json",
+      dataType: 'json',
       success: function (data) {
-        t.prepContent(data);
-        t.onLoad();
-        t.onDrawComplete();
+        t.prepContent(data)
+        t.onLoad()
+        t.onDrawComplete()
       },
-      cache: false,
-    });
+      cache: false
+    })
   } else {
-    t.data = data;
-    response = data;
-    t.prepContent(response);
-    t.onLoad();
-    t.onDrawComplete();
+    t.data = data
+    response = data
+    t.prepContent(response)
+    t.onLoad()
+    t.onDrawComplete()
   }
-};
+}
 
 position.prototype.getDomID = function () {
-  return this.prefixID + this.positionID;
-};
+  return this.prefixID + this.positionID
+}
 
 position.prototype.setDomPosition = function (x, y) {
-  $("#" + this.prefixID + this.positionID).css({
-    position: "absolute",
-    top: y + "px",
-    left: x + "px",
-  });
-};
+  $('#' + this.prefixID + this.positionID).css({
+    position: 'absolute',
+    top: y + 'px',
+    left: x + 'px'
+  })
+}
 
 position.prototype.getPositionID = function () {
-  return this.positionID;
-};
+  return this.positionID
+}
 
 position.prototype.setNumFTE = function (numFTE) {
-  $("#" + this.prefixID + this.positionID + "_numFTE").html(numFTE);
-};
+  $('#' + this.prefixID + this.positionID + '_numFTE').html(numFTE)
+}
 
 position.prototype.setTitle = function (title) {
-  if (title == "") {
-    title = "";
+  if (title == '') {
+    title = ''
   }
-  $("#" + this.prefixID + this.positionID + "_title").html(title);
-};
+  $('#' + this.prefixID + this.positionID + '_title').html(title)
+}
 
 position.prototype.setContent = function (content) {
-  $("#" + this.prefixID + this.positionID + "_content").html(content);
-};
+  $('#' + this.prefixID + this.positionID + '_content').html(content)
+}
 
 position.prototype.setRootID = function (rootID) {
-  this.rootID = rootID;
-};
+  this.rootID = rootID
+}
 
 position.prototype.setParentID = function (parentID) {
-  this.parentID = parentID;
-};
+  this.parentID = parentID
+}
 
 position.prototype.unsetFocus = function () {
-  $("#" + this.prefixID + this.positionID + "_controls").css(
-    "visibility",
-    "hidden"
-  );
-  $("#" + this.prefixID + this.positionID + "_controls").css("display", "none");
-  $("#" + this.prefixID + this.positionID).css("zIndex", "20");
-  $("#" + this.prefixID  + this.positionID + "_title").attr("aria-expanded", false);
-};
+  $('#' + this.prefixID + this.positionID + '_controls').css(
+    'visibility',
+    'hidden'
+  )
+  $('#' + this.prefixID + this.positionID + '_controls').css('display', 'none')
+  $('#' + this.prefixID + this.positionID).css('zIndex', '20')
+  $('#' + this.prefixID + this.positionID + '_title').attr(
+    'aria-expanded',
+    false
+  )
+}
 
 position.prototype.emptyControls = function () {
-  $("#" + this.prefixID + this.positionID + "_controls").empty();
-};
+  $('#' + this.prefixID + this.positionID + '_controls').empty()
+}
 
 position.prototype.addControl = function (control) {
-  $("#" + this.prefixID + this.positionID + "_controls").append(control);
-};
+  $('#' + this.prefixID + this.positionID + '_controls').append(control)
+}
