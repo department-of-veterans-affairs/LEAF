@@ -196,6 +196,7 @@ dialogController.prototype.setSaveHandler = function(funct) {
     this.dialogControllerXhrEvent = $('#' + this.btnSaveID).on('click', function() {
         if(t.isValid(true) == 1 && t.isComplete(true) == 1) {
         	funct();
+			document.querySelector('#' + this.btnSaveID).setAttribute('disabled', '');
         	$('#' + t.btnSaveID).off();
         }
         else {
