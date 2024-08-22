@@ -929,8 +929,7 @@ export default {
                     <div v-if="!previewMode" id="blank_section_preview">
                         <button type="button" class="btn-general"
                             @click="newQuestion(null)"
-                            title="Add new form section"
-                            aria-label="Add new form section">
+                            aria-label="Add Section">
                             + Add Section
                         </button>
                     </div>
