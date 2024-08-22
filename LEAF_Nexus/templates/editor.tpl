@@ -21,7 +21,7 @@ placeholder<br />
         </button>
     </span>
 </span>
-
+<div id="visual_alert_box" role="status" aria-live="assertive" aria-label="" style="position:absolute;opacity:0"></div>
 <div id="pageloadIndicator" style="visibility: visible">
     <div style="opacity: 0.8; z-index: 1000; position: absolute; background: #f3f3f3; height: 97%; width: 97%"></div>
     <div style="z-index: 1001; position: absolute; padding: 16px; width: 97%; text-align: center; font-size: 24px; font-weight: bold; background-color: white">Loading... <img src="images/largespinner.gif" alt="" /></div>
@@ -238,6 +238,13 @@ function addSupervisor(positionID) {
 }
 
 function moveCoordinates(prefix, position) {
+    $('#' + prefix + position).css('box-shadow', ' 0 0 6px #c00');
+    let alert_box = document.getElementById('visual_alert_box');
+    let title = document.getElementById(prefix + position + '_title');
+    let titleText = title.innerHTML;
+    alert_box.innerHTML = "You are moving the " + titleText + " card<br />Esc - return to original location<br />Enter - save current location";
+    $('#visual_alert_box').css('opacity', '100');
+
     let card = document.getElementById(prefix + position);
     let cardStyle = window.getComputedStyle(card);
     let topOrg = cardStyle.getPropertyValue('top');
@@ -280,6 +287,8 @@ function moveCoordinates(prefix, position) {
         }
 
         if (abort) {
+            $('#' + prefix + position).css('box-shadow', 'none');
+            $('#visual_alert_box').css('opacity', '0');
             document.removeEventListener('keydown', moveCard);
             return;
         }
