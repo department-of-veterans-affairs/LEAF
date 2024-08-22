@@ -216,12 +216,12 @@ export default {
         </span>
         <div id="edit-properties-description">
             <label for="categoryName">Form name
-                <span>({{formNameCharsRemaining}})</span>
+                <span :aria-label="'max length 50 characters, ' + formNameCharsRemaining + ' remaining'">({{formNameCharsRemaining}})</span>
             </label>
             <input id="categoryName" type="text" maxlength="50" v-model="categoryName" @change="updateName"/>
             
             <label for="categoryDescription">Form description
-                <span>({{formDescrCharsRemaining}})</span>
+                <span :aria-label="'max length 255 characters, ' + formDescrCharsRemaining + ' remaining'">({{formDescrCharsRemaining}})</span>
             </label>
             <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3" @change="updateDescription"></textarea>
         </div>

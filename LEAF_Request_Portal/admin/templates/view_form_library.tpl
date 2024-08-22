@@ -162,7 +162,7 @@ $(function() {
     <h2>LEAF Library</h2>
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
-        <a role="button" class="buttonNorm leaf-marginBot-1rem" tabindex="0" href="?a=form_vue" style="display: inherit; width: 220px; text-decoration: none; color: black" id="backToForm"><img src="../dynicons/?img=edit-undo.svg&amp;w=32" alt="" title="Back to My Forms"/> Back to My Forms</a>
+        <a class="buttonNorm leaf-marginBot-1rem" href="?a=form_vue" style="display: inherit; width: 220px; text-decoration: none; color: black" id="backToForm"><img aria-hidden="true" src="../dynicons/?img=edit-undo.svg&amp;w=32" alt="" title="Back to My Forms"/> Back to My Forms</a>
 
         <div class="leaf-marginBot-halfRem">Filter by Business Lines:</div>
         <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines"/> All Business Lines</div>

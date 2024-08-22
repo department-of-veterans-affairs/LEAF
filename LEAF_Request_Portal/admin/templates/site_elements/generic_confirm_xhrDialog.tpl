@@ -1,4 +1,4 @@
-<div id="confirm_xhrDialog" class="leaf-dialog-container" role="dialog">
+<div id="confirm_xhrDialog" class="leaf-dialog-container">
     
     <form id="confirm_record" enctype="multipart/form-data" action="javascript:void(0);">
         

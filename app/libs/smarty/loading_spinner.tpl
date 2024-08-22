@@ -1,7 +1,7 @@
 <div class="loading-modal">
     <div class="loading-image">
         <div class="load-text"><!--{$title}--></div>
-        <div class="load-cancel"><button id="load-cancel" type="button" class="usa-button usa-button--outline usa-button--inverse" title="Cancel">Cancel</button></div>
+        <div class="load-cancel"><button id="load-cancel" type="button" class="usa-button usa-button--outline usa-button--inverse">Cancel</button></div>
     </div>
 </div>
 

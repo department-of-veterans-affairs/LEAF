@@ -20,8 +20,8 @@
                 </form>
             </div>
             <div id="progressArea2" style="height: 34px; background-color: #feffd2; padding: 4px; border-top: 1px solid black">
-                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="dynicons/?img=go-previous.svg&amp;w=22" alt="" aria-label="Previous"/> Previous Question</button></div>
-                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" aria-label="Next"/> Next Question</button></div>
+                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="dynicons/?img=go-previous.svg&amp;w=22" alt="" /> Previous Question</button></div>
+                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" /> Next Question</button></div>
             </div>
         </div>
         <br />
@@ -31,7 +31,7 @@
         <div id="tools" class="tools"><h1 style="font-size: 12px; text-align: center; margin: 0; padding: 2px">Tools</h1>
             <button type="button" id="showSinglePage" onclick="window.location='?a=printview&amp;recordID=<!--{$recordID}-->'" title="View full form"><img src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt=""  /> Show single page</button>
             <br /><br />
-            <button class="tools" onclick="cancelRequest()"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="" title="Cancel Request" style="vertical-align: middle"/> Cancel Request</button>
+            <button class="tools" onclick="cancelRequest()"><img src="dynicons/?img=process-stop.svg&amp;w=16" alt="" title="Cancel Request" aria-hidden="true" style="vertical-align: middle"/> Cancel Request</button>
         </div>
     </div>
 </div>

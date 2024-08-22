@@ -1,4 +1,4 @@
-<div id="simplexhrDialog" role="dialog" class="leaf-dialog-container">
+<div id="simplexhrDialog" class="leaf-dialog-container">
     
     <div role="document">
         

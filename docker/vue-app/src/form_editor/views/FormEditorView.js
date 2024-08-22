@@ -835,14 +835,14 @@ export default {
                     <div role="status" style="position:absolute;opacity:0" aria-live="assertive" :aria-label="ariaStatusFormDisplay"></div>
                     <button type="button" id="indicator_toolbar_toggle" class="btn-general preview"
                         @click.stop="toggleToolbars()">
-                        <span role="img" aria="" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>
+                        <span role="img" aria-hidden="true" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>
                         {{previewMode ? 'Edit this Form' : 'Preview this Form'}}
                     </button>
                     <template v-if="!previewMode">
                         <button type="button" class="btn-general"
                             :id="'addInternalUse_' + mainFormID"
                             @click="openNewFormDialog(mainFormID)">
-                            <span role="img" aria="" alt="">➕&nbsp;</span>
+                            <span role="img" aria-hidden="true" alt="">➕&nbsp;</span>
                             Add Internal-Use
                         </button>
                         <!-- staple options if main form is not itself a staple -->

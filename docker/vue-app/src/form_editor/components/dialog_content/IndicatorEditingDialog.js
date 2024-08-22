@@ -610,7 +610,7 @@ export default {
         <div v-show="description !== '' || shortLabelTriggered">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <label for="description">Short label for spreadsheet headings</label>
-                <div>{{shortlabelCharsRemaining}}</div>
+                <div :aria-label="'max length 50 characters, ' + shortlabelCharsRemaining + ' remaining'">{{shortlabelCharsRemaining}}</div>
             </div>
             <input type="text" id="description" v-model="description" maxlength="50" />
         </div>
