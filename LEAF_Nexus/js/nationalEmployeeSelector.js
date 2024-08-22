@@ -107,7 +107,7 @@ nationalEmployeeSelector.prototype.initialize = function () {
       '"/></div>\
 			<div id="' +
       this.prefixID +
-      'result"></div>'
+      'result" role="status" aria-label="search results"></div>'
   );
 
   $("#" + this.prefixID + "input").on("keydown", function (e) {

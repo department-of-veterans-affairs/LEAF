@@ -110,6 +110,7 @@ export default {
                             Modify Logic
                         </button>
                         <button v-if="!isHeader" type="button" class="btn-general"
+                            title="add sub-question"
                             aria-label="add sub-question"
                             @click="newQuestion(indicatorID)">
                             + Sub-question
