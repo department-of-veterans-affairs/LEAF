@@ -70,8 +70,8 @@
                 <em class="usa-logo__text">
                     <a onclick="window.location='./'" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
                         <span class="leaf-logo">{$logo}</span>
-                        <h1 class="leaf-site-title">{$title}</h1>
-                        <h2 id="headerDescription" class="leaf-header-description">{$city}</h2>
+                        <span class="leaf-site-title">{$city}</span>
+                        <span id="headerDescription" class="leaf-header-description">{$title}</span>
                     </a>
                 </em>
                 {if $qrcodeURL != ''}

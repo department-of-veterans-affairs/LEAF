@@ -54,7 +54,7 @@ employeeSelector.prototype.initialize = function () {
       'input" type="search" class="employeeSelectorInput" aria-label="search input"/></div>\
 			<div id="' +
       this.prefixID +
-      'result"></div>'
+      'result" role="status" aria-label="search results"></div>'
   );
 
   $("#" + this.prefixID + "input").on("keydown", function (e) {
