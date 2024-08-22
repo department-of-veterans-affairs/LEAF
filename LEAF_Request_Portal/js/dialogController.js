@@ -39,6 +39,7 @@ function dialogController(containerID, contentID, loadIndicatorID, btnSaveID, bt
     $('#' + this.btnCancelID).on('click', function() {
     	t.hide();
     });
+	document.querySelector('#' + this.btnCancelID).removeAttribute('disabled');
     $('button.ui-dialog-titlebar-close').on('click', function() {
         t.hide();
     });
@@ -201,6 +202,7 @@ dialogController.prototype.setSaveHandler = function(funct) {
         	t.indicateIdle();
         }
     });
+	document.querySelector('#' + this.btnSaveID).removeAttribute('disabled');
 };
 
 dialogController.prototype.setCancelHandler = function(funct) {
