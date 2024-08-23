@@ -399,11 +399,9 @@ export default {
          * remove DOM aria-disabled attr, close dialog and reset dialog properties
          */
         closeFormDialog() {
-            let elsDOM = Array.from(document.querySelectorAll('body > *' ));
+            let elsDOM = Array.from(document.querySelectorAll('#body, body > a, body > header, body > footer, body > section'));
             elsDOM.forEach(el => {
-                if(el.id !== 'leaf-vue-dialog-background') {
-                    el.removeAttribute('aria-hidden');
-                }
+                el.removeAttribute('aria-hidden');
             });
             this.showFormDialog = false;
             this.dialogTitle = '';

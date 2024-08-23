@@ -58,11 +58,9 @@ export default {
     },
     methods: {
         setAriaHiddenValue() {
-            let elsDOM = Array.from(document.querySelectorAll('body > *' ));
+            let elsDOM = Array.from(document.querySelectorAll('#body, body > a, body > header, body > footer, body > section'));
             elsDOM.forEach(el => {
-                if(el?.id !== this.modalElementID && el.id !== 'LeafSession_dialog') {
-                    el.setAttribute('aria-hidden', true);
-                }
+                el.setAttribute('aria-hidden', true);
             });
         },
         //helps adjust the modal background coverage

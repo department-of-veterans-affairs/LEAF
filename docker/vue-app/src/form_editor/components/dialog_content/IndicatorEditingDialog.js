@@ -565,7 +565,9 @@ export default {
                 'height': '100px',
                 'padding': '1rem'
             });
-            this.ariaTextEditorStatus = 'Using Advanced formatting.'
+            let trumbowygBtns = Array.from(document.querySelectorAll('.trumbowyg-button-pane button'));
+            trumbowygBtns.forEach(b => b.setAttribute('tabindex', '0'));
+            this.ariaTextEditorStatus = 'Using Advanced formatting.';
         },
         rawNameEditorClick() {
             $('#advNameEditor').css('display', 'block');
@@ -608,10 +610,9 @@ export default {
             </button>
         </div>
         <div v-show="description !== '' || shortLabelTriggered">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label for="description">Short label for spreadsheet headings</label>
-                <div :aria-label="'max length 50 characters, ' + shortlabelCharsRemaining + ' remaining'">{{shortlabelCharsRemaining}}</div>
-            </div>
+            <label for="description" style="justify-content:space-between;">Short label for spreadsheet headings
+                <span :aria-label="'max length 50 characters, ' + shortlabelCharsRemaining + ' remaining'">({{shortlabelCharsRemaining}})</span>
+            </label>
             <input type="text" id="description" v-model="description" maxlength="50" />
         </div>
         <div>

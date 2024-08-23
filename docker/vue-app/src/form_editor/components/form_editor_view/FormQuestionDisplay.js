@@ -25,7 +25,6 @@ export default {
         'openIfThenDialog',
         'listTracker',
         'previewMode',
-        'handleNameClick',
         'makePreviewKey',
         'clickToMoveListItem'
     ],

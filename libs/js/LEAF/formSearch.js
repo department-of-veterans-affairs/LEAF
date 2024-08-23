@@ -1127,7 +1127,7 @@ var LeafFormSearch = function (containerID) {
       widgetCounter +
       '"><button type="button" id="widgetRemoveButton" aria-label="remove search term"><img src="' +
       rootURL +
-      'dynicons/?img=list-remove.svg&w=16" style="cursor: pointer"></button></td>\
+      'dynicons/?img=list-remove.svg&w=16" alt="" style="cursor: pointer"></button></td>\
 						<td style="text-align: center"><strong id="' +
       prefixID +
       "widgetGate_" +

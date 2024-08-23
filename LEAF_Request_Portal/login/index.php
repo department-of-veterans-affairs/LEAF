@@ -64,9 +64,9 @@ When logging into this system, you agree to the following:<br />
     This information system is provided for U.S. Government-authorized use only. Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.<br /><br />
 
     <div style="font-size: 150%">
-        <a href="<?php echo $authCertURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV/CAC card</b><img src="../dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" title="Icon for PIV/CAC card" /></div></a>
+        <a href="<?php echo $authCertURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>PIV/CAC card</b><img src="../dynicons/?img=contact-new.svg&amp;w=32" style="padding-left: 8px" title="Icon for PIV/CAC card" alt="" /></div></a>
         <br>
-        <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>Windows Login</b><img src="../dynicons/?img=system-log-out.svg&amp;w=32" style="padding-left: 8px" title="Icon for Windows Login" /></div></a>
+        <a href="<?php echo $authURL; ?>" style="text-decoration: none"><div class="buttonNorm" style="text-align: center">Login with <b>Windows Login</b><img src="../dynicons/?img=system-log-out.svg&amp;w=32" style="padding-left: 8px" title="Icon for Windows Login" alt="" /></div></a>
     </div>
 </div>
 
