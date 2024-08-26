@@ -327,6 +327,7 @@ export default {
          * @param {boolean} setFormLoading show loader
          */
         getFormByCategoryID(catID = '', setFormLoading = false) {
+            this.ariaStatusFormDisplay = '';
             if (catID === '') {
                 this.focusedFormID = '';
                 this.focusedFormTree = [];
@@ -377,7 +378,6 @@ export default {
                             if(sameForm) {
                                 const selector = this.focusAfterFormUpdateSelector;
                                 if(selector !== null) {
-                                    this.ariaStatusFormDisplay = '';
                                     let aria = '';
                                     switch(true) {
                                         case selector.startsWith(`#click_to_move`):
@@ -398,14 +398,13 @@ export default {
                                         default:
                                         break;
                                     }
-                                    setTimeout(() => {
-                                        this.ariaStatusFormDisplay = aria;
-                                        const btn = document.querySelector(selector);
-                                        if (btn !== null && !this.showFormDialog) {
-                                            btn.focus();
-                                            this.focusAfterFormUpdateSelector = null;
-                                        }
-                                    });
+                                    this.ariaStatusFormDisplay = aria;
+                                    const btn = document.querySelector(selector);
+                                    if (btn !== null && !this.showFormDialog) {
+                                        btn.focus();
+                                        this.focusAfterFormUpdateSelector = null;
+                                        console.log("updated aria")
+                                    }
                                 }
 
                             } else {
@@ -568,6 +567,7 @@ export default {
         clickToMoveListItem(event = {}, indID = 0, moveup = false) {
             if(!this.previewMode) {
                 if (event?.keyCode === 32) event.preventDefault();
+                this.ariaStatusFormDisplay = '';
                 this.focusAfterFormUpdateSelector = '#' + event?.target?.id || '';
                 const parentEl = event?.currentTarget?.closest('ul');
                 const elToMove = document.getElementById(`index_listing_${indID}`);

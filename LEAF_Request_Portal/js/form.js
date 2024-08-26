@@ -532,15 +532,15 @@ var LeafForm = function (containerID) {
             elsChild.attr('aria-hidden', true);
           } else {
             elChildResponse.classList.remove('response-hidden');
+            elsChild.removeAttr('aria-hidden');
             elsChild.show();
-            elsChild.attr('aria-hidden', false);
           }
           break;
         case "show":
           if (hideShowConditionMet === true) {
             elChildResponse.classList.remove('response-hidden');
+            elsChild.removeAttr('aria-hidden');
             elsChild.show();
-            elsChild.attr('aria-hidden', false);
           } else {
             clearValues(childFormat, childID);
             elChildResponse.classList.add('response-hidden');
