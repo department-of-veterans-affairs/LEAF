@@ -30,11 +30,11 @@
 
             <div class="leaf-row-space"></div>
 
-            <label for="leafSecureContent">LEAF Secure Status</label>
+            <div class="usa-label"><b>LEAF Secure Status</b></div>
             <div class="leaf-marginTop-halfRem"><span id="leafSecureStatus">Loading...</span></div>
 
             <div>
-                <label for="subHeading" class="usa-label">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</label>
+                <div class="usa-label">Import Tags [<a href="#" title="Groups in the Org. Chart with any one of these tags will be imported for use">?</a>]:&nbsp;</div>
                 <div class="leaf-marginTop-1rem">
                     <!--{foreach from=$importTags item=importTag}-->
                         <!--{$importTag}--><br />

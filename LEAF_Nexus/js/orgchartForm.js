@@ -30,7 +30,7 @@ orgchartForm.prototype.initialize = function () {
 				        <div style="border-bottom: 2px solid black; line-height: 30px"><br /></div>\
 				        <div id="' +
       this.prefixID +
-      'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="loading..." /></div>\
+      'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="" /></div>\
 				        <div id="' +
       this.prefixID +
       'xhr" style="width: 500px; height: 400px; overflow: auto"></div>\

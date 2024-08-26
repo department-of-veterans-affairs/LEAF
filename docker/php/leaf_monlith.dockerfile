@@ -26,7 +26,6 @@ COPY docker/php/ssmtp/revaliases /etc/ssmtp/revaliases
 # install minimal procps (ps aux) and cleanup afterwards
 RUN apt update && apt install --no-install-recommends -y procps && apt clean
 
-
 # FROM base as prod
 COPY ./LEAF_Nexus /var/www/html/LEAF_Nexus
 COPY ./LEAF_Request_Portal /var/www/html/LEAF_Request_Portal

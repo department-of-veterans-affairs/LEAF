@@ -2,7 +2,7 @@
     <ul>
         {if $action != ''}
         <li>
-            <a href="./" class="buttonNorm" title="nav to homepage"><img src="dynicons/?img=go-home.svg&amp;w=16" alt="" />Main Page</a>
+            <a href="./" class="buttonNorm" title="nav to homepage"><img src="dynicons/?img=go-home.svg&amp;w=16" alt="" />Home</a>
         </li>
         {/if}
         <li id="headerMenu_container" style="display: inline-block">

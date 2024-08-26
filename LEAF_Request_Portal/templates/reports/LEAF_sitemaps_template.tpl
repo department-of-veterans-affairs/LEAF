@@ -29,6 +29,7 @@
     var sitemapOBJ;
     var dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     $(function() {
+        document.querySelector('title').innerText = 'Sitemap Editor - <!--{$title}-->';
         //load existing sitemap on page load
         parseSitemapJSON();
         // hide alert

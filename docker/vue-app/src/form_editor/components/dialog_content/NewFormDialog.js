@@ -79,13 +79,13 @@ export default {
         }
     },
     template: `<div>
-            <div style="display: flex; justify-content: space-between; padding: 0.25em 0">
-                <div><b>Form Name</b><span style="font-size:80%"> (up to 50 characters)</span></div>
+            <div style="display: flex; justify-content: space-between;">
+                <label for="name">Form Name&nbsp;<span style="font-size:80%">(up to 50 characters)</span></label>
                 <div>{{nameCharsRemaining}}</div>
             </div>
             <input id="name" type="text" maxlength="50" v-model="categoryName" style="width: 100%;" />
-            <div style="display: flex; justify-content: space-between; padding: 0.25em 0; margin-top: 1em;">
-                <div><b>Form Description</b><span style="font-size:80%"> (up to 255 characters)</span></div>
+            <div style="display: flex; justify-content:space-between;margin-top: 1em;">
+                <label for="description">Form Description&nbsp;<span style="font-size:80%">(up to 255 characters)</span></label>
                 <div>{{descrCharsRemaining}}</div>
             </div>
             <textarea id="description" maxlength="255" rows="5" v-model="categoryDescription" 

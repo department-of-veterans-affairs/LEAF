@@ -84,6 +84,7 @@ export default {
                         selected: this.strippedDefault !== '' && this.strippedDefault === o
                     }));
                     const choices = new Choices(elSelect, {
+                        placeholderValue: 'Type here to search',
                         allowHTML: false,
                         removeItemButton: true,
                         editItems: true,
@@ -91,7 +92,11 @@ export default {
                     });
                     elSelect.choicesjs = choices;
                 }
-                document.querySelector(`#${this.inputElID} ~ input.choices__input`).setAttribute('aria-labelledby', this.labelSelector);
+                let elChoicesInput = document.querySelector(`#${this.inputElID} ~ input.choices__input`);
+                if(elChoicesInput !== null) {
+                    elChoicesInput.setAttribute('aria-labelledby', this.labelSelector);
+                    elChoicesInput.setAttribute('role', 'searchbox');
+                }
                 break;
             case 'orgchart_group':
             case 'orgchart_position':

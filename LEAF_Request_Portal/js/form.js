@@ -33,7 +33,7 @@ var LeafForm = function (containerID) {
                     </div>\
                     <div id="' +
       prefixID +
-      'loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="" /></div>\
+      'loadIndicator" aria-hidden="true" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 300px; width: 460px">Loading... <img src="images/largespinner.gif" alt="" /></div>\
                     <div id="' +
       prefixID +
       'xhr" style="min-width: 540px; min-height: 420px; padding: 8px; overflow: auto"></div>\

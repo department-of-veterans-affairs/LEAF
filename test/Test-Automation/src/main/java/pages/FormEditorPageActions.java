@@ -83,7 +83,8 @@ public class FormEditorPageActions extends BasePage {
     @FindBy(xpath = "//textarea[@id=\"name\"]")
     WebElement sectionDescription;
 
-    @FindBy(xpath = "/html/body/div[1]/div/div/main/section/div[2]/div[2]/div[1]/ul/li/div/ul/li/div/div/div/div[2]")
+    //@FindBy(xpath = "//ul[contains(@id,'base_drop_area_form')]//li/div/ul/li/div/div/div/div[contains(@class, 'indicator-name-preview')]")
+    @FindBy(xpath = "//ul[contains(@id,'base_drop_area_form')]//li/div/ul/li//div[contains(@class, 'indicator-name-preview')]")
     WebElement createdQuestionHeading;
 
     @FindBy(xpath = "//div[contains(@id,'format_label')]")
