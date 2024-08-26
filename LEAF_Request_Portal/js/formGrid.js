@@ -53,6 +53,17 @@ var LeafFormGrid = function (containerID, options) {
     form = new LeafForm(prefixID + "form");
   }
 
+  function scrubHTML(input) {
+    if(input == undefined) {
+        return '';
+    }
+    let t = new DOMParser().parseFromString(input, 'text/html').body;
+    while(input != t.textContent) {
+      return scrubHTML(t.textContent);
+    }
+    return t.textContent;
+  }
+
   /**
    * Do not show UID index column
    * @memberOf LeafFormGrid
@@ -157,6 +168,18 @@ var LeafFormGrid = function (containerID, options) {
     );
   }
 
+  /** used on the formGrid header row to delegate and dispatch a click event to a hidden button to handle sorting */
+  function sortHeaderFromButton(event) {
+    const clickTarget = event?.target || null;
+    if(clickTarget !== null && clickTarget.type !== 'button' && (event.type === "click" || event?.which === 13)) {
+      const btn = clickTarget.querySelector('button');
+      if(btn !== null) {
+        btn.dispatchEvent(new Event("click"));
+        btn.focus();
+      }
+    }
+  }
+
   /**
    * @memberOf LeafFormGrid
    */
@@ -220,29 +243,32 @@ var LeafFormGrid = function (containerID, options) {
    * @memberOf LeafFormGrid
    */
   function setHeaders(headersIn) {
+    //hidden button styles inline to avoid custom style issues
+    const btnStyles = 'style="position:absolute;left:0;top:0;width:100%;height:100%;border:0;background-color:inherit;color:inherit;z-index:-1"';
     headers = headersIn;
     let temp = `<tr id="${prefixID}thead_tr">`;
     if (showIndex) {
-      temp += `<th scope="col" tabindex="0" id="${prefixID}header_UID" style="text-align: center" role="button" aria-label="Sort by unique ID">
-        UID
-        <span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
-      </th>`;
+      const sortIcon = typeof sortPreference === 'undefined' || sortPreference?.key !== 'recordID' ?
+        '' : sortPreference?.order === 'asc' ? '▲' : '▼';
+      temp +=
+        `<th scope="col" tabindex="0" id="${prefixID}header_UID" style="text-align: center" aria-label="sort by unique ID">UID` +
+          `<span aria-hidden="true" class="sort_btn_span">${sortIcon}</span>` +
+          `<button type="button" tabindex="-1" aria-label="sort by unique ID" class="btn_formgrid_sort" ${btnStyles}></button>
+        </th>`;
     }
     $("#" + prefixID + "thead").html(temp);
 
     if (showIndex) {
-      $("#" + prefixID + "header_UID").css("cursor", "pointer");
-      $("#" + prefixID + "header_UID").on("click keydown", null, null, function (event) {
-        if(event.type === "click" || event?.which === 13) {
-          if(sortDirection['recordID'] == undefined || sortDirection['recordID'] == 'desc') {
-            sort("recordID", "asc", postSortRequestFunc);
-          } else {
-            sort("recordID", "desc", postSortRequestFunc);
-          }
-          renderRequest = 0;
-          renderBody(0, virtualIndex);
-          window.scrollTo(scrollX, scrollY); // compensate for browser reflow
+      $("#" + prefixID + "header_UID, #" + prefixID + "header_UID button").css("cursor", "pointer");
+      $("#" + prefixID + "header_UID > button").on("click", null, null, function (event) {
+        if(sortDirection['recordID'] == undefined || sortDirection['recordID'] == 'desc') {
+          sort("recordID", "asc", postSortRequestFunc);
+        } else {
+          sort("recordID", "desc", postSortRequestFunc);
         }
+        renderRequest = 0;
+        renderBody(0, virtualIndex);
+        window.scrollTo(scrollX, scrollY); // compensate for browser reflow
       });
     }
 
@@ -251,17 +277,20 @@ var LeafFormGrid = function (containerID, options) {
       if (headers[i].visible == false) {
         continue;
       }
+      const ariaLabel = scrubHTML(headers[i]?.name || '').replace(/['"]+/gu, ''); //strip out html, icons and chars that could truncate the html
       var align = headers[i].align != undefined ? headers[i].align : "center";
-      domThead.insertAdjacentHTML('beforeend', `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" role="button" aria-label="Sort by ${headers[i].name}">
-        ${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
+      domThead.insertAdjacentHTML('beforeend',
+        `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" aria-label="Sort by ${ariaLabel}">` +
+        `${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
+        <button type="button" tabindex="-1" aria-label="Sort by ${ariaLabel}" class="btn_formgrid_sort" ${btnStyles}></button>
         </th>`);
 
       if (headers[i].sortable == undefined || headers[i].sortable == true) {
-        $("#" + prefixID + "header_" + headers[i].indicatorID).css(
+        $("#" + prefixID + "header_" + headers[i].indicatorID + ", #" + prefixID + "header_" + headers[i].indicatorID + " > button").css(
           "cursor",
           "pointer"
         );
-        $("#" + prefixID + "header_" + headers[i].indicatorID).on(
+        $("#" + prefixID + "header_" + headers[i].indicatorID + "> button").on(
           "click keydown",
           null,
           headers[i].indicatorID,
@@ -281,7 +310,7 @@ var LeafFormGrid = function (containerID, options) {
       }
     }
     $("#" + prefixID + "thead").append("</tr>");
-
+    $("#" + prefixID + "thead_tr").on("click keydown", sortHeaderFromButton);
     $("#" + prefixID + "table>thead>tr>th").css({
       padding: "4px 2px 4px 2px",
       "font-size": "12px",
@@ -355,7 +384,7 @@ var LeafFormGrid = function (containerID, options) {
       rootMargin: -stickyHeaderOffset - 1 + 'px 0px 0px 0px',
       threshold: 1,
     });
-    
+
     observer.observe(domHeader);
   }
 
@@ -369,10 +398,10 @@ var LeafFormGrid = function (containerID, options) {
   function sort(key, order, callback) {
     sortDirection[key] = order;
     const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
-    let headerText = '';
+    let ariaLabel = '';
     for(let i in headers) {
       if(headers[i].indicatorID == key) {
-        headerText = headers[i].name;
+        ariaLabel = $(headerSelector).text().replace(/[▼▲'"\n]+/gu, '');
         break;
       }
     }
@@ -382,10 +411,10 @@ var LeafFormGrid = function (containerID, options) {
 
     $("." + prefixID + "sort").css("display", "none");
     if (order.toLowerCase() == "asc") {
-      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", ascending.");
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : ariaLabel) + ", ascending.");
       $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▲</span>');
     } else {
-      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : headerText) + ", descending.");
+      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : ariaLabel) + ", descending.");
       $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▼</span>');
     }
     $(headerSelector + "_sort").css("display", "inline");
@@ -397,7 +426,7 @@ var LeafFormGrid = function (containerID, options) {
     var tDate;
     for (let i in currentData) {
       if (currentData[i][key] == undefined) {
-        currentData[i][key] = document.querySelector(`#${prefixID}${currentData[i].recordID}_${key}`).innerHTML;
+        currentData[i][key] = document.querySelector(`#${prefixID}${currentData[i].recordID}_${key}`)?.innerHTML;
         currentData[i][key] =
           currentData[i][key] == undefined ? "" : currentData[i][key];
       }
@@ -746,6 +775,41 @@ var LeafFormGrid = function (containerID, options) {
     if (postRenderFunc != null) {
       postRenderFunc();
     }
+
+    //add buttons if the headers don't have them yet (this could potentially apply to checkpoint dates)
+    const btnStyles = 'style="position:absolute;left:0;top:0;width:100%;height:100%;border:0;background-color:inherit;color:inherit;z-index:-1"';
+    headers.forEach(h => {
+      if (h.sortable == undefined || h.sortable == true) {
+        setTimeout(() => {
+          const elBtn = document.querySelector(`#${prefixID}header_${h.indicatorID} > button.btn_formgrid_sort`);
+          if(elBtn === null) {
+            const ariaLabel = 'Sort by ' + $("#" + prefixID + "header_" + h.indicatorID).text().replace(/[▼▲'"]+/gu, '');
+
+            $("#" + prefixID + "header_" + h.indicatorID).attr('aria-label', ariaLabel);
+            $("#" + prefixID + "header_" + h.indicatorID).append(
+              `<span aria-hidden="true" class="sort_btn_span"></span>
+              <button type="button" tabindex="-1" aria-label="${ariaLabel}" class="btn_formgrid_sort" ${btnStyles}></button>`
+            );
+
+            $("#" + prefixID + "header_" + h.indicatorID + " > button.btn_formgrid_sort").on(
+              "click",
+              null,
+              h.indicatorID,
+              function (event) {
+                if(sortDirection[event.data] == undefined || sortDirection[event.data] == 'desc') {
+                  sort(event.data, "asc", postSortRequestFunc);
+                } else {
+                  sort(event.data, "desc", postSortRequestFunc);
+                }
+                let currPosition = renderRequest.length; // retain scroll position
+                renderRequest = [];
+                renderBody(0, currPosition);
+              }
+            );
+          }
+        });
+      }
+    });
 
     // Cache rendered content
     if(limit == Infinity && !processedCallbackBuffer && !disabledRenderCache) {

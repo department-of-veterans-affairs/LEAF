@@ -1385,6 +1385,7 @@ $(function() {
 
                     },
                     error: (err) => console.log(err),
+                    async: false,
                 });
             }
         });
