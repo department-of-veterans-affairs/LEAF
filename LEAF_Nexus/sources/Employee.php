@@ -448,7 +448,7 @@ class Employee extends Data
     private function getAllEmployees(Db $db): array
     {
         $vars = array();
-        $sql = 'SELECT LOWER(`userName`)
+        $sql = 'SELECT LOWER(`userName`) AS `userName`
                 FROM `employee`';
 
         $result = $db->prepared_query($sql, $vars);
@@ -494,7 +494,7 @@ class Employee extends Data
      */
     public function getEmployeeByUserName(array $user_names, Db $db): array
     {
-        $sql = "SELECT `empUID`, LOWER(`userName`), `lastName`, `firstName`,
+        $sql = "SELECT `empUID`, LOWER(`userName`) AS `userName`, `lastName`, `firstName`,
                     `middleName`, `phoneticLastName`, `phoneticFirstName`,
                     `domain`, `deleted`, `lastUpdated`
                 FROM `employee`
