@@ -39,9 +39,6 @@ var LeafFormGrid = function (containerID, options) {
     `<div style="position: relative">
       <div id="${prefixID}gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div>
     </div>
-    <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
-      aria-label="Search Results" aria-live="assertive">
-    </span>
     <table id="${prefixID}table" class="leaf_grid">
       <thead id="${prefixID}thead" style="position: sticky; top: 0px"></thead>
       <tbody id="${prefixID}tbody"></tbody>
@@ -248,13 +245,11 @@ var LeafFormGrid = function (containerID, options) {
     headers = headersIn;
     let temp = `<tr id="${prefixID}thead_tr">`;
     if (showIndex) {
-      const sortIcon = typeof sortPreference === 'undefined' || sortPreference?.key !== 'recordID' ?
-        '' : sortPreference?.order === 'asc' ? '▲' : '▼';
       temp +=
-        `<th scope="col" tabindex="0" id="${prefixID}header_UID" style="text-align: center" aria-label="sort by unique ID">UID` +
-          `<span aria-hidden="true" class="sort_btn_span">${sortIcon}</span>` +
-          `<button type="button" tabindex="-1" aria-label="sort by unique ID" class="btn_formgrid_sort" ${btnStyles}></button>
-        </th>`;
+        `<th scope="col" id="${prefixID}header_UID" style="text-align: center">UID` +
+          `<span aria-hidden="true" class="sort_btn_span"></span>` +
+          `<button type="button" aria-label="sort by unique ID" class="btn_formgrid_sort" ${btnStyles}></button>` +
+        `</th>`;
     }
     $("#" + prefixID + "thead").html(temp);
 
@@ -280,18 +275,19 @@ var LeafFormGrid = function (containerID, options) {
       const ariaLabel = scrubHTML(headers[i]?.name || '').replace(/['"]+/gu, ''); //strip out html, icons and chars that could truncate the html
       var align = headers[i].align != undefined ? headers[i].align : "center";
       domThead.insertAdjacentHTML('beforeend',
-        `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" aria-label="Sort by ${ariaLabel}">` +
-        `${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
-        <button type="button" tabindex="-1" aria-label="Sort by ${ariaLabel}" class="btn_formgrid_sort" ${btnStyles}></button>
-        </th>`);
+        `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" style="text-align:${align}">${headers[i].name}` +
+          `<span aria-hidden="true" class="sort_btn_span"></span>` +
+          `<button type="button" aria-label="${ariaLabel}" class="btn_formgrid_sort" ${btnStyles}></button>` +
+        `</th>`);
 
       if (headers[i].sortable == undefined || headers[i].sortable == true) {
         $("#" + prefixID + "header_" + headers[i].indicatorID + ", #" + prefixID + "header_" + headers[i].indicatorID + " > button").css(
           "cursor",
           "pointer"
         );
+        $("#" + prefixID + "header_" + headers[i].indicatorID + "> button").attr('aria-label', `Sort by ${ariaLabel}`);
         $("#" + prefixID + "header_" + headers[i].indicatorID + "> button").on(
-          "click keydown",
+          "click",
           null,
           headers[i].indicatorID,
           function (event) {
@@ -398,7 +394,7 @@ var LeafFormGrid = function (containerID, options) {
   function sort(key, order, callback) {
     sortDirection[key] = order;
     const headerSelector = "#" + prefixID + "header_" + (key === "recordID" ? "UID" : key);
-    let ariaLabel = '';
+    let ariaLabel = 'Unique ID';
     for(let i in headers) {
       if(headers[i].indicatorID == key) {
         ariaLabel = $(headerSelector).text().replace(/[▼▲'"\n]+/gu, '');
@@ -409,15 +405,15 @@ var LeafFormGrid = function (containerID, options) {
       renderBody(0, Infinity);
     }
 
-    $("." + prefixID + "sort").css("display", "none");
+    $(".sort_btn_span").html("");
     if (order.toLowerCase() == "asc") {
-      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : ariaLabel) + ", ascending.");
-      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▲</span>');
+      $(headerSelector + " .sort_btn_span").html("▲");
+      $(headerSelector + " button").attr("aria-label", `${ariaLabel} (ascending)`);
     } else {
-      $("#table_sorting_info").attr("aria-label", "sorted by " + (key === "recordID" ? "unique ID" : ariaLabel) + ", descending.");
-      $(headerSelector + "_sort").html('<span class="sort_icon_span" aria-hidden="true">▼</span>');
+      $(headerSelector + " .sort_btn_span").html("▼");
+      $(headerSelector + " button").attr("aria-label", `${ariaLabel} (descending)`);
     }
-    $(headerSelector + "_sort").css("display", "inline");
+
     var array = [];
     var isIndicatorID = $.isNumeric(key);
     var isDate = false;
@@ -776,7 +772,7 @@ var LeafFormGrid = function (containerID, options) {
       postRenderFunc();
     }
 
-    //add buttons if the headers don't have them yet (this could potentially apply to checkpoint dates)
+    //add buttons if needed and the headers don't have them yet (this could potentially apply to checkpoint dates)
     const btnStyles = 'style="position:absolute;left:0;top:0;width:100%;height:100%;border:0;background-color:inherit;color:inherit;z-index:-1"';
     headers.forEach(h => {
       if (h.sortable == undefined || h.sortable == true) {
@@ -784,11 +780,9 @@ var LeafFormGrid = function (containerID, options) {
           const elBtn = document.querySelector(`#${prefixID}header_${h.indicatorID} > button.btn_formgrid_sort`);
           if(elBtn === null) {
             const ariaLabel = 'Sort by ' + $("#" + prefixID + "header_" + h.indicatorID).text().replace(/[▼▲'"]+/gu, '');
-
-            $("#" + prefixID + "header_" + h.indicatorID).attr('aria-label', ariaLabel);
             $("#" + prefixID + "header_" + h.indicatorID).append(
-              `<span aria-hidden="true" class="sort_btn_span"></span>
-              <button type="button" tabindex="-1" aria-label="${ariaLabel}" class="btn_formgrid_sort" ${btnStyles}></button>`
+              `<span aria-hidden="true" class="sort_btn_span"></span>` +
+              `<button type="button" aria-label="${ariaLabel}" class="btn_formgrid_sort" ${btnStyles}></button>`
             );
 
             $("#" + prefixID + "header_" + h.indicatorID + " > button.btn_formgrid_sort").on(
@@ -987,10 +981,9 @@ var LeafFormGrid = function (containerID, options) {
       }
       let output = [];
       let headers = [];
-      //removes triangle symbols so that ascii chars are not present in exported headers.
-      $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
-        $(val).html("");
-      });
+      //remove triangle sorting symbols so they are not present in exported headers.
+      $(".sort_btn_span").html("");
+
       $("#" + prefixID + "thead>tr>th").each(function (idx, val) {
         headers.push($(val).text().trim());
       });
