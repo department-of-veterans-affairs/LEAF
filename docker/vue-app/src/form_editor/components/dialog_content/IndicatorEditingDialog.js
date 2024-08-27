@@ -562,8 +562,10 @@ export default {
             });
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
                 'min-height': '100px',
+                'max-width': '695px',
                 'height': '100px',
-                'padding': '1rem'
+                'padding': '1rem',
+                'resize': 'both',
             });
             let trumbowygBtns = Array.from(document.querySelectorAll('.trumbowyg-button-pane button'));
             trumbowygBtns.forEach(b => b.setAttribute('tabindex', '0'));

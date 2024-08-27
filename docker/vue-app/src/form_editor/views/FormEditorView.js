@@ -403,7 +403,6 @@ export default {
                                     if (btn !== null && !this.showFormDialog) {
                                         btn.focus();
                                         this.focusAfterFormUpdateSelector = null;
-                                        console.log("updated aria")
                                     }
                                 }
 

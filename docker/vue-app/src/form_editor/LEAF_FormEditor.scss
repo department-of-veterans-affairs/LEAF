@@ -168,7 +168,7 @@ table[class$="SelectorTable"] th {
     input, select {
         min-height: 24px;
     }
-    #name {
+    #name:not(.trumbowyg-textarea) {
         width: 100%;
         margin-bottom: 0.4rem;
         padding: 0.2rem 0.4rem;

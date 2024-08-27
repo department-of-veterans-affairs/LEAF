@@ -134,7 +134,7 @@ test('navigate to Homepage, create and submit a travel request', async ({ page }
   // selecting a user triggers an async request, wait for loading to complete
   await expect(page.getByText('*** Loading... ***')).not.toBeVisible();
 
-  await page.getByRole('button', { name: 'Next Question', exact: true }).click();
+  await page.getByRole('button', { name: 'Next Question', exact: true }).first().click();
   await expect(page.getByRole('button', { name: 'Submit Request' })).toBeInViewport();
 
   await page.getByRole('button', { name: 'Submit Request' }).click();

@@ -20,8 +20,8 @@
                 </form>
             </div>
             <div id="progressArea2" style="height: 34px; background-color: #feffd2; padding: 4px; border-top: 1px solid black">
-                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="dynicons/?img=go-previous.svg&amp;w=22" alt="" aria-label="Previous"/> Previous Question</button></div>
-                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" aria-label="Next"/> Next Question</button></div>
+                <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="dynicons/?img=go-previous.svg&amp;w=22" alt="" /> Previous Question</button></div>
+                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" /> Next Question</button></div>
             </div>
         </div>
         <br />
