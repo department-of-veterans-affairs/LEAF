@@ -1,7 +1,7 @@
 <div id="toolbar" class="toolbar_right toolbar noprint">
     <div id="tools"><h1>Tools</h1>
     <!--{if $is_admin == true}-->
-        <button type="button" class="options" onclick="refreshEmp('<!--{$summary.employee.userName|escape:"quotes"}-->');"><img src="dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="Refresh Employee" title="Refresh Employee" /> Refresh Employee</button>
+        <button type="button" class="options" onclick="refreshEmp('<!--{$summary.employee.userName|escape:"quotes"}-->');"><img src="dynicons/?img=system-software-update.svg&w=32" style="vertical-align: middle" alt="" title="Refresh Employee" /> Refresh Employee</button>
       <!--{/if}-->
         <button type="button" class="options" onclick="assignBackup();"><img src="dynicons/?img=gnome-system-users.svg&amp;w=32" style="vertical-align: middle" alt="" /> Assign Backup</button>
 <!--{if $summary.employee.deleted == 0}-->

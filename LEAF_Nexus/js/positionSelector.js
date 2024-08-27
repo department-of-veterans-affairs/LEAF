@@ -42,7 +42,7 @@ positionSelector.prototype.initialize = function () {
       this.prefixID +
       'icon" src="' +
       t.rootPath +
-      'dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="search" />\
+      'dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="" />\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="' +
       this.prefixID +
       'status" role="status"></span>\
@@ -50,7 +50,7 @@ positionSelector.prototype.initialize = function () {
       this.prefixID +
       'iconBusy" src="' +
       t.rootPath +
-      'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="search" /></div>\
+      'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="" /></div>\
 			<input id="' +
       this.prefixID +
       'input" type="search" class="positionSelectorInput" aria-label="Search for user to add as ' +

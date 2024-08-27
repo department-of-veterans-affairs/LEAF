@@ -1013,9 +1013,9 @@ var LeafFormSearchMultisite = function (containerID) {
             prefixID +
             "widgetRemove_" +
             widgetCounter +
-            '"><button type="button" id="widgetRemoveButton"><img src="' +
+            '"><button type="button" id="widgetRemoveButton" aria-label="remove search term"><img src="' +
             rootURL +
-            'dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
+            'dynicons/?img=list-remove.svg&w=16" style="cursor: pointer"></button></td>\
 						<td style="text-align: center"><strong id="' +
             prefixID +
             "widgetGate_" +

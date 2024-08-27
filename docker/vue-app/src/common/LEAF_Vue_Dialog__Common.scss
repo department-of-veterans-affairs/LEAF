@@ -63,7 +63,9 @@ input[type="color"] {
 #vue-formeditor-app label, #site-designer-app label, #leaf_dialog_content label {
     font-family: 'Source Sans Pro Web', Helvetica, Arial, sans-serif;
 }
+
 #vue-formeditor-app button:not(.choices__button,[class*="trumbowyg"]),
+#vue-formeditor-app a.btn-general,
 #site-designer-app button:not(.choices__button,[class*="trumbowyg"]),
 #leaf_dialog_content button:not(.choices__button,[class*="trumbowyg"]) {
     @include flexcenter;
@@ -73,11 +75,12 @@ input[type="color"] {
     border-radius: 3px;
     white-space: nowrap;
     line-height: normal;
+    text-decoration: none;
     &:not(.disabled):hover, &:not(.disabled):focus, &:not(.disabled):active {
         outline: 2px solid #20a0f0;
     }
 }
-button.btn-general, button.btn-confirm {
+button.btn-general, a.btn-general, button.btn-confirm {
     background-color: $lt_cyan;
     color: $base_navy;
     border: 2px solid $base_navy;
@@ -136,7 +139,7 @@ td a.router-link {
     @include flexcenter;
     width: 100vw; 
     height: 100%;
-    z-index: 999;
+    z-index: 99;
     background-color: rgba(0,0,20,0.5);
     position: absolute;
     left: 0;
@@ -148,7 +151,7 @@ td a.router-link {
     width: auto;
     min-width: 450px;
     resize: horizontal;
-    z-index: 9999;
+    z-index: 100;
     max-width: 900px;
     height: auto;
     min-height: 0;
@@ -196,6 +199,8 @@ td a.router-link {
         cursor: pointer;
         font-weight: bold;
         font-size: 1.2rem;
+        border: 0;
+        background-color: transparent;
     }
     #leaf-vue-dialog-cancel-save {
         display:flex; 
@@ -208,6 +213,9 @@ td a.router-link {
             margin-left: auto;
         }
     }
+}
+#history-slice td {
+    word-break:break-word;
 }
 
 

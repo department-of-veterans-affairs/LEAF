@@ -90,11 +90,11 @@ test('navigate to Form Editor and create a travel form', async ({ page }, testIn
   await page.getByRole('button', { name: 'Save' }).click();
   await expect(page.getByLabel('Form name')).toHaveValue(uniqueText);
 
-  await page.getByRole('button', { name: '+ Add Section' }).click();
+  await page.getByRole('button', { name: 'Add Section' }).click();
   await page.getByLabel('Section Heading').click();
   await page.getByLabel('Section Heading').fill('Traveler');
   await page.getByRole('button', { name: 'Save' }).click();
-  await page.getByRole('button', { name: '+ Add Question to Section' }).click();
+  await page.getByRole('button', { name: 'Add Question to Section' }).click();
   await page.getByLabel('Field Name').click();
   await page.getByLabel('Field Name').fill('Employee');
   await page.getByLabel('Input Format').selectOption('orgchart_employee');

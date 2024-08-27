@@ -14,17 +14,4 @@
     const orgchartPath = '<!--{$orgchartPath}-->';
 
     const hasDevConsoleAccess = Number('<!--{$hasDevConsoleAccess}-->') > 0 ? true : false;
-    
-    let postRenderFormBrowser;
-
-    $(function() {
-        <!--{if $referFormLibraryID != ''}-->
-            postRenderFormBrowser = function() {
-                $('.formLibraryID_<!--{$referFormLibraryID}-->')
-                .animate({'background-color': 'yellow'}, 1000)
-                .animate({'background-color': 'white'}, 1000)
-                .animate({'background-color': 'yellow'}, 1000);
-            };
-        <!--{/if}-->
-    });
 </script>

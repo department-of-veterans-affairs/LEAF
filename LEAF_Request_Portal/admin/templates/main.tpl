@@ -8,9 +8,9 @@
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {if $tabText != ''}
-        <title>{$tabText} - {$title} | {$city}</title>
+        <title>{$tabText} - {$title}, {$city}</title>
     {else}
-        <title>{$title} | {$city}</title>
+        <title>{$title}, {$city}</title>
     {/if}
     <style type="text/css" media="screen">
         @import "{$app_js_path}/jquery/css/dcvamc/jquery-ui.custom.min.css";
