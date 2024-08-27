@@ -92,6 +92,73 @@ func disableEmployee(postUrl string) error {
 
 }
 
+func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
+	// add new employee getting the empUID
+	m := Employee{
+		FirstName: "testing",
+		LastName:  "users",
+		UserName:  "testingusers",
+	}
+
+	employeeId, err := postEmployee(NationalOrgchartURL+`api/employee/new`, m)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if employeeId == "" {
+		t.Error("no user id returned")
+	}
+
+	var empUID1 string
+
+	empUID1, err = postEmployee(RootOrgchartURL+`api/employee/new`, m)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if empUID1 == "" {
+		t.Error("no user id returned")
+	}
+
+	// run refresh Orgchart
+	err = updateEmployees(RootOrgchartURL + `scripts/refreshOrgchartEmployees.php`)
+
+	var empUID2 string
+
+	// add new user getting empUID
+	n := Employee{
+		FirstName: "testing",
+		LastName:  "users",
+		UserName:  "testingusers2",
+	}
+
+	empUID2, err = postEmployee(RootOrgchartURL+`api/employee/new`, n)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if empUID2 == "" {
+		t.Error("no user id returned")
+	}
+
+	var id1 int
+	var id2 int
+
+	id1, err1 := strconv.Atoi(empUID1)
+	id2, err2 := strconv.Atoi(empUID2)
+
+	if err1 != nil || err2 != nil {
+		t.Error("empUID is not a number")
+	}
+
+	if  id2 != (id1 + 1) {
+		t.Error("unexpected auto increment value")
+	}
+}
+
 func TestEmployee_CheckNationalEmployee(t *testing.T) {
 
 	// make sure the users are in place before we start.
@@ -197,71 +264,4 @@ func TestEmployee_CheckNationalEmployee(t *testing.T) {
 		t.Error("User Exists on local")
 	}
 
-}
-
-func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
-	// add new employee getting the empUID
-	m := Employee{
-		FirstName: "testing",
-		LastName:  "users",
-		UserName:  "testingusers",
-	}
-
-	employeeId, err := postEmployee(NationalOrgchartURL+`api/employee/new`, m)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if employeeId == "" {
-		t.Error("no user id returned")
-	}
-
-	var empUID1 string
-
-	empUID1, err = postEmployee(RootOrgchartURL+`api/employee/new`, m)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if empUID1 == "" {
-		t.Error("no user id returned")
-	}
-
-	// run refresh Orgchart
-	err = updateEmployees(RootOrgchartURL + `api/employee/refresh/batch`)
-
-	var empUID2 string
-
-	// add new user getting empUID
-	n := Employee{
-		FirstName: "testing",
-		LastName:  "users",
-		UserName:  "testingusers2",
-	}
-
-	empUID2, err = postEmployee(RootOrgchartURL+`api/employee/new`, n)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if empUID2 == "" {
-		t.Error("no user id returned")
-	}
-
-	var id1 int
-	var id2 int
-
-	id1, err1 := strconv.Atoi(empUID1)
-	id2, err2 := strconv.Atoi(empUID2)
-
-	if err1 != nil || err2 != nil {
-		t.Error("empUID is not a number")
-	}
-
-	if  id2 != (id1 + 1) {
-		t.Error("unexpected auto increment value")
-	}
 }
