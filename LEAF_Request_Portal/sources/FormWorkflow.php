@@ -1368,9 +1368,10 @@ class FormWorkflow
 
 
             $title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
+            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
             $email->addSmartyVariables(array(
-                "truncatedTitle" => $title,
+                "truncatedTitle" => $truncatedTitle,
                 "fullTitle" => $record[0]['title'],
                 "recordID" => $this->recordID,
                 "service" => $record[0]['service'],
@@ -1466,9 +1467,10 @@ class FormWorkflow
                         $email = new Email();
 
                         $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
+                        $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
                         $email->addSmartyVariables(array(
-                            "truncatedTitle" => $title,
+                            "truncatedTitle" => $truncatedTitle,
                             "fullTitle" => $requestRecords[0]['title'],
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],
@@ -1534,9 +1536,10 @@ class FormWorkflow
                         $email = new Email();
 
                         $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
+                        $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
                         $email->addSmartyVariables(array(
-                            "truncatedTitle" => $title,
+                            "truncatedTitle" => $truncatedTitle,
                             "fullTitle" => $requestRecords[0]['title'],
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],
