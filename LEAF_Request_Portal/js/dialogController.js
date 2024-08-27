@@ -39,6 +39,7 @@ function dialogController(containerID, contentID, loadIndicatorID, btnSaveID, bt
     $('#' + this.btnCancelID).on('click', function() {
     	t.hide();
     });
+	document.querySelector('#' + this.btnCancelID).removeAttribute('disabled');
     $('button.ui-dialog-titlebar-close').on('click', function() {
         t.hide();
     });
@@ -195,12 +196,14 @@ dialogController.prototype.setSaveHandler = function(funct) {
     this.dialogControllerXhrEvent = $('#' + this.btnSaveID).on('click', function() {
         if(t.isValid(true) == 1 && t.isComplete(true) == 1) {
         	funct();
+			document.querySelector('#' + this.btnSaveID).setAttribute('disabled', '');
         	$('#' + t.btnSaveID).off();
         }
         else {
         	t.indicateIdle();
         }
     });
+	document.querySelector('#' + this.btnSaveID).removeAttribute('disabled');
 };
 
 dialogController.prototype.setCancelHandler = function(funct) {
