@@ -68,7 +68,7 @@ var LeafFormSearch = function (containerID) {
 		    </div>\
 		    <div id="' +
         prefixID +
-        '_result" style="margin-top: 8px" aria-label="Search Results">\
+        '_result" style="margin-top: 8px" role="status" aria-label="Search Results">\
 		    </div>'
     );
 
