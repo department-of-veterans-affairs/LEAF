@@ -58,6 +58,51 @@ position.prototype.initialize = function (parentContainerID) {
     }
   });
 
+  $('#' + prefixedPID + '_title').on('focus', function ( keyEnter ) {
+    let position = prefixedPID.split('_');
+
+    moveCoordinates(position[0] + '_', position[1]);
+  });
+
+  document.querySelector('#' + prefixedPID + '_title').onmouseleave = function (
+    mouse
+  ) {
+    let edge = closestEdge(mouse, this)
+    if (edge === 'top') {
+      t.unsetFocus()
+    }
+  }
+
+  function closestEdge(mouse, elem) {
+    let elemBounding = elem.getBoundingClientRect()
+
+    let elementLeftEdge = elemBounding.left
+    let elementTopEdge = elemBounding.top
+    let elementRightEdge = elemBounding.right
+    let elementBottomEdge = elemBounding.bottom
+
+    let mouseX = mouse.pageX
+    let mouseY = mouse.pageY
+
+    let topEdgeDist = Math.abs(elementTopEdge - mouseY)
+    let bottomEdgeDist = Math.abs(elementBottomEdge - mouseY)
+    let leftEdgeDist = Math.abs(elementLeftEdge - mouseX)
+    let rightEdgeDist = Math.abs(elementRightEdge - mouseX)
+
+    let min = Math.min(topEdgeDist, bottomEdgeDist, leftEdgeDist, rightEdgeDist)
+
+    switch (min) {
+      case leftEdgeDist:
+        return 'left'
+      case rightEdgeDist:
+        return 'right'
+      case topEdgeDist:
+        return 'top'
+      case bottomEdgeDist:
+        return 'bottom'
+    }
+  }
+
   $("#" + prefixedPID + "_container").on("mouseleave focusout", function (ev) {
     if(ev.type === "mouseleave") {
         t.unsetFocus();
