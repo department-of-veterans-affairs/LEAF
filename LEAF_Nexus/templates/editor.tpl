@@ -21,7 +21,7 @@ placeholder<br />
         </button>
     </span>
 </span>
-<div id="visual_alert_box" role="status" aria-live="assertive" aria-label="" style="position:absolute;opacity:0"></div>
+<div id="visual_alert_box" role="status" aria-live="assertive" aria-label="" style="position:absolute;opacity:0; z-index:999;background:#fff"></div>
 <div id="pageloadIndicator" style="visibility: visible">
     <div style="opacity: 0.8; z-index: 1000; position: absolute; background: #f3f3f3; height: 97%; width: 97%"></div>
     <div style="z-index: 1001; position: absolute; padding: 16px; width: 97%; text-align: center; font-size: 24px; font-weight: bold; background-color: white">Loading... <img src="images/largespinner.gif" alt="" /></div>
@@ -373,7 +373,7 @@ function getSubordinates(positionID, level) {
     }
     level++;
     for(var key in positions[positionID].data.subordinates) {
-    	var subordinate = positions[positionID].data.subordinates;
+        var subordinate = positions[positionID].data.subordinates;
 
         positions[subordinate[key].positionID] = new position(subordinate[key].positionID);
         positions[subordinate[key].positionID].initialize('bodyarea');
