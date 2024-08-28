@@ -131,6 +131,10 @@ func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
 	// run refresh Orgchart
 	err = updateEmployees(RootOrgchartURL + `scripts/refreshOrgchartEmployees.php`)
 
+	if err != nil {
+		t.Error(err)
+	}
+
 	var empUID2 string
 
 	// add new user getting empUID
