@@ -40,9 +40,9 @@ var LeafFormGrid = function (containerID, options) {
       <div id="${prefixID}gridToolbar" style="display: none; width: 90px; margin: 0 0 0 auto; text-align: right"></div>
     </div>
     <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
-      aria-label="Search Results" aria-live="assertive">
+      aria-label="" aria-live="assertive">
     </span>
-    <table id="${prefixID}table" class="leaf_grid">
+    <table id="${prefixID}table" class="leaf_grid" aria-label="Search results, press escape to use table navigation options from a header cell.">
       <thead id="${prefixID}thead" style="position: sticky; top: 0px"></thead>
       <tbody id="${prefixID}tbody"></tbody>
       <tfoot id="${prefixID}tfoot" class="leaf_grid-loading"></tfoot>
@@ -223,7 +223,7 @@ var LeafFormGrid = function (containerID, options) {
     headers = headersIn;
     let temp = `<tr id="${prefixID}thead_tr">`;
     if (showIndex) {
-      temp += `<th scope="col" tabindex="0" id="${prefixID}header_UID" style="text-align: center" role="button" aria-label="Sort by unique ID">
+      temp += `<th scope="col" tabindex="0" id="${prefixID}header_UID" style="text-align: center" aria-label="Sort by unique ID">
         UID
         <span id="${prefixID}header_UID_sort" class="${prefixID}sort"></span>
       </th>`;
@@ -252,7 +252,7 @@ var LeafFormGrid = function (containerID, options) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
-      domThead.insertAdjacentHTML('beforeend', `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" role="button" aria-label="Sort by ${headers[i].name}">
+      domThead.insertAdjacentHTML('beforeend', `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" aria-label="Sort by ${headers[i].name}">
         ${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
         </th>`);
 

@@ -12,12 +12,12 @@
 
             <aside class="leaf-buttonBar" role="complementary">
                 <div class="leaf-float-left">
-                    <button id="button_save" class="usa-button leaf-btn-med">
+                    <button id="button_save" class="usa-button leaf-btn-med" disabled>
                         Save
                     </button>
                 </div>
                 <div class="leaf-float-right">
-                    <button id="button_cancelchange" class="usa-button usa-button--outline leaf-btn-med">
+                    <button id="button_cancelchange" class="usa-button usa-button--outline leaf-btn-med" disabled>
                         Cancel
                     </button>
                 </div>
