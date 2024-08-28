@@ -99,6 +99,11 @@ func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
 	// increment to increase but a unique key forces the ON DUPLICATE UPDATE
 	// to update an existing row.
 
+	// This test needs to run before TestEmployee_CheckNationalEmployee as they
+	// both run the refreshOrgchartEmployees.php. This test expects there to be
+	// a difference between National and Local orgcharts and that may not be true
+	// once the refreshOrgchartEmployees.php runs.
+
 	// add new employee getting the empUID
 	m := Employee{
 		FirstName: "testing",
