@@ -93,6 +93,12 @@ func disableEmployee(postUrl string) error {
 }
 
 func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
+	// as the test name suggests this test is to prevent the auto increment in
+	//  the employees table from incrementing without an actual insert. This
+	// test will reveal when a condition exists where an insert causes the
+	// increment to increase but a unique key forces the ON DUPLICATE UPDATE
+	// to update an existing row.
+
 	// add new employee getting the empUID
 	m := Employee{
 		FirstName: "testing",
