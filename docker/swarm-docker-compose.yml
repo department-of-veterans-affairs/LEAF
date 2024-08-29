@@ -26,7 +26,9 @@ services:
         limits:
           memory: 70gb
     sysctls:
-      net.ipv4.ip_local_port_range: "15000 64000"
+      - net.ipv4.ip_local_port_range: "15000 64000"
+      - net.ipv4.tcp_fin_timeout: "60"
+      - net.ipv4.tcp_tw_reuse: "1"
     healthcheck:
       test: curl --fail http://localhost/ || exit 1
       interval: 20s

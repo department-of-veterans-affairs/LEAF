@@ -27,6 +27,10 @@ services:
                 - BUILD_UID=${BUILD_UID}
                 - SMTP_HOST=smtp4dev
                 - MAIL_HUB=smtp4dev
+        sysctls:
+            - net.ipv4.tcp_fin_timeout=60
+            - net.ipv4.tcp_tw_reuse=1
+
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
