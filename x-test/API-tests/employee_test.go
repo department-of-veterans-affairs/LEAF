@@ -111,6 +111,12 @@ func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
 		UserName:  "testingusers",
 	}
 
+	n := Employee{
+		FirstName: "testing",
+		LastName:  "users",
+		UserName:  "TESTINGUSERS",
+	}
+
 	employeeId, err := postEmployee(NationalOrgchartURL+`api/employee/new`, m)
 
 	if err != nil {
@@ -123,7 +129,7 @@ func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
 
 	var empUID1 string
 
-	empUID1, err = postEmployee(RootOrgchartURL+`api/employee/new`, m)
+	empUID1, err = postEmployee(RootOrgchartURL+`api/employee/new`, n)
 
 	if err != nil {
 		t.Error(err)
@@ -131,6 +137,35 @@ func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
 
 	if empUID1 == "" {
 		t.Error("no user id returned")
+	}
+
+	// ensure userNames are spelled the same but with different cases in
+	// national and local
+	var localEmployeeKey string
+	var natEmployeeKey string
+
+	natEmpoyeeRes, err := getEmployee(NationalOrgchartURL + `api/employee/search?q=username:testingusers`)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	for key := range natEmpoyeeRes {
+		natEmployeeKey = key
+		break
+	}
+
+	localEmployeeRes, _ := getEmployee(RootOrgchartURL + `api/employee/search?q=username:testingusers`)
+	for key := range localEmployeeRes {
+		localEmployeeKey = key
+		break
+	}
+
+	local := localEmployeeRes[localEmployeeKey].UserName
+	nat := natEmpoyeeRes[natEmployeeKey].UserName
+
+	if (!(nat != local && strings.ToLower(nat) == strings.ToLower(local))) {
+		t.Errorf("userNames should match except case - local = %v, national = %v", local, nat)
 	}
 
 	// run refresh Orgchart
@@ -143,13 +178,13 @@ func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
 	var empUID2 string
 
 	// add new user getting empUID
-	n := Employee{
+	o := Employee{
 		FirstName: "testing",
 		LastName:  "users",
 		UserName:  "testingusers2",
 	}
 
-	empUID2, err = postEmployee(RootOrgchartURL+`api/employee/new`, n)
+	empUID2, err = postEmployee(RootOrgchartURL+`api/employee/new`, o)
 
 	if err != nil {
 		t.Error(err)
