@@ -255,12 +255,12 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
       var buffer = "";
       if (t.outputStyle == "micro") {
         buffer =
-          '<table aria-live="true" aria-atomic="true" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' +
+          '<table aria-live="polite" aria-atomic="true" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' +
           t.prefixID +
           'result_table"></tbody></table>';
       } else {
         buffer =
-          '<table aria-live="true" aria-atomic="true" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' +
+          '<table aria-live="polite" aria-atomic="true" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' +
           t.prefixID +
           'result_table"></tbody></table>';
       }
@@ -271,7 +271,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
         $("#" + t.prefixID + "result_table").append(
           '<tr id="' +
             t.prefixID +
-            'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: red">' +
+            'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span style="color: #c00;">' +
             txt +
             "</span>&quot;</td></tr>"
         );
@@ -377,7 +377,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
 
         if (t.outputStyle == "micro") {
           $("#" + t.prefixID + "result_table").append(
-            '<tr tabindex="0" id="' +
+            '<tr tabindex="0" aria-label="' + linkText + '" id="' +
               t.prefixID +
               "emp" +
               response[i].empUID +
@@ -400,7 +400,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
           );
         } else {
           $("#" + t.prefixID + "result_table").append(
-            '<tr tabindex="0" id="' +
+            '<tr tabindex="0" aria-label="' + linkText + '" id="' +
               t.prefixID +
               "emp" +
               response[i].empUID +
@@ -535,12 +535,12 @@ nationalEmployeeSelector.prototype.search = function () {
             var buffer = "";
             if (t.outputStyle == "micro") {
               buffer =
-                '<table aria-live="true" aria-atomic="true" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' +
+                '<table aria-live="polite" aria-atomic="true" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Contact</th></tr></thead><tbody id="' +
                 t.prefixID +
                 'result_table"></tbody></table>';
             } else {
               buffer =
-                '<table aria-live="true" aria-atomic="true" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' +
+                '<table aria-live="polite" aria-atomic="true" class="employeeSelectorTable"><thead><tr><th>Name</th><th>Location</th><th>Contact</th></tr></thead><tbody id="' +
                 t.prefixID +
                 'result_table"></tbody></table>';
             }
@@ -553,7 +553,7 @@ nationalEmployeeSelector.prototype.search = function () {
                   t.prefixID +
                   'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' +
                   t.prefixID +
-                  'emp0_message" style="color: red"></span>&quot;</td></tr>'
+                  'emp0_message" style="color: #c00;"></span>&quot;</td></tr>'
               );
               $("#" + t.prefixID + "emp0_message").text(txt);
               setTimeout(function () {
@@ -659,7 +659,7 @@ nationalEmployeeSelector.prototype.search = function () {
 
               if (t.outputStyle == "micro") {
                 $("#" + t.prefixID + "result_table").append(
-                  '<tr tabindex="0" id="' +
+                  '<tr tabindex="0" aria-label="' + linkText + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +
@@ -682,7 +682,7 @@ nationalEmployeeSelector.prototype.search = function () {
                 );
               } else {
                 $("#" + t.prefixID + "result_table").append(
-                  '<tr tabindex="0" id="' +
+                  '<tr tabindex="0" aria-label="' + linkText + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +

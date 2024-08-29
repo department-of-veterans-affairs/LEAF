@@ -8,7 +8,7 @@
     .errorMessage{
         font-size: smaller;
         max-width: 30%;
-        color: red;
+        color: #c00;
     }
 
     .modalBackground {

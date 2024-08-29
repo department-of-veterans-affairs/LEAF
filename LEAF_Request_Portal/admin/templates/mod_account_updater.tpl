@@ -26,7 +26,6 @@ main {
     min-height: 100vh;
 }
 .sync_link {
-    text-decoration: none;
     color: #049;
     font-weight: bold;
 }
@@ -45,8 +44,8 @@ label input {
     cursor: pointer;
 }
 table th {
-    background-color: #252f3e;
-    color: white;
+    background-color: #252f3e !important;
+    color: white !important;
     font-weight: normal;
     font-size: 1rem;
     padding: 0.25rem;
@@ -423,8 +422,8 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             }
                         },
                         {
-                            name: `<label for="confirm_group_updates">Select All Groups
-                                <input type="checkbox" class="confirm_group_updates" onclick="checkAll(event)" checked />
+                            name: `<label for='confirm_group_updates'>Select All Groups
+                                <input type='checkbox' class='confirm_group_updates' onclick='checkAll(event)' checked />
                             </label>`,
                             indicatorID: 'addToGroupOptions',
                             editable: false,
@@ -506,8 +505,8 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                             }
                         },
                         {
-                            name: `<label for="confirm_position_updates">Select All Positions
-                                <input type="checkbox" class="confirm_position_updates" onclick="checkAll(event)" checked />
+                            name: `<label for='confirm_position_updates'>Select All Positions
+                                <input type='checkbox' class='confirm_position_updates' onclick='checkAll(event)' checked />
                             </label>`,
                             sortable: false,
                             indicatorID: 'addToPositionOptions',
@@ -923,8 +922,8 @@ function findAssociatedRequests(empSel, empSelNew) {
                     }
                 },
                 {
-                    name: `<label for="confirm_indicator_updates">Select All Requests
-                        <input type="checkbox" class="confirm_indicator_updates" onclick="checkAll(event)" checked />
+                    name: `<label for='confirm_indicator_updates'>Select All Requests
+                        <input type='checkbox' class='confirm_indicator_updates' onclick='checkAll(event)' checked />
                     </label>`,
                     sortable: false,
                     indicatorID: 'updateIndicatorOptions',
