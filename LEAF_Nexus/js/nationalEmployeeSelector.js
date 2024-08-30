@@ -364,6 +364,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
             : "&nbsp;" + response[i].middleName + ".";
         linkText =
           response[i].lastName + ", " + response[i].firstName + midName;
+        const ariaLabel = linkText;
         if (t.selectLink != null) {
           linkText =
             '<a href="' +
@@ -377,7 +378,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
 
         if (t.outputStyle == "micro") {
           $("#" + t.prefixID + "result_table").append(
-            '<tr tabindex="0" aria-label="' + linkText + '" id="' +
+            '<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
               t.prefixID +
               "emp" +
               response[i].empUID +
@@ -400,7 +401,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
           );
         } else {
           $("#" + t.prefixID + "result_table").append(
-            '<tr tabindex="0" aria-label="' + linkText + '" id="' +
+            '<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
               t.prefixID +
               "emp" +
               response[i].empUID +
@@ -646,6 +647,7 @@ nationalEmployeeSelector.prototype.search = function () {
                   : "&nbsp;" + response[i].middleName + ".";
               linkText =
                 response[i].lastName + ", " + response[i].firstName + midName;
+              const ariaLabel = linkText;
               if (t.selectLink != null) {
                 linkText =
                   '<a href="' +
@@ -659,7 +661,7 @@ nationalEmployeeSelector.prototype.search = function () {
 
               if (t.outputStyle == "micro") {
                 $("#" + t.prefixID + "result_table").append(
-                  '<tr tabindex="0" aria-label="' + linkText + '" id="' +
+                  '<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +
@@ -682,7 +684,7 @@ nationalEmployeeSelector.prototype.search = function () {
                 );
               } else {
                 $("#" + t.prefixID + "result_table").append(
-                  '<tr tabindex="0" aria-label="' + linkText + '" id="' +
+                  '<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +
