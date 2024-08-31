@@ -11,7 +11,7 @@ test('no javascript errors on supervisor selection page', async ({ page }) => {
   await page.getByRole('button', { name: 'Next Next Question' }).click();
 
   // wait for async request to complete
-  await expect(page.locator('label')).toContainText('Supervisor* Required');
+  await expect(page.getByText('Approval Officials', { exact: true })).toContainText('Approval Officials');
 
   expect(errors).toHaveLength(0);
 });
