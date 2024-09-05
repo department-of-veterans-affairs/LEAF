@@ -12,7 +12,7 @@ test('no javascript errors on supervisor selection page', async ({ page }, testI
   // Wait for load
   await expect(page.locator('#xhr')).toContainText('This is a request to access the LEAF Developer Console.');
 
-  await page.getByRole('button', { name: 'Next Next Question' }).click();
+  await page.getByRole('button', { name: 'Next Question' }).last().click();
 
   // wait for async request to complete
   await expect(page.getByText('Approval Officials', { exact: true })).toContainText('Approval Officials');
