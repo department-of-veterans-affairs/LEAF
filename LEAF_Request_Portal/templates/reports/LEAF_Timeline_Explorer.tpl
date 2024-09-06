@@ -1202,6 +1202,7 @@ function start() {
 
 let numTotalCategories = Infinity;
 $(function() {
+    document.querySelector('title').innerText = 'Timeline Explorer - <!--{$title}-->';
     queryFirstDateSubmitted = $('#showDateSubmitted').val();
 
     $.ajax({
@@ -1317,13 +1318,13 @@ $(function() {
 <div id="chartBody" style="display: none">
     <h1 style="text-align: center">Timeline Data Explorer <span style="background-color: white; color: red; border: 2px solid black; padding: 8px; font-style: italic">BETA 2</span></h1>
     <h2 style="text-align: center">Requests submitted
-        <select id="reportTimeUnit">
+        <select id="reportTimeUnit" aria-label="filter duration">
             <option value="day">daily</option>
             <option value="week">weekly</option>
             <option value="month" selected="selected">monthly</option>
             <option value="year">yearly</option>
         </select> from
-        <select id="showDateSubmitted">
+        <select id="showDateSubmitted"  aria-label="filter start range">
             <option value="1 month ago">1 month ago</option>
             <option value="3 months ago" selected="selected">3 months ago</option>
             <option value="6 months ago">6 months ago</option>
@@ -1374,7 +1375,7 @@ $(function() {
             <div class="lt-body card chartContainer">
                 <div class="label">Resolution time per <span class="unitTime"></span></div>
                 <div id="chart_workload_timescale" class="chart" style="height: 80%"></div>
-                <div style="text-align: center">Filter Time: <input id="filterStart" type="date" /> to <input id="filterEnd" type="date" /></div>
+                <div style="text-align: center"><label for="filterStart">Filter Time: <input style="margin-right:1rem;" id="filterStart" type="date" /></label><label for="filterEnd">to <input id="filterEnd" type="date" /></label></div>
             </div>
         </div>
 

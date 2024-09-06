@@ -194,6 +194,7 @@ async function queryIndicator(catID='', indicatorID=0) {
 }
 
 function main() {
+    document.querySelector('title').innerText = 'Grid Splitter - <!--{$title}-->';
     //populate dropdown for forms
     $.ajax({
         type: 'GET',

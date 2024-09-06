@@ -40,12 +40,12 @@ employeeSelector.prototype.initialize = function () {
       this.prefixID +
       'icon" src="' +
       t.rootPath +
-      'dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
+      'dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="" />\
 			<img id="' +
       this.prefixID +
       'iconBusy" src="' +
       t.rootPath +
-      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" /></div>\
+      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="" /></div>\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="' +
       this.prefixID +
       'status" role="status"></span>\
@@ -54,7 +54,7 @@ employeeSelector.prototype.initialize = function () {
       'input" type="search" class="employeeSelectorInput" aria-label="search input"/></div>\
 			<div id="' +
       this.prefixID +
-      'result" aria-label="search results"></div>'
+      'result" role="status" aria-label="search results"></div>'
   );
 
   $("#" + this.prefixID + "input").on("keydown", function (e) {
@@ -323,7 +323,7 @@ employeeSelector.prototype.search = function () {
             if (t.outputStyle == "micro") {
               $("#" + t.prefixID + "result_table").append(
                 '\
-								<tr tabindex="0" id="' +
+								<tr tabindex="0" aria-label="' + linkText + '" id="' +
                   t.prefixID +
                   "emp" +
                   response[i].empUID +
@@ -348,7 +348,7 @@ employeeSelector.prototype.search = function () {
               if (response[i].deleted > 0) {
                 $("#" + t.prefixID + "result_table").append(
                   '\
-									<tr tabindex="0" id="' +
+									<tr tabindex="0" aria-label="' + linkText + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +
@@ -378,7 +378,7 @@ employeeSelector.prototype.search = function () {
               } else {
                 $("#" + t.prefixID + "result_table").append(
                   '\
-									<tr tabindex="0" id="' +
+									<tr tabindex="0" aria-label="' + linkText + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +

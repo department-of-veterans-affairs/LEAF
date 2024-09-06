@@ -5,7 +5,8 @@ export default {
             formID: this.focusedFormRecord.categoryID,
             group: '',
             allGroups: [],
-            collaborators: []
+            collaborators: [],
+            ariaStatus: '',
         }
     },
     inject: [
@@ -60,8 +61,9 @@ export default {
         /**
         * Remove form permissions for the group and update the collaborators array on success
         * @param {number} groupID
+        * @param {string} groupName
         */
-        removePermission(groupID = 0) {
+        removePermission(groupID = 0, groupName = '') {
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/_${this.formID}/privileges`,
@@ -73,6 +75,7 @@ export default {
                 },
                 success: res => {
                     this.collaborators = this.collaborators.filter(c => parseInt(c.groupID) !== groupID);
+                    this.ariaStatus = `Removed ${groupName} from collaborators`;
                 },
                 error: err => console.log(err)
             });
@@ -102,6 +105,7 @@ export default {
                     success: (res) => { //returns null uwu
                         const group = this.collaborators.find(c => parseInt(c.groupID) === parseInt(this.group.groupID));
                         if (group === undefined) {
+                            this.ariaStatus = `Added ${this.group.name} to collaborators`;
                             this.collaborators.push({groupID: this.group.groupID, name: this.group.name});
                             this.group = '';
                         }
@@ -120,13 +124,14 @@ export default {
         <br />
         <h3>The following groups can update {{formNameStripped()}} records at any time:</h3>
         <div id="formPrivs" style="margin-top: 1rem;">
+            <div role="status" style="position:absolute;opacity:0" aria-live="assertive" :aria-label="ariaStatus"></div>
             <template v-if="collaborators.length > 0">
                 <ul style="display: list-item; list-style-type:disc; margin-left: 1rem; min-height: 30px;">
                     <li v-for="c in collaborators" :key="c.name + c.groupID">
                         {{c.name}}
                         <button type="button"
                             style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
-                            @click="removePermission(parseInt(c.groupID))" :title="'remove ' + c.name">
+                            @click="removePermission(parseInt(c.groupID), c.name)" :aria-label="'remove ' + c.name">
                             <b>[ Remove ]</b>
                         </button>
                     </li>

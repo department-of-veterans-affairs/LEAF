@@ -136,6 +136,8 @@ legend {
                 font-family: 'PublicSans-Bold', sans-serif;
                 font-style: normal;
                 white-space: nowrap;
+                color: inherit;
+                margin: 0;
             }
             .leaf-site-title {
                 top: $site-title-top;
@@ -145,6 +147,7 @@ legend {
                 top: calc($site-title-top + 1.2rem + 5px);
                 font-size: 1.0rem;
                 font-family: 'PublicSans-Regular', sans-serif;
+                font-weight: normal !important;
             }
         }
         .leaf-header-right {

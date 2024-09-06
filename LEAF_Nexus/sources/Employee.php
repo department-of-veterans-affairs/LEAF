@@ -448,7 +448,7 @@ class Employee extends Data
     private function getAllEmployees(Db $db): array
     {
         $vars = array();
-        $sql = 'SELECT `userName`
+        $sql = 'SELECT LOWER(`userName`) AS `userName`
                 FROM `employee`';
 
         $result = $db->prepared_query($sql, $vars);
@@ -494,9 +494,9 @@ class Employee extends Data
      */
     public function getEmployeeByUserName(array $user_names, Db $db): array
     {
-        $sql = "SELECT `empUID`, `userName`, `lastName`, `firstName`, `middleName`,
-                    `phoneticLastName`, `phoneticFirstName`, `domain`, `deleted`,
-                    `lastUpdated`
+        $sql = "SELECT `empUID`, LOWER(`userName`) AS `userName`, `lastName`, `firstName`,
+                    `middleName`, `phoneticLastName`, `phoneticFirstName`,
+                    `domain`, `deleted`, `lastUpdated`
                 FROM `employee`
                 WHERE `userName` IN (" . implode(",", array_fill(1, count($user_names), '?')) . ")";
         $result = $db->prepared_query($sql, $user_names);
@@ -924,7 +924,7 @@ class Employee extends Data
             return $this->cache["lookupEmpUID_{$empUID}"];
         }
 
-        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName, domain, 
+        $strSQL = "SELECT empUID, userName, lastName, firstName, middleName, domain,
                         deleted, lastUpdated, new_empUUID, data as email FROM {$this->tableName}
                     LEFT JOIN employee_data USING (empUID)
                     WHERE empUID = :empUID
@@ -1114,7 +1114,7 @@ class Employee extends Data
                         AND deleted = 0
                         {$this->limit}";
 
-        $vars = array(':phone' => $this->parseWildcard('*' . $phone)); 
+        $vars = array(':phone' => $this->parseWildcard('*' . $phone));
 
         return $this->db->prepared_query($sql, $vars);
     }
@@ -1336,15 +1336,9 @@ class Employee extends Data
                 {
                     $this->log[] = 'Format Detected: Email';
                 }
-                
-                if(substr(strtolower($input), 0, 15) === 'email_disabled:') {
-                    $input = str_replace('email_disabled:', '', strtolower($input));
-                    $searchResult = $this->lookupEmail($input, true);
-                } else if (substr(strtolower($input), 0, 9) === 'disabled:'){
-                    $input = str_replace('disabled:', '', strtolower($input));
-                    $searchResult = $this->lookupEmail($input, true);
-                } else if (substr(strtolower($input), 0, 15) === 'disabled.email:'){
-                    $input = str_replace('disabled.email:', '', strtolower($input));
+
+                if(substr(strtolower($input), 0, 15) === 'email.disabled:') {
+                    $input = str_replace('email.disabled:', '', strtolower($input));
                     $searchResult = $this->lookupEmail($input, true);
                 } else {
                     $searchResult = $this->lookupEmail($input);
@@ -1368,28 +1362,12 @@ class Employee extends Data
 
                 break;
             //explicit search for disabled accounts
-            case substr(strtolower($input), 0, 18) === 'username_disabled:':
+            case substr(strtolower($input), 0, 18) === 'username.disabled:':
                 if ($this->debug)
                 {
-                    $this->log[] = 'Format Detected: Loginname';
+                    $this->log[] = 'Format Detected: Loginname (disabled)';
                 }
-                $input = str_replace('username_disabled:', '', strtolower($input));
-                $searchResult = $this->lookupLogin($input, true);
-                break;
-            case substr(strtolower($input), 0, 9) === 'disabled:':
-                if ($this->debug)
-                {
-                    $this->log[] = 'Format Detected: Loginname';
-                }
-                $input = str_replace('disabled:', '', strtolower($input));
-                $searchResult = $this->lookupLogin($input, true);
-                break;
-            case substr(strtolower($input), 0, 14) === 'disabled.user:':
-                if ($this->debug)
-                {
-                    $this->log[] = 'Format Detected: Loginname';
-                }
-                $input = str_replace('disabled.user:', '', strtolower($input));
+                $input = str_replace('username.disabled:', '', strtolower($input));
                 $searchResult = $this->lookupLogin($input, true);
                 break;
             // Format: ID number

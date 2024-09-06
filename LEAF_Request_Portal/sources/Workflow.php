@@ -378,9 +378,6 @@ class Workflow
         }
 
         if ($action === 'sendback') {
-            if ($nextStepID !== 0) { //correct for potential copy issue.  requestor is sometimes referred to by -1 in the editor
-                $nextStepID = 0;
-            }
             $required = json_encode(array ('required' => false));
         } else {
             $required = '';
@@ -513,63 +510,80 @@ class Workflow
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
-
-        $systemEvent = array('std_email_notify_completed', 'std_email_notify_next_approver', 'LeafSecure_DeveloperConsole', 'LeafSecure_Certified');
-
-        if (in_array($name, $systemEvent)) {
+        if ($this->isSystemEventName($name)) {
             return 'System Events Cannot Be Modified.';
         }
 
         if ($name === null || $newName === null || $type === null) {
             return 'Event not found, please try again.';
         }
+        $desc = trim($desc);
 
-        $vars = array(':eventID' => $name);
+        //Check for other existing email_templates records with a label that matches desc to avoid inconsistencies.
+        //Return information for user if a match is found.  Trim for back compat.
+        $vars = array(
+            ':label' => $desc,
+            ':body' => $name . "_body.tpl",
+        );
+        $strSQL = "SELECT `label` FROM `email_templates` WHERE TRIM(`label`) = :label AND `body` != :body";
+        $res = $this->db->prepared_query($strSQL, $vars);
+        if(count($res) > 0) {
+            return 'This description has already been used, please use another one.';
+        }
 
-        $strSQL = 'SELECT eventDescription FROM events WHERE eventID=:eventID';
-
-        $oldLabel = $this->db->prepared_query($strSQL, $vars);
-
-        $vars = array(':eventID' => $name,
+        //Update events record
+        $vars = array(
+            ':eventID' => $name,
             ':eventDescription' => $desc,
             ':newEventID' => $newName,
             ':eventType' => $type,
-            ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
-                'NotifyNext' => $data['Notify Next'],
-                'NotifyGroup' => $data['Notify Group'],
-                'AutomateEmailGroup' => $data['Automate Email Group'],
-                'DateSelected' => $data['Date Selected'],
-                'DaysSelected' => $data['Days Selected'],
-                'AdditionalDaysSelected' => $data['Additional Days Selected']
-            )));
-
-        $strSQL = 'UPDATE events SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData WHERE eventID=:eventID';
-
+            ':eventData' => json_encode(
+                    array(
+                        'NotifyRequestor' => $data['Notify Requestor'],
+                        'NotifyNext' => $data['Notify Next'],
+                        'NotifyGroup' => $data['Notify Group'],
+                )
+            )
+        );
+        $strSQL = "UPDATE events 
+            SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData 
+            WHERE eventID=:eventID";
         $this->db->prepared_query($strSQL, $vars);
-
-        $vars = array(':label' => $oldLabel[0]['eventDescription'],
-            ':emailTo' => "{$newName}_emailTo.tpl",
-            ':emailCc' => "{$newName}_emailCc.tpl",
-            ':subject' => "{$newName}_subject.tpl",
-            ':body' => "{$newName}_body.tpl",
-            ':newLabel' => $desc);
-
-        $strSQL = 'UPDATE email_templates SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body WHERE label=:label';
-
-        $this->db->prepared_query($strSQL, $vars);
-
-        if (file_exists("../templates/email/custom_override/{$name}_body.tpl")) {
-            rename("../templates/email/custom_override/{$name}_body.tpl", "../templates/email/custom_override/{$newName}_body.tpl");
-            rename("../templates/email/custom_override/{$name}_subject.tpl", "../templates/email/custom_override/{$newName}_subject.tpl");
-            rename("../templates/email/custom_override/{$name}_emailTo.tpl", "../templates/email/custom_override/{$newName}_emailTo.tpl");
-            rename("../templates/email/custom_override/{$name}_emailCc.tpl", "../templates/email/custom_override/{$newName}_emailCc.tpl");
-        }
 
         $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::EVENTS, [
-            new LogItem("events", "eventDescription",  $_POST['description']),
+            new LogItem("events", "eventDescription",  $desc),
             new LogItem("events", "eventID",  $name)
         ]);
 
+        //check for corresponding non-system email template record before updating and renaming files
+        $vars = array(':oldBody' => $name . "_body.tpl");
+        $strSQL = "SELECT emailTemplateID FROM `email_templates` WHERE body=:oldBody AND emailTemplateID > 1";
+        $res = $this->db->prepared_query($strSQL, $vars);
+
+        if(count($res) === 1) {
+            //update email_templates record
+            $vars = array(
+                ':emailTo' => "{$newName}_emailTo.tpl",
+                ':emailCc' => "{$newName}_emailCc.tpl",
+                ':subject' => "{$newName}_subject.tpl",
+                ':oldBody' => "{$name}_body.tpl",
+                ':body' => "{$newName}_body.tpl",
+                ':newLabel' => $desc);
+
+            $strSQL = "UPDATE email_templates
+                SET label=:newLabel, emailTo=:emailTo, emailCc=:emailCc, subject=:subject, body=:body
+                WHERE body=:oldBody AND emailTemplateID > 1";
+
+            $this->db->prepared_query($strSQL, $vars);
+
+            //rename files
+            if (file_exists("../templates/email/custom_override/{$name}_body.tpl")) {
+                rename("../templates/email/custom_override/{$name}_body.tpl", "../templates/email/custom_override/{$newName}_body.tpl");
+                rename("../templates/email/custom_override/{$name}_subject.tpl", "../templates/email/custom_override/{$newName}_subject.tpl");
+                rename("../templates/email/custom_override/{$name}_emailTo.tpl", "../templates/email/custom_override/{$newName}_emailTo.tpl");
+                rename("../templates/email/custom_override/{$name}_emailCc.tpl", "../templates/email/custom_override/{$newName}_emailCc.tpl");
+            }
+        }
         return 1;
     }
 
@@ -971,6 +985,12 @@ class Workflow
         return true;
     }
 
+    private function isSystemEventName(?string $name) :bool
+    {
+        $txt = $name ?? '';
+        return preg_match("/^std_email/i", $txt) || preg_match("/^LeafSecure/i", $txt);
+    }
+
     /**
      * Purpose: Create a new Custom Event
      * @param string $name Custom Event Name
@@ -986,31 +1006,46 @@ class Workflow
             return 'Admin access required.';
         }
 
-        $systemEvent = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
-
-        if (in_array($name, $systemEvent))
-        {
+        if ($this->isSystemEventName($name)) {
             return 'Event Already Exists.';
         }
 
         if ($name === null || $type === null) {
             return 'Error creating event, please try again.';
         }
+        $desc = trim($desc);
 
-        $vars = array(':eventID' => $name,
+        //Check for an existing email_templates record with a label that matches desc to avoid inconsistencies.
+        //Return information for user if a match is found.  Trim for back compat.
+        $vars = array(
+            ':label' => $desc,
+            ':body' => $name . "_body.tpl",
+        );
+        $strSQL = "SELECT `label` FROM `email_templates` WHERE TRIM(`label`) = :label AND `body` != :body";
+        $res = $this->db->prepared_query($strSQL, $vars);
+        if(count($res) > 0) {
+            return 'This description has already been used, please use another one.';
+        }
+
+        //insert events record
+        $vars = array(
+            ':eventID' => $name,
             ':description' => $desc,
             ':eventType' => $type,
-            ':eventData' => json_encode(array('NotifyRequestor' => $data['Notify Requestor'],
-                'NotifyNext' => $data['Notify Next'],
-                'NotifyGroup' => $data['Notify Group'],
-                'AutomateEmailGroup' => $data['Automate Email Group'],
-                'DateSelected' => $data['Date Selected'],
-                'DaysSelected'=> $data['Days Selected'])));
+            ':eventData' => json_encode(
+                array(
+                    'NotifyRequestor' => $data['Notify Requestor'],
+                    'NotifyNext' => $data['Notify Next'],
+                    'NotifyGroup' => $data['Notify Group'],
+                )
+            )
+        );
 
         $strSQL = "INSERT INTO events (eventID, eventDescription, eventType, eventData) VALUES (:eventID, :description, :eventType, :eventData)";
 
         $this->db->prepared_query($strSQL, $vars);
 
+        //insert email_templates record
         $vars = array(':description' => $desc,
             ':emailTo' => $name . '_emailTo.tpl',
             ':emailCc' => $name . '_emailCc.tpl',
@@ -1040,45 +1075,41 @@ class Workflow
         {
             return 'Admin access required';
         }
-        $systemEvent = array('std_email_notify_completed','std_email_notify_next_approver','LeafSecure_DeveloperConsole','LeafSecure_Certified');
 
-        if (in_array($event, $systemEvent))
-        {
+        if ($this->isSystemEventName($event)) {
             return 'System Events cannot be removed.';
         }
 
-        // Delete Custom Emails
-        if (file_exists("../templates/email/custom_override/{$event}_body.tpl"))
-            unlink("../templates/email/custom_override/{$event}_body.tpl");
-        if (file_exists("../templates/email/custom_override/{$event}_subject.tpl"))
-            unlink("../templates/email/custom_override/{$event}_subject.tpl");
-        if (file_exists("../templates/email/custom_override/{$event}_emailTo.tpl"))
-            unlink("../templates/email/custom_override/{$event}_emailTo.tpl");
-        if (file_exists("../templates/email/custom_override/{$event}_emailCc.tpl"))
-            unlink("../templates/email/custom_override/{$event}_emailCc.tpl");
-
+        //Delete events record
         $vars = array(':eventID' => $event);
-
-        $strSQL = 'SELECT eventDescription FROM events WHERE eventID=:eventID';
-
-        $label = $this->db->prepared_query($strSQL, $vars);
-
         $strSQL = 'DELETE FROM events WHERE eventID=:eventID';
-
-        $this->db->prepared_query($strSQL, $vars); // Delete Event
-
-        $event = str_replace('CustomEvent_', '', $event);
-        $event = str_replace('_', ' ', $event);
-
-        $vars = array(':label' => $label[0]['eventDescription']);
-
-        $strSQL = 'DELETE FROM email_templates WHERE label=:label';
-
-        $this->db->prepared_query($strSQL, $vars); // Delete Email Event
+        $this->db->prepared_query($strSQL, $vars);
 
         $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::EVENTS, [
             new LogItem("events", "eventID",  $event)
         ]);
+
+        //check for corresponding non-system email template record before deleting email_templates record and unlinking templates
+        $vars = array(':oldBody' => $event . "_body.tpl");
+        $strSQL = "SELECT emailTemplateID FROM `email_templates` WHERE body=:oldBody AND emailTemplateID > 1";
+        $res = $this->db->prepared_query($strSQL, $vars);
+
+        if(count($res) === 1) {
+            //Delete corresponding email_templates record
+            $vars = array(':body' => $event."_body.tpl");
+            $strSQL = 'DELETE FROM email_templates WHERE body=:body AND emailTemplateID > 1';
+            $this->db->prepared_query($strSQL, $vars);
+
+            // Delete Custom Email Templates
+            if (file_exists("../templates/email/custom_override/{$event}_body.tpl"))
+                unlink("../templates/email/custom_override/{$event}_body.tpl");
+            if (file_exists("../templates/email/custom_override/{$event}_subject.tpl"))
+                unlink("../templates/email/custom_override/{$event}_subject.tpl");
+            if (file_exists("../templates/email/custom_override/{$event}_emailTo.tpl"))
+                unlink("../templates/email/custom_override/{$event}_emailTo.tpl");
+            if (file_exists("../templates/email/custom_override/{$event}_emailCc.tpl"))
+                unlink("../templates/email/custom_override/{$event}_emailCc.tpl");
+        }
 
         return 1;
     }

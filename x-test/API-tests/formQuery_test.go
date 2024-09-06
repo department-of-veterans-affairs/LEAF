@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -196,6 +197,18 @@ func TestFormQuery_DescendingIndex(t *testing.T) {
 	}
 }
 
+// TestFormQuery_FindTwoSteps looks for records on stepID 3 OR -3
+func TestFormQuery_FindTwoSteps(t *testing.T) {
+	res, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"stepID","operator":"=","match":"3","gate":"AND"},{"id":"stepID","operator":"=","match":"-3","gate":"OR"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":[],"sort":{}}&x-filterData=recordID,stepID`)
+
+	for _, record := range res {
+		if record.StepID != 3 && record.StepID != -3 {
+			t.Errorf(`RecordID #%v StepID = %v. want = stepID is 3 OR -3`, record.RecordID, record.StepID)
+		}
+	}
+}
+
+
 /* post a new employee to an orgchart format question and then confirm expected values on orgchart property */
 func TestFormQuery_Employee_Format__Orgchart_Has_Expected_Values(t *testing.T) {
 	mock_orgchart_employee := FormQuery_Orgchart_Employee{
@@ -203,7 +216,7 @@ func TestFormQuery_Employee_Format__Orgchart_Has_Expected_Values(t *testing.T) {
 		LastName: "Watsica",
 		MiddleName: "Yundt",
 		Email: "Ramon.Watsica@fake-email.com",
-		UserName: "VTRYCXBETHANY",
+		UserName: "vtrycxbethany",
 	}
 
 	postData := url.Values{}

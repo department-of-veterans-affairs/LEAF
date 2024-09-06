@@ -320,7 +320,7 @@ switch ($action) {
                     break;
                 case 'mod_templates_reports':
                     $main->assign('body', $t_form->fetch('mod_templates_reports.tpl'));
-                    $tabText = 'Report Template Editor';
+                    $tabText = 'LEAF Programmer';
 
                     break;
                 case 'mod_templates_email':
@@ -347,7 +347,7 @@ switch ($action) {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
 
-        $tabText = 'System Administration';
+        $tabText = 'Update Database';
 
         break;
     case 'admin_sync_services':
@@ -364,7 +364,7 @@ switch ($action) {
             $main->assign('body', 'You require System Administrator level access to view this section.');
         }
 
-        $tabText = 'System Administration';
+        $tabText = 'Sync Services';
 
         break;
     case 'formLibrary':
@@ -386,7 +386,7 @@ switch ($action) {
                $main->assign('body', 'You require System Administrator level access to view this section.');
            }
 
-           $tabText = 'Form Library';
+           $tabText = 'LEAF Library';
 
            break;
     case 'importForm':
@@ -522,7 +522,7 @@ switch ($action) {
         $t_form->assign('APIroot', '../api/');
 
         $main->assign('body', $t_form->fetch(customTemplate('mod_account_updater.tpl')));
-        $tabText = 'Account Updater';
+        $tabText = 'New Account Updater';
         break;
     case 'access_matrix':
         $t_form = new Smarty;
@@ -641,7 +641,7 @@ $t_menu->assign('action', $action);
 $t_menu->assign('orgchartPath', $site_paths['orgchart_path']);
 $t_menu->assign('name', XSSHelpers::sanitizeHTML($login->getName()));
 $t_menu->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
-$o_menu = $t_menu->fetch('menu.tpl');
+$o_menu = $t_menu->fetch(customTemplate('menu.tpl'));
 $main->assign('menu', $o_menu);
 $tabText = $tabText == '' ? '' : $tabText . '&nbsp;';
 $main->assign('tabText', $tabText);
