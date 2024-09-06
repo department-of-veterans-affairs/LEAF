@@ -101,7 +101,8 @@ server {
         fastcgi_param CONTENT_TYPE $content_type;
         fastcgi_param CONTENT_LENGTH $content_length;
         #fixes timeouts
-        fastcgi_read_timeout 600;
+        fastcgi_read_timeout 3000;
+        fastcgi_send_timeout 3000;
         include fastcgi_params;
         gzip on;
 
@@ -124,7 +125,9 @@ server {
         fastcgi_param CONTENT_TYPE $content_type;
         fastcgi_param CONTENT_LENGTH $content_length;
         #fixes timeouts
-        fastcgi_read_timeout 600;
+        fastcgi_read_timeout 3000;
+        fastcgi_send_timeout 3000;
+        add_header x-apiserver "am on api server" always;
         include fastcgi_params;
         gzip on;
 
