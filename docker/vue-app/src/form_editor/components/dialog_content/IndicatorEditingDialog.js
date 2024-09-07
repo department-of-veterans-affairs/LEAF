@@ -9,6 +9,11 @@ export default {
         return {
             requiredDataProperties: ['indicator','indicatorID','parentID'],
             initialFocusElID: 'name',
+            trumbowygTitleClassMap: {
+                "Formatting": "trumbowyg-dropdown-formatting",
+                "Link": "trumbowyg-dropdown-link",
+                "Text color": "trumbowyg-dropdown-foreColor",
+            },
             showAdditionalOptions: false,
             showDetailedFormatInfo: false,
             formats: {
@@ -567,15 +572,84 @@ export default {
                 'padding': '1rem',
                 'resize': 'both',
             });
-            let trumbowygBtns = Array.from(document.querySelectorAll('.trumbowyg-button-pane button'));
-            trumbowygBtns.forEach(b => b.setAttribute('tabindex', '0'));
+            let trumbowygBtns = Array.from(document.querySelectorAll('.trumbowyg-box button'));
+
+            /** handle keyboard events.  trumbow uses mousedown so dispatch that event for enter or spacebar */
+            const handleTrumbowEvents = (event) => {
+                const btn = event.currentTarget;
+                const isDropdown = btn.classList.contains('trumbowyg-open-dropdown');
+                const isActive = btn.classList.contains('trumbowyg-active');
+
+                if(event?.which === 13 || event?.which === 32) {
+                    btn.dispatchEvent(new Event('mousedown'));
+                    event.preventDefault();
+                    if(isDropdown) {
+                        btn.setAttribute('aria-expanded', !isActive);
+                    }
+                }
+                if(event?.which === 9) { //fix menu tabbing and tabbing order
+                    const controllerBtn = document.querySelector(`button[aria-controls="${btn.parentNode.id}"]`);
+
+                    const btnWrapperSelector = isDropdown ?
+                        `id_${this.trumbowygTitleClassMap[btn.title]}` : `${btn.parentNode.id}`;
+
+                    if (btnWrapperSelector !== "") {
+                        const firstSubmenuBtn = document.querySelector(`#${btnWrapperSelector} button`);
+                        const lastSubmenuBtn = document.querySelector(`#${btnWrapperSelector} button:last-child`);
+                        //if tabbing forward, mv to the first button in the submenu.  prev default to stop another tab
+                        if(event.shiftKey === false && isDropdown && isActive && firstSubmenuBtn !== null) {
+                            firstSubmenuBtn.focus();
+                            event.preventDefault();
+                        }
+                        //end of submenu tab to next controller button and close the first one
+                        if(event.shiftKey === false && btn === lastSubmenuBtn) {
+                            const nextController = controllerBtn?.parentNode?.nextSibling || null;
+                            if(nextController !== null) {
+                                const nextBtn = nextController.querySelector('button');
+                                if(nextBtn !== null) {
+                                    nextBtn.focus();
+                                    event.preventDefault();
+                                    controllerBtn.dispatchEvent(new Event('mousedown'));
+                                    controllerBtn.setAttribute('aria-expanded', false);
+                                }
+                            }
+                        }
+                        //if tabbing backwards out of a submenu, mv to the controller.
+                        if(event.shiftKey === true && btn === firstSubmenuBtn && controllerBtn !== null) {
+                            controllerBtn.focus();
+                            event.preventDefault();
+                        }
+                    }
+                }
+                if (event.type === 'click' && isDropdown) { //only updating it to whatever trumbow set it to
+                    btn.setAttribute('aria-expanded', isActive);
+                }
+            }
+            //make buttons more accessible.  add navigable index and aria-controls.
+            trumbowygBtns.forEach(btn => {
+                btn.setAttribute('tabindex', '0');
+                ['keydown', 'click'].forEach(ev => btn.addEventListener(ev, handleTrumbowEvents));
+                if(btn.classList.contains('trumbowyg-open-dropdown')) {
+                    btn.setAttribute('aria-expanded', false);
+                    const controlClass = this.trumbowygTitleClassMap?.[btn.title] || null;
+                    if(controlClass !== null) {
+                        btn.setAttribute('aria-controls', 'id_' + controlClass);
+                        const elSubmenu = document.querySelector('.' + controlClass);
+                        if(elSubmenu !== null) {
+                            elSubmenu.setAttribute('id', 'id_' + controlClass);
+                        }
+                    }
+                }
+            });
             this.ariaTextEditorStatus = 'Using Advanced formatting.';
+            document.getElementById('rawNameEditor').focus();
         },
         rawNameEditorClick() {
             $('#advNameEditor').css('display', 'block');
             $('#rawNameEditor').css('display', 'none');
             $('#name').trumbowyg('destroy');
             this.ariaTextEditorStatus = 'Showing formatted code.'
+            document.getElementById('advNameEditor').focus();
         }
     },
     watch: {
