@@ -128,6 +128,8 @@ server {
         include fastcgi_params;
         gzip on;
 
+        add_header x-nolargequeries "transfer large queries to another server" always;
+
         # debuging
         add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
         add_header x-debug-path-info "$fastcgi_path_info" always;
