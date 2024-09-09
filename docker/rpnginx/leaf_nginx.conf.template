@@ -101,7 +101,7 @@ server {
           proxy_no_cache 1;
           proxy_cache_bypass 1;
 
-          #proxy_set_header Host host.docker.internal;
+          proxy_set_header Host host.docker.internal;
           proxy_redirect     off;
           proxy_set_header   X-Real-IP  $remote_addr;
           proxy_set_header   X-Scheme   $scheme;
