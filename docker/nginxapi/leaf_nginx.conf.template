@@ -128,7 +128,9 @@ server {
         fastcgi_read_timeout 3000;
         fastcgi_send_timeout 3000;
 
-        fastcgi_param X-APISERVER "am on api server";
+        # Give this info to php
+        fastcgi_param HTTP_X_APISERVER "am on api server";
+        # Give this info to the browser, need to see if this is actually needed or just a nice to have to see
         add_header x-apiserver "am on api server" always;
         include fastcgi_params;
         gzip on;

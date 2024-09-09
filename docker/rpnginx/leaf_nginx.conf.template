@@ -93,6 +93,12 @@ server {
         
        location ~ /api/(.*?)$ {
           proxy_pass http://backend_api_servers;
+          
+          #this is what is used to tell nginx that we want the next server
+          proxy_next_upstream error timeout invalid_header http_500 http_504;
+          proxy_next_upstream_tries 2;
+          proxy_intercept_errors on;
+
           #proxy_set_header Host host.docker.internal;
           proxy_redirect     off;
           proxy_set_header   X-Real-IP  $remote_addr;
