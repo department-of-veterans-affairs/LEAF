@@ -124,7 +124,7 @@ div [id^="LeafFormGrid"] table {
 <!-- importing this here, there are otherwise css override issues -->
 <link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
 
-<main>
+<div>
     <h2>New Account Updater</h2>
     <p style="max-width: 850px;">
     This utility will restore access for people who have been asigned a new Active Directory account.
@@ -196,7 +196,7 @@ div [id^="LeafFormGrid"] table {
             <h3><a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement any group updates</h3>
         </div>
     </div>
-</main>
+</div>
 
 
 <script>

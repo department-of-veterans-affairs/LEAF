@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="<!--{$css_path}-->/leaf.css" />
+<link rel="stylesheet" href="<!--{$app_css_path}-->/leaf.css" />
 
 <script>
 
@@ -36,7 +36,7 @@
 
 </script>
 
-<main id="main-content">
+<div id="main-content">
 
     <div class="grid-container">
 
@@ -46,17 +46,17 @@
                 <div>
                     <ul class="leaf-progress-bar">
                         <li class="current" id="step1">
-                            <h6>Select File</h6>
+                            <h6 role="presentation">Select File</h6>
                             <span class="left"></span>
                             <span class="right"></span>
                         </li>
                         <li class="next" id="step2">
-                            <h6>Org Chart Preview</h6>
+                            <h6 role="presentation">Org Chart Preview</h6>
                             <span class="left"></span>
                             <span class="right"></span>
                         </li>
                         <li class="next" id="step3">
-                            <h6>Import Complete</h6>
+                            <h6 role="presentation">Import Complete</h6>
                             <span class="left"></span>
                             <span class="right"></span>
                         </li>
@@ -93,30 +93,30 @@
                 <div class="grid-col-12">
                     <h2>Step 2: Org Chart Preview</h2>
                     <p>Select the columns from the import that map to Employee Name, Supervisor Name, and Position Title. Click Import Data to complete the import.</p>
-                    <table class="usa-table">
+                    <table class="usa-table" role="presentation">
                         <thead>
                             <tr>
-                            <th scope="col">Employee Name</th>
-                            <th scope="col">Supervisor Name</th>
-                            <th scope="col">Position Title</th>
+                            <th><label for="employee_name_select">Employee Name</label></th>
+                            <th><label for="supervisor_name_select">Supervisor Name</label></th>
+                            <th><label for="position_title_select">Position Title</label></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>
-                                    <select class="usa-select">
+                                    <select id="employee_name_select" class="usa-select">
                                         <option value>HR Smart Column Name 1</option>
                                         <option value>HR Smart Column Name 1 alt</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="usa-select">
+                                    <select id="supervisor_name_select" class="usa-select">
                                         <option value>HR Smart Column Name 2</option>
                                         <option value>HR Smart Column Name 2 alt</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="usa-select">
+                                    <select id="position_title_select" class="usa-select">
                                         <option value>HR Smart Column Name 3</option>
                                         <option value>HR Smart Column Name 3 alt</option>
                                     </select>
@@ -128,7 +128,7 @@
             </div>
             <div class="grid-row leaf-buttonBar">
                 <div class="leaf-displayInlineBlock leaf-width100pct">
-                    <button class="usa-button usa-button--base usa-button--big" id="step2backBtn">&lt; Back</button>
+                    <button class="usa-button usa-button--base usa-button--big" id="step2backBtn" aria-label="Back">&lt; Back</button>
                     <button class="usa-button usa-button--big" id="step2btn">Import Data</button>
                 </div>
             </div>
@@ -183,4 +183,4 @@
 
     </div>
 
-</main>
+</div>

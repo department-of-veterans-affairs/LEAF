@@ -57,12 +57,12 @@
     }
 </style>
 
-<main>
+<div>
     <div id="no_code_home" style="display: flex; flex-wrap: wrap;">
         <div id="custom_menu_wrapper"></div>
         <!--{include file=$tpl_search is_service_chief=$is_service_chief is_admin=$is_admin empUID=$empUID userID=$userID}-->
     </div>
-</main>
+</div>
 
 <script>
     const dyniconsPath = "../libs/dynicons/svg/";
