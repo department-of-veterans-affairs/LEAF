@@ -113,7 +113,7 @@ server {
     }
 
     location ~ /api/(.*?)$ {
-        fastcgi_pass ${LEAF_POD}:9000;
+        fastcgi_pass leaf-fpm-api-1:9000;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
         fastcgi_split_path_info ^(.+\/api\/)(.*)$;

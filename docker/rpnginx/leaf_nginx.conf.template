@@ -8,7 +8,7 @@ server {
 
 upstream backend_api_servers{
   server leaf-nginx-1:8081;
-  server 127.0.0.1:8088 backup;
+  server leaf-nginx-api-1:8088 backup;
 }
 
 server {
