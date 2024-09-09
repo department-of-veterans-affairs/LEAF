@@ -9,7 +9,7 @@
 server {
     #listen ${HTTPS_PORT} ssl http2 default_server;
     #listen [::]:${HTTPS_PORT} ssl http2 default_server;
-    listen ${HTTP_PORT} default_server;
+    listen 8081 default_server;
 
     #ssl_certificate /etc/ssl/certs/leaf.pem;
     #ssl_certificate_key /etc/ssl/certs/leaf.key;
