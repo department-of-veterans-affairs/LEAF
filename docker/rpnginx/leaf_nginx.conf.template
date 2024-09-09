@@ -98,6 +98,8 @@ server {
           proxy_next_upstream error timeout invalid_header http_500 http_502 http_504;
           proxy_next_upstream_tries 2;
           proxy_intercept_errors on;
+          proxy_no_cache 1;
+          proxy_cache_bypass 1;
 
           #proxy_set_header Host host.docker.internal;
           proxy_redirect     off;
