@@ -568,6 +568,7 @@ export default {
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
                 'min-height': '100px',
                 'max-width': '695px',
+                'min-width': '506px',
                 'height': '100px',
                 'padding': '1rem',
                 'resize': 'both',
