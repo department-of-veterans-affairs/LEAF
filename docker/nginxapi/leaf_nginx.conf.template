@@ -127,6 +127,8 @@ server {
         #fixes timeouts
         fastcgi_read_timeout 3000;
         fastcgi_send_timeout 3000;
+
+        fastcgi_param X-APISERVER "am on api server";
         add_header x-apiserver "am on api server" always;
         include fastcgi_params;
         gzip on;

@@ -49,8 +49,6 @@ server {
         include fastcgi_params;
         gzip on;
 
-add_header x-nolargequeries "transfer large queries to another server" always;
-
     }
 
     # static files browser caching
@@ -129,6 +127,7 @@ add_header x-nolargequeries "transfer large queries to another server" always;
         #fixes timeouts
         fastcgi_read_timeout 600;
 
+        fastcgi_param X-NOLARGEQUERIES "transfer large queries to another server";
         add_header x-nolargequeries "transfer large queries to another server" always;
 
         include fastcgi_params;
