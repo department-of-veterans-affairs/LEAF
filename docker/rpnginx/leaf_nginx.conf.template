@@ -57,13 +57,13 @@ server {
             #open_file_cache_errors off;
             #the magic sauce to bust a cache
             etag on;
-            proxy_pass http://${NGINX_POD}:8080;
+            proxy_pass http://${NGINX_POD}:8081;
         }
 	
         location / { 
             
-          proxy_pass http://${NGINX_POD}:8080;
-          #proxy_set_header Host leaf.va.gov;
+          proxy_pass http://${NGINX_POD}:8081;
+          proxy_set_header Host host.docker.internal;
           proxy_redirect     off;
           proxy_set_header   X-Real-IP  $remote_addr;
           proxy_set_header   X-Scheme   $scheme;
