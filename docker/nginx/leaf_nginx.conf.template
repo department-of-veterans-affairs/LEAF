@@ -125,10 +125,13 @@ server {
         fastcgi_param CONTENT_LENGTH $content_length;
         #fixes timeouts
         fastcgi_read_timeout 600;
+
+        add_header x-nolargequeries "transfer large queries to another server" always;
+
         include fastcgi_params;
         gzip on;
 
-        add_header x-nolargequeries "transfer large queries to another server" always;
+        
 
         # debuging
         add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
