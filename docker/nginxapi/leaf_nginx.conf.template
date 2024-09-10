@@ -9,7 +9,7 @@
 server {
     #listen ${HTTPS_PORT} ssl http2 default_server;
     #listen [::]:${HTTPS_PORT} ssl http2 default_server;
-    listen 8088 default_server;
+    listen ${HTTP_PORT} default_server;
 
     #ssl_certificate /etc/ssl/certs/leaf.pem;
     #ssl_certificate_key /etc/ssl/certs/leaf.key;
@@ -37,9 +37,15 @@ server {
 
     }
 
+    location /health-check-api {
+        access_log off;
+        return 200 "ok api";
+        add_header Content-Type text/plain;
+    }
+    
     location ~ \.php$ {
         try_files $uri $uri/ /index.php =404;
-        fastcgi_pass ${LEAF_POD}:9000;
+        fastcgi_pass ${LEAF_API_POD}:9000;
         fastcgi_index index.php;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
@@ -89,7 +95,7 @@ server {
 
     location ~ /api/v2/(.*?)$ {
         set $api_directory /var/www/html/app/Api/v2;
-        fastcgi_pass php-fpm:9000;
+        fastcgi_pass ${LEAF_API_POD}:9000;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
         fastcgi_split_path_info ^(.+\/api\/v2\/)(.*)$;
@@ -113,7 +119,7 @@ server {
     }
 
     location ~ /api/(.*?)$ {
-        fastcgi_pass leaf-fpm-api-1:9000;
+        fastcgi_pass ${LEAF_API_POD}:9000;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
         fastcgi_split_path_info ^(.+\/api\/)(.*)$;
@@ -141,35 +147,4 @@ server {
         add_header x-debug-args-info "$args" always;
     }
 
-    location /selenium-tests {
-        resolver 127.0.0.11;
-        set $selen_pod ${SEL_POD}:9000;
-        fastcgi_pass $selen_pod;
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
-        fastcgi_split_path_info ^(.+\/selenium-tests\/)(.*)$;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME /app/index.php;
-        fastcgi_param PATH_INFO $fastcgi_path_info;
-        fastcgi_param QUERY_STRING $query_string;
-        fastcgi_param REQUEST_METHOD $request_method;
-        fastcgi_param CONTENT_TYPE $content_type;
-        fastcgi_param CONTENT_LENGTH $content_length;
-        
-        #fixes timeouts
-        fastcgi_read_timeout 600;
-        include fastcgi_params;
-        gzip on;
-
-        # debuging
-        add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
-        add_header x-debug-path-info "$fastcgi_path_info" always;
-        add_header x-debug-args-info "$args" always;
-    }
-
-
-
-    #location /adminer {
-    #    proxy_pass ${LEAF}:8080;
-    #}
 }

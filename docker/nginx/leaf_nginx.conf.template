@@ -9,7 +9,7 @@
 server {
     #listen ${HTTPS_PORT} ssl http2 default_server;
     #listen [::]:${HTTPS_PORT} ssl http2 default_server;
-    listen 8081 default_server;
+    listen ${HTTP_PORT} default_server;
 
     #ssl_certificate /etc/ssl/certs/leaf.pem;
     #ssl_certificate_key /etc/ssl/certs/leaf.key;
@@ -35,6 +35,12 @@ server {
 
         rewrite ^/(.*)/libs/dynicons(.*)$ /$1/dynicons;# permanent;
 
+    }
+
+    location /health-check-server {
+        access_log off;
+        return 200 "ok server";
+        add_header Content-Type text/plain;
     }
 
     location ~ \.php$ {

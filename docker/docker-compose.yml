@@ -64,8 +64,8 @@ services:
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
         volumes_from:
             - php-fpm
-        ports:
-            - 8081:${HTTP_PORT}
+        #ports:
+        #    - 8081:${HTTP_PORT}
         #    - 443:${HTTPS_PORT}
         depends_on:
             - php-fpm
@@ -112,16 +112,16 @@ services:
             - ./env_files/nginx_local.env
         build:
             context: ../
-            dockerfile: docker/nginx/leaf_nginx.dockerfile
+            dockerfile: docker/nginxapi/leaf_nginx.dockerfile
         volumes:
             - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
             - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
             - ./nginx/src:/var/www/html
-            - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
+            - ./nginxapi/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
         volumes_from:
             - php-fpm
-        ports:
-            - 8088:${HTTP_PORT}
+        #ports:
+        #    - 8088:${HTTP_PORT}
         #    - 443:${HTTPS_PORT}
         depends_on:
             - php-fpm
