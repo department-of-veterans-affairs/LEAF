@@ -25,7 +25,7 @@ function pime($accuracy){
 
 $a = 0;
 $ut = 100000;
-$jj = 99;
+$jj = 9999;
 for($i = 0; $i < $ut; $i++) {
     $a += $i;
     echo "a = $a \n";
@@ -36,9 +36,8 @@ for($i = 0; $i < $ut; $i++) {
     for($j = 0; $j < $jj; $j++) {
         $db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
         $res = $db->prepared_query("SELECT * FROM email_templates", array());
-        echo "toga \n";
+        echo "toga $i - $j\n";
         $db->__destruct();
-        //$db->prepared_query("flush tables", array());
     }
     echo "sql test done number: $a \n";
 }
