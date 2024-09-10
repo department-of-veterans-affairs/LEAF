@@ -7,8 +7,9 @@ server {
 }
 
 upstream backend_api_servers{
-  server ${NGINX_POD}:8081;
-  server ${NGINX_API_POD}:8088 backup;
+  server ${NGINX_API_POD}:8088 ;
+  server ${NGINX_POD}:8081 backup;
+  
 }
 
 server {
