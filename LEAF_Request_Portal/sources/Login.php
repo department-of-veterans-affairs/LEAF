@@ -82,6 +82,33 @@ class Login
         return $this->empUID;
     }
 
+    /**
+     * queries for information used for portal data.metadata, action_history, notes and records.userMetadata fields
+     * @param string $id - user identifier. could be an empUID (numeric string from data.data field) or a userName
+     * @param bool $isEmpID - explicitly specifies identifier type for where clause
+     * */
+    public function getInfoForUserMetadata(string $id, bool $isEmpID = true): ?string
+    {
+        $idType = $isEmpID === true ? 'empUID' : 'userName';
+        $metaVars = array(':id' => $id);
+        $metaSQL = "SELECT `firstName`, `lastName`, `middleName`, `data` AS `email`, `userName`, `empUID` FROM `employee`
+            JOIN `employee_data` USING (`empUID`)
+            WHERE `employee`.`deleted`=0 AND`employee_data`.`indicatorID`=6 AND `employee`.`{$idType}` = :id";
+
+        $resMetadata = $this->db->prepared_query($metaSQL, $metaVars);
+        $userMetadata = isset($resMetadata[0]) ?
+            json_encode(
+                array(
+                    'firstName' => $resMetadata[0]['firstName'],
+                    'lastName' => $resMetadata[0]['lastName'],
+                    'middleName' => $resMetadata[0]['middleName'],
+                    'email' => $resMetadata[0]['email'],
+                    'userName' => $resMetadata[0]['userName'],
+                )
+            ) : null;
+        return $userMetadata;
+    }
+
     public function setBaseDir($baseDir)
     {
         $this->baseDir = "/{$baseDir}";

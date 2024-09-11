@@ -393,14 +393,18 @@ class Form
             }
         }
 
-        $vars = array(':date' => time(),
-                      ':serviceID' => $serviceID,
-                      ':userID' => $userID,
-                      ':title' => XSSHelpers::sanitizer($_POST['title']),
-                      ':priority' => $_POST['priority'], );
+        $userMetadata  = $this->login->getInfoForUserMetadata($userID, false);
+        $vars = array(
+            ':date' => time(),
+            ':serviceID' => $serviceID,
+            ':userID' => $userID,
+            ':title' => XSSHelpers::sanitizer($_POST['title']),
+            ':priority' => $_POST['priority'],
+            ':userMetadata' => $userMetadata,
+        );
 
-        $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority)
-                                    VALUES (:date, :serviceID, :userID, :title, :priority)', $vars);
+        $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority, userMetadata)
+                                    VALUES (:date, :serviceID, :userID, :title, :priority, :userMetadata)', $vars);
 
         $recordID = $this->db->getLastInsertID(); // note this doesn't work with all DBs (eg. with transactions, MySQL should be ok)
 
@@ -801,7 +805,7 @@ class Form
             $res = $this->db->prepared_query($sql, $vars);
 
             $actionUserID = $this->login->getUserID();
-            $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+            $userMetadata  = $this->login->getInfoForUserMetadata($actionUserID, false);
 
             // actionID 4 = delete
             $vars = array(':recordID' => $recordID,
@@ -1138,7 +1142,7 @@ class Form
         }
         $userMetadata = null;
         if($res[0]['format'] === 'orgchart_employee' && is_numeric($_POST[$key])) {
-            $userMetadata = $this->getFormWorkflow()->getInfoForUserMetadata($_POST[$key], true);
+            $userMetadata = $this->login->getInfoForUserMetadata($_POST[$key], true);
         }
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
@@ -1409,7 +1413,7 @@ class Form
                 $res = $this->db->prepared_query($sql, $vars);
 
                 $actionUserID = $this->login->getUserID();
-                $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+                $userMetadata  = $this->login->getInfoForUserMetadata($actionUserID, false);
 
                 // write history data, actionID 6 = filled dependency
                 $vars = array(':recordID' => $recordID,
@@ -2877,10 +2881,14 @@ class Form
 
         if ($this->login->checkGroup(1))
         {
-            $vars = array(':recordID' => (int)$recordID,
-                          ':userID' => $userID, );
+            $newInitiatorMetadata = $this->login->getInfoForUserMetadata($userID, false);
+            $vars = array(
+                ':recordID' => (int)$recordID,
+                ':userID' => $userID,
+                ':userMetadata' => $newInitiatorMetadata,
+            );
             $res = $this->db->prepared_query('UPDATE records SET
-                                            	userID=:userID
+                                            	userID=:userID, userMetadata=:userMetadata
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
@@ -2890,7 +2898,7 @@ class Form
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
 
             $actionUserID = $this->login->getUserID();
-            $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+            $actionUserMetadata  = $this->login->getInfoForUserMetadata($actionUserID, false);
 
             $comment = "Initiator changed to {$name}";
             $vars2 = array(
@@ -2901,7 +2909,7 @@ class Form
                 ':actionTypeID' => 8,
                 ':time' => time(),
                 ':comment' => $comment,
-                ':userMetadata' => $userMetadata,
+                ':userMetadata' => $actionUserMetadata,
             );
             $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
                                             VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)', $vars2);
