@@ -10,7 +10,7 @@ function positionSelector(containerID) {
   this.selection = "";
 
   this.containerID = containerID;
-  this.prefixID = "posSel" + Math.floor(Math.random() * 1000) + "_";
+  this.prefixID = this.makePrefixID();
   this.timer = 0;
   this.q = "";
   this.isBusy = 1;
@@ -25,6 +25,12 @@ function positionSelector(containerID) {
   this.currRequest = null;
 
   this.numResults = 0;
+}
+
+positionSelector.prototype.makePrefixID = function () {
+  const id = "posSel" + Math.floor(Math.random() * 1000) + "_";
+  const el = document.getElementById(id + 'result');
+  return (el !== null) ? this.makePrefixID() : id;
 }
 
 positionSelector.prototype.initialize = function () {

@@ -7,7 +7,7 @@
             <div id="progressArea" style="height: 34px; background-color: #feffd2; padding: 4px; border-bottom: 1px solid black">
                 <div id="progressControl" style="float: left">Form completion progress: <div tabIndex="0" id="progressBar" title="form progress bar" style="height: 14px; margin: 2px; border: 1px solid black; text-align: center"><div style="width: 300px; line-height: 120%; float: left; font-size: 12px" id="progressLabel"></div></div><div style="line-height: 30%"><!-- ie7 workaround --></div>
                 </div>
-                <div style="float: right"><button id="nextQuestion" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" /> Next Question</button></div>
+                <div style="float: right"><button id="nextQuestion" type="button" class="buttonNorm nextQuestion" disabled><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" /> Next Question</button></div>
                 <br style="clear: both" />
             </div>
             <div>
@@ -21,7 +21,7 @@
             </div>
             <div id="progressArea2" style="height: 34px; background-color: #feffd2; padding: 4px; border-top: 1px solid black">
                 <div style="float: left"><button id="prevQuestion" type="button" class="buttonNorm prevQuestion"><img src="dynicons/?img=go-previous.svg&amp;w=22" alt="" /> Previous Question</button></div>
-                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion"><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" /> Next Question</button></div>
+                <div style="float: right"><button id="nextQuestion2" type="button" class="buttonNorm nextQuestion" disabled><img src="dynicons/?img=go-next.svg&amp;w=22" alt="" /> Next Question</button></div>
             </div>
         </div>
         <br />
@@ -255,6 +255,9 @@ $(function() {
             updateProgress(true);
         });
         form.dialog().clickSave();
+    });
+    document.querySelectorAll('.nextQuestion').forEach(button => {
+        button.removeAttribute('disabled');
     });
 
     $('.prevQuestion').on('click', function() {

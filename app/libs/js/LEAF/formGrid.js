@@ -42,8 +42,8 @@ var LeafFormGrid = function (containerID, options) {
     <span id="table_sorting_info" role="status" style="position:absolute;top: -40rem"
       aria-label="" aria-live="assertive">
     </span>
-    <table id="${prefixID}table" class="leaf_grid" aria-label="Search results, press escape to use table navigation options from a header cell.">
-      <thead id="${prefixID}thead" style="position: sticky; top: 0px"></thead>
+    <table id="${prefixID}table" class="leaf_grid" aria-label="Search results">
+      <thead id="${prefixID}thead" style="position: sticky; top: 0px" aria-label="Press escape to use table navigation options from a header cell."></thead>
       <tbody id="${prefixID}tbody"></tbody>
       <tfoot id="${prefixID}tfoot" class="leaf_grid-loading"></tfoot>
     </table>`
@@ -60,6 +60,23 @@ var LeafFormGrid = function (containerID, options) {
   function hideIndex() {
     showIndex = false;
   }
+
+  /**
+   *
+   * @param {string} input content to remove potential html from.
+   * @returns
+   */
+  function scrubHTML(input) {
+    if(input == undefined) {
+        return '';
+    }
+    let t = new DOMParser().parseFromString(input, 'text/html').body;
+    while(input != t.textContent) {
+        return scrubHTML(t.textContent);
+    }
+    return t.textContent;
+  }
+
 
   /**
    * @param values (required) object of cells and names to generate grid
@@ -252,15 +269,17 @@ var LeafFormGrid = function (containerID, options) {
         continue;
       }
       var align = headers[i].align != undefined ? headers[i].align : "center";
-      domThead.insertAdjacentHTML('beforeend', `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0"  style="text-align:${align}" aria-label="Sort by ${headers[i].name}">
-        ${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>
-        </th>`);
+      domThead.insertAdjacentHTML('beforeend', `<th scope="col" id="${prefixID}header_${headers[i].indicatorID}" tabindex="0" style="text-align:${align}">` +
+        `${headers[i].name}<span id="${prefixID}header_${headers[i].indicatorID}_sort" class="${prefixID}sort"></span>` +
+      `</th>`);
 
       if (headers[i].sortable == undefined || headers[i].sortable == true) {
         $("#" + prefixID + "header_" + headers[i].indicatorID).css(
           "cursor",
           "pointer"
         );
+        const txt = scrubHTML(headers[i].name).replace(/['"]+/g, "").trim();
+        $(`#${prefixID}header_${headers[i].indicatorID}`).attr('aria-label', `Sort by ${txt}`);
         $("#" + prefixID + "header_" + headers[i].indicatorID).on(
           "click keydown",
           null,
@@ -372,7 +391,7 @@ var LeafFormGrid = function (containerID, options) {
     let headerText = '';
     for(let i in headers) {
       if(headers[i].indicatorID == key) {
-        headerText = headers[i].name;
+        headerText = scrubHTML(headers[i].name).replace(/['"]+/g, "").trim();
         break;
       }
     }
