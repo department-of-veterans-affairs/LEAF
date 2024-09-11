@@ -10,13 +10,13 @@
         
         <aside class="leaf-buttonBar" role="complementary">
             <div class="leaf-float-right">
-                <button id="simplebutton_cancelchange" class="usa-button usa-button--outline" style="display: none;">
+                <button id="simplebutton_cancelchange" class="usa-button usa-button--outline" style="display: none;" disabled>
                     Cancel
                 </button>
             </div>
 
             <div class="leaf-float-left">
-                <button id="simplebutton_save" class="usa-button" style="display: none">
+                <button id="simplebutton_save" class="usa-button" style="display: none" disabled>
                     Save
                 </button>
             </div>

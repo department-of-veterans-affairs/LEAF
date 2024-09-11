@@ -13,3 +13,8 @@ Debug tests:
 ```
 npx playwright test --ui
 ```
+
+View trace:
+```
+npx playwright show-trace [path to trace.zip]
+```
