@@ -26,7 +26,6 @@ main {
     min-height: 100vh;
 }
 .sync_link {
-    text-decoration: none;
     color: #049;
     font-weight: bold;
 }
@@ -45,8 +44,8 @@ label input {
     cursor: pointer;
 }
 table th {
-    background-color: #252f3e;
-    color: white;
+    background-color: #252f3e !important;
+    color: white !important;
     font-weight: normal;
     font-size: 1rem;
     padding: 0.25rem;
@@ -125,7 +124,7 @@ div [id^="LeafFormGrid"] table {
 <!-- importing this here, there are otherwise css override issues -->
 <link rel="stylesheet" type="text/css" href="<!--{$orgchartPath}-->/css/employeeSelector.css" />
 
-<main>
+<div>
     <h2>New Account Updater</h2>
     <p style="max-width: 850px;">
     This utility will restore access for people who have been asigned a new Active Directory account.
@@ -197,7 +196,7 @@ div [id^="LeafFormGrid"] table {
             <h3><a href="./?a=admin_sync_services" target="_blank" class="sync_link">Sync Services</a> to implement any group updates</h3>
         </div>
     </div>
-</main>
+</div>
 
 
 <script>
@@ -423,8 +422,8 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
                             }
                         },
                         {
-                            name: `<label for="confirm_group_updates">Select All Groups
-                                <input type="checkbox" class="confirm_group_updates" onclick="checkAll(event)" checked />
+                            name: `<label for='confirm_group_updates'>Select All Groups
+                                <input type='checkbox' class='confirm_group_updates' onclick='checkAll(event)' checked />
                             </label>`,
                             indicatorID: 'addToGroupOptions',
                             editable: false,
@@ -506,8 +505,8 @@ function searchPositionsOldAccount(accountAndTaskInfo, queue) {
                             }
                         },
                         {
-                            name: `<label for="confirm_position_updates">Select All Positions
-                                <input type="checkbox" class="confirm_position_updates" onclick="checkAll(event)" checked />
+                            name: `<label for='confirm_position_updates'>Select All Positions
+                                <input type='checkbox' class='confirm_position_updates' onclick='checkAll(event)' checked />
                             </label>`,
                             sortable: false,
                             indicatorID: 'addToPositionOptions',
@@ -923,8 +922,8 @@ function findAssociatedRequests(empSel, empSelNew) {
                     }
                 },
                 {
-                    name: `<label for="confirm_indicator_updates">Select All Requests
-                        <input type="checkbox" class="confirm_indicator_updates" onclick="checkAll(event)" checked />
+                    name: `<label for='confirm_indicator_updates'>Select All Requests
+                        <input type='checkbox' class='confirm_indicator_updates' onclick='checkAll(event)' checked />
                     </label>`,
                     sortable: false,
                     indicatorID: 'updateIndicatorOptions',

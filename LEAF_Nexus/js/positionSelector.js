@@ -210,7 +210,7 @@ positionSelector.prototype.search = function () {
                 t.prefixID +
                 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=2>No results for &quot;<span id="' +
                 t.prefixID +
-                'emp0_message" style="color: red"></span>&quot;</td></tr>'
+                'emp0_message" style="color: #c00;"></span>&quot;</td></tr>'
             );
             $("#" + t.prefixID + "emp0_message").text(txt);
             setTimeout(function () {

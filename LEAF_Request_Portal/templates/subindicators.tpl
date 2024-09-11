@@ -197,7 +197,7 @@
             <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'radio' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
-                <span id="radio_options_<!--{$indicator.indicatorID|strip_tags}-->">
+                <fieldset id="radio_options_<!--{$indicator.indicatorID|strip_tags}-->" style="border:0;margin:0;padding:0;">
                 <!--{counter assign='ctr' print=false}-->
             <!--{foreach from=$indicator.options item=option}-->
                 <!--{if is_array($option)}-->
@@ -229,10 +229,10 @@
                 <!--{/if}-->
                 <!--{counter print=false}-->
             <!--{/foreach}-->
-                </span>
+                </fieldset>
                 <script>
                 $(function() {
-                    //508 modal fix for radio format questions.
+                    //508 jQuery modal fix for radio format questions.
                     //Tab works differently for this format and would take user outside the modal if last on the form
                     const tabfix = (ev) => {
                         const elDialog = document.querySelector('div[id^="LeafForm"][id$="_xhrDialog"]');

@@ -1,7 +1,7 @@
 <div id="vue-formeditor-app" v-cloak>
-    <main v-if="ajaxResponseMessage===''">
+    <div id="vue_app_main" v-if="ajaxResponseMessage===''">
         <router-view></router-view>
-    </main>
+    </div>
     <response-message v-else :message="ajaxResponseMessage"></response-message>
 </div>
 

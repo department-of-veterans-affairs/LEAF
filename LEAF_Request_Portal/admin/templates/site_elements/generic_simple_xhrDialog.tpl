@@ -1,4 +1,4 @@
-<div id="simplexhrDialog" role="dialog" class="leaf-dialog-container">
+<div id="simplexhrDialog" class="leaf-dialog-container">
     
     <div role="document">
         
@@ -6,7 +6,7 @@
             Loading...<img src="../images/largespinner.gif" alt="" />
         </div>
 
-        <main id="simplexhr" class="leaf-dialog-content" role="main"></main>
+        <main id="simplexhr" class="leaf-dialog-content" role="main" aria-live="polite"></main>
         
         <aside class="leaf-buttonBar" role="complementary">
             <div class="leaf-float-right">
