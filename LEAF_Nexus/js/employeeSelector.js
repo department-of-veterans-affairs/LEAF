@@ -11,7 +11,7 @@ function employeeSelector(containerID) {
   this.selection = "";
 
   this.containerID = containerID;
-  this.prefixID = "empSel" + Math.floor(Math.random() * 1000) + "_";
+  this.prefixID = this.makePrefixID();
   this.timer = 0;
   this.q = "";
   this.isBusy = 1;
@@ -28,6 +28,12 @@ function employeeSelector(containerID) {
   this.emailHref = false; // create link for email
 
   this.numResults = 0;
+}
+
+employeeSelector.prototype.makePrefixID = function () {
+  const id = "empSel" + Math.floor(Math.random() * 1000) + "_";
+  const el = document.getElementById(id + 'result');
+  return (el !== null) ? this.makePrefixID() : id;
 }
 
 employeeSelector.prototype.initialize = function () {

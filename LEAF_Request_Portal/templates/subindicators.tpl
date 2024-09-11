@@ -960,7 +960,8 @@
                         resolve($.ajax({
                             type: 'GET',
                             url: "<!--{$orgchartPath}-->/js/groupSelector.js",
-                            dataType: 'script'
+                            dataType: 'script',
+                            async: false,
                         }).then(function() {
                             return initGroupSelector();
                         }));
@@ -1050,7 +1051,8 @@
                         resolve($.ajax({
                             type: 'GET',
                             url: "<!--{$orgchartPath}-->/js/positionSelector.js",
-                            dataType: 'script'
+                            dataType: 'script',
+                            async: false,
                         }).then(function() {
                             return initPositionSelector();
                         }));
@@ -1198,7 +1200,8 @@
                         resolve($.ajax({
                             type: 'GET',
                             url: "<!--{$orgchartPath}-->/js/nationalEmployeeSelector.js",
-                            dataType: 'script'
+                            dataType: 'script',
+                            async: false,
                         }).then(function() {
                             return initEmployeeSelector();
                         }));

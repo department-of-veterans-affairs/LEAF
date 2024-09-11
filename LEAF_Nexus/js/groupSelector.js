@@ -10,7 +10,7 @@ function groupSelector(containerID) {
   this.selection = "";
 
   this.containerID = containerID;
-  this.prefixID = "grpSel" + Math.floor(Math.random() * 1000) + "_";
+  this.prefixID = this.makePrefixID();
   this.timer = 0;
   this.q = "";
   this.isBusy = 1;
@@ -29,6 +29,12 @@ function groupSelector(containerID) {
   this.jsonResponse = null;
 
   this.numResults = 0;
+}
+
+groupSelector.prototype.makePrefixID = function () {
+  const id = "grpSel" + Math.floor(Math.random() * 1000) + "_";
+  const el = document.getElementById(id + 'result');
+  return (el !== null) ? this.makePrefixID() : id;
 }
 
 groupSelector.prototype.initialize = function () {
