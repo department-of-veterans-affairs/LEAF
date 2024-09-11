@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -89,6 +90,123 @@ func disableEmployee(postUrl string) error {
 
 	return nil
 
+}
+
+func TestEmployee_AvoidPhantomIncrements(t *testing.T) {
+	// as the test name suggests this test is to prevent the auto increment in
+	//  the employees table from incrementing without an actual insert. This
+	// test will reveal when a condition exists where an insert causes the
+	// increment to increase but a unique key forces the ON DUPLICATE UPDATE
+	// to update an existing row.
+
+	// This test needs to run before TestEmployee_CheckNationalEmployee as they
+	// both run the refreshOrgchartEmployees.php. This test expects there to be
+	// a difference between National and Local orgcharts and that may not be true
+	// once the refreshOrgchartEmployees.php runs.
+
+	// add new employee getting the empUID
+	m := Employee{
+		FirstName: "testing",
+		LastName:  "users",
+		UserName:  "testingusers",
+	}
+
+	n := Employee{
+		FirstName: "testing",
+		LastName:  "users",
+		UserName:  "TESTINGUSERS",
+	}
+
+	employeeId, err := postEmployee(NationalOrgchartURL+`api/employee/new`, m)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if employeeId == "" {
+		t.Error("no user id returned")
+	}
+
+	var empUID1 string
+
+	empUID1, err = postEmployee(RootOrgchartURL+`api/employee/new`, n)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if empUID1 == "" {
+		t.Error("no user id returned")
+	}
+
+	// ensure userNames are spelled the same but with different cases in
+	// national and local
+	var localEmployeeKey string
+	var natEmployeeKey string
+
+	natEmpoyeeRes, err := getEmployee(NationalOrgchartURL + `api/employee/search?q=username:testingusers`)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	for key := range natEmpoyeeRes {
+		natEmployeeKey = key
+		break
+	}
+
+	localEmployeeRes, _ := getEmployee(RootOrgchartURL + `api/employee/search?q=username:testingusers`)
+	for key := range localEmployeeRes {
+		localEmployeeKey = key
+		break
+	}
+
+	local := localEmployeeRes[localEmployeeKey].UserName
+	nat := natEmpoyeeRes[natEmployeeKey].UserName
+
+	if (!(nat != local && strings.ToLower(nat) == strings.ToLower(local))) {
+		t.Errorf("userNames should match except case - local = %v, national = %v", local, nat)
+	}
+
+	// run refresh Orgchart
+	err = updateEmployees(RootOrgchartURL + `scripts/refreshOrgchartEmployees.php`)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	var empUID2 string
+
+	// add new user getting empUID
+	o := Employee{
+		FirstName: "testing",
+		LastName:  "users",
+		UserName:  "testingusers2",
+	}
+
+	empUID2, err = postEmployee(RootOrgchartURL+`api/employee/new`, o)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if empUID2 == "" {
+		t.Error("no user id returned")
+	}
+
+	var id1 int
+	var id2 int
+
+	id1, err1 := strconv.Atoi(empUID1)
+	id2, err2 := strconv.Atoi(empUID2)
+
+	if err1 != nil || err2 != nil {
+		t.Error("empUID is not a number")
+	}
+
+	if  id2 != (id1 + 1) {
+		t.Error("unexpected auto increment value")
+	}
 }
 
 func TestEmployee_CheckNationalEmployee(t *testing.T) {

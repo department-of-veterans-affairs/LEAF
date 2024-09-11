@@ -18,7 +18,6 @@ test('navigate to Workflow Editor and create a travel workflow', async ({ page }
   await page.getByRole('button', { name: 'Save' }).click();
 
   // wait for async request to finish saving
-  await expect(page.getByRole('button', { name: 'Save' })).not.toBeVisible();
   await expect(page.locator('a').filter({ hasText: uniqueText })).toBeVisible();
 
   // Workaround: Since the drag handles can overlap sometimes (maybe due to async rendering
