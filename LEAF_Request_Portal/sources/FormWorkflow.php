@@ -1000,7 +1000,8 @@ class FormWorkflow
                 $this->db->prepared_query($strSQL2, $vars2);
 
                 $actionUserID = $this->login->getUserID();
-                $userMetadata  = $this->login->getInfoForUserMetadata($actionUserID, false);
+                $employee = new \Orgchart\Employee($this->oc_db, $this->login);
+                $userMetadata  = $employee->getInfoForUserMetadata($actionUserID, false);
 
                 // don't write duplicate log entries
                 $vars2 = array(
@@ -1824,7 +1825,8 @@ class FormWorkflow
         }
 
         $actionUserID = $this->login->getUserID();
-        $userMetadata  = $this->login->getInfoForUserMetadata($actionUserID, false);
+        $employee = new \Orgchart\Employee($this->oc_db, $this->login);
+        $userMetadata  = $employee->getInfoForUserMetadata($actionUserID, false);
 
         // write log entry
         $vars2 = array(

@@ -393,7 +393,7 @@ class Form
             }
         }
 
-        $userMetadata  = $this->login->getInfoForUserMetadata($userID, false);
+        $userMetadata  = $this->employee->getInfoForUserMetadata($userID, false);
         $vars = array(
             ':date' => time(),
             ':serviceID' => $serviceID,
@@ -805,7 +805,7 @@ class Form
             $res = $this->db->prepared_query($sql, $vars);
 
             $actionUserID = $this->login->getUserID();
-            $userMetadata  = $this->login->getInfoForUserMetadata($actionUserID, false);
+            $userMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
 
             // actionID 4 = delete
             $vars = array(':recordID' => $recordID,
@@ -1142,7 +1142,7 @@ class Form
         }
         $userMetadata = null;
         if($res[0]['format'] === 'orgchart_employee' && is_numeric($_POST[$key])) {
-            $userMetadata = $this->login->getInfoForUserMetadata($_POST[$key], true);
+            $userMetadata = $this->employee->getInfoForUserMetadata($_POST[$key], true);
         }
         $vars = array(':recordID' => $recordID,
                       ':indicatorID' => $key,
@@ -1413,7 +1413,7 @@ class Form
                 $res = $this->db->prepared_query($sql, $vars);
 
                 $actionUserID = $this->login->getUserID();
-                $userMetadata  = $this->login->getInfoForUserMetadata($actionUserID, false);
+                $userMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
 
                 // write history data, actionID 6 = filled dependency
                 $vars = array(':recordID' => $recordID,
@@ -2881,7 +2881,7 @@ class Form
 
         if ($this->login->checkGroup(1))
         {
-            $newInitiatorMetadata = $this->login->getInfoForUserMetadata($userID, false);
+            $newInitiatorMetadata = $this->employee->getInfoForUserMetadata($userID, false);
             $vars = array(
                 ':recordID' => (int)$recordID,
                 ':userID' => $userID,
@@ -2898,7 +2898,7 @@ class Form
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
 
             $actionUserID = $this->login->getUserID();
-            $actionUserMetadata  = $this->login->getInfoForUserMetadata($actionUserID, false);
+            $actionUserMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
 
             $comment = "Initiator changed to {$name}";
             $vars2 = array(

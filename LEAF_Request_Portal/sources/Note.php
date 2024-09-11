@@ -115,10 +115,8 @@ class Note
                 $field_list[] = $key;
                 $value_list[] = ':'.$key;
             }
-            $userMetadata = $this->login->getInfoForUserMetadata($db_fields["userID"], false);
-            $sql_vars[':userMetadata'] = $userMetadata;
 
-            $sql = 'INSERT INTO notes (' . implode(',', $field_list) . ', userMetadata) VALUES (' . implode(',', $value_list) . ', :userMetadata)';
+            $sql = 'INSERT INTO notes (' . implode(',', $field_list) . ') VALUES (' . implode(',', $value_list) . ')';
 
             $this->db->prepared_query($sql, $sql_vars);
 
