@@ -1,3 +1,0 @@
-#Content Security Policy
-add_header Content-Security-Policy "default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; base-uri 'self'; \
-form-action 'self'; connect-src 'self'; frame-ancestors 'none';"

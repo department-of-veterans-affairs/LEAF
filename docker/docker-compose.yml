@@ -78,7 +78,7 @@ services:
             - ./env_files/globals_leaf20_local.env
         build:
             context: ../
-            dockerfile: docker/php/leaf_monlith.dockerfile
+            dockerfile: docker/phpapi/leaf_monlith.dockerfile
             args:
                 - BUILD_UID=${BUILD_UID}
                 - SMTP_HOST=smtp4dev
@@ -125,6 +125,7 @@ services:
         #    - 443:${HTTPS_PORT}
         depends_on:
             - php-fpm
+            - nginx
         networks:
             - leaf
     rpnginx:
@@ -143,8 +144,6 @@ services:
         ports:
             - 80:${HTTP_PORT}
             - 443:${HTTPS_PORT}
-        depends_on:
-            - php-fpm
         networks:
             - leaf
     
@@ -194,6 +193,7 @@ services:
         volumes:
             - "../x-test/api-test-helper/:/app"
             - "../x-test/API-tests/:/API-tests"
+            - "../x-test/loadrandomdata/:/loadrandomdata"
         ports:
             - "8000:8000"
         env_file:

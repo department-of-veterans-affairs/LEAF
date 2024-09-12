@@ -1,5 +1,5 @@
 FROM php:8.2-fpm 
-COPY docker/php/php-dev.ini "$PHP_INI_DIR/php.ini"
+COPY docker/phpapi/php-dev.ini "$PHP_INI_DIR/php.ini"
 RUN docker-php-ext-install pdo pdo_mysql
 
 RUN apt-get update && apt-get install -y \
@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
 	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
 	&& docker-php-ext-install -j$(nproc) gd
 
-COPY docker/php/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
-COPY docker/php/conf.d/* /usr/local/etc/php/conf.d/
+COPY docker/phpapi/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY docker/phpapi/conf.d/* /usr/local/etc/php/conf.d/
 
 # Stuff that might need to get into the base image
 WORKDIR /var/www/php-logs
