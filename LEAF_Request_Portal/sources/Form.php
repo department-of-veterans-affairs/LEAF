@@ -1140,25 +1140,28 @@ class Form
         if (!$this->hasWriteAccess($recordID, 0, $key)) {
             return 0;
         }
-        $userMetadata = null;
+        $orgchartEmpMetadata = null;
         if($res[0]['format'] === 'orgchart_employee' && is_numeric($_POST[$key])) {
-            $userMetadata = $this->employee->getInfoForUserMetadata($_POST[$key], true);
+            $orgchartEmpMetadata = $this->employee->getInfoForUserMetadata($_POST[$key], true);
         }
-        $vars = array(':recordID' => $recordID,
-                      ':indicatorID' => $key,
-                      ':series' => $series,
-                      ':data' => trim($_POST[$key]),
-                      ':metadata' => $userMetadata,
-                      ':timestamp' => time(),
-                      ':userID' => $this->login->getUserID(), );
+        $vars = array(
+            ':recordID' => $recordID,
+            ':indicatorID' => $key,
+            ':series' => $series,
+            ':data' => trim($_POST[$key]),
+            ':metadata' => $orgchartEmpMetadata,
+            ':timestamp' => time(),
+            ':userID' => $this->login->getUserID(),
+        );
 
         $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, metadata, timestamp, userID)
                                             VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)
                                             ON DUPLICATE KEY UPDATE data=:data, metadata=:metadata, timestamp=:timestamp, userID=:userID', $vars);
 
         if (!$duplicate) {
-            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)', $vars);
+            $vars[':userDisplay'] = $this->login->getName();
+            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID, userDisplay)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID, :userDisplay)', $vars);
         }
         /*  signatures (not yet implemented)
         $vars = array(':recordID' => $recordID,
