@@ -11,7 +11,7 @@ $(document).on('input','input[name="title"][type="text"]', function(e) {
     {
         $(this).val(prevTitle);
         if ( !$('span#titleSizeWarning').length ) {
-            $('input[name="title"][type="text"]').after('<span id="titleSizeWarning" style="color:red;"><br/>'+maxTitleLength+' character maximum</span>');       
+            $('input[name="title"][type="text"]').after('<span id="titleSizeWarning" style="color:#c00;"><br/>'+maxTitleLength+' character maximum</span>');
         }
     }
     else

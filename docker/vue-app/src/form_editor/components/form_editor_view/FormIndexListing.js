@@ -18,7 +18,6 @@ export default {
         'shortIndicatorNameStripped',
         'clearListItem',
         'addToListTracker',
-        'focusedIndicatorID',
         'previewMode',
         'startDrag',
         'onDragEnter',

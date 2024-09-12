@@ -825,6 +825,7 @@
                 'genericDialogbutton_cancelchange');
             dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
             let progressbar = $('#progressbar').progressbar();
+            $('#progressbar').attr('aria-label', `Searching for records`);
             $('#progressbar').progressbar('option', 'max', Object.keys(sites).length);
             let queue = new intervalQueue();
             queue.setWorker(site => {

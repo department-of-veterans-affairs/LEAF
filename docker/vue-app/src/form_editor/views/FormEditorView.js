@@ -33,7 +33,7 @@ export default {
             hasCollaborators: false,
             fileManagerTextFiles: [],
             ariaStatusFormDisplay: '',
-            clickToMoveID: null,
+            focusAfterFormUpdateSelector: null,
         }
     },
     components: {
@@ -84,22 +84,6 @@ export default {
     mounted() {
         window.addEventListener("scroll", this.onScroll);
     },
-    updated() {
-        if(this.clickToMoveID !== null) {
-            const btn = document.getElementById(this.clickToMoveID);
-            if (btn !== null) {
-                btn.focus();
-                const idArr = this.clickToMoveID.split('_');
-                if(idArr?.[3] && idArr?.[4]) {
-                    this.ariaStatusFormDisplay = `moved indicator ${idArr[4]} ${idArr[3]}`;
-                    setTimeout(() => {
-                        this.ariaStatusFormDisplay = '';
-                    });
-                }
-                this.clickToMoveID = null;
-            }
-        }
-    },
     beforeUnmount() {
         window.removeEventListener("scroll", this.onScroll);
     },
@@ -131,7 +115,6 @@ export default {
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
             clickToMoveListItem: this.clickToMoveListItem,
-            handleNameClick: this.handleNameClick,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey,
             checkFormCollaborators: this.checkFormCollaborators
@@ -344,6 +327,7 @@ export default {
          * @param {boolean} setFormLoading show loader
          */
         getFormByCategoryID(catID = '', setFormLoading = false) {
+            this.ariaStatusFormDisplay = '';
             if (catID === '') {
                 this.focusedFormID = '';
                 this.focusedFormTree = [];
@@ -374,24 +358,58 @@ export default {
                             name:'category',
                             query,
                         });
-
-                        if(this.focusedFormID === catID) {
+                        const sameForm = this.focusedFormID === catID;
+                        if(sameForm) {
                             this.updateKey += 1; //ensures that the form editor view updates if the form ID does not change
                         }
                         this.focusedFormID = catID || '';
                         this.focusedFormTree = res || [];
                         this.appIsLoadingForm = false;
 
-                        //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
-                        //loading is false at this point, so not sure why clear is needed but btn is null otherwise
-                        if(this.internalID !== null && this.focusedFormID !== this.internalID) {
-                            setTimeout(() => {
+                        setTimeout(() => {
+                            //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
+                            if(this.internalID !== null && this.focusedFormID !== this.internalID) {
                                 const elBtnInternal = document.getElementById('internal_form_' + this.internalID);
                                 if(elBtnInternal !== null) {
                                     elBtnInternal.dispatchEvent(new Event("click"));
                                 }
-                            });
-                        }
+                            }
+                            //if a focus after form update ID is stored and it's the same form, try to move focus to that el
+                            if(sameForm) {
+                                const selector = this.focusAfterFormUpdateSelector;
+                                if(selector !== null) {
+                                    let aria = '';
+                                    switch(true) {
+                                        case selector.startsWith(`#click_to_move`):
+                                            const idArr = selector.split('_');
+                                            if(idArr?.[3] && idArr?.[4]) {
+                                                aria = `moved indicator ${idArr[4]} ${idArr[3]}`;
+                                            }
+                                            break;
+                                        case selector.startsWith(`#edit_indicator`):
+                                            aria = `edited indicator`;
+                                            break;
+                                        case selector.startsWith(`#programmer`):
+                                            aria = `edited programmer`;
+                                            break;
+                                        case selector.startsWith(`ul#`):
+                                            aria = `created new question`;
+                                            break;
+                                        default:
+                                        break;
+                                    }
+                                    this.ariaStatusFormDisplay = aria;
+                                    const btn = document.querySelector(selector);
+                                    if (btn !== null && !this.showFormDialog) {
+                                        btn.focus();
+                                        this.focusAfterFormUpdateSelector = null;
+                                    }
+                                }
+
+                            } else {
+                                this.focusAfterFormUpdateSelector = null
+                            }
+                        });
                     },
                     error: (err)=> console.log(err)
                 });
@@ -470,6 +488,7 @@ export default {
          * @param {number} indicatorID
          */
         editAdvancedOptions(indicatorID = 0) {
+            this.focusAfterFormUpdateSelector = '#' + document?.activeElement?.id || null;
             this.getIndicatorByID(indicatorID).then(indicator => {
                 this.openAdvancedOptionsDialog(indicator);
             }).catch(err => console.log('error getting indicator information', err));
@@ -478,13 +497,17 @@ export default {
          * @param {number|null} parentID of the new subquestion.  null for new sections.
          */
         newQuestion(parentID = null) {
+            const parentUl = parentID === null ? `ul#base_drop_area_${this.focusedFormID}` : `ul#drop_area_parent_${parentID}`;
+            this.focusAfterFormUpdateSelector = `${parentUl} > li:last-child button[id^="edit_indicator"]`;
             this.openIndicatorEditingDialog(null, parentID, {});
+            this.focusedIndicatorID = null;
         },
         /**
          * get information about the indicator and open indicator editing modal
          * @param {number} indicatorID 
          */
         editQuestion(indicatorID = 0) {
+            this.focusAfterFormUpdateSelector = '#' + document?.activeElement?.id || null;
             this.getIndicatorByID(indicatorID).then(indicator => {
                 this.focusedIndicatorID = indicatorID;
                 const parentID = indicator?.parentID || null;
@@ -543,7 +566,8 @@ export default {
         clickToMoveListItem(event = {}, indID = 0, moveup = false) {
             if(!this.previewMode) {
                 if (event?.keyCode === 32) event.preventDefault();
-                this.clickToMoveID = `click_to_move_${moveup ? 'up' : 'down'}_${indID}`;
+                this.ariaStatusFormDisplay = '';
+                this.focusAfterFormUpdateSelector = '#' + event?.target?.id || '';
                 const parentEl = event?.currentTarget?.closest('ul');
                 const elToMove = document.getElementById(`index_listing_${indID}`);
                 const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
@@ -726,23 +750,6 @@ export default {
             }
         },
         /**
-         * @param {number} indicatorID focuses the indicator and changes mode to edit if in preview mode.
-         */
-        handleNameClick(categoryID = '', indicatorID = null) {
-            if (this.previewMode) {
-                this.previewMode = false;
-                this.focusedIndicatorID = indicatorID;
-                //previews show staples, so check if the form needs to change to the staple
-                if(categoryID !== this.focusedFormID) {
-                    this.getFormByCategoryID(categoryID, true);
-                } else {
-                    this.updateKey += 1;
-                }
-            } else {
-                this.editQuestion(indicatorID);
-            }
-        },
-        /**
          * @param {string} categoryID 
          * @param {number} len 
          * @returns shortened form name
@@ -835,14 +842,14 @@ export default {
                     <div role="status" style="position:absolute;opacity:0" aria-live="assertive" :aria-label="ariaStatusFormDisplay"></div>
                     <button type="button" id="indicator_toolbar_toggle" class="btn-general preview"
                         @click.stop="toggleToolbars()">
-                        <span role="img" aria="" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>
+                        <span role="img" aria-hidden="true" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>
                         {{previewMode ? 'Edit this Form' : 'Preview this Form'}}
                     </button>
                     <template v-if="!previewMode">
                         <button type="button" class="btn-general"
                             :id="'addInternalUse_' + mainFormID"
                             @click="openNewFormDialog(mainFormID)">
-                            <span role="img" aria="" alt="">➕&nbsp;</span>
+                            <span role="img" aria-hidden="true" alt="">➕&nbsp;</span>
                             Add Internal-Use
                         </button>
                         <!-- staple options if main form is not itself a staple -->
@@ -857,7 +864,7 @@ export default {
                     <ul v-if="!previewMode && currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID" :class="{preview: previewMode}">
                         <template v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID">
                             <li :class="{selected: form.categoryID === focusedFormID}">
-                                <button type="button" :id="'main_form_' + form.categoryID"
+                                <button type="button" :id="'main_form_' + form.categoryID" :title="form.categoryID === focusedFormID ? 'selected form' : ''"
                                     @click="form.stapledFormIDs.length > 0 && previewMode && form.categoryID === queryID ?
                                         getPreviewTree(form.categoryID) : getFormByCategoryID(form.categoryID)"
                                     class="layout-listitem"

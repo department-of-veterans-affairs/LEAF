@@ -81,6 +81,6 @@ var LeafSecureReviewDialog = function(domId) {
         ]);
         gridNonSensitive.sort('fieldName', 'desc');
         gridNonSensitive.renderBody();
-        $('#'+ prefixID +'nonSensitiveFields').prepend('<br /><h2 style="color: red">Please verify the remaining fields are not sensitive.</h2>');
+        $('#'+ prefixID +'nonSensitiveFields').prepend('<br /><h2 style="color:#c00;">Please verify the remaining fields are not sensitive.</h2>');
     }
 };

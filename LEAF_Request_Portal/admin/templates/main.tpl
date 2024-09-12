@@ -85,14 +85,14 @@
         </div>
     </header>
 
-    <div id="body">
+    <main id="body">
         {if $status != ''}
             <div class="lf-alert">{$status}</div>
         {/if}
         <div id="bodyarea" class="default-container">
             {$body}
         </div>
-    </div>
+    </main>
 
     <footer class="usa-footer leaf-footer noprint" id="footer" {if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
         <a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>

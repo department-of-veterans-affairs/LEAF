@@ -64,11 +64,6 @@ dialogController.prototype.clearDialog = function() {
 
 dialogController.prototype.setTitle = function(title) {
 	$('#' + this.containerID).dialog('option', 'title', title);
-	//508: update aria-labelledby attr so JAWS screenreaders announce dialog by its title.
-	//remove describedby from parent because it can cause entire modal to be read upon interaction with buttons.
-	const parentLabelledBy = $('#' + this.containerID).parent().attr('aria-labelledby');
-	$('#' + this.containerID).parent().removeAttr('aria-describedby');
-	$('#' + this.containerID).attr('aria-labelledby', parentLabelledBy);
 };
 
 dialogController.prototype.hide = function() {
@@ -196,14 +191,18 @@ dialogController.prototype.setSaveHandler = function(funct) {
     this.dialogControllerXhrEvent = $('#' + this.btnSaveID).on('click', function() {
         if(t.isValid(true) == 1 && t.isComplete(true) == 1) {
         	funct();
-			document.querySelector('#' + this.btnSaveID).setAttribute('disabled', '');
+			if(document.querySelector('#' + this.btnSaveID) != undefined) {
+				document.querySelector('#' + this.btnSaveID).setAttribute('disabled', '');
+			}
         	$('#' + t.btnSaveID).off();
         }
         else {
         	t.indicateIdle();
         }
     });
-	document.querySelector('#' + this.btnSaveID).removeAttribute('disabled');
+	if(document.querySelector('#' + this.btnSaveID) != undefined) {
+		document.querySelector('#' + this.btnSaveID).removeAttribute('disabled');
+	}
 };
 
 dialogController.prototype.setCancelHandler = function(funct) {

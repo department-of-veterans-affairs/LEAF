@@ -19,7 +19,7 @@
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
 
-    <main class="main-content">
+    <div class="main-content">
 
         <h2>Service Chiefs</h2>
 
@@ -29,7 +29,7 @@
 
         <div class="leaf-row-space"></div>
 
-    </main>
+    </div>
 
     <!-- RIGHT SIDE NAV -->
     <!--{assign var=right_nav_content value="

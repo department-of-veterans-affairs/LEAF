@@ -48,7 +48,7 @@
     "}-->
     <!--{include file="partial_layouts/left_uag_nav.tpl" contentLeft="$left_uag_content"}-->
 
-    <main class="main-content">
+    <div class="main-content">
 
         <h2><a href="../admin" class="leaf-crumb-link">Admin</a><i class="fas fa-caret-right leaf-crumb-caret"></i>User access</h2>
 
@@ -75,7 +75,7 @@
                 <div id="groupList" class="leaf-displayFlexRow"></div>
             </div>
         </div>
-    </main>
+    </div>
 </div>
 <!--Loading Modal-->
 <!--{include file="<!--{$app_libs}-->/smarty/loading_spinner.tpl" title='User Groups'}-->
