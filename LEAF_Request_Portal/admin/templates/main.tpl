@@ -8,9 +8,9 @@
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {if $tabText != ''}
-        <title>{$tabText} - {$title} | {$city}</title>
+        <title>{$tabText} - {$title}, {$city}</title>
     {else}
-        <title>{$title} | {$city}</title>
+        <title>{$title}, {$city}</title>
     {/if}
     <style type="text/css" media="screen">
         @import "{$app_js_path}/jquery/css/dcvamc/jquery-ui.custom.min.css";
@@ -85,14 +85,14 @@
         </div>
     </header>
 
-    <div id="body">
+    <main id="body">
         {if $status != ''}
             <div class="lf-alert">{$status}</div>
         {/if}
         <div id="bodyarea" class="default-container">
             {$body}
         </div>
-    </div>
+    </main>
 
     <footer class="usa-footer leaf-footer noprint" id="footer" {if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
         <a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>

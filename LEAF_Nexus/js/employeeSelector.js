@@ -11,7 +11,7 @@ function employeeSelector(containerID) {
   this.selection = "";
 
   this.containerID = containerID;
-  this.prefixID = "empSel" + Math.floor(Math.random() * 1000) + "_";
+  this.prefixID = this.makePrefixID();
   this.timer = 0;
   this.q = "";
   this.isBusy = 1;
@@ -30,6 +30,12 @@ function employeeSelector(containerID) {
   this.numResults = 0;
 }
 
+employeeSelector.prototype.makePrefixID = function () {
+  const id = "empSel" + Math.floor(Math.random() * 1000) + "_";
+  const el = document.getElementById(id + 'result');
+  return (el !== null) ? this.makePrefixID() : id;
+}
+
 employeeSelector.prototype.initialize = function () {
   var t = this;
   $("#" + this.containerID).html(
@@ -40,12 +46,12 @@ employeeSelector.prototype.initialize = function () {
       this.prefixID +
       'icon" src="' +
       t.rootPath +
-      'dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="search" />\
+      'dynicons/?img=search.svg&w=16" class="employeeSelectorIcon" alt="" />\
 			<img id="' +
       this.prefixID +
       'iconBusy" src="' +
       t.rootPath +
-      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="busy" /></div>\
+      'images/indicator.gif" style="display: none" class="employeeSelectorIcon" alt="" /></div>\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="' +
       this.prefixID +
       'status" role="status"></span>\
@@ -54,7 +60,7 @@ employeeSelector.prototype.initialize = function () {
       'input" type="search" class="employeeSelectorInput" aria-label="search input"/></div>\
 			<div id="' +
       this.prefixID +
-      'result" aria-label="search results"></div>'
+      'result" role="status" aria-label="search results"></div>'
   );
 
   $("#" + this.prefixID + "input").on("keydown", function (e) {
@@ -220,7 +226,7 @@ employeeSelector.prototype.search = function () {
                 t.prefixID +
                 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' +
                 t.prefixID +
-                'emp0_message" style="color: red"></span>&quot;</td></tr>'
+                'emp0_message" style="color: #c00;"></span>&quot;</td></tr>'
             );
             $("#" + t.prefixID + "emp0_message").text(txt);
             setTimeout(function () {
@@ -309,6 +315,7 @@ employeeSelector.prototype.search = function () {
                 : "&nbsp;" + response[i].middleName + ".";
             linkText =
               response[i].lastName + ", " + response[i].firstName + midName;
+            const ariaLabel = linkText;
             if (t.selectLink != null) {
               linkText =
                 '<a href="' +
@@ -323,7 +330,7 @@ employeeSelector.prototype.search = function () {
             if (t.outputStyle == "micro") {
               $("#" + t.prefixID + "result_table").append(
                 '\
-								<tr tabindex="0" id="' +
+								<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
                   t.prefixID +
                   "emp" +
                   response[i].empUID +
@@ -348,7 +355,7 @@ employeeSelector.prototype.search = function () {
               if (response[i].deleted > 0) {
                 $("#" + t.prefixID + "result_table").append(
                   '\
-									<tr tabindex="0" id="' +
+									<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +
@@ -378,7 +385,7 @@ employeeSelector.prototype.search = function () {
               } else {
                 $("#" + t.prefixID + "result_table").append(
                   '\
-									<tr tabindex="0" id="' +
+									<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +

@@ -235,6 +235,14 @@
         $('#progressContainer').slideUp();
         $('#loading').slideUp();
         $('.inbox').fadeIn();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let ariaStatus = '';
+        ariaStatus += (urlParams.get('organizeByRole') != null) ? 'Organized by role, ' : 'Organized by form type, ';
+        ariaStatus += (urlParams.get('adminView') != null) ? 'Admin view.' : 'Non-admin view.';
+        setTimeout(() => {
+            $('#inbox_view_selection_status').attr('aria-label', ariaStatus);
+        }, 400); //default jQuery slideUp and fadeIn duration
     }
 
     function triggerGenericLoadError() {
@@ -411,7 +419,8 @@
     			</div>`);
         }
         $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${depID}" class="depContainer">
-            <button type="button" id="depLabel${hash}_${depID}" class="depInbox" style="background-color: ${site.backgroundColor}">
+            <button type="button" id="depLabel${hash}_${depID}" class="depInbox" style="background-color: ${site.backgroundColor}"
+                aria-controls="depList${hash}_${depID}" aria-expanded="false">
                 <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${categoryName}</span>
                 <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
             </button>
@@ -420,8 +429,10 @@
             buildInboxGridView(res, depID, categoryName, recordIDs, site, hash, categoryIDs);
             if ($('#depList' + hash + '_' + depID).css('display') == 'none') {
                 $('#depList' + hash + '_' + depID).css('display', 'inline');
+                $('#depLabel' + hash + '_' + depID).attr('aria-expanded', 'true');
             } else {
                 $('#depList' + hash + '_' + depID).css('display', 'none');
+                $('#depLabel' + hash + '_' + depID).attr('aria-expanded', 'false');
             }
         });
     }
@@ -565,7 +576,8 @@
     			</div>`);
         }
         $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}" class="depContainer">
-            <button type="button" id="depLabel${hash}_${stepID}" class="depInbox" style="background-color: ${site.backgroundColor}">
+            <button type="button" id="depLabel${hash}_${stepID}" class="depInbox" style="background-color: ${site.backgroundColor}"
+                aria-controls="depList${hash}_${stepID}" aria-expanded="false">
                 <div>
                     <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
                 </div>
@@ -576,8 +588,10 @@
             buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);
             if ($('#depList' + hash + '_' + stepID).css('display') == 'none') {
                 $('#depList' + hash + '_' + stepID).css('display', 'inline');
+                $('#depLabel' + hash + '_' + stepID).attr('aria-expanded', 'true');
             } else {
                 $('#depList' + hash + '_' + stepID).css('display', 'none');
+                $('#depLabel' + hash + '_' + stepID).attr('aria-expanded', 'false');
             }
         });
     }
@@ -811,6 +825,7 @@
                 'genericDialogbutton_cancelchange');
             dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
             let progressbar = $('#progressbar').progressbar();
+            $('#progressbar').attr('aria-label', `Searching for records`);
             $('#progressbar').progressbar('option', 'max', Object.keys(sites).length);
             let queue = new intervalQueue();
             queue.setWorker(site => {
@@ -854,6 +869,10 @@
 
             $('#btn_expandAll').on('click', function() {
                 $('.depInbox').click();
+                $('#inbox_view_selection_status').attr('aria-label', 'toggled all inbox items');
+                setTimeout(() => {
+                    $('#inbox_view_selection_status').attr('aria-label', '');
+                });
             });
             
             $('#btn_adminView').on('click', function() {
@@ -938,7 +957,7 @@
         <div id="genericDialogbutton_save" style="display: none"></div>
         <div id="genericDialogloadIndicator"
             style="visibility: hidden; z-index: 9000; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background-color: #f2f5f7; padding: 16px; height: 400px; width: 526px">
-            <img src="images/largespinner.gif" alt="loading..." />
+            <img src="images/largespinner.gif" alt="" />
         </div>
         <div id="genericDialogxhr" style="width: 540px; height: 420px; padding: 8px; overflow: auto; font-size: 12px">
         </div>
@@ -955,6 +974,7 @@
 
 <div id="viewport" style="visibility: hidden">
 <div style="display:flex;gap:0.25rem;justify-content:flex-end;">
+    <span id="inbox_view_selection_status" style="position:absolute;top:-40rem" role="status" aria-live="assertive" aria-label=""></span>
     <button type="button" id="btn_expandAll" class="buttonNorm">Toggle sections</button>
     <button type="button" id="btn_organize" class="buttonNorm">Organize by Roles</button>
     <button type="button" id="btn_adminView" class="buttonNorm" style="<!--{if !$empMembership['groupID'][1]}-->display: none<!--{/if}-->">View as Admin</button>

@@ -388,7 +388,7 @@
      * Purpose: Create new custom event
      * @events Custom Event List
      */
-    function newEvent(events) {
+    function newEvent(events, params = null) {
         $('.workflowStepInfo').css('display', 'none');
         dialog.clear();
         dialog.setTitle('Create Event');
@@ -456,9 +456,27 @@
                     url: '../api/workflow/events',
                     data: ajaxData,
                     cache: false
-                }).done(function() {
-                    alert('Event was successfully created.');
-                    listEvents();
+                }).done(function(res) {
+                    if(+res !== 1) {
+                        alert(res);
+                        listEvents();
+
+                    } else {
+                        if(params !== null) {
+                            const { stepID, action } = params;
+                            const postEventData = { eventID: eventName, CSRFToken: CSRFToken };
+                            const workflowID = currentWorkflow;
+                            postEvent(stepID, action, workflowID, postEventData, function(res) {
+                                if (+res === 1) {
+                                    dialog.hide();
+                                    loadWorkflow(workflowID, null, params);
+                                }
+                            });
+                        } else {
+                            listEvents();
+                        }
+                    }
+
                 }).fail(function(error) {
                     alert(error);
                 });
@@ -499,10 +517,11 @@
     /**
      * Purpose: Dialog for adding events
      * @workdflowID Current Workflow ID for email reminder
-     * @stepID Step ID holding the action for email reminder
-     * @actionType Action type for email reminder
+     * @params jsplumb params including action, stepID, nextStepID
      */
-    function addEventDialog(workflowID, stepID, actionType) {
+    function addEventDialog(workflowID, params) {
+        const actionType = params.action;
+        const stepID = params.stepID;
         $('.workflowStepInfo').css('display', 'none');
         dialog.setTitle('Add Event');
         let eventDialogContent =
@@ -520,7 +539,7 @@
                 dialog.indicateIdle();
                 $('#addEventDialog').html(addEventContent(res));
                 $('#createEvent').on('click', function() {
-                    newEvent(res);
+                    newEvent(res, params);
                 });
                 $('#eventID').chosen({disable_search_threshold: 5});
                 $('#xhrDialog').css('overflow', 'visible');
@@ -532,7 +551,7 @@
                                     CSRFToken: CSRFToken};
 
                     postEvent(stepID, actionType, workflowID, ajaxData, function (res) {
-                        loadWorkflow(workflowID);
+                        loadWorkflow(workflowID, null, params);
                     });
 
                     dialog.hide();
@@ -681,7 +700,10 @@
                             url: '../api/workflow/editEvent/_' + event,
                             data: ajaxData,
                             cache: false
-                        }).done(function() {
+                        }).done(function(res) {
+                            if(+res !== 1) {
+                                alert(res);
+                            }
                             listEvents();
                         }).fail(function(error) {
                             alert(error);
@@ -1172,34 +1194,32 @@
         return `
             <table style="margin-bottom:2rem;">
                 <tr>
-                    <td><span id="action_label">Action <span style="color: #c00000">*Required</span></span></td>
+                    <td><label for="actionText" id="action_label">Action <span style="color: #c00000">*Required</span></label></td>
                     <td>
-                        <input id="actionText" type="text" maxlength="50" style="border: 1px solid red"
-                        value="${action?.actionText || ''}" aria-labelledby="action_label"/>
+                        <input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="${action?.actionText || ''}" />
                     </td>
                     <td>eg: Approve</td>
                 </tr>
                 <tr>
-                    <td><span id="action_past_tense_label">Action Past Tense <span style="color: #c00000">*Required</span></span></td>
+                    <td><label for="actionTextPasttense" id="action_past_tense_label">
+                        Action Past Tense <span style="color: #c00000">*Required</span>
+                        </label></td>
                     <td>
-                        <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red"
-                        value="${action?.actionTextPasttense || ''}" aria-labelledby="action_past_tense_label"/>
+                        <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red" value="${action?.actionTextPasttense || ''}" />
                     </td>
                     <td>eg: Approved</td>
                 </tr>
                 <tr>
-                    <td><span id="choose_icon_label">Icon</span></td>
+                    <td><label for="actionIcon" id="choose_icon_label">Icon</label></td>
                     <td>
-                        <input id="actionIcon" type="text" maxlength="50"
-                        value="${action?.actionIcon || ''}" aria-labelledby="choose_icon_label"/>
+                        <input id="actionIcon" type="text" maxlength="50" value="${action?.actionIcon || ''}" />
                     </td>
                     <td>eg: go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></td>
                 </tr>
                 <tr>
-                    <td><span id="action_sort_label">Button Order</span></td>
+                    <td><label for="actionSortNumber" id="action_sort_label">Button Order</label></td>
                     <td>
-                        <input id="actionSortNumber" type="number" min="-128" max="127"
-                        value="${action?.sort || 0}" aria-labelledby="action_sort_label"/>
+                        <input id="actionSortNumber" type="number" min="-128" max="127" value="${action?.sort || 0}" />
                     </td>
                     <td>lower numbers appear first</td>
                 </tr>
@@ -1524,7 +1544,7 @@
             }
             output += `<li style="padding-top: 8px">
                 <button type="button" class="buttonNorm" id="event_${currentWorkflow}_${stepID}_${params.action}"
-                    onclick="addEventDialog('${currentWorkflow}', '${stepID}', '${params.action}');">Add Event
+                    onclick="addEventDialog('${currentWorkflow}', params);">Add Event
                 </button>
             </li>`;
             output += '</ul></div>';
@@ -1535,8 +1555,8 @@
             $('#stepInfo_' + stepID).show('slide', 200, () => modalSetup(stepID));
         });
         $('#stepInfo_' + stepID).css({
-            left: evt.pageX || 200 + 'px',
-            top: evt.pageY || 300 + 'px'
+            left: (evt?.pageX || 200) + 'px',
+            top: (evt?.pageY || 300) + 'px'
         });
     }
 
@@ -2188,13 +2208,14 @@
                 }
             },
             error: (err) => console.log(err),
-            cache: false
+            cache: false,
+            async: false
         });
     }
 
     var currentWorkflow = 0;
 
-    function loadWorkflow(workflowID, stepID = null) {
+    function loadWorkflow(workflowID, stepID = null, params = null) {
         currentWorkflow = workflowID;
         jsPlumb.reset();
         endPoints = [];
@@ -2297,6 +2318,16 @@
                 $('#workflow').css('height', 300 + maxY + 'px');
                 drawRoutes(workflowID, stepID);
                 buildStepList(steps);
+                if(params !== null) {
+                    const elAction = document.querySelector(`div[class*="action-${params?.stepID}-${params?.action}-"]`);
+                    let position = { pageX: 200, pageY: 300 };
+                    if(elAction !== null) {
+                        const rect = elAction.getBoundingClientRect();
+                        position.pageX = Number.parseInt(rect?.left || 200);
+                        position.pageY = Number.parseInt(rect?.bottom || 300);
+                    }
+                    showActionInfo(params, position);
+                }
 
                 if(window.location.href.indexOf(`?a=workflow&workflowID=${workflowID}`) == -1) {
                     window.history.pushState('', '', `?a=workflow&workflowID=${workflowID}`);
@@ -2363,8 +2394,11 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 let workflowID = urlParams.get('workflowID');
                 if (workflowID == undefined) {
-                    workflowDescription = firstWorkflowDescription;
                     workflowID = firstWorkflowID;
+                    workflowDescription = firstWorkflowDescription;
+                } else {
+                    const rec = (res || []).find(wf => +wf.workflowID === +workflowID);
+                    workflowDescription = rec?.description || '';
                 }
                 loadWorkflow(workflowID);
             },
@@ -2500,7 +2534,7 @@
         $('.workflowStepInfo').css('display', 'none');
         dialog.setContent(
             '<label for="workflow_rename">Workflow Name: </label><input type="text" id="workflow_rename" name="workflow_rename" value="' + workflowDescription +
-            '" tabindex="0"/>');
+            '"/>');
         dialog.setTitle('Rename Workflow');
         dialog.setSaveHandler(function() {
             $.ajax({
@@ -2979,10 +3013,11 @@
     }
 
     /**
+     * add a routing event to a specific workflow action
      * @param int stepID
      * @param string action
      * @param int workflowID
-     * @param string event
+     * @param object event, eg { eventID: 'event id', CSRFToken: 'token' }
      * @param closure callback
      *
      * @return array

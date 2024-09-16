@@ -10,6 +10,7 @@ export default {
             elModal: null,
             elBackground: null,
             elClose: null,
+            lastFocus: null,
         }
     },
     inject: [
@@ -19,18 +20,18 @@ export default {
         'dialogButtonText',
         'lastModalTab'
     ],
+    created(){
+        this.lastFocus = document.activeElement || null;
+    },
     mounted() {
         this.elBody = document.querySelector('body');
         this.elModal = document.getElementById(this.modalElementID);
+        this.elModal.style.left = window.scrollX + window.innerWidth/2 - this.elModal.clientWidth/2 + 'px';
         this.elBackground = document.getElementById(this.modalBackgroundID);
         this.elClose = document.getElementById('leaf-vue-dialog-close');
-        //helps adjust the modal background coverage
-        const min = this.elModal.clientWidth > this.elBody.clientWidth ? this.elModal.clientWidth : this.elBody.clientWidth;
-        this.elBackground.style.minHeight = 200 + this.elBody.clientHeight + 'px';
-        this.elBackground.style.minWidth = min + 'px';
 
         this.makeDraggable(this.elModal);
-        window.addEventListener('resize', this.checkSizes);
+        //if there is not already an active el in the modal, focus the close button
         const activeEl = document.activeElement;
         const closestLeafDialog = activeEl !== null ? activeEl.closest('.leaf-vue-dialog-content') : null;
         if(closestLeafDialog === null) {
@@ -38,14 +39,18 @@ export default {
         }
     },
     beforeUnmount() {
-        window.removeEventListener('resize', this.checkSizes);
+        //refocus last item.  some events can cause a remount so try to select the el from its id first
+        const lastID = this.lastFocus?.id || null;
+        if(lastID !== null) {
+            const lastEl = document.getElementById(lastID)
+            if(lastEl !== null) {
+                lastEl.focus();
+            }
+        } else if(this.lastFocus !== null) {
+            this.lastFocus.focus();
+        }
     },
     methods: {
-        checkSizes() {
-            const min = this.elModal.clientWidth > this.elBody.clientWidth ? this.elModal.clientWidth : this.elBody.clientWidth;
-            this.elBackground.style.minWidth = min + 'px';
-            this.elBackground.style.minHeight = this.elModal.offsetTop + this.elBody.clientHeight + 'px';
-        },
         firstTab(event) {
             if (event?.shiftKey === true) {
                 const modCancel = document.querySelector('#ifthen_deletion_dialog button.btn-general');
@@ -108,28 +113,27 @@ export default {
         }
     },
     template: `<Teleport to="body">
-        <div id="leaf-vue-dialog-background">
-            <div :id="modalElementID" class="leaf-vue-dialog" role="dialog" :style="{top: scrollY + initialTop + 'px'}">
-                <div v-html="dialogTitle" :id="modalElementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
-                <div tabindex=0 @click="closeFormDialog" @keypress.enter="closeFormDialog" @keydown.tab="firstTab" id="leaf-vue-dialog-close">&#10005;</div>
-                <div id="record">
-                    <div role="document" style="position: relative;">
-                        <main id="xhr" class="leaf-vue-dialog-content" role="main">
-                            <slot name="dialog-content-slot"></slot>
-                        </main>
-                    </div>
-                    <div id="leaf-vue-dialog-cancel-save">
-                        <button type="button" style="width: 90px;"
-                            id="button_save" class="btn-confirm" :title="dialogButtonText.confirm"
-                            @click="formSaveFunction">
-                            {{dialogButtonText.confirm}}
-                        </button>
-                        <button type="button" style="width: 90px;"
-                            id="button_cancelchange" class="btn-general" :title="dialogButtonText.cancel"
-                            @click="closeFormDialog" @keydown.tab="lastModalTab">
-                            {{dialogButtonText.cancel}}
-                        </button>
-                    </div>
+        <div id="leaf-vue-dialog-background" aria-disabled="true" aria-hidden="true"></div>
+        <div :id="modalElementID" class="leaf-vue-dialog"
+            role="dialog" aria-modal="true" :aria-labelledby="modalElementID + '_drag_handle'" aria-describedby="record"
+            :style="{top: scrollY + initialTop + 'px'}">
+            <div v-html="dialogTitle" :id="modalElementID + '_drag_handle'" class="leaf-vue-dialog-title"></div>
+            <button type="button" @click="closeFormDialog" @keydown.tab="firstTab" id="leaf-vue-dialog-close" aria-label="Close">&#10005;</button>
+            <div id="record" style="max-height:100vh;overflow-y:auto">
+                <div id="xhr" class="leaf-vue-dialog-content">
+                    <slot name="dialog-content-slot"></slot>
+                </div>
+                <div id="leaf-vue-dialog-cancel-save">
+                    <button type="button" style="width: 90px;"
+                        id="button_save" class="btn-confirm" :title="dialogButtonText.confirm"
+                        @click="formSaveFunction">
+                        {{dialogButtonText.confirm}}
+                    </button>
+                    <button type="button" style="width: 90px;"
+                        id="button_cancelchange" class="btn-general" :title="dialogButtonText.cancel"
+                        @click="closeFormDialog" @keydown.tab="lastModalTab">
+                        {{dialogButtonText.cancel}}
+                    </button>
                 </div>
             </div>
         </div>

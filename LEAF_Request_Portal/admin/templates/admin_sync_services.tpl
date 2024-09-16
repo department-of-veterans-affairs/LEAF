@@ -4,7 +4,7 @@
 
     <aside class="sidenav"></aside>
 
-     <main class="main-content">
+     <div class="main-content">
 
         <h2>Sync Services</h2>
 
@@ -17,7 +17,7 @@
             <div id="groupList"></div>
         </div>
 
-    </main>
+    </div>
 
 </div>
 

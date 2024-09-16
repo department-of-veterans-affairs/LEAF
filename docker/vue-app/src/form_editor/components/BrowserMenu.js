@@ -10,20 +10,20 @@ export default {
         <ul>
             <li>
                 <button type="button" id="createFormButton" @click="openNewFormDialog()">
-                    <span role="img" aria="">📄&nbsp;</span>Create Form
+                    <span role="img" aria-hidden="true" alt="">📄&nbsp;</span>Create Form
                 </button>
             </li>
             <li>
-                <a href="./?a=formLibrary" class="router-link"><span role="img" aria="">📘&nbsp;</span>LEAF Library</a>
+                <a href="./?a=formLibrary" class="router-link"><span role="img" aria-hidden="true" alt="">📘&nbsp;</span>LEAF Library</a>
             </li>
             <li>
                 <button type="button" @click="openImportFormDialog">
-                    <span role="img" aria="">📦&nbsp;</span>Import Form
+                    <span role="img" aria-hidden="true" alt="">📦&nbsp;</span>Import Form
                 </button>
             </li>
             <li>
                 <router-link :to="{ name: 'restore' }" class="router-link" >
-                    <span role="img" aria="">♻️&nbsp;</span>Restore Fields
+                    <span role="img" aria-hidden="true" alt="">♻️&nbsp;</span>Restore Fields
                 </router-link>
             </li>
         </ul>

@@ -8,7 +8,7 @@
     .errorMessage{
         font-size: smaller;
         max-width: 30%;
-        color: red;
+        color: #c00;
     }
 
     .modalBackground {
@@ -550,7 +550,7 @@
     }
 </script>
 <div id="modal-background"></div>
-<main id="main-content">
+<div id="main-content">
 
     <div class="grid-container">
 
@@ -560,17 +560,17 @@
                 <div>
                     <ul class="leaf-progress-bar">
                         <li class="current" id="step1">
-                            <h6>Select File</h6>
+                            <h6 role="presentation">Select File</h6>
                             <span class="left"></span>
                             <span class="right"></span>
                         </li>
                         <li class="next" id="step2">
-                            <h6>Org Chart Preview</h6>
+                            <h6 role="presentation">Org Chart Preview</h6>
                             <span class="left"></span>
                             <span class="right"></span>
                         </li>
                         <li class="next" id="step3">
-                            <h6>Import Complete</h6>
+                            <h6 role="presentation">Import Complete</h6>
                             <span class="left"></span>
                             <span class="right"></span>
                         </li>
@@ -607,12 +607,12 @@
                 <div class="grid-col-12">
                     <h2>Step 2: Org Chart Preview</h2>
                     <p>Select the columns from the import that map to Employee Email, Supervisor Email, and Position Title. Click Import Data to complete the import.</p>
-                    <table class="usa-table">
+                    <table class="usa-table" role="presentation">
                         <thead>
                             <tr>
-                            <th scope="col">Employee Email</th>
-                            <th scope="col">Supervisor Email</th>
-                            <th scope="col">Position Title</th>
+                            <th scope="col"><label for="employee-select">Employee Email</label></th>
+                            <th scope="col"><label for="supervisor-select">Supervisor Email</label</th>
+                            <th scope="col"><label for="position-select">Position Title</label></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -700,4 +700,4 @@
         </div>
     </div>
 
-</main>
+</div>

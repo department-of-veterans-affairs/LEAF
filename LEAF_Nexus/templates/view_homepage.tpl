@@ -50,19 +50,19 @@
             <fieldset><legend style="font-size: 11px; color: #767676">Available Search Options</legend>
                <div>
                    <img title="Employees" alt="" style="float: left; padding: 8px" src="dynicons/?img=contact-new.svg&amp;w=32" />
-                   <div><h3>Employees</h3>
+                   <div><div style="margin:4px"><b>Employees</b></div>
                    Names</div>
                </div>
                <br />
                <div>
                    <img title="Positions" alt="" style="float: left; padding: 8px" src="dynicons/?img=system-users.svg&amp;w=32" />
-                   <div><h3>Positions</h3>
+                   <div><div style="margin:4px"><b>Positions</b></div>
                    Titles, PD Number</div>
                </div>
                <br />
                <div>
                    <img title="Groups" alt="" style="float: left; padding: 8px" src="dynicons/?img=preferences-desktop-theme.svg&amp;w=32" />
-                   <div><h3>Groups</h3>
+                   <div><div style="margin:4px"><b>Groups</b></div>
                    Services, Organizational</div>
                </div>
             </fieldset>

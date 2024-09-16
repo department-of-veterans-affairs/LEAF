@@ -7,9 +7,9 @@
         }
     </script>
     {if $tabText != ''}
-    <title>{$tabText|sanitize} - {$title|sanitize} | {$city|sanitize}</title>
+    <title>{$tabText|sanitize} - {$title|sanitize}, {$city|sanitize}</title>
     {else}
-    <title>{$title|sanitize} | {$city|sanitize}</title>
+    <title>{$title|sanitize}, {$city|sanitize}</title>
     {/if}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css" media="screen">
@@ -63,11 +63,11 @@
 {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
     <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
 {/if}
-<div id="header">
+<header id="header">
     {if $qrcodeURL != ''}
     <div style="float: left"><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
     {/if}
-    <div style="cursor: pointer" onclick="window.location='./'">
+    <div tabindex="0" style="cursor: pointer" onclick="window.location='./'" role="link" aria-label="home">
       <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" /></span>
       <span id="headerLabel">{$city|sanitize}</span>
       <h1 id="headerDescription">{$title|sanitize}</h1>
@@ -83,8 +83,9 @@
     <span id="headerTab">{$emergency}{$tabText|sanitize}</span>
     <span id="headerTabImg"><img src="images/tab.png" alt="" /></span>
     <span id="headerMenu" class="noprint">{$menu}</span>
-</div>
-<div id="body">
+</header>
+
+<main id="body">
     <div id="content">
         {if $status != ''}
         <div class="alert"><span>{$status}</span></div>
@@ -93,10 +94,10 @@
             {$body}
         </div>
     </div>
-</div>
+</main>
 
-<div class="noprint" id="footer"{if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
+<footer class="noprint" id="footer"{if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
     <br /><br /><a id="versionID" href="?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
-</div>
+</footer>
 </body>
 </html>{/strip}

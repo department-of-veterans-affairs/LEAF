@@ -1916,7 +1916,7 @@ function deleteForm() {
  */
 function buildMenu(categoryID) {
 	$('#menu').html('<div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="postRenderFormBrowser = null; showFormBrowser(); fetchFormSecureInfo();" role="button"><img src="../dynicons/?img=system-file-manager.svg&w=32" alt="" /> View All Forms</div><br />');
-	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" onkeydown="onKeyPressClick(event)" role="button"><img src="../dynicons/?img=document-open.svg&w=32" alt="Open Form" />'+ categories[categoryID].categoryName +'</div>');
+	$('#menu').append('<div tabindex="0" id="'+ categoryID +'" class="buttonNorm" onkeydown="onKeyPressClick(event)" role="button"><img src="../dynicons/?img=document-open.svg&w=32" alt="" />'+ categories[categoryID].categoryName +'</div>');
     $('#' + categoryID).on('click', function(categoryID) {
         return function() {
             $('#menu>div').removeClass('buttonNormSelected');
@@ -1928,7 +1928,7 @@ function buildMenu(categoryID) {
 
 	for(let i in categories) {
 		if(categories[i].parentID == categoryID) {
-			$('#menu').append('<div tabindex="0" id="'+ categories[i].categoryID +'" onkeydown="onKeyPressClick(event)" class="buttonNorm" role="button"><img src="../dynicons/?img=text-x-generic.svg&w=32" alt="Open Form" /> '+ categories[i].categoryName +'</div>');
+			$('#menu').append('<div tabindex="0" id="'+ categories[i].categoryID +'" onkeydown="onKeyPressClick(event)" class="buttonNorm" role="button"><img src="../dynicons/?img=text-x-generic.svg&w=32" alt="" /> '+ categories[i].categoryName +'</div>');
             $('#' + categories[i].categoryID).on('click', function(categoryID) {
                 return function() {
                     $('#menu>div').removeClass('buttonNormSelected');
@@ -1967,7 +1967,7 @@ function buildMenu(categoryID) {
 
 
 	$('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="exportForm(\''+ categoryID +'\');"role="button"><img src="../dynicons/?img=network-wireless.svg&w=32" alt="" /> Export Form</div><br />');
-    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="deleteForm();"><img src="../dynicons/?img=user-trash.svg&w=32" alt="Delete Form" /> Delete this form</div>');
+    $('#menu').append('<br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="deleteForm();"><img src="../dynicons/?img=user-trash.svg&w=32" alt="" /> Delete this form</div>');
     $('#menu').append('<br /><br /><div tabindex="0" class="buttonNorm" onkeydown="onKeyPressClick(event)" onclick="window.location = \'?a=disabled_fields\';" role="button"><img src="../dynicons/?img=user-trash-full.svg&w=32" alt="" /> Restore Fields</div>');
 	$('#' + categoryID).addClass('buttonNormSelected');
 }

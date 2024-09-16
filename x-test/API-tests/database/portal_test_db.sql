@@ -6280,7 +6280,7 @@ INSERT INTO `records` (`recordID`, `date`, `serviceID`, `userID`, `title`, `prio
 (8,	1694021464,	0,	'tester',	'TestFormWorkflow_ApplyAction',	0,	'Approved',	1694021485,	0,	0,	1),
 (9,	1694021464,	0,	'tester',	'TestFormQuery_GroupClickedApprove',	0,	'Approved',	1694021485,	0,	0,	1),
 (10,	1694021465,	0,	'tester',	'TestFormWorkflow_ApplyAction',	0,	'Submitted',	1694021485,	0,	0,	1),
-(11,	1694021465,	0,	'tester',	'Employee Metadata Posts Correctly',	0,	'Submitted',	1694021485,	0,	0,	1),
+(11,	1694021465,	0,	'tester',	'TestFormQuery_Employee_Format__Orgchart_Has_Expected_Values',	0,	'Submitted',	1694021485,	0,	0,	1),
 (12,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
 (13,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
 (14,	1694021465,	0,	'tester',	'Available for test case',	0,	'Submitted',	1694021485,	0,	0,	1),
@@ -13141,7 +13141,7 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 ('dbversion',	'2024052000'),
 ('emailBCC',	'{}'),
 ('emailCC',	'{}'),
-('heading',	'New LEAF Site'),
+('heading',	'LEAF Test Site'),
 ('leafSecure',	'0'),
 ('national_linkedPrimary',	''),
 ('national_linkedSubordinateList',	''),
@@ -13149,7 +13149,7 @@ INSERT INTO `settings` (`setting`, `data`) VALUES
 ('requestLabel',	'Request'),
 ('sitemap_json',	'{\"buttons\":[{\"id\":\"akIyd\",\"title\":\"Test1\",\"description\":\"\",\"target\":\"https://localhost/LEAF_Request_Portal/?a=reports&v=3&query=N4IgLgpgTgtgziAXAbVASwCZPGsAbCEAGhAHsAHaAQzFKmwBkBJAaQFFiQYaBjAC2wAqQZwDmNQohABBAHIAREAF8i6LFIwQCkLCQrVa9KQF5O3MPyQAGEuMjY5ipQF0SAK1JoAdghQg40ABuaDyErv50YEjAKiB4aDC4SACMVmkk8YlgAPIAZrkBUYhWSkA&indicators=NobwRAlgdgJhDGBDALgewE4EkAiYBcYyEyANgKZgA0YUiAthQVWAM4bL4AMAvgLpA%3D%3D%3D\",\"color\":\"#ffffff\",\"fontColor\":\"#000000\",\"icon\":\"\",\"order\":0},{\"id\":\"nxAM6\",\"title\":\"Test2\",\"description\":\"\",\"target\":\"https://localhost/LEAF_Request_Portal/open.php?report=32wmV\",\"color\":\"#ffffff\",\"fontColor\":\"#000000\",\"icon\":\"\",\"order\":1}]}'),
 ('siteType',	'standard'),
-('subHeading',	''),
+('subHeading',	'Standard test database'),
 ('timeZone',	'America/New_York'),
 ('version',	'PUBLIC');
 

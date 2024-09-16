@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.*;
@@ -12,6 +13,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * The Class BasePage is the base class for all page classes.
@@ -87,6 +90,18 @@ public class BasePage {
 
 	}
 
+	public static String getAlertText(){
+		// Switch to the alert
+		Alert alert = driver.switchTo().alert();
+
+		// Get the text of the alert
+		String alertText = alert.getText();
+		System.out.println("Alert text: " + alertText);
+
+		// Accept the alert
+		alert.accept();
+		return alertText;
+	}
 	/**
 	 * Waits explicitly for an element to be clickable.
 	 *
@@ -104,6 +119,61 @@ public class BasePage {
 		}
 	}
 
+	public boolean performActionWithRetries(WebElement element) {
+		int maxRetries = 3;
+		long delayInMillis = 2000;
+		int attempts = 0;
+		boolean success = false;
+
+		while (attempts < maxRetries) {
+			try {
+				// Use Fluent Wait to wait for the element to be visible
+				Wait<WebDriver> wait = new FluentWait<>(driver)
+						.withTimeout(Duration.ofSeconds(30)) // Maximum time to wait
+						.pollingEvery(Duration.ofSeconds(5)) // Frequency to check the condition
+						.ignoring(Exception.class); // Ignore exceptions during polling
+
+				// Wait for the element to be visible
+				wait.until(ExpectedConditions.visibilityOf(element));
+
+				// Perform the desired action on the element (e.g., click)
+				element.click();
+				success = true;
+				break; // Action performed successfully, exit the loop
+			} catch (TimeoutException e) {
+				// Handle exception if the element is not found within the timeout
+				attempts++;
+				if (attempts == maxRetries) {
+					throw new RuntimeException("Failed to perform action on element after " + maxRetries + " retries.", e);
+				}
+				try {
+					TimeUnit.MILLISECONDS.sleep(delayInMillis); // Wait before retrying
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt(); // Restore interrupted status
+					throw new RuntimeException("Interrupted while waiting to retry element action", ie);
+				}
+			}
+		}
+
+		return success;
+	}
+
+	public void dragAndDropByOffset(WebElement element) {
+		log.info("Drag and Drop");
+		int xOffset = 200;
+		int yOffset = 100;
+		// Create an Actions object
+		Actions actions = new Actions(driver);
+
+		// Perform drag and drop by offset
+		actions.clickAndHold(element)
+				.moveByOffset(xOffset, yOffset)
+				.release()
+				.perform();
+
+		// Verify if the element was moved correctly (e.g., check position or style)
+		System.out.println("Drag and drop by offset performed successfully.");
+	}
 	public void waitForPageToLoad(String text,int seconds) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(seconds)); // Timeout set to 30 seconds
 		// Wait for the element to be visible

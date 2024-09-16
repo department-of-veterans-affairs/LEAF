@@ -612,9 +612,10 @@ class Email
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
             $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
             $this->addSmartyVariables(array(
-                "truncatedTitle" => $title,
+                "truncatedTitle" => $truncatedTitle,
                 "fullTitle" => $approvers[0]['title'],
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
@@ -753,9 +754,10 @@ class Email
             $recordInfo = $this->getRecord($recordID);
 
             $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
+            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
             $this->addSmartyVariables(array(
-                "truncatedTitle" => $title,
+                "truncatedTitle" => $truncatedTitle,
                 "fullTitle" => $recordInfo[0]['title'],
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
@@ -781,9 +783,10 @@ class Email
             $comment = $comments[0]['comment'] === '' ? '' : 'Reason for cancelling: ' . $comments[0]['comment'] . '<br /><br />';
 
             $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
+            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
             $this->addSmartyVariables(array(
-                "truncatedTitle" => $title,
+                "truncatedTitle" => $truncatedTitle,
                 "fullTitle" => $recordInfo[0]['title'],
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],

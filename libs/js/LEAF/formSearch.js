@@ -26,12 +26,12 @@ var LeafFormSearch = function (containerID) {
       '<div>\
 			    <img id="' +
         prefixID +
-        'searchIcon" class="searchIcon" alt="search" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
+        'searchIcon" class="searchIcon" alt="" style="vertical-align: middle; padding-right: 4px; display: inline;" src="' +
         rootURL +
         'dynicons/?img=search.svg&w=16">\
 			    <img id="' +
         prefixID +
-        'searchIconBusy" class="searchIcon" alt="loading" style="vertical-align: middle; padding-right: 4px; display:none" src="' +
+        'searchIconBusy" class="searchIcon" alt="" style="vertical-align: middle; padding-right: 4px; display:none" src="' +
         rootURL +
         'images/indicator.gif">\
 					<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" class="status" role="status"></span>\
@@ -68,7 +68,7 @@ var LeafFormSearch = function (containerID) {
 		    </div>\
 		    <div id="' +
         prefixID +
-        '_result" style="margin-top: 8px" aria-label="Search Results">\
+        '_result" style="margin-top: 8px" role="status" aria-label="Search Results">\
 		    </div>'
     );
 
@@ -1125,9 +1125,9 @@ var LeafFormSearch = function (containerID) {
       prefixID +
       "widgetRemove_" +
       widgetCounter +
-      '"><button type="button" id="widgetRemoveButton"><img src="' +
+      '"><button type="button" id="widgetRemoveButton" aria-label="remove search term"><img src="' +
       rootURL +
-      'dynicons/?img=list-remove.svg&w=16" style="cursor: pointer" alt="remove search term" tabindex="0"></button></td>\
+      'dynicons/?img=list-remove.svg&w=16" alt="" style="cursor: pointer"></button></td>\
 						<td style="text-align: center"><strong id="' +
       prefixID +
       "widgetGate_" +
