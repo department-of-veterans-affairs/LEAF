@@ -52,3 +52,4 @@ libs/css/leaf.js
 
 x-test/API-tests/result_cache/*
 test/Test-Automation/ExtentReports/*
+x-test\test-results\.last-run.json
