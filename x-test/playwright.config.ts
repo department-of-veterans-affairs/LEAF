@@ -14,7 +14,6 @@ export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
 
-  workers :4,
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
@@ -48,8 +47,6 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'],
-        headless: false,
-
       },
       
       //dependencies: ['reset test DB'],

@@ -1,12 +1,15 @@
 import { test, expect } from '@playwright/test';
+import  faker  from '@faker-js/faker';
+
+const fixedText = "leaf-test"
+  const randomString = faker.lorem.word(5);
+  console.log(randomString);
+  const todayDate: string = new Date().toISOString().slice(0, 10);
+  const randomTextwithDate =  `${fixedText} ${todayDate}`;
 
 test.describe.serial('Service Request Workflow', () =>{
 
-test.use({
-  ignoreHTTPSErrors: true,
-});
-
-test('create a new request and submit the form', async ({ page }) => {
+test.only('create a new request and submit the form', async ({ page }) => {
   // Navigate to the Test Request Portal.
   await page.goto('https://host.docker.internal/Test_Request_Portal/');
 
@@ -19,7 +22,7 @@ test('create a new request and submit the form', async ({ page }) => {
 
   // Click on the "Title of Request" input field and fill it with the request title.
   await page.getByLabel('Title of Request').click();
-  await page.getByLabel('Title of Request').fill('new request test');
+  await page.getByLabel('Title of Request').fill(randomTextwithDate);
 
   // Select the "Simple form" option by clicking on the corresponding label.
   await page.locator('label').filter({ hasText: 'Simple form' }).locator('span').click();
@@ -48,6 +51,37 @@ test('create a new request and submit the form', async ({ page }) => {
   // Ensure the newly created request is visible on the main page.
   await expect(page.getByRole('link', { name: 'new request test' }).first()).toBeVisible();
 });
+
+test("new request test cancel emergency", async ({page}) => {
+  await page.goto('https://host.docker.internal/Test_Request_Portal/');
+  await page.getByText('New Request Start a new').click();
+  await page.getByRole('cell', { name: 'Select an Option Service' }).locator('a').click();
+  await page.getByRole('option', { name: 'AS Test Group' }).click();
+  await page.getByRole('cell', { name: 'Normal Priority' }).click();
+  await page.getByRole('option', { name: 'EMERGENCY' }).click();
+  await page.getByLabel('Title of Request').click();
+  await page.getByLabel('Title of Request').fill(randomTextwithDate);
+  await page.locator('label').filter({ hasText: 'Simple form' }).locator('span').click();
+  await page.getByRole('button', { name: 'Click here to Proceed' }).click();
+  await page.getByLabel('single line text').click();
+  await page.getByLabel('single line text').fill(randomString);
+  await page.getByRole('button', { name: 'Next Next Question' }).click();
+  await expect(page.locator('#headerTab')).toContainText('EMERGENCY');
+  await expect(page.getByText('EMERGENCY', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Submit Request' }).click();
+  await page.getByRole('link', { name: 'Main Page' }).click();
+})
+
+test("Validate Emergency Text", async ({page}) => {
+  await expect(page.locator('#LeafFormGrid173_1002_title').getByText('( Emergency )')).toBeVisible();
+  await page.getByRole('link', { name: 'Emergency' }).click();
+  await page.getByRole('button', { name: 'Cancel Request' }).click();
+  await page.getByPlaceholder('Enter Comment').click();
+  await page.getByPlaceholder('Enter Comment').fill('cancel');
+  await page.getByRole('button', { name: 'Yes Yes' }).click();
+  await expect(page.locator('#bodyarea')).toContainText('Request #1002 has been cancelled!');
+  await page.getByRole('link', { name: 'Main Page' }).click();
+})
 
 
 test('approve the newly created request', async ({ page }) => {
