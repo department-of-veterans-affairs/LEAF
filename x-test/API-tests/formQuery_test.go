@@ -208,23 +208,17 @@ func TestFormQuery_FindTwoSteps(t *testing.T) {
 	}
 }
 
-/*
-* Reading of metadata values will be added in a future deployment
-* The orgchart value is still from the orgchart lookup, not the metadata field
-	// "strconv"
-	// "github.com/google/go-cmp/cmp"
 
-func TestFormQuery_Employee_Metadata(t *testing.T) {
-	//values that should be assigned to S1 ind orchart value when form data are read
-	mock_orgchart_employee := Orgchart_employee_metadata{
+/* post a new employee to an orgchart format question and then confirm expected values on orgchart property */
+func TestFormQuery_Employee_Format__Orgchart_Has_Expected_Values(t *testing.T) {
+	mock_orgchart_employee := FormQuery_Orgchart_Employee{
 		FirstName: "Ramon",
 		LastName: "Watsica",
 		MiddleName: "Yundt",
 		Email: "Ramon.Watsica@fake-email.com",
-		UserName: "VTRYCXBETHANY",
+		UserName: "vtrycxbethany",
 	}
 
-	//post and confirm post success
 	postData := url.Values{}
 	postData.Set("CSRFToken", CsrfToken)
 	postData.Set("8", "201")
@@ -242,52 +236,45 @@ func TestFormQuery_Employee_Metadata(t *testing.T) {
 	}
 
 	formRes, _ := getFormQuery(RootURL + `api/form/query/?q={"terms":[{"id":"categoryID","operator":"=","match":"form_5ea07","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":[],"sort":{},"getData":["8"],"limit":10000,"limitOffset":0}&x-filterData=recordID,title`)
-
 	if _, exists := formRes[11]; !exists {
 		t.Errorf("Record 11 should be readable")
 	}
 
 	recData := formRes[11].S1
 
-	metadataInterface := recData["id8_orgchart"]
-	orgchart := metadataInterface.(map[string]interface {})
+	dataInterface := recData["id8_orgchart"]
+	orgchart := dataInterface.(map[string]interface {})
 	b, _ := json.Marshal(orgchart)
 
-	var org_emp_md Orgchart_employee_metadata
-	err = json.Unmarshal(b, &org_emp_md)
+	var org_emp FormQuery_Orgchart_Employee
+	err = json.Unmarshal(b, &org_emp)
 	if err != nil {
-		t.Error("Error on orgchart_employee_metadata unmarshal")
+		t.Error("Error on FormQuery_Orgchart_Employee unmarshal")
 	}
 
-	got = org_emp_md.FirstName
+	got = org_emp.FirstName
 	want = mock_orgchart_employee.FirstName
 	if !cmp.Equal(got, want) {
 		t.Errorf("firstName got = %v, want = %v", got, want)
 	}
-	got = org_emp_md.LastName
+	got = org_emp.LastName
 	want = mock_orgchart_employee.LastName
 	if !cmp.Equal(got, want) {
 		t.Errorf("lastName got = %v, want = %v", got, want)
 	}
-	got = org_emp_md.MiddleName
+	got = org_emp.MiddleName
 	want = mock_orgchart_employee.MiddleName
 	if !cmp.Equal(got, want) {
 		t.Errorf("middleName got = %v, want = %v", got, want)
 	}
-	got = org_emp_md.Email
+	got = org_emp.Email
 	want = mock_orgchart_employee.Email
 	if !cmp.Equal(got, want) {
 		t.Errorf("email got = %v, want = %v", got, want)
 	}
-	got = org_emp_md.UserName
+	got = org_emp.UserName
 	want = mock_orgchart_employee.UserName
 	if !cmp.Equal(got, want) {
 		t.Errorf("userName got = %v, want = %v", got, want)
 	}
-	got = strconv.Itoa(org_emp_md.EmpUID)
-	want = "201"
-	if !cmp.Equal(got, want) {
-		t.Errorf("userName got = %v, want = %v", got, want)
-	}
 }
-*/

@@ -12,19 +12,22 @@ test('navigate to Workflow Editor and create a travel workflow', async ({ page }
   await page.goto('https://host.docker.internal/Test_Request_Portal/admin/');
 
   await page.getByRole('button', { name: ' Workflow Editor Edit' }).click();
+
+  // wait for async request to finish loading the first workflow
+  await expect(page.getByLabel('workflow step: Group')).toBeInViewport();
+
   await page.getByRole('button', { name: 'New Workflow' }).click();
   await page.getByLabel('Workflow Title:').click();
   await page.getByLabel('Workflow Title:').fill(uniqueText);
   await page.getByRole('button', { name: 'Save' }).click();
 
   // wait for async request to finish saving
-  await expect(page.getByRole('button', { name: 'Save' })).not.toBeVisible();
-  await expect(page.locator('a').filter({ hasText: uniqueText })).toBeVisible();
-
   // Workaround: Since the drag handles can overlap sometimes (maybe due to async rendering
   // in the jsPlumb library?), we'll move the requestor step out of the way first.
   // TODO: fix the workflow editor since end-users might have the same issue
-  await expect(page.getByLabel('workflow step: Step 1')).not.toBeInViewport();
+  await expect(page.getByLabel('workflow step: Group')).not.toBeInViewport();
+  await expect(page.locator('a').filter({ hasText: uniqueText })).toBeVisible();
+  await expect(page.locator('rect').first()).toBeInViewport();
   // Workaround: Set specific position because the workflow step's drag handle overlaps with the connector's handle
   await page.getByLabel('workflow step: Requestor', { exact: true }).hover({position: {x: 16, y: 16}});
   await page.mouse.down();
@@ -134,7 +137,7 @@ test('navigate to Homepage, create and submit a travel request', async ({ page }
   // selecting a user triggers an async request, wait for loading to complete
   await expect(page.getByText('*** Loading... ***')).not.toBeVisible();
 
-  await page.getByRole('button', { name: 'Next Question', exact: true }).click();
+  await page.getByRole('button', { name: 'Next Question', exact: true }).first().click();
   await expect(page.getByRole('button', { name: 'Submit Request' })).toBeInViewport();
 
   await page.getByRole('button', { name: 'Submit Request' }).click();

@@ -1,4 +1,4 @@
-<div id="import_dialog" class="leaf-dialog-container" role="dialog">
+<div id="import_dialog" class="leaf-dialog-container">
 
     <form id="record" enctype="multipart/form-data" action="javascript:void(0);">
 

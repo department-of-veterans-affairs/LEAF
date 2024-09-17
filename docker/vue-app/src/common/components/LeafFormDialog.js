@@ -30,9 +30,6 @@ export default {
         this.elBackground = document.getElementById(this.modalBackgroundID);
         this.elClose = document.getElementById('leaf-vue-dialog-close');
 
-        this.checkSizes();
-        window.addEventListener('resize', this.checkSizes);
-
         this.makeDraggable(this.elModal);
         //if there is not already an active el in the modal, focus the close button
         const activeEl = document.activeElement;
@@ -40,11 +37,8 @@ export default {
         if(closestLeafDialog === null) {
             this.elClose.focus();
         }
-        //set aria-hidden to non-modal DOM siblings for screen-readers
-        this.setAriaHiddenValue();
     },
     beforeUnmount() {
-        window.removeEventListener('resize', this.checkSizes);
         //refocus last item.  some events can cause a remount so try to select the el from its id first
         const lastID = this.lastFocus?.id || null;
         if(lastID !== null) {
@@ -57,20 +51,6 @@ export default {
         }
     },
     methods: {
-        setAriaHiddenValue() {
-            let elsDOM = Array.from(document.querySelectorAll('body > *' ));
-            elsDOM.forEach(el => {
-                if(el?.id !== this.modalElementID && el.id !== 'LeafSession_dialog') {
-                    el.setAttribute('aria-hidden', true);
-                }
-            });
-        },
-        //helps adjust the modal background coverage
-        checkSizes() {
-            const min = Math.max(this.elModal.clientWidth, this.elBody.clientWidth);
-            this.elBackground.style.minWidth = min + 'px';
-            this.elBackground.style.minHeight = this.elModal.offsetTop + this.elBody.clientHeight + 'px';
-        },
         firstTab(event) {
             if (event?.shiftKey === true) {
                 const modCancel = document.querySelector('#ifthen_deletion_dialog button.btn-general');

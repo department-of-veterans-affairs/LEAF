@@ -101,6 +101,10 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check {
   border: 1px solid #47e;
   opacity: 1;
 }
+input[class*="icheck"][class*="leaf_check"]:focus ~ span.leaf_check,
+input[class*="ischecked"][class*="leaf_check"]:focus ~ span.leaf_check {
+  border: 1px solid #001;
+}
 input[class*="icheck"][class*="leaf_check"]:checked ~ span.leaf_check::after,
 input[class*="ischecked"][class*="leaf_check"]:checked
   ~ span.leaf_check::after {
@@ -182,7 +186,7 @@ img {
 
 #footer a:link,
 #footer a:visited {
-  color: #6f6f6f;
+  color: #565c65;
   text-decoration: none;
 }
 

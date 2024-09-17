@@ -6,7 +6,7 @@
     "}-->
     <!--{include file="partial_layouts/left_side_nav.tpl" contentLeft="$left_nav_content"}-->
 
-    <main class="main-content">
+    <div class="main-content">
 
         <h2>Site Settings</h2>
 
@@ -77,7 +77,7 @@
             </div>
         </form>
 
-    </main>
+    </div>
 
     <!-- RIGHT SIDE NAV -->
     <!--{assign var=right_nav_content value="
@@ -341,7 +341,7 @@ function renderSettings(res) {
                 query.join('recordResolutionData');
                 query.onSuccess(function(data) {
                     if(Object.keys(data).length == 0) {
-                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: #c00; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
                         $.ajax({
                             type: 'DELETE',
                             url: '../api/system/settings/leaf-secure',
@@ -367,11 +367,11 @@ function renderSettings(res) {
                 query.addTerm('stepID', '!=', 'resolved');
                 query.onSuccess(function(data) {
                     if(Object.keys(data).length == 0) {
-                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
+                        $('#leafSecureStatus').html('<span style="font-size: 120%; padding: 4px; background-color: #c00; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../report.php?a=LEAF_start_leaf_secure_certification">Start Certification Process</a>');
                     }
                     else {
                         var recordID = data[Object.keys(data)[0]].recordID;
-                        $('#leafSecureStatus').html(`<span style="font-size: 120%; padding: 4px; background-color: red; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID=${recordID}&masquerade=nonAdmin">Check Certification Progress</a>`);
+                        $('#leafSecureStatus').html(`<span style="font-size: 120%; padding: 4px; background-color: #c00; color: white; font-weight: bold">Not Certified</span> <a class="buttonNorm" href="../index.php?a=printview&recordID=${recordID}&masquerade=nonAdmin">Check Certification Progress</a>`);
                     }
                 });
                 query.execute();

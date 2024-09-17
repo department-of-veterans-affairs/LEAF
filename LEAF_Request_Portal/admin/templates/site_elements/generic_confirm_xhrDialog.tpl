@@ -1,4 +1,4 @@
-<div id="confirm_xhrDialog" class="leaf-dialog-container" role="dialog">
+<div id="confirm_xhrDialog" class="leaf-dialog-container">
     
     <form id="confirm_record" enctype="multipart/form-data" action="javascript:void(0);">
         
@@ -12,11 +12,11 @@
 
             <aside class="leaf-buttonBar" role="complementary">
                 <div class="leaf-float-right">
-                    <button class="usa-button usa-button--outline" id="confirm_button_cancelchange">No</button>
+                    <button class="usa-button usa-button--outline" id="confirm_button_cancelchange" disabled>No</button>
                 </div>
 
                 <div class="leaf-float-left">
-                    <button class="usa-button" id="confirm_button_save"><span id="confirm_saveBtnText">Yes</span></button>
+                    <button class="usa-button" id="confirm_button_save" disabled><span id="confirm_saveBtnText">Yes</span></button>
                 </div>
             </aside>
         
