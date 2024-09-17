@@ -90,7 +90,14 @@ func updateTestDBSchema() {
 	}
 	fmt.Println("OK")
 
-	fmt.Print("Updating DB Schema: Nexus (Orgchart)... ")
+	fmt.Print("Updating DB Schema: Local Nexus (Orgchart)... ")
+	res, _ = httpGet(RootOrgchartURL + `scripts/updateDatabase.php`)
+	if strings.Contains(res, `Db Update failed`) {
+		log.Fatal(`Could not update Nexus (Orgchart) schema: ` + res)
+	}
+	fmt.Println("OK")
+
+	fmt.Print("Updating DB Schema: National Nexus (Orgchart)... ")
 	res, _ = httpGet(NationalOrgchartURL + `scripts/updateDatabase.php`)
 	if strings.Contains(res, `Db Update failed`) {
 		log.Fatal(`Could not update Nexus (Orgchart) schema: ` + res)
