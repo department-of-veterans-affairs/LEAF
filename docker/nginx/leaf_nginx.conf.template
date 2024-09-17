@@ -134,9 +134,9 @@ server {
         fastcgi_read_timeout 600;
 
         # Give this info to php
-        fastcgi_param HTTP_X_NOLARGEQUERIES "transfer large queries to another server";
+        fastcgi_param LEAF_Large_Queries "pass_onto_large_query_server";
         # Give this info to the browser, need to see if this is actually needed or just a nice to have to see
-        add_header x-nolargequeries "transfer large queries to another server" always;
+        add_header LEAF_Large_Queries "pass_onto_large_query_server" always;
 
         include fastcgi_params;
         gzip on;
