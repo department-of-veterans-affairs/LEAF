@@ -3017,6 +3017,33 @@ class Form
     }
 
     /**
+     * @param array $query - this is the decoded string used for query
+     * @return bool
+     */
+    private function isLargeQuery(array $query): bool
+    {
+        
+        $externalProcessQuery = false;
+        if (isset($query['limit']) && is_numeric($query['limit'])) {
+
+            // limit is > 10,000 records
+            if ($query['limit'] > 10000) {
+               
+                $externalProcessQuery = true;
+                // limit is <= 10,000 records AND more than 10 indicators are requested
+            } else if (!isset($query['limit']) && (!empty($query['getData']) && count($query['getData']) >= 10)) {
+                
+                $externalProcessQuery = true;
+            }
+        } else {
+            // no limit parameter set
+            $externalProcessQuery = true;
+        }
+    
+        return $externalProcessQuery;
+    }
+
+    /**
      * query parses a JSON formatted user query defined in formQuery.js.
      *
      * Returns an array on success, and string/int for malformed queries
@@ -3030,6 +3057,14 @@ class Form
         if ($query == null)
         {
             return 'Invalid query';
+        }
+
+        $externalProcessQuery = $this->isLargeQuery($query);
+        // is this a processes worthy of the external process and that we are on not wanting to actually run this query here.
+        if ($externalProcessQuery === true && !empty($_SERVER['HTTP_X_NOLARGEQUERIES'])) {
+            ob_end_clean();
+            http_response_code(503);
+            exit();
         }
 
         $joinSearchAllData = false;
