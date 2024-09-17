@@ -77,7 +77,7 @@ $(function() {
 
 </script>
 
-<main style="padding: 1rem;">
+<div style="padding: 1rem;">
     <header style="border: 2px dotted black; padding: 0.5rem; margin-bottom: 1rem;">
         <h2 style="margin: 0 0 0.5rem 0;">Welcome, <b><!--{$recorder|sanitize}--></b>, to the <!--{$city|sanitize}--> request website.</h2>
         After clicking "proceed", you will be presented with a series of request related questions. Incomplete requests may result
@@ -157,4 +157,4 @@ $(function() {
         </section>
 
     </form>
-</main>
+</div>

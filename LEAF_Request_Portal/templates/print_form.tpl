@@ -47,17 +47,17 @@
         <h1>Tools</h1>
         <!--{if $submitted == 0}-->
             <button class="tools" onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags}-->'"><img
-                    src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="" title="Guided editor"
+                    src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="" title="Guided editor" aria-hidden="true"
                     style="vertical-align: middle" /> Edit this form</button>
             <br />
             <br />
         <!--{/if}-->
-        <button type="button" class="tools" onclick="viewHistory()" title="View History"><img
+        <button type="button" class="tools" onclick="viewHistory()"><img title="View History" aria-hidden="true"
                 src="dynicons/?img=appointment.svg&amp;w=32" alt="" style="vertical-align: middle" /> View
             History</button>
-        <button type="button" class="tools" title="Write Email"
+        <button type="button" class="tools"
             onclick="window.location='mailto:?subject=FW:%20Request%20%23<!--{$recordID|strip_tags}-->%20-%20<!--{$title|escape:'url'}-->&amp;body=Request%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img
-                src="dynicons/?img=internet-mail.svg&amp;w=32" alt="" style="vertical-align: middle" /> Write
+                src="dynicons/?img=internet-mail.svg&amp;w=32" title="Write Email" alt="" aria-hidden="true" style="vertical-align: middle" /> Write
             Email</button>
         <button type="button" class="tools" id="btn_printForm" title="Print this Form"><img
                 src="dynicons/?img=printer.svg&amp;w=32" alt="" style="vertical-align: middle" /> Print
@@ -73,7 +73,7 @@
                 <img src="dynicons/?img=bookmark-new.svg&amp;w=32" alt=""
                     style="vertical-align: middle" /> <span role="status" aria-live="polite">Delete Bookmark</span></button>
         <!--{/if}-->
-        <button class="tools" onclick="copyRequest()" title="Copy Request"
+        <button  type="button" class="tools" onclick="copyRequest()" title="Copy Request"
             style="vertical-align: middle; background-image: url(dynicons/?img=edit-copy.svg&amp;w=32); background-repeat: no-repeat; background-position: left; text-align: left; text-indent: 35px; height: 38px">
             Copy Request</button>
         <br />

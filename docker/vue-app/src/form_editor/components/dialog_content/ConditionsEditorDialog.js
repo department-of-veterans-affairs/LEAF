@@ -65,7 +65,9 @@ export default {
     },
     mounted() {
         const elSaveDiv = document.querySelector('#leaf-vue-dialog-cancel-save #button_save');
-        if (elSaveDiv !== null) elSaveDiv.style.display = 'none';
+        if (elSaveDiv !== null) {
+            elSaveDiv.style.display = 'none';
+        }
     },
     methods: {
         /**
@@ -168,6 +170,7 @@ export default {
         */
         postConditions(addSelected = true) {
             if (this.conditionComplete || addSelected === false) {
+                this.ariaStatus = '';
                 //copy of all conditions on child, and filter using stored JSON val
                 let currConditions = [...this.savedConditions];
                 let newConditions = currConditions.filter(c => JSON.stringify(c) !== this.selectedConditionJSON);
@@ -200,11 +203,13 @@ export default {
                             refIndicator.conditions = newConditions;
                             this.showRemoveModal = false;
                             this.newCondition(false);
-                            this.ariaStatus = 'Updated question conditions';
                             const elClose = document.getElementById('leaf-vue-dialog-close');
                             if(elClose !== null) {
                                 elClose.focus();
                             }
+                            setTimeout(() => {
+                                this.ariaStatus = 'Updated question conditions';
+                            });
 
                         } else { console.log('error adding condition', res) }
                     },
@@ -220,7 +225,6 @@ export default {
                 this.postConditions(false);
             } else { //X button select from list and open the confirm delete modal
                 this.selectConditionFromList(condition);
-                this.ariaStatus = 'Confirm deletion';
                 this.showRemoveModal = true;
             }
         },
@@ -651,6 +655,12 @@ export default {
             const elSaveDiv = document.getElementById('leaf-vue-dialog-cancel-save');
             if (elSaveDiv !== null) {
                 elSaveDiv.style.display = newVal === true ? 'none' : 'flex';
+                if(newVal === true) {
+                    elSaveDiv.setAttribute('aria-hidden', true);
+                } else {
+                    elSaveDiv.removeAttribute('aria-hidden');
+                }
+                this.ariaStatus = newVal === true ? 'Confirm Deletion' : '';
             }
         },
         childChoicesKey(newVal, oldVal) {

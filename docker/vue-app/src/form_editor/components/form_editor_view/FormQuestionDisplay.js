@@ -25,7 +25,6 @@ export default {
         'openIfThenDialog',
         'listTracker',
         'previewMode',
-        'handleNameClick',
         'makePreviewKey',
         'clickToMoveListItem'
     ],
@@ -37,7 +36,7 @@ export default {
             return this.depth === 0;
         },
         hasCode() {
-            return (this.formNode?.html !== '' && this.formNode?.html != null) || (this.formNode?.htmlPrint !== '' && this.formNode?.htmlPrint != null);
+            return (this.formNode?.html || '').trim() !== '' || (this.formNode?.htmlPrint || '').trim() !== '';
         },
         conditionalQuestion() {
             return !this.isHeader && 

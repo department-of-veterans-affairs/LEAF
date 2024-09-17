@@ -11,7 +11,7 @@ function employeeSelector(containerID) {
   this.selection = "";
 
   this.containerID = containerID;
-  this.prefixID = "empSel" + Math.floor(Math.random() * 1000) + "_";
+  this.prefixID = this.makePrefixID();
   this.timer = 0;
   this.q = "";
   this.isBusy = 1;
@@ -28,6 +28,12 @@ function employeeSelector(containerID) {
   this.emailHref = false; // create link for email
 
   this.numResults = 0;
+}
+
+employeeSelector.prototype.makePrefixID = function () {
+  const id = "empSel" + Math.floor(Math.random() * 1000) + "_";
+  const el = document.getElementById(id + 'result');
+  return (el !== null) ? this.makePrefixID() : id;
 }
 
 employeeSelector.prototype.initialize = function () {
@@ -220,7 +226,7 @@ employeeSelector.prototype.search = function () {
                 t.prefixID +
                 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=3>No results for &quot;<span id="' +
                 t.prefixID +
-                'emp0_message" style="color: red"></span>&quot;</td></tr>'
+                'emp0_message" style="color: #c00;"></span>&quot;</td></tr>'
             );
             $("#" + t.prefixID + "emp0_message").text(txt);
             setTimeout(function () {
@@ -309,6 +315,7 @@ employeeSelector.prototype.search = function () {
                 : "&nbsp;" + response[i].middleName + ".";
             linkText =
               response[i].lastName + ", " + response[i].firstName + midName;
+            const ariaLabel = linkText;
             if (t.selectLink != null) {
               linkText =
                 '<a href="' +
@@ -323,7 +330,7 @@ employeeSelector.prototype.search = function () {
             if (t.outputStyle == "micro") {
               $("#" + t.prefixID + "result_table").append(
                 '\
-								<tr tabindex="0" aria-label="' + linkText + '" id="' +
+								<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
                   t.prefixID +
                   "emp" +
                   response[i].empUID +
@@ -348,7 +355,7 @@ employeeSelector.prototype.search = function () {
               if (response[i].deleted > 0) {
                 $("#" + t.prefixID + "result_table").append(
                   '\
-									<tr tabindex="0" aria-label="' + linkText + '" id="' +
+									<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +
@@ -378,7 +385,7 @@ employeeSelector.prototype.search = function () {
               } else {
                 $("#" + t.prefixID + "result_table").append(
                   '\
-									<tr tabindex="0" aria-label="' + linkText + '" id="' +
+									<tr tabindex="0" aria-label="' + ariaLabel + '" id="' +
                     t.prefixID +
                     "emp" +
                     response[i].empUID +

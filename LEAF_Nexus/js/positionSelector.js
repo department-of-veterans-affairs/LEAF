@@ -10,7 +10,7 @@ function positionSelector(containerID) {
   this.selection = "";
 
   this.containerID = containerID;
-  this.prefixID = "posSel" + Math.floor(Math.random() * 1000) + "_";
+  this.prefixID = this.makePrefixID();
   this.timer = 0;
   this.q = "";
   this.isBusy = 1;
@@ -25,6 +25,12 @@ function positionSelector(containerID) {
   this.currRequest = null;
 
   this.numResults = 0;
+}
+
+positionSelector.prototype.makePrefixID = function () {
+  const id = "posSel" + Math.floor(Math.random() * 1000) + "_";
+  const el = document.getElementById(id + 'result');
+  return (el !== null) ? this.makePrefixID() : id;
 }
 
 positionSelector.prototype.initialize = function () {
@@ -204,7 +210,7 @@ positionSelector.prototype.search = function () {
                 t.prefixID +
                 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=2>No results for &quot;<span id="' +
                 t.prefixID +
-                'emp0_message" style="color: red"></span>&quot;</td></tr>'
+                'emp0_message" style="color: #c00;"></span>&quot;</td></tr>'
             );
             $("#" + t.prefixID + "emp0_message").text(txt);
             setTimeout(function () {

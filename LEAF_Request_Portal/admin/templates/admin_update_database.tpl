@@ -4,7 +4,7 @@
 
     <aside class="sidenav"></aside>
 
-    <main class="main-content">
+    <div class="main-content">
 
         <h2>Update Database</h2>
 
@@ -26,7 +26,7 @@
             </div>
         </div>
 
-    </main>
+    </div>
 
 </div>
 

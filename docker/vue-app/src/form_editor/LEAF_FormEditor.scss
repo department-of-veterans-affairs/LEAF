@@ -168,7 +168,7 @@ table[class$="SelectorTable"] th {
     input, select {
         min-height: 24px;
     }
-    #name {
+    #name:not(.trumbowyg-textarea) {
         width: 100%;
         margin-bottom: 0.4rem;
         padding: 0.2rem 0.4rem;
@@ -657,6 +657,10 @@ table[class$="SelectorTable"] th {
                 color: $attention;
                 margin-left: 0.4em;
             }
+            ul { //reset these for the indicator name section
+                list-style-type: disc;
+                padding-inline-start: 40px;
+            }
         }
         div[id^="form_editing_toolbar_"] {
             float: right;
@@ -872,7 +876,7 @@ table[class$="SelectorTable"] th {
         > div {
             flex-direction: column;
         }
-        main > section {
+        #vue_app_main > section {
             margin: 0;
             padding: 0;
         }

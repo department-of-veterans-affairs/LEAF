@@ -20,7 +20,7 @@ class Email
 
     public string $emailBody = '';
 
-    private string $emailFrom = 'LEAF@localhost';
+    private $emailFrom = 'noreply@leaf.va.gov';
 
     private string $emailRecipient = '';
 

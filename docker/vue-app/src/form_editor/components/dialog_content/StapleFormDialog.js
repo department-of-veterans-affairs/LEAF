@@ -117,7 +117,9 @@ export default {
                     {{truncateText(decodeAndStripHTML(categories[id]?.categoryName || 'Untitled')) }}
                     <button type="button"
                         style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
-                        @click="unmergeForm(id)" :title="'remove ' + categories[id]?.categoryName || 'Untitled'">
+                        @click="unmergeForm(id)"
+                        :title="'remove ' + categories[id]?.categoryName || 'Untitled'"
+                        :aria-label="'remove ' + categories[id]?.categoryName || 'Untitled'">
                         <b>[ Remove ]</b>
                     </button>
                 </li>

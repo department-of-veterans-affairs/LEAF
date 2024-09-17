@@ -6,7 +6,7 @@
         </li>
         {/if}
         <li id="headerMenu_container" style="display: inline-block">
-            <button type="button" id="button_showLinks" class="buttonNorm" title="site links"
+            <button type="button" id="button_showLinks" class="buttonNorm" title="links"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_links">
                 Links<span aria-hidden="true">▼</span>
             </button>

@@ -4,7 +4,7 @@ $(function() {
     query.addTerm('categoryID', '=', 'leaf_devconsole');
     query.addTerm('stepID', '!=', 'resolved');
     query.onSuccess(function(data) {
-        if(data.length != 0) {
+        if(Object.keys(data).length != 0) {
             $('#rob_status>iframe').attr('src', './?a=printview&iframe=1&masquerade=nonAdmin&recordID=' + data[Object.keys(data)[0]].recordID);
 
             $('#rob_request').slideUp();
@@ -43,6 +43,7 @@ $(function() {
             }
         });
     });
+    document.querySelector('#startRequest').removeAttribute('disabled');
 });
 </script>
 <style>
@@ -132,7 +133,7 @@ $(function() {
     </div>
 
     <div style="width: 70%; margin: auto; text-align: center; margin-top: 16px">
-        <button class="buttonNorm" id="startRequest" style="font-size: 140%; padding: 8px"><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="" /> I understand and accept</button>
+        <button class="buttonNorm" id="startRequest" style="font-size: 140%; padding: 8px" disabled><img src="dynicons/?img=accessories-text-editor.svg&w=32" alt="" /> I understand and accept</button>
     </div>
 
 </div>

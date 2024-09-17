@@ -54,9 +54,12 @@
   cursor: pointer;
 }
 
-.employeeSelected > td > a {
+.employeeSelected > td > a, .employeeSelected span {
   color: white;
 }
+.employeeSelected span {
+    color: #f0f0ff;
+  }
 
 table.employeeSelectorTable {
   margin: 10px 0;
@@ -68,7 +71,7 @@ table.employeeSelectorTable {
 .employeeSelectorTable th {
   background-color: #ececec;
   text-align: center;
-  color: #888888;
+  color: #000;
   font-size: 80%;
 }
 
