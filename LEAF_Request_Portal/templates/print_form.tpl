@@ -779,244 +779,262 @@ function doSubmit(recordID) {
             }
         });
 
-        // options for the service dropdown
-        let serviceOptions = '';
-        // how is this supposed to work? Old functionality that is no longer used?
-        let series = 1;
-        // allow the end user to choose what should be copied.
-        let pickAndChoose = [];
-        // give it all, make it a bit easier
-        let pickAndChooseOptions =
-            '<label class="checkable leaf_check" style="float: none"> <input class="ischecked leaf_check pickAndChooseAll" checked="checked" type="checkbox"> <span class="leaf_check"> </span>All</label>';
-
-        // get our service list
+        let createData = {
+            CSRFToken: '<!--{$CSRFToken}-->'
+        };
+        let hasHiddenForms = false;
+        //need the "categories" and attach them to the createData, assess hidden state.
         $.ajax({
             type: 'GET',
-            url: 'api/service',
-            async: false, // I am not going to nest these to make things easier to follow.
+            url: 'api/form/<!--{$recordID|strip_tags}-->/recordinfo',
+            async: false,
             CSRFToken: '<!--{$CSRFToken}-->',
             success: function(res) {
-                Object.values(res).forEach(function(resultValue) {
-                    let selected = (parseInt(resultValue.serviceID) === parseInt(serviceID)) ?
-                        'selected="selected"' : '';
-                    serviceOptions += '<option value="' + resultValue.serviceID + '" ' + selected +
-                        '>' + resultValue.service + '</option>';
-                });
+                hasHiddenForms = res?.hiddenForms?.length > 0;
+                // categories attached to the createData, need this to create a new form
+                if(!hasHiddenForms) {
+                    const categories = Object.values(res.categories);
+                    categories.forEach(c => createData['num' + c] = 'num' + c);
+                }
             },
-            error: function() { console.log('Failed to gather services for dropdown!'); }
+            error: function() {
+                console.log(
+                    'Failed to gather categories before creating new form');
+            }
         });
-
-        // but for now the fields for pick and choose will be done likewise...
-        $.ajax({
-            type: 'GET',
-            url: 'api/form/<!--{$recordID|strip_tags}-->/data/tree',
-            CSRFToken: '<!--{$CSRFToken}-->',
-            async: false, // I am not going to nest these to make things easier to follow.
-            success: function(res) {
-                Object.values(res).forEach(function(resultValue) {
-                    let children = getChildrenIndicatorIDs(resultValue.child);
-                    pickAndChoose.push({
-                        'name': resultValue.name,
-                        'children': children.concat(resultValue
-                            .indicatorID) // need to include the parent here as well.
-                    });
-                });
-            },
-            error: function() { console.log('Failed to gather data to copy as well as make dropdowns'); }
-        });
-
-        // I probably can do this in the loop above but trying to keep things readable at this point
-        if (pickAndChoose.length > 0) {
-            pickAndChoose.forEach(function(option) {
-                // wow, not sure how to work with these entries. was hoping to just get some text here.
-                let doc = new DOMParser().parseFromString(option.name, 'text/html');
-                let finalName = doc.body.textContent || "";
-                finalName = XSSHelpers.stripAllTags(finalName);
-
-                pickAndChooseOptions +=
-                    '<label class="checkable leaf_check" style="float: none"> <input checked="checked" class="ischecked leaf_check pickAndChoose" name="pickAndChoose[]" type="checkbox" value="' +
-                    JSON.stringify(option.children) + '"> <span class="leaf_check"> </span>' + finalName +
-                    '</label>';
-            });
-        }
 
         dialog.setTitle('Copy Request <!--{$title|escape:'quotes'}-->');
-        dialog.setContent('Select new service: <br /><div id="changeService"></div>');
-        dialog.setContent('' +
-            'Title:<br />'
-            + '<input id="title" name="title" type="text" value="<!--{$title|escape:'quotes'}-->" /><br /><br />'
-            +
-            '<div id="serviceWrapper">Service:<br />' +
-            '<select class="chosen" id="service" name="service">' + serviceOptions + '</select><br /><br /></div>' +
-            'Priority:<br />' +
-            '<select class="chosen" id="priority" name="priority"><option value="-10">EMERGENCY</option><option value="0" selected="selected">Normal</option></select><br /><br />' +
-            'Sections to Copy:<br />' +
-            pickAndChooseOptions +
-            '<br /><br />'
-        );
         dialog.show();
-        dialog.indicateBusy();
-        dialog.indicateIdle();
 
-        // hide service options if they are not available to choose from.
-        if (!(serviceOptions.length > 0)) {
-            $('#serviceWrapper').hide();
-        }
-        $('.chosen').chosen({disable_search_threshold: 6});
-        dialog.setSaveHandler(function() {
+        if(hasHiddenForms) {
+            dialog.setContent(
+                '<h3>Forms associated with this request are unavailable</h3>' +
+                '<p style="max-width:600px;font-size:14px;line-height:1.75;">' +
+                'Please create a new request from the form selection page. If necessary, contact an administrator for information about form updates.</p>'
+            );
+            dialog.setSaveHandler(function() {
+                dialog.hide();
+            });
 
-            // we will add on the categories in the first ajax call, this takes in what data the end user updates
-            let createData = {
-                title: $('#title').val(),
-                service: $('#service').val(),
-                priority: $('#priority').val(),
-                CSRFToken: '<!--{$CSRFToken}-->'
-            };
+        } else {
+            dialog.indicateBusy();
+            // options for the service dropdown
+            let serviceOptions = '';
+            // how is this supposed to work? Old functionality that is no longer used?
+            let series = 1;
+            // allow the end user to choose what should be copied.
+            let pickAndChoose = [];
+            // give it all, make it a bit easier
+            let pickAndChooseOptions =
+                '<label class="checkable leaf_check" style="float: none"> <input class="ischecked leaf_check pickAndChooseAll" checked="checked" type="checkbox"> <span class="leaf_check"> </span>All</label>';
 
-            let updateData = {
-                series: series,
-                CSRFToken: '<!--{$CSRFToken}-->'
-            };
-
-            let fileData = [];
-            let chosenSections = [];
-            let pickAndChooseValues = $("input[name='pickAndChoose[]']:checked")
-                .map(function() {
-                    return chosenSections.concat(JSON.parse($(this).val()));
-                }).get();
-
-            // get our data for submission
-            // I can probably use this to also allow for pick and choose
-            if (pickAndChooseValues.length > 0) {
+            const promises = [
+                // get our service list
                 $.ajax({
                     type: 'GET',
-                    url: 'api/form/<!--{$recordID|strip_tags}-->/data',
+                    url: 'api/service',
                     CSRFToken: '<!--{$CSRFToken}-->',
-                    async: false, // I am not going to nest these to make things easier to follow.
                     success: function(res) {
                         Object.values(res).forEach(function(resultValue) {
-
-                            if (pickAndChooseValues.includes(resultValue[series]
-                                    .indicatorID)) {
-
-                                // uploaded files will need to have a special case done to them to copy them over to the new record
-                                if ((resultValue[series].format == 'fileupload' ||
-                                        resultValue[series].format == 'image') &&
-                                    Array.isArray(resultValue[series].value)) {
-                                    resultValue[series].value.forEach(function(
-                                        currentFile) {
-                                        let fileDat = {
-                                            fileName: currentFile,
-                                            series: series,
-                                            indicatorID: resultValue[series]
-                                                .indicatorID
-                                        }
-                                        fileData.push(fileDat);
-                                    });
-                                    // also need to pull this out of an array since it would then move this to an object which breaks everything.
-                                    updateData[resultValue[series].indicatorID] =
-                                        resultValue[series].value.join('\r\n');
-                                } else {
-                                    updateData[resultValue[series].indicatorID] =
-                                        resultValue[series].value;
-                                }
-
-                            }
-
+                            let selected = (parseInt(resultValue.serviceID) === parseInt(serviceID)) ?
+                                'selected="selected"' : '';
+                            serviceOptions += '<option value="' + resultValue.serviceID + '" ' + selected +
+                                '>' + resultValue.service + '</option>';
                         });
                     },
-                    error: function() {
-                        console.log(
-                            'Failed to gather data to copy as well as make dropdowns');
-                    }
-                });
-            }
+                    error: function() { console.log('Failed to gather services for dropdown!'); }
+                }),
 
-            // need the "categories" and attach them to the createData
-            $.ajax({
-                type: 'GET',
-                url: 'api/form/<!--{$recordID|strip_tags}-->/recordinfo',
-                CSRFToken: '<!--{$CSRFToken}-->',
-                async: false, // I am not going to nest these to make things easier to follow.
-                success: function(res) {
-                    // categories attached to the createData, need this to create a new form
-                    Object.values(res.categories).forEach(function(category) {
-                        // your what hurts? value is ignored afaik
-                        createData['num' + category] = 'num' + category;
+                $.ajax({
+                    type: 'GET',
+                    url: 'api/form/<!--{$recordID|strip_tags}-->/data/tree',
+                    CSRFToken: '<!--{$CSRFToken}-->',
+                    success: function(res) {
+                        Object.values(res).forEach(function(resultValue) {
+                            let children = getChildrenIndicatorIDs(resultValue.child);
+                            pickAndChoose.push({
+                                'name': resultValue.name,
+                                // need to include the parent here as well.
+                                'children': children.concat(resultValue.indicatorID)
+                            });
+                        });
+                    },
+                    error: function() { console.log('Failed to gather data to copy as well as make dropdowns'); }
+                }),
+            ]
+
+            Promise.all(promises).then(res => {
+                if (pickAndChoose.length > 0) {
+                    pickAndChoose.forEach(function(option) {
+                        let doc = new DOMParser().parseFromString(option.name, 'text/html');
+                        let finalName = doc.body.textContent || "";
+                        finalName = XSSHelpers.stripAllTags(finalName);
+
+                        pickAndChooseOptions +=
+                            '<label class="checkable leaf_check" style="float: none"> <input checked="checked" class="ischecked leaf_check pickAndChoose" name="pickAndChoose[]" type="checkbox" value="' +
+                            JSON.stringify(option.children) + '"> <span class="leaf_check"> </span>' + finalName +
+                            '</label>';
                     });
-                },
-                error: function() {
-                    console.log(
-                        'Failed to gather categories before creating new form');
                 }
-            });
 
-            // create the new record, we will update the existing data once we get a complete.
-            $.ajax({
-                type: 'POST',
-                url: './api/form/new',
-                data: createData,
-                success: function(res) {
-                    let newRecordID = parseFloat(res);
-                    // this was copied from another area, probably a better way of handling this?
-                    if (!isNaN(newRecordID) && isFinite(newRecordID) && newRecordID !== 0) {
-                        // save the contents, could not tell if this could be done in one call.
-                        if (pickAndChooseValues.length > 0) {
-                            $.ajax({
-                                type: 'POST',
-                                url: './api/form/' + newRecordID,
-                                data: updateData,
-                                async: false, // I am not going to nest these to make things easier to follow.
-                                success: function() {
-                                    console.log('Questions copied over to new record.');
-                                },
-                                error: function() {
-                                    console.log('Failed to copy data to new form!')
-                                }
-                            });
-                        }
+                dialog.setContent('' +
+                    '<label for="title">Title:</label><br />'
+                    + '<input id="title" name="title" type="text" value="<!--{$title|escape:'quotes'}-->" style="width:200px;"/><br /><br />'
+                    +
+                    '<div id="serviceWrapper"><label for="service">Service:</label><br />' +
+                    '<select class="chosen" id="service" name="service">' + serviceOptions + '</select><br /><br /></div>' +
+                    '<label for="priority">Priority:</label><br />' +
+                    '<select class="chosen" id="priority" name="priority"><option value="-10">EMERGENCY</option><option value="0" selected="selected">Normal</option></select><br /><br />' +
+                    '<fieldset><legend>Sections to copy data from:</legend>' +
+                    pickAndChooseOptions +
+                    '</fieldset><br /><br />'
+                );
 
-                        // copy over some files!
-                        if (fileData.length > 0) {
-                            fileData.forEach(function(theFile) {
-                                $.ajax({
-                                    type: 'POST',
-                                    url: './api/form/files/copy',
-                                    data: {
-                                        CSRFToken: '<!--{$CSRFToken}-->',
-                                        recordID: <!--{$recordID|strip_tags}-->,
-                                        newRecordID: newRecordID,
-                                        indicatorID: theFile.indicatorID,
-                                        fileName: theFile.fileName,
-                                        series: theFile.series
-                                    },
-                                    async: false, // I am not going to nest these to make things easier to follow.
-                                    success: function() {
-                                        console.log(
-                                            'Files copied over to new record.'
-                                        );
-                                    },
-                                    error: function() {
-                                        console.log(
-                                            'Failed to copy data to new form!'
-                                        )
+                dialog.indicateIdle();
+
+                // hide service options if they are not available to choose from.
+                if (!(serviceOptions.length > 0)) {
+                    $('#serviceWrapper').hide();
+                }
+                $('.chosen').chosen({ disable_search_threshold: 6 });
+                dialog.setSaveHandler(function() {
+
+                    // we will add on the categories in the first ajax call, this takes in what data the end user updates
+                    createData = {
+                        ...createData,
+                        title: $('#title').val(),
+                        service: $('#service').val(),
+                        priority: $('#priority').val(),
+                    };
+                    console.log(createData);
+                    let updateData = {
+                        series: series,
+                        CSRFToken: '<!--{$CSRFToken}-->'
+                    };
+
+                    let fileData = [];
+                    let chosenSections = [];
+                    let pickAndChooseValues = $("input[name='pickAndChoose[]']:checked")
+                        .map(function() {
+                            return chosenSections.concat(JSON.parse($(this).val()));
+                        }).get();
+
+                    // get our data for submission
+                    // I can probably use this to also allow for pick and choose
+                    if (pickAndChooseValues.length > 0) {
+                        $.ajax({
+                            type: 'GET',
+                            url: 'api/form/<!--{$recordID|strip_tags}-->/data',
+                            CSRFToken: '<!--{$CSRFToken}-->',
+                            async: false, // I am not going to nest these to make things easier to follow.
+                            success: function(res) {
+                                Object.values(res).forEach(function(resultValue) {
+
+                                    if (pickAndChooseValues.includes(resultValue[series]
+                                            .indicatorID)) {
+
+                                        // uploaded files will need to have a special case done to them to copy them over to the new record
+                                        if ((resultValue[series].format == 'fileupload' ||
+                                                resultValue[series].format == 'image') &&
+                                            Array.isArray(resultValue[series].value)) {
+                                            resultValue[series].value.forEach(function(
+                                                currentFile) {
+                                                let fileDat = {
+                                                    fileName: currentFile,
+                                                    series: series,
+                                                    indicatorID: resultValue[series]
+                                                        .indicatorID
+                                                }
+                                                fileData.push(fileDat);
+                                            });
+                                            // also need to pull this out of an array since it would then move this to an object which breaks everything.
+                                            updateData[resultValue[series].indicatorID] =
+                                                resultValue[series].value.join('\r\n');
+                                        } else {
+                                            updateData[resultValue[series].indicatorID] =
+                                                resultValue[series].value;
+                                        }
+
                                     }
+
                                 });
-                            });
-                        }
-
-                        // then redirect, not sure how to really structure this since we do have a bit of if checking here.
-                        window.location = "index.php?a=view&recordID=" + newRecordID;
-                        dialog.hide();
-
-                    } else {
-                        console.log('Unknown error occurred, could not save contents to form!');
+                            },
+                            error: function() {
+                                console.log(
+                                    'Failed to gather data to copy as well as make dropdowns');
+                            }
+                        });
                     }
-                },
-                error: function() { console.log('Failed to create new form!'); }
-            });
 
-        });
+                    // create the new record, we will update the existing data once we get a complete.
+                    $.ajax({
+                        type: 'POST',
+                        url: './api/form/new',
+                        data: createData,
+                        success: function(res) {
+                            let newRecordID = parseFloat(res);
+                            // this was copied from another area, probably a better way of handling this?
+                            if (!isNaN(newRecordID) && isFinite(newRecordID) && newRecordID !== 0) {
+                                // save the contents, could not tell if this could be done in one call.
+                                if (pickAndChooseValues.length > 0) {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: './api/form/' + newRecordID,
+                                        data: updateData,
+                                        async: false, // I am not going to nest these to make things easier to follow.
+                                        success: function() {
+                                            console.log('Questions copied over to new record.');
+                                        },
+                                        error: function() {
+                                            console.log('Failed to copy data to new form!')
+                                        }
+                                    });
+                                }
+
+                                // copy over some files!
+                                if (fileData.length > 0) {
+                                    fileData.forEach(function(theFile) {
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: './api/form/files/copy',
+                                            data: {
+                                                CSRFToken: '<!--{$CSRFToken}-->',
+                                                recordID: <!--{$recordID|strip_tags}-->,
+                                                newRecordID: newRecordID,
+                                                indicatorID: theFile.indicatorID,
+                                                fileName: theFile.fileName,
+                                                series: theFile.series
+                                            },
+                                            async: false, // I am not going to nest these to make things easier to follow.
+                                            success: function() {
+                                                console.log(
+                                                    'Files copied over to new record.'
+                                                );
+                                            },
+                                            error: function() {
+                                                console.log(
+                                                    'Failed to copy data to new form!'
+                                                )
+                                            }
+                                        });
+                                    });
+                                }
+
+                                // then redirect, not sure how to really structure this since we do have a bit of if checking here.
+                                window.location = "index.php?a=view&recordID=" + newRecordID;
+                                dialog.hide();
+
+                            } else {
+                                console.log('Unknown error occurred, could not save contents to form!');
+                            }
+                        },
+                        error: function() { console.log('Failed to create new form!'); }
+                    });
+
+                });
+
+            }).catch(err => console.log('an error has occurred', err));
+        }
     }
 
     function changeService() {
