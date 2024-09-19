@@ -37,15 +37,15 @@ server {
 
     }
 
-    location /health-check-server {
+    location /health-check-api {
         access_log off;
-        return 200 "ok server";
+        return 200 "ok api";
         add_header Content-Type text/plain;
     }
-
+    
     location ~ \.php$ {
         try_files $uri $uri/ /index.php =404;
-        fastcgi_pass ${LEAF_POD}:9000;
+        fastcgi_pass ${LEAF_API_POD}:9000;
         fastcgi_index index.php;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
@@ -54,7 +54,6 @@ server {
         fastcgi_read_timeout 600;
         include fastcgi_params;
         gzip on;
-
     }
 
     # static files browser caching
@@ -96,7 +95,7 @@ server {
 
     location ~ /api/v2/(.*?)$ {
         set $api_directory /var/www/html/app/Api/v2;
-        fastcgi_pass php-fpm:9000;
+        fastcgi_pass ${LEAF_API_POD}:9000;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
         fastcgi_split_path_info ^(.+\/api\/v2\/)(.*)$;
@@ -108,7 +107,8 @@ server {
         fastcgi_param CONTENT_TYPE $content_type;
         fastcgi_param CONTENT_LENGTH $content_length;
         #fixes timeouts
-        fastcgi_read_timeout 600;
+        fastcgi_read_timeout 3000;
+        fastcgi_send_timeout 3000;
         include fastcgi_params;
         gzip on;
 
@@ -119,7 +119,7 @@ server {
     }
 
     location ~ /api/(.*?)$ {
-        fastcgi_pass ${LEAF_POD}:9000;
+        fastcgi_pass ${LEAF_API_POD}:9000;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
         fastcgi_split_path_info ^(.+\/api\/)(.*)$;
@@ -131,41 +131,14 @@ server {
         fastcgi_param CONTENT_TYPE $content_type;
         fastcgi_param CONTENT_LENGTH $content_length;
         #fixes timeouts
-        fastcgi_read_timeout 600;
+        fastcgi_read_timeout 3000;
+        fastcgi_send_timeout 3000;
 
         # Give this info to php
-        fastcgi_param LEAF_Large_Queries "pass_onto_large_query_server";
+        fastcgi_param LEAF_Large_Queries "process_ran_on_large_query_server";
         # Give this info to the browser, need to see if this is actually needed or just a nice to have to see
-        add_header LEAF_Large_Queries "pass_onto_large_query_server" always;
+        add_header LEAF_Large_Queries "process_ran_on_large_query_server" always;
 
-        include fastcgi_params;
-        gzip on;
-
-        
-
-        # debuging
-        add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
-        add_header x-debug-path-info "$fastcgi_path_info" always;
-        add_header x-debug-args-info "$args" always;
-    }
-
-    location /selenium-tests {
-        resolver 127.0.0.11;
-        set $selen_pod ${SEL_POD}:9000;
-        fastcgi_pass $selen_pod;
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
-        fastcgi_split_path_info ^(.+\/selenium-tests\/)(.*)$;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME /app/index.php;
-        fastcgi_param PATH_INFO $fastcgi_path_info;
-        fastcgi_param QUERY_STRING $query_string;
-        fastcgi_param REQUEST_METHOD $request_method;
-        fastcgi_param CONTENT_TYPE $content_type;
-        fastcgi_param CONTENT_LENGTH $content_length;
-        
-        #fixes timeouts
-        fastcgi_read_timeout 600;
         include fastcgi_params;
         gzip on;
 
@@ -175,9 +148,4 @@ server {
         add_header x-debug-args-info "$args" always;
     }
 
-
-
-    #location /adminer {
-    #    proxy_pass ${LEAF}:8080;
-    #}
 }
