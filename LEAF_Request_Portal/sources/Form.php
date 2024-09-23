@@ -339,6 +339,8 @@ class Form
         {
             return 'Error: Invalid token.';
         }
+        //need to know if form is in an available state.  unpublished forms (visibility -1) should not be created.
+
         $title = XSSHelpers::sanitizeHTML($_POST['title']);
         $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
@@ -946,14 +948,10 @@ class Form
                                             WHERE recordID=:recordID AND count > 0', $vars);
         $categoryData = array();
         $categoryNames = array();
-        $hiddenForms = array();
         foreach ($resCategory as $cat)
         {
             $categoryData[$cat['categoryID']] = $cat['categoryID'];
             $categoryNames[$cat['categoryID']] = $cat['categoryName'];
-            if ($cat['visible'] === 0) {
-                $hiddenForms[] = $cat['categoryID'];
-            }
         }
         $parentIDs = implode(',', array_values($categoryData));
 
@@ -1001,22 +999,19 @@ class Form
         $user = $dir->lookupLogin($res[0]['userID']);
         $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
 
-        $data = array(
-            'name' => $name,
-            'service' => $res[0]['service'],
-            'serviceID' => $res[0]['serviceID'],
-            'date' => $res[0]['date'],
-            'title' => $res[0]['title'],
-            'priority' => $res[0]['priority'],
-            'submitted' => $res[0]['submitted'],
-            'stepID' => $res[0]['stepID'],
-            'deleted' => $res[0]['deleted'],
-            'bookmarked' => $res[0]['tag'],
-            'internalForms' => $internalIDs,
-            'categories' => $categoryData,
-            'categoryNames' => $categoryNames,
-            'hiddenForms' => $hiddenForms,
-        );
+        $data = array('name' => $name,
+                      'service' => $res[0]['service'],
+                      'serviceID' => $res[0]['serviceID'],
+                      'date' => $res[0]['date'],
+                      'title' => $res[0]['title'],
+                      'priority' => $res[0]['priority'],
+                      'submitted' => $res[0]['submitted'],
+                      'stepID' => $res[0]['stepID'],
+                      'deleted' => $res[0]['deleted'],
+                      'bookmarked' => $res[0]['tag'],
+                      'internalForms' => $internalIDs,
+                      'categories' => $categoryData,
+                      'categoryNames' => $categoryNames, );
 
         return $data;
     }
