@@ -161,7 +161,7 @@
     </a>
 
     <a href="./?a=mod_account_updater" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
-        <i class="leaf-admin-btnicon fas fa-play text-orange-50 leaf-icn-narrow2" title="Initiator New Account"></i>
+        <i class="leaf-admin-btnicon fas fa-id-card text-orange-50 leaf-icn-narrow2" title="Initiator New Account"></i>
         <span class="leaf-admin-btntitle">New Account Updater</span>
         <span class="leaf-admin-btndesc">Update records with new account</span>
     </a>
@@ -200,6 +200,12 @@
         <i class="leaf-admin-btnicon fas fa-file-export text-orange-50 leaf-icn-narrow2" title="Sitemap Editor"></i>
         <span class="leaf-admin-btntitle">Grid Splitter</span>
         <span class="leaf-admin-btndesc">Export grid form data to Excel spreadsheet</span>
+    </a>
+
+    <a href="../report.php?a=LEAF_Start_Request" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
+        <i class="leaf-admin-btnicon fas fa-solid fa-forward-fast text-orange-50 leaf-icn-narrow2" title="Combined Inbox Editor"></i>
+        <span class="leaf-admin-btntitle">Setup Quicklink</span>
+        <span class="leaf-admin-btndesc">Create a URL to start New Requests</span>
     </a>
 
 </div>
