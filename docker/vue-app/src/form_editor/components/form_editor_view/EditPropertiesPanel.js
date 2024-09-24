@@ -16,9 +16,6 @@ export default {
             workflowRecords: []
         }
     },
-    props: {
-        hasCollaborators: Boolean
-    },
     created() {
         this.getWorkflowRecords();
     },
@@ -154,7 +151,7 @@ export default {
             })
         },
         updateNeedToKnow(forceOn = false) {
-            const newValue = forceOn ? 1 : this.needToKnow;
+            const newValue = forceOn === true ? 1 : this.needToKnow;
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/formNeedToKnow`,
@@ -261,6 +258,7 @@ export default {
 
                     <label for="availability" title="When hidden, users will not be able to select this form">Status: 
                         <select id="availability" title="Select Availability" v-model.number="visible" @change="updateAvailability">
+                            <option value="-1" :selected="visible === -1">Unpublished</option>
                             <option value="1" :selected="visible === 1">Available</option>
                             <option value="0" :selected="visible === 0">Hidden</option>
                         </select>

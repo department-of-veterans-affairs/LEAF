@@ -860,6 +860,7 @@ function doSubmit(recordID) {
             }
 
             dialog.setContent('' +
+                '<div id="copy_request_error" style="display:none;margin:0.5rem 0;padding:0.5rem;background-color:#ffc;line-height:1.5"></div>' +
                 '<label for="title">Title:</label><br />'
                 + '<input id="title" name="title" type="text" value="<!--{$title|escape:'quotes'}-->" style="width:200px;"/><br /><br />'
                 +
@@ -1000,7 +1001,11 @@ function doSubmit(recordID) {
 
                         } else {
                             //could not create new form.  Either an error or form is set to unpublished.
-                            console.log('An error occurred, could not save contents to form!', res);
+                            let elError = document.getElementById('copy_request_error');
+                            if(elError !== null) {
+                                elError.style.display = 'block';
+                                elError.innerHTML = '<b>Request could not be copied:</b><br>' + res;
+                            }
                         }
                     },
                     error: function() { console.log('Failed to create new form!'); }

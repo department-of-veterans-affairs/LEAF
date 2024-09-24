@@ -339,8 +339,6 @@ class Form
         {
             return 'Error: Invalid token.';
         }
-        //need to know if form is in an available state.  unpublished forms (visibility -1) should not be created.
-
         $title = XSSHelpers::sanitizeHTML($_POST['title']);
         $_POST['title'] = $title == '' ? '[blank]' : $title;
         $_POST['service'] = !isset($_POST['service']) || $_POST['service'] == '' ? 0 : (int)$_POST['service'];
@@ -355,20 +353,31 @@ class Form
 
         $keys = array_keys($_POST);
 
-        $countCategories = 0;
+        $categoryIDsArr = array();
         if (isset($_POST['title']))
         {
             foreach ($keys as $key)
             {
                 if (strpos($key, 'num') === 0)
                 {
-                    $countCategories++;
+                    $categoryIDsArr[] = XSSHelpers::xscrub(strtolower(substr($key, 3)));
                 }
             }
         }
-        if ($countCategories == 0)
+        if (count($categoryIDsArr) === 0)
         {
             return 'Error: No forms selected. Please Select a form and try again.';
+        }
+
+        //check category visible status.  unpublished forms (visibility -1) should not be created.
+        $pubVars = array(
+            ":categoryIDs" => implode(',', $categoryIDsArr)
+        );
+        $pubSQL = "SELECT * FROM categories WHERE FIND_IN_SET(categoryID, :categoryIDs) AND `visible` = -1";
+        $unpublishedForms = $this->db->prepared_query($pubSQL, $pubVars);
+
+        if (count($unpublishedForms) > 0) {
+            return 'Forms associated with this request are unpublished.  Please use the New Request page or contact an administrator about possible form updates.';
         }
 
         $var = array(':service' => $_POST['service']);
