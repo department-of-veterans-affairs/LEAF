@@ -1,0 +1,3 @@
+[submodule "LEAF-Automated-Tests"]
+	path = LEAF-Automated-Tests
+	url = https://github.com/department-of-veterans-affairs/LEAF-Automated-Tests.git
