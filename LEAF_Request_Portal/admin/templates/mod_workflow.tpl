@@ -108,6 +108,7 @@
                     } else {
                         let url = new URL(window.location.href);
                         url.searchParams.delete('workflowID');
+                        window.history.replaceState(null, "", url.toString());
                         window.location.reload();
                     }
                 },
