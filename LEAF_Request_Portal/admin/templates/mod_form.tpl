@@ -84,7 +84,7 @@ function editProperties(isSubForm) {
                              </tr>\
                              <tr class="isSubForm">\
                                  <td><label for="visible">Availability </label><img src="../dynicons/?img=emblem-notice.svg&w=16" title="When hidden, users will not be able to select this form as an option." alt="" /></td>\
-                                 <td><select id="visible"><option value="1">Available</option><option value="0">Hidden</option></select></td>\
+                                 <td><select id="visible"><option value="-1">Unpublished</option><option value="1">Available</option><option value="0">Hidden</option></select></td>\
                              </tr>\
                              <tr class="isSubForm">\
                                  <td><label for="sort">Sort Priority </label></td>\
@@ -2243,7 +2243,7 @@ function createForm(parentID) {
                 categories[res].workflowID = 0;
                 categories[res].parentID = '';
                 categories[res].needToKnow = 0;
-                categories[res].visible = 1;
+                categories[res].visible = -1;
                 categories[res].sort = 0;
                 if(parentID != '') {
                     categories[res].parentID = parentID;
