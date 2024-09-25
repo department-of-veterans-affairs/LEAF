@@ -2372,8 +2372,8 @@
                     }
                     output += '<option value="' + res[i].workflowID + '" description = "' + res[i]
                         .description +
-                        '"><b>' + res[i].description +
-                        '</b> (ID: #' + res[i].workflowID + ')</option>';
+                        '">' + res[i].description +
+                        ' (ID: #' + res[i].workflowID + ')</option>';
                     count++;
                 }
                 if (count == 0) {
@@ -2575,7 +2575,7 @@
     function duplicateWorkflow() {
         $('.workflowStepInfo').css('display', 'none');
 
-        dialog.setTitle('Copy current workflow');
+        dialog.setTitle('Duplicate current workflow');
         dialog.setContent('<br /><label for="description">New Workflow Title: </label><input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
         dialog.setSaveHandler(function() {
             let old_steps = {};
