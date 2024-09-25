@@ -106,6 +106,8 @@
                         alert("Prerequisite action needed:\n\n" + res);
                         dialog_confirm.hide();
                     } else {
+                        let url = new URL(window.location.href);
+                        url.searchParams.delete('workflowID');
                         window.location.reload();
                     }
                 },
@@ -2572,7 +2574,7 @@
     function duplicateWorkflow() {
         $('.workflowStepInfo').css('display', 'none');
 
-        dialog.setTitle('Duplicate current workflow');
+        dialog.setTitle('Copy current workflow');
         dialog.setContent('<br /><label for="description">New Workflow Title: </label><input type="text" id="description"/><br /><br />The following will NOT be copied over:<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;Data fields that show up next to the workflow action buttons');
         dialog.setSaveHandler(function() {
             let old_steps = {};
@@ -2589,19 +2591,17 @@
             workflows[workflowID]['description'] = title;
             old_steps[-1] = -1;
 
+            let elFilter = document.createElement('div');
             for(let i in steps) {
                 // add step, if successful update that step
-                addStep(workflowID, steps[i].stepTitle, function(stepID) {
+                elFilter.innerHTML = steps[i].stepTitle;
+                addStep(workflowID, elFilter.textContent, function(stepID) {
 
                     if (isNaN(stepID)) {
                         console.log(stepID);
                     } else {
                         old_steps[steps[i].stepID] = stepID;
                         updatePosition(workflowID, stepID, steps[i].posX, steps[i].posY);
-
-                        updateTitle(steps[i].stepTitle, stepID, function(res) {
-                            // Alls well that ends well.
-                        });
 
                         if (steps[i].stepData != null) {
                             let auto = JSON.parse(steps[i].stepData);
