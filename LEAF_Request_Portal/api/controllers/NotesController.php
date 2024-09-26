@@ -93,14 +93,14 @@ class NotesController extends RESTfulResponse
 
                 $this->index['POST'] = new ControllerMap();
 
-                $this->index['POST']->register('note/[digit]', function ($args) use ($note) {
+                $this->index['POST']->register('note/[digit]', function ($args) use ($note, $form) {
                     $params = array();
                     parse_str($_POST['form'], $params);
 
                     if (!empty($params['note'])) {
                         $params['recordID'] = $args[0];
                         $params['timestamp'] = time();
-
+                        $params['userMetadata'] = $form->employee->getInfoForUserMetadata($params['userID'], false);
                         $posted_note_id = $note->postNote($params);
                         $posted_note = $note->getNotesById($posted_note_id);
                         $posted_note['user_name'] = $_SESSION['name'];
