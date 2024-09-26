@@ -46,7 +46,7 @@ test('new record', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Click here to Proceed' }).click();
   await page.getByLabel('single line text').click();
   await page.getByLabel('single line text').fill('single line');
-  await page.getByRole('button', { name: 'Next Question', exact: true }).click();
+  await page.getByRole('button', { name: 'Next Question', exact: true }).first().click();
   await expect(page.locator('#requestTitle')).toContainText(uniqueText);
 
   const screenshot = await page.screenshot();

@@ -39,6 +39,7 @@ function dialogController(containerID, contentID, loadIndicatorID, btnSaveID, bt
     $('#' + this.btnCancelID).on('click', function() {
     	t.hide();
     });
+	document.querySelector('#' + this.btnCancelID).removeAttribute('disabled');
     $('button.ui-dialog-titlebar-close').on('click', function() {
         t.hide();
     });
@@ -63,8 +64,6 @@ dialogController.prototype.clearDialog = function() {
 
 dialogController.prototype.setTitle = function(title) {
 	$('#' + this.containerID).dialog('option', 'title', title);
-	const parentLabelledBy = $('#' + this.containerID).parent().attr('aria-labelledBy');
-	$('#' + this.containerID).attr('aria-labelledby', parentLabelledBy);
 };
 
 dialogController.prototype.hide = function() {
@@ -192,12 +191,18 @@ dialogController.prototype.setSaveHandler = function(funct) {
     this.dialogControllerXhrEvent = $('#' + this.btnSaveID).on('click', function() {
         if(t.isValid(true) == 1 && t.isComplete(true) == 1) {
         	funct();
+			if(document.querySelector('#' + this.btnSaveID) != undefined) {
+				document.querySelector('#' + this.btnSaveID).setAttribute('disabled', '');
+			}
         	$('#' + t.btnSaveID).off();
         }
         else {
         	t.indicateIdle();
         }
     });
+	if(document.querySelector('#' + this.btnSaveID) != undefined) {
+		document.querySelector('#' + this.btnSaveID).removeAttribute('disabled');
+	}
 };
 
 dialogController.prototype.setCancelHandler = function(funct) {

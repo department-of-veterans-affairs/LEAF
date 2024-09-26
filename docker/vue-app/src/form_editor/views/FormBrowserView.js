@@ -35,7 +35,7 @@ export default {
     <section>
         <div v-if="appIsLoadingCategories" class="page_loading">
             Loading... 
-            <img src="../images/largespinner.gif" alt="loading..." />
+            <img src="../images/largespinner.gif" alt="" />
         </div>
         <FormBrowser v-else></FormBrowser>
 

@@ -5,6 +5,7 @@ export default {
             requiredDataProperties: ['mainFormID'],
             mainFormID: this.dialogData?.mainFormID || '',
             catIDtoStaple: '',
+            ariaStatus: '',
         }
     },
     inject: [
@@ -64,6 +65,7 @@ export default {
                 type: 'DELETE',
                 url: `${this.APIroot}formEditor/_${this.mainFormID}/stapled/_${stapledCatID}?` + $.param({CSRFToken:this.CSRFToken}),
                 success: () => {
+                    this.ariaStatus = `Removed stapled form ${this.categories[stapledCatID]?.categoryName || ''}`;
                     this.updateStapledFormsInfo(this.mainFormID, stapledCatID, true);
                 },
                 error: err => console.log(err)
@@ -82,6 +84,7 @@ export default {
                         if(+res !== 1) {
                             alert(res);
                         } else {
+                            this.ariaStatus = `Added stapled form ${this.categories[this.catIDtoStaple]?.categoryName || ''}`;
                             this.updateStapledFormsInfo(this.mainFormID, this.catIDtoStaple);
                             this.catIDtoStaple = '';
                         }
@@ -105,6 +108,7 @@ export default {
         }
     },
     template:`<div>
+        <div id="status_form_staple" role="status" aria-live="assertive" :aria-label="ariaStatus" style="opacity:0;position:absolute;"></div>
         <p>Stapled forms will show up on the same page as the primary form.</p>
         <p>The order of the forms will be determined by the forms' assigned sort values.</p>
         <div id="mergedForms" style="margin-top: 1rem;">
@@ -113,7 +117,9 @@ export default {
                     {{truncateText(decodeAndStripHTML(categories[id]?.categoryName || 'Untitled')) }}
                     <button type="button"
                         style="margin-left: 0.25em; background-color: transparent; color:#a00; padding: 0.1em 0.2em; border: 0; border-radius:3px;" 
-                        @click="unmergeForm(id)" :title="'remove ' + categories[id]?.categoryName || 'Untitled'">
+                        @click="unmergeForm(id)"
+                        :title="'remove ' + categories[id]?.categoryName || 'Untitled'"
+                        :aria-label="'remove ' + categories[id]?.categoryName || 'Untitled'">
                         <b>[ Remove ]</b>
                     </button>
                 </li>

@@ -25,8 +25,7 @@ foreach ($siteList as $site) {
     }
 }
 
-$errorNotify->sendNotification('Automated Email Error',$failedArray);
-
+$errorNotify->logEmailErrors($failedArray);
 
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);

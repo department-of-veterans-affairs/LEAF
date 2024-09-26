@@ -98,7 +98,11 @@ export default {
         this.getEnabledCategories();
         document.addEventListener('keydown', (event)=> {
             if((event?.key || "").toLowerCase() === "escape" && this.showFormDialog === true) {
-                this.closeFormDialog();
+                //escape is needed to tab out of codemirror editors - don't close the modal if the target is one of those textareas
+                const closestCodeMirror = event.target.closest('.CodeMirror') || null;
+                if(closestCodeMirror === null) {
+                    this.closeFormDialog();
+                }
             }
         })
     },
@@ -392,7 +396,7 @@ export default {
 
         /** DIALOG MODAL RELATED */
         /**
-         * close dialog and reset values
+         * close dialog and reset dialog properties
          */
         closeFormDialog() {
             this.showFormDialog = false;

@@ -1,6 +1,6 @@
 <!--{if false}-->
 <div id="site-designer-app">
-    <main>
+    <div>
         <section>
             <div style="display:flex; gap: 1rem; align-items: center;">
                 <h2 style="margin-right: auto;">Site Designer</h2>
@@ -18,7 +18,7 @@
             <!-- NOTE: routes -->
             <router-view></router-view>
         </section>
-    </main>
+    </div>
 </div>
 
 <script>

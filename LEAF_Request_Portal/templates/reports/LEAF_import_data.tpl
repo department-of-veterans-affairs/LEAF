@@ -425,7 +425,7 @@
     }
 
     $(function () {
-
+        document.querySelector('title').innerText = 'Import Spreadsheet - <!--{$title}-->';
         $("body").prepend($("#modal-background"));
         var progressTimer;
         var progressbar = $( "#progressbar" );

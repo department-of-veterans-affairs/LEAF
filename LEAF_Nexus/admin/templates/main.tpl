@@ -42,7 +42,7 @@
 {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
     <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
 {/if}
-<div id="header">
+<header id="header">
     {if $qrcodeURL != ''}
     <div style="float: left"><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
     {/if}
@@ -58,8 +58,8 @@
     <span id="headerTab">{$emergency}{$tabText}</span>
     <span id="headerTabImg"><img src="../images/tab.png" alt="" /></span>
     <span id="headerMenu">{$menu}</span>
-</div>
-<div id="body">
+</header>
+<main id="body">
     <div id="content">
         {if $status != ''}
         <div class="alert"><span>{$status}</span></div>
@@ -68,9 +68,9 @@
             {$body}
         </div>
     </div>
-</div>
-<div id="footer"{if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
+</main>
+<footer id="footer"{if $hideFooter == true} style="visibility: hidden; display: none"{/if}>
     <br /><br /><a id="versionID" href="../?a=about">{$smarty.const.PRODUCT_NAME}<br />Version {$smarty.const.VERSION_NUMBER} r{$revision}</a>
-</div>
+</footer>
 </body>
 </html>

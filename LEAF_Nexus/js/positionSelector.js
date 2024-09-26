@@ -10,7 +10,7 @@ function positionSelector(containerID) {
   this.selection = "";
 
   this.containerID = containerID;
-  this.prefixID = "posSel" + Math.floor(Math.random() * 1000) + "_";
+  this.prefixID = this.makePrefixID();
   this.timer = 0;
   this.q = "";
   this.isBusy = 1;
@@ -25,6 +25,12 @@ function positionSelector(containerID) {
   this.currRequest = null;
 
   this.numResults = 0;
+}
+
+positionSelector.prototype.makePrefixID = function () {
+  const id = "posSel" + Math.floor(Math.random() * 1000) + "_";
+  const el = document.getElementById(id + 'result');
+  return (el !== null) ? this.makePrefixID() : id;
 }
 
 positionSelector.prototype.initialize = function () {
@@ -42,7 +48,7 @@ positionSelector.prototype.initialize = function () {
       this.prefixID +
       'icon" src="' +
       t.rootPath +
-      'dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="search" />\
+      'dynicons/?img=search.svg&w=16" class="positionSelectorIcon" alt="" />\
 			<span style="position: absolute; width: 60%; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); border: 0;" aria-atomic="true" aria-live="polite" id="' +
       this.prefixID +
       'status" role="status"></span>\
@@ -50,7 +56,7 @@ positionSelector.prototype.initialize = function () {
       this.prefixID +
       'iconBusy" src="' +
       t.rootPath +
-      'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="search" /></div>\
+      'images/indicator.gif" style="display: none" class="positionSelectorIcon" alt="" /></div>\
 			<input id="' +
       this.prefixID +
       'input" type="search" class="positionSelectorInput" aria-label="Search for user to add as ' +
@@ -204,7 +210,7 @@ positionSelector.prototype.search = function () {
                 t.prefixID +
                 'emp0"><td style="font-size: 120%; background-color: white; text-align: center" colspan=2>No results for &quot;<span id="' +
                 t.prefixID +
-                'emp0_message" style="color: red"></span>&quot;</td></tr>'
+                'emp0_message" style="color: #c00;"></span>&quot;</td></tr>'
             );
             $("#" + t.prefixID + "emp0_message").text(txt);
             setTimeout(function () {

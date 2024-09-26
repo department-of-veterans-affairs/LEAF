@@ -54,7 +54,7 @@ export default {
     template:`<div>
         <div v-if="ajaxRes === null" class="page_loading">
             Loading...
-            <img src="../images/largespinner.gif" alt="loading..." />
+            <img src="../images/largespinner.gif" alt="" />
         </div>
         <div v-else id="history-slice" v-html="ajaxRes" style="min-height: 100px; min-width: 300px;"></div>
         <div id="history-page-buttons" style="display: flex; justify-content: space-between;">

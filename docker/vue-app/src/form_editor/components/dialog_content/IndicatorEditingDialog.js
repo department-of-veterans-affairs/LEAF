@@ -9,6 +9,11 @@ export default {
         return {
             requiredDataProperties: ['indicator','indicatorID','parentID'],
             initialFocusElID: 'name',
+            trumbowygTitleClassMap: {
+                "Formatting": "trumbowyg-dropdown-formatting",
+                "Link": "trumbowyg-dropdown-link",
+                "Text color": "trumbowyg-dropdown-foreColor",
+            },
             showAdditionalOptions: false,
             showDetailedFormatInfo: false,
             formats: {
@@ -52,6 +57,7 @@ export default {
             listForParentIDs: [],
             isLoadingParentIDs: true,
             multianswerFormats: ['checkboxes','radio','multiselect','dropdown'],
+            ariaTextEditorStatus: '',
 
             name: this.removeScriptTags(this.decodeHTMLEntities(this.dialogData?.indicator?.name || '')),
             options: this.dialogData?.indicator?.options || [],//array of choices for radio, dropdown, etc.  1 ele w JSON for grids
@@ -157,6 +163,9 @@ export default {
         showFormatSelect() {
             //not a header, or in advanced mode, or the format of the header is already a format other than none
             return this.parentID !== null || this.advancedMode === true || this.format !== '' || hasDevConsoleAccess;
+        },
+        showDefaultTextarea() {
+            return !['','raw_data','fileupload','image','grid','checkboxes','multiselect'].includes(this.format);
         },
         shortLabelTriggered() {
             return this.name.trim().split(' ').length > 2 || this.containsRichText(this.name) || hasDevConsoleAccess;
@@ -558,14 +567,90 @@ export default {
             });
             $('.trumbowyg-editor, .trumbowyg-texteditor').css({
                 'min-height': '100px',
+                'max-width': '695px',
+                'min-width': '506px',
                 'height': '100px',
-                'padding': '1rem'
+                'padding': '1rem',
+                'resize': 'both',
             });
+            let trumbowygBtns = Array.from(document.querySelectorAll('.trumbowyg-box button'));
+
+            /** handle keyboard events.  trumbow uses mousedown so dispatch that event for enter or spacebar */
+            const handleTrumbowEvents = (event) => {
+                const btn = event.currentTarget;
+                const isDropdown = btn.classList.contains('trumbowyg-open-dropdown');
+                const isActive = btn.classList.contains('trumbowyg-active');
+
+                if(event?.which === 13 || event?.which === 32) {
+                    btn.dispatchEvent(new Event('mousedown'));
+                    event.preventDefault();
+                    if(isDropdown) {
+                        btn.setAttribute('aria-expanded', !isActive);
+                    }
+                }
+                if(event?.which === 9) { //fix menu tabbing and tabbing order
+                    const controllerBtn = document.querySelector(`button[aria-controls="${btn.parentNode.id}"]`);
+
+                    const btnWrapperSelector = isDropdown ?
+                        `id_${this.trumbowygTitleClassMap[btn.title]}` : `${btn.parentNode.id}`;
+
+                    if (btnWrapperSelector !== "") {
+                        const firstSubmenuBtn = document.querySelector(`#${btnWrapperSelector} button`);
+                        const lastSubmenuBtn = document.querySelector(`#${btnWrapperSelector} button:last-child`);
+                        //if tabbing forward, mv to the first button in the submenu.  prev default to stop another tab
+                        if(event.shiftKey === false && isDropdown && isActive && firstSubmenuBtn !== null) {
+                            firstSubmenuBtn.focus();
+                            event.preventDefault();
+                        }
+                        //end of submenu tab to next controller button and close the first one
+                        if(event.shiftKey === false && btn === lastSubmenuBtn) {
+                            const nextController = controllerBtn?.parentNode?.nextSibling || null;
+                            if(nextController !== null) {
+                                const nextBtn = nextController.querySelector('button');
+                                if(nextBtn !== null) {
+                                    nextBtn.focus();
+                                    event.preventDefault();
+                                    controllerBtn.dispatchEvent(new Event('mousedown'));
+                                    controllerBtn.setAttribute('aria-expanded', false);
+                                }
+                            }
+                        }
+                        //if tabbing backwards out of a submenu, mv to the controller.
+                        if(event.shiftKey === true && btn === firstSubmenuBtn && controllerBtn !== null) {
+                            controllerBtn.focus();
+                            event.preventDefault();
+                        }
+                    }
+                }
+                if (event.type === 'click' && isDropdown) { //only updating it to whatever trumbow set it to
+                    btn.setAttribute('aria-expanded', isActive);
+                }
+            }
+            //make buttons more accessible.  add navigable index and aria-controls.
+            trumbowygBtns.forEach(btn => {
+                btn.setAttribute('tabindex', '0');
+                ['keydown', 'click'].forEach(ev => btn.addEventListener(ev, handleTrumbowEvents));
+                if(btn.classList.contains('trumbowyg-open-dropdown')) {
+                    btn.setAttribute('aria-expanded', false);
+                    const controlClass = this.trumbowygTitleClassMap?.[btn.title] || null;
+                    if(controlClass !== null) {
+                        btn.setAttribute('aria-controls', 'id_' + controlClass);
+                        const elSubmenu = document.querySelector('.' + controlClass);
+                        if(elSubmenu !== null) {
+                            elSubmenu.setAttribute('id', 'id_' + controlClass);
+                        }
+                    }
+                }
+            });
+            this.ariaTextEditorStatus = 'Using Advanced formatting.';
+            document.getElementById('rawNameEditor').focus();
         },
         rawNameEditorClick() {
             $('#advNameEditor').css('display', 'block');
             $('#rawNameEditor').css('display', 'none');
             $('#name').trumbowyg('destroy');
+            this.ariaTextEditorStatus = 'Showing formatted code.'
+            document.getElementById('advNameEditor').focus();
         }
     },
     watch: {
@@ -587,26 +672,24 @@ export default {
     },
     template: `<div id="indicator-editing-dialog-content">
         <div>
+            <div role="status" aria-live="assertive" :aria-label="ariaTextEditorStatus" style="display:absolute;opacity:0;"></div>
             <label for="name">{{ nameLabelText }}</label>
             <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
-            <div style="display:flex; justify-content: space-between;">
-                <button type="button" class="btn-general" id="rawNameEditor"
-                    title="use basic text editor"
-                    @click="rawNameEditorClick" style="display: none; width:135px">
-                    Show formatted code
-                </button>
-                <button type="button" class="btn-general" id="advNameEditor"
-                    title="use advanced text editor" style="width:135px"
-                    @click="advNameEditorClick">
-                    Advanced Formatting
-                </button>
-            </div>
+            <button type="button" class="btn-general" id="rawNameEditor"
+                title="use basic text editor"
+                @click="rawNameEditorClick" style="display: none; width:135px">
+                Show formatted code
+            </button>
+            <button type="button" class="btn-general" id="advNameEditor"
+                title="use advanced text editor" style="width:135px"
+                @click="advNameEditorClick">
+                Advanced Formatting
+            </button>
         </div>
         <div v-show="description !== '' || shortLabelTriggered">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label for="description">Short label for spreadsheet headings</label>
-                <div>{{shortlabelCharsRemaining}}</div>
-            </div>
+            <label for="description" style="justify-content:space-between;">Short label for spreadsheet headings
+                <span :aria-label="'max length 50 characters, ' + shortlabelCharsRemaining + ' remaining'">({{shortlabelCharsRemaining}})</span>
+            </label>
             <input type="text" id="description" v-model="description" maxlength="50" />
         </div>
         <div>
@@ -618,9 +701,9 @@ export default {
                         <option v-for="kv in Object.entries(formats)" 
                         :value="kv[0]" :selected="kv[0] === format" :key="kv[0]">{{ kv[1] }}</option>
                     </select>
-                    <button type="button" id="editing-format-assist" class="btn-general"
-                        @click="toggleSelection($event, 'showDetailedFormatInfo')"
-                        title="select for assistance with format choices" style=" align-self:stretch; margin-left: 3px;">
+                    <button type="button" id="editing-format-assist" class="btn-general" aria-controls="formatDetails" :aria-expanded="showDetailedFormatInfo"
+                        @click="toggleSelection($event, 'showDetailedFormatInfo')" aria-label="show information about the selected format"
+                        title="assistance with format choices" style="align-self:stretch; margin-left: 3px;">
                         {{ formatBtnText }}
                     </button>
                 </div>
@@ -643,17 +726,17 @@ export default {
                     aria-atomic="true" aria-live="polite"  role="status"></span>
                 <br/>
                 <div style="display:flex; align-items: center;">
-                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column" alt="Add column" aria-label="grid input add column" 
+                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column" 
                         @click="appAddCell">
                         + Add column
                     </button>&nbsp;Columns ({{gridJSON.length}}):
                 </div>
-                <div style="overflow-x: scroll;" id="gridcell_col_parent">
+                <div style="overflow-x: auto;" id="gridcell_col_parent">
                     <grid-cell v-if="gridJSON.length === 0" :column="1" :cell="new Object()" key="initial_cell"></grid-cell>
                     <grid-cell v-for="(c,i) in gridJSON" :column="i+1" :cell="c" :key="c.id"></grid-cell>
                 </div>
             </div>
-            <div v-show="format !== '' && format !== 'raw_data'" style="margin-top:0.75rem;">
+            <div v-show="showDefaultTextarea" style="margin-top:0.75rem;">
                 <label for="defaultValue">Default Answer</label>
                 <div v-show="orgchartFormats.includes(format)"
                     :id="'modal_orgSel_' + indicatorID"
@@ -690,13 +773,13 @@ export default {
                     </label>
                 </template>
             </div>
-            <button v-if="isEditingModal" type="button"
+            <button v-if="isEditingModal" type="button" aria-controls="indicator_advanced_attributes" :aria-expanded="showAdditionalOptions"
                 class="btn-general" 
-                title="edit additional options"
+                aria-label="edit additional options"
                 @click="toggleSelection($event, 'showAdditionalOptions')">
                 {{showAdditionalOptions ? 'Hide' : 'Show'}} Advanced Attributes
             </button>
-            <template v-if="showAdditionalOptions">
+            <div id="indicator_advanced_attributes" v-if="showAdditionalOptions">
                 <div class="attribute-row" style="margin-top: 1rem; justify-content: space-between;">
                     <template v-if="isLoadingParentIDs === false">
                         <label for="container_parentID" style="margin-right: 1rem;">Parent Question ID
@@ -714,7 +797,7 @@ export default {
                     </template>
                 </div>
                 <indicator-privileges :indicatorID="indicatorID"></indicator-privileges>
-            </template>
+            </div>
             <span v-show="archived" id="archived-warning">
                 This field will be archived. &nbsp;It can be<br/>re-enabled by using Restore Fields.
             </span>

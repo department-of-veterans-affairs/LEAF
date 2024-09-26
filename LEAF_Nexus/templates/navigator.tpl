@@ -4,11 +4,11 @@ placeholder<br />
 
 <span id="editor_toolbar" class="noprint" style="float:right;">
     <span id="editor_tools">
-        <button type="button" class="buttonNorm" onclick="window.location='?a=editor&amp;rootID=<!--{$rootID}-->';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=24" style="vertical-align: middle" alt="" title="Edit Orgchart" /> Edit Orgchart</button>
+        <button type="button" class="buttonNorm" onclick="window.location='?a=editor&amp;rootID=<!--{$rootID}-->';"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=24" style="vertical-align: middle" alt="" /> Edit Orgchart</button>
         <!--{if $rootID != $topPositionID}-->
         <button type="button" class="buttonNorm" onclick="viewSupervisor();"><img src="dynicons/?img=go-up.svg&amp;w=24" style="vertical-align: middle" alt="" title="Zoom Out" /> Go Up One Level</button>
         <!--{/if}-->
-        <button type="button" class="buttonNorm"  onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="dynicons/?img=mail-forward.svg&amp;w=24" style="vertical-align: middle" alt="" title="Forward as Email" /> Forward as Email</button>
+        <button type="button" class="buttonNorm"  onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'"><img src="dynicons/?img=mail-forward.svg&amp;w=24" style="vertical-align: middle" alt="" /> Forward as Email</button>
     </span>
 </span>
 
@@ -223,7 +223,7 @@ $(function() {
     };
 
     positions[<!--{$rootID}-->].emptyControls();
-    positions[<!--{$rootID}-->].addControl('<a class="button buttonNorm" href="?a=view_position&amp;positionID=<!--{$rootID}-->"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" title="View Details" /> View Details</a>');
+    positions[<!--{$rootID}-->].addControl('<a class="button buttonNorm" href="?a=view_position&amp;positionID=<!--{$rootID}-->"><img src="dynicons/?img=accessories-text-editor.svg&amp;w=32" alt="" /> View Details</a>');
     positions[<!--{$rootID}-->].draw();
     setPositionStyle(positions[<!--{$rootID}-->].prefixID + <!--{$rootID}-->, <!--{$rootID}-->);
 

@@ -1,7 +1,7 @@
 <div id="vue-formeditor-app" v-cloak>
-    <main v-if="ajaxResponseMessage===''">
+    <div id="vue_app_main" v-if="ajaxResponseMessage===''">
         <router-view></router-view>
-    </main>
+    </div>
     <response-message v-else :message="ajaxResponseMessage"></response-message>
 </div>
 
@@ -14,17 +14,4 @@
     const orgchartPath = '<!--{$orgchartPath}-->';
 
     const hasDevConsoleAccess = Number('<!--{$hasDevConsoleAccess}-->') > 0 ? true : false;
-    
-    let postRenderFormBrowser;
-
-    $(function() {
-        <!--{if $referFormLibraryID != ''}-->
-            postRenderFormBrowser = function() {
-                $('.formLibraryID_<!--{$referFormLibraryID}-->')
-                .animate({'background-color': 'yellow'}, 1000)
-                .animate({'background-color': 'white'}, 1000)
-                .animate({'background-color': 'yellow'}, 1000);
-            };
-        <!--{/if}-->
-    });
 </script>

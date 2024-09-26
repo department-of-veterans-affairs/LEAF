@@ -6,28 +6,28 @@ placeholder<br />
     <span id="editor_tools">
         <!-- <div onclick="alert('placeholder')"><img src="dynicons/?img=preferences-system-windows.svg&amp;w=32" style="vertical-align: middle" alt="" title="Add Sub-Group" /> Add Sub-Group</div> -->
         <button type="button" class="buttonNorm" onclick="zoomIn();">
-            <img src="dynicons/?img=gnome-zoom-in.svg&amp;w=24" style="vertical-align: middle" alt="" title="Zoom In" /> Zoom In
+            <img src="dynicons/?img=gnome-zoom-in.svg&amp;w=24" style="vertical-align: middle" alt="" /> Zoom In
         </button>
         <button type="button" class="buttonNorm" onclick="zoomOut();">
-            <img src="dynicons/?img=gnome-zoom-out.svg&amp;w=24" style="vertical-align: middle" alt="" title="Zoom Out" /> Zoom Out
+            <img src="dynicons/?img=gnome-zoom-out.svg&amp;w=24" style="vertical-align: middle" alt="" /> Zoom Out
         </button>
         <!--{if $rootID != $topPositionID}-->
         <button type="button" class="buttonNorm" onclick="viewSupervisor();">
-            <img src="dynicons/?img=go-up.svg&amp;w=24" style="vertical-align: middle" alt="" title="Zoom Out" /> Go Up One Level
+            <img src="dynicons/?img=go-up.svg&amp;w=24" style="vertical-align: middle" alt="" /> Go Up One Level
         </button>
         <!--{/if}-->
         <button type="button" class="buttonNorm" onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'">
-            <img src="dynicons/?img=mail-forward.svg&amp;w=24" style="vertical-align: middle" alt="" title="Forward as Email" /> Forward as Email
+            <img src="dynicons/?img=mail-forward.svg&amp;w=24" style="vertical-align: middle" alt="" /> Forward as Email
         </button>
     </span>
 </span>
-
+<div id="visual_alert_box" role="status" aria-live="assertive" aria-label="" style="position:absolute;opacity:0; z-index:999;background:#fff"></div>
 <div id="pageloadIndicator" style="visibility: visible">
     <div style="opacity: 0.8; z-index: 1000; position: absolute; background: #f3f3f3; height: 97%; width: 97%"></div>
     <div style="z-index: 1001; position: absolute; padding: 16px; width: 97%; text-align: center; font-size: 24px; font-weight: bold; background-color: white">Loading... <img src="images/largespinner.gif" alt="" /></div>
 </div>
 
-<div id="busyIndicator" style="visibility: hidden"><img src="images/indicator.gif" alt="Busy..." /></div>
+<div id="busyIndicator" style="visibility: hidden"><img src="images/indicator.gif" alt="" /></div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
@@ -237,6 +237,71 @@ function addSupervisor(positionID) {
     });
 }
 
+function moveCoordinates(prefix, position) {
+    $('#' + prefix + position).css('box-shadow', ' 0 0 6px #c00');
+    let alert_box = document.getElementById('visual_alert_box');
+    let title = document.getElementById(prefix + position + '_title');
+    let titleText = title.innerHTML;
+    alert_box.innerHTML = "You are moving the " + titleText + " card<br />Esc - return to original location<br />Enter - save current location<br />Tab - Save and move to next card";
+    $('#visual_alert_box').css('opacity', '100');
+
+    let card = document.getElementById(prefix + position);
+    let cardStyle = window.getComputedStyle(card);
+    let topOrg = cardStyle.getPropertyValue('top');
+    let leftOrg = cardStyle.getPropertyValue('left');
+    let topValue = cardStyle.getPropertyValue('top').replace("px", "");
+    let leftValue = cardStyle.getPropertyValue('left').replace("px", "");
+    let key;
+    let abort = false;
+    const controlKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
+    document.addEventListener('keydown', function moveCard(e) {
+        if (e.key === "Tab") {
+            saveLayout(position);
+            $('#' + prefix + position).css('box-shadow', 'none');
+            $('#visual_alert_box').css('opacity', '0');
+            document.removeEventListener('keydown', moveCard);
+            return;
+        } else if (controlKeys.includes(e.key)) {
+            e.preventDefault();
+            switch (e.key) {
+                case "ArrowLeft":
+                    leftValue = (Number(leftValue) - 10);
+                    card.style.left = leftValue + "px";
+                    break;
+                case "ArrowRight":
+                    leftValue = (Number(leftValue) + 10);
+                    card.style.left = leftValue + "px";
+                    break;
+                case "ArrowUp":
+                    topValue = (Number(topValue) - 10);
+                    card.style.top = topValue + "px";
+                    break;
+                case "ArrowDown":
+                    topValue = (Number(topValue) + 10);
+                    card.style.top = topValue + "px";
+                    break;
+                case "Enter":
+                    // save the coordinates as they are now
+                    saveLayout(position);
+                    abort = true;
+                    break;
+                case "Escape":
+                    // revert coordinates back to original
+                    card.style.top = topOrg;
+                    card.style.left = leftOrg;
+                    abort = true;
+                    break;
+            }
+
+            if (abort) {
+                $('#' + prefix + position).css('box-shadow', 'none');
+                $('#visual_alert_box').css('opacity', '0');
+                //document.removeEventListener('keydown', moveCard);
+                return;
+            }
+        }
+    });
+}
 
 function addSubordinate(parentID) {
 	positions[parentID].unsetFocus();
@@ -272,8 +337,8 @@ function addSubordinate(parentID) {
                 parentDomPosition.left += 0;
                 parentDomPosition.top += 80;
                 positions[response].setDomPosition(parentDomPosition.left, parentDomPosition.top);
-                positions[response].addControl('<button type="button" class="button buttonNorm" onclick="removePosition('+response+');"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" title="Remove Position" /> Remove Position</button>');
-                positions[response].addControl('<button type="button" class="button buttonNorm" onclick="changeSupervisor('+response+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Change Supervisor" /> Change Supervisor</button>');
+                positions[response].addControl('<button type="button" class="button buttonNorm" onclick="removePosition('+response+');"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" /> Remove Position</button>');
+                positions[response].addControl('<button type="button" class="button buttonNorm" onclick="changeSupervisor('+response+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" /> Change Supervisor</button>');
                 // make position box draggable
                 draggableOptions.stop = function() {
                 	saveLayout(response);
@@ -308,7 +373,7 @@ function getSubordinates(positionID, level) {
     }
     level++;
     for(var key in positions[positionID].data.subordinates) {
-    	var subordinate = positions[positionID].data.subordinates;
+        var subordinate = positions[positionID].data.subordinates;
 
         positions[subordinate[key].positionID] = new position(subordinate[key].positionID);
         positions[subordinate[key].positionID].initialize('bodyarea');
@@ -317,14 +382,14 @@ function getSubordinates(positionID, level) {
 
         positions[subordinate[key].positionID].onLoad = function() {
         	var loadSubordinates = 1;
-        	var positionControls = '<button type="button" class="button buttonNorm" onclick="hideSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=gnome-system-users.svg&amp;w=32" alt="" title="Hide" /> Hide Subordinates</button>';
+        	var positionControls = '<button type="button" class="button buttonNorm" onclick="hideSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=gnome-system-users.svg&amp;w=32" alt="" /> Hide Subordinates</button>';
         	if(subordinate[key][15].data != '') {
                 var subData = $.parseJSON(subordinate[key][15].data);
                 if(subData[<!--{$rootID}-->] != undefined
                 	&& subData[<!--{$rootID}-->].hideSubordinates != undefined
                		&& subData[<!--{$rootID}-->].hideSubordinates == 1) {
 
-                	positionControls = '<button type="button" class="button buttonNorm" onclick="showSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Show" /> Show Subordinates</button>';
+                	positionControls = '<button type="button" class="button buttonNorm" onclick="showSubordinates('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" /> Show Subordinates</button>';
                 	loadSubordinates = 0;
                 }
         	}
@@ -352,7 +417,7 @@ function getSubordinates(positionID, level) {
         		   positions[subordinate[key].positionID].addControl(positionControls);
         	}
         	else {
-        		positions[subordinate[key].positionID].addControl('<button type="button" class="button buttonNorm" onclick="removePosition('+subordinate[key].positionID+');"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" title="Remove Position" /> Remove Position</button>');
+        		positions[subordinate[key].positionID].addControl('<button type="button" class="button buttonNorm" onclick="removePosition('+subordinate[key].positionID+');"><img src="dynicons/?img=process-stop.svg&amp;w=32" alt="" /> Remove Position</button>');
         	}
 
         	var tPID = subordinate[key].positionID;
@@ -374,8 +439,8 @@ function getSubordinates(positionID, level) {
             	$('svg.editMode path').css({'stroke': '#d0d0d0'});
             });
 
-        	positions[subordinate[key].positionID].addControl('<button type="button" class="button buttonNorm" onclick="changeSupervisor('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Change Supervisor" /> Change Supervisor</button>');
-        	positions[subordinate[key].positionID].addControl('<a class="button buttonNorm" href="?a=editor&amp;rootID='+subordinate[key].positionID+'"><img src="dynicons/?img=system-search.svg&amp;w=32" alt="" title="Focus on this" /> Focus on This</a>');
+        	positions[subordinate[key].positionID].addControl('<button type="button" class="button buttonNorm" onclick="changeSupervisor('+subordinate[key].positionID+');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" /> Change Supervisor</button>');
+        	positions[subordinate[key].positionID].addControl('<a class="button buttonNorm" href="?a=editor&amp;rootID='+subordinate[key].positionID+'"><img src="dynicons/?img=system-search.svg&amp;w=32" alt="" /> Focus on This</a>');
 
             applyZoomLevel();
         };
@@ -509,7 +574,7 @@ $(function() {
     positions[<!--{$rootID}-->] = new position(<!--{$rootID}-->);
     positions[<!--{$rootID}-->].initialize('bodyarea');
     positions[<!--{$rootID}-->].setRootID(<!--{$rootID}-->);
-    positions[<!--{$rootID}-->].addControl('<button type="button" class="button buttonNorm" onclick="addSupervisor(\'<!--{$rootID}-->\');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" title="Add Supervisor" /> Add Supervisor</button>');
+    positions[<!--{$rootID}-->].addControl('<button type="button" class="button buttonNorm" onclick="addSupervisor(\'<!--{$rootID}-->\');"><img src="dynicons/?img=system-users.svg&amp;w=32" alt="" /> Add Supervisor</button>');
 
     draggableOptions.stop = function() {
         saveLayout(<!--{$rootID}-->);

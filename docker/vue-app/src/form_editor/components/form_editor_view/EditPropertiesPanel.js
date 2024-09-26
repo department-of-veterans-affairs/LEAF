@@ -22,6 +22,11 @@ export default {
     created() {
         this.getWorkflowRecords();
     },
+    mounted() {
+        if(this.focusedFormIsSensitive && +this.needToKnow === 0) {
+            this.updateNeedToKnow(true);
+        }
+    },
     inject: [
         'APIroot',
         'CSRFToken',
@@ -148,17 +153,19 @@ export default {
                 error: err => console.log('visibility post err', err)
             })
         },
-        updateNeedToKnow() {
+        updateNeedToKnow(forceOn = false) {
+            const newValue = forceOn ? 1 : this.needToKnow;
             $.ajax({
                 type: 'POST',
                 url: `${this.APIroot}formEditor/formNeedToKnow`,
                 data: {
-                    needToKnow: this.needToKnow,
+                    needToKnow: newValue,
                     categoryID: this.formID,
                     CSRFToken: this.CSRFToken
                 },
                 success: () => {
-                    this.updateCategoriesProperty(this.formID, 'needToKnow', this.needToKnow);
+                    this.updateCategoriesProperty(this.formID, 'needToKnow', newValue);
+                    this.needToKnow = newValue;
                     this.showLastUpdate('form_properties_last_update');
                 },
                 error: err => console.log('ntk post err', err)
@@ -209,12 +216,12 @@ export default {
         </span>
         <div id="edit-properties-description">
             <label for="categoryName">Form name
-                <span>({{formNameCharsRemaining}})</span>
+                <span :aria-label="'max length 50 characters, ' + formNameCharsRemaining + ' remaining'">({{formNameCharsRemaining}})</span>
             </label>
             <input id="categoryName" type="text" maxlength="50" v-model="categoryName" @change="updateName"/>
             
             <label for="categoryDescription">Form description
-                <span>({{formDescrCharsRemaining}})</span>
+                <span :aria-label="'max length 255 characters, ' + formDescrCharsRemaining + ' remaining'">({{formDescrCharsRemaining}})</span>
             </label>
             <textarea id="categoryDescription" maxlength="255" v-model="categoryDescription" rows="3" @change="updateDescription"></textarea>
         </div>
@@ -246,9 +253,9 @@ export default {
                                 </template>
                             </select>
                         </label>
-                        <button id="view_workflow" v-if="+focusedFormRecord.workflowID > 0" type="button" class="btn-general">
-                            <a :href="'./?a=workflow&workflowID='+ focusedFormRecord.workflowID" target="_blank">View Workflow</a>
-                        </button>
+                        <a v-if="+focusedFormRecord.workflowID > 0" id="view_workflow" class="btn-general" :href="'./?a=workflow&workflowID='+ focusedFormRecord.workflowID" target="_blank">
+                            View Workflow
+                        </a>
                     </div>
                     <div v-if="!workflowsLoading && workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
@@ -258,7 +265,7 @@ export default {
                             <option value="0" :selected="visible === 0">Hidden</option>
                         </select>
                     </label>
-                    <div v-if="focusedFormIsSensitive" style="display:flex; color: #a00;">
+                    <div v-if="focusedFormIsSensitive && isNeedToKnow" style="display:flex; color: #a00;">
                         <div style="display:flex; align-items: center;"><b>Need to know: </b></div> &nbsp;
                         <div style="display:flex; align-items: center;">Forced On because sensitive fields are present</div>
                     </div>

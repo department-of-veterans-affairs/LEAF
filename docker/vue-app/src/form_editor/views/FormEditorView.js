@@ -31,7 +31,9 @@ export default {
             previewTree: [],     //detailed structure of primary form and any staples.  Only used in preview mode, and only if primary has staples.
             focusedIndicatorID: null, //used for form focus management.
             hasCollaborators: false,
-            fileManagerTextFiles: []
+            fileManagerTextFiles: [],
+            ariaStatusFormDisplay: '',
+            focusAfterFormUpdateSelector: null,
         }
     },
     components: {
@@ -112,8 +114,7 @@ export default {
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
-            moveListItem: this.moveListItem,
-            handleNameClick: this.handleNameClick,
+            clickToMoveListItem: this.clickToMoveListItem,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey,
             checkFormCollaborators: this.checkFormCollaborators
@@ -326,6 +327,7 @@ export default {
          * @param {boolean} setFormLoading show loader
          */
         getFormByCategoryID(catID = '', setFormLoading = false) {
+            this.ariaStatusFormDisplay = '';
             if (catID === '') {
                 this.focusedFormID = '';
                 this.focusedFormTree = [];
@@ -356,24 +358,58 @@ export default {
                             name:'category',
                             query,
                         });
-
-                        if(this.focusedFormID === catID) {
+                        const sameForm = this.focusedFormID === catID;
+                        if(sameForm) {
                             this.updateKey += 1; //ensures that the form editor view updates if the form ID does not change
                         }
                         this.focusedFormID = catID || '';
                         this.focusedFormTree = res || [];
                         this.appIsLoadingForm = false;
 
-                        //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
-                        //loading is false at this point, so not sure why clear is needed but btn is null otherwise
-                        if(this.internalID !== null && this.focusedFormID !== this.internalID) {
-                            setTimeout(() => {
+                        setTimeout(() => {
+                            //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
+                            if(this.internalID !== null && this.focusedFormID !== this.internalID) {
                                 const elBtnInternal = document.getElementById('internal_form_' + this.internalID);
                                 if(elBtnInternal !== null) {
                                     elBtnInternal.dispatchEvent(new Event("click"));
                                 }
-                            });
-                        }
+                            }
+                            //if a focus after form update ID is stored and it's the same form, try to move focus to that el
+                            if(sameForm) {
+                                const selector = this.focusAfterFormUpdateSelector;
+                                if(selector !== null) {
+                                    let aria = '';
+                                    switch(true) {
+                                        case selector.startsWith(`#click_to_move`):
+                                            const idArr = selector.split('_');
+                                            if(idArr?.[3] && idArr?.[4]) {
+                                                aria = `moved indicator ${idArr[4]} ${idArr[3]}`;
+                                            }
+                                            break;
+                                        case selector.startsWith(`#edit_indicator`):
+                                            aria = `edited indicator`;
+                                            break;
+                                        case selector.startsWith(`#programmer`):
+                                            aria = `edited programmer`;
+                                            break;
+                                        case selector.startsWith(`ul#`):
+                                            aria = `created new question`;
+                                            break;
+                                        default:
+                                        break;
+                                    }
+                                    this.ariaStatusFormDisplay = aria;
+                                    const btn = document.querySelector(selector);
+                                    if (btn !== null && !this.showFormDialog) {
+                                        btn.focus();
+                                        this.focusAfterFormUpdateSelector = null;
+                                    }
+                                }
+
+                            } else {
+                                this.focusAfterFormUpdateSelector = null
+                            }
+                        });
                     },
                     error: (err)=> console.log(err)
                 });
@@ -395,6 +431,15 @@ export default {
                             this.previewTree = this.backwardCompatNames(this.previewTree);
                             this.focusedFormID = primaryID;
                             this.appIsLoadingForm = false;
+                            setTimeout(() => {
+                                const btn = document.getElementById('indicator_toolbar_toggle');
+                                if(btn !== null) {
+                                    btn.focus();
+                                    setTimeout(() => {
+                                        this.ariaStatusFormDisplay = 'Previewing form';
+                                    });
+                                }
+                            });
                         }).catch(err => console.log(err));
                     }).catch(err => console.log(err));
                 } catch(error) {
@@ -443,6 +488,7 @@ export default {
          * @param {number} indicatorID
          */
         editAdvancedOptions(indicatorID = 0) {
+            this.focusAfterFormUpdateSelector = '#' + document?.activeElement?.id || null;
             this.getIndicatorByID(indicatorID).then(indicator => {
                 this.openAdvancedOptionsDialog(indicator);
             }).catch(err => console.log('error getting indicator information', err));
@@ -451,13 +497,17 @@ export default {
          * @param {number|null} parentID of the new subquestion.  null for new sections.
          */
         newQuestion(parentID = null) {
+            const parentUl = parentID === null ? `ul#base_drop_area_${this.focusedFormID}` : `ul#drop_area_parent_${parentID}`;
+            this.focusAfterFormUpdateSelector = `${parentUl} > li:last-child button[id^="edit_indicator"]`;
             this.openIndicatorEditingDialog(null, parentID, {});
+            this.focusedIndicatorID = null;
         },
         /**
          * get information about the indicator and open indicator editing modal
          * @param {number} indicatorID 
          */
         editQuestion(indicatorID = 0) {
+            this.focusAfterFormUpdateSelector = '#' + document?.activeElement?.id || null;
             this.getIndicatorByID(indicatorID).then(indicator => {
                 this.focusedIndicatorID = indicatorID;
                 const parentID = indicator?.parentID || null;
@@ -489,18 +539,22 @@ export default {
          */
         focusIndicator(nodeID = null) {
             this.focusedIndicatorID = nodeID;
+            this.ariaStatusFormDisplay = 'click to move options available';
         },
         /**
          * switch between edit and preview mode
          */
         toggleToolbars() {
+            this.ariaStatusFormDisplay = '';
             this.focusedIndicatorID = null;
             this.previewMode = !this.previewMode;
             this.updateKey += 1;
             if(this.usePreviewTree) {
                 this.getPreviewTree(this.focusedFormID);
+                //preview and needs load - aria will be set in gerPrevTree success
             } else {
                 this.previewTree = [];
+                this.ariaStatusFormDisplay = this.previewMode ? 'Previewing form' : 'Editing form';
             }
         },
         /**
@@ -509,9 +563,11 @@ export default {
          * @param {number} indID of the list item to move
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
-        moveListItem(event = {}, indID = 0, moveup = false) {
+        clickToMoveListItem(event = {}, indID = 0, moveup = false) {
             if(!this.previewMode) {
                 if (event?.keyCode === 32) event.preventDefault();
+                this.ariaStatusFormDisplay = '';
+                this.focusAfterFormUpdateSelector = '#' + event?.target?.id || '';
                 const parentEl = event?.currentTarget?.closest('ul');
                 const elToMove = document.getElementById(`index_listing_${indID}`);
                 const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
@@ -613,7 +669,9 @@ export default {
             this.listTracker[indID] = item;
         },
         startDrag(event = {}) {
-            if (event?.offsetX > 20) {
+            const classList = event?.target?.classList || [];
+            const dragLimitX = classList.contains('subindicator_heading') ? 30 : 24;
+            if (event?.offsetX > dragLimitX) {
                 event.preventDefault();
             } else {
                 if(!this.previewMode && event?.dataTransfer) {
@@ -692,23 +750,6 @@ export default {
             }
         },
         /**
-         * @param {number} indicatorID focuses the indicator and changes mode to edit if in preview mode.
-         */
-        handleNameClick(categoryID = '', indicatorID = null) {
-            if (this.previewMode) {
-                this.previewMode = false;
-                this.focusedIndicatorID = indicatorID;
-                //previews show staples, so check if the form needs to change to the staple
-                if(categoryID !== this.focusedFormID) {
-                    this.getFormByCategoryID(categoryID, true);
-                } else {
-                    this.updateKey += 1;
-                }
-            } else {
-                this.editQuestion(indicatorID);
-            }
-        },
-        /**
          * @param {string} categoryID 
          * @param {number} len 
          * @returns shortened form name
@@ -775,7 +816,7 @@ export default {
     <section id="formEditor_content">
         <div v-if="appIsLoadingForm || appIsLoadingCategories" class="page_loading">
             Loading... 
-            <img src="../images/largespinner.gif" alt="loading..." />
+            <img src="../images/largespinner.gif" alt="" />
         </div>
         <div v-else-if="noForm">
             The form you are looking for ({{ queryID }}) was not found.
@@ -798,38 +839,38 @@ export default {
             <div id="form_index_and_editing" :data-focus="focusedIndicatorID">
                 <!-- NOTE: INDEX (main + stapled forms, internals) -->
                 <div id="form_index_display">
+                    <div role="status" style="position:absolute;opacity:0" aria-live="assertive" :aria-label="ariaStatusFormDisplay"></div>
                     <button type="button" id="indicator_toolbar_toggle" class="btn-general preview"
                         @click.stop="toggleToolbars()">
-                        <span role="img" aria="" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>
+                        <span role="img" aria-hidden="true" alt="">{{ previewMode ? '📃' : '🔎' }}&nbsp;</span>
                         {{previewMode ? 'Edit this Form' : 'Preview this Form'}}
                     </button>
                     <template v-if="!previewMode">
                         <button type="button" class="btn-general"
                             :id="'addInternalUse_' + mainFormID"
-                            @click="openNewFormDialog(mainFormID)"
-                            :title="'New Internal-Use Form for ' + mainFormID">
-                            <span role="img" aria="" alt="">➕&nbsp;</span>
+                            @click="openNewFormDialog(mainFormID)">
+                            <span role="img" aria-hidden="true" alt="">➕&nbsp;</span>
                             Add Internal-Use
                         </button>
                         <!-- staple options if main form is not itself a staple -->
                         <button v-if="!allStapledFormCatIDs?.[mainFormID] > 0"
                             type="button" class="btn-general"
                             :id="'addStaple_' + mainFormID"
-                            @click="openStapleFormsDialog(mainFormID)" :title="'Staple other form to ' + mainFormID">
-                            <span role="img" aria="" alt="">📌&nbsp;</span>Staple other form
+                            @click="openStapleFormsDialog(mainFormID)">
+                            <span role="img" aria-hidden="true" alt="">📌&nbsp;</span>Staple other form
                         </button>
                     </template>
                     <!-- LAYOUTS (FORMS AND INTERNAL/STAPLE OPTIONS) -->
                     <ul v-if="!previewMode && currentFormCollection.length > 0" :id="'layoutFormRecords_' + queryID" :class="{preview: previewMode}">
                         <template v-for="form in currentFormCollection" :key="'form_layout_item_' + form.categoryID">
                             <li :class="{selected: form.categoryID === focusedFormID}">
-                                <button type="button" :id="'main_form_' + form.categoryID"
+                                <button type="button" :id="'main_form_' + form.categoryID" :title="form.categoryID === focusedFormID ? 'selected form' : ''"
                                     @click="form.stapledFormIDs.length > 0 && previewMode && form.categoryID === queryID ?
                                         getPreviewTree(form.categoryID) : getFormByCategoryID(form.categoryID)"
                                     class="layout-listitem"
-                                    :title="'form ' + form.categoryID">
-                                    <span v-if="form.formContextType === 'staple'" role="img" aria="" alt="">📌&nbsp;</span>
-                                    <span v-if="form.formContextType === 'main form'" role="img" aria="" alt="">📂&nbsp;</span>
+                                    :aria-label="shortFormNameStripped(form.categoryID, 30) + (form.formContextType === 'staple' ? ', stapled form' : ', main form')">
+                                    <span v-if="form.formContextType === 'staple'" role="img" aria-hidden="true" alt="">📌&nbsp;</span>
+                                    <span v-if="form.formContextType === 'main form'" role="img" aria-hidden="true" alt="">📂&nbsp;</span>
                                     <span :style="{textDecoration: form.categoryID === focusedFormID ? 'none' : 'underline'}">
                                         {{shortFormNameStripped(form.categoryID, 30)}}&nbsp;
                                     </span>
@@ -856,7 +897,7 @@ export default {
                         <li v-for="(page, i) in fullFormTree" :key="'preview_' + page.indicatorID + '_' + page.categoryID"
                             class="form_menu_preview">
                             {{ i + 1}}.
-                            <span v-if="page.categoryID !== focusedFormID" role="img" aria="" alt="">📌</span>
+                            <span v-if="page.categoryID !== focusedFormID" role="img" aria-hidden="true" alt="">📌</span>
                             {{ shortIndicatorNameStripped(page.description || page.name) }}
                         </li>
                     </ul>
@@ -895,7 +936,7 @@ export default {
                     <div v-if="!previewMode" id="blank_section_preview">
                         <button type="button" class="btn-general"
                             @click="newQuestion(null)"
-                            title="Add new form section">
+                            aria-label="Add Section">
                             + Add Section
                         </button>
                     </div>
