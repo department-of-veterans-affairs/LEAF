@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestSmallQuery(t *testing.T) {
+func TestLargeFormQuery_SmallQuery(t *testing.T) {
 	url := RootURL + `api/form/query/?q={"terms":[{"id":"stepID","operator":"!=","match":"resolved","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["status","initiatorName"],"sort":{},"limit":10000,"getData":["9","8","10","4","5","7","3","6","2"]}&x-filterData=recordID,title,stepTitle,lastStatus,lastName,firstName`
 
 	url = strings.Replace(url, " ", "%20", -1)
@@ -26,7 +26,7 @@ func TestSmallQuery(t *testing.T) {
 	}
 }
 
-func TestLargeQuery(t *testing.T) {
+func TestLargeFormQuery_LargeQuery(t *testing.T) {
 	url := RootURL + `api/form/query/?q={"terms":[{"id":"stepID","operator":"!=","match":"resolved","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":["status","initiatorName"],"sort":{},"getData":["9","8","10","4","5","7","3","6","2"]}&x-filterData=recordID,title,stepTitle,lastStatus,lastName,firstName`
 
 	url = strings.Replace(url, " ", "%20", -1)
