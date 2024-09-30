@@ -377,7 +377,7 @@ class Form
         $unpublishedForms = $this->db->prepared_query($pubSQL, $pubVars);
 
         if (count($unpublishedForms) > 0) {
-            return 'Forms associated with this request are unpublished.  Please use the New Request page or contact an administrator about possible form updates.';
+            return 'Forms associated with this request are unpublished.  Please check the New Request page or contact an administrator about possible form updates.';
         }
 
         $var = array(':service' => $_POST['service']);

@@ -1202,14 +1202,16 @@ function doSubmit(recordID) {
                 dataType: 'json',
                 success: function(res) {
                     let categories = '';
+                    let adminUnpublishedWarn = '';
                     for (let i in res) {
+                        adminUnpublishedWarn = res[i].visible === -1 ? '<span style="color:#c00;">&nbsp;(This form is unpublished)</span>' : '';
                         categories += '<label class="checkable leaf_check" for="category_' + res[i].categoryID +
                             '">';
 
                         categories +=
                             '<input type="checkbox" class="icheck admin_changeForm leaf_check" id="category_' +
                             res[i].categoryID + '" name="categories[]" value="' + res[i].categoryID + '" />';
-                        categories += '<span class="leaf_check"></span>' + res[i].categoryName + '</label>';
+                        categories += '<span class="leaf_check"></span>' + res[i].categoryName + adminUnpublishedWarn + '</label>';
                     }
                     $('#changeForm').html(categories);
                     dialog.indicateIdle();
@@ -1243,13 +1245,10 @@ function doSubmit(recordID) {
                         },
                         dataType: 'json',
                         success: function(res) {
-                            let temp = res[<!--{$recordID|strip_tags|escape}-->].categoryNamesUnabridged;
-                            $('label.checkable').each(function() {
-                                for (let i in temp) {
-                                    if ($(this).text() === temp[i]) {
-                                        $('#' + $(this).attr('for')).prop('checked', true);
-                                    }
-                                }
+                            let arrCatIDs = res[<!--{$recordID|strip_tags|escape}-->].categoryIDsUnabridged;
+                            $('label.checkable input').each(function(idx, input) {
+                                const formIsSelected = arrCatIDs.some(id => id === input.value);
+                                $('#' + input?.id).prop('checked', formIsSelected);
                             });
                         },
                         error: function() {

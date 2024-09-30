@@ -258,9 +258,9 @@ export default {
 
                     <label for="availability" title="When hidden, users will not be able to select this form">Status: 
                         <select id="availability" title="Select Availability" v-model.number="visible" @change="updateAvailability">
-                            <option value="-1" :selected="visible === -1">Unpublished</option>
                             <option value="1" :selected="visible === 1">Available</option>
                             <option value="0" :selected="visible === 0">Hidden</option>
+                            <option value="-1" :selected="visible === -1">Unpublished</option>
                         </select>
                     </label>
                     <div v-if="focusedFormIsSensitive && isNeedToKnow" style="display:flex; color: #a00;">
