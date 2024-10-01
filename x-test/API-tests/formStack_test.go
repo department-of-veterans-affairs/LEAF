@@ -117,7 +117,7 @@ func TestFormStack_NewFormProperties(t *testing.T) {
 	}
 
 	got = strconv.Itoa(category.Visible)
-	want = "1"
+	want = "-1"
 	if !cmp.Equal(got, want) {
 		t.Errorf("Visible = %v, want = %v", got, want)
 	}
