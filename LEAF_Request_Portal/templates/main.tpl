@@ -67,11 +67,11 @@
     {if $qrcodeURL != ''}
     <div style="float: left"><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
     {/if}
-    <div tabindex="0" style="cursor: pointer" onclick="window.location='./'" role="link" aria-label="home">
-      <span style="position: absolute"><img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" /></span>
+    <a href="./" style="cursor:pointer">
+      <img src="images/VA_icon_small.png" style="width: 80px" alt="VA seal, U.S. Department of Veterans Affairs" />
       <span id="headerLabel">{$city|sanitize}</span>
       <h1 id="headerDescription">{$title|sanitize}</h1>
-    </div>
+    </a>
     <span id="headerHelp">
         {if $leafSecure == 0}
         <div class="alert" style="display: inline">
