@@ -132,21 +132,30 @@ function viewSupervisor() {
 }
 
 function saveLayout(positionID) {
-	$('#busyIndicator').css('visibility', 'visible');
-	var position = $('#' + positions[positionID].getDomID()).offset();
-	var newPosition = new Object();
-	newPosition.x = position.left;
-	newPosition.y = position.top;
-    $.ajax({
-    	type: 'POST',
-        url: './api/position/' + positionID,
-        data: {15: JSON.stringify({<!--{$rootID}-->: newPosition}),
-        	CSRFToken: '<!--{$CSRFToken}-->'},
-        success: function(res) {
-            $('#busyIndicator').css('visibility', 'hidden');
-        },
-        cache: false
-    });
+	const position = $('#' + positions[positionID].getDomID()).offset();
+	let newPosition = new Object();
+	newPosition.x = parseInt(position.left);
+	newPosition.y = parseInt(position.top);
+    const currX = positions?.[positionID]?.x; //global positions object.
+    const currY = positions?.[positionID]?.y;
+
+    if(newPosition.x != currX || newPosition.y != currY) {
+        $('#busyIndicator').css('visibility', 'visible');
+        $.ajax({
+            type: 'POST',
+            url: './api/position/' + positionID,
+            data: {15: JSON.stringify({<!--{$rootID}-->: newPosition}),
+                CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(res) {
+                if (+res === 1) {
+                    positions[positionID].x = newPosition.x;
+                    positions[positionID].y = newPosition.y;
+                }
+                $('#busyIndicator').css('visibility', 'hidden');
+            },
+            cache: false
+        });
+    }
 }
 
 function changeSupervisor(currPositionID) {
@@ -238,6 +247,7 @@ function addSupervisor(positionID) {
 }
 
 function moveCoordinates(prefix, position) {
+    $('div.positionSmall').css('box-shadow', 'none');
     $('#' + prefix + position).css('box-shadow', ' 0 0 6px #c00');
     let alert_box = document.getElementById('visual_alert_box');
     let title = document.getElementById(prefix + position + '_title');
@@ -375,7 +385,7 @@ function getSubordinates(positionID, level) {
     for(var key in positions[positionID].data.subordinates) {
         var subordinate = positions[positionID].data.subordinates;
 
-        positions[subordinate[key].positionID] = new position(subordinate[key].positionID);
+        positions[subordinate[key].positionID] = new position(subordinate[key].positionID, level);
         positions[subordinate[key].positionID].initialize('bodyarea');
         positions[subordinate[key].positionID].setRootID(<!--{$rootID}-->);
         positions[subordinate[key].positionID].setParentID(positionID);

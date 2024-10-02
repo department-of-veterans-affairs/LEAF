@@ -89,10 +89,10 @@ function getSubordinates(positionID, level) {
         return false;
     }
     level++;
-    for(var key in positions[positionID].data.subordinates) {
-        var subordinate = positions[positionID].data.subordinates;
+    for(let key in positions[positionID].data.subordinates) {
+        const subordinate = positions[positionID].data.subordinates;
 
-        positions[subordinate[key].positionID] = new position(subordinate[key].positionID);
+        positions[subordinate[key].positionID] = new position(subordinate[key].positionID, level);
         positions[subordinate[key].positionID].initialize('bodyarea');
         positions[subordinate[key].positionID].setRootID(<!--{$rootID}-->);
         positions[subordinate[key].positionID].setParentID(positionID);
