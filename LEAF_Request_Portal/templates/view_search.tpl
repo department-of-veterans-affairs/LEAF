@@ -2,7 +2,7 @@
     <div id="searchContainer"></div>
     <div class="clear">
         <button id="btn_abortSearch" class="buttonNorm" type="button" style="float:left">Stop searching for more</button>
-        <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; float:right;" type="button">Show more records</button>
+        <button id="searchContainer_getMoreResults" class="buttonNorm" style="display: none; float:right;" type="button" disabled>Show more records</button>
     </div>
 </section>
 <script>
@@ -265,6 +265,7 @@ function main() {
         query.setLimit(Infinity);
         query.execute()
     });
+    document.querySelector('#searchContainer_getMoreResults').removeAttribute('disabled');
 }
 
 document.addEventListener('DOMContentLoaded', main);
