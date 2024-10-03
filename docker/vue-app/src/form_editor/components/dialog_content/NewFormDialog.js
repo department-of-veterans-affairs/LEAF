@@ -58,7 +58,7 @@ export default {
                     //default values
                     temp.workflowID = 0;
                     temp.needToKnow = 0;
-                    temp.visible = 1;
+                    temp.visible = -1;
                     temp.sort = 0;
                     temp.type = '';
                     temp.stapledFormIDs = [];
