@@ -5,7 +5,14 @@
 <script src="../js/LeafPreview.js"></script>
 
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
-
+<style>
+.buttonNorm {
+    color: black;
+}
+.buttonNorm:hover {
+    color: white;
+}
+</style>
 <script>
 function showPreview(recordID) {
 	var formData = grid.getDataByRecordID(recordID);
@@ -157,12 +164,13 @@ $(function() {
 
 </script>
 
-<div class="leaf-width-100pct">
+<div class="leaf-width-100pct" style="margin: 1rem">
 
     <h2>LEAF Library</h2>
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
-        <a class="buttonNorm leaf-marginBot-1rem" href="?a=form_vue" style="display: inherit; width: 220px; text-decoration: none; color: black" id="backToForm"><img aria-hidden="true" src="../dynicons/?img=edit-undo.svg&amp;w=32" alt="" title="Back to My Forms"/> Back to My Forms</a>
+        <a class="buttonNorm leaf-marginBot-1rem" href="?a=form_vue" style="display: inherit; width: 220px; text-decoration: none" id="backToForm"><img aria-hidden="true" src="../dynicons/?img=system-file-manager.svg&amp;w=32" alt="" title="My Forms"/> My Forms</a>
+        <a class="buttonNorm leaf-marginBot-1rem" href="<!--{$LEAF_DOMAIN}-->LEAF/library/?a=newform" style="display: inherit; width: 220px; text-decoration: none"><img aria-hidden="true" src="../dynicons/?img=list-add.svg&amp;w=32" alt="" title="Contribute my Form"/> Contribute my Form</a>
 
         <div class="leaf-marginBot-halfRem">Filter by Business Lines:</div>
         <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines"/> All Business Lines</div>
@@ -185,18 +193,6 @@ $(function() {
 </div>
 
 <script>
-    $('#backToForm').focusin(function() {
-        $('#backToForm').css('color', 'white');
-    });
-    $('#backToForm').focusout(function() {
-        $('#backToForm').css('color', 'black');
-    });
-    $('#backToForm').mouseover(function() {
-        $('#backToForm').css('color', 'white');
-    });
-    $('#backToForm').mouseout(function() {
-        $('#backToForm').css('color', 'black');
-    });
     var filter_id;
 
     function announceFilter(id) {
