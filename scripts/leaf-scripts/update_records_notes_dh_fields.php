@@ -21,65 +21,75 @@ $fields_to_update = array(
 
 $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-//get records of each portal and assoc orgchart
-$q = "SELECT `portal_database`, `orgchart_database` FROM `sites`
-    WHERE `portal_database` IS NOT NULL AND `site_type`='portal' ORDER BY `orgchart_database`";
+//get records of each portal. Keeping order the same as prev script
+$q = "SELECT `portal_database` FROM `sites`
+    WHERE `portal_database` IS NOT NULL AND
+	`portal_database` != 'NATIONAL_101_vaccination_data_reporting' AND
+	`site_type`='portal' ORDER BY BINARY `orgchart_database`";
 
 $portal_records = $db->query($q);
-
 $total_portals_count = count($portal_records);
 $processed_portals_count = 0;
-
 $error_count = 0;
 
-//used during update query to limit query
-$caselimit = 2500;
+//used to limit update queries
+$caselimit = 1000;
+
+//get org info up front from national.
 $empMap = array();
+$orgchart_db = 'national_orgchart';
+$orgchart_time_start = date_create();
 
-$orgchart_db = null;
-foreach($portal_records as $rec) {
+try {
+    //************ ORGCHART ************
+    //map out required metadata up front for users in national_orgchart
+    $db->query("USE `{$orgchart_db}`");
 
-    //get org info up front for each new orgchart db.  reset and update empmap if changed
-    if(!isset($orgchart_db) || $orgchart_db !==  $rec['orgchart_database']) {
-        $empMap = array();
-        $orgchart_db = $rec['orgchart_database'];
-        $orgchart_time_start = date_create();
+    $qEmployees = "SELECT `employee`.`empUID`, `userName`, `lastName`, `firstName`, `middleName`, `deleted`, `data` AS `email` FROM `employee`
+        JOIN `employee_data` ON `employee`.`empUID`=`employee_data`.`empUID`
+        WHERE `indicatorID`=6";
 
-        try {
-            //************ ORGCHART ************ */
-            $db->query("USE `{$orgchart_db}`");
+    $resEmployees = $db->query($qEmployees) ?? [];
+    foreach($resEmployees as $emp) {
+        $mapkey = strtoupper($emp['userName']);
 
-            $qEmployees = "SELECT `employee`.`empUID`, `userName`, `lastName`, `firstName`, `middleName`, `deleted`, `data` AS `email` FROM `employee`
-                JOIN `employee_data` ON `employee`.`empUID`=`employee_data`.`empUID`
-                WHERE `indicatorID`=6";
-
-            $resEmployees = $db->query($qEmployees) ?? [];
-            foreach($resEmployees as $emp) {
-                $mapkey = strtoupper($emp['userName']);
-                $empMap[$mapkey] = $emp;
-            }
-
-            $orgchart_time_end = date_create();
-            $orgchart_time_diff = date_diff($orgchart_time_start, $orgchart_time_end);
-
-            fwrite(
-                $log_file,
-                "\r\nOrgchart " . $orgchart_db . " map info took: " . $orgchart_time_diff->format('%i min, %S sec, %f mcr') . "\r\n"
-            );
-
-        } catch (Exception $e) {
-            fwrite(
-                $log_file,
-                "Caught Exception (orgchart connect): " . $orgchart_db . " " . $e->getMessage() . "\r\n"
-            );
-            $error_count += 1;
-        }
+        $isActive = $emp['deleted'] === 0;
+        $mapInfo = array(
+            'userDisplay' => $isActive ? $emp['firstName'] . " " . $emp['lastName'] : "",
+            'userMetadata' => json_encode(
+                array(
+                    'userName' => $isActive ? $emp['userName'] : '',
+                    'firstName' => $isActive ? $emp['firstName'] : '',
+                    'lastName' => $isActive ? $emp['lastName'] : '',
+                    'middleName' => $isActive ? $emp['middleName'] : '',
+                    'email' => $isActive ? $emp['email'] : '',
+                )
+            ),
+        );
+        $empMap[$mapkey] = $mapInfo;
     }
 
+    $orgchart_time_end = date_create();
+    $orgchart_time_diff = date_diff($orgchart_time_start, $orgchart_time_end);
+
+    fwrite(
+        $log_file,
+        "\r\nOrgchart " . $orgchart_db . " map info took: " . $orgchart_time_diff->format('%i min, %S sec, %f mcr') . "\r\n"
+    );
+
+    } catch (Exception $e) {
+    fwrite(
+        $log_file,
+        "Caught Exception (orgchart connect): " . $orgchart_db . " " . $e->getMessage() . "\r\n"
+    );
+    $portal_records = array();
+}
+
+
+foreach($portal_records as $rec) {
     $portal_db = $rec['portal_database'];
 
     try {
-        //************ PORTAL ************ */
         $db->query("USE `{$portal_db}`");
         $update_tracking = array(
             "notes" => 0,
@@ -88,7 +98,7 @@ foreach($portal_records as $rec) {
         );
 
         /* loop through the tables to be updated */
-        foreach ($tables_to_update as $table_name) { //NOTE: table loop start
+        foreach ($tables_to_update as $table_name) {
             $field_name = $fields_to_update[$table_name];
 
             try {
@@ -96,9 +106,7 @@ foreach($portal_records as $rec) {
 
                 $resUniqueIDs = $db->query($usersQ) ?? [];
                 $numIDs = count($resUniqueIDs);
-
                 if($numIDs > 0) {
-                    $portal_db = $rec['portal_database'];
                     $portal_time_start = date_create();
 
                     fwrite(
@@ -107,37 +115,21 @@ foreach($portal_records as $rec) {
                     );
 
                     $totalBatches = intdiv($numIDs, $caselimit);
-                    foreach(range(0, $totalBatches) as $batchcount) { //this will include the last partial batch
+                    foreach(range(0, $totalBatches) as $batchcount) {
+                        //This will include the last partial batch. New records don't matter.  array, offset, limit
                         $curr_ids_slice = array_slice($resUniqueIDs, $batchcount * $caselimit, $caselimit);
 
-                        //build and exec CASE statement for each batch
+                        //Build limited CASE statement for each batch
                         $sqlUpdateMetadata = "UPDATE `$table_name`
                             SET `$field_name` = CASE `userID` ";
 
                         $metaVars = array();
                         foreach ($curr_ids_slice as $idx => $userRec) {
                             $userInfo = $empMap[strtoupper($userRec['userID'])] ?? null;
-                            /* If they are not in the orgchart info at all just don't do anything. If they are there but explicitly deleted 
-                            set empty metadata properties (info is not being used for inactive accounts since we don't want to assume accuracy) */
-                            if(isset($userInfo)) {
-                                $isActive = $userInfo['deleted'] === 0;
-
-                                if($table_name === "data_history") {
-                                    $metadata = $isActive ?  $userInfo['firstName'] . " " . $userInfo['lastName'] : "";
-                                } else {
-                                    $metadata = json_encode(
-                                        array(
-                                            'userName' => $isActive ? $userInfo['userName'] : '',
-                                            'firstName' => $isActive ? $userInfo['firstName'] : '',
-                                            'lastName' => $isActive ? $userInfo['lastName'] : '',
-                                            'middleName' => $isActive ? $userInfo['middleName'] : '',
-                                            'email' => $isActive ? $userInfo['email'] : ''
-                                        )
-                                    );
-                                }
-
-                                $metaVars[":user_" . $idx] = $userInfo['userName'];
-                                $metaVars[":meta_" . $idx] = $metadata;
+                            //If they are not in the orgchart map don't do anything.
+                            if(isset($userInfo) && isset($userInfo[$field_name])) {
+                                $metaVars[":user_" . $idx] = $userRec['userID'];
+                                $metaVars[":meta_" . $idx] = $userInfo[$field_name];
                                 $sqlUpdateMetadata .= " WHEN :user_" . $idx . " THEN :meta_" . $idx;
                             }
                         }
@@ -157,10 +149,14 @@ foreach($portal_records as $rec) {
                         } catch (Exception $e) {
                             fwrite(
                                 $log_file,
-                                "Caught Exception (update action_history usermetadata case batch): " . $e->getMessage() . "\r\n"
+                                "Caught Exception (update case batch): " . $e->getMessage() . "\r\n"
                             );
                             $error_count += 1;
                         }
+                        
+                        //seems like it should be ok, but reset these to make sure they clear out of memory
+                        $sqlUpdateMetadata = '';
+                        $metaVars = array();
                     }
                     
                     $portal_time_end = date_create();
@@ -168,29 +164,28 @@ foreach($portal_records as $rec) {
 
                     fwrite(
                         $log_file,
-                        "\r\nPortal " . $table_name . " update took: " . $portal_time_diff->format('%i min, %S sec, %f mcr') . "\r\n"
+                        "\r\nPortal " . $table_name . " update took: " . $portal_time_diff->format('%H hr, %i min, %S sec, %f mcr') . "\r\n"
                     );
-
                 }
 
             } catch (Exception $e) {
                 fwrite(
                     $log_file,
-                    "Caught Exception (query distinct ah userIDs): " . $e->getMessage() . "\r\n"
+                    "Caught Exception (query distinct userIDs): " . $e->getMessage() . "\r\n"
                 );
                 $error_count += 1;
             }
+            $resUniqueIDs = array();
         
-        } //NOTE: table loop end
-
+        } //table loop end
+        
         $processed_portals_count += 1;
+
         $update_details = "records: " . $update_tracking["records"] . ", notes: " . $update_tracking["notes"] . ", data_history: " . $update_tracking["data_history"];
         fwrite(
             $log_file,
-            "Portal " . $portal_db . " tables updated(1/0), " . $update_details  . "\r\n"
+            "Portal " . $portal_db . " table batches, " . $update_details  . "\r\n"
         );
-
-
 
 
     } catch (Exception $e) {
@@ -212,3 +207,4 @@ fwrite(
 );
 
 fclose($log_file);
+unset($db);
