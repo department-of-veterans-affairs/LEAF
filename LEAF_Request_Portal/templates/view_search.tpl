@@ -139,6 +139,11 @@ function main() {
         }
     }
 
+    query.onProgress(progress => {
+        document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = `<h3>Searching ${progress}+ possible records...</h3><p></p>`;
+        document.getElementById("btn_abortSearch").style.display = "block";
+    });
+
     // On the first visit, if no results are owned by the user, append their results
     query.onSuccess(function(res, resStatus, resJqXHR) {
         resultSet = Object.assign(resultSet, res);
@@ -161,19 +166,6 @@ function main() {
             query.addTerm('userID', '=', "<!--{$userID|unescape|escape:'quotes'}-->");
             query.execute();
             return false;
-        }
-
-        // incrementally load records
-        if((Object.keys(res).length == batchSize || resJqXHR.getResponseHeader('leaf-query') == 'continue')
-            && loadAllResults
-            && !abortSearch) {
-
-            document.querySelector('#' + leafSearch.getResultContainerID()).innerHTML = `<h3>Searching ${offset}+ possible records...</h3><p></p>`;
-            document.getElementById("btn_abortSearch").style.display = "block";
-            offset += batchSize;
-            query.setLimit(offset, batchSize);
-            query.execute();
-            return;
         }
 
         renderResult(leafSearch, resultSet);
@@ -268,9 +260,9 @@ function main() {
             }
             query.setQuery(tQuery);
         }
-        offset += batchSize;
+        query.sort('recordID', 'ASC');
         query.setAbortSignal(abortController.signal);
-        query.setLimit(offset, batchSize);
+        query.setLimit(Infinity);
         query.execute()
     });
 }
