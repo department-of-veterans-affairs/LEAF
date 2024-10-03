@@ -68,7 +68,7 @@ try {
         );
         $empMap[$mapkey] = $mapInfo;
     }
-
+	unset($resEmployees);
     $orgchart_time_end = date_create();
     $orgchart_time_diff = date_diff($orgchart_time_start, $orgchart_time_end);
 
@@ -77,17 +77,22 @@ try {
         "\r\nOrgchart " . $orgchart_db . " map info took: " . $orgchart_time_diff->format('%i min, %S sec, %f mcr') . "\r\n"
     );
 
-    } catch (Exception $e) {
-    fwrite(
-        $log_file,
-        "Caught Exception (orgchart connect): " . $orgchart_db . " " . $e->getMessage() . "\r\n"
-    );
-    $portal_records = array();
+} catch (Exception $e) {
+	fwrite(
+		$log_file,
+		"Caught Exception (orgchart connect): " . $orgchart_db . " " . $e->getMessage() . "\r\n"
+	);
+	$portal_records = array();
 }
 
 
 foreach($portal_records as $rec) {
     $portal_db = $rec['portal_database'];
+	$resUniqueIDs = array();
+	$numIDs = 0;
+	$curr_ids_slice = array();
+	$sqlUpdateMetadata = '';
+	$metaVars = array();
 
     try {
         $db->query("USE `{$portal_db}`");
@@ -99,8 +104,13 @@ foreach($portal_records as $rec) {
 
         /* loop through the tables to be updated */
         foreach ($tables_to_update as $table_name) {
-            $field_name = $fields_to_update[$table_name];
+			$resUniqueIDs = array();
+			$numIDs = 0;
+			$curr_ids_slice = array();
+			$sqlUpdateMetadata = '';
+			$metaVars = array();
 
+            $field_name = $fields_to_update[$table_name];
             try {
                 $usersQ = "SELECT DISTINCT `userID` FROM `$table_name` WHERE `$field_name` IS NULL";
 
@@ -157,6 +167,7 @@ foreach($portal_records as $rec) {
                         //seems like it should be ok, but reset these to make sure they clear out of memory
                         $sqlUpdateMetadata = '';
                         $metaVars = array();
+						$curr_ids_slice = array();
                     }
                     
                     $portal_time_end = date_create();
@@ -175,7 +186,6 @@ foreach($portal_records as $rec) {
                 );
                 $error_count += 1;
             }
-            $resUniqueIDs = array();
         
         } //table loop end
         
@@ -184,7 +194,7 @@ foreach($portal_records as $rec) {
         $update_details = "records: " . $update_tracking["records"] . ", notes: " . $update_tracking["notes"] . ", data_history: " . $update_tracking["data_history"];
         fwrite(
             $log_file,
-            "Portal " . $portal_db . " table batches, " . $update_details  . "\r\n"
+            "Portal " . $portal_db . " (" . $processed_portals_count . "): table batches, " . $update_details  . "\r\n"
         );
 
 
