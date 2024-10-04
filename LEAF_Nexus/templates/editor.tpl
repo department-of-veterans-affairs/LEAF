@@ -247,24 +247,7 @@ function addSupervisor(positionID) {
 }
 
 function moveCoordinates(prefix, position) {
-    $('div.positionSmall').css('box-shadow', 'none');
-    $('#' + prefix + position).css('box-shadow', ' 0 0 6px #c00');
-    let alert_box = document.getElementById('visual_alert_box');
-    let title = document.getElementById(prefix + position + '_title');
-    let titleText = title.innerHTML;
-    alert_box.innerHTML = "You are moving the " + titleText + " card<br />Esc - return to original location<br />Enter - save current location<br />Tab - Save and move to next card";
-    $('#visual_alert_box').css('opacity', '100');
-
-    let card = document.getElementById(prefix + position);
-    let cardStyle = window.getComputedStyle(card);
-    let topOrg = cardStyle.getPropertyValue('top');
-    let leftOrg = cardStyle.getPropertyValue('left');
-    let topValue = cardStyle.getPropertyValue('top').replace("px", "");
-    let leftValue = cardStyle.getPropertyValue('left').replace("px", "");
-    let key;
-    let abort = false;
-    const controlKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
-    document.addEventListener('keydown', function moveCard(e) {
+    const moveCard = (e) => {
         if (e.key === "Tab") {
             saveLayout(position);
             $('#' + prefix + position).css('box-shadow', 'none');
@@ -306,11 +289,30 @@ function moveCoordinates(prefix, position) {
             if (abort) {
                 $('#' + prefix + position).css('box-shadow', 'none');
                 $('#visual_alert_box').css('opacity', '0');
-                //document.removeEventListener('keydown', moveCard);
+                document.removeEventListener('keydown', moveCard);
                 return;
             }
         }
-    });
+    };
+    $('div.positionSmall').css('box-shadow', 'none');
+    $('#' + prefix + position).css('box-shadow', ' 0 0 6px #c00');
+    let alert_box = document.getElementById('visual_alert_box');
+    let title = document.getElementById(prefix + position + '_title');
+    let titleText = title.innerHTML;
+    alert_box.innerHTML = "You are moving the " + titleText + " card<br />Esc - return to original location<br />Enter - save current location<br />Tab - Save and move to next card";
+    $('#visual_alert_box').css('opacity', '100');
+
+    let card = document.getElementById(prefix + position);
+    let cardStyle = window.getComputedStyle(card);
+    let topOrg = cardStyle.getPropertyValue('top');
+    let leftOrg = cardStyle.getPropertyValue('left');
+    let topValue = cardStyle.getPropertyValue('top').replace("px", "");
+    let leftValue = cardStyle.getPropertyValue('left').replace("px", "");
+    let key;
+    let abort = false;
+    const controlKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
+    document.addEventListener('keydown', moveCard);
+    title.addEventListener('blur', () => document.removeEventListener('keydown', moveCard));
 }
 
 function addSubordinate(parentID) {
