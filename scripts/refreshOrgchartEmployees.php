@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 require_once('timebracketcmd.php');
 echo date('Y-m-d g:i:s a') . "\r\n";
