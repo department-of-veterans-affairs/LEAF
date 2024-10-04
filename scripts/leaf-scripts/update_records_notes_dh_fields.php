@@ -12,7 +12,11 @@ require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
 
 $log_file = fopen("batch_update_records_notes_dh_log.txt", "w") or die("unable to open file");
 $time_start = date_create();
-$tables_to_update = ["notes", "records", "data_history"];
+$tables_to_update = [
+    "notes",
+    "records",
+    //"data_history"
+];
 $fields_to_update = array(
     "notes" => "userMetadata",
     "records" => "userMetadata",
@@ -21,11 +25,10 @@ $fields_to_update = array(
 
 $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-//get records of each portal. Keeping order the same as prev script
-$q = "SELECT `portal_database` FROM `sites`
-    WHERE `portal_database` IS NOT NULL AND
-	`portal_database` != 'NATIONAL_101_vaccination_data_reporting' AND
-	`site_type`='portal' ORDER BY BINARY `orgchart_database`";
+//get records of each portal db.  Break out vdr for data_history updates.
+$q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL AND " .
+    //"`portal_database` != 'NATIONAL_101_vaccination_data_reporting' AND " .
+    "`site_type`='portal'";
 
 $portal_records = $db->query($q);
 $total_portals_count = count($portal_records);
@@ -41,8 +44,7 @@ $orgchart_db = 'national_orgchart';
 $orgchart_time_start = date_create();
 
 try {
-    //************ ORGCHART ************
-    //map out required metadata up front for users in national_orgchart
+    //map out required user info
     $db->query("USE `{$orgchart_db}`");
 
     $qEmployees = "SELECT `employee`.`empUID`, `userName`, `lastName`, `firstName`, `middleName`, `deleted`, `data` AS `email` FROM `employee`
@@ -55,7 +57,7 @@ try {
 
         $isActive = $emp['deleted'] === 0;
         $mapInfo = array(
-            'userDisplay' => $isActive ? $emp['firstName'] . " " . $emp['lastName'] : "",
+            //'userDisplay' => $isActive ? $emp['firstName'] . " " . $emp['lastName'] : "",
             'userMetadata' => json_encode(
                 array(
                     'userName' => $isActive ? $emp['userName'] : '',
@@ -68,7 +70,7 @@ try {
         );
         $empMap[$mapkey] = $mapInfo;
     }
-	unset($resEmployees);
+    unset($resEmployees);
     $orgchart_time_end = date_create();
     $orgchart_time_diff = date_diff($orgchart_time_start, $orgchart_time_end);
 
@@ -78,21 +80,20 @@ try {
     );
 
 } catch (Exception $e) {
-	fwrite(
-		$log_file,
-		"Caught Exception (orgchart connect): " . $orgchart_db . " " . $e->getMessage() . "\r\n"
-	);
-	$portal_records = array();
+    fwrite(
+        $log_file,
+        "Caught Exception (orgchart connect): " . $orgchart_db . " " . $e->getMessage() . "\r\n"
+    );
+    $portal_records = array();
 }
-
 
 foreach($portal_records as $rec) {
     $portal_db = $rec['portal_database'];
-	$resUniqueIDs = array();
-	$numIDs = 0;
-	$curr_ids_slice = array();
-	$sqlUpdateMetadata = '';
-	$metaVars = array();
+    $resUniqueIDs = array();
+    $numIDs = 0;
+    $curr_ids_slice = array();
+    $sqlUpdateMetadata = '';
+    $metaVars = array();
 
     try {
         $db->query("USE `{$portal_db}`");
@@ -104,11 +105,11 @@ foreach($portal_records as $rec) {
 
         /* loop through the tables to be updated */
         foreach ($tables_to_update as $table_name) {
-			$resUniqueIDs = array();
-			$numIDs = 0;
-			$curr_ids_slice = array();
-			$sqlUpdateMetadata = '';
-			$metaVars = array();
+            $resUniqueIDs = array();
+            $numIDs = 0;
+            $curr_ids_slice = array();
+            $sqlUpdateMetadata = '';
+            $metaVars = array();
 
             $field_name = $fields_to_update[$table_name];
             try {
@@ -163,13 +164,13 @@ foreach($portal_records as $rec) {
                             );
                             $error_count += 1;
                         }
-                        
+
                         //seems like it should be ok, but reset these to make sure they clear out of memory
                         $sqlUpdateMetadata = '';
                         $metaVars = array();
-						$curr_ids_slice = array();
+                        $curr_ids_slice = array();
                     }
-                    
+
                     $portal_time_end = date_create();
                     $portal_time_diff = date_diff($portal_time_start, $portal_time_end);
 
@@ -186,9 +187,8 @@ foreach($portal_records as $rec) {
                 );
                 $error_count += 1;
             }
-        
         } //table loop end
-        
+
         $processed_portals_count += 1;
 
         $update_details = "records: " . $update_tracking["records"] . ", notes: " . $update_tracking["notes"] . ", data_history: " . $update_tracking["data_history"];
