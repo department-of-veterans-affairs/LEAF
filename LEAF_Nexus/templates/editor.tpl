@@ -127,6 +127,9 @@ function viewSupervisor() {
         success: function(response) {
             window.location = '?a=editor&rootID=' + response[0].positionID;
         },
+        error: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }
@@ -153,6 +156,9 @@ function saveLayout(positionID) {
                 }
                 $('#busyIndicator').css('visibility', 'hidden');
             },
+            error: function(err) {
+                console.log(err);
+            },
             cache: false
         });
     }
@@ -175,6 +181,9 @@ function changeSupervisor(currPositionID) {
                       CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
                 window.location.reload();
+            },
+            error: function(err) {
+                console.log(err);
             },
             cache: false
         });
@@ -240,6 +249,9 @@ function addSupervisor(positionID) {
                 });
                 dialog.hide();
                 applyZoomLevel();
+            },
+            error: function(err) {
+                console.log(err);
             },
             cache: false
         });
@@ -367,6 +379,9 @@ function addSubordinate(parentID) {
                 dialog.hide();
                 applyZoomLevel();
             },
+            error: function(err) {
+                console.log(err);
+            },
             cache: false
         });
     });
@@ -421,6 +436,9 @@ function getSubordinates(positionID, level) {
                     	positions[subordinate[key].positionID].data = response;
                     	getSubordinates(subordinate[key].positionID, level);
                     },
+                    error: function(err) {
+                        console.log(err);
+                    },
                     cache: false
                 });
         	}
@@ -472,6 +490,9 @@ function showSubordinates(positionID) {
         success: function(res, args) {
         	window.location.reload();
         },
+        error: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }
@@ -486,6 +507,9 @@ function hideSubordinates(positionID) {
         	CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res, args) {
             window.location.reload();
+        },
+        error: function(err) {
+            console.log(err);
         },
         cache: false
     });
@@ -508,6 +532,9 @@ function removePosition(positionID) {
                     alert('Error: ' + response);
                 }
             },
+            error: function(err) {
+                console.log(err);
+            },
             cache: false
         });
     });
@@ -524,6 +551,9 @@ function saveZoomLevel(zoomLevel) {
         	CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res, args) {
             //window.location.reload();
+        },
+        error: function(err) {
+            console.log(err);
         },
         cache: false
     });
