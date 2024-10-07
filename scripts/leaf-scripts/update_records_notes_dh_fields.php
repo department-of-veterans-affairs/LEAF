@@ -12,142 +12,39 @@ require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
 
 $log_file = fopen("batch_update_records_notes_dh_log.txt", "w") or die("unable to open file");
 $time_start = date_create();
-$tables_to_update = [
-    "notes",
-    "records",
-    //"data_history"
-];
-$fields_to_update = array(
-    "notes" => "userMetadata",
-    "records" => "userMetadata",
-    "data_history" => "userDisplay",
-);
-
 
 $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
 //get records of each portal db.  Break out vdr for data_history updates.
 $q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL AND " .
-    //"`portal_database` != 'NATIONAL_101_vaccination_data_reporting' AND " .
+    "`portal_database` != 'NATIONAL_101_vaccination_data_reporting' AND " .
+    //"`portal_database` = 'Academy_Demo1' AND" .
     "`site_type`='portal'";
 
 $portal_records = $db->query($q);
 $total_portals_count = count($portal_records);
 $processed_portals_count = 0;
 $error_count = 0;
-$empMap = array();
-
-function processByBatch(
-        int $offset = 0,
-        string $table_name,
-        string $field_name,
-        DateTime $portal_time_start,
-        &$db,
-        &$log_file,
-        &$empMap,
-        &$update_tracking
-    ) {
-
-    $limit = 1000;
-    $SQL = "SELECT DISTINCT `userID` FROM `$table_name` LIMIT $limit OFFSET $offset";
-
-    try {
-        $resUniqueIDsBatch = $db->query($SQL);
-        $numIDs = count($resUniqueIDsBatch);
-
-        $sqlUpdateMetadata = "";
-        $metaVars = array();
-
-        if($numIDs > 0) {
-            //Build CASE statement for the batch
-            $sqlUpdateMetadata = "UPDATE `$table_name`
-                SET `$field_name` = CASE `userID` ";
-            
-            foreach ($resUniqueIDsBatch as $idx => $userRec) {
-                $userInfo = $empMap[strtoupper($userRec['userID'])] ?? null;
-                //If they are not in the orgchart map don't do anything.
-                if(isset($userInfo) && isset($userInfo[$field_name])) {
-                    $metaVars[":user_" . $idx] = $userRec['userID'];
-                    $metaVars[":meta_" . $idx] = $userInfo[$field_name];
-                    $sqlUpdateMetadata .= " WHEN :user_" . $idx . " THEN :meta_" . $idx;
-                }
-            }
-            unset($resUniqueIDsBatch);
-            $sqlUpdateMetadata .= " END";
-            $sqlUpdateMetadata .= " WHERE `$field_name` IS NULL";
-
-            try {
-                $db->prepared_query($sqlUpdateMetadata, $metaVars);
-
-                $update_tracking[$table_name] += 1;
-                unset($sqlUpdateMetadata);
-                unset($metaVars);
-
-                fwrite(
-                    $log_file,
-                    " ...batch: " . $offset / $limit . "(" . $numIDs . ") "
-                );
-
-                $newOffset = $offset + $limit;
-                processByBatch(
-                    $newOffset,
-                    $table_name,
-                    $field_name,
-                    $portal_time_start,
-                    $db,
-                    $log_file,
-                    $empMap,
-                    $update_tracking
-                );
-
-            } catch (Exception $e) {
-                fwrite(
-                    $log_file,
-                    "Caught Exception (update case batch): " . $e->getMessage() . "\r\n"
-                );
-                $error_count += 1;
-                return;
-            }
-
-        } else {
-
-            $portal_time_end = date_create();
-            $portal_time_diff = date_diff($portal_time_start, $portal_time_end);
-            fwrite(
-                $log_file,
-                "\r\nPortal " . $table_name . " update took: " . $portal_time_diff->format('%H hr, %i min, %S sec, %f mcr') . "\r\n"
-            );
-            return;
-        }
-
-    } catch (Exception $e) {
-        fwrite(
-            $log_file,
-            "Caught Exception (query distinct IDs): " . $e->getMessage() . "\r\n"
-        );
-        return;
-    }
-}
 
 //get org info up front from national.
 $orgchart_db = 'national_orgchart';
 $orgchart_time_start = date_create();
+$empMap = array();
 
 try {
-    //map out required user info
     $db->query("USE `{$orgchart_db}`");
 
     $qEmployees = "SELECT `employee`.`empUID`, `userName`, `lastName`, `firstName`, `middleName`, `deleted`, `data` AS `email` FROM `employee`
         JOIN `employee_data` ON `employee`.`empUID`=`employee_data`.`empUID`
-        WHERE `indicatorID`=6";
+        WHERE `userName` NOT LIKE 'disabled_%' AND `indicatorID`=6";
 
     $resEmployees = $db->query($qEmployees) ?? [];
     foreach($resEmployees as $emp) {
         $mapkey = strtoupper($emp['userName']);
 
         $isActive = $emp['deleted'] === 0;
-        $mapInfo = array(
-            //'userDisplay' => $isActive ? $emp['firstName'] . " " . $emp['lastName'] : "",
+        $empMap[$mapkey] = array(
+            'userDisplay' => $isActive ? $emp['firstName'] . " " . $emp['lastName'] : "",
             'userMetadata' => json_encode(
                 array(
                     'userName' => $isActive ? $emp['userName'] : '',
@@ -158,7 +55,6 @@ try {
                 )
             ),
         );
-        $empMap[$mapkey] = $mapInfo;
     }
     unset($resEmployees);
     $orgchart_time_end = date_create();
@@ -177,44 +73,113 @@ try {
     $portal_records = array();
 }
 
+
+$tables_to_update = [
+    "notes",
+    "records",
+    "data_history"
+];
+$fields_to_update = array(
+    "notes" => "userMetadata",
+    "records" => "userMetadata",
+    "data_history" => "userDisplay",
+);
+
+function getUniqueIDBatch(&$db, $batchcount = 0, $table_name):array {
+    $limit = 1000;
+    $offset = $limit * $batchcount;
+
+    $SQL = "SELECT DISTINCT `userID` FROM `$table_name` ORDER BY `userID` LIMIT $limit OFFSET $offset";
+    return $db->query($SQL) ?? [];
+}
+
 foreach($portal_records as $rec) {
     $portal_db = $rec['portal_database'];
 
     try {
         $db->query("USE `{$portal_db}`");
 
-        $update_tracking = array(
+        $batch_tracking = array(
             "notes" => 0,
             "records" => 0,
             "data_history" => 0,
         );
+        $portal_time_start = date_create();
+        fwrite(
+            $log_file,
+            "\r\nProcessing" . $portal_db
+        );
         /* loop through the tables to be updated */
         foreach ($tables_to_update as $table_name) {
-            $portal_time_start = date_create();
             $field_name = $fields_to_update[$table_name];
+            $table_time_start = date_create();
             fwrite(
                 $log_file,
-                "Processing: " . $table_name . "\r\n"
+                "\r\n" . $table_name . ": "
             );
-            processByBatch(
-                0,
-                $table_name,
-                $field_name,
-                $portal_time_start,
-                $db,
+
+            $batchcount = 0;
+            while(count($resUniqueIDsBatch = getUniqueIDBatch($db, $batchcount, $table_name)) > 0) {
+                $batchcount += 1;
+                $numIDs = count($resUniqueIDsBatch);
+
+                $sqlUpdateMetadata = "UPDATE `$table_name`
+                    SET `$field_name` = CASE `userID` ";
+                $metaVars = array();
+
+                foreach ($resUniqueIDsBatch as $idx => $userRec) {
+                    $userInfo = $empMap[strtoupper($userRec['userID'])] ?? null;
+                    //If they are not in the orgchart map don't do anything.
+                    if(isset($userInfo) && isset($userInfo[$field_name])) {
+                        $metaVars[":user_" . $idx] = $userRec['userID'];
+                        $metaVars[":meta_" . $idx] = $userInfo[$field_name];
+                        $sqlUpdateMetadata .= " WHEN :user_" . $idx . " THEN :meta_" . $idx;
+                    }
+                }
+                $sqlUpdateMetadata .= " END";
+                $sqlUpdateMetadata .= " WHERE `$field_name` IS NULL";
+
+                try {
+                    $db->prepared_query($sqlUpdateMetadata, $metaVars);
+                    $batch_tracking[$table_name] += 1;
+
+                    fwrite(
+                        $log_file,
+                        "batch " . $batchcount . "(" . $numIDs . ") "
+                    );
+
+                } catch (Exception $e) {
+                    fwrite(
+                        $log_file,
+                        "Caught Exception (update case batch): " . $e->getMessage() . "\r\n"
+                    );
+                    $error_count += 1;
+                }
+            } // while remaining unique ids
+            
+            $table_time_end = date_create();
+            $table_time_diff = date_diff($table_time_start, $table_time_end);
+
+            fwrite(
                 $log_file,
-                $empMap,
-                $update_tracking
+                "(" . $table_time_diff->format('%H hr, %i min, %S sec, %f mcr'). ")"
             );
+
         } //table loop end
+        
+        $portal_time_end = date_create();
+        $portal_time_diff = date_diff($portal_time_start, $portal_time_end);
+        fwrite(
+            $log_file,
+            "\r\nPortal update took: " . $portal_time_diff->format('%H hr, %i min, %S sec, %f mcr') . "\r\n"
+        );
 
         $processed_portals_count += 1;
-        $update_details = "records: " . $update_tracking["records"] . ", notes: " . $update_tracking["notes"] . ", data_history: " . $update_tracking["data_history"];
+        $update_details = "records: " . $batch_tracking["records"] . ", notes: " . $batch_tracking["notes"] . ", data_history: " . $batch_tracking["data_history"];
         fwrite(
             $log_file,
             "Portal " . $portal_db . " (" . $processed_portals_count . "): table batches, " . $update_details  . "\r\n"
         );
-
 
     } catch (Exception $e) {
         fwrite(
