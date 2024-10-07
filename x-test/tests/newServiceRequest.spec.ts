@@ -114,7 +114,7 @@ test('approve the newly created request', async ({ page }) => {
   await page.getByLabel('comment text area').fill('follow up comment');
   await expect(page.getByRole('button', { name: 'Approve' })).toBeVisible();
   await page.getByRole('button', { name: 'Approve' }).click();
-
+// need to remove this comment//
   await page.getByLabel('comment text area').click();
   await page.getByLabel('comment text area').fill('another comment');
   await expect(page.getByRole('button', { name: 'Approve' })).toBeVisible();
@@ -128,5 +128,77 @@ test('approve the newly created request', async ({ page }) => {
   await page.getByRole('link', { name: 'Main Page' }).click();
   await expect(page.getByText('Approved').first()).toBeVisible();
  });
+// need to add more test//
+
+
+test('change the initiator name from the form', async ({ page }) => {
+  await page.goto('https://host.docker.internal/Test_Request_Portal/');
+  await page.getByRole('button', { name: 'Advanced' }).click();
+  await page.locator('#final-paragraph').click();
+  await page.getByRole('link', { name: 'Proceed to host.docker.' }).click();
+  await page.getByText('New Request Start a new').click();
+  await page.getByRole('cell', { name: 'Select an Option Service' }).locator('a').click();
+  await page.getByRole('option', { name: 'Bronze Kids' }).click();
+  await page.getByLabel('Title of Request').click();
+  await page.getByLabel('Title of Request').fill('Test administrative tools');
+  await page.locator('label').filter({ hasText: 'Simple form' }).locator('span').click();
+  await page.getByRole('button', { name: 'Click here to Proceed' }).click();
+  await page.getByLabel('single line text').click();
+  await page.getByLabel('single line text').fill('test 1');
+  await page.getByRole('button', { name: 'Next Next Question' }).click();
+  await page.getByRole('button', { name: 'Change Initiator' }).click();
+  await page.getByLabel('search input').click();
+  await page.getByLabel('search input').fill('a');
+  await page.getByRole('cell', { name: 'Bauch, Adam Koelpin.' }).click();
+  await page.getByRole('button', { name: 'Save Change' }).click();
+  await expect(page.locator('#comments')).toContainText('Initiator changed to Adam Bauch');
+});
+
+test('validate change initiator is recorded in view history log', async ({ page }) => {
+  await page.goto('https://host.docker.internal/Test_Request_Portal/');
+  await page.getByRole('button', { name: 'Advanced' }).click();
+  await page.locator('#final-paragraph').click();
+  await page.getByRole('link', { name: 'Proceed to host.docker.' }).click();
+  await page.getByText('New Request Start a new').click();
+  await page.getByRole('cell', { name: 'Select an Option Service' }).locator('a').click();
+  await page.getByRole('option', { name: 'Bronze Kids' }).click();
+  await page.getByLabel('Title of Request').click();
+  await page.getByLabel('Title of Request').fill('Test administrative tools');
+  await page.locator('label').filter({ hasText: 'Simple form' }).locator('span').click();
+  await page.getByRole('button', { name: 'Click here to Proceed' }).click();
+  await page.getByLabel('single line text').click();
+  await page.getByLabel('single line text').fill('test 1');
+  await page.getByRole('button', { name: 'Next Next Question' }).click();
+  await page.getByRole('button', { name: 'Change Initiator' }).click();
+  await page.getByLabel('search input').click();
+  await page.getByLabel('search input').fill('a');
+  await page.getByRole('cell', { name: 'Bauch, Adam Koelpin.' }).click();
+  await page.getByRole('button', { name: 'Save Change' }).click();
+  await expect(page.locator('#comments')).toContainText('Initiator changed to Adam Bauch');
+  await page.getByRole('button', { name: 'View History' }).click();
+  await expect(page.locator('#maintable')).toContainText('Action by Tester TesterComment: Initiator changed to Adam Bauch');
+});
+
+test('validate user is able to change the service', async ({ page }) => {
+  await page.goto('https://host.docker.internal/Test_Request_Portal/');
+  await page.getByRole('button', { name: 'Advanced' }).click();
+  await page.locator('#final-paragraph').click();
+  await page.getByRole('link', { name: 'Proceed to host.docker.' }).click();
+  await page.getByText('New Request Start a new').click();
+  await page.getByRole('cell', { name: 'Select an Option Service' }).locator('a').click();
+  await page.getByRole('option', { name: 'Bronze Kids' }).click();
+  await page.getByLabel('Title of Request').click();
+  await page.getByLabel('Title of Request').fill('Test administrative tools');
+  await page.locator('label').filter({ hasText: 'Simple form' }).locator('span').click();
+  await page.getByRole('button', { name: 'Click here to Proceed' }).click();
+  await page.getByLabel('single line text').click();
+  await page.getByLabel('single line text').fill('test 1');
+  await page.getByRole('button', { name: 'Next Next Question' }).click();
+  await page.getByRole('button', { name: 'Change Service' }).click();
+  await page.getByRole('dialog', { name: 'Change Service' }).locator('a').click();
+  await page.getByRole('option', { name: 'Bronze Music' }).click();
+  await page.getByRole('button', { name: 'Save Change' }).click();
+  await expect(page.getByRole('rowgroup')).toContainText('Bronze Music');
+});
 
 });
