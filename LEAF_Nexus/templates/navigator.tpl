@@ -82,7 +82,7 @@ function setPositionStyle(containerID, positionID) {
     });
 }
 
-var levelLimit = 5;
+var levelLimit = 2;
 function getSubordinates(positionID, level) {
 	loadTimer = 0;
     if(level >= levelLimit) {
@@ -92,7 +92,7 @@ function getSubordinates(positionID, level) {
     for(let key in positions[positionID].data.subordinates) {
         const subordinate = positions[positionID].data.subordinates;
 
-        positions[subordinate[key].positionID] = new position(subordinate[key].positionID, level);
+        positions[subordinate[key].positionID] = new position(subordinate[key].positionID);
         positions[subordinate[key].positionID].initialize('bodyarea');
         positions[subordinate[key].positionID].setRootID(<!--{$rootID}-->);
         positions[subordinate[key].positionID].setParentID(positionID);

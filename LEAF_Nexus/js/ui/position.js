@@ -4,13 +4,12 @@
     Date: May 18, 2012
 */
 
-function position(positionID, depth = 0) {
+function position(positionID) {
   this.positionID = positionID;
   this.rootID = 0;
   this.parentID = 0;
   this.parentContainerID;
   this.containerHeader;
-  this.depth = depth;
   this.x = null;
   this.y = null;
 
@@ -29,7 +28,7 @@ position.prototype.initialize = function (parentContainerID) {
     `<div id="${prefixedPID}" class="positionSmall">` +
       `<div id="${prefixedPID}_numFTE" class="fteCounter" style="margin:3px;"></div>` +
       `<div tabindex="0" role="button" id="${prefixedPID}_title" class="positionSmall_title"
-        aria-expanded="false" aria-controls="${prefixedPID}_controls" style="line-height:1.4;">
+        aria-expanded="false" aria-controls="${prefixedPID}_controls">
       </div>` +
       `<div id="${prefixedPID}_container" class="positionSmall_data">
         <div id="${prefixedPID}_content"></div>
@@ -212,9 +211,7 @@ position.prototype.setTitle = function (title) {
   if (title == "") {
     title = "";
   }
-  $("#" + this.prefixID + this.positionID + "_title").html(
-    `Orgchart level ${this.depth + 1}<br>` + title
-  );
+  $("#" + this.prefixID + this.positionID + "_title").html(title);
 };
 
 position.prototype.setContent = function (content) {

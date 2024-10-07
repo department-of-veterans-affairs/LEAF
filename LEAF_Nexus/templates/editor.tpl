@@ -135,10 +135,10 @@ function viewSupervisor() {
 }
 
 function saveLayout(positionID) {
-	const position = $('#' + positions[positionID].getDomID()).offset();
-	let newPosition = new Object();
-	newPosition.x = parseInt(position.left);
-	newPosition.y = parseInt(position.top);
+    const position = $('#' + positions[positionID].getDomID()).offset();
+    let newPosition = new Object();
+    newPosition.x = parseInt(position.left);
+    newPosition.y = parseInt(position.top);
     const currX = positions?.[positionID]?.x; //global positions object.
     const currY = positions?.[positionID]?.y;
 
@@ -391,7 +391,7 @@ function addSubgroup() {
 
 }
 
-var levelLimit = 5;
+var levelLimit = 2;
 var undefinedPositionOffset = 80;
 function getSubordinates(positionID, level) {
 	loadTimer = 0;
@@ -402,7 +402,7 @@ function getSubordinates(positionID, level) {
     for(var key in positions[positionID].data.subordinates) {
         var subordinate = positions[positionID].data.subordinates;
 
-        positions[subordinate[key].positionID] = new position(subordinate[key].positionID, level);
+        positions[subordinate[key].positionID] = new position(subordinate[key].positionID);
         positions[subordinate[key].positionID].initialize('bodyarea');
         positions[subordinate[key].positionID].setRootID(<!--{$rootID}-->);
         positions[subordinate[key].positionID].setParentID(positionID);
