@@ -13,7 +13,7 @@ require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
 $log_file = fopen("batch_update_records_notes_dh_log.txt", "w") or die("unable to open file");
 $time_start = date_create();
 
-$db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+$launch_db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
 //get records of each portal db.  Break out vdr for data_history updates.
 $q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL AND " .
@@ -21,8 +21,8 @@ $q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL 
     //"`portal_database` = 'Academy_Demo1' AND" .
     "`site_type`='portal' ORDER BY id";
 
-$portal_records = $db->query($q);
-unset($db);
+$portal_records = $launch_db->query($q);
+$launch_db->__destruct();
 
 $total_portals_count = count($portal_records);
 $processed_portals_count = 0;
@@ -34,13 +34,13 @@ $orgchart_time_start = date_create();
 $empMap = array();
 
 try {
-    $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $orgchart_db);
+    $nat_org_db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $orgchart_db);
 
     $qEmployees = "SELECT `employee`.`empUID`, `userName`, `lastName`, `firstName`, `middleName`, `deleted`, `data` AS `email` FROM `employee`
         JOIN `employee_data` ON `employee`.`empUID`=`employee_data`.`empUID`
         WHERE `userName` NOT LIKE 'disabled_%' AND `indicatorID`=6";
 
-    $resEmployees = $db->query($qEmployees) ?? [];
+    $resEmployees = $nat_org_db->query($qEmployees) ?? [];
     foreach($resEmployees as $emp) {
         $mapkey = strtoupper($emp['userName']);
 
@@ -59,7 +59,7 @@ try {
         );
     }
     unset($resEmployees);
-    unset($db);
+    $nat_org_db->__destruct();
     $orgchart_time_end = date_create();
     $orgchart_time_diff = date_diff($orgchart_time_start, $orgchart_time_end);
 
@@ -169,7 +169,7 @@ foreach($portal_records as $rec) {
     } //table loop end
     
     $pdb->query("FLUSH tables `notes`, `records`, `data_history`");
-    unset($pdb);
+    $pdb->__destruct();
 
     $portal_time_end = date_create();
     $portal_time_diff = date_diff($portal_time_start, $portal_time_end);
