@@ -8,7 +8,15 @@ $startTime = microtime(true);
 
 $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 $errorNotify = new App\Leaf\ErrorNotify();
-$siteList = $db->query("SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal' AND `isVAPO` = 'false'");
+
+if(HTTP_HOST !== 'leaf.va.gov'){
+    $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal' AND `isVAPO` = 'false' AND `orgchart_path` = '/Academy/orgchart'";
+}
+else{
+    $siteListSql = "SELECT `site_path` FROM `sites` WHERE `site_type` = 'portal' AND `isVAPO` = 'false'";
+}
+
+$siteList = $db->query($siteListSql);
 $dir = '/var/www/html';
 
 $failedArray = [];

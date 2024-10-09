@@ -353,20 +353,31 @@ class Form
 
         $keys = array_keys($_POST);
 
-        $countCategories = 0;
+        $categoryIDsArr = array();
         if (isset($_POST['title']))
         {
             foreach ($keys as $key)
             {
                 if (strpos($key, 'num') === 0)
                 {
-                    $countCategories++;
+                    $categoryIDsArr[] = XSSHelpers::xscrub(strtolower(substr($key, 3)));
                 }
             }
         }
-        if ($countCategories == 0)
+        if (count($categoryIDsArr) === 0)
         {
             return 'Error: No forms selected. Please Select a form and try again.';
+        }
+
+        //check category visible status.  unpublished forms (visibility -1) should not be created.
+        $pubVars = array(
+            ":categoryIDs" => implode(',', $categoryIDsArr)
+        );
+        $pubSQL = "SELECT * FROM categories WHERE FIND_IN_SET(categoryID, :categoryIDs) AND `visible` = -1";
+        $unpublishedForms = $this->db->prepared_query($pubSQL, $pubVars);
+
+        if (count($unpublishedForms) > 0) {
+            return 'Forms associated with this request are unpublished.  Please check the New Request page or contact an administrator about possible form updates.';
         }
 
         $var = array(':service' => $_POST['service']);
@@ -393,14 +404,18 @@ class Form
             }
         }
 
-        $vars = array(':date' => time(),
-                      ':serviceID' => $serviceID,
-                      ':userID' => $userID,
-                      ':title' => XSSHelpers::sanitizer($_POST['title']),
-                      ':priority' => $_POST['priority'], );
+        $userMetadata  = $this->employee->getInfoForUserMetadata($userID, false);
+        $vars = array(
+            ':date' => time(),
+            ':serviceID' => $serviceID,
+            ':userID' => $userID,
+            ':title' => XSSHelpers::sanitizer($_POST['title']),
+            ':priority' => $_POST['priority'],
+            ':userMetadata' => $userMetadata,
+        );
 
-        $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority)
-                                    VALUES (:date, :serviceID, :userID, :title, :priority)', $vars);
+        $this->db->prepared_query('INSERT INTO records (date, serviceID, userID, title, priority, userMetadata)
+                                    VALUES (:date, :serviceID, :userID, :title, :priority, :userMetadata)', $vars);
 
         $recordID = $this->db->getLastInsertID(); // note this doesn't work with all DBs (eg. with transactions, MySQL should be ok)
 
@@ -801,7 +816,7 @@ class Form
             $res = $this->db->prepared_query($sql, $vars);
 
             $actionUserID = $this->login->getUserID();
-            $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+            $userMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
 
             // actionID 4 = delete
             $vars = array(':recordID' => $recordID,
@@ -1136,25 +1151,28 @@ class Form
         if (!$this->hasWriteAccess($recordID, 0, $key)) {
             return 0;
         }
-        $userMetadata = null;
+        $orgchartEmpMetadata = null;
         if($res[0]['format'] === 'orgchart_employee' && is_numeric($_POST[$key])) {
-            $userMetadata = $this->getFormWorkflow()->getInfoForUserMetadata($_POST[$key], true);
+            $orgchartEmpMetadata = $this->employee->getInfoForUserMetadata($_POST[$key], true);
         }
-        $vars = array(':recordID' => $recordID,
-                      ':indicatorID' => $key,
-                      ':series' => $series,
-                      ':data' => trim($_POST[$key]),
-                      ':metadata' => $userMetadata,
-                      ':timestamp' => time(),
-                      ':userID' => $this->login->getUserID(), );
+        $vars = array(
+            ':recordID' => $recordID,
+            ':indicatorID' => $key,
+            ':series' => $series,
+            ':data' => trim($_POST[$key]),
+            ':metadata' => $orgchartEmpMetadata,
+            ':timestamp' => time(),
+            ':userID' => $this->login->getUserID(),
+        );
 
         $this->db->prepared_query('INSERT INTO data (recordID, indicatorID, series, data, metadata, timestamp, userID)
                                             VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)
                                             ON DUPLICATE KEY UPDATE data=:data, metadata=:metadata, timestamp=:timestamp, userID=:userID', $vars);
 
         if (!$duplicate) {
-            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID)
-                                                   VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)', $vars);
+            $vars[':userDisplay'] = $this->login->getName();
+            $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID, userDisplay)
+                                                   VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID, :userDisplay)', $vars);
         }
         /*  signatures (not yet implemented)
         $vars = array(':recordID' => $recordID,
@@ -1409,7 +1427,7 @@ class Form
                 $res = $this->db->prepared_query($sql, $vars);
 
                 $actionUserID = $this->login->getUserID();
-                $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+                $userMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
 
                 // write history data, actionID 6 = filled dependency
                 $vars = array(':recordID' => $recordID,
@@ -2877,10 +2895,14 @@ class Form
 
         if ($this->login->checkGroup(1))
         {
-            $vars = array(':recordID' => (int)$recordID,
-                          ':userID' => $userID, );
+            $newInitiatorMetadata = $this->employee->getInfoForUserMetadata($userID, false);
+            $vars = array(
+                ':recordID' => (int)$recordID,
+                ':userID' => $userID,
+                ':userMetadata' => $newInitiatorMetadata,
+            );
             $res = $this->db->prepared_query('UPDATE records SET
-                                            	userID=:userID
+                                            	userID=:userID, userMetadata=:userMetadata
                                             	WHERE recordID=:recordID', $vars);
 
             // write log entry
@@ -2890,7 +2912,7 @@ class Form
             $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
 
             $actionUserID = $this->login->getUserID();
-            $userMetadata  = $this->getFormWorkflow()->getInfoForUserMetadata($actionUserID, false);
+            $actionUserMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
 
             $comment = "Initiator changed to {$name}";
             $vars2 = array(
@@ -2901,7 +2923,7 @@ class Form
                 ':actionTypeID' => 8,
                 ':time' => time(),
                 ':comment' => $comment,
-                ':userMetadata' => $userMetadata,
+                ':userMetadata' => $actionUserMetadata,
             );
             $this->db->prepared_query('INSERT INTO action_history (recordID, userID, dependencyID, actionType, actionTypeID, time, comment, userMetadata)
                                             VALUES (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)', $vars2);

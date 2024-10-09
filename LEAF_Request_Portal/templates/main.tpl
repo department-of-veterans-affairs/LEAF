@@ -63,6 +63,9 @@
 {if $smarty.server.HTTP_HOST === 'leaf-preprod.va.gov'}
     <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">PREPROD TESTING</div>
 {/if}
+{if $smarty.server.HTTP_HOST === 'leaf.apps.vapo-aws-ppd.va.gov'}
+    <div style="position: fixed; z-index: 9999; width: 100%; background-color: rgba(255,255,100,0.75); text-align: center;">VAPO TESTING</div>
+{/if}
 <header id="header">
     {if $qrcodeURL != ''}
     <div style="float: left"><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>

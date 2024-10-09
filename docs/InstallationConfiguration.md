@@ -13,7 +13,7 @@ Open up a terminal and enter these commands:
   - Or ensure that `./docker/mysql/dev_bootstrap.sh uses the LF end-of-line sequence instead of CRLF.
 
 ```
-    git clone https://github.com/department-of-veterans-affairs/LEAF.git LEAF
+    git clone --recurse-submodules https://github.com/department-of-veterans-affairs/LEAF.git LEAF
 
     cd LEAF/docker
 

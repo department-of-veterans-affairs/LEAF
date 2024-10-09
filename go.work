@@ -1,4 +1,0 @@
-go 1.21.3
-
-use ./x-test/api-test-helper
-use ./x-test/API-tests

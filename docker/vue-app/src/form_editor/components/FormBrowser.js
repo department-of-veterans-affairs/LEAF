@@ -37,7 +37,7 @@ export default {
             for (let c in this.categories) {
                 if (this.categories[c].parentID === '' &&
                     parseInt(this.categories[c].workflowID) !== 0 &&
-                    parseInt(this.categories[c].visible) === 0) {
+                    parseInt(this.categories[c].visible) < 1) {
                     inactive.push({...this.categories[c]});
                 }
             }
