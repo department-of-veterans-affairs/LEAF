@@ -13,7 +13,7 @@ require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
 $log_file = fopen("batch_update_records_notes_dh_log.txt", "w") or die("unable to open file");
 $time_start = date_create();
 
-$launch_db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+$db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
 //get records of each portal db.  Break out vdr for data_history updates.
 $q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL AND " .
@@ -21,8 +21,7 @@ $q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL 
     //"`portal_database` = 'Academy_Demo1' AND" .
     "`site_type`='portal' ORDER BY id";
 
-$portal_records = $launch_db->query($q);
-$launch_db->__destruct();
+$portal_records = $db->query($q);
 
 $total_portals_count = count($portal_records);
 $processed_portals_count = 0;
@@ -34,13 +33,13 @@ $orgchart_time_start = date_create();
 $empMap = array();
 
 try {
-    $nat_org_db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $orgchart_db);
+    $db->query("USE `{$orgchart_db}`");
 
     $qEmployees = "SELECT `employee`.`empUID`, `userName`, `lastName`, `firstName`, `middleName`, `deleted`, `data` AS `email` FROM `employee`
         JOIN `employee_data` ON `employee`.`empUID`=`employee_data`.`empUID`
         WHERE `userName` NOT LIKE 'disabled_%' AND `indicatorID`=6";
 
-    $resEmployees = $nat_org_db->query($qEmployees) ?? [];
+    $resEmployees = $db->query($qEmployees) ?? [];
     foreach($resEmployees as $emp) {
         $mapkey = strtoupper($emp['userName']);
 
@@ -59,7 +58,7 @@ try {
         );
     }
     unset($resEmployees);
-    $nat_org_db->__destruct();
+
     $orgchart_time_end = date_create();
     $orgchart_time_diff = date_diff($orgchart_time_start, $orgchart_time_end);
 
@@ -99,8 +98,8 @@ function getUniqueIDBatch(&$db, $batchcount = 0, $table_name):array {
 foreach($portal_records as $rec) {
     $portal_db = $rec['portal_database'];
     try {
-        $pdb = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $portal_db);
-        
+        $db->query("USE `{$portal_db}`");
+
         $batch_tracking = array(
             "notes" => 0,
             "records" => 0,
@@ -121,7 +120,7 @@ foreach($portal_records as $rec) {
             );
 
             $batchcount = 0;
-            while(count($resUniqueIDsBatch = getUniqueIDBatch($pdb, $batchcount, $table_name)) > 0) {
+            while(count($resUniqueIDsBatch = getUniqueIDBatch($db, $batchcount, $table_name)) > 0) {
                 $batchcount += 1;
                 $numIDs = count($resUniqueIDsBatch);
 
@@ -142,7 +141,7 @@ foreach($portal_records as $rec) {
                 $sqlUpdateMetadata .= " WHERE `$field_name` IS NULL";
 
                 try {
-                    $pdb->prepared_query($sqlUpdateMetadata, $metaVars);
+                    $db->prepared_query($sqlUpdateMetadata, $metaVars);
                     $batch_tracking[$table_name] += 1;
 
                     fwrite(
@@ -168,9 +167,6 @@ foreach($portal_records as $rec) {
             );
 
         } //table loop end
-        
-        $pdb->query("FLUSH tables `notes`, `records`, `data_history`");
-        $pdb->__destruct();
 
         $portal_time_end = date_create();
         $portal_time_diff = date_diff($portal_time_start, $portal_time_end);
@@ -207,4 +203,5 @@ fwrite(
     "\r\n-----------------------\r\nProcess took: " . $time_diff->format('%H hr, %i min, %S sec, %f mcr') . "\r\n".
     "total portals: " . $total_portals_count . ", portals processed: " . $processed_portals_count . ", error count: " . $error_count . "\r\n"
 );
+$db->__destruct();
 fclose($log_file);
