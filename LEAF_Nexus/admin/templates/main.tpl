@@ -46,11 +46,11 @@
     {if $qrcodeURL != ''}
     <div style="float: left"><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
     {/if}
-    <div style="cursor: pointer" onclick="window.location='./'">
-      <span style="position: absolute">{$logo}</span>
+    <a href="./" style="cursor: pointer">
+      {$logo}
       <span id="headerLabel">{$city}</span>
       <h1 id="headerDescription">{$title}</h1>
-    </div>
+    </a>
     <span id="headerHelp">
         {$login}
     </span>

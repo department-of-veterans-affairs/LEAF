@@ -82,15 +82,15 @@ function setPositionStyle(containerID, positionID) {
     });
 }
 
-var levelLimit = 5;
+var levelLimit = 2;
 function getSubordinates(positionID, level) {
 	loadTimer = 0;
     if(level >= levelLimit) {
         return false;
     }
     level++;
-    for(var key in positions[positionID].data.subordinates) {
-        var subordinate = positions[positionID].data.subordinates;
+    for(let key in positions[positionID].data.subordinates) {
+        const subordinate = positions[positionID].data.subordinates;
 
         positions[subordinate[key].positionID] = new position(subordinate[key].positionID);
         positions[subordinate[key].positionID].initialize('bodyarea');
