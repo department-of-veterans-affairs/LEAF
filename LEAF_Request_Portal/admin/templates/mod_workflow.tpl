@@ -106,6 +106,9 @@
                         alert("Prerequisite action needed:\n\n" + res);
                         dialog_confirm.hide();
                     } else {
+                        let url = new URL(window.location.href);
+                        url.searchParams.delete('workflowID');
+                        window.history.replaceState(null, "", url.toString());
                         window.location.reload();
                     }
                 },
@@ -2369,8 +2372,8 @@
                     }
                     output += '<option value="' + res[i].workflowID + '" description = "' + res[i]
                         .description +
-                        '"><b>' + res[i].description +
-                        '</b> (ID: #' + res[i].workflowID + ')</option>';
+                        '">' + res[i].description +
+                        ' (ID: #' + res[i].workflowID + ')</option>';
                     count++;
                 }
                 if (count == 0) {
@@ -2589,19 +2592,17 @@
             workflows[workflowID]['description'] = title;
             old_steps[-1] = -1;
 
+            let elFilter = document.createElement('div');
             for(let i in steps) {
                 // add step, if successful update that step
-                addStep(workflowID, steps[i].stepTitle, function(stepID) {
+                elFilter.innerHTML = steps[i].stepTitle;
+                addStep(workflowID, elFilter.textContent, function(stepID) {
 
                     if (isNaN(stepID)) {
                         console.log(stepID);
                     } else {
                         old_steps[steps[i].stepID] = stepID;
                         updatePosition(workflowID, stepID, steps[i].posX, steps[i].posY);
-
-                        updateTitle(steps[i].stepTitle, stepID, function(res) {
-                            // Alls well that ends well.
-                        });
 
                         if (steps[i].stepData != null) {
                             let auto = JSON.parse(steps[i].stepData);
