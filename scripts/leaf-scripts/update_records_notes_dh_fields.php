@@ -103,8 +103,27 @@ $user_not_found_values = array(
 
 
 function getUniqueIDBatch(&$db, $table_name, $field_name):array {
-    $SQL = "SELECT DISTINCT `userID` FROM `$table_name` WHERE `$field_name` IS NULL LIMIT 1000";
-    return $db->query($SQL) ?? [];
+    $getLimit = 5000;
+    $caseCap = 1000;
+    $count = 0;
+
+    $SQL = "SELECT `userID` FROM `$table_name` WHERE `$field_name` IS NULL LIMIT $getLimit";
+    $records = $db->query($SQL) ?? [];
+
+    //removing duplicates here since using DISTINCT complicates the query
+    //keeping upper cap for subsequent case statement. filtering here since duplicates vary per table.
+    $mapAdded = array();
+    foreach ($records as $rec) {
+        $userID = strtoupper($rec['userID']);
+        if(!isset($mapAdded[$userID])) {
+            $mapAdded[$userID] = 1;
+            $count += 1;
+            if($count === $caseCap) {
+                break;
+            }
+        }
+    }
+    return array_keys($mapAdded);
 }
 
 $pdo_options = [
@@ -144,6 +163,7 @@ foreach($portal_records as $rec) {
             );
 
             $batchcount = 0;
+            //simple array of upper case userID strings
             while(count($resUniqueIDsBatch = getUniqueIDBatch($pdb, $table_name, $field_name)) > 0) {
                 $batchcount += 1;
                 $numIDs = count($resUniqueIDsBatch);
@@ -152,10 +172,10 @@ foreach($portal_records as $rec) {
                     SET `$field_name` = CASE `userID` ";
                 $metaVars = array();
 
-                foreach ($resUniqueIDsBatch as $idx => $userRec) {
+                foreach ($resUniqueIDsBatch as $idx => $userID) {
                     //use mapped info if present, otherwise use empty values.
-                    $userInfo = $empMap[strtoupper($userRec['userID'])] ?? null;
-                    $metaVars[":user_" . $idx] = $userRec['userID'];
+                    $userInfo = $empMap[$userID] ?? null;
+                    $metaVars[":user_" . $idx] = $userID;
                     $metaVars[":meta_" . $idx] = isset($userInfo) ?
                         $userInfo[$field_name] : $user_not_found_values[$field_name];
 
@@ -180,7 +200,7 @@ foreach($portal_records as $rec) {
                     );
                     $error_count += 1;
                 }
-            } // while remaining un-updated unique ids
+            } // while remaining un-updated ids
             
             $table_time_end = date_create();
             $table_time_diff = date_diff($table_time_start, $table_time_end);
