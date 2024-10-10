@@ -127,26 +127,41 @@ function viewSupervisor() {
         success: function(response) {
             window.location = '?a=editor&rootID=' + response[0].positionID;
         },
+        error: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }
 
 function saveLayout(positionID) {
-	$('#busyIndicator').css('visibility', 'visible');
-	var position = $('#' + positions[positionID].getDomID()).offset();
-	var newPosition = new Object();
-	newPosition.x = position.left;
-	newPosition.y = position.top;
-    $.ajax({
-    	type: 'POST',
-        url: './api/position/' + positionID,
-        data: {15: JSON.stringify({<!--{$rootID}-->: newPosition}),
-        	CSRFToken: '<!--{$CSRFToken}-->'},
-        success: function(res) {
-            $('#busyIndicator').css('visibility', 'hidden');
-        },
-        cache: false
-    });
+    const position = $('#' + positions[positionID].getDomID()).offset();
+    let newPosition = new Object();
+    newPosition.x = parseInt(position.left);
+    newPosition.y = parseInt(position.top);
+    const currX = positions?.[positionID]?.x; //global positions object.
+    const currY = positions?.[positionID]?.y;
+
+    if(newPosition.x != currX || newPosition.y != currY) {
+        $('#busyIndicator').css('visibility', 'visible');
+        $.ajax({
+            type: 'POST',
+            url: './api/position/' + positionID,
+            data: {15: JSON.stringify({<!--{$rootID}-->: newPosition}),
+                CSRFToken: '<!--{$CSRFToken}-->'},
+            success: function(res) {
+                if (+res === 1) {
+                    positions[positionID].x = newPosition.x;
+                    positions[positionID].y = newPosition.y;
+                }
+                $('#busyIndicator').css('visibility', 'hidden');
+            },
+            error: function(err) {
+                console.log(err);
+            },
+            cache: false
+        });
+    }
 }
 
 function changeSupervisor(currPositionID) {
@@ -166,6 +181,9 @@ function changeSupervisor(currPositionID) {
                       CSRFToken: '<!--{$CSRFToken}-->'},
             success: function(response) {
                 window.location.reload();
+            },
+            error: function(err) {
+                console.log(err);
             },
             cache: false
         });
@@ -232,29 +250,16 @@ function addSupervisor(positionID) {
                 dialog.hide();
                 applyZoomLevel();
             },
+            error: function(err) {
+                console.log(err);
+            },
             cache: false
         });
     });
 }
 
 function moveCoordinates(prefix, position) {
-    $('#' + prefix + position).css('box-shadow', ' 0 0 6px #c00');
-    let alert_box = document.getElementById('visual_alert_box');
-    let title = document.getElementById(prefix + position + '_title');
-    let titleText = title.innerHTML;
-    alert_box.innerHTML = "You are moving the " + titleText + " card<br />Esc - return to original location<br />Enter - save current location<br />Tab - Save and move to next card";
-    $('#visual_alert_box').css('opacity', '100');
-
-    let card = document.getElementById(prefix + position);
-    let cardStyle = window.getComputedStyle(card);
-    let topOrg = cardStyle.getPropertyValue('top');
-    let leftOrg = cardStyle.getPropertyValue('left');
-    let topValue = cardStyle.getPropertyValue('top').replace("px", "");
-    let leftValue = cardStyle.getPropertyValue('left').replace("px", "");
-    let key;
-    let abort = false;
-    const controlKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
-    document.addEventListener('keydown', function moveCard(e) {
+    const moveCard = (e) => {
         if (e.key === "Tab") {
             saveLayout(position);
             $('#' + prefix + position).css('box-shadow', 'none');
@@ -296,11 +301,30 @@ function moveCoordinates(prefix, position) {
             if (abort) {
                 $('#' + prefix + position).css('box-shadow', 'none');
                 $('#visual_alert_box').css('opacity', '0');
-                //document.removeEventListener('keydown', moveCard);
+                document.removeEventListener('keydown', moveCard);
                 return;
             }
         }
-    });
+    };
+    $('div.positionSmall').css('box-shadow', 'none');
+    $('#' + prefix + position).css('box-shadow', ' 0 0 6px #c00');
+    let alert_box = document.getElementById('visual_alert_box');
+    let title = document.getElementById(prefix + position + '_title');
+    let titleText = title.innerHTML;
+    alert_box.innerHTML = "You are moving the " + titleText + " card<br />Esc - return to original location<br />Enter - save current location<br />Tab - Save and move to next card";
+    $('#visual_alert_box').css('opacity', '100');
+
+    let card = document.getElementById(prefix + position);
+    let cardStyle = window.getComputedStyle(card);
+    let topOrg = cardStyle.getPropertyValue('top');
+    let leftOrg = cardStyle.getPropertyValue('left');
+    let topValue = cardStyle.getPropertyValue('top').replace("px", "");
+    let leftValue = cardStyle.getPropertyValue('left').replace("px", "");
+    let key;
+    let abort = false;
+    const controlKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
+    document.addEventListener('keydown', moveCard);
+    title.addEventListener('blur', () => document.removeEventListener('keydown', moveCard));
 }
 
 function addSubordinate(parentID) {
@@ -355,6 +379,9 @@ function addSubordinate(parentID) {
                 dialog.hide();
                 applyZoomLevel();
             },
+            error: function(err) {
+                console.log(err);
+            },
             cache: false
         });
     });
@@ -364,7 +391,7 @@ function addSubgroup() {
 
 }
 
-var levelLimit = 5;
+var levelLimit = 2;
 var undefinedPositionOffset = 80;
 function getSubordinates(positionID, level) {
 	loadTimer = 0;
@@ -408,6 +435,9 @@ function getSubordinates(positionID, level) {
                     success: function(response) {
                     	positions[subordinate[key].positionID].data = response;
                     	getSubordinates(subordinate[key].positionID, level);
+                    },
+                    error: function(err) {
+                        console.log(err);
                     },
                     cache: false
                 });
@@ -460,6 +490,9 @@ function showSubordinates(positionID) {
         success: function(res, args) {
         	window.location.reload();
         },
+        error: function(err) {
+            console.log(err);
+        },
         cache: false
     });
 }
@@ -474,6 +507,9 @@ function hideSubordinates(positionID) {
         	CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res, args) {
             window.location.reload();
+        },
+        error: function(err) {
+            console.log(err);
         },
         cache: false
     });
@@ -496,6 +532,9 @@ function removePosition(positionID) {
                     alert('Error: ' + response);
                 }
             },
+            error: function(err) {
+                console.log(err);
+            },
             cache: false
         });
     });
@@ -512,6 +551,9 @@ function saveZoomLevel(zoomLevel) {
         	CSRFToken: '<!--{$CSRFToken}-->'},
         success: function(res, args) {
             //window.location.reload();
+        },
+        error: function(err) {
+            console.log(err);
         },
         cache: false
     });

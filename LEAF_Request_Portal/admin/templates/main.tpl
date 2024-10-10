@@ -68,7 +68,7 @@
         <div class="usa-navbar site-header-navbar">
             <div class="usa-logo site-logo" id="logo">
                 <em class="usa-logo__text">
-                    <a onclick="window.location='./'" title="Home" aria-label="LEAF home" class="leaf-cursor-pointer">
+                    <a tabindex="0" onclick="window.location='./'" title="Admin Home" class="leaf-cursor-pointer">
                         <span class="leaf-logo">{$logo}</span>
                         <span class="leaf-site-title">{$city}</span>
                         <span id="headerDescription" class="leaf-header-description">{$title}</span>
