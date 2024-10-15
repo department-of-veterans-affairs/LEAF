@@ -37,7 +37,7 @@ try {
 
     $qEmployees = "SELECT `employee`.`empUID`, `userName`, `lastName`, `firstName`, `middleName`, `deleted`, `data` AS `email` FROM `employee`
         JOIN `employee_data` ON `employee`.`empUID`=`employee_data`.`empUID`
-        WHERE `deleted` = 0 AND `indicatorID`=6";
+        WHERE `deleted`=0 AND `indicatorID`=6";
 
     $resEmployees = $db->query($qEmployees) ?? [];
     foreach($resEmployees as $emp) {
@@ -101,7 +101,7 @@ $user_not_found_values = array(
 
 
 function getUniqueIDBatch(&$db, $table_name, $field_name):array {
-    $getLimit = 25000;
+    $getLimit = 20000;
 
     $SQL = "SELECT `userID` FROM `$table_name` WHERE `$field_name` IS NULL LIMIT $getLimit";
     $records = $db->query($SQL) ?? [];
@@ -147,7 +147,7 @@ foreach($portal_records as $rec) {
                 $id_batch += 1;
 
                 $case_batch = 0;
-                $case_limit = $table_name === 'NATIONAL_101_vaccination_data_reporting' ? 750 : 200;
+                $case_limit = $portal_db === 'NATIONAL_101_vaccination_data_reporting' ? 750 : 200;
                 while(count($slice = array_slice($resUniqueIDsBatch, $case_batch * $case_limit, $case_limit))) {
                     $sqlUpdateMetadata = "UPDATE `$table_name` SET `$field_name` = CASE `userID` ";
                     $metaVars = array();
