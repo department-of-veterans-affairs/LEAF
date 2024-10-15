@@ -101,7 +101,7 @@ $user_not_found_values = array(
 
 
 function getUniqueIDBatch(&$db, $table_name, $field_name):array {
-    $getLimit = 10000;
+    $getLimit = 25000;
 
     $SQL = "SELECT `userID` FROM `$table_name` WHERE `$field_name` IS NULL LIMIT $getLimit";
     $records = $db->query($SQL) ?? [];
@@ -147,7 +147,7 @@ foreach($portal_records as $rec) {
                 $id_batch += 1;
 
                 $case_batch = 0;
-                $case_limit = 100;
+                $case_limit = $table_name === 'NATIONAL_101_vaccination_data_reporting' ? 750 : 200;
                 while(count($slice = array_slice($resUniqueIDsBatch, $case_batch * $case_limit, $case_limit))) {
                     $sqlUpdateMetadata = "UPDATE `$table_name` SET `$field_name` = CASE `userID` ";
                     $metaVars = array();
