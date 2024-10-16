@@ -17,8 +17,8 @@ $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_
 
 //get records of each portal db.  Break out vdr for data_history updates.
 $q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL AND " .
-    "`portal_database` != 'NATIONAL_101_vaccination_data_reporting' AND " .
-    "`portal_database` = 'Academy_Demo1' AND" .
+    //"`portal_database` != 'NATIONAL_101_vaccination_data_reporting' AND " .
+    //"`portal_database` = 'Academy_Demo1' AND" .
     "`site_type`='portal' ORDER BY id";
 
 $portal_records = $db->query($q);
@@ -32,28 +32,39 @@ $orgchart_db = 'national_orgchart';
 $orgchart_time_start = date_create();
 $empMap = array();
 
-try {
-    $db->query("USE `{$orgchart_db}`");
+function getOrgchartBatch(&$db, $batch_count = 0) {
+    $limit = 50000; //tested in adminer and handles this size ok
+    $offset = $batch_count * $limit;
 
     $qEmployees = "SELECT `employee`.`empUID`, `userName`, `lastName`, `firstName`, `middleName`, `deleted`, `data` AS `email` FROM `employee`
         JOIN `employee_data` ON `employee`.`empUID`=`employee_data`.`empUID`
-        WHERE `deleted`=0 AND `indicatorID`=6";
+        WHERE `deleted`=0 AND `indicatorID`=6 ORDER BY `employee`.`empUID` LIMIT $limit OFFSET $offset";
 
-    $resEmployees = $db->query($qEmployees) ?? [];
-    foreach($resEmployees as $emp) {
-        $mapkey = strtoupper($emp['userName']);
-        $empMap[$mapkey] = array(
-            'userDisplay' => $emp['firstName'] . " " . $emp['lastName'],
-            'userMetadata' => json_encode(
-                array(
-                    'userName' => $emp['userName'],
-                    'firstName' => $emp['firstName'],
-                    'lastName' => $emp['lastName'],
-                    'middleName' => $emp['middleName'],
-                    'email' => $emp['email']
-                )
-            ),
-        );
+    return $db->query($qEmployees) ?? [];
+}
+
+try {
+    $db->query("USE `{$orgchart_db}`");
+
+    $org_batch = 0;
+    while(count($resEmployees = getOrgchartBatch($db, $org_batch)) > 0) {
+        $org_batch += 1;
+    
+        foreach($resEmployees as $emp) {
+            $mapkey = strtoupper($emp['userName']);
+            $empMap[$mapkey] = array(
+                'userDisplay' => $emp['firstName'] . " " . $emp['lastName'],
+                'userMetadata' => json_encode(
+                    array(
+                        'userName' => $emp['userName'],
+                        'firstName' => $emp['firstName'],
+                        'lastName' => $emp['lastName'],
+                        'middleName' => $emp['middleName'],
+                        'email' => $emp['email']
+                    )
+                ),
+            );
+        }
     }
     unset($resEmployees);
 
@@ -101,7 +112,7 @@ $user_not_found_values = array(
 
 
 function getUniqueIDBatch(&$db, $table_name, $field_name):array {
-    $getLimit = 20000;
+    $getLimit = $table_name == 'data_history' ? 15000 : 10000;
 
     $SQL = "SELECT `userID` FROM `$table_name` WHERE `$field_name` IS NULL LIMIT $getLimit";
     $records = $db->query($SQL) ?? [];
@@ -147,7 +158,9 @@ foreach($portal_records as $rec) {
                 $id_batch += 1;
 
                 $case_batch = 0;
-                $case_limit = $portal_db === 'NATIONAL_101_vaccination_data_reporting' ? 750 : 200;
+                //records and notes will usually not have high numbers of rows per user.  VDR had known lower data/user ratio
+                $case_high = $table_name != 'data_history' || $portal_db == 'NATIONAL_101_vaccination_data_reporting';
+                $case_limit = $case_high ? 1000 : 500;
                 while(count($slice = array_slice($resUniqueIDsBatch, $case_batch * $case_limit, $case_limit))) {
                     $sqlUpdateMetadata = "UPDATE `$table_name` SET `$field_name` = CASE `userID` ";
                     $metaVars = array();
@@ -162,7 +175,10 @@ foreach($portal_records as $rec) {
                         $sqlUpdateMetadata .= " WHEN :user_" . $idx . " THEN :meta_" . $idx;
                     }
                     $sqlUpdateMetadata .= " END";
-                    $sqlUpdateMetadata .= " WHERE `$field_name` IS NULL";
+                    $sqlUpdateMetadata .= " WHERE `$field_name` IS NULL LIMIT 20000;";
+                    //Limit to prevent high data/user ratio resulting in mass updates.
+                    //~10-15% portals (staging) have over 20k dh rows.  
+                    //records not updated due to limit will be re-pulled by another batch of nulls
 
                     try {
                         $db->prepared_query($sqlUpdateMetadata, $metaVars);

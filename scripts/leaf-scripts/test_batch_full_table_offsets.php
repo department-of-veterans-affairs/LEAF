@@ -99,7 +99,7 @@ $user_not_found_values = array(
     "userMetadata" => $json_empty,
     "userDisplay" => "",
 );
-$other_columns = array(
+$order_by_columns = array(
     "notes" => "`noteID`",
     "records" => "`recordID`",
     "data_history" => "`timestamp`, `recordID`, `indicatorID`"
@@ -107,14 +107,14 @@ $other_columns = array(
 
 
 function getUniqueIDBatch(&$db, $table_name, $field_name, $batch_count):array {
-    global $other_columns;
+    global $order_by_columns;
 
     $getLimit = $table_name === "data_history" ? 10000 : 1000;
     $offset = $batch_count * $getLimit;
 
-    $SQL_other_cols = $other_columns[$table_name]; //keys for no duplicate fields
-    $SQL = "SELECT $SQL_other_cols, `userID`, $field_name FROM `$table_name`
-        ORDER BY $SQL_other_cols LIMIT $getLimit OFFSET $offset";
+    $SQL_order_by = $order_by_columns[$table_name]; //keys for no duplicate fields
+    $SQL = "SELECT `userID`, $field_name FROM `$table_name`
+        ORDER BY $SQL_order_by LIMIT $getLimit OFFSET $offset";
     return $db->query($SQL) ?? [];
 }
 

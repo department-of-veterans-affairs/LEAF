@@ -130,6 +130,8 @@ foreach($portal_records as $rec) {
         $portal_time_start = date_create();
         foreach ($tables_to_update as $table_name) {
             $field_name = $fields_to_update[$table_name];
+            //ideally needs initial request to check for any non-updated fields regardless
+            //since otherwise this scans all tables.
             fwrite(
                 $log_file,
                 "\r\n" . $table_name . ": "
@@ -139,7 +141,7 @@ foreach($portal_records as $rec) {
             while(count($resUniqueIDsBatch = getUniqueIDBatch($db, $batchcount, $table_name)) > 0) {
                 $batchcount += 1;
                 $batch_tracking[$table_name] += 1;
-                
+                //trickier to add limits here
                 $SQLupdate = "UPDATE `$portal_db`.$table_name A
                     LEFT JOIN $temp_table_name B
                     ON A.userID = B.userID
