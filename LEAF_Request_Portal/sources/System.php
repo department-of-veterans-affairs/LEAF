@@ -29,6 +29,8 @@ class System
 
     private $fileExtensionWhitelist;
 
+    private $site_data;
+
     private $dataActionLogger;
 
     public function __construct($db, $login)
@@ -593,7 +595,7 @@ class System
      * getFileList retrieves filenames uploaded via Admin Panel -> File Manager
      *
      * @param bool getLastModified If set to true, the returned elements within the array include [file, modifiedTime]
-     * 
+     *
      * @return array
      */
     public function getFileList(?bool $getLastModified = false): array
@@ -702,6 +704,7 @@ class System
             $user = $dir->lookupLogin($primaryAdminRes[0]['userID']);
             $result = isset($user[0]) ? $user[0] : $primaryAdminRes[0]['userID'];
         }
+
         return $result;
     }
 
@@ -795,7 +798,7 @@ class System
      *
      * Created at: 10/3/2022, 6:59:30 AM (America/New_York)
      */
-    public function syncSystem(\Orgchart\Group $nexus_group): string
+    public function syncSystem(\Orgchart\Group $nexus_group, array $site_data = null): string
     {
         // update services and service chiefs
         $this->removeServices();
@@ -816,7 +819,26 @@ class System
         $this->cleanupSystemAdmin();
         $this->cleanupUsers();
 
+        if ($site_data !== null) {
+            $this->site_data = $site_data;
+            $this->cleanupPortalGroups();
+        }
+
+
         return 'Syncing has finished. You are set to go.';
+    }
+
+    private function cleanupPortalGroups(): void
+    {
+        $vars = array();
+        $sql = "DELETE
+                FROM `{$this->site_data['portal_database']}`.`groups` `db1`
+                WHERE `groupID` NOT IN (
+                    SELECT `db2`.`groupID`
+                    FROM `{$this->site_data['orgchart_database']}`.`groups` `db2`)
+                AND `groupID` > 0";
+
+        $this->db->prepared_query($sql, $vars);
     }
 
     private function cleanupUsers(): void
