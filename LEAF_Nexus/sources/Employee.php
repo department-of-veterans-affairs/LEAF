@@ -1465,16 +1465,15 @@ class Employee extends Data
                 $tdata[$employeeData['empUID']] = $employeeData;
             }
 
-            $tcount = count($searchResult);
-            for ($i = 0; $i < $tcount; $i++)
+            foreach($searchResult as $i=>$sRes)
             {
-                $currEmpUID = $searchResult[$i]['empUID'];
-                if (isset($tdata[$searchResult[$i]['empUID']]))
+                $currEmpUID = $sRes['empUID'];
+                if (isset($tdata[$sRes['empUID']]))
                 {
-                    $finalResult[$currEmpUID]['positionData'] = $tdata[$searchResult[$i]['empUID']];
+                    $finalResult[$currEmpUID]['positionData'] = $tdata[$sRes['empUID']];
                     $finalResult[$currEmpUID]['serviceData'] = $position->getService($finalResult[$currEmpUID]['positionData']['positionID']);
                 }
-                $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult[$i]['empUID']);
+                $finalResult[$currEmpUID]['data'] = $this->getAllData($sRes['empUID']);
             }
         }
         return $finalResult;
