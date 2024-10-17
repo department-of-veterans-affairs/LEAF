@@ -1442,6 +1442,7 @@ class Employee extends Data
 
         if (count($searchResult) > 0)
         {
+            
             $empUID_list = '';
             foreach ($searchResult as $employee)
             {
@@ -1465,15 +1466,21 @@ class Employee extends Data
                 $tdata[$employeeData['empUID']] = $employeeData;
             }
 
-            foreach($searchResult as $i=>$sRes)
+            $tcount = count($searchResult);
+            for ($i = 0; $i < $tcount; $i++)
             {
-                $currEmpUID = $sRes['empUID'];
-                if (isset($tdata[$sRes['empUID']]))
+                $currEmpUID = $searchResult[$i]['empUID'];
+                if (isset($tdata[$searchResult[$i]['empUID']]))
                 {
-                    $finalResult[$currEmpUID]['positionData'] = $tdata[$sRes['empUID']];
+                    $finalResult[$currEmpUID]['positionData'] = $tdata[$searchResult[$i]['empUID']];
                     $finalResult[$currEmpUID]['serviceData'] = $position->getService($finalResult[$currEmpUID]['positionData']['positionID']);
                 }
-                $finalResult[$currEmpUID]['data'] = $this->getAllData($sRes['empUID']);
+                $finalResult[$currEmpUID]['data'] = $this->getAllData($searchResult[$i]['empUID']);
+            }
+            
+            // attach all the assigned positions
+            foreach ($result as $employeeData){
+                $finalResult[$employeeData['empUID']]['allPositionData'][] = $employeeData;
             }
         }
         return $finalResult;
