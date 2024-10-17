@@ -17,9 +17,8 @@ $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_
 
 //get records of each portal db.  Break out vdr for data_history updates.
 $q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL AND " .
-    //"`portal_database` != 'NATIONAL_101_vaccination_data_reporting' AND " .
     //"`portal_database` = 'Academy_Demo1' AND" .
-    "`site_type`='portal' ORDER BY id";
+    "`site_type`='portal' ORDER BY id LIMIT 1000 OFFSET 0";
 
 $portal_records = $db->query($q);
 
@@ -88,7 +87,7 @@ try {
 $tables_to_update = [
     "notes",
     "records",
-    "data_history"
+   // "data_history"
 ];
 $fields_to_update = array(
     "notes" => "userMetadata",
@@ -110,9 +109,9 @@ $user_not_found_values = array(
 );
 
 
-
+//pull IDs to process.  If the table is more than 20k this will be done in batches
 function getUniqueIDBatch(&$db, $table_name, $field_name):array {
-    $getLimit = $table_name == 'data_history' ? 15000 : 10000;
+    $getLimit = 20000;
 
     $SQL = "SELECT `userID` FROM `$table_name` WHERE `$field_name` IS NULL LIMIT $getLimit";
     $records = $db->query($SQL) ?? [];
@@ -158,9 +157,10 @@ foreach($portal_records as $rec) {
                 $id_batch += 1;
 
                 $case_batch = 0;
-                //records and notes will usually not have high numbers of rows per user.  VDR had known lower data/user ratio
-                $case_high = $table_name != 'data_history' || $portal_db == 'NATIONAL_101_vaccination_data_reporting';
-                $case_limit = $case_high ? 1000 : 500;
+                //records and notes usually do not have high numbers of rows per user.
+                //ideally just want to batch a number that will not typically hit the post cap below.
+                //(casing in batches of 100 didn't result in a different memory profile - # in and of itself does not appear to matter)
+                $case_limit = $table_name != 'data_history' ? 1000 : 500;
                 while(count($slice = array_slice($resUniqueIDsBatch, $case_batch * $case_limit, $case_limit))) {
                     $sqlUpdateMetadata = "UPDATE `$table_name` SET `$field_name` = CASE `userID` ";
                     $metaVars = array();
@@ -175,10 +175,11 @@ foreach($portal_records as $rec) {
                         $sqlUpdateMetadata .= " WHEN :user_" . $idx . " THEN :meta_" . $idx;
                     }
                     $sqlUpdateMetadata .= " END";
-                    $sqlUpdateMetadata .= " WHERE `$field_name` IS NULL LIMIT 20000;";
-                    //Limit to prevent high data/user ratio resulting in mass updates.
-                    //~10-15% portals (staging) have over 20k dh rows.  
-                    //records not updated due to limit will be re-pulled by another batch of nulls
+
+                    //Limit rows updates.
+                    //A minority of portals have millions of table rows but only hundreds of unique users.
+                    //records not updated due to the limit will be re-pulled by another batch of nulls.
+                    $sqlUpdateMetadata .= " WHERE `$field_name` IS NULL LIMIT 25000;";
 
                     try {
                         $db->prepared_query($sqlUpdateMetadata, $metaVars);
@@ -197,7 +198,6 @@ foreach($portal_records as $rec) {
                         $error_count += 1;
                     }
                 } //while remaining unprocessed unique IDs from ID batch
-
 
             } //while remaining un-updated ids in table
             
