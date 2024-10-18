@@ -256,7 +256,7 @@ employeeSelector.prototype.search = function () {
                 : "";
             var positionTitle =
               response[i].positionData != undefined
-                ? response[i].positionData.positionTitle
+                ? response[i].positionData[0].positionTitle
                 : "";
             var groupTitle = "";
 

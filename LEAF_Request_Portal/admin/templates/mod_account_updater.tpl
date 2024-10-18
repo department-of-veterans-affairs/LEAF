@@ -460,7 +460,7 @@ function searchGroupsOldAccount(accountAndTaskInfo, queue) {
 function searchPositionsOldAccount(accountAndTaskInfo, queue) {
     const { oldAccount, newAccount } = accountAndTaskInfo;
     return new Promise ((resolve, reject) => {
-        fetch(`${orgchartPath}/api/position/search?noLimit=1`)
+        fetch(`${orgchartPath}/api/position/search?q=username:${oldAccount}&employeeSearch=1&noLimit=1`)
             .then(res => res.json())
             .then(data => {
                 let positionInfo = {};
