@@ -758,10 +758,10 @@ class Position extends Data
             foreach ($employees as $temp)
             {
                 
-                if (isset($temp['allPositionData']) && is_array($temp['allPositionData']) )
+                if (isset($temp['positionData']) && is_array($temp['positionData']) )
                 {
                     
-                    foreach($temp['allPositionData'] as $allPositionData ){
+                    foreach($temp['positionData'] as $allPositionData ){
                         if($allPositionData['positionID'] > 0){
                             $tempResult[] = array('positionID' => $allPositionData['positionID'],
                             'positionTitle' => $allPositionData['positionTitle'], );
