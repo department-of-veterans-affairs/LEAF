@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $usa-gray: #dfe1e2;
 $site-title-top: 17%;
 $site-title-left: 62px;
@@ -388,7 +390,7 @@ form.usa-form {
 .leaf-btn-green {
     background-color: $btn-green;
     &:hover, :focus, :active {
-        background-color: darken($btn-green, 3%);
+        background-color: color.scale($btn-green, $lightness: -10%);
     }
 }
 

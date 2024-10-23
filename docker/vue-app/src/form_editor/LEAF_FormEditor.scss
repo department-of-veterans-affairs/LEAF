@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../common/LEAF_Vue_Dialog__Common.scss';
 
 nav#top-menu-nav {
@@ -465,7 +466,7 @@ table[class$="SelectorTable"] th {
         position: relative;
         padding: 1px 0; //top and bottom padding needed for drop area visibility
         &.entered-drop-zone, ul.entered-drop-zone {
-            background-color: rgba(0,0,25,0.15);
+            background-color: color.scale($lt_cyan, $lightness: -6%);
         }
         ul[id^="drop_area_parent_"] {
             position: relative;
@@ -475,20 +476,20 @@ table[class$="SelectorTable"] th {
             display: flex;
             flex-direction: column;
             background-clip: content-box;
-            min-height: 8px;
+            min-height: 10px;
         }
         li {
             position: relative;
-            margin: 0.375rem 0;
+            margin: 0.5rem 0;
             &:first-child {
-                margin-top: 0.5rem;
+                margin-top: 0.675rem;
             }
             &:last-child {
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.675rem;
             }
 
             button.drag_question_button {
-                cursor: move;
+                cursor: grab;
                 position: absolute;
                 padding: 0;
                 border: 1px solid $BG_Pearl !important;
@@ -500,7 +501,7 @@ table[class$="SelectorTable"] th {
             }
             .icon_move_container {
                 @include flexcenter;
-                cursor: move;
+                cursor: grab;
                 position: absolute;
                 width: 1.5rem;
                 left: 0;
@@ -599,7 +600,7 @@ table[class$="SelectorTable"] th {
                 transition: box-shadow 0.5s;
             }
             &:not(.form-header):not(.preview):hover {
-                box-shadow: 1px 1px 10px 5px rgba(0,0,20,0.4);
+                box-shadow: 1px 1px 8px 4px rgba(0,0,20,0.25);
             }
         }
     }
@@ -611,7 +612,7 @@ table[class$="SelectorTable"] th {
         padding: 0.75rem;
         box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
         button {
-            border: 2px dashed darken($BG_Pearl, 15%);
+            border: 2px dashed color.scale($BG_Pearl, $lightness: -15%);
             width: 100%;
             height: 2rem;
         }
@@ -619,7 +620,7 @@ table[class$="SelectorTable"] th {
     button.new_section_question {
         height: 2rem;
         width: 100%;
-        border: 2px dashed darken($BG_Pearl, 15%);
+        border: 2px dashed color.scale($BG_Pearl, $lightness: -15%);
     }
     
     /* wraps each form question. */
