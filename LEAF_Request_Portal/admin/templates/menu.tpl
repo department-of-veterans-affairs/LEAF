@@ -8,8 +8,6 @@
 <ul id="leaf_admin_menu">
     <li class="leaf-width-5rem leaf-mob-menu"><a href="../">Home</a></li>
 
-    <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports&v=3">Report Builder</a></li>
-
     <li class="leaf-width-8rem leaf-mob-menu lev2">
         <a href="javascript:void(0);" aria-label="site links submenu" aria-expanded="false" role="button"
             aria-controls="site_links_submenu">Links</a>
@@ -17,6 +15,8 @@
             <li><a href="{$orgchartPath}" target="_blank">LEAF Nexus</a></li>
         </ul>
     </li>
+
+    <li class="leaf-width-8rem leaf-mob-menu"><a href="../?a=reports&v=3">Report Builder</a></li>
 
     <li class="leaf-width-8rem leaf-mob-menu lev2">
         <a href="javascript:void(0);" aria-label="admin submenu" aria-expanded="false" role="button"

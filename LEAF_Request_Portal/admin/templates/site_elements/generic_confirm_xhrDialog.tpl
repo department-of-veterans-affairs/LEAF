@@ -2,23 +2,23 @@
     
     <form id="confirm_record" enctype="multipart/form-data" action="javascript:void(0);">
         
-        <div role="document">
+        <div>
             
              <div id="confirm_loadIndicator" class="leaf-dialog-loader">
                 Loading...<img src="../images/largespinner.gif" alt="" />
             </div>
 
-            <main id="confirm_xhr" class="leaf-dialog-content" role="main"></main>
+            <div id="confirm_xhr" class="leaf-dialog-content"></div>
 
-            <aside class="leaf-buttonBar" role="complementary">
+            <div class="leaf-buttonBar">
                 <div class="leaf-float-right">
-                    <button class="usa-button usa-button--outline" id="confirm_button_cancelchange" disabled>No</button>
+                    <button type="button" class="usa-button usa-button--outline" id="confirm_button_cancelchange" disabled>No</button>
                 </div>
 
                 <div class="leaf-float-left">
-                    <button class="usa-button" id="confirm_button_save" disabled><span id="confirm_saveBtnText">Yes</span></button>
+                    <button type="button" class="usa-button" id="confirm_button_save" disabled><span id="confirm_saveBtnText">Yes</span></button>
                 </div>
-            </aside>
+            </div>
         
         </div>
 
