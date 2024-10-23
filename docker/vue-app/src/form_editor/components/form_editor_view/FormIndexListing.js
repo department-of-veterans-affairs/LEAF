@@ -9,6 +9,7 @@ export default {
         indicatorID: Number,
         formNode: Object,
         index: Number,
+        currentListLength: Number,
         parentID: Number
     },
     components: {
@@ -20,6 +21,7 @@ export default {
         'addToListTracker',
         'previewMode',
         'startDrag',
+        'scrollForDrag',
         'onDragEnter',
         'onDragLeave',
         'onDrop',
@@ -56,6 +58,7 @@ export default {
                 :depth="depth"
                 :formPage="formPage"
                 :index="index"
+                :currentListLength="currentListLength"
                 :formNode="formNode">
             </form-question-display>
             
@@ -77,9 +80,11 @@ export default {
                     :indicatorID="listItem.indicatorID"
                     :formNode="listItem"
                     :index="idx"
+                    :currentListLength="formNode.child.length"
                     :key="'index_list_item_' + listItem.indicatorID"
                     :draggable="!previewMode"
-                    @dragstart.stop="startDrag">
+                    @dragstart.stop="startDrag"
+                    @drag.stop="scrollForDrag">
                 </form-index-listing>
             </ul>
             <div v-if="depth === 0 && !previewMode" style="padding:0.5rem;">

@@ -111,6 +111,7 @@ export default {
             addToListTracker: this.addToListTracker,
             focusIndicator: this.focusIndicator,
             startDrag: this.startDrag,
+            scrollForDrag: this.scrollForDrag,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
@@ -377,12 +378,21 @@ export default {
                             if(sameForm) {
                                 const selector = this.focusAfterFormUpdateSelector;
                                 if(selector !== null) {
+                                    let element = document.querySelector(selector);
                                     let aria = '';
                                     switch(true) {
                                         case selector.startsWith(`#click_to_move`):
                                             const idArr = selector.split('_');
-                                            if(idArr?.[3] && idArr?.[4]) {
-                                                aria = `moved indicator ${idArr[4]} ${idArr[3]}`;
+                                            const direction = idArr?.[3];
+                                            const id = idArr?.[4];
+                                            if(direction && id) {
+                                                aria = `moved indicator ${id} ${direction}`;
+                                                /*If moved to start or end, the button that had been pressed will be disabled
+                                                In this case, focus the opposite button */
+                                                if(element?.disabled === true) {
+                                                    const otherDir = direction === 'up' ? 'down' : 'up';
+                                                    element = document.getElementById(`click_to_move_${otherDir}_${id}`);
+                                                }
                                             }
                                             break;
                                         case selector.startsWith(`#edit_indicator`):
@@ -398,9 +408,8 @@ export default {
                                         break;
                                     }
                                     this.ariaStatusFormDisplay = aria;
-                                    const btn = document.querySelector(selector);
-                                    if (btn !== null && !this.showFormDialog) {
-                                        btn.focus();
+                                    if (element !== null && !this.showFormDialog) {
+                                        element.focus();
                                         this.focusAfterFormUpdateSelector = null;
                                     }
                                 }
@@ -452,17 +461,10 @@ export default {
          */
         getIndicatorByID(indicatorID = 0) {
             return new Promise((resolve, reject)=> {
-                try {
-                    fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
-                    .then(res => {
-                        res.json()
-                        .then(data => {
-                            resolve(data[indicatorID]);
-                        }).catch(err => reject(err));
-                    }).catch(err => reject(err));
-                } catch (error) {
-                    reject(error);
-                }
+                fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
+                .then(res => res.json())
+                .then(data => resolve(data[indicatorID]))
+                .catch(err => reject(err));
             });
         },
         /**
@@ -686,6 +688,17 @@ export default {
                     const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
                     this.focusIndicator(+indID);
                 }
+            }
+        },
+        scrollForDrag(event = {}) {
+            const scrollBuffer = 75;
+            const y = +event?.clientY;
+            if (y < scrollBuffer || y > window.innerHeight - scrollBuffer) {
+                const scrollIncrement = 5;
+                const sX = window.scrollX;
+                const sY = window.scrollY;
+                const increment = y < scrollBuffer ? -scrollIncrement : scrollIncrement;
+                window.scrollTo(sX, sY + increment);
             }
         },
         onDrop(event = {}) {
@@ -912,10 +925,12 @@ export default {
                                 :indicatorID="formSection.indicatorID"
                                 :formNode="formSection"
                                 :index=i
+                                :currentListLength="formSection.length"
                                 :parentID=null
                                 :key="'index_list_item_' + formSection.indicatorID"
                                 :draggable="!previewMode"
-                                @dragstart.stop="startDrag">
+                                @dragstart.stop="startDrag"
+                                @drag.stop="scrollForDrag">
                             </form-index-listing>
                         </ul>
                     </div>

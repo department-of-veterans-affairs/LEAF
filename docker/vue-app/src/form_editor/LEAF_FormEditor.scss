@@ -466,7 +466,7 @@ table[class$="SelectorTable"] th {
         position: relative;
         padding: 1px 0; //top and bottom padding needed for drop area visibility
         &.entered-drop-zone, ul.entered-drop-zone {
-            background-color: color.scale($lt_cyan, $lightness: -6%);
+            background-color: rgba(0,0,25,0.22);
         }
         ul[id^="drop_area_parent_"] {
             position: relative;
@@ -522,18 +522,30 @@ table[class$="SelectorTable"] th {
                     &.up {
                         border-bottom: 18px solid $BG-DarkNavy;
                         border-top: 2px;
+                        &:disabled {
+                            cursor: auto;
+                            border-bottom: 18px solid gray;
+                        }
                         &:hover, &:focus, &:active {
                             outline: none !important;
-                            border-bottom: 18px solid $USWDS_Cyan;
+                            &:not(:disabled) {
+                                border-bottom: 18px solid $USWDS_Cyan;
+                            }
                         }
                     }
                     &.down {
                         margin-top: 0.625rem;
                         border-top: 18px solid $BG-DarkNavy;
                         border-bottom: 2px;
+                        &:disabled {
+                            cursor: auto;
+                            border-top: 18px solid gray;
+                        }
                         &:hover, &:focus, &:active {
                             outline: none !important;
-                            border-top: 18px solid $USWDS_Cyan;
+                            &:not(:disabled) {
+                                border-top: 18px solid $USWDS_Cyan;
+                            }
                         }
                     }
                 }

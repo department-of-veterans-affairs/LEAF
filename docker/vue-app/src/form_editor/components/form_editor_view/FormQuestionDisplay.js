@@ -7,6 +7,7 @@ export default {
         depth: Number,
         formPage: Number,
         index: Number,
+        currentListLength: Number,
         formNode: Object
     },
     components: {
@@ -74,11 +75,13 @@ export default {
                 <div v-show="!previewMode" class="icon_move_container">
                     <span role="img" aria-hidden="true" alt="" class="icon_drag">∷</span>
                     <button v-show="indicatorID === focusedIndicatorID" type="button"
+                        :disabled="index === 0"
                         :id="'click_to_move_up_' + indicatorID" class="icon_move up"
                         :title="'move indicatorID ' + indicatorID + ' up'" :aria-label="'move indicatorID ' + indicatorID + ' up'"
                         @click.stop="clickToMoveListItem($event, indicatorID, true)">
                     </button>
                     <button v-show="indicatorID === focusedIndicatorID" type="button"
+                        :disabled="index === currentListLength - 1"
                         :id="'click_to_move_down_' + indicatorID" class="icon_move down"
                         :title="'move indicatorID ' + indicatorID + ' down'" :aria-label="'move indicatorID ' + indicatorID + ' down'"
                         @click.stop="clickToMoveListItem($event, indicatorID, false)">
