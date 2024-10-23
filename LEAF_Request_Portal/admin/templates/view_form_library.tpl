@@ -170,7 +170,7 @@ $(function() {
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
         <a class="buttonNorm leaf-marginBot-1rem" href="?a=form_vue" style="display: inherit; width: 220px; text-decoration: none" id="backToForm"><img aria-hidden="true" src="../dynicons/?img=system-file-manager.svg&amp;w=32" alt="" title="My Forms"/> My Forms</a>
-        <a class="buttonNorm leaf-marginBot-1rem" href="<!--{$LEAF_DOMAIN}-->LEAF/library/?a=newform" style="display: inherit; width: 220px; text-decoration: none"><img aria-hidden="true" src="../dynicons/?img=list-add.svg&amp;w=32" alt="" title="Contribute my Form"/> Contribute my Form</a>
+        <a class="buttonNorm leaf-marginBot-1rem" href="<!--{$LEAF_DOMAIN}-->LEAF/library/?a=newform" target="_blank" style="display: inherit; width: 220px; text-decoration: none"><img aria-hidden="true" src="../dynicons/?img=list-add.svg&amp;w=32" alt="" title="Contribute my Form"/> Contribute my Form</a>
 
         <div class="leaf-marginBot-halfRem">Filter by Business Lines:</div>
         <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines"/> All Business Lines</div>
