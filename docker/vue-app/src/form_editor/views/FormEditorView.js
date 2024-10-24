@@ -686,7 +686,6 @@ export default {
                         event.dataTransfer.setDragImage(btn, x, y);
                     }
                     const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
-                    this.focusIndicator(+indID);
                 }
             }
         },
@@ -925,7 +924,7 @@ export default {
                                 :indicatorID="formSection.indicatorID"
                                 :formNode="formSection"
                                 :index=i
-                                :currentListLength="formSection.length"
+                                :currentListLength="fullFormTree.length"
                                 :parentID=null
                                 :key="'index_list_item_' + formSection.indicatorID"
                                 :draggable="!previewMode"

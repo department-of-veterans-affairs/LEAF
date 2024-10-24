@@ -488,16 +488,20 @@ table[class$="SelectorTable"] th {
                 margin-bottom: 0.675rem;
             }
 
-            button.drag_question_button {
+            div.drag_question_handle {
                 cursor: grab;
                 position: absolute;
                 padding: 0;
                 border: 1px solid $BG_Pearl !important;
+                background-color: #f0f0f0;
                 border-radius: 4px 0 0 4px;
                 width: 1.5rem;
                 height: 100%;
                 left: 0;
                 top: 0;
+                &:hover, &:active {
+                    outline: 2px solid #20a0f0;
+                }
             }
             .icon_move_container {
                 @include flexcenter;
@@ -507,9 +511,15 @@ table[class$="SelectorTable"] th {
                 left: 0;
                 top: 0;
                 flex-direction: column;
+                gap: 2px;
                 .icon_drag {
+                    opacity: 0.4;
+                    font-size: 16px;
+                }
+                .focus_indicator_button {
                     opacity: 0.6;
-                    font-size: 20px;
+                    padding: 0;
+                    border: 1px solid transparent;
                 }
                 .icon_move {
                     @include flexcenter;
@@ -520,6 +530,7 @@ table[class$="SelectorTable"] th {
                     background-color: transparent;
                     border: 9px solid transparent;
                     &.up {
+                        margin-top: 4px;
                         border-bottom: 18px solid $BG-DarkNavy;
                         border-top: 2px;
                         &:disabled {
