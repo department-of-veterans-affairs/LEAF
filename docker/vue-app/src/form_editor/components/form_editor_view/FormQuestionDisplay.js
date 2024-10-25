@@ -18,7 +18,7 @@ export default {
         'newQuestion',
         'shortIndicatorNameStripped',
         'focusedFormID',
-        'focusIndicator',
+        'toggleIndicatorFocus',
         'focusedIndicatorID',
         'editQuestion',
         'hasDevConsoleAccess',
@@ -71,26 +71,32 @@ export default {
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
                 <!-- VISIBLE DRAG INDICATOR / CLICK UP DOWN -->
                 <div v-show="!previewMode" :id="'index_listing_' + indicatorID + '_button'"
-                    :title="'drag to move indicatorID (' + indicatorID + ').'"
+                    :title="'drag to move indicatorID ' + indicatorID + '.'"
                     class="drag_question_handle">
                 </div>
                 <div v-show="!previewMode" class="icon_move_container">
-                    <span role="img" aria-hidden="true" alt="" class="icon_drag">∷</span>
+                    <span role="img" aria-hidden="true" alt="" class="icon_drag" :title="'drag to move indicatorID ' + indicatorID + '.'">∷</span>
                     <button v-show="hasClickToMoveOptions" type="button"
-                        aria-label="Click for click to move options" class="focus_indicator_button"
-                        @click="focusIndicator(indicatorID)">↕</button>
-                    <button v-show="indicatorID === focusedIndicatorID" type="button"
-                        :disabled="index === 0"
-                        :id="'click_to_move_up_' + indicatorID" class="icon_move up"
-                        :title="'move indicatorID ' + indicatorID + ' up'" :aria-label="'move indicatorID ' + indicatorID + ' up'"
-                        @click.stop="clickToMoveListItem($event, indicatorID, true)">
-                    </button>
-                    <button v-show="indicatorID === focusedIndicatorID" type="button"
-                        :disabled="index === currentListLength - 1"
-                        :id="'click_to_move_down_' + indicatorID" class="icon_move down"
-                        :title="'move indicatorID ' + indicatorID + ' down'" :aria-label="'move indicatorID ' + indicatorID + ' down'"
-                        @click.stop="clickToMoveListItem($event, indicatorID, false)">
-                    </button>
+                        aria-label="Click to move options" class="focus_indicator_button"
+                        :aria-controls="'click_to_move_options_' + indicatorID"
+                        :aria-expanded="indicatorID === focusedIndicatorID"
+                        title="Click to move options"
+                        @click="toggleIndicatorFocus(indicatorID)">↕</button>
+                    <div v-show="indicatorID === focusedIndicatorID"
+                        :id="'click_to_move_options_' + indicatorID" class="click_to_move_options">
+                        <button type="button"
+                            :disabled="index === 0"
+                            :id="'click_to_move_up_' + indicatorID" class="icon_move up"
+                            :title="'move indicatorID ' + indicatorID + ' up'" :aria-label="'move indicatorID ' + indicatorID + ' up'"
+                            @click.stop="clickToMoveListItem($event, indicatorID, true)">
+                        </button>
+                        <button type="button"
+                            :disabled="index === currentListLength - 1"
+                            :id="'click_to_move_down_' + indicatorID" class="icon_move down"
+                            :title="'move indicatorID ' + indicatorID + ' down'" :aria-label="'move indicatorID ' + indicatorID + ' down'"
+                            @click.stop="clickToMoveListItem($event, indicatorID, false)">
+                        </button>
+                    </div>
                 </div>
 
                 <!-- TOOLBAR -->

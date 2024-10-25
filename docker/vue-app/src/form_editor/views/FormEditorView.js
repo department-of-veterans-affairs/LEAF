@@ -109,7 +109,7 @@ export default {
             editQuestion: this.editQuestion,
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
-            focusIndicator: this.focusIndicator,
+            toggleIndicatorFocus: this.toggleIndicatorFocus,
             startDrag: this.startDrag,
             scrollForDrag: this.scrollForDrag,
             onDragEnter: this.onDragEnter,
@@ -538,9 +538,8 @@ export default {
         /**
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          */
-        focusIndicator(nodeID = null) {
-            this.focusedIndicatorID = nodeID;
-            this.ariaStatusFormDisplay = 'click to move options available';
+        toggleIndicatorFocus(nodeID = null) {
+            this.focusedIndicatorID = this.focusedIndicatorID === null ? nodeID : null;
         },
         /**
          * switch between edit and preview mode
@@ -681,11 +680,8 @@ export default {
                     event.dataTransfer.setData('text/plain', event.target.id);
                     const btn = document.getElementById(`${event.target.id}_button`);
                     if(btn !== null) {
-                        const x = btn.offsetWidth/2;
-                        const y = btn.offsetHeight/2;
-                        event.dataTransfer.setDragImage(btn, x, y);
+                        event.dataTransfer.setDragImage(btn, -4, -4);
                     }
-                    const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
                 }
             }
         },
