@@ -539,7 +539,7 @@ export default {
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          */
         toggleIndicatorFocus(nodeID = null) {
-            this.focusedIndicatorID = this.focusedIndicatorID === null ? nodeID : null;
+            this.focusedIndicatorID = this.focusedIndicatorID !== nodeID ? nodeID : null;
         },
         /**
          * switch between edit and preview mode
