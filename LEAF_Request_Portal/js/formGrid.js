@@ -374,7 +374,7 @@ var LeafFormGrid = function (containerID, options) {
       rootMargin: -stickyHeaderOffset - 1 + 'px 0px 0px 0px',
       threshold: 1,
     });
-    
+
     observer.observe(domHeader);
   }
 
@@ -416,7 +416,7 @@ var LeafFormGrid = function (containerID, options) {
     var tDate;
     for (let i in currentData) {
       if (currentData[i][key] == undefined) {
-        currentData[i][key] = document.querySelector(`#${prefixID}${currentData[i].recordID}_${key}`).innerHTML;
+        currentData[i][key] = document.querySelector(`#${prefixID}${currentData[i].recordID}_${key}`)?.innerHTML;
         currentData[i][key] =
           currentData[i][key] == undefined ? "" : currentData[i][key];
       }
@@ -863,9 +863,9 @@ var LeafFormGrid = function (containerID, options) {
 
   /**
    * Set the working data set (uncommon)
-   * 
+   *
    * setDataBlob() is more commonly used
-   * 
+   *
    * @params array - Expects format: [{recordID}, ...]
    * @memberOf LeafFormGrid
    */
@@ -1145,6 +1145,7 @@ var LeafFormGrid = function (containerID, options) {
       stickyHeaderOffset = Number(offset.replace('px', ''));
     },
     stop: function () {
+      renderCache = {};
       isRenderingBody = false;
     },
     setRootURL: function (url) {
