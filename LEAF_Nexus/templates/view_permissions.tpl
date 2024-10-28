@@ -35,7 +35,8 @@
             <td style="width: 100px" title="This allows permissions to be granted to others">Grant</td>
         </tr>
     <!--{foreach from=$permissions item=permission}-->
-        <!--{if $permission.UID == 2 || $permission.UID == 1}-->
+    
+        <!--{if $isAdmin == FALSE && ($permission.UID == 2 || $permission.UID == 1)}-->
         <tr style="background-color: <!--{cycle values='#e0e0e0,#c4c4c4'}-->; opacity: 50%;">
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->" style="font-size: 14px; font-weight: bold"><img src="images/largespinner.gif" alt="" /> Loading <!--{$permission.categoryID|strip_tags}-->...</td>
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_read" style="font-size: 14px">
@@ -49,6 +50,7 @@
             </td>
             <td id="<!--{$permission.categoryID|strip_tags}-->_<!--{$permission.UID|strip_tags}-->_write" style="font-size: 14px">
                 <div class="buttonNorm">
+                
                 <!--{if $permission.write == 1}-->
                 <img src="dynicons/?img=gnome-emblem-default.svg&amp;w=32" alt="" /> Yes
                 <!--{else}-->

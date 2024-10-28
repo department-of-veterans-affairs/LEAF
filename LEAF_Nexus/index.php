@@ -343,6 +343,19 @@ switch ($action) {
         break;
     case 'view_permissions':
         $indicators = new Orgchart\Indicators($oc_db, $oc_login);
+        $employee = new Orgchart\Employee($oc_db, $oc_login);
+        // get our groups for the logged in user.
+        $ocEmployeeGroup = $employee->listGroups($oc_login->getEmpUID());
+        $isAdmin = FALSE;
+        
+        if(!empty($ocEmployeeGroup)){
+            foreach($ocEmployeeGroup as $egroup){
+                if($egroup['groupID'] == 1){
+                    $isAdmin = TRUE;
+                    break;
+                }
+            }
+        }
 
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -372,6 +385,7 @@ switch ($action) {
 
         $t_form->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_form->assign('UID', (int)$_GET['UID']);
+        $t_form->assign('isAdmin', $isAdmin);
         $t_form->assign('indicator', $indicatorArray);
         $t_form->assign('permissions', $privilegesArray);
         $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
@@ -382,6 +396,19 @@ switch ($action) {
         break;
     case 'view_group_permissions':
         $group = new Orgchart\Group($oc_db, $oc_login);
+        $employee = new Orgchart\Employee($oc_db, $oc_login);
+        // get our groups for the logged in user.
+        $ocEmployeeGroup = $employee->listGroups($oc_login->getEmpUID());
+        $isAdmin = FALSE;
+        
+        if(!empty($ocEmployeeGroup)){
+            foreach($ocEmployeeGroup as $egroup){
+                if($egroup['groupID'] == 1){
+                    $isAdmin = TRUE;
+                    break;
+                }
+            }
+        }
 
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
@@ -401,6 +428,7 @@ switch ($action) {
                 'css/view_group.css', ));
 
         $groupID = isset($_GET['groupID']) ? (int)$_GET['groupID'] : 0;
+        $t_form->assign('isAdmin', $isAdmin);
         $t_form->assign('groupID', $groupID);
         $t_form->assign('groupTitle', $group->getTitle($groupID));
         $t_form->assign('permissions', $group->getPrivileges($groupID));
@@ -412,7 +440,19 @@ switch ($action) {
         break;
     case 'view_position_permissions':
         $position = new Orgchart\Position($oc_db, $oc_login);
-
+        $employee = new Orgchart\Employee($oc_db, $oc_login);
+        // get our groups for the logged in user.
+        $ocEmployeeGroup = $employee->listGroups($oc_login->getEmpUID());
+        $isAdmin = FALSE;
+        
+        if(!empty($ocEmployeeGroup)){
+            foreach($ocEmployeeGroup as $egroup){
+                if($egroup['groupID'] == 1){
+                    $isAdmin = TRUE;
+                    break;
+                }
+            }
+        }
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -431,6 +471,7 @@ switch ($action) {
                 'css/view_group.css', ));
 
         $positionID = isset($_GET['positionID']) ? (int)$_GET['positionID'] : 0;
+        $t_form->assign('isAdmin', $isAdmin);
         $t_form->assign('positionID', $positionID);
         $t_form->assign('positionTitle', $position->getTitle($positionID));
         $t_form->assign('permissions', $position->getPrivileges($positionID));
