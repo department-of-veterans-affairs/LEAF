@@ -117,7 +117,6 @@ export default {
             clickToMoveListItem: this.clickToMoveListItem,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey,
-            checkFormCollaborators: this.checkFormCollaborators
         }
     },
     computed: {
@@ -770,18 +769,6 @@ export default {
         makePreviewKey(node) {
             return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
         },
-        checkFormCollaborators() {
-            try {
-                fetch(`${this.APIroot}formEditor/_${this.focusedFormID}/privileges`)
-                .then(res => {
-                    res.json().then(data => 
-                        this.hasCollaborators = data?.length > 0)
-                    .catch(err => console.log(err));
-                }).catch(err => console.log(err));
-            } catch(error) {
-                console.log(error);
-            }
-        }
     },
     watch: {
         appIsLoadingCategories(newVal, oldVal) {
@@ -802,7 +789,6 @@ export default {
         focusedFormID(newVal, oldVal) {
             window.scrollTo(0,0);
             if(newVal) {
-                this.checkFormCollaborators();
                 setTimeout(() => {
                     const elFormBtn = document.querySelector(`button[id$="form_${newVal}"]`);
                     if(elFormBtn !== null) {
@@ -834,7 +820,7 @@ export default {
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Editor
             </h2>
             <!-- TOP INFO PANEL -->
-            <edit-properties-panel :key="'panel_' + focusedFormID" :hasCollaborators="hasCollaborators"></edit-properties-panel>
+            <edit-properties-panel :key="'panel_' + focusedFormID"></edit-properties-panel>
 
             <div id="form_index_and_editing" :data-focus="focusedIndicatorID">
                 <!-- NOTE: INDEX (main + stapled forms, internals) -->

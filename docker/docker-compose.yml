@@ -191,9 +191,15 @@ services:
     api-test-helper:
         image: golang
         volumes:
+<<<<<<< HEAD
             - "../x-test/api-test-helper/:/app"
             - "../x-test/API-tests/:/API-tests"
             - "../x-test/loadrandomdata/:/loadrandomdata"
+=======
+            - "../LEAF-Automated-Tests/api-test-helper/:/app"
+            - "../LEAF-Automated-Tests/API-tests/:/API-tests"
+            
+>>>>>>> master
         ports:
             - "8000:8000"
         env_file:
@@ -207,54 +213,6 @@ services:
         extra_hosts:
             - host.docker.internal:host-gateway
 
-    selenium-api:
-        build:
-            context: ../
-            dockerfile: docker/selenium-tests/selenium-api.dockerfile
-        env_file:
-            - ./selenium-tests/leaf_selenium.env
-        networks:
-            - leaf
-            - ui-test
-        volumes:
-            - ./selenium-tests/index.php:/app/index.php
-            - ../test/Test-Automation/src:/app/src
-            - ../test/Test-Automation/testng.xml:/app/testng.xml
-            - ../test/Test-Automation/ExtentReports:/app/ExtentReports
-        depends_on:
-            - chrome
-        environment:
-            - ENVIRONMENT=remote
-            - ENV_URL=http://host.docker.internal/LEAF_Request_Portal/admin/
-            - HUB_URL=http://selenium-chrome:4445/wd/hub
-
-    chrome:
-        image: custom-selenium-chrome
-        container_name: selenium-chrome
-        build:
-            context: ./
-            dockerfile: selenium-tests/selenium.dockerfile
-        networks:
-            - ui-test
-            - leaf
-        ports:
-            - "4445:4445"
-            - "5900:5900"
-            - "7900:7900"
-        shm_size: '2g'
-        environment:
-            - SE_NODE_MAX_INSTANCES=2
-            - SE_NODE_MAX_SESSIONS=2
-            - SE_NODE_OVERRIDE_MAX_SESSIONS=true
-            - SE_NODE_SESSION_TIMEOUT=600
-            - SE_SESSION_REQUEST_TIMEOUT=60000
-            - SE_SESSION_RETRY_INTERVAL=5000
-        healthcheck:
-            test: curl --fail http://localhost:4445/wd/hub/status || exit 1
-            interval: 5s
-            timeout: 10s
-            retries: 5
-
     playwright:
         build:
             context: ../
@@ -262,7 +220,7 @@ services:
         stdin_open: true # docker run -i
         tty: true        # docker run -t
         volumes:
-            - ../x-test/end2end/:/usr/app/leaf
+            - ../LEAF-Automated-Tests/end2end/:/usr/app/leaf
         ports:
             - "8001:8001"
         env_file:

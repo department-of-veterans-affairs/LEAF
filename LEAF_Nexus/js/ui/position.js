@@ -10,6 +10,8 @@ function position(positionID) {
   this.parentID = 0;
   this.parentContainerID;
   this.containerHeader;
+  this.x = null;
+  this.y = null;
 
   this.prefixID = "pos" + Math.floor(Math.random() * 1000) + "_";
   this.data = new Object();
@@ -24,7 +26,7 @@ position.prototype.initialize = function (parentContainerID) {
   var buffer = "";
   buffer =
     `<div id="${prefixedPID}" class="positionSmall">` +
-      `<div id="${prefixedPID}_numFTE" class="fteCounter"></div>` +
+      `<div id="${prefixedPID}_numFTE" class="fteCounter" style="margin:3px;"></div>` +
       `<div tabindex="0" role="button" id="${prefixedPID}_title" class="positionSmall_title"
         aria-expanded="false" aria-controls="${prefixedPID}_controls">
       </div>` +
@@ -43,6 +45,12 @@ position.prototype.initialize = function (parentContainerID) {
   $("#" + parentContainerID).append(buffer);
 
   $("#" + prefixedPID + "_title").on("click keydown mouseenter", function(ev) {
+    //if they are newly focusing an open card just update the tab focus
+    const isNewFocus = document.activeElement !== ev.currentTarget;
+    if (ev.type === "click" && isNewFocus) {
+      ev.currentTarget.focus();
+      return;
+    }
     const currDisplay =  $("#" + prefixedPID + "_controls").css('display');
     const isToggle =  [13, 32].includes(ev?.keyCode) || ev.type === "click";
     if(ev.type === "mouseenter" || (currDisplay === 'none' && isToggle)) {
@@ -59,48 +67,31 @@ position.prototype.initialize = function (parentContainerID) {
   });
 
   $('#' + prefixedPID + '_title').on('focus', function ( keyEnter ) {
-    let position = prefixedPID.split('_');
-
-    moveCoordinates(position[0] + '_', position[1]);
+    if (typeof moveCoordinates === 'function') {
+      let position = prefixedPID.split('_');
+      moveCoordinates(position[0] + '_', position[1]);
+    }
   });
 
   document.querySelector('#' + prefixedPID + '_title').onmouseleave = function (
     mouse
   ) {
-    let edge = closestEdge(mouse, this)
-    if (edge === 'top') {
+    if (!isInsideContainer(mouse, this)) {
       t.unsetFocus()
     }
   }
 
-  function closestEdge(mouse, elem) {
-    let elemBounding = elem.getBoundingClientRect()
+  function isInsideContainer(mouse, elem) {
+    const elContainer = elem.parentNode;
+    const containerBounding = elContainer.getBoundingClientRect();
 
-    let elementLeftEdge = elemBounding.left
-    let elementTopEdge = elemBounding.top
-    let elementRightEdge = elemBounding.right
-    let elementBottomEdge = elemBounding.bottom
-
-    let mouseX = mouse.pageX
-    let mouseY = mouse.pageY
-
-    let topEdgeDist = Math.abs(elementTopEdge - mouseY)
-    let bottomEdgeDist = Math.abs(elementBottomEdge - mouseY)
-    let leftEdgeDist = Math.abs(elementLeftEdge - mouseX)
-    let rightEdgeDist = Math.abs(elementRightEdge - mouseX)
-
-    let min = Math.min(topEdgeDist, bottomEdgeDist, leftEdgeDist, rightEdgeDist)
-
-    switch (min) {
-      case leftEdgeDist:
-        return 'left'
-      case rightEdgeDist:
-        return 'right'
-      case topEdgeDist:
-        return 'top'
-      case bottomEdgeDist:
-        return 'bottom'
-    }
+    const mouseX = mouse.pageX;
+    const mouseY = mouse.pageY;
+    const roundFix = 2;
+    return (
+      mouseX > containerBounding.left + roundFix && mouseX < Math.floor(containerBounding.right) - roundFix &&
+      mouseY > containerBounding.top + roundFix && mouseY < Math.floor(containerBounding.bottom) - roundFix
+    );
   }
 
   $("#" + prefixedPID + "_container").on("mouseleave focusout", function (ev) {
@@ -199,6 +190,8 @@ position.prototype.getDomID = function () {
 };
 
 position.prototype.setDomPosition = function (x, y) {
+  this.x = x;
+  this.y = y;
   $("#" + this.prefixID + this.positionID).css({
     position: "absolute",
     top: y + "px",
