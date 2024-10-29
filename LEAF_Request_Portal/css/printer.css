@@ -334,6 +334,11 @@ img {
   visibility: collapse;
 }
 
+.printResponse img{
+  display: initial;
+  visibility: initial;
+}
+
 div#tabcontainer_tablist {
   display: none;
   visibility: hidden;
