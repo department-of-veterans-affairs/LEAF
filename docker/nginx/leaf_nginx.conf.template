@@ -1,20 +1,162 @@
-#server {
-#    listen ${HTTP_PORT} default_server;
-#    #listen [::]:${HTTP_PORT};
-#    server_name ${HOST};
-#    root /var/www/html;
-#    return 301 https://$server_name$request_uri;
-#}
+upstream backend_api_servers{
+  server ${NGINX_POD}:${HTTP_API_PORT} max_fails=1 fail_timeout=5;
+  server ${NGINX_POD}:${HTTP_API_LQ_PORT} backup;
+}
 
 server {
-    #listen ${HTTPS_PORT} ssl http2 default_server;
-    #listen [::]:${HTTPS_PORT} ssl http2 default_server;
     listen ${HTTP_PORT} default_server;
+    #listen [::]:${HTTP_PORT};
+    server_name ${HOST};
+    root /var/www/html;
+    return 301 https://$server_name$request_uri;
+}
 
-    #ssl_certificate /etc/ssl/certs/leaf.pem;
-    #ssl_certificate_key /etc/ssl/certs/leaf.key;
-    #ssl_protocols TLSv1.3;
-    #ssl_ciphers HIGH:!aNULL:!MD5;
+# Large query NGINX Server
+server {
+
+    listen ${HTTP_API_LQ_PORT} ;
+
+    client_max_body_size 20m;
+
+    error_log  /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+
+    #no ports in any redirect.
+    port_in_redirect off;
+
+    server_name ${HOST};
+    root /var/www/html;
+    index index.php index.html index.htm;
+
+    location /health-check-api {
+        access_log off;
+        return 200 "ok api";
+        add_header Content-Type text/plain;
+    }
+    
+    location ~ \.php$ {
+        try_files $uri $uri/ /index.php =404;
+        fastcgi_pass ${LEAF_API_POD}:9000;
+        fastcgi_index index.php;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        #fixes timeouts
+        fastcgi_read_timeout 600;
+        include fastcgi_params;
+        gzip on;
+    }
+
+    location ~ /api/(.*?)$ {
+        fastcgi_pass ${LEAF_API_POD}:9000;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        fastcgi_split_path_info ^(.+\/api\/)(.*)$;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param QUERY_STRING $query_string;
+        fastcgi_param REQUEST_METHOD $request_method;
+        fastcgi_param CONTENT_TYPE $content_type;
+        fastcgi_param CONTENT_LENGTH $content_length;
+        #fixes timeouts
+        fastcgi_read_timeout 3000;
+        fastcgi_send_timeout 3000;
+
+        # Give this info to php
+        fastcgi_param LEAF_Large_Queries "process_ran_on_large_query_server";
+        # Give this info to the browser, need to see if this is actually needed or just a nice to have to see
+        add_header LEAF_Large_Queries "process_ran_on_large_query_server" always;
+
+        include fastcgi_params;
+        gzip on;
+
+        # debuging
+        add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
+        add_header x-debug-path-info "$fastcgi_path_info" always;
+        add_header x-debug-args-info "$args" always;
+    }
+
+}
+
+#API server
+server {
+
+    listen ${HTTP_API_PORT};
+
+    client_max_body_size 20m;
+
+    error_log  /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+
+    #no ports in any redirect.
+    port_in_redirect off;
+
+    server_name ${HOST};
+    root /var/www/html;
+    index index.php index.html index.htm;
+
+    location /health-check-api {
+        access_log off;
+        return 200 "ok api";
+        add_header Content-Type text/plain;
+    }
+    
+    location ~ \.php$ {
+        try_files $uri $uri/ /index.php =404;
+        fastcgi_pass ${LEAF_API_POD}:9000;
+        fastcgi_index index.php;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        #fixes timeouts
+        fastcgi_read_timeout 600;
+        include fastcgi_params;
+        gzip on;
+    }
+
+    location ~ /api/(.*?)$ {
+        fastcgi_pass ${LEAF_POD}:9000;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        fastcgi_split_path_info ^(.+\/api\/)(.*)$;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param QUERY_STRING $query_string;
+        fastcgi_param REQUEST_METHOD $request_method;
+        fastcgi_param CONTENT_TYPE $content_type;
+        fastcgi_param CONTENT_LENGTH $content_length;
+        #fixes timeouts
+        fastcgi_read_timeout 600;
+
+        # Give this info to php
+        fastcgi_param LEAF_Large_Queries "pass_onto_large_query_server";
+        # Give this info to the browser, need to see if this is actually needed or just a nice to have to see
+        add_header LEAF_Large_Queries "pass_onto_large_query_server" always;
+
+        include fastcgi_params;
+        gzip on;
+
+        
+
+        # debuging
+        add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
+        add_header x-debug-path-info "$fastcgi_path_info" always;
+        add_header x-debug-args-info "$args" always;
+    }
+
+}
+
+
+server {
+    listen ${HTTPS_PORT} ssl http2 default_server;
+    #listen [::]:${HTTPS_PORT} ssl http2 default_server;
+
+    ssl_certificate /etc/ssl/certs/leaf.pem;
+    ssl_certificate_key /etc/ssl/certs/leaf.key;
+    ssl_protocols TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
 
     client_max_body_size 20m;
 
@@ -119,34 +261,27 @@ server {
     }
 
     location ~ /api/(.*?)$ {
-        fastcgi_pass ${LEAF_POD}:9000;
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
-        fastcgi_split_path_info ^(.+\/api\/)(.*)$;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param PATH_INFO $fastcgi_path_info;
-        fastcgi_param QUERY_STRING $query_string;
-        fastcgi_param REQUEST_METHOD $request_method;
-        fastcgi_param CONTENT_TYPE $content_type;
-        fastcgi_param CONTENT_LENGTH $content_length;
-        #fixes timeouts
-        fastcgi_read_timeout 600;
+        proxy_pass http://backend_api_servers;
 
-        # Give this info to php
-        fastcgi_param LEAF_Large_Queries "pass_onto_large_query_server";
-        # Give this info to the browser, need to see if this is actually needed or just a nice to have to see
-        add_header LEAF_Large_Queries "pass_onto_large_query_server" always;
+        #this is what is used to tell nginx that we want the next server
+        proxy_next_upstream error timeout http_503;
+        proxy_next_upstream_tries 2;
+        proxy_intercept_errors on;
 
-        include fastcgi_params;
-        gzip on;
-
-        
-
-        # debuging
-        add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
-        add_header x-debug-path-info "$fastcgi_path_info" always;
-        add_header x-debug-args-info "$args" always;
+        proxy_set_header Host $host;
+        proxy_redirect     off;
+        proxy_set_header   X-Real-IP  $remote_addr;
+        proxy_set_header   X-Scheme   $scheme;
+        proxy_set_header   X-Forwarded-Proto https;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Proto on;
+        proxy_set_header   REFERER $http_referer;
+        #proxy_http_version 1.1;
+        proxy_connect_timeout 600;
+        proxy_read_timeout 600;
+        proxy_buffer_size 16k;
+        proxy_buffers 32 8k;
+        proxy_busy_buffers_size 64k;
     }
 
     location /selenium-tests {

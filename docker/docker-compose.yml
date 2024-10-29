@@ -64,9 +64,9 @@ services:
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
         volumes_from:
             - php-fpm
-        #ports:
-        #    - 8081:${HTTP_PORT}
-        #    - 443:${HTTPS_PORT}
+        ports:
+            - 80:${HTTP_PORT}
+            - 443:${HTTPS_PORT}
         depends_on:
             - php-fpm
         networks:
@@ -106,48 +106,7 @@ services:
         environment:
             - REMOTE_USER=${REMOTE_USER}
             - APACHE_RUN_USER=build_user
-
-    nginx-api:
-        env_file:
-            - ./env_files/nginx_local.env
-        build:
-            context: ../
-            dockerfile: docker/nginxapi/leaf_nginx.dockerfile
-        volumes:
-            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
-            - ./nginx/src:/var/www/html
-            - ./nginxapi/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
-        volumes_from:
-            - php-fpm
-        #ports:
-        #    - 8088:${HTTP_PORT}
-        #    - 443:${HTTPS_PORT}
-        depends_on:
-            - php-fpm
-            - nginx
-        networks:
-            - leaf
-    rpnginx:
-        env_file:
-            - ./env_files/nginx_local.env
-        build:
-            context: ../
-            dockerfile: docker/rpnginx/leaf_nginx.dockerfile
-        volumes:
-            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
-            - ./nginx/src:/var/www/html
-            - ./rpnginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
-        volumes_from:
-            - php-fpm
-        ports:
-            - 80:${HTTP_PORT}
-            - 443:${HTTPS_PORT}
-        networks:
-            - leaf
-    
-
+            
     smtp4dev:
         image: rnwood/smtp4dev
         env_file:
@@ -191,15 +150,8 @@ services:
     api-test-helper:
         image: golang
         volumes:
-<<<<<<< HEAD
-            - "../x-test/api-test-helper/:/app"
-            - "../x-test/API-tests/:/API-tests"
-            - "../x-test/loadrandomdata/:/loadrandomdata"
-=======
             - "../LEAF-Automated-Tests/api-test-helper/:/app"
             - "../LEAF-Automated-Tests/API-tests/:/API-tests"
-            
->>>>>>> master
         ports:
             - "8000:8000"
         env_file:
