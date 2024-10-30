@@ -186,6 +186,7 @@ table#tform td {
 
 .printmainform {
   border: 1px solid black;
+  clear: both;
 }
 
 .printformblock {
@@ -207,7 +208,7 @@ table#tform td {
   margin-right: 4px;
   font-size: 24px;
   font-weight: bold;
-  background-color: black;
+  background-color: transparent;
   color: white;
   float: left;
 }
@@ -384,4 +385,8 @@ table.table {
 #requestInfo {
   float: right;
   font-size: 12px;
+}
+
+#nav-skip-link{
+  display: none;
 }
