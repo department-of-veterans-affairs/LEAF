@@ -343,7 +343,7 @@ table[class$="SelectorTable"] th {
 }
 
 #form_index_display {
-    margin-top: 0.5rem; //matches drag-drop spacer for top of form area
+    margin-top: 0.5625rem; //matches drag-drop spacer for top of form area
     position: relative;
     padding: 0.875rem 0.75rem;
     width: 330px;
@@ -518,7 +518,7 @@ table[class$="SelectorTable"] th {
                 }
                 .focus_indicator_button {
                     opacity: 0.6;
-                    padding: 0;
+                    padding: 2px;
                     border: 1px solid transparent;
                 }
                 .icon_move {
@@ -567,6 +567,9 @@ table[class$="SelectorTable"] th {
             border-radius: 4px;
             box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
             margin-bottom: 1.25rem;
+            &:first-child {
+                margin-top: 0.5rem;
+            }
         }
     }
 
