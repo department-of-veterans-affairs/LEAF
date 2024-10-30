@@ -344,7 +344,6 @@ switch ($action) {
     case 'view_permissions':
         $indicators = new Orgchart\Indicators($oc_db, $oc_login);
 
-
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -393,7 +392,6 @@ switch ($action) {
     case 'view_group_permissions':
         $group = new Orgchart\Group($oc_db, $oc_login);
     
-
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
