@@ -18,6 +18,6 @@ $tag = new Orgchart\Tag($oc_db, $login);
 $group_portal = new Portal\Group($db, $login);
 $service_portal = new Portal\Service($db, $login);
 $system_portal = new Portal\System($db, $login);
-$syncing = $system_portal->syncSystem($group);
+$syncing = $system_portal->syncSystem($group, $site_paths);
 
 echo $syncing;
