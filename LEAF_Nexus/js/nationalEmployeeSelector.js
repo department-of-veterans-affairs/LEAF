@@ -302,7 +302,7 @@ nationalEmployeeSelector.prototype.runSearchQuery = function (query, domain) {
             : "";
         var positionTitle =
           response[i].positionData != undefined
-            ? response[i].positionData.positionTitle
+            ? response[i].positionData[0].positionTitle
             : "";
         positionTitle =
           positionTitle == "" && response[i].data[23] !== undefined
