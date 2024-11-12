@@ -111,7 +111,8 @@ export default {
             addToListTracker: this.addToListTracker,
             toggleIndicatorFocus: this.toggleIndicatorFocus,
             startDrag: this.startDrag,
-            scrollForDrag: this.scrollForDrag,
+            endDrag: this.endDrag,
+            handleOnDragCustomizations: this.handleOnDragCustomizations,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
@@ -678,15 +679,33 @@ export default {
                     event.dataTransfer.dropEffect = 'move';
                     event.dataTransfer.effectAllowed = 'move';
                     event.dataTransfer.setData('text/plain', event.target.id);
+                    event.target.classList.add("is_being_dragged");
 
-                    const icon = document.getElementById(`drag_icon_svg`);
-                    if(icon !== null) {
-                        event.dataTransfer.setDragImage(icon, 0, 0);
+                    if(+event.target.style.height !== '80px') {
+                        event.target.style.height = '80px';
+                    }
+                    const elReplacementImg = document.getElementById(`drag_drop_default_img_replacement`);
+                    if(elReplacementImg !== null) {
+                        this.$refs.drag_drop_custom_display.textContent = "test";
+                        const text = document.querySelector(`#${event.target.id} .name`)?.textContent;
+                        this.$refs.drag_drop_custom_display.textContent = this.shortIndicatorNameStripped(text);
+                        event.dataTransfer.setDragImage(elReplacementImg, 0, 0);
                     }
                 }
             }
         },
-        scrollForDrag(event = {}) {
+        endDrag(event = {}) {
+            //reset custom display coords and remove drag class regardless of outcome
+            this.$refs.drag_drop_custom_display.style.left = '-9999px';
+            this.$refs.drag_drop_custom_display.style.top = '0px';
+            this.$refs.drag_drop_custom_display.textContent = "";
+            event.target.style.height = 'auto';
+            if(event.target.classList.contains('is_being_dragged')) {
+                event.target.classList.remove('is_being_dragged');
+            } 
+        },
+        handleOnDragCustomizations(event = {}) {
+            //increase the ranges at which window will scroll
             const scrollBuffer = 75;
             const y = +event?.clientY;
             if (y < scrollBuffer || y > window.innerHeight - scrollBuffer) {
@@ -696,12 +715,17 @@ export default {
                 const increment = y < scrollBuffer ? -scrollIncrement : scrollIncrement;
                 window.scrollTo(sX, sY + increment);
             }
+            //update the custom display coordinates
+            const parEl = this.$refs.drag_drop_custom_display?.parentElement || null;
+            if(parEl !== null) {
+                const bounds = parEl.getBoundingClientRect();
+                this.$refs.drag_drop_custom_display.style.left = +event?.clientX - bounds.x + 2 + 'px';
+                this.$refs.drag_drop_custom_display.style.top = +event?.clientY - bounds.y + 2 + 'px';
+            }
         },
         onDrop(event = {}) {
-            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
-                const parentEl = event.currentTarget; //NOTE: drop event is on parent ul, the li is the el being moved
-                if(parentEl.nodeName !== 'UL') return;
-
+            const parentEl = event.currentTarget; //NOTE: drop event is on parent ul, the li is the el being moved
+            if(parentEl.nodeName === 'UL' && event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
                 event.preventDefault();
                 const draggedElID = event.dataTransfer.getData('text');
                 const elLiToMove = document.getElementById(draggedElID);
@@ -900,16 +924,9 @@ export default {
 
                 <!-- FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
-                    <!-- visually / access hidden SVG element used for the drag/drop icon -->
-                    <!-- SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-                    <svg id="drag_icon_svg" width="100" height="100" viewBox="160 160 1200 1200" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true" style="position:absolute; left:-9999px; margin:0;">
-                        <path d="M239.2 419.5l7 394.6h465.7V251.4H396.6v168.1z" fill="#E1F0FF" /><path d="M221 395.5h25.2v418.6H221z" fill="#446EB1" />
-                        <path d="M221 789.8h488.7v24.3H221zM366.7 227.1h342.9v24.3H366.7z" fill="#446EB1" />
-                        <path d="M687.6 227.1h24.3v98.1h-24.3zM687.6 765h24.3v49h-24.3zM384.6 244.1l-18.1-17L221 394.7l18.1 17 145.5-167.6z" fill="#446EB1" />
-                        <path d="M372.6 235.1h23.9v167.6h-23.9z" fill="#446EB1" /><path d="M221 395.5h175.6v23.9H221z" fill="#446EB1" />
-                        <path d="M776.4 570.2c-5.6 0-11.2 0.9-17.1 2.7L719 532.6 825.6 426c5.3-5.3 5.3-14 0-19.3-2.6-2.6-6-4-9.6-4-3.6 0-7.1 1.4-9.6 4L699.7 513.3 593.1 406.7c-2.6-2.6-6-4-9.6-4s-7.1 1.4-9.6 4c-5.3 5.3-5.3 13.9 0 19.3l106.6 106.6-40.3 40.3c-5.9-1.8-11.5-2.7-17.1-2.7-33.2 0-60.3 27-60.3 60.3 0 33.2 27 60.3 60.3 60.3 33.2 0 60.2-27 60.2-60.3 0-16.4-6.8-31.9-18.8-43.4l35.2-35.2 35.3 35.2c-12 11.4-18.8 26.9-18.8 43.4 0 33.2 27 60.3 60.3 60.3 33.2 0 60.3-27 60.3-60.3-0.2-33.2-27.2-60.3-60.4-60.3z m33 60.3c0 18.2-14.8 33-33 33s-33-14.8-33-33 14.8-33 33-33 33 14.8 33 33z m-153.4 0c0 18.2-14.8 33-33 33s-33-14.8-33-33 14.8-33 33-33 33 14.8 33 33z" fill="#6D9EE8" />
-                    </svg>
+                    <!-- visually / access hidden elements used for the drag/drop display -->
+                    <div id="drag_drop_default_img_replacement" aria-hidden="true"></div>
+                    <div id="drag_drop_custom_display" ref="drag_drop_custom_display" aria-hidden="true"></div>
 
                     <div class="printformblock" :data-update-key="updateKey">
 
@@ -937,7 +954,8 @@ export default {
                                 :key="'index_list_item_' + formSection.indicatorID"
                                 :draggable="!previewMode"
                                 @dragstart.stop="startDrag"
-                                @drag.stop="scrollForDrag">
+                                @dragend.stop="endDrag"
+                                @drag.stop="handleOnDragCustomizations">
                             </form-index-listing>
                         </ul>
                     </div>

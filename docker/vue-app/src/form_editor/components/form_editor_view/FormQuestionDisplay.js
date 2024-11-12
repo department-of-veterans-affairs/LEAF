@@ -51,7 +51,9 @@ export default {
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
             const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria-hidden="true" alt="">📌&nbsp;</span>` : '';
-            const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
+            const name = this.formNode.name.trim() !== '' ? 
+                '<span class="name">' + this.formNode.name.trim() + '</span>':
+                '<span class="name">[ blank ]</span>';
             return `${page}${staple}${name}${shortLabel}${contentRequired}`;
         },
         hasSpecialAccessRestrictions() {
