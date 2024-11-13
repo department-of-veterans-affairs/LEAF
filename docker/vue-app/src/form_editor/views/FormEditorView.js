@@ -670,9 +670,10 @@ export default {
             this.listTracker[indID] = item;
         },
         startDrag(event = {}) {
+            //restrict action to bounds of visual drag indicator tab
             const classList = event?.target?.classList || [];
             const dragLimitX = classList.contains('subindicator_heading') ? 30 : 24;
-            if (event?.offsetX > dragLimitX) {
+            if (event?.offsetX > dragLimitX || event?.offsetY >= 48) {
                 event.preventDefault();
             } else {
                 if(!this.previewMode && event?.dataTransfer) {
@@ -680,6 +681,7 @@ export default {
                     event.dataTransfer.effectAllowed = 'move';
                     event.dataTransfer.setData('text/plain', event.target.id);
                     event.target.classList.add("is_being_dragged");
+                    const targetHasSublist = event.target.querySelector('ul > li') !== null;
 
                     if(+event.target.style.height !== '80px') {
                         event.target.style.height = '80px';
@@ -687,8 +689,12 @@ export default {
                     const elReplacementImg = document.getElementById(`drag_drop_default_img_replacement`);
                     if(elReplacementImg !== null) {
                         this.$refs.drag_drop_custom_display.textContent = "test";
-                        const text = document.querySelector(`#${event.target.id} .name`)?.textContent;
-                        this.$refs.drag_drop_custom_display.textContent = this.shortIndicatorNameStripped(text);
+                        let text = document.querySelector(`#${event.target.id} .name`)?.textContent;
+                        text = this.shortIndicatorNameStripped(text);
+                        if (targetHasSublist) {
+                            text += ' (and all sub-questions)';
+                        }
+                        this.$refs.drag_drop_custom_display.textContent = text;
                         event.dataTransfer.setDragImage(elReplacementImg, 0, 0);
                     }
                 }

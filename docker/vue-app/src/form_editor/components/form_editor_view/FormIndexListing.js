@@ -20,13 +20,15 @@ export default {
         'clearListItem',
         'addToListTracker',
         'previewMode',
+        'toggleIndicatorFocus',
+        'clickToMoveListItem',
+        'focusedIndicatorID',
         'startDrag',
         'endDrag',
         'handleOnDragCustomizations',
         'onDragEnter',
         'onDragLeave',
         'onDrop',
-        'clickToMoveListItem',
         'makePreviewKey',
         'newQuestion',
     ],
@@ -49,10 +51,45 @@ export default {
         },
         required() {
             return parseInt(this.formNode.required) === 1;
+        },
+        hasClickToMoveOptions() {
+            return this.currentListLength > 1;
         }
     },
     template:`<li :title="'indicatorID: '+ indicatorID" :class="depth === 0 ? 'section_heading' : 'subindicator_heading'">
         <div class="printResponse" :class="{'form-header': depth === 0, preview: previewMode}" :id="printResponseID">
+            <!-- VISIBLE DRAG INDICATOR (event is on li itself) / CLICK UP DOWN options -->
+
+            <div v-show="!previewMode" class="move_question_container">
+                <div v-show="!previewMode" :id="'index_listing_' + indicatorID + '_button'"
+                    :title="'drag to move indicatorID ' + indicatorID + '.'"
+                    class="drag_question_handle">
+                    <div role="img" aria-hidden="true" alt="" class="icon_drag" :title="'drag to move indicatorID ' + indicatorID + '.'">∷</div>
+                </div>
+                <button v-show="hasClickToMoveOptions" type="button"
+                    aria-label="Click to move options" class="focus_indicator_button"
+                    :aria-controls="'click_to_move_options_' + indicatorID"
+                    :aria-expanded="indicatorID === focusedIndicatorID"
+                    title="Click to move options"
+                    @click="toggleIndicatorFocus(indicatorID)">↕
+                </button>
+                <div v-show="indicatorID === focusedIndicatorID && hasClickToMoveOptions"
+                    :id="'click_to_move_options_' + indicatorID" class="click_to_move_options">
+                    <button type="button"
+                        :disabled="index === 0"
+                        :id="'click_to_move_up_' + indicatorID" class="icon_move up"
+                        :title="'move indicatorID ' + indicatorID + ' up'" :aria-label="'move indicatorID ' + indicatorID + ' up'"
+                        @click.stop="clickToMoveListItem($event, indicatorID, true)">
+                    </button>
+                    <button type="button"
+                        :disabled="index === currentListLength - 1"
+                        :id="'click_to_move_down_' + indicatorID" class="icon_move down"
+                        :title="'move indicatorID ' + indicatorID + ' down'" :aria-label="'move indicatorID ' + indicatorID + ' down'"
+                        @click.stop="clickToMoveListItem($event, indicatorID, false)">
+                    </button>
+                </div>
+            </div>
+
             <form-question-display
                 :key="'editing_display_' + formNode.indicatorID + makePreviewKey(formNode)"
                 :categoryID="categoryID"
