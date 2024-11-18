@@ -692,7 +692,7 @@ export default {
                         let text = document.querySelector(`#${event.target.id} .name`)?.textContent;
                         text = this.shortIndicatorNameStripped(text);
                         if (targetHasSublist) {
-                            text += ' (and all sub-questions)';
+                            text += ' (includes sub-questions)';
                         }
                         this.$refs.drag_drop_custom_display.textContent = text;
                         event.dataTransfer.setDragImage(elReplacementImg, 0, 0);

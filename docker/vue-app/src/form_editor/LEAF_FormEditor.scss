@@ -505,6 +505,7 @@ table[class$="SelectorTable"] th {
         li {
             position: relative;
             margin: 0.5rem 0;
+            border-radius: 3px;
             &:first-child {
                 margin-top: 0.675rem;
             }
@@ -656,7 +657,6 @@ table[class$="SelectorTable"] th {
                 padding-left: 0;
             }
             &:not(.form-header):not(.preview) {
-                margin-left: 0.25rem;
                 border: 1px solid #c1c1c1;
                 box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
                 transition: box-shadow 0.5s;
