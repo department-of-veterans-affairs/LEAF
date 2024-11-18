@@ -303,10 +303,12 @@ class Workflow
             return 'Restricted command.';
         }
 
-        $vars = array(':workflowID' => $this->workflowID,
+        $vars = array(
+            ':workflowID' => $this->workflowID,
             ':stepID' => $stepID,
-            ':x' => $x,
-            ':y' => $y, );
+            ':x' => max(0, $x),
+            ':y' => max(0, $y),
+        );
         $res = $this->db->prepared_query('UPDATE workflow_steps
                                             SET posX=:x, posY=:y
         									WHERE workflowID=:workflowID

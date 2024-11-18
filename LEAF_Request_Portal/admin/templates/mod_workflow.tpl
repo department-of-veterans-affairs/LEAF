@@ -2249,13 +2249,21 @@
             type: 'GET',
             url: '../api/workflow/' + workflowID,
             success: function(res) {
-                var minY = 80;
-                var maxY = 80;
+                const minY = 80;
+                const minX = 0;
+                let maxY = 80;
+
+                let posY = 0;
+                let posX = 0;
                 for (let i in res) {
                     steps[res[i].stepID] = res[i];
                     posY = parseFloat(res[i].posY);
+                    posX = parseFloat(res[i].posX);
                     if (posY < minY) {
                         posY = minY;
+                    }
+                    if (posX < minX) {
+                        posX = minX;
                     }
 
                     let emailNotificationIcon = '';
@@ -2279,7 +2287,7 @@
                     );
 
                     $('#step_' + res[i].stepID).css({
-                        'left': parseFloat(res[i].posX) + 'px',
+                        'left': posX + 'px',
                         'top': posY + 'px',
                         'background-color': res[i].stepBgColor
                     });
