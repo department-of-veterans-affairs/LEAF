@@ -2087,11 +2087,11 @@
                 routes = res;
                 if (endPoints[-1] == undefined) {
                     endPoints[-1] = jsPlumb.addEndpoint('step_-1', {anchor: 'Continuous'}, endpointOptions);
-                    jsPlumb.draggable('step_-1');
+                    jsPlumb.draggable('step_-1', { allowNegative: false });
                 }
                 if (endPoints[0] == undefined) {
                     endPoints[0] = jsPlumb.addEndpoint('step_0', {anchor: 'Continuous'}, endpointOptions);
-                    jsPlumb.draggable('step_0');
+                    jsPlumb.draggable('step_0', { allowNegative: false });
                 }
 
                 // draw connector
@@ -2295,6 +2295,7 @@
                     if (endPoints[res[i].stepID] == undefined) {
                         endPoints[res[i].stepID] = jsPlumb.addEndpoint('step_' + res[i].stepID, {anchor: 'Continuous'}, endpointOptions);
                         jsPlumb.draggable('step_' + res[i].stepID, {
+                            allowNegative: false,
                             // save position of the box when moved
                             stop: function(stepID) {
                                 return function() {
