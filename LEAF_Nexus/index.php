@@ -370,6 +370,15 @@ switch ($action) {
             $privilegesArray[$key] = array_map('App\Leaf\XSSHelpers::sanitizeHTML', $privilegesArray[$key]);
         }
 
+        $memberships = $oc_login->getMembership();
+        $isAdmin = false;
+        if (isset($memberships['groupID'][1]))
+        {
+            $isAdmin = true;
+        }
+
+        $t_form->assign('is_admin', $isAdmin);
+
         $t_form->assign('indicatorID', (int)$_GET['indicatorID']);
         $t_form->assign('UID', (int)$_GET['UID']);
         $t_form->assign('indicator', $indicatorArray);
@@ -382,7 +391,7 @@ switch ($action) {
         break;
     case 'view_group_permissions':
         $group = new Orgchart\Group($oc_db, $oc_login);
-
+    
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
@@ -401,6 +410,15 @@ switch ($action) {
                 'css/view_group.css', ));
 
         $groupID = isset($_GET['groupID']) ? (int)$_GET['groupID'] : 0;
+
+        $memberships = $oc_login->getMembership();
+        $isAdmin = false;
+        if (isset($memberships['groupID'][1]))
+        {
+            $isAdmin = true;
+        }
+
+        $t_form->assign('is_admin', $isAdmin);
         $t_form->assign('groupID', $groupID);
         $t_form->assign('groupTitle', $group->getTitle($groupID));
         $t_form->assign('permissions', $group->getPrivileges($groupID));
@@ -431,6 +449,15 @@ switch ($action) {
                 'css/view_group.css', ));
 
         $positionID = isset($_GET['positionID']) ? (int)$_GET['positionID'] : 0;
+
+        $memberships = $oc_login->getMembership();
+        $isAdmin = false;
+        if (isset($memberships['groupID'][1]))
+        {
+            $isAdmin = true;
+        }
+
+        $t_form->assign('is_admin', $isAdmin);
         $t_form->assign('positionID', $positionID);
         $t_form->assign('positionTitle', $position->getTitle($positionID));
         $t_form->assign('permissions', $position->getPrivileges($positionID));
