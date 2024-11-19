@@ -109,7 +109,7 @@ export default {
             editQuestion: this.editQuestion,
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
-            toggleIndicatorFocus: this.toggleIndicatorFocus,
+            setIndicatorFocus: this.setIndicatorFocus,
             startDrag: this.startDrag,
             endDrag: this.endDrag,
             handleOnDragCustomizations: this.handleOnDragCustomizations,
@@ -539,8 +539,10 @@ export default {
         /**
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          */
-        toggleIndicatorFocus(nodeID = null) {
-            this.focusedIndicatorID = this.focusedIndicatorID !== nodeID ? nodeID : null;
+        setIndicatorFocus(nodeID = null) {
+            if (this.focusedIndicatorID !== nodeID) {
+                this.focusedIndicatorID = nodeID
+            }
         },
         /**
          * switch between edit and preview mode
@@ -565,7 +567,7 @@ export default {
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
         clickToMoveListItem(event = {}, indID = 0, moveup = false) {
-            if(!this.previewMode) {
+            if(!this.previewMode && indID === this.focusedIndicatorID) {
                 if (event?.keyCode === 32) event.preventDefault();
                 this.ariaStatusFormDisplay = '';
                 this.focusAfterFormUpdateSelector = '#' + event?.target?.id || '';
@@ -671,9 +673,7 @@ export default {
         },
         startDrag(event = {}) {
             //restrict action to bounds of visual drag indicator tab
-            const classList = event?.target?.classList || [];
-            const dragLimitX = classList.contains('subindicator_heading') ? 30 : 24;
-            if (event?.offsetX > dragLimitX || event?.offsetY >= 48) {
+            if (event?.offsetX >= 24 || event?.offsetY >= 78) {
                 event.preventDefault();
             } else {
                 if(!this.previewMode && event?.dataTransfer) {
@@ -688,7 +688,6 @@ export default {
                     }
                     const elReplacementImg = document.getElementById(`drag_drop_default_img_replacement`);
                     if(elReplacementImg !== null) {
-                        this.$refs.drag_drop_custom_display.textContent = "test";
                         let text = document.querySelector(`#${event.target.id} .name`)?.textContent;
                         text = this.shortIndicatorNameStripped(text);
                         if (targetHasSublist) {

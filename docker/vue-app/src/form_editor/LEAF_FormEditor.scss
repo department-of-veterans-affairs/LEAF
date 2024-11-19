@@ -515,18 +515,17 @@ table[class$="SelectorTable"] th {
 
             .move_question_container {
                 @include flexcenter;
-                cursor: grab;
                 position: absolute;
-                width: 1.375rem;
+                width: 1.5rem;
                 left: 0;
                 top: 0;
                 flex-direction: column;
-                background-color: #f0f0f0;
 
                 div.drag_question_handle {
                     cursor: grab;
+                    background-color: #f0f0f0;
                     border-radius: 4px 0 0 0;
-                    height: 42px;
+                    height: 70px;
                     width: 100%;
                     left: 0;
                     top: 0;
@@ -540,18 +539,19 @@ table[class$="SelectorTable"] th {
                         justify-content: center;
                     }
                 }
-                .focus_indicator_button {
-                    margin-top: 2px;
-                    color: $base-navy;
-                    width: 100%;
-                    border: 1px solid transparent;
-                    border-top: 1px solid #d0d0d0;
-                    border-radius: 0;
-                    padding: 0 0 4px 0;
+                .click_to_move_options {
+                    opacity: 0;
+                    &.click_buttons_visible {
+                        opacity: 1;
+
+                        .icon_move {
+                            cursor: pointer;
+                        }
+                    }
                 }
                 .icon_move {
                     @include flexcenter;
-                    cursor: pointer;
+                    cursor: auto;
                     width: 0;
                     height: 0;
                     padding: 0;
@@ -573,7 +573,7 @@ table[class$="SelectorTable"] th {
                         }
                     }
                     &.down {
-                        margin-top: 0.675rem;
+                        margin-top: 0.625rem;
                         border-top: 18px solid $BG-DarkNavy;
                         border-bottom: 2px;
                         &:disabled {
@@ -636,7 +636,7 @@ table[class$="SelectorTable"] th {
         div.printResponse {
             position: relative;
             padding: 0;
-            padding-left: 1.375rem;
+            padding-left: 1.5rem;
             float: none; /* style.css style collision */
             border-radius: 4px;
             background-color: white;
@@ -657,6 +657,7 @@ table[class$="SelectorTable"] th {
                 padding-left: 0;
             }
             &:not(.form-header):not(.preview) {
+                margin-left: 2px;
                 border: 1px solid #c1c1c1;
                 box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
                 transition: box-shadow 0.5s;
