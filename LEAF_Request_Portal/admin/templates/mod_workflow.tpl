@@ -2087,11 +2087,11 @@
                 routes = res;
                 if (endPoints[-1] == undefined) {
                     endPoints[-1] = jsPlumb.addEndpoint('step_-1', {anchor: 'Continuous'}, endpointOptions);
-                    jsPlumb.draggable('step_-1');
+                    jsPlumb.draggable('step_-1', { allowNegative: false });
                 }
                 if (endPoints[0] == undefined) {
                     endPoints[0] = jsPlumb.addEndpoint('step_0', {anchor: 'Continuous'}, endpointOptions);
-                    jsPlumb.draggable('step_0');
+                    jsPlumb.draggable('step_0', { allowNegative: false });
                 }
 
                 // draw connector
@@ -2249,13 +2249,21 @@
             type: 'GET',
             url: '../api/workflow/' + workflowID,
             success: function(res) {
-                var minY = 80;
-                var maxY = 80;
+                const minY = 80;
+                const minX = 0;
+                let maxY = 80;
+
+                let posY = 0;
+                let posX = 0;
                 for (let i in res) {
                     steps[res[i].stepID] = res[i];
                     posY = parseFloat(res[i].posY);
+                    posX = parseFloat(res[i].posX);
                     if (posY < minY) {
                         posY = minY;
+                    }
+                    if (posX < minX) {
+                        posX = minX;
                     }
 
                     let emailNotificationIcon = '';
@@ -2279,7 +2287,7 @@
                     );
 
                     $('#step_' + res[i].stepID).css({
-                        'left': parseFloat(res[i].posX) + 'px',
+                        'left': posX + 'px',
                         'top': posY + 'px',
                         'background-color': res[i].stepBgColor
                     });
@@ -2287,6 +2295,7 @@
                     if (endPoints[res[i].stepID] == undefined) {
                         endPoints[res[i].stepID] = jsPlumb.addEndpoint('step_' + res[i].stepID, {anchor: 'Continuous'}, endpointOptions);
                         jsPlumb.draggable('step_' + res[i].stepID, {
+                            allowNegative: false,
                             // save position of the box when moved
                             stop: function(stepID) {
                                 return function() {
