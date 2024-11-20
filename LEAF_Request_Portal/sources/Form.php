@@ -3086,7 +3086,7 @@ class Form
         // is this a processes worthy of the external process and that we are on not wanting to actually run this query here.
         if ($externalProcessQuery === true && !empty($_SERVER['LEAF_Large_Queries']) && $_SERVER['LEAF_Large_Queries'] == 'pass_onto_large_query_server') {
             ob_end_clean();
-            http_response_code(503);
+            http_response_code(306);
             exit();
         }
 

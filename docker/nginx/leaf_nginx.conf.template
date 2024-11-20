@@ -1,6 +1,9 @@
 upstream backend_api_servers{
-  server ${NGINX_POD}:${HTTP_API_PORT} max_fails=1 fail_timeout=5;
-  server ${NGINX_POD}:${HTTP_API_LQ_PORT} backup;
+  server ${NGINX_POD}:${HTTP_API_PORT};
+}
+
+upstream backend_lq_api_servers{
+  server ${NGINX_POD}:${HTTP_API_LQ_PORT};
 }
 
 server {
@@ -150,6 +153,8 @@ server {
 
 
 server {
+   
+
     listen ${HTTPS_PORT} ssl http2 default_server;
     #listen [::]:${HTTPS_PORT} ssl http2 default_server;
 
@@ -264,8 +269,8 @@ server {
         proxy_pass http://backend_api_servers;
 
         #this is what is used to tell nginx that we want the next server
-        proxy_next_upstream error timeout http_503;
-        proxy_next_upstream_tries 2;
+        #proxy_next_upstream error timeout http_503;
+        #proxy_next_upstream_tries 2;
         proxy_intercept_errors on;
 
         proxy_set_header Host $host;
@@ -282,7 +287,33 @@ server {
         proxy_buffer_size 16k;
         proxy_buffers 32 8k;
         proxy_busy_buffers_size 64k;
+
+        error_page 306 = @transfer_error;
     }
+
+    location @transfer_error {
+        internal;
+        proxy_pass http://backend_lq_api_servers;
+
+        proxy_intercept_errors on;
+
+
+        proxy_set_header Host $host;
+        proxy_redirect     off;
+        proxy_set_header   X-Real-IP  $remote_addr;
+        proxy_set_header   X-Scheme   $scheme;
+        proxy_set_header   X-Forwarded-Proto https;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Proto on;
+        proxy_set_header   REFERER $http_referer;
+        #proxy_http_version 1.1;
+        proxy_connect_timeout 600;
+        proxy_read_timeout 600;
+        proxy_buffer_size 16k;
+        proxy_buffers 32 8k;
+        proxy_busy_buffers_size 64k;
+    }
+
 
     location /selenium-tests {
         resolver 127.0.0.11;
