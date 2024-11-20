@@ -21,6 +21,7 @@ export default {
         return {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
+            draggedElID: '',
             listTracker: {},
             previewMode: false,
             sortOffset: 128, //number to subtract from listindex when comparing or updating sort values
@@ -499,7 +500,7 @@ export default {
          * @param {number|null} parentID of the new subquestion.  null for new sections.
          */
         newQuestion(parentID = null) {
-            const parentUl = parentID === null ? `ul#base_drop_area_${this.focusedFormID}` : `ul#drop_area_parent_${parentID}`;
+            const parentUl = parentID === null ? `ul#base_drop_area_${this.focusedFormID}` : `ul#${this.dragUL_Prefix}${parentID}`;
             this.focusAfterFormUpdateSelector = `${parentUl} > li:last-child button[id^="edit_indicator"]`;
             this.openIndicatorEditingDialog(null, parentID, {});
             this.focusedIndicatorID = null;
@@ -572,7 +573,7 @@ export default {
                 this.ariaStatusFormDisplay = '';
                 this.focusAfterFormUpdateSelector = '#' + event?.target?.id || '';
                 const parentEl = event?.currentTarget?.closest('ul');
-                const elToMove = document.getElementById(`index_listing_${indID}`);
+                const elToMove = document.getElementById(`${this.dragLI_Prefix}${indID}`);
                 const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
                 const newElsLI = oldElsLI.filter(li => li !== elToMove);
                 const listitem = this.listTracker[indID];
@@ -583,7 +584,7 @@ export default {
                     newElsLI.splice(oldIndex + spliceLoc, 0, elToMove);
                     oldElsLI.forEach(li => parentEl.removeChild(li));
                     newElsLI.forEach((li, i) => {
-                        const liIndID = parseInt(li.id.replace('index_listing_', ''));
+                        const liIndID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
                         parentEl.appendChild(li);
                         this.listTracker[liIndID].listIndex = i;
                     });
@@ -673,28 +674,27 @@ export default {
         },
         startDrag(event = {}) {
             //restrict action to bounds of visual drag indicator tab
-            if (event?.offsetX >= 24 || event?.offsetY >= 78) {
+            if (event?.offsetX > 25 || event?.offsetY > 78) {
                 event.preventDefault();
             } else {
                 if(!this.previewMode && event?.dataTransfer) {
                     event.dataTransfer.dropEffect = 'move';
                     event.dataTransfer.effectAllowed = 'move';
                     event.dataTransfer.setData('text/plain', event.target.id);
+                    event.target.style.height = '80px';
                     event.target.classList.add("is_being_dragged");
-                    const targetHasSublist = event.target.querySelector('ul > li') !== null;
 
-                    if(+event.target.style.height !== '80px') {
-                        event.target.style.height = '80px';
-                    }
                     const elReplacementImg = document.getElementById(`drag_drop_default_img_replacement`);
                     if(elReplacementImg !== null) {
+                        event.dataTransfer.setDragImage(elReplacementImg, 0, 0);
                         let text = document.querySelector(`#${event.target.id} .name`)?.textContent;
                         text = this.shortIndicatorNameStripped(text);
+                        const targetHasSublist = event.target.querySelector('ul > li') !== null;
                         if (targetHasSublist) {
                             text += ' (includes sub-questions)';
                         }
                         this.$refs.drag_drop_custom_display.textContent = text;
-                        event.dataTransfer.setDragImage(elReplacementImg, 0, 0);
+                        this.draggedElID = event.target.id;
                     }
                 }
             }
@@ -714,7 +714,7 @@ export default {
             const scrollBuffer = 75;
             const y = +event?.clientY;
             if (y < scrollBuffer || y > window.innerHeight - scrollBuffer) {
-                const scrollIncrement = 5;
+                const scrollIncrement = 4;
                 const sX = window.scrollX;
                 const sY = window.scrollY;
                 const increment = y < scrollBuffer ? -scrollIncrement : scrollIncrement;
@@ -782,8 +782,52 @@ export default {
          * @param {Object} event adds the drop zone hilite if target is ul
          */
         onDragEnter(event = {}) {
-            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move' && event?.target?.classList.contains('form-index-listing-ul')){
-                event.target.classList.add('entered-drop-zone');
+            //remove possible padding classes
+            let prevEls = Array.from(document.querySelectorAll(
+                    `#base_drop_area_${this.focusedFormID} li[id^="${this.dragLI_Prefix}"],
+                     #base_drop_area_${this.focusedFormID} ul[id^="${this.dragUL_Prefix}"]`
+                )
+            );
+            prevEls.forEach(li => {
+                li.classList.remove('add_drop_style');
+                li.classList.remove('add_drop_style_last');
+            });
+            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move' && event?.target?.classList.contains('form-index-listing-ul')) {
+                let dropTargetDirectLIs = Array.from(event.target.querySelectorAll('#' + event.target.id + '> li'));
+
+                const ulTop = event.target.getBoundingClientRect().top;
+                const draggedLi = document.getElementById(this.draggedElID);
+                const draggedLiIndex = dropTargetDirectLIs.indexOf(draggedLi);
+                const closestLi = dropTargetDirectLIs.find(item => event.clientY - ulTop <= item.offsetTop + item.offsetHeight/2) || null;
+                const isSameList = draggedLiIndex > -1;
+                const isDirectlyAboveCurrentLocation = this.draggedElID === closestLi?.id;
+                const isDirectlyBelowCurrentLocation =
+                    isSameList &&
+                    (
+                        //at the end and the dragged item is last
+                        closestLi === null && dropTargetDirectLIs.length - 1 === draggedLiIndex
+                        ||
+                        //next li is immediately next to the dragged one
+                        closestLi !== null &&
+                        dropTargetDirectLIs?.[dropTargetDirectLIs.indexOf(draggedLi) + 1]?.id === closestLi?.id
+                    )
+
+                //don't bother doing anything further if it's in the same location
+                if (!isDirectlyAboveCurrentLocation && !isDirectlyBelowCurrentLocation) {
+                    event.target.classList.add('entered-drop-zone');
+                    if(dropTargetDirectLIs.length === 0) { //no items in this list - add class to target (UL)
+                        event.target.classList.add('add_drop_style');
+                    } else { //add class to closest LI
+                        if (closestLi !== null) {
+                            closestLi.classList.add('add_drop_style');
+                        } else {
+                            //element is at bottom of list
+                            let lastLI = dropTargetDirectLIs[dropTargetDirectLIs.length - 1]
+                            lastLI.classList.add('add_drop_style_last');
+                            event.target.classList.add('add_drop_style_last');
+                        }
+                    }
+                }
             }
         },
         /**
@@ -947,7 +991,7 @@ export default {
                             @dragleave="onDragLeave">
     
                             <form-index-listing v-for="(formSection, i) in fullFormTree"
-                                :id="'index_listing_' + formSection.indicatorID"
+                                :id="dragLI_Prefix + formSection.indicatorID"
                                 :categoryID="formSection.categoryID"
                                 :formPage=i
                                 :depth=0
