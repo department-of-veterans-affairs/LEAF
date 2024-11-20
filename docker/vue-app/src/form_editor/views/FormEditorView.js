@@ -681,6 +681,11 @@ export default {
                     event.dataTransfer.dropEffect = 'move';
                     event.dataTransfer.effectAllowed = 'move';
                     event.dataTransfer.setData('text/plain', event.target.id);
+                    //define/update a min height for the form preview element or the dragged item could be dropped when its size changes.
+                    let elFormDisplay = document.getElementById(`form_entry_and_preview`);
+                    const currentFormHeight = +elFormDisplay.getBoundingClientRect().height.toFixed(0);
+                    elFormDisplay.style.minHeight = currentFormHeight + 'px';
+                    //size needs to be set programmatically.  All other styles in CSS.
                     event.target.style.height = '80px';
                     event.target.classList.add("is_being_dragged");
 
