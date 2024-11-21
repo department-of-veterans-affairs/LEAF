@@ -112,6 +112,6 @@ export default {
             </div>
 
             <!-- FORMAT PREVIEW -->
-            <format-preview v-if="formNode.format !== ''" :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
+            <format-preview :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
         </div>`
 }
