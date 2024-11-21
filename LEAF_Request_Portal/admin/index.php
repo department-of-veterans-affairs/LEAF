@@ -89,7 +89,7 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 
 $main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA seal, U.S. Department of Veterans Affairs" />');
 
-$t_login->assign('name', $login->getName());
+$main->assign('name', $login->getName());
 
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
@@ -606,7 +606,6 @@ switch ($action) {
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
-            $main->assign('name', $login->getName());
 
             $main->assign('javascripts', array(APP_JS_PATH . '/jquery/jquery.min.js',
                                            APP_JS_PATH . '/jquery/jquery-ui.custom.min.js',
