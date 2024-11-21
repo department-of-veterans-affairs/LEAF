@@ -89,7 +89,8 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 
 $main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA seal, U.S. Department of Veterans Affairs" />');
 
-$main->assign('name', $login->getName());
+$t_login->assign('name', $login->getName());
+$main->assign('display_name', $login->getName());
 
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
