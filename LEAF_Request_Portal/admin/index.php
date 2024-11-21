@@ -606,6 +606,7 @@ switch ($action) {
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('siteType', XSSHelpers::xscrub($settings['siteType']));
+            $main->assign('name', $login->getName());
 
             $main->assign('javascripts', array(APP_JS_PATH . '/jquery/jquery.min.js',
                                            APP_JS_PATH . '/jquery/jquery-ui.custom.min.js',

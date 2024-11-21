@@ -64,7 +64,7 @@
     </section>
     {/if}
 
-    <header id="header" class="usa-header site-header">
+    <header id="header" class="usa-header site-header" style="position:relative;">
         <div class="usa-navbar site-header-navbar">
             <div class="usa-logo site-logo" id="logo">
                 <em class="usa-logo__text">
@@ -77,6 +77,9 @@
                 {if $qrcodeURL != ''}
                     <div><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
                 {/if}
+            </div>
+            <div style="position:absolute;right:0;top:0;padding:0 0.75rem;font-size:14px;">
+                Welcome, <b>{$name|sanitize}</b>! | <a href="../?a=logout" style="color:#00bde3">Sign out</a>
             </div>
             <div class="leaf-header-right">
                 {$emergency}<!--{$login}-->
