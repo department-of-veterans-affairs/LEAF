@@ -15,10 +15,40 @@ $time_start = date_create();
 
 $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-//get records of each portal db.  Break out vdr for data_history updates.
-$q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL AND " .
-    //"`portal_database` = 'Academy_Demo1' AND" .
-    "`site_type`='portal' ORDER BY id LIMIT 4000 OFFSET 0";
+//first array element needs /   last needs final / except where noted. Array strings will be joined on /|/ to make regex groupings
+$all_batch_paths = array(
+    1 => array('/SWARM', 'Academy', 'LEAF_Request_Portal'), //no slash for LEAF_Request_Portal
+    2 => array(
+        '/200', '504', '660', '662CRH', '693', '695NA', 'ASTEST', 'ASTESTSITE2', 'ASTESTSITE3', 'CRH', 'CSP',
+        'DEU', 'DEV', 'Dev', 'DevSecOps', 'HLTI_10A2E', 'LEAF', 'LGYC', 'OAWP', 'OEHRM', 'ORD', 'Other', 'platform', 'TEST/'
+    ),
+    3 => array(
+        '/HAMVAMC', 'HAM', 'ham', 'Innovations', 'NCA', 'OIT', 'OIT_DAPM', 'OIT_OPS', 'ProjectManagement', 'SBY', 'VACI', 'VACO/'
+    ),
+    4 => array('/VBA', 'VISN0', 'VAMHCS', 'vamhcs', 'inde', 'demo', 'charleston/'),
+    5 => array('/VISN1', 'VISN2', 'VISN3', 'VISN04', 'VISN4/'),
+    6 => array('/VISN5', 'VISN6', 'VISN6_590', 'visn6/'),
+    7 => array('/VISN7', 'VISN8', 'VISN9', 'VISN09', 'visn9/'),
+    8 => array('/VISN10', 'VISN11', 'VISN12', 'VISN13', 'VISN14/'),
+    9 => array('/VISN15', 'VISN16', 'VISN17', 'VISN17_740', 'VISN_17/'),
+    10 => array('/VISN18', 'VISN19', 'VISN20', 'VISN21', 'VISN21CRH', 'awards_mtsbg'), //no slash for awards_mtsbg
+    11 => array('/VISN22', 'VISN23', 'VISN_23', 'WMC', 'Test_Request_Portal'), //no slash for Test_Request_Portal
+    12 => array('/DCVAMC', 'dc', 'MTSBG', 'mtsbg', 'resources_mtsbg'), //no slash for resources_mtsbg
+    13 => array('/National', 'NATIONAL', 'launchpad'), //no slash for launchpad
+);
+if(count($argv) < 2 || !isset($all_batch_paths[$argv[1]]) ) {
+    fwrite(
+        $log_file,
+        "No valid arg given\r\n"
+    );
+    return;
+}
+$p = $argv[1];
+$batch_path = implode('/|/', $all_batch_paths[$p]);
+
+//get records of portal dbs
+$q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL AND
+    `site_type`='portal' AND `site_path` RLIKE '^(" . $batch_path . ").*'";
 
 $portal_records = $db->query($q);
 
