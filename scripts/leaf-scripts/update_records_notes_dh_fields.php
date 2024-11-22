@@ -15,10 +15,41 @@ $time_start = date_create();
 
 $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-//get records of each portal db.  Break out vdr for data_history updates.
-$q = "SELECT `portal_database` FROM `sites` WHERE `portal_database` IS NOT NULL AND " .
-    //"`portal_database` = 'Academy_Demo1' AND" .
-    "`site_type`='portal' ORDER BY id LIMIT 4000 OFFSET 0";
+//first array element needs /   last needs final / (except 0 since these are all base paths)
+$all_batch_paths = array(
+    0 => array('/LEAF_Request_Portal', 'Test_Request_Portal', 'launchpad', 'awards_mtsbg', 'resources_mtsbg'),
+    1 => array('/SWARM', 'Academy/'),
+    2 => array(
+        '/200', '504', '660', '662CRH', '693', '695NA', 'ASTEST', 'ASTESTSITE2', 'ASTESTSITE3', 'CRH', 'CSP',
+        'DEU', 'DEV', 'Dev', 'DevSecOps', 'HLTI_10A2E', 'LEAF', 'LGYC', 'OAWP', 'OEHRM', 'ORD', 'Other', 'platform', 'TEST/'
+    ),
+    3 => array(
+        '/HAMVAMC', 'HAM', 'ham', 'Innovations', 'NCA', 'OIT', 'OIT_DAPM', 'OIT_OPS', 'ProjectManagement', 'SBY', 'VACI', 'VACO/'
+    ),
+    4 => array('/VBA', 'VISN0', 'VAMHCS', 'vamhcs', 'inde', 'demo', 'charleston/'),
+    5 => array('/VISN1', 'VISN2', 'VISN3', 'VISN04', 'VISN4/'),
+    6 => array('/VISN5', 'VISN6', 'VISN6_590', 'visn6/'),
+    7 => array('/VISN7', 'VISN8', 'VISN9', 'VISN09', 'visn9/'),
+    8 => array('/VISN10', 'VISN11', 'VISN12', 'VISN13', 'VISN14/'),
+    9 => array('/VISN15', 'VISN16', 'VISN17', 'VISN17_740', 'VISN_17/'),
+    10 => array('/VISN18', 'VISN19', 'VISN20', 'VISN21', 'VISN21CRH/'),
+    11 => array('/VISN22', 'VISN23', 'VISN_23', 'WMC/'),
+    12 => array('/DCVAMC', 'dc', 'MTSBG', 'mtsbg/'),
+    13 => array('/National', 'NATIONAL/'),
+);
+if(count($argv) < 2 || !isset($all_batch_paths[$argv[1]]) ) {
+    fwrite(
+        $log_file,
+        "No valid arg given\r\n"
+    );
+    return;
+}
+$p = $argv[1];
+$batch_path = $p == 0 ? implode('|/', $all_batch_paths[$p]) : implode('/|/', $all_batch_paths[$p]);
+
+//get records of portal dbs
+$q = "SELECT `portal_database`, `site_path` FROM `sites` WHERE `portal_database` IS NOT NULL AND
+    `site_type`='portal' AND `site_path` RLIKE '^(" . $batch_path . ").*'";
 
 $portal_records = $db->query($q);
 
@@ -129,6 +160,7 @@ function getUniqueIDBatch(&$db, $table_name, $field_name):array {
 
 foreach($portal_records as $rec) {
     $portal_db = $rec['portal_database'];
+    $portal_path = $rec['site_path'];
     try {
         $db->query("USE `{$portal_db}`");
 
@@ -233,7 +265,7 @@ foreach($portal_records as $rec) {
     } catch (Exception $e) {
         fwrite(
             $log_file,
-            "Caught Exception (portal use): " . $portal_db . " " . $e->getMessage() . "\r\n"
+            "Caught Exception (portal use): DB " . $portal_db . ", PATH " . $portal_path . ", MSG " . $e->getMessage() . "\r\n"
         );
         $error_count += 1;
     }
