@@ -64,8 +64,8 @@
     </section>
     {/if}
 
-    <header id="header" class="usa-header site-header" style="position:relative;">
-        <div class="usa-navbar site-header-navbar">
+    <header id="header" class="usa-header site-header">
+        <div class="usa-navbar site-header-navbar" style="position:relative;">
             <div class="usa-logo site-logo" id="logo">
                 <em class="usa-logo__text">
                     <a tabindex="0" onclick="window.location='./'" title="Admin Home" class="leaf-cursor-pointer">
