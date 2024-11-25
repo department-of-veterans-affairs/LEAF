@@ -461,9 +461,9 @@ table[class$="SelectorTable"] th {
     background-color: transparent;
     border-radius: 4px;
 
-    /* drag drop API image replacement and display divs
-    1st overrides the default image, since display issues can occur in highly nested contexts
-    2nd replaces the image with a separate display card since the API ghost image cannot be styled */
+    /** drag drop API image replacement, custom display, and drop area styling **/
+
+    /* overrides the default image so that it does not show. */
     #drag_drop_default_img_replacement {
         position: absolute;
         left: -9999px;
@@ -471,6 +471,7 @@ table[class$="SelectorTable"] th {
         width: 1px;
         background-color: transparent !important;
     }
+    /* replaces the ghost image (which cannot be styled) with a custom display */
     #drag_drop_custom_display {
         cursor: pointer;
         position: absolute;
@@ -500,10 +501,14 @@ table[class$="SelectorTable"] th {
         }
         ul.form-index-listing-ul {
             margin: 0;
+            transition: height .4s ease;
             display: flex;
             flex-direction: column;
             background-clip: content-box;
             min-height: 10px;
+        }
+        ul.empty_drop_ul {
+            height: 10px;
         }
         ul.add_drop_style {
             height: 80px;
@@ -520,6 +525,7 @@ table[class$="SelectorTable"] th {
         li {
             position: relative;
             margin: 0.5rem 0;
+            transition: margin 0.4s ease;
             border-radius: 3px;
             &:first-child {
                 margin-top: 0.675rem;

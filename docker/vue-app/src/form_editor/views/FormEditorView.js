@@ -685,7 +685,7 @@ export default {
                     let elFormDisplay = document.getElementById(`form_entry_and_preview`);
                     const currentFormHeight = +elFormDisplay.getBoundingClientRect().height.toFixed(0);
                     elFormDisplay.style.minHeight = currentFormHeight + 'px';
-                    //size needs to be set programmatically.  All other styles in CSS.
+                    //size set programmatically.  Other styles in CSS class.
                     event.target.style.height = '80px';
                     event.target.classList.add("is_being_dragged");
 
@@ -793,9 +793,9 @@ export default {
                      #base_drop_area_${this.focusedFormID} ul[id^="${this.dragUL_Prefix}"]`
                 )
             );
-            prevEls.forEach(li => {
-                li.classList.remove('add_drop_style');
-                li.classList.remove('add_drop_style_last');
+            prevEls.forEach(el => {
+                el.classList.remove('add_drop_style');
+                el.classList.remove('add_drop_style_last');
             });
             if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move' && event?.target?.classList.contains('form-index-listing-ul')) {
                 let dropTargetDirectLIs = Array.from(event.target.querySelectorAll('#' + event.target.id + '> li'));
@@ -826,7 +826,7 @@ export default {
                         if (closestLi !== null) {
                             closestLi.classList.add('add_drop_style');
                         } else {
-                            //element is at bottom of list
+                            //element is at bottom of list, add 'last' styles to both UL and last LI
                             let lastLI = dropTargetDirectLIs[dropTargetDirectLIs.length - 1]
                             lastLI.classList.add('add_drop_style_last');
                             event.target.classList.add('add_drop_style_last');
