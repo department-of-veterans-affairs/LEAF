@@ -15,7 +15,7 @@ if (!defined('DIRECTORY_PASS')) define('DIRECTORY_PASS', getenv('DATABASE_PASSWO
 
 require_once '/var/www/html/app/Leaf/Db.php';
 
-$db = new \Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+$db = new \App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
 // get something simple from the db to return
 $sql = 'show status';
