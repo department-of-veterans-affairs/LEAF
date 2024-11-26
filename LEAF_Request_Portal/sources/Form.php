@@ -1706,7 +1706,6 @@ class Form
             count_required($dataTable, $page, false, $requiredTotal, $requiredAnswered);
         }
 
-        error_log("R A: ".$requiredTotal." ".$requiredAnswered);
         if ($requiredTotal === 0) {
             $returnValue = 100;
         } else {
