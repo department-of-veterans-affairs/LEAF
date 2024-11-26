@@ -317,4 +317,88 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
     &:hover, &:focus, &:active {
         outline: none;
     }
-} 
+}
+
+
+
+/** drag-drop customizations:
+API image replacement, custom display, and drop area list styling 
+**/
+
+/* override the drag-drop API default image so that it does not show. */
+#drag_drop_default_img_replacement {
+    position: absolute;
+    left: -9999px;
+    height: 0;
+    width: 0;
+}
+/* replace custom image (it cannot be styled) with a custom display div */
+/* position of this element will need to be programmatically updated during drag events */
+#drag_drop_custom_display {
+    cursor: pointer;
+    position: absolute;
+    left: -9999px;
+    width: 600px;
+    height: 100px;
+    padding: 0.75rem 1rem;
+    z-index: 1001;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 4px;
+    box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.25);
+}
+
+/* make element being moved look like an empty slot */
+li.is_being_dragged {
+    overflow: hide;
+    margin-bottom: 1rem;
+    background-color: rgba(0,0,0,0.2) !important;
+    box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.3) inset !important;
+    & * {
+        display: none
+    }
+}
+
+/* general styling of base and nested drop area lists */
+ul[id^="base_drop_area"] {
+    position: relative;
+    padding: 1px 0; //top and bottom padding needed for base drop area visibility
+    li {
+        position: relative;
+        transition: margin 0.4s ease;
+    }
+    ul[id^="drop_area_parent_"] {
+        position: relative;
+    }
+}
+/* general over-drop area styling */
+ul.entered-drop-zone {
+    background-color: rgba(0,0,25,0.2);
+    box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.3) inset;
+    outline: 2px solid $LEAF_CSS_outline;
+    border-radius: 3px;
+}
+
+/* specific to drop area ul that do not yet have any li */
+ul.empty_drop_area_ul {
+    height: 10px;
+    transition: height .4s ease;
+}
+ul.entered-empty-ul-drop-zone {
+    height: 80px;
+    border-radius: 3px;
+    box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.3) inset;
+    outline: 2px solid $LEAF_CSS_outline;
+    margin-bottom: 1rem !important;
+    margin-right: 1rem !important;
+}
+
+/* applied to closest li if it is not at end of ul list to add space above */
+li.entered-parent-ul-drop-zone {
+    margin-top: 80px !important;
+}
+
+/* applied to the last li if the user is dragging element to end of ul list to add space below */
+li.entered-parent-ul-drop-zone-last {
+    margin-bottom: 80px !important;
+}

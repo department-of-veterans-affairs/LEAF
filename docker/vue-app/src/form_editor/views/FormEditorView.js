@@ -710,9 +710,7 @@ export default {
             this.$refs.drag_drop_custom_display.style.top = '0px';
             this.$refs.drag_drop_custom_display.textContent = "";
             event.target.style.height = 'auto';
-            if(event.target.classList.contains('is_being_dragged')) {
-                event.target.classList.remove('is_being_dragged');
-            } 
+            event.target.classList.remove('is_being_dragged');
         },
         handleOnDragCustomizations(event = {}) {
             //increase the ranges at which window will scroll
@@ -787,15 +785,16 @@ export default {
          * @param {Object} event adds the drop zone hilite if target is ul
          */
         onDragEnter(event = {}) {
-            //remove possible padding classes
+            //remove possible drag-drop related classes
             let prevEls = Array.from(document.querySelectorAll(
                     `#base_drop_area_${this.focusedFormID} li[id^="${this.dragLI_Prefix}"],
                      #base_drop_area_${this.focusedFormID} ul[id^="${this.dragUL_Prefix}"]`
                 )
             );
             prevEls.forEach(el => {
-                el.classList.remove('add_drop_style');
-                el.classList.remove('add_drop_style_last');
+                el.classList.remove('entered-empty-ul-drop-zone');
+                el.classList.remove('entered-parent-ul-drop-zone');
+                el.classList.remove('entered-parent-ul-drop-zone-last');
             });
             if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move' && event?.target?.classList.contains('form-index-listing-ul')) {
                 let dropTargetDirectLIs = Array.from(event.target.querySelectorAll('#' + event.target.id + '> li'));
@@ -821,15 +820,14 @@ export default {
                 if (!isDirectlyAboveCurrentLocation && !isDirectlyBelowCurrentLocation) {
                     event.target.classList.add('entered-drop-zone');
                     if(dropTargetDirectLIs.length === 0) { //no items in this list - add class to target (UL)
-                        event.target.classList.add('add_drop_style');
+                        event.target.classList.add('entered-empty-ul-drop-zone');
                     } else { //add class to closest LI
                         if (closestLi !== null) {
-                            closestLi.classList.add('add_drop_style');
+                            closestLi.classList.add('entered-parent-ul-drop-zone');
                         } else {
-                            //element is at bottom of list, add 'last' styles to both UL and last LI
+                            //element is at bottom of list, add 'last' styles to last LI
                             let lastLI = dropTargetDirectLIs[dropTargetDirectLIs.length - 1]
-                            lastLI.classList.add('add_drop_style_last');
-                            event.target.classList.add('add_drop_style_last');
+                            lastLI.classList.add('entered-parent-ul-drop-zone-last');
                         }
                     }
                 }

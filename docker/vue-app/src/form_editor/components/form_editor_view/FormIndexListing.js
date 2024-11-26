@@ -102,7 +102,7 @@ export default {
             <!-- NOTE: ul for drop zones always needs to be here in edit mode even if there are no current children -->
             <ul v-if="formNode.child !== null || !previewMode"
                 class="form-index-listing-ul" :id="'drop_area_parent_'+ indicatorID"
-                :class="{empty_drop_ul: formNode.child === null}"
+                :class="{empty_drop_area_ul: formNode.child === null}"
                 data-effect-allowed="move"
                 @drop.stop="onDrop($event)"
                 @dragover.prevent
