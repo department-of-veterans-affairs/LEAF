@@ -98,16 +98,6 @@
 
     </li>
 
-    <li class="leaf-width-4rem leaf-mob-menu lev2">
-        <a href="javascript:void(0);" aria-label="user account menu" aria-expanded="false" role="button"
-            aria-controls="user_account_menu"><i class='fas fa-user-circle leaf-usericon'></i></a>
-        <ul class="leaf-usernavmenu" id="user_account_menu">
-            <li tabindex="0" style="padding-left:0.4rem;">User:<br/><span class="leaf-user-menu-name">{$name}</span></li>
-            <li tabindex="0" style="padding-left:0.4rem;">Primary Admin:<br/><span id="primary-admin" class="leaf-user-menu-name"></span></li>
-            <li><a href="../?a=logout">Sign Out</a></li>
-        </ul>
-    </li>
-
 </ul>
 
 <script>
@@ -220,27 +210,4 @@ $('li:has(ul)').on('mouseover click mouseleave focusout', function(e) {
 
 
 });
-</script>
-
-<script type="text/javascript">
-    $.ajax({
-        url: "../api/system/primaryadmin",
-        dataType: "json",
-        success: function(response) {
-            const emailString = response['Email'] != '' ? ' - <br><a href="mailto:' + response['Email'] + '" style="padding:0">' + response['Email'] + '</a>' : '';
-            if(response["Fname"] !== undefined)
-            {
-                $('#primary-admin').html(response['Fname'] + " " + response['Lname'] + emailString);
-            }
-            else if(response["userName"] !== undefined)
-            {
-                $('#primary-admin').html(response['userName']);
-            }
-            else
-            {
-                $('#primary-admin').html('Not Set');
-            }
-
-        }
-    });
 </script>
