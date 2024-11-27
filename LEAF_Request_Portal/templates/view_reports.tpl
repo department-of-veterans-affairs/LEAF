@@ -749,6 +749,7 @@ function editLabels() {
         }
         tempColorData = Object.assign({ }, gridColorData);
 
+        grid.stop();
         $('#generateReport').click();
         dialog.hide();
     });
@@ -1489,6 +1490,11 @@ $(function() {
                 checkIfOneTypeSearchedAndUpdate(inQuery.terms);
 
                 t_inIndicators = JSON.parse(LZString.decompressFromBase64(indicators));
+                t_inIndicators.forEach(ind => {
+                    if (+ind?.indicatorID > 0) {
+                       indicatorSort[ind.indicatorID] = ind.sort;
+                    }
+                });
                 let queryColors = JSON.parse(LZString.decompressFromBase64(colors));
                 if (queryColors !== null) {
                     gridColorData = queryColors;
