@@ -377,6 +377,7 @@ ul.entered-drop-zone {
     box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.3) inset;
     outline: 2px solid $LEAF_CSS_outline;
     border-radius: 3px;
+    margin-bottom: 1rem !important;
 }
 
 /* specific to drop area ul that do not yet have any li */
@@ -389,7 +390,6 @@ ul.entered-empty-ul-drop-zone {
     border-radius: 3px;
     box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.3) inset;
     outline: 2px solid $LEAF_CSS_outline;
-    margin-bottom: 1rem !important;
     margin-right: 1rem !important;
 }
 
