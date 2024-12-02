@@ -3817,8 +3817,6 @@ class Form
 
             if ($joinActionHistory)
             {
-                $dir = new VAMC_Directory;
-
                 $actionHistorySQL =
                        'SELECT recordID, stepID, userID, userMetadata, time, description,
                             actionTextPasttense, actionType, comment
@@ -3878,9 +3876,7 @@ class Form
             }
 
             if ($joinRecordResolutionBy === true) {
-                $dir = new VAMC_Directory;
-
-                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType
+                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.userMetadata, action_history.stepID, action_history.actionType
                 FROM action_history
                 LEFT JOIN records USING (recordID)
                 INNER JOIN workflow_routes USING (stepID)
@@ -3895,8 +3891,9 @@ class Form
                 $res2 = $this->db->prepared_query($recordResolutionBySQL, array());
 
                 foreach ($res2 as $item) {
-                    $user = $dir->lookupLogin($item['resolvedBy'], true);
-                    $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
+                    $userMetadata = json_decode($item['userMetadata'], true);
+                    $nameResolved =  isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+                        "{$userMetadata['firstName']} {$userMetadata['lastName']} " : $item['resolvedBy'];
                     $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
                 }
             }
