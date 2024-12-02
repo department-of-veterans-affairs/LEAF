@@ -577,11 +577,12 @@ class Form
             else if ($data[0]['format'] == 'orgchart_employee'
                 && !empty($data[0]['data']))
             {
+                $form[$idx]['displayedValue'] = '';
                 if (isset($data[0]['metadata'])) {
                     $orgchartInfo = json_decode($data[0]['metadata'], true);
-                    $form[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
-                } else {
-                    $form[$idx]['displayedValue'] = '';
+                    if(trim("{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}") !== "") {
+                        $form[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                    }
                 }
             }
             else if ($data[0]['format'] == 'orgchart_position'
@@ -2609,7 +2610,7 @@ class Form
                             $item['data'] = '';
                             if (isset($item['metadata'])) {
                                 $orgchartInfo = json_decode($item['metadata'], true);
-                                if(!empty($orgchartInfo['userName'])) {
+                                if(trim("{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}") !== "") {
                                     $item['data'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
                                     $item['dataOrgchart'] = $orgchartInfo;
                                 }
@@ -3819,14 +3820,14 @@ class Form
                 $dir = new VAMC_Directory;
 
                 $actionHistorySQL =
-                       'SELECT recordID, stepID, userID, time, description,
+                       'SELECT recordID, stepID, userID, userMetadata, time, description,
                             actionTextPasttense, actionType, comment
                         FROM action_history
                         LEFT JOIN dependencies USING (dependencyID)
                         LEFT JOIN actions USING (actionType)
                         WHERE recordID IN (' . $recordIDs . ')
                         UNION
-                        SELECT recordID, "-5", userID, timestamp, "Note Added",
+                        SELECT recordID, "-5", userID, userMetadata, timestamp, "Note Added",
                              "Note Added", "LEAF_note", note
                         FROM notes
                         WHERE recordID IN (' . $recordIDs . ')
@@ -3836,8 +3837,10 @@ class Form
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
                 foreach ($res2 as $item)
                 {
-                    $user = $dir->lookupLogin($item['userID'], true);
-                    $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+                    $userMetadata = json_decode($item['userMetadata'], true);
+                    $name = isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+                        "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $item['userID'];
+
                     $item['approverName'] = $name;
 
                     $data[$item['recordID']]['action_history'][] = $item;
@@ -4386,7 +4389,7 @@ class Form
                     $child[$idx]['displayedValue'] = '';
                     if (isset($data[$idx]['metadata'])) {
                         $orgchartInfo = json_decode($data[$idx]['metadata'], true);
-                        if(!empty($orgchartInfo['userName'])) {
+                        if(trim("{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}") !== "") {
                             $child[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
                         }
                     }
