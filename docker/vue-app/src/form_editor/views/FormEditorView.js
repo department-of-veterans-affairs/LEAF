@@ -672,6 +672,20 @@ export default {
             item.newParentID = newParIndID;
             this.listTracker[indID] = item;
         },
+        removeDragDropClasses() {
+            //remove possible drag-drop related classes
+            let prevEls = Array.from(document.querySelectorAll(
+                `#base_drop_area_${this.focusedFormID} li[id^="${this.dragLI_Prefix}"],
+                #base_drop_area_${this.focusedFormID} ul[id^="${this.dragUL_Prefix}"]`
+                )
+            );
+            prevEls.forEach(el => {
+                el.classList.remove('entered-empty-ul-drop-zone');
+                el.classList.remove('entered-parent-ul-drop-zone');
+                el.classList.remove('entered-parent-ul-drop-zone-last');
+                el.classList.remove('drop_preview_visible');
+            });
+        },
         startDrag(event = {}) {
             //restrict action to bounds of visual drag indicator tab
             if (event?.offsetX > 25 || event?.offsetY > 78) {
@@ -707,7 +721,7 @@ export default {
         endDrag(event = {}) {
             //reset custom display coords and remove drag class regardless of outcome
             this.$refs.drag_drop_custom_display.style.left = '-9999px';
-            this.$refs.drag_drop_custom_display.style.top = '0px';
+            this.$refs.drag_drop_custom_display.style.top = '-1000px';
             this.$refs.drag_drop_custom_display.textContent = "";
             event.target.style.height = 'auto';
             event.target.classList.remove('is_being_dragged');
@@ -768,9 +782,7 @@ export default {
                         }
                     }
                 }
-                if(parentEl.classList.contains('entered-drop-zone')){
-                    event.target.classList.remove('entered-drop-zone');
-                }
+                this.removeDragDropClasses();
             }
         },
         /**
@@ -778,7 +790,7 @@ export default {
          */
         onDragLeave(event = {}) {
             if(event?.target?.classList.contains('form-index-listing-ul')){
-                event.target.classList.remove('entered-drop-zone');
+                this.removeDragDropClasses();
             }
         },
         /**
@@ -786,16 +798,7 @@ export default {
          */
         onDragEnter(event = {}) {
             //remove possible drag-drop related classes
-            let prevEls = Array.from(document.querySelectorAll(
-                    `#base_drop_area_${this.focusedFormID} li[id^="${this.dragLI_Prefix}"],
-                     #base_drop_area_${this.focusedFormID} ul[id^="${this.dragUL_Prefix}"]`
-                )
-            );
-            prevEls.forEach(el => {
-                el.classList.remove('entered-empty-ul-drop-zone');
-                el.classList.remove('entered-parent-ul-drop-zone');
-                el.classList.remove('entered-parent-ul-drop-zone-last');
-            });
+            this.removeDragDropClasses();
             if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move' && event?.target?.classList.contains('form-index-listing-ul')) {
                 let dropTargetDirectLIs = Array.from(event.target.querySelectorAll('#' + event.target.id + '> li'));
 
@@ -818,17 +821,23 @@ export default {
 
                 //don't bother doing anything further if it's in the same location
                 if (!isDirectlyAboveCurrentLocation && !isDirectlyBelowCurrentLocation) {
-                    event.target.classList.add('entered-drop-zone');
+
                     if(dropTargetDirectLIs.length === 0) { //no items in this list - add class to target (UL)
                         event.target.classList.add('entered-empty-ul-drop-zone');
                     } else { //add class to closest LI
+                        let el = null;
                         if (closestLi !== null) {
+                            el = closestLi;
                             closestLi.classList.add('entered-parent-ul-drop-zone');
                         } else {
                             //element is at bottom of list, add 'last' styles to last LI
                             let lastLI = dropTargetDirectLIs[dropTargetDirectLIs.length - 1]
+                            el = lastLI;
                             lastLI.classList.add('entered-parent-ul-drop-zone-last');
                         }
+                        setTimeout(()=>{
+                            el.classList.add('drop_preview_visible');
+                        }, 150);
                     }
                 }
             }
@@ -992,7 +1001,7 @@ export default {
                             @dragover.prevent
                             @dragenter.prevent="onDragEnter"
                             @dragleave="onDragLeave">
-    
+
                             <form-index-listing v-for="(formSection, i) in fullFormTree"
                                 :id="dragLI_Prefix + formSection.indicatorID"
                                 :categoryID="formSection.categoryID"
