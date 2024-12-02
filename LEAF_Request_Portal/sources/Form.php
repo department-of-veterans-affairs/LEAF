@@ -1008,9 +1008,9 @@ class Form
             );
         }
 
-        $dir = new VAMC_Directory;
-        $user = $dir->lookupLogin($res[0]['userID']);
-        $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+        $userMetadata = json_decode($res[0]['userMetadata'], true);
+        $name = isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+            "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $res[0]['userID'];
 
         $data = array('name' => $name,
                       'service' => $res[0]['service'],
@@ -2730,14 +2730,14 @@ class Form
         } else {
             $vars = array(':recordID' => $recordID);
 
-            $sql = 'SELECT actionTextPasttense, comment, time, userID
+            $sql = 'SELECT actionTextPasttense, comment, time, userID, userMetadata
                     FROM action_history
                     LEFT JOIN dependencies USING (dependencyID)
                     LEFT JOIN actions USING (actionType)
                     WHERE recordID = :recordID
                     AND comment != ""
                     UNION
-                    SELECT "Note Added", note, timestamp, userID
+                    SELECT "Note Added", note, timestamp, userID, userMetadata
                     FROM notes
                     WHERE recordID = :recordID
                     AND deleted IS NULL
@@ -2745,13 +2745,12 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
-            $dir = new VAMC_Directory;
-
             $total = count($res);
-
             for ($i = 0; $i < $total; $i++) {
-                $user = $dir->lookupLogin($res[$i]['userID']);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[$i]['userID'];
+                $userMetadata = json_decode($res[$i]['userMetadata'], true);
+                $name = isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+                    "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $res[$i]['userID'];
+
                 $res[$i]['name'] = $name;
             }
 
