@@ -1509,8 +1509,29 @@ class Form
         return $return_value;
     }
 
-    private function count_required(array &$dataTable, array $formNode, bool $parentOrSelfHidden = false, int &$required_total, int &$required_answered)
+    /**
+     * Keep track of number of required questions, number visible, and form branch visibility state
+     *
+     * @param array dataTable (ref) lookup table of form data.  Used to check if question is answered and for conditional logic assessment
+     * @param array formNode form question with potential substructure
+     * @param bool parentOrSelfHidden is question and children in hidden state
+     * @param int required_visible (ref) number of required questions that are visible
+     * @param int required_answered (ref) number of required questions that are answered
+     * @param int required_total (ref) total number of required questions found during checking
+     * @param int res_max_required total number of required questions on the form
+     */
+    private function count_required(
+        array &$dataTable,
+        array $formNode,
+        bool $parentOrSelfHidden = false,
+        int &$required_visible,
+        int &$required_answered,
+        int &$required_total,
+        int $res_max_required)
     {
+        if((int)$formNode['required'] === 1) {
+            $required_total += 1; //keep track to skip calls once all required questions are found.
+        }
         //don't care about any of this if the question is in a hidden state
         if($parentOrSelfHidden === false) {
             //Check for conditions and if the state is hidden.
@@ -1601,11 +1622,12 @@ class Form
                         break;
                     }
                 }
+                unset($conditions);
             }
 
-            //if still not in hidden state and required: increment required total.  Check for answer and increment answered total if answered.
+            //if not in hidden state and required: increment required total.  Check for answer and increment answered total if answered.
             if(!$parentOrSelfHidden && (int)$formNode['required'] === 1) {
-                $required_total += 1;
+                $required_visible += 1;
                 $answered = false;
                 $val = $formNode['value'];
                 if(isset($val) && $val !== '') {
@@ -1658,10 +1680,20 @@ class Form
                 }
             }
         }
-        //progress tree depth.
+        //progress tree depth if required total is not at max.
         if(isset($formNode['child'])) {
             foreach($formNode['child'] as $child) {
-                $this->count_required($dataTable, $child, $parentOrSelfHidden, $required_total, $required_answered);
+                if($required_total < $res_max_required) {
+                    $this->count_required(
+                        $dataTable,
+                        $child,
+                        $parentOrSelfHidden,
+                        $required_visible,
+                        $required_answered,
+                        $required_total,
+                        $res_max_required
+                    );
+                }
             }
         }
     }
@@ -1673,22 +1705,39 @@ class Form
      */
     public function getProgress($recordID)
     {
-        $subSQL = 'SELECT submitted FROM records
+        $subSQL = 'SELECT submitted, categoryID FROM records
             LEFT JOIN category_count USING (recordID)
             WHERE recordID=:recordID';
         $subVars = array(':recordID' => (int)$recordID);
-        //First check if submitted and just return 100 if it is.
+
         $resRecordInfoEachForm = $this->db->prepared_query($subSQL, $subVars);
+
+        //Check if submitted, return 100 if it is.  Get catIDs for otherwise.
+        $categoryIDs = array();
         foreach ($resRecordInfoEachForm as $request) {
+            $categoryIDs[] = $request['categoryID'];
             if ($request['submitted'] > 0) {
                 return 100;
             }
         }
+
+        $maxRequiredSQL = "SELECT `indicatorID` FROM `indicators`
+            WHERE `required`=1 AND `disabled`=0 AND FIND_IN_SET(categoryID, :categoryIDs)";
+        $maxRequiredVars = array(
+            ":categoryIDs" => implode(",", $categoryIDs)
+        );
+        $resMaxRequired =  count($this->db->prepared_query($maxRequiredSQL, $maxRequiredVars));
+
+        //Check max count.  Return 100 if there are none.  Otherwise use this count for total checking.
+        if ($resMaxRequired === 0) {
+            return 100;
+        }
+
         $dataSQL = "SELECT `indicatorID`, `format`, `data` FROM `data`
             LEFT JOIN indicators USING (indicatorID)
             WHERE recordID=:recordID
             AND indicators.disabled = 0
-            AND `data` != ''";
+            AND TRIM(`data`) != ''";
         $dataVars = array(':recordID' => (int)$recordID);
         $resData = $this->db->prepared_query($dataSQL, $dataVars);
 
@@ -1696,19 +1745,23 @@ class Form
         foreach($resData as $d) {
             $dataTable[$d['indicatorID']] = $d['data'];
         }
-        $returnValue = 0;
-        $requiredTotal = 0;
+
+        $requiredVisible = 0;
         $requiredAnswered = 0;
+        $requiredTotal = 0;
 
         $fullForm = $this->getFullForm($recordID);
         foreach($fullForm as $page) {
-            $this->count_required($dataTable, $page, false, $requiredTotal, $requiredAnswered);
+            if($requiredTotal < $resMaxRequired) {
+                $this->count_required($dataTable, $page, false, $requiredVisible, $requiredAnswered, $requiredTotal, $resMaxRequired);
+            }
         }
 
-        if ($requiredTotal === 0) {
+        $returnValue = 0;
+        if ($requiredVisible === 0) {
             $returnValue = 100;
         } else {
-            $returnValue = round(100 * ($requiredAnswered / $requiredTotal));
+            $returnValue = round(100 * ($requiredAnswered / $requiredVisible));
         }
         return $returnValue;
     }
