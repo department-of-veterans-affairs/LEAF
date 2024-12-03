@@ -1548,9 +1548,9 @@ class Form
                         $parentFormat = $c->parentFormat;
                         $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
                         $currentParentDataValue = preg_replace('/&apos;/', '&#039;', $dataTable[$c->parentIndID] ?? '');
-                        if ($parentFormat === 'checkbox') { //single checkbox ifthen is either checked or not checked
+                        /* if ($parentFormat === 'checkbox') { //single checkbox ifthen is either checked or not checked (pending parent checkbox)
                             $currentParentDataValue = !empty($currentParentDataValue) && $currentParentDataValue !== 'no' ? '1' : '0';
-                        }
+                        } */
                         if (in_array($parentFormat, $multiChoiceParentFormats)) {
                             $currentParentDataValue = @unserialize($currentParentDataValue) === false ?
                                 array($currentParentDataValue) : unserialize($currentParentDataValue);
@@ -1733,7 +1733,7 @@ class Form
             return 100;
         }
 
-        $dataSQL = "SELECT `indicatorID`, `format`, `data` FROM `data`
+        $dataSQL = "SELECT `indicatorID`, `format`, TRIM(`data`) as `data` FROM `data`
             LEFT JOIN indicators USING (indicatorID)
             WHERE recordID=:recordID
             AND indicators.disabled = 0
