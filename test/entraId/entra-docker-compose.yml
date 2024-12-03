@@ -1,0 +1,34 @@
+name: entra-proto
+services:
+    entra-proto:
+      container-name: entra
+      env_file:
+          - ./env_files/globals_local.env
+          - ./env_files/secrets.env
+          - ./env_files/globals_leaf20_local.env
+      build:
+          context: ./
+          dockerfile: entra.dockerfile
+          args:
+              - BUILD_UID=${BUILD_UID}
+      volumes:
+          - ./:/var/www/html/entraId
+      networks:
+          - leaf-sql
+          - leaf
+      environment:
+          - REMOTE_USER=${REMOTE_USER}
+          - APACHE_RUN_USER=build_user
+
+ 
+# volumes:
+#     leaf-php-data:
+#         external: true
+#     leaf-lib:
+#         external: true
+#     leaf-dev-mysql-data:
+#         external: false
+
+networks:
+    leaf:
+        external: true
