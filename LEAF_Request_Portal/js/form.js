@@ -227,20 +227,28 @@ var LeafForm = function (containerID) {
     /** cross walk end */
 
     let childRequiredValidators = {};
+    //store required validators for the controlled question and any subchildren on main entry and modals
     const handleChildValidators = (childID) => {
-      if (!childRequiredValidators[childID]) {
-        childRequiredValidators[childID] = {
-          validator: formRequired[`id${childID}`]?.setRequired,
-        };
-      }
-      //reset the validator, if there is one, from the stored value
-      if (
-        childRequiredValidators[childID].validator !== undefined &&
-        dialog !== null
-      ) {
-        dialog.requirements[childID] =
-          childRequiredValidators[childID].validator;
-      }
+      let arrValidatorIDs = [ childID ];
+      const arrSubchildren = Array.from(
+        document.querySelectorAll(`.response.blockIndicator_${childID} div.response[class*="blockIndicator_"]`)
+      );
+      arrSubchildren.forEach(element => {
+        const id = +element.className.match(/(\d+)$/)?.[0];
+        if(id > 0) {
+          arrValidatorIDs.push(id);
+        }
+      });
+      arrValidatorIDs.forEach(id => {
+        if (!childRequiredValidators[id]) {
+          childRequiredValidators[id] = {
+            validator: formRequired[`id${id}`]?.setRequired,
+          };
+        }
+        if (childRequiredValidators[id].validator !== undefined && dialog !== null) {
+          dialog.requirements[id] = childRequiredValidators[id].validator;
+        }
+      });
     };
     //validator ref for required question in a hidden state
     const hideShowValidator = function () {
@@ -361,32 +369,61 @@ var LeafForm = function (containerID) {
       return sanitize(val).trim();
     };
 
-    /* clear out potential entries and set validator for hidden questions */
-    const clearValues = (childFormat = "", childIndID = 0) => {
-      $("#" + childIndID).val(""); //clears most formats
-      $(`input[id^="${childIndID}_"]`).prop("checked", false); //radio and checkbox(es) formats
-      $(`input[id^="${childIndID}_radio0"]`).prop("checked", true);
+    /*hide the question and any subquestions. clear out potential entries and set validator for hidden questions */
+    const clearValues = (childIndID = 0) => {
+      const arrSubchildren = Array.from(
+        document.querySelectorAll(`.response.blockIndicator_${childIndID} div.response[class*="blockIndicator_"]`)
+      );
 
-      $(`#grid_${childIndID}_1_input tbody td`) //grid table data
-      .each(function () {
-        if ($("textarea", this).length) {
-          $("textarea", this).val('');
-        } else if ($("select", this).length) {
-          $("select", this).val('');
-        } else if ($("input", this).length) {
-          $("input", this).val('');
+      //parse the IDs of any additional subquestions
+      let arrChildAndSubquestionIDs = [ childIndID ];
+      arrSubchildren.forEach(element => {
+        const id = +element.className.match(/(\d+)$/)?.[0];
+        if(id > 0) {
+          arrChildAndSubquestionIDs.push(id);
         }
       });
 
-      if (childFormat === "multiselect") {
-        clearMultiSelectChild($("#" + childIndID), childIndID);
-      }
-      if (
-        childRequiredValidators[childIndID].validator !== undefined &&
-        dialog !== null
-      ) {
-        dialog.requirements[childIndID] = hideShowValidator;
-      }
+      arrChildAndSubquestionIDs.forEach(id => {
+        //clear values for questions in a hidden state.
+        $("#" + id).val(""); //most formats
+        $(`input[id^="${id}_"]`).prop("checked", false); //radio and checkbox(es) formats
+
+        $(`#grid_${id}_1_input tbody td`) //grid table data
+        .each(function () {
+          if ($("textarea", this).length) {
+            $("textarea", this).val('');
+          } else if ($("select", this).length) {
+            $("select", this).val('');
+          } else if ($("input", this).length) {
+            $("input", this).val('');
+          }
+        });
+
+        const isMultiselectQuestion = document.querySelector(`select[id="${id}"][multiple]`) !== null;
+        if (isMultiselectQuestion) {
+          clearMultiSelectChild($("#" + id), id);
+        }
+
+        const isRadioQuestion = document.querySelector(`input[id^="${id}_radio"]`) !== null;
+        if(isRadioQuestion) {
+          const radioEmpty = $(`input[id^="${id}_radio0"]`); //need to add hidden empty input to clear radio
+          if (radioEmpty.length === 0) {
+            $(`div.response.blockIndicator_${id}`).prepend(
+              `<input id="${id}_radio0" name="${id}" value="" style="display:none;" />`
+            );
+          }
+          $(`input[id^="${id}_radio0"]`).prop("checked", true);
+        }
+
+        //if the question is required, use the alternate validator
+        if (
+          childRequiredValidators[id].validator !== undefined &&
+          dialog !== null
+        ) {
+          dialog.requirements[id] = hideShowValidator;
+        }
+      });
     };
 
     /**
@@ -526,7 +563,7 @@ var LeafForm = function (containerID) {
       switch (co) {
         case "hide":
           if (hideShowConditionMet === true) {
-            clearValues(childFormat, childID);
+            clearValues(childID);
             elChildResponse.classList.add('response-hidden');
             elsChild.hide();
             elsChild.attr('aria-hidden', true);
@@ -542,7 +579,7 @@ var LeafForm = function (containerID) {
             elsChild.removeAttr('aria-hidden');
             elsChild.show();
           } else {
-            clearValues(childFormat, childID);
+            clearValues(childID);
             elChildResponse.classList.add('response-hidden');
             elsChild.hide();
             elsChild.attr('aria-hidden', true);
@@ -611,7 +648,7 @@ var LeafForm = function (containerID) {
       setTimeout(() => {
         const closestHidden = elChildResponse.closest('.response-hidden');
         if (closestHidden !== null) {
-          clearValues(childFormat, childID);
+          clearValues(childID);
         }
 
         elChildInput.trigger("change");
