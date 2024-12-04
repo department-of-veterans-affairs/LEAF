@@ -1,4 +1,5 @@
-@import '../common/LEAF_Vue_Dialog__Common.scss';
+@use 'sass:color';
+@use '../common/LEAF_Vue_Dialog__Common.scss' as *;
 
 nav#top-menu-nav {
     width: 100%;
@@ -342,7 +343,7 @@ table[class$="SelectorTable"] th {
 }
 
 #form_index_display {
-    margin-top: 0.5rem; //matches drag-drop spacer for top of form area
+    margin-top: 0.5625rem; //matches drag-drop spacer for top of form area
     position: relative;
     padding: 0.875rem 0.75rem;
     width: 330px;
@@ -460,89 +461,115 @@ table[class$="SelectorTable"] th {
     background-color: transparent;
     border-radius: 4px;
 
-    /* Drag-Drop area for focused form */
+    /* styling specific to Drag-Drop area for focused form */
     ul[id^="base_drop_area"] {
-        position: relative;
-        padding: 1px 0; //top and bottom padding needed for drop area visibility
-        &.entered-drop-zone, ul.entered-drop-zone {
-            background-color: rgba(0,0,25,0.15);
-        }
-        ul[id^="drop_area_parent_"] {
-            position: relative;
-        }
         ul.form-index-listing-ul {
             margin: 0;
             display: flex;
             flex-direction: column;
             background-clip: content-box;
-            min-height: 8px;
         }
         li {
-            position: relative;
-            margin: 0.375rem 0;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            border: 1px solid #c1c1c1;
+            border-right:0;
+            box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.3);
+            transition: box-shadow 0.5s ease, margin 0.4s ease;
+            &:hover {
+                box-shadow: 1px 1px 8px 4px rgba(0,0,20,0.3);
+            }
             &:first-child {
-                margin-top: 0.5rem;
+                margin-top: 0.675rem;
             }
             &:last-child {
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.675rem;
             }
-
-            button.drag_question_button {
-                cursor: move;
-                position: absolute;
-                padding: 0;
-                border: 1px solid $BG_Pearl !important;
-                border-radius: 4px 0 0 4px;
-                width: 1.5rem;
-                height: 100%;
-                left: 0;
-                top: 0;
-            }
-            .icon_move_container {
+            .move_question_container {
                 @include flexcenter;
-                cursor: move;
                 position: absolute;
                 width: 1.5rem;
                 left: 0;
                 top: 0;
                 flex-direction: column;
-                .icon_drag {
-                    opacity: 0.6;
-                    font-size: 20px;
+
+                div.drag_question_handle {
+                    cursor: grab;
+                    background-color: #f0f0f0;
+                    border-radius: 4px 0 0 0;
+                    height: 70px;
+                    width: 100%;
+                    left: 0;
+                    top: 0;
+                    &:hover, &:active {
+                        outline: 2px solid #20a0f0;
+                    }
+                    .icon_drag {
+                        opacity: 0.4;
+                        font-size: 16px;
+                        display: flex;
+                        justify-content: center;
+                    }
+                }
+                .click_to_move_options {
+                    opacity: 0;
+                    &.click_buttons_visible {
+                        opacity: 1;
+
+                        .icon_move {
+                            cursor: pointer;
+                        }
+                    }
                 }
                 .icon_move {
                     @include flexcenter;
-                    cursor: pointer;
+                    cursor: auto;
                     width: 0;
                     height: 0;
                     padding: 0;
                     background-color: transparent;
                     border: 9px solid transparent;
                     &.up {
+                        margin-top: 0.375rem;
                         border-bottom: 18px solid $BG-DarkNavy;
                         border-top: 2px;
+                        &:disabled {
+                            cursor: auto;
+                            border-bottom: 18px solid gray;
+                        }
                         &:hover, &:focus, &:active {
                             outline: none !important;
-                            border-bottom: 18px solid $USWDS_Cyan;
+                            &:not(:disabled) {
+                                border-bottom: 18px solid $USWDS_Cyan;
+                            }
                         }
                     }
                     &.down {
                         margin-top: 0.625rem;
                         border-top: 18px solid $BG-DarkNavy;
                         border-bottom: 2px;
+                        &:disabled {
+                            cursor: auto;
+                            border-top: 18px solid gray;
+                        }
                         &:hover, &:focus, &:active {
                             outline: none !important;
-                            border-top: 18px solid $USWDS_Cyan;
+                            &:not(:disabled) {
+                                border-top: 18px solid $USWDS_Cyan;
+                            }
                         }
                     }
                 }
             }
+            ul[id^="drop_area_parent_"] li.is_being_dragged {
+                margin-right:0.5rem;
+            }
         }
-        > li {
-            background-color: white;
-            border-radius: 4px;
-            box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+        > li { //form sections
             margin-bottom: 1.25rem;
+            &:first-child {
+                margin-top: 0.5rem;
+            }
         }
     }
 
@@ -572,7 +599,7 @@ table[class$="SelectorTable"] th {
         div.printResponse {
             position: relative;
             padding: 0;
-            padding-left: 1.375rem;
+            padding-left: 1.5rem;
             float: none; /* style.css style collision */
             border-radius: 4px;
             background-color: white;
@@ -592,15 +619,6 @@ table[class$="SelectorTable"] th {
                 border: 0;
                 padding-left: 0;
             }
-            &:not(.form-header):not(.preview) {
-                margin-left: 0.5rem;
-                border: 1px solid #c1c1c1;
-                box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
-                transition: box-shadow 0.5s;
-            }
-            &:not(.form-header):not(.preview):hover {
-                box-shadow: 1px 1px 10px 5px rgba(0,0,20,0.4);
-            }
         }
     }
 
@@ -611,7 +629,7 @@ table[class$="SelectorTable"] th {
         padding: 0.75rem;
         box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
         button {
-            border: 2px dashed darken($BG_Pearl, 15%);
+            border: 2px dashed color.scale($BG_Pearl, $lightness: -15%);
             width: 100%;
             height: 2rem;
         }
@@ -619,7 +637,7 @@ table[class$="SelectorTable"] th {
     button.new_section_question {
         height: 2rem;
         width: 100%;
-        border: 2px dashed darken($BG_Pearl, 15%);
+        border: 2px dashed color.scale($BG_Pearl, $lightness: -15%);
     }
     
     /* wraps each form question. */
@@ -690,6 +708,7 @@ table[class$="SelectorTable"] th {
         /* 2nd section of editing_area (format preview) */
         .format_preview {
             padding: 0.5rem 0.25rem 0.75rem 0.5rem;
+            min-height: 50px;
             .text_input_preview {
                 display: inline-block;
                 width: 75%;
