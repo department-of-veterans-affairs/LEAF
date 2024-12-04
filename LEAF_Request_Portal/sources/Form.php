@@ -1527,7 +1527,7 @@ class Form
         int &$required_visible,
         int &$required_answered,
         int &$required_total,
-        int $res_max_required)
+        int $res_max_required): void
     {
         if((int)$formNode['required'] === 1) {
             $required_total += 1; //keep track to skip calls once all required questions are found.
@@ -1703,7 +1703,7 @@ class Form
      * @param int $recordID
      * @return int Percent completed
      */
-    public function getProgress($recordID)
+    public function getProgress(int $recordID): int
     {
         $subSQL = 'SELECT submitted, categoryID FROM records
             LEFT JOIN category_count USING (recordID)
