@@ -8,50 +8,17 @@ use Microsoft\Azure\KeyVault\KeyVaultCredentials;
 use GuzzleHttp\Client;
 // Define your Azure Key Vault details
 $vaultUrl = 'https://your-key-vault-name.vault.azure.net/';
-$certificateName = 'your-certificate-name';
-$tenantId = 'your-tenant-id';
-$clientId = 'your-client-id';
-// $clientSecret = 'your-client-secret';
-// function getAccessToken($tenantId, $clientId=null, $clientSecret=null) {
-//     $client = new Client();
-//     $url = "https://login.microsoftonline.com/{$tenantId}/oauth2/v2.0/token";
-//     $response = $client->post($url, [
-//         'form_params' => [
-//             'grant_type' => 'client_credentials',
-//             'client_id' => $clientId,
-//             'client_secret' => $clientSecret,
-//             'scope' => 'https://vault.azure.net/.default'
-//         ]
-//     ]);
-//     $data = json_decode($response->getBody(), true);
-//     return $data['access_token'];
-// }
-// // Get the access token
-// $accessToken = getAccessToken($tenantId, $clientId, $clientSecret);
-// // Create a KeyVaultClient with the access token
-// $credentials = new KeyVaultCredentials(
-//     function ($httpMethod, $uri, $body, $headers) use ($accessToken) {
-//         $headers['Authorization'] = 'Bearer ' . $accessToken;
-//         return $headers;
-//     }
-// );
-// $client = new KeyVaultClient($credentials);
-// try {
-//     // Retrieve the certificate
-//     $certificateBundle = $client->getCertificate($vaultUrl, $certificateName);
-//     $certificate = $certificateBundle->cer;
-//     // Optionally, you can save the certificate to a file
-//     file_put_contents('certificate.cer', $certificate);
-//     echo "Certificate retrieved and saved successfully.";
-// } catch (ServiceException $e) {
-//     echo "Error retrieving certificate: " . $e->getMessage();
-// }
+$vaultUrl = 'https://vaww.certmgr.va.gov/Aperture';
+$certificateName = getenv('ENTRA_CERT_NAME');
 
+$tenant_id = getenv('TENANT_ID');
+$client_id = getenv('CLIENT_ID');
+$certificate = getenv('ENTRA_CERT');
 
 $cert_content = file_get_contents($certificate_path);
 openssl_pkcs12_read($cert_content, $cert_info, $certificate_password=null);
 $cert = $cert_info['pkey'];
-$client_assertion = generateClientAssertion($client_id, $ad_tenant, $cert);
+$client_assertion = generateClientAssertion($client_id, $tenant_id, $cert);
 
 
 function generateClientAssertion($client_id, $tenant_id, $cert) {
