@@ -13,11 +13,11 @@ $certificateName = getenv('ENTRA_CERT_NAME');
 
 $tenant_id = getenv('TENANT_ID');
 $client_id = getenv('CLIENT_ID');
-$certificate = getenv('ENTRA_CERT');
 
-$cert_content = file_get_contents($certificate_path);
+// $cert_content = file_get_contents($certificate_path);
+$cert_content = getenv('ENTRA_CERT');
 openssl_pkcs12_read($cert_content, $cert_info, $certificate_password=null);
-$cert = $cert_info['pkey'];
+$cert = $cert_content['pkey'];
 $client_assertion = generateClientAssertion($client_id, $tenant_id, $cert);
 
 
