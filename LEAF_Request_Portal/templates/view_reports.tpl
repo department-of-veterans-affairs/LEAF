@@ -131,10 +131,12 @@ function addHeader(column) {
         case 'initiator':
             filterData['lastName'] = 1;
             filterData['firstName'] = 1;
-            leafSearch.getLeafFormQuery().join('initiatorName');
+            filterData['userID'] = 1;
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-                document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName;
+                const textContent = blob[data.recordID]?.lastName || "" !== "" ?
+                    `${blob[data.recordID].lastName}, ${blob[data.recordID].firstName}` : blob[data.recordID].userID;
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = textContent;
             }});
             break;
         case 'dateCancelled':
