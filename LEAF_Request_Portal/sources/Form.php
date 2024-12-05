@@ -2903,11 +2903,9 @@ class Form
                                             	userID=:userID, userMetadata=:userMetadata
                                             	WHERE recordID=:recordID', $vars);
 
-            // write log entry
-            $dir = new VAMC_Directory;
 
-            $user = $dir->lookupLogin($userID);
-            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
+            $newInitiatorInfo = json_decode($newInitiatorMetadata, true);
+            $name = "{$newInitiatorInfo['firstName']} {$newInitiatorInfo['lastName']}";
 
             $actionUserID = $this->login->getUserID();
             $actionUserMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
