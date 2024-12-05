@@ -142,6 +142,7 @@ function addHeader(column) {
         case 'dateCancelled':
             filterData['deleted'] = 1;
             filterData['action_history.approverName'] = 1;
+            filterData['action_history.actionType'] = 1;
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
                 name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
