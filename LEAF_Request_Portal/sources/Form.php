@@ -3578,7 +3578,6 @@ class Form
         $joinActionHistory = false;
         $joinRecordResolutionData = false;
         $joinRecordResolutionBy = false;
-        $joinInitiatorNames = false;
         $joinUnfilledDependencies = false;
         if (isset($query['joins']))
         {
@@ -3624,10 +3623,6 @@ class Form
                         break;
                     case 'recordResolutionBy':
                         $joinRecordResolutionBy = true;
-
-                        break;
-                    case 'initiatorName':
-                        $joinInitiatorNames = true;
 
                         break;
                     case 'destructionDate':
@@ -3710,14 +3705,14 @@ class Form
 									WHERE format = 'orgchart_employee') rj_OCEmployeeData ON (lj_data.indicatorID = rj_OCEmployeeData.indicatorID) ";
         }
 
-        if ($joinInitiatorNames)
-        {
-            $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
-        }
+        $resSQL = 'SELECT *,
+            TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.firstName")) AS `firstName`,
+            TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.lastName")) AS `lastName`
+            FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {
-                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ";"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ";"], ' ', $resSQL);
                 $debugVars = [];
                 foreach($vars as $key => $value) {
                     if(strpos($key, ':data') !== false
@@ -3731,17 +3726,14 @@ class Form
 
                 header('X-LEAF-Query: '. str_replace(array_keys($debugVars), $debugVars, $debugQuery));
 
-                return $res = $this->db->prepared_query('EXPLAIN SELECT * FROM records
-                                                        ' . $joins . '
-                                                        WHERE ' . $conditions . $sort . $limit, $vars);
+                return $res = $this->db->prepared_query('EXPLAIN ' . $resSQL, $vars);
             }
             else {
                 return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
             }
         }
-        $res = $this->db->prepared_query('SELECT * FROM records
-    										' . $joins . '
-                                            WHERE ' . $conditions . $sort . $limit, $vars);
+
+        $res = $this->db->prepared_query($resSQL, $vars);
 
         $data = array();
         $recordIDs = '';
