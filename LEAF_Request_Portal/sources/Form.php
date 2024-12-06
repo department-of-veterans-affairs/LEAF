@@ -3708,11 +3708,11 @@ class Form
         //Handled here due to high customization of view_reports, view_search and other reports
         $resSQL = 'SELECT *,
             IF(
-                TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.userName")) != "",
+                JSON_EXTRACT(`userMetadata`, "$.userName") != "",
                 TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.firstName")), "(inactive account)"
             ) AS `firstName`,
             IF(
-                TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.userName")) != "",
+                JSON_EXTRACT(`userMetadata`, "$.userName") != "",
                 TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.lastName")), `userID`
             ) AS `lastName`
             FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
