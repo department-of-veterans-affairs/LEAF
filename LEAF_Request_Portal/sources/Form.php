@@ -3703,9 +3703,18 @@ class Form
 									WHERE format = 'orgchart_employee') rj_OCEmployeeData ON (lj_data.indicatorID = rj_OCEmployeeData.indicatorID) ";
         }
 
+        //backwards compat: userMetadata properties are empty for accounts that were inactive when prior md values were updated.
+        //userMetadata alternatives here prevent the initiator field from displaying 'null, null' if metadata is empty.
+        //Handled here due to high customization of view_reports, view_search and other reports
         $resSQL = 'SELECT *,
-            TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.firstName")) AS `firstName`,
-            TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.lastName")) AS `lastName`
+            IF(
+                TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.userName")) != "",
+                TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.firstName")), "(inactive account)"
+            ) AS `firstName`,
+            IF(
+                TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.userName")) != "",
+                TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.lastName")), `userID`
+            ) AS `lastName`
             FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
 
         if(isset($_GET['debugQuery'])) {

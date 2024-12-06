@@ -188,13 +188,10 @@ function addHeader(column) {
         case 'initiator':
             filterData['lastName'] = 1;
             filterData['firstName'] = 1;
-            filterData['userID'] = 1;
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);
-                    const textContent = d?.lastName || "" !== "" ?
-                        d.lastName + ', ' + d.firstName : d.userID;
-                    $('#'+data.cellContainerID).html(textContent);
+                    $('#'+data.cellContainerID).html(d.lastName + ', ' + d.firstName);
             }});
             break;
         case 'dateCancelled':

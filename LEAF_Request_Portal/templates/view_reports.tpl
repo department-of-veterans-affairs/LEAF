@@ -131,12 +131,9 @@ function addHeader(column) {
         case 'initiator':
             filterData['lastName'] = 1;
             filterData['firstName'] = 1;
-            filterData['userID'] = 1;
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
-                const textContent = blob[data.recordID]?.lastName || "" !== "" ?
-                    `${blob[data.recordID].lastName}, ${blob[data.recordID].firstName}` : blob[data.recordID].userID;
-                document.querySelector(`#${data.cellContainerID}`).innerHTML = textContent;
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName;
             }});
             break;
         case 'dateCancelled':
