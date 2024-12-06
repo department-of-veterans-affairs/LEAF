@@ -188,7 +188,6 @@ function addHeader(column) {
         case 'initiator':
             filterData['lastName'] = 1;
             filterData['firstName'] = 1;
-            leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);
@@ -198,6 +197,7 @@ function addHeader(column) {
         case 'dateCancelled':
             filterData['deleted'] = 1;
             filterData['action_history.approverName'] = 1;
+            filterData['action_history.actionType'] = 1;
             leafSearch.getLeafFormQuery().join('action_history');
             headers.push({
                 name: 'Date Cancelled', indicatorID: 'dateCancelled', editable: false, callback: function(data, blob) {
