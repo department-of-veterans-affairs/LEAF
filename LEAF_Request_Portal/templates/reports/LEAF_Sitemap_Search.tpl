@@ -188,6 +188,7 @@ function addHeader(column) {
         case 'initiator':
             filterData['lastName'] = 1;
             filterData['firstName'] = 1;
+            leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
                     let d = grid.getDataByIndex(data.index);

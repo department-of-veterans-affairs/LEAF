@@ -3576,6 +3576,7 @@ class Form
         $joinActionHistory = false;
         $joinRecordResolutionData = false;
         $joinRecordResolutionBy = false;
+        $joinInitiatorNames = false;
         $joinUnfilledDependencies = false;
         if (isset($query['joins']))
         {
@@ -3621,6 +3622,10 @@ class Form
                         break;
                     case 'recordResolutionBy':
                         $joinRecordResolutionBy = true;
+
+                        break;
+                    case 'initiatorName':
+                        $joinInitiatorNames = true;
 
                         break;
                     case 'destructionDate':
@@ -3703,19 +3708,23 @@ class Form
 									WHERE format = 'orgchart_employee') rj_OCEmployeeData ON (lj_data.indicatorID = rj_OCEmployeeData.indicatorID) ";
         }
 
-        //backwards compat: userMetadata properties are empty for accounts that were inactive when prior md values were updated.
-        //userMetadata alternatives here prevent the initiator field from displaying 'null, null' if metadata is empty.
+
+        //joinInitiatorNames backwards compat.  userMetadata properties are empty for accounts that were inactive when prior metadata
+        //values were updated.  Alternatives here prevent the initiator field from displaying 'null, null' if metadata is empty.
         //Handled here due to high customization of view_reports, view_search and other reports
-        $resSQL = 'SELECT *,
-            IF(
-                JSON_EXTRACT(`userMetadata`, "$.userName") != "",
-                TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.firstName")), "(inactive account)"
-            ) AS `firstName`,
-            IF(
-                JSON_EXTRACT(`userMetadata`, "$.userName") != "",
-                TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.lastName")), `userID`
-            ) AS `lastName`
-            FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
+        $initiatorNamesSQL = '';
+        if ($joinInitiatorNames) {
+            $initiatorNamesSQL = ',
+                IF(
+                    JSON_EXTRACT(`userMetadata`, "$.userName") != "",
+                    TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.firstName")), "(inactive account)"
+                ) AS `firstName`,
+                IF(
+                    JSON_EXTRACT(`userMetadata`, "$.userName") != "",
+                    TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.lastName")), `userID`
+                ) AS `lastName`';
+        }
+        $resSQL = 'SELECT * ' . $initiatorNamesSQL . ' FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {

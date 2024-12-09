@@ -131,6 +131,7 @@ function addHeader(column) {
         case 'initiator':
             filterData['lastName'] = 1;
             filterData['firstName'] = 1;
+            leafSearch.getLeafFormQuery().join('initiatorName');
             headers.push({
                 name: 'Initiator', indicatorID: 'initiator', editable: false, callback: function(data, blob) {
                 document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].lastName + ', ' + blob[data.recordID].firstName;
