@@ -494,11 +494,8 @@ class FormWorkflow
                         $approver = $dir->lookupLogin($res[$i]['userID']);
 
                         if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                            $approverMetadata = json_decode($res[$i]['userMetadata'], true);
-                            $nameInfo = isset($approverMetadata) && trim($approverMetadata['firstName'] . " " . $approverMetadata['lastName'] ) !== '' ?
-                                " - " . $approverMetadata['firstName'] . " " . $approverMetadata['lastName'] : '';
-                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup' . $nameInfo . ')';
-                            $res[$i]['approverName'] = '(Requestor followup' . $nameInfo . ')';
+                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup)';
+                            $res[$i]['approverName'] = '(Requestor followup)';
                             $res[$i]['approverUID'] = $res[$i]['userID'];
                         }
                         else {
@@ -546,11 +543,8 @@ class FormWorkflow
                     $dir = $this->getDirectory();
                     $approver = $dir->lookupLogin($res[$i]['userID']);
                     if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $approverMetadata = json_decode($res[$i]['userMetadata'], true);
-                        $nameInfo = isset($approverMetadata) && trim($approverMetadata['firstName'] . " " . $approverMetadata['lastName'] ) !== '' ?
-                            " - " . $approverMetadata['firstName'] . " " . $approverMetadata['lastName'] : '';
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup' . $nameInfo . ')';
-                        $res[$i]['approverName'] = '(Requestor followup' . $nameInfo . ')';
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup)';
+                        $res[$i]['approverName'] = '(Requestor followup)';
                         $res[$i]['approverUID'] = $res[$i]['userID'];
                     }
                     else {
