@@ -494,8 +494,8 @@ class FormWorkflow
                         $approver = $dir->lookupLogin($res[$i]['userID']);
 
                         if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup)';
-                            $res[$i]['approverName'] = '(Requestor followup)';
+                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Inactive User)';
+                            $res[$i]['approverName'] = '(Inactive User)';
                             $res[$i]['approverUID'] = $res[$i]['userID'];
                         }
                         else {
@@ -543,8 +543,8 @@ class FormWorkflow
                     $dir = $this->getDirectory();
                     $approver = $dir->lookupLogin($res[$i]['userID']);
                     if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup)';
-                        $res[$i]['approverName'] = '(Requestor followup)';
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Inactive User)';
+                        $res[$i]['approverName'] = '(Inactive User)';
                         $res[$i]['approverUID'] = $res[$i]['userID'];
                     }
                     else {

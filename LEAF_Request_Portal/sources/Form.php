@@ -580,7 +580,7 @@ class Form
                 $form[$idx]['displayedValue'] = '';
                 if (isset($data[0]['metadata'])) {
                     $orgchartInfo = json_decode($data[0]['metadata'], true);
-                    if(trim("{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}") !== "") {
+                    if(!empty(trim($orgchartInfo['lastName']))) {
                         $form[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
                     }
                 }
@@ -1010,7 +1010,7 @@ class Form
         }
 
         $userMetadata = json_decode($res[0]['userMetadata'], true);
-        $name = isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+        $name = isset($userMetadata) && !empty(trim($userMetadata['lastName'])) ?
             "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $res[0]['userID'];
 
         $data = array('name' => $name,
@@ -2610,7 +2610,7 @@ class Form
                             $item['data'] = '';
                             if (isset($item['metadata'])) {
                                 $orgchartInfo = json_decode($item['metadata'], true);
-                                if(trim("{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}") !== "") {
+                                if(!empty(trim($orgchartInfo['lastName']))) {
                                     $item['data'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
                                     $item['dataOrgchart'] = $orgchartInfo;
                                 }
@@ -2749,7 +2749,7 @@ class Form
             $total = count($res);
             for ($i = 0; $i < $total; $i++) {
                 $userMetadata = json_decode($res[$i]['userMetadata'], true);
-                $name = isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+                $name = isset($userMetadata) && !empty(trim($userMetadata['lastName'])) ?
                     "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $res[$i]['userID'];
 
                 $res[$i]['name'] = $name;
@@ -3709,9 +3709,9 @@ class Form
         }
 
 
-        //joinInitiatorNames backwards compat.  userMetadata properties are empty for accounts that were inactive when prior metadata
-        //values were updated.  Alternatives here prevent the initiator field from displaying 'null, null' if metadata is empty.
-        //Handled here due to high customization of view_reports, view_search and other reports
+        //joinInitiatorNames backwards compat - additional SQL for records.userMetadata replaces previous join with orgchart.employee.
+        //userMetadata properties are empty for accounts that were inactive when prior metadata values were updated.
+        //Alternatives here display 'userID (inactive account)' instead of 'null, null' if metadata is empty.
         $initiatorNamesSQL = '';
         if ($joinInitiatorNames) {
             $initiatorNamesSQL = ',
@@ -4394,7 +4394,7 @@ class Form
                     $child[$idx]['displayedValue'] = '';
                     if (isset($data[$idx]['metadata'])) {
                         $orgchartInfo = json_decode($data[$idx]['metadata'], true);
-                        if(trim("{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}") !== "") {
+                        if(!empty(trim($orgchartInfo['lastName']))) {
                             $child[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
                         }
                     }
