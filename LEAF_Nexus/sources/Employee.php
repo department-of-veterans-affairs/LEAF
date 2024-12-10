@@ -344,7 +344,8 @@ class Employee extends Data
     {
         if (!empty($deleted_employees)) {
             $sql = "UPDATE `employee`
-                    SET `deleted` = UNIX_TIMESTAMP(NOW())
+                    SET `deleted` = UNIX_TIMESTAMP(NOW()),
+                        `userName` = concat('disabled_', `deleted`, '_',  `userName`)
                     WHERE `userName` IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
 
             $result = $this->db->prepared_query($sql, array_values($deleted_employees));
@@ -449,7 +450,8 @@ class Employee extends Data
     {
         $vars = array();
         $sql = 'SELECT LOWER(`userName`) AS `userName`
-                FROM `employee`';
+                FROM `employee`
+                WHERE `userName` NOT LIKE "disabled_%"';
 
         $result = $db->prepared_query($sql, $vars);
 
@@ -1442,7 +1444,7 @@ class Employee extends Data
 
         if (count($searchResult) > 0)
         {
-            
+
             $empUID_list = '';
             foreach ($searchResult as $employee)
             {
@@ -1477,7 +1479,7 @@ class Employee extends Data
                 }
                 $finalResult[$currEmpUID]['data'] = $this->getAllData($currEmpUID);
             }
-            
+
             // attach all the assigned positions
             foreach ($result as $employeeData){
                 $finalResult[$employeeData['empUID']]['positionData'][] = $employeeData;
