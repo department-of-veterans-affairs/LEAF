@@ -19,9 +19,19 @@ placeholder<br />
         <button type="button" class="buttonNorm" onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'">
             <img src="dynicons/?img=mail-forward.svg&amp;w=24" style="vertical-align: middle" alt="" /> Forward as Email
         </button>
+        <div id="visual_alert_box_container">
+            <div id="visual_alert_box" class="hide">
+                You are moving the <span id="visual_alert_box_title"></span> card<br />
+                Esc - return to original location<br />
+                Enter - save current location
+            </div>
+            <label for="MovementInfoToggle" class="hide">Hide Movement Info
+                <input type="checkbox" id="MovementInfoToggle" onchange="toggleHideClass('visual_alert_box')">
+            </label>
+        </div>
     </span>
 </span>
-<div id="visual_alert_box" role="status" aria-live="assertive" aria-label="" style="position:absolute;opacity:0; z-index:999;background:#fff"></div>
+
 <div id="pageloadIndicator" style="visibility: visible">
     <div style="opacity: 0.8; z-index: 1000; position: absolute; background: #f3f3f3; height: 97%; width: 97%"></div>
     <div style="z-index: 1001; position: absolute; padding: 16px; width: 97%; text-align: center; font-size: 24px; font-weight: bold; background-color: white">Loading... <img src="images/largespinner.gif" alt="" /></div>
@@ -117,6 +127,17 @@ function applyZoomLevel() {
         default:
             setZoomLargest();
             break;
+    }
+}
+
+function toggleHideClass( elementID = '') {
+    let el = document.getElementById(elementID);
+    if(el !== null) {
+        if(el.classList.contains('hide')) {
+            el.classList.remove('hide');
+        } else {
+            el.classList.add('hide');
+        }
     }
 }
 
@@ -263,7 +284,7 @@ function moveCoordinates(prefix, position) {
         if (e.key === "Tab") {
             saveLayout(position);
             $('#' + prefix + position).css('box-shadow', 'none');
-            $('#visual_alert_box').css('opacity', '0');
+            $('#visual_alert_box').addClass('hide');
             document.removeEventListener('keydown', moveCard);
             return;
         } else if (controlKeys.includes(e.key)) {
@@ -300,7 +321,7 @@ function moveCoordinates(prefix, position) {
 
             if (abort) {
                 $('#' + prefix + position).css('box-shadow', 'none');
-                $('#visual_alert_box').css('opacity', '0');
+                $('#visual_alert_box').addClass('hide');
                 document.removeEventListener('keydown', moveCard);
                 return;
             }
@@ -308,11 +329,18 @@ function moveCoordinates(prefix, position) {
     };
     $('div.positionSmall').css('box-shadow', 'none');
     $('#' + prefix + position).css('box-shadow', ' 0 0 6px #c00');
-    let alert_box = document.getElementById('visual_alert_box');
+    let alert_box_card_title = document.getElementById('visual_alert_box_title');
     let title = document.getElementById(prefix + position + '_title');
     let titleText = title.innerHTML;
-    alert_box.innerHTML = "You are moving the " + titleText + " card<br />Esc - return to original location<br />Enter - save current location<br />Tab - Save and move to next card";
-    $('#visual_alert_box').css('opacity', '100');
+    alert_box_card_title.textContent = titleText;
+    if( $('#visual_alert_box_container label').hasClass('hide')) {
+        $('#visual_alert_box_container label').removeClass('hide');
+        $('#visual_alert_box').removeClass('hide');
+    } else {
+        if(document.getElementById('MovementInfoToggle').checked !== true) {
+            $('#visual_alert_box').removeClass('hide');
+        }
+    }
 
     let card = document.getElementById(prefix + position);
     let cardStyle = window.getComputedStyle(card);
