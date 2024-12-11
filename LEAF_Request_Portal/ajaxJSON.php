@@ -32,7 +32,7 @@ switch ($action) {
            // this method does not exist in Form class
            // echo $form->getProgressJSON($_GET['recordID']);
            // but this one does
-           echo $form->getProgress($_GET['recordID']);
+           echo $form->getProgress((int)$_GET['recordID']);
 
            break;
     case 'getrecentactions':
