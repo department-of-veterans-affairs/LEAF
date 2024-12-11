@@ -573,15 +573,16 @@ class Form
                 $form[$idx]['value'] = $this->fileToArray($data[0]['data']);
                 $form[$idx]['raw'] = $data[0]['data'];
             }
-            // special handling for org chart data types
+            // special handling for org chart data types (request header questions, edited report builder cells)
             else if ($data[0]['format'] == 'orgchart_employee'
                 && !empty($data[0]['data']))
             {
-                $empRes = $this->employee->lookupEmpUID($data[0]['data']);
-                if (!empty($empRes)) {
-                    $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
-                } else {
-                    $form[$idx]['displayedValue'] = '';
+                $form[$idx]['displayedValue'] = '';
+                if (isset($data[0]['metadata'])) {
+                    $orgchartInfo = json_decode($data[0]['metadata'], true);
+                    if(!empty(trim($orgchartInfo['lastName']))) {
+                        $form[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                    }
                 }
             }
             else if ($data[0]['format'] == 'orgchart_position'
@@ -1008,9 +1009,9 @@ class Form
             );
         }
 
-        $dir = new VAMC_Directory;
-        $user = $dir->lookupLogin($res[0]['userID']);
-        $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+        $userMetadata = json_decode($res[0]['userMetadata'], true);
+        $name = isset($userMetadata) && !empty(trim($userMetadata['lastName'])) ?
+            "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $res[0]['userID'];
 
         $data = array('name' => $name,
                       'service' => $res[0]['service'],
@@ -2605,16 +2606,14 @@ class Form
                                 }
                             }
                             break;
-                        case 'orgchart_employee':
-                            $empRes = $this->employee->lookupEmpUID($item['data']);
-                            if (isset($empRes[0]))
-                            {
-                                $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
-                                $item['dataOrgchart'] = $empRes[0];
-                            }
-                            else
-                            {
-                                $item['data'] = '';
+                        case 'orgchart_employee': //report builder cells
+                            $item['data'] = '';
+                            if (isset($item['metadata'])) {
+                                $orgchartInfo = json_decode($item['metadata'], true);
+                                if(!empty(trim($orgchartInfo['lastName']))) {
+                                    $item['data'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                                    $item['dataOrgchart'] = $orgchartInfo;
+                                }
                             }
                             break;
                         case 'orgchart_position':
@@ -2732,14 +2731,14 @@ class Form
         } else {
             $vars = array(':recordID' => $recordID);
 
-            $sql = 'SELECT actionTextPasttense, comment, time, userID
+            $sql = 'SELECT actionTextPasttense, comment, time, userID, userMetadata
                     FROM action_history
                     LEFT JOIN dependencies USING (dependencyID)
                     LEFT JOIN actions USING (actionType)
                     WHERE recordID = :recordID
                     AND comment != ""
                     UNION
-                    SELECT "Note Added", note, timestamp, userID
+                    SELECT "Note Added", note, timestamp, userID, userMetadata
                     FROM notes
                     WHERE recordID = :recordID
                     AND deleted IS NULL
@@ -2747,13 +2746,12 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
-            $dir = new VAMC_Directory;
-
             $total = count($res);
-
             for ($i = 0; $i < $total; $i++) {
-                $user = $dir->lookupLogin($res[$i]['userID']);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[$i]['userID'];
+                $userMetadata = json_decode($res[$i]['userMetadata'], true);
+                $name = isset($userMetadata) && !empty(trim($userMetadata['lastName'])) ?
+                    "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $res[$i]['userID'];
+
                 $res[$i]['name'] = $name;
             }
 
@@ -2905,11 +2903,9 @@ class Form
                                             	userID=:userID, userMetadata=:userMetadata
                                             	WHERE recordID=:recordID', $vars);
 
-            // write log entry
-            $dir = new VAMC_Directory;
 
-            $user = $dir->lookupLogin($userID);
-            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
+            $newInitiatorInfo = json_decode($newInitiatorMetadata, true);
+            $name = "{$newInitiatorInfo['firstName']} {$newInitiatorInfo['lastName']}";
 
             $actionUserID = $this->login->getUserID();
             $actionUserMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
@@ -3712,14 +3708,27 @@ class Form
 									WHERE format = 'orgchart_employee') rj_OCEmployeeData ON (lj_data.indicatorID = rj_OCEmployeeData.indicatorID) ";
         }
 
-        if ($joinInitiatorNames)
-        {
-            $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
+
+        //joinInitiatorNames backwards compat - additional SQL for records.userMetadata replaces previous join with orgchart.employee.
+        //userMetadata properties are empty for accounts that were inactive when prior metadata values were updated.
+        //Alternatives here display 'userID (inactive account)' instead of 'null, null' if metadata is empty.
+        $initiatorNamesSQL = '';
+        if ($joinInitiatorNames) {
+            $initiatorNamesSQL = ',
+                IF(
+                    JSON_EXTRACT(`userMetadata`, "$.userName") != "",
+                    TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.firstName")), "(inactive account)"
+                ) AS `firstName`,
+                IF(
+                    JSON_EXTRACT(`userMetadata`, "$.userName") != "",
+                    TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.lastName")), `userID`
+                ) AS `lastName`';
         }
+        $resSQL = 'SELECT * ' . $initiatorNamesSQL . ' FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {
-                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ";"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ";"], ' ', $resSQL);
                 $debugVars = [];
                 foreach($vars as $key => $value) {
                     if(strpos($key, ':data') !== false
@@ -3733,17 +3742,14 @@ class Form
 
                 header('X-LEAF-Query: '. str_replace(array_keys($debugVars), $debugVars, $debugQuery));
 
-                return $res = $this->db->prepared_query('EXPLAIN SELECT * FROM records
-                                                        ' . $joins . '
-                                                        WHERE ' . $conditions . $sort . $limit, $vars);
+                return $res = $this->db->prepared_query('EXPLAIN ' . $resSQL, $vars);
             }
             else {
                 return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
             }
         }
-        $res = $this->db->prepared_query('SELECT * FROM records
-    										' . $joins . '
-                                            WHERE ' . $conditions . $sort . $limit, $vars);
+
+        $res = $this->db->prepared_query($resSQL, $vars);
 
         $data = array();
         $recordIDs = '';
@@ -3819,17 +3825,15 @@ class Form
 
             if ($joinActionHistory)
             {
-                $dir = new VAMC_Directory;
-
                 $actionHistorySQL =
-                       'SELECT recordID, stepID, userID, time, description,
+                       'SELECT recordID, stepID, userID, userMetadata, time, description,
                             actionTextPasttense, actionType, comment
                         FROM action_history
                         LEFT JOIN dependencies USING (dependencyID)
                         LEFT JOIN actions USING (actionType)
                         WHERE recordID IN (' . $recordIDs . ')
                         UNION
-                        SELECT recordID, "-5", userID, timestamp, "Note Added",
+                        SELECT recordID, "-5", userID, userMetadata, timestamp, "Note Added",
                              "Note Added", "LEAF_note", note
                         FROM notes
                         WHERE recordID IN (' . $recordIDs . ')
@@ -3839,8 +3843,10 @@ class Form
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
                 foreach ($res2 as $item)
                 {
-                    $user = $dir->lookupLogin($item['userID'], true);
-                    $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+                    $userMetadata = json_decode($item['userMetadata'], true);
+                    $name = isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+                        "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $item['userID'];
+
                     $item['approverName'] = $name;
 
                     $data[$item['recordID']]['action_history'][] = $item;
@@ -3878,9 +3884,7 @@ class Form
             }
 
             if ($joinRecordResolutionBy === true) {
-                $dir = new VAMC_Directory;
-
-                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType
+                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.userMetadata, action_history.stepID, action_history.actionType
                 FROM action_history
                 LEFT JOIN records USING (recordID)
                 INNER JOIN workflow_routes USING (stepID)
@@ -3895,8 +3899,9 @@ class Form
                 $res2 = $this->db->prepared_query($recordResolutionBySQL, array());
 
                 foreach ($res2 as $item) {
-                    $user = $dir->lookupLogin($item['resolvedBy'], true);
-                    $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
+                    $userMetadata = json_decode($item['userMetadata'], true);
+                    $nameResolved =  isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+                        "{$userMetadata['firstName']} {$userMetadata['lastName']} " : $item['resolvedBy'];
                     $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
                 }
             }
@@ -4308,7 +4313,7 @@ class Form
             {
                 $var = array(':series' => (int)$series,
                              ':recordID' => (int)$recordID, );
-                $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID, userID FROM data
+                $res2 = $this->db->prepared_query('SELECT data, metadata, timestamp, indicatorID, groupID, userID FROM data
                 									LEFT JOIN indicator_mask USING (indicatorID)
                 									WHERE indicatorID IN (' . $indicatorList . ') AND series=:series AND recordID=:recordID', $var);
 
@@ -4316,6 +4321,7 @@ class Form
                 {
                     $idx = $resIn['indicatorID'];
                     $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
+                    $data[$idx]['metadata'] = isset($resIn['metadata']) ? $resIn['metadata'] : null;
                     $data[$idx]['timestamp'] = isset($resIn['timestamp']) ? $resIn['timestamp'] : 0;
                     $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
                     $data[$idx]['userID'] = isset($resIn['userID']) ? $resIn['userID'] : '';
@@ -4382,14 +4388,15 @@ class Form
                     $child[$idx]['value'] = $this->fileToArray($data[$idx]['data']);
                 }
 
-                // special handling for org chart data types
+                // special handling for org chart data types (request subquestions / child)
                 if ($field['format'] == 'orgchart_employee')
                 {
-                    $empRes = $this->employee->lookupEmpUID($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = '';
-                    if (isset($empRes[0]))
-                    {
-                      $child[$idx]['displayedValue'] = ($child[$idx]['isMasked']) ? '[protected data]' : "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    if (isset($data[$idx]['metadata'])) {
+                        $orgchartInfo = json_decode($data[$idx]['metadata'], true);
+                        if(!empty(trim($orgchartInfo['lastName']))) {
+                            $child[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                        }
                     }
                 }
                 if ($field['format'] == 'orgchart_position')

@@ -26,12 +26,13 @@ Title of request: <a href="?a=printview&amp;recordID=<!--{$recordID|strip_tags|e
         <!--{$indicator.time|date_format:"%B %e, %Y. %l:%M %p"}-->
     </td>
     <td>
-<span><b><!--{$indicator.description|sanitize}--></b><!--{if $indicator.userName != ''}--> by <!--{/if}--><!--{$indicator.userName|sanitize}-->
+        <b><!--{$indicator.description|sanitize}--></b>
+        <!--{if $indicator.userName != ''}--> by <!--{/if}--><!--{$indicator.userName|sanitize}-->
         <!--{if $indicator.comment != ''}-->
             <!--{if $indicator.description|lower != 'email sent: '}-->
-                <br />Comment: <!--{$indicator.comment|sanitize}--></span>
+                <br />Comment: <!--{$indicator.comment|sanitize}-->
             <!--{else}-->
-                <br /><!--{$indicator.comment|sanitize}--></span>
+                <br /><!--{$indicator.comment|sanitize}-->
             <!--{/if}-->
         <!--{/if}-->
     </td>
