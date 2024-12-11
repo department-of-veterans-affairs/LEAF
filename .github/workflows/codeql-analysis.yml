@@ -3,9 +3,11 @@ name: CodeQL
   push:
     branches:
       - master
+      - dev
   pull_request:
     branches:
       - master
+      - dev
   schedule:
     - cron: 1 21 * * 2
   workflow_dispatch: null
