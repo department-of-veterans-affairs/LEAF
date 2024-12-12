@@ -447,7 +447,7 @@ class FormWorkflow
         $strSQL = "";
 
         if(!$selectUnfilled) {
-            $strSQL = "SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, filled, stepBgColor, stepFontColor, stepBorder, `description`, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, requiresDigitalSignature FROM records_workflow_state
+            $strSQL = "SELECT dependencyID, recordID, stepID, stepTitle, blockingStepID, workflowID, serviceID, filled, stepBgColor, stepFontColor, stepBorder, `description`, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, jsSrc, userID, userMetadata, requiresDigitalSignature FROM records_workflow_state
                         LEFT JOIN records USING (recordID)
                         LEFT JOIN workflow_steps USING (stepID)
                         LEFT JOIN step_dependencies USING (stepID)
@@ -456,7 +456,7 @@ class FormWorkflow
                         WHERE recordID IN ({$recordIDs})";
         }
         else {
-            $strSQL = "SELECT dependencyID, recordID, stepTitle, serviceID, `description`, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, userID FROM records_workflow_state
+            $strSQL = "SELECT dependencyID, recordID, stepTitle, serviceID, `description`, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID, userID, userMetadata FROM records_workflow_state
                         LEFT JOIN records USING (recordID)
                         LEFT JOIN workflow_steps USING (stepID)
                         LEFT JOIN step_dependencies USING (stepID)
@@ -494,8 +494,8 @@ class FormWorkflow
                         $approver = $dir->lookupLogin($res[$i]['userID']);
 
                         if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup)';
-                            $res[$i]['approverName'] = '(Requestor followup)';
+                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Inactive User)';
+                            $res[$i]['approverName'] = '(Inactive User)';
                             $res[$i]['approverUID'] = $res[$i]['userID'];
                         }
                         else {
@@ -543,8 +543,8 @@ class FormWorkflow
                     $dir = $this->getDirectory();
                     $approver = $dir->lookupLogin($res[$i]['userID']);
                     if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Requestor followup)';
-                        $res[$i]['approverName'] = '(Requestor followup)';
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Inactive User)';
+                        $res[$i]['approverName'] = '(Inactive User)';
                         $res[$i]['approverUID'] = $res[$i]['userID'];
                     }
                     else {
@@ -716,11 +716,11 @@ class FormWorkflow
         if (isset($res[0])
             && $res[0]['dependencyID'] == -1)
         {
-            $dir = $this->getDirectory();
+            $approverMetadata = json_decode($res[0]['userMetadata'], true);
+            $display = isset($approverMetadata) && trim($approverMetadata['firstName'] . " " . $approverMetadata['lastName'] ) !== '' ?
+                $approverMetadata['firstName'] . " " . $approverMetadata['lastName'] : $res[0]['userID'];
 
-            $approver = $dir->lookupLogin($res[0]['userID']);
-
-            $res[0]['description'] = "{$approver[0]['firstName']} {$approver[0]['lastName']}";
+            $res[0]['description'] = $display;
         }
         // dependencyID -3 is for a group designated by the requestor
         if (isset($res[0])
