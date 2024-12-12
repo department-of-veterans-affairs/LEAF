@@ -289,6 +289,17 @@ function moveCoordinates(prefix, position) {
             return;
         } else if (controlKeys.includes(e.key)) {
             e.preventDefault();
+            //only show extra info if keyboard is being used to move the card
+            if(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+                if( $('#visual_alert_box_container label').hasClass('hide')) {
+                    $('#visual_alert_box_container label').removeClass('hide');
+                    $('#visual_alert_box').removeClass('hide');
+                } else {
+                    if(document.getElementById('MovementInfoToggle').checked !== true) {
+                        $('#visual_alert_box').removeClass('hide');
+                    }
+                }
+            }
             switch (e.key) {
                 case "ArrowLeft":
                     leftValue = (Number(leftValue) - 10);
@@ -333,14 +344,6 @@ function moveCoordinates(prefix, position) {
     let title = document.getElementById(prefix + position + '_title');
     let titleText = title.innerHTML;
     alert_box_card_title.textContent = titleText;
-    if( $('#visual_alert_box_container label').hasClass('hide')) {
-        $('#visual_alert_box_container label').removeClass('hide');
-        $('#visual_alert_box').removeClass('hide');
-    } else {
-        if(document.getElementById('MovementInfoToggle').checked !== true) {
-            $('#visual_alert_box').removeClass('hide');
-        }
-    }
 
     let card = document.getElementById(prefix + position);
     let cardStyle = window.getComputedStyle(card);
