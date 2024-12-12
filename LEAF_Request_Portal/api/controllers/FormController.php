@@ -121,7 +121,7 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['GET']->register('form/[digit]/progress', function ($args) use ($form) {
-            $return = $form->getProgress($args[0]);
+            $return = $form->getProgress((int)$args[0]);
             return $return;
         });
 
