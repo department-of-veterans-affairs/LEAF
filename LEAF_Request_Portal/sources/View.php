@@ -61,7 +61,7 @@ class View
 
             $vars = array(':recordID' => $recordID);
             $sql1 = 'SELECT time, description, actionText, stepTitle,
-                        dependencyID, comment, userID, userMetadata
+                        dependencyID, comment, userID
                      FROM action_history
                      LEFT JOIN dependencies USING (dependencyID)
                      LEFT JOIN workflow_steps USING (stepID)
@@ -69,13 +69,13 @@ class View
                      WHERE recordID=:recordID
                      UNION
                      SELECT timestamp, "Note Added", "N/A", "N/A",
-                        "N/A", note, userID, userMetadata
+                        "N/A", note, userID
                      FROM notes
                      WHERE recordID = :recordID
                      AND deleted IS NULL
                      UNION
                      SELECT `timestamp`, "Email Sent", "N/A", "N/A",
-                        "N/A", concat(`recipients`, "<br />", `subject`), "", ""
+                        "N/A", concat(`recipients`, "<br />", `subject`), ""
                      FROM `email_tracker`
                      WHERE recordID = :recordID
                      ORDER BY time ASC';
@@ -102,12 +102,8 @@ class View
                 $packet['comment'] = $tmp['comment'];
 
                 if (!empty($tmp['userID'])) {
-                    $name = $tmp['userID'];
-                    if(isset($tmp['userMetadata'])) {
-                        $umd = json_decode($tmp['userMetadata'], true);
-                        $display =  trim($umd['firstName'] . " " . $umd['lastName']);
-                        $name = !empty($display) ? $display : $name;
-                    }
+                    $user = $dir->lookupLogin($tmp['userID']);
+                    $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $tmp['userID'];
                     $packet['userName'] = $name;
                 }
 
