@@ -155,7 +155,7 @@ function viewSupervisor() {
     });
 }
 
-function saveLayout(positionID) {
+function saveLayout(positionID, repaint = false) {
     const position = $('#' + positions[positionID].getDomID()).offset();
     let newPosition = new Object();
     newPosition.x = parseInt(position.left);
@@ -174,6 +174,9 @@ function saveLayout(positionID) {
                 if (+res === 1) {
                     positions[positionID].x = newPosition.x;
                     positions[positionID].y = newPosition.y;
+                    if(repaint === true) {
+                        jsPlumb.repaintEverything();
+                    }
                 }
                 $('#busyIndicator').css('visibility', 'hidden');
             },
@@ -280,17 +283,26 @@ function addSupervisor(positionID) {
 }
 
 function moveCoordinates(prefix, position) {
+    let card = document.getElementById(prefix + position);
+    const cardStyle = window.getComputedStyle(card);
+    const originalTopOrg = cardStyle.getPropertyValue('top');
+    const originalLeftOrg = cardStyle.getPropertyValue('left');
+
     const moveCard = (e) => {
         if (e.key === "Tab") {
-            saveLayout(position);
+            saveLayout(position, true);
             $('#' + prefix + position).css('box-shadow', 'none');
             $('#visual_alert_box').addClass('hide');
             document.removeEventListener('keydown', moveCard);
             return;
         } else if (controlKeys.includes(e.key)) {
             e.preventDefault();
+            const cardStyle = window.getComputedStyle(card);
+            const topValue = Number(cardStyle.getPropertyValue('top').replace("px", ""));
+            const leftValue = Number(cardStyle.getPropertyValue('left').replace("px", ""));
             //only show extra info if keyboard is being used to move the card
             if(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+                card.setAttribute("data-moving", "true");
                 if( $('#visual_alert_box_container label').hasClass('hide')) {
                     $('#visual_alert_box_container label').removeClass('hide');
                     $('#visual_alert_box').removeClass('hide');
@@ -299,42 +311,34 @@ function moveCoordinates(prefix, position) {
                         $('#visual_alert_box').removeClass('hide');
                     }
                 }
+            } else {
+                card.removeAttribute("data-moving");
             }
             switch (e.key) {
                 case "ArrowLeft":
-                    leftValue = (Number(leftValue) - 10);
-                    card.style.left = leftValue + "px";
+                    card.style.left = leftValue - 10 + "px";
                     break;
                 case "ArrowRight":
-                    leftValue = (Number(leftValue) + 10);
-                    card.style.left = leftValue + "px";
+                    card.style.left = leftValue + 10 + "px";
                     break;
                 case "ArrowUp":
-                    topValue = (Number(topValue) - 10);
-                    card.style.top = topValue + "px";
+                    card.style.top = topValue - 10 + "px";
                     break;
                 case "ArrowDown":
-                    topValue = (Number(topValue) + 10);
-                    card.style.top = topValue + "px";
+                    card.style.top = topValue + 10 + "px";
                     break;
                 case "Enter":
                     // save the coordinates as they are now
-                    saveLayout(position);
-                    abort = true;
+                    saveLayout(position, true);
                     break;
                 case "Escape":
                     // revert coordinates back to original
-                    card.style.top = topOrg;
-                    card.style.left = leftOrg;
-                    abort = true;
+                    card.style.top = originalTopOrg;
+                    card.style.left = originalLeftOrg
+                    $('#' + prefix + position).css('box-shadow', 'none');
+                    $('#visual_alert_box').addClass('hide');
+                    document.removeEventListener('keydown', moveCard);
                     break;
-            }
-
-            if (abort) {
-                $('#' + prefix + position).css('box-shadow', 'none');
-                $('#visual_alert_box').addClass('hide');
-                document.removeEventListener('keydown', moveCard);
-                return;
             }
         }
     };
@@ -345,17 +349,12 @@ function moveCoordinates(prefix, position) {
     let titleText = title.innerHTML;
     alert_box_card_title.textContent = titleText;
 
-    let card = document.getElementById(prefix + position);
-    let cardStyle = window.getComputedStyle(card);
-    let topOrg = cardStyle.getPropertyValue('top');
-    let leftOrg = cardStyle.getPropertyValue('left');
-    let topValue = cardStyle.getPropertyValue('top').replace("px", "");
-    let leftValue = cardStyle.getPropertyValue('left').replace("px", "");
-    let key;
-    let abort = false;
     const controlKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
     document.addEventListener('keydown', moveCard);
-    title.addEventListener('blur', () => document.removeEventListener('keydown', moveCard));
+    title.addEventListener('blur', () => {
+        card.removeAttribute("data-moving");
+        document.removeEventListener('keydown', moveCard)
+    });
 }
 
 function addSubordinate(parentID) {
