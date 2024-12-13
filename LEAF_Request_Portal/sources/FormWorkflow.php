@@ -476,6 +476,7 @@ class FormWorkflow
         $groupDesignatedRecords = []; // map of records using "group designated"
         $groupDesignatedIndicators = []; // map of indicators using "group designated"
         foreach ($res as $i => $record) {
+            $res[$i]['userMetadata'] = json_decode($res[$i]['userMetadata'], true);
             // override access if user is in the admin group
             $res[$i]['isActionable'] = $this->login->checkGroup(1); // initialize isActionable
 
@@ -711,12 +712,15 @@ class FormWorkflow
                 LIMIT 1';
             $res = $this->db->prepared_query($strSQL, $vars);
         }
+        if (isset($res[0])) {
+            $res[0]['userMetadata'] = json_decode($res[0]['userMetadata'], true);
+        }
 
         // dependencyID -1 is for a person designated by the requestor
         if (isset($res[0])
             && $res[0]['dependencyID'] == -1)
         {
-            $approverMetadata = json_decode($res[0]['userMetadata'], true);
+            $approverMetadata = $res[0]['userMetadata'];
             $display = isset($approverMetadata) && trim($approverMetadata['firstName'] . " " . $approverMetadata['lastName'] ) !== '' ?
                 $approverMetadata['firstName'] . " " . $approverMetadata['lastName'] : $res[0]['userID'];
 

@@ -3897,7 +3897,8 @@ class Form
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
                 foreach ($res2 as $item)
                 {
-                    $userMetadata = json_decode($item['userMetadata'], true);
+                    $item['userMetadata'] = json_decode($item['userMetadata'], true);
+                    $userMetadata = $item['userMetadata'];
                     $name = isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
                         "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $item['userID'];
 
