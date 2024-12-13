@@ -3769,12 +3769,12 @@ class Form
         if ($joinInitiatorNames) {
             $initiatorNamesSQL = ',
                 IF(
-                    JSON_EXTRACT(`userMetadata`, "$.userName") != "",
-                    TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.firstName")), "(inactive account)"
+                    TRIM(JSON_VALUE(`userMetadata`, "$.userName")) != "",
+                    JSON_VALUE(`userMetadata`, "$.firstName"), "(inactive account)"
                 ) AS `firstName`,
                 IF(
-                    JSON_EXTRACT(`userMetadata`, "$.userName") != "",
-                    TRIM(BOTH \'\"\' FROM JSON_EXTRACT(`userMetadata`, "$.lastName")), `userID`
+                    TRIM(JSON_VALUE(`userMetadata`, "$.userName")) != "",
+                    JSON_VALUE(`userMetadata`, "$.lastName"), `userID`
                 ) AS `lastName`';
         }
         $resSQL = 'SELECT * ' . $initiatorNamesSQL . ' FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
@@ -3808,6 +3808,7 @@ class Form
         $recordIDs = '';
         foreach ($res as $item)
         {
+            $item['userMetadata'] = json_decode($item['userMetadata'], true);
             if(!isset($data[$item['recordID']])) {
                 $recordIDs .= $item['recordID'] . ',';
             }
