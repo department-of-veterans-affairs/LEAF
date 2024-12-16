@@ -113,16 +113,15 @@ class VAMCActiveDirectory
 
         // import any remaining entries
         $this->importData();
+    }
 
+    public function disableNationalOrgchartEmployees(): void
+    {
         // get all userNames that should be disabled
         $disableUsersList = $this->getUserNamesToBeDisabled();
-        error_log(print_r($disableUsersList, true), 3, '/var/www/php-logs/errors.log');
-
 
         // Disable users not in this array
-        //$this->preventRecycledUserName($disableUsersList);
-
-
+        $this->preventRecycledUserName($disableUsersList);
     }
 
     // Imports data from \t and \n delimited file of format:
@@ -250,18 +249,7 @@ class VAMCActiveDirectory
         $sql = 'SELECT `userName`
                 FROM `employee`
                 WHERE `deleted` = 0
-                AND `lastUpdated` < (UNIX_TIMESTAMP(NOW() - 108000) ';
-
-        $return_value = $this->db->prepared_query($sql, array());
-
-        return $return_value;
-    }
-
-    private function getNewlyDeletedUsers($time): array
-    {
-        $sql = 'SELECT `userName`
-                FROM `employee`
-                WHERE `userName` LIKE "disabled_{$time}_%"';
+                AND `lastUpdated` < (UNIX_TIMESTAMP(NOW() - 108000))';
 
         $return_value = $this->db->prepared_query($sql, array());
 
@@ -270,15 +258,30 @@ class VAMCActiveDirectory
 
     private function preventRecycledUserName(array $userNames): void
     {
-        $commaUserNames = implode(',', $userNames);
+        /*$commaUserNames = implode(',', $userNames);
         $deleteTime = time();
 
-        $vars = array(':deleteTime' => $deleteTime);
+        $vars = array(':deleteTime' => $deleteTime);*/
+        $commaUserNames = '';
 
+        foreach ($userNames as $user) {
+            $commaUserNames .= '"' . $user['userName'] . '",';
+        }
+
+        $deleteTime = time();
+
+        $vars = array(':deleteTime' => $deleteTime,
+                        ':userNames' => $commaUserNames);
+
+        error_log(print_r($vars, true), 3, '/var/www/php-logs/testing.log');
+        /*$sql = 'UPDATE `employee`
+                SET `deleted` = :deleteTime,
+                    `userName` = concat("disabled_", `deleted`, "_",  `userName`)
+                WHERE `userName` IN ("' . implode('","', array_values($userNames)) . '")';*/
         $sql = 'UPDATE `employee`
                 SET `deleted` = :deleteTime,
                     `userName` = concat("disabled_", `deleted`, "_",  `userName`)
-                WHERE `userName` IN ("' . implode('","', array_values($userNames)) . '")';
+                WHERE `userName` IN (:userNames)';
 
         $this->db->prepared_query($sql, $vars);
 
