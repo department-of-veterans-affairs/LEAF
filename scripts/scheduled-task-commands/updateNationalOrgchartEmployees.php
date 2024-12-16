@@ -17,8 +17,6 @@ function updateEmps($VISNS) {
             echo "Deploying to: {$visn['cacheID']}\r\n";
         }
     }
-
-    exec ("php disableNationalOrgchartEmployees.php > /dev/null 2>/dev/null &");
 }
 
 updateEmps($VISNS);
