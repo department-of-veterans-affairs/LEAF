@@ -3762,18 +3762,18 @@ class Form
         }
 
 
-        //joinInitiatorNames backwards compat - additional SQL for records.userMetadata replaces previous join with orgchart.employee.
-        //userMetadata properties are empty for accounts that were inactive when prior metadata values were updated.
-        //Alternatives here display 'userID (inactive user)' instead of 'null, null' if metadata is empty.
+        //joinInitiatorNames backwards compat - additional SQL for records.userMetadata replaces the previous join with orgchart.employee.
+        //userMetadata properties are empty for accounts that were inactive when prior metadata values were updated.  Use lastName to check if empty
+        //because userName might be removed in the future.  Display 'userID (inactive user)' instead of 'null, null' if metadata is empty.
         $initiatorNamesSQL = '';
         if ($joinInitiatorNames) {
             $initiatorNamesSQL = ',
                 IF(
-                    TRIM(JSON_VALUE(`userMetadata`, "$.userName")) != "",
+                    TRIM(JSON_VALUE(`userMetadata`, "$.lastName")) != "",
                     JSON_VALUE(`userMetadata`, "$.firstName"), "(inactive user)"
                 ) AS `firstName`,
                 IF(
-                    TRIM(JSON_VALUE(`userMetadata`, "$.userName")) != "",
+                    TRIM(JSON_VALUE(`userMetadata`, "$.lastName")) != "",
                     JSON_VALUE(`userMetadata`, "$.lastName"), `userID`
                 ) AS `lastName`';
         }
