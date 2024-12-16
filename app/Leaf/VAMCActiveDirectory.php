@@ -258,74 +258,44 @@ class VAMCActiveDirectory
 
     private function preventRecycledUserName(array $userNames): void
     {
-        /*$commaUserNames = implode(',', $userNames);
         $deleteTime = time();
 
-        $vars = array(':deleteTime' => $deleteTime);*/
-        $commaUserNames = '';
-
-        foreach ($userNames as $user) {
-            $commaUserNames .= '"' . $user['userName'] . '",';
-        }
-
-        $deleteTime = time();
-
-        $vars = array(':deleteTime' => $deleteTime,
-                        ':userNames' => $commaUserNames);
-
-        error_log(print_r($vars, true), 3, '/var/www/php-logs/testing.log');
-        /*$sql = 'UPDATE `employee`
-                SET `deleted` = :deleteTime,
-                    `userName` = concat("disabled_", `deleted`, "_",  `userName`)
-                WHERE `userName` IN ("' . implode('","', array_values($userNames)) . '")';*/
+        $vars = array(':deleteTime' => $deleteTime);
         $sql = 'UPDATE `employee`
                 SET `deleted` = :deleteTime,
                     `userName` = concat("disabled_", `deleted`, "_",  `userName`)
-                WHERE `userName` IN (:userNames)';
+                WHERE `userName` = :userNames;
 
-        $this->db->prepared_query($sql, $vars);
+                UPDATE `employee_data`
+                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
+                WHERE `author` = :userName;
 
-        foreach ($userNames as $name) {
-            $vars[':userName'] = $name;
-            $sql = 'UPDATE `employee_data`
-                    SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                    WHERE `author` = :userName';
+                UPDATE `employee_data_history`
+                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
+                WHERE `author` = :userName;
 
-            $this->db->prepared_query($sql, $vars);
+                UPDATE `group_data`
+                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
+                WHERE `author` = :userName;
 
-            $sql = 'UPDATE `employee_data_history`
-                    SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                    WHERE `author` = :userName';
+                UPDATE `group_data_history`
+                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
+                WHERE `author` = :userName;
 
-            $this->db->prepared_query($sql, $vars);
+                UPDATE `position_data`
+                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
+                WHERE `author` = :userName;
 
-            $sql = 'UPDATE `group_data`
-                    SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                    WHERE `author` = :userName';
+                UPDATE `position_data_history`
+                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
+                WHERE `author` = :userName;
 
-            $this->db->prepared_query($sql, $vars);
+                UPDATE `relation_employee_backup`
+                SET `approverUserName` = concat("disabled_", :deleteTime, "_",  :userName)
+                WHERE `approverUserName` = :userName;';
 
-            $sql = 'UPDATE `group_data_history`
-                    SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                    WHERE `author` = :userName';
-
-            $this->db->prepared_query($sql, $vars);
-
-            $sql = 'UPDATE `position_data`
-                    SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                    WHERE `author` = :userName';
-
-            $this->db->prepared_query($sql, $vars);
-
-            $sql = 'UPDATE `position_data_history`
-                    SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                    WHERE `author` = :userName';
-
-            $this->db->prepared_query($sql, $vars);
-
-            $sql = 'UPDATE `relation_employee_backup`
-                    SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                    WHERE `approverUserName` = :userName';
+        foreach ($userNames as $user) {
+            $vars[':userName'] = $user['userName'];
 
             $this->db->prepared_query($sql, $vars);
         }
