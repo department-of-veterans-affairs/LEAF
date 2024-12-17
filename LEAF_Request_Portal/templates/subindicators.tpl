@@ -785,6 +785,7 @@
                                         statusEl.innerHTML = `${err?.responseText ? err?.responseText : ''}`;
                                     }
                                     statusEl.classList.add('status_error');
+                                    statusEl.style.display = 'block';
                                 },
                                 processData: false,
                                 contentType: false
