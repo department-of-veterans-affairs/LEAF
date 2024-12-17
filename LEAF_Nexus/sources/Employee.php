@@ -45,30 +45,35 @@ class Employee extends Data
 
     private $disabledUsers;
 
+    // the first value is the table, the second is the field. If the field is an array
+    // the first value needs to be the field used for the where clause. The field array
+    // is not current used but is setup to be able to be used later if needed.
     private $disableUserNameOrgchartTables = array(
-        'employee_data',
-        'employee_data_history',
-        'group_data',
-        'group_data_history',
-        'position_data',
-        'position_data_history',
-        'relation_employee_backup'
+        'employee_data' => 'author',
+        'employee_data_history' => 'author',
+        'group_data' => 'author',
+        'group_data_history' => 'author',
+        'position_data' => 'author',
+        'position_data_history' => 'author',
+        'relation_employee_backup' => 'approverUserName'
     );
 
+    // the first value is the table, the second is the field. If the field is an array
+    // the first value needs to be the field used for the where clause.
     private $disableUserNamePortalTables = array(
-        'action_history',
-        'approvals',
-        'data',
-        'data_extended',
-        'data_history',
-        'email_tracker',
-        'notes',
-        'process_query',
-        'records',
-        'service_chiefs',
-        'signatures',
-        'tags',
-        'users'
+        'action_history' => 'userID',
+        'approvals' => 'userID',
+        'data' => 'userID',
+        'data_extended' => 'userID',
+        'data_history' => 'userID',
+        'email_tracker' => 'userID',
+        'notes' => 'userID',
+        'process_query' => 'userID',
+        'records' => 'userID',
+        'service_chiefs' => array('userID', 'backupID'),
+        'signatures' => 'userID',
+        'tags' => 'userID',
+        'users' => array('userID', 'backupID')
     );
 
     public function initialize()
@@ -277,6 +282,21 @@ class Employee extends Data
 
         $portal_db = $this->db;
 
+        $sql = '';
+
+        foreach ($this->disableUserNamePortalTables as $table => $field) {
+            if (is_array($field)) {
+                $sql .= 'UPDATE `' . $table .'`
+                        SET `' . $field[0] . '` = :disabledUserName,
+                            `' . $field[1] . '` = :disabledUserName
+                        WHERE `' . $field[0] . '` = :originalUserName;';
+            } else {
+                $sql .= 'UPDATE `' . $table .'`
+                        SET `' . $field . '` = :disabledUserName
+                        WHERE `' . $field . '` = :originalUserName;';
+            }
+        }
+
         foreach ($portals as $portal) {
             $portal_db->query('USE' . $portal['portal_database']);
 
@@ -288,21 +308,7 @@ class Employee extends Data
                 $vars = array(':disabledUserName' => $user,
                                 ':originalUserName' => $userName[2]);
 
-                foreach ($this->disableUserNamePortalTables as $table) {
-                    $sql = 'UPDATE `' . $table . '`
-                            SET `userID` = :disabledUserName
-                            WHERE `userID` = :originalUserName';
-
-                    $this->db->prepared_query($sql, $vars);
-
-                    if ($table == 'service_chiefs' || $table == 'users') {
-                        $sql = 'UPDATE `' . $table . '`
-                                SET `backupID` = :disabledUserName
-                                WHERE `backupID` = :originalUserName';
-
-                        $this->db->prepared_query($sql, $vars);
-                    }
-                }
+                $this->db->prepared_query($sql, $vars);
             }
         }
     }
@@ -329,6 +335,21 @@ class Employee extends Data
         // get all the newly disabled users
         $this->disabledUsers = $this->getNewlyDisabledUsers();
 
+        $sql = '';
+
+        foreach ($this->disableUserNameOrgchartTables as $table => $field) {
+            if (is_array($field)) {
+                $sql .= 'UPDATE `' . $table .'`
+                        SET `' . $field[0] . '` = :disabledUserName,
+                            `' . $field[1] . '` = :disabledUserName
+                        WHERE `' . $field[0] . '` = :originalUserName;';
+            } else {
+                $sql .= 'UPDATE `' . $table .'`
+                        SET `' . $field . '` = :disabledUserName
+                        WHERE `' . $field . '` = :originalUserName;';
+            }
+        }
+
         foreach ($this->disabledUsers as $user) {
             // break down the userName to get original userName
             $userName = explode('_', $user);
@@ -337,20 +358,7 @@ class Employee extends Data
             $vars = array(':disabledUserName' => $user,
                             ':originalUserName' => $userName[2]);
 
-            foreach ($this->disableUserNameOrgchartTables as $table) {
-                if ($table != 'relation_employee_backup') {
-                    $sql = 'UPDATE `' . $table . '`
-                            SET `author` = :disabledUserName
-                            WHERE `author` = :originalUserName';
-                } else {
-                    $sql = 'UPDATE `' . $table . '`
-                            SET `approverUserName` = :disabledUserName
-                            WHERE `approverUserName` = :originalUserName';
-                }
-
-                $this->db->prepared_query($sql, $vars);
-            }
-
+            $this->db->prepared_query($sql, $vars);
         }
     }
 
