@@ -249,7 +249,7 @@ class VAMCActiveDirectory
         $sql = 'SELECT `userName`
                 FROM `employee`
                 WHERE `deleted` = 0
-                AND `lastUpdated` < (UNIX_TIMESTAMP(NOW() - 108000))';
+                AND `lastUpdated` < (UNIX_TIMESTAMP(NOW()) - 108000)';
 
         $return_value = $this->db->prepared_query($sql, array());
 
@@ -264,7 +264,7 @@ class VAMCActiveDirectory
         $sql = 'UPDATE `employee`
                 SET `deleted` = :deleteTime,
                     `userName` = concat("disabled_", `deleted`, "_",  `userName`)
-                WHERE `userName` = :userNames;
+                WHERE `userName` = :userName;
 
                 UPDATE `employee_data`
                 SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
