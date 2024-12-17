@@ -42,7 +42,7 @@ class VAMCActiveDirectory
 
     // Imports data from \t and \n delimited file of format:
     // Name	Business Phone	Description	Modified	E-Mail Address	User Logon Name
-    public function importADData($file)
+    public function importADData(string $file): string
     {
         $data = $this->getData($file);
         $rawdata = explode("\r\n", $data[0]['data']);
@@ -126,7 +126,7 @@ class VAMCActiveDirectory
 
     // Imports data from \t and \n delimited file of format:
     // Lname\t Fname Mid_Initial\t Email\t Phone\t Pager\t Room#\t Title\t Service\t MailCode\n
-    public function importData()
+    public function importData(): void
     {
         $time = time();
         $sql1 = 'INSERT INTO employee (userName, lastName, firstName, middleName, phoneticFirstName, phoneticLastName, domain, lastUpdated, new_empUUID)
@@ -333,7 +333,7 @@ class VAMCActiveDirectory
 
     // workaround for excel
     // author: tajhlande at gmail dot com
-    private function splitWithEscape($str, $delimiterChar = ',', $escapeChar = '"')
+    private function splitWithEscape(string $str, string $delimiterChar = ',', string $escapeChar = '"'): array
     {
         $len = strlen($str);
         $tokens = array();
@@ -383,73 +383,8 @@ class VAMCActiveDirectory
         return $tokens;
     }
 
-    private function parseVAdomain($adPath)
-    {
-        $dc = '';
-        $dcSrc = explode(',', $adPath);
-
-        foreach ($dcSrc as $adElement) {
-            if (strpos($adElement, 'DC=') !== false) {
-                $dc .= substr($adElement, 3) . '.';
-            }
-        }
-
-        $dc = trim($dc, '.');
-
-        switch ($dc) {
-            case 'v01.med.va.gov':
-                return 'VHA01';
-            case 'v02.med.va.gov':
-                return 'VHA02';
-            case 'v03.med.va.gov':
-                return 'VHA03';
-            case 'v04.med.va.gov':
-                return 'VHA04';
-            case 'v05.med.va.gov':
-                return 'VHA05';
-            case 'v06.med.va.gov':
-                return 'VHA06';
-            case 'v07.med.va.gov':
-                return 'VHA07';
-            case 'v08.med.va.gov':
-                return 'VHA08';
-            case 'v09.med.va.gov':
-                return 'VHA09';
-            case 'v10.med.va.gov':
-                return 'VHA10';
-            case 'v11.med.va.gov':
-                return 'VHA11';
-            case 'v12.med.va.gov':
-                return 'VHA12';
-            case 'v13.med.va.gov':
-                return 'VHA13';
-            case 'v14.med.va.gov':
-                return 'VHA14';
-            case 'v15.med.va.gov':
-                return 'VHA15';
-            case 'v16.med.va.gov':
-                return 'VHA16';
-            case 'v17.med.va.gov':
-                return 'VHA17';
-            case 'v18.med.va.gov':
-                return 'VHA18';
-            case 'v19.med.va.gov':
-                return 'VHA19';
-            case 'v20.med.va.gov':
-                return 'VHA20';
-            case 'v21.med.va.gov':
-                return 'VHA21';
-            case 'v22.med.va.gov':
-                return 'VHA22';
-            case 'v23.med.va.gov':
-                return 'VHA23';
-            default:
-                return $dc;
-        }
-    }
-
     //tests stringToFix for format X'...', if it matches, it's a hex value, is decoded and returned
-    private function fixIfHex($stringToFix)
+    private function fixIfHex(string $stringToFix): string
     {
         if (substr( $stringToFix, 0, 2 ) === "X'") {
             $stringToFix = ltrim($stringToFix, "X'");
