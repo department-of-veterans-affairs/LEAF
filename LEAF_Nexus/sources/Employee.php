@@ -258,6 +258,15 @@ class Employee extends Data
 
             $this->prepareArrays($national_employee_uids, $local_array, $national_employees_list, $local_employee_array);
 
+            $local_deleted_employees = array_diff(array_column($local_employees_uid, 'userName'), array_column($national_employees_list, 'userName'));
+
+            if (!empty($local_deleted_employees)) {
+                $results[] = $this->disableEmployees($local_deleted_employees);
+
+                $this->disableAllTables();
+                $this->disablePortalTables();
+            }
+
             if (!empty($local_array)) {
                 $results[] = $this->batchEmployeeUpdate($local_array);
             }
@@ -270,15 +279,10 @@ class Employee extends Data
                 $results[] = $this->batchEmployeeDataUpdate($local_data_array);
             }
 
-            $users = $this->updateDisabledEmployees();
+            $users = $this->updateNationalDisabledEmployees();
 
-            $local_deleted_employees = array_diff(array_column($local_employees_uid, 'userName'), array_column($national_employees_list, 'userName'));
-
-            $local_deleted_employees = array_merge($local_deleted_employees, $users);
-            error_log(print_r($local_deleted_employees, true), 3, '/var/www/php-logs/testing.log');
-
-            if (!empty($local_deleted_employees)) {
-                $results[] = $this->disableEmployees($local_deleted_employees);
+            if (!empty($users)) {
+                $results[] = $this->disableEmployees($users);
 
                 $this->disableAllTables();
                 $this->disablePortalTables();
@@ -288,7 +292,7 @@ class Employee extends Data
         return $results;
     }
 
-    private function updateDisabledEmployees(): array
+    private function updateNationalDisabledEmployees(): array
     {
         $vars = array();
         $sql = 'SELECT `userName`
@@ -401,10 +405,10 @@ class Employee extends Data
         return $return_value;
     }
 
-    private function disableAllTables(int $deletedAgo = 600): void
+    private function disableAllTables(): void
     {
         // get all the newly disabled users
-        $this->disabledUsers = $this->getNewlyDisabledUsers($deletedAgo);
+        $this->disabledUsers = $this->getNewlyDisabledUsers();
 
         $sql = '';
 
@@ -461,12 +465,13 @@ class Employee extends Data
         $this->db->prepared_query($sql, $vars);
     }
 
-    private function getNewlyDisabledUsers(int $deletedAgo = 600): array
+    private function getNewlyDisabledUsers(): array
     {
-        $vars = array(':deleteTime' => time() - $deletedAgo);
+        $vars = array(':deleteTime' => 0);
         $sql = 'SELECT `userName`
                 FROM `employee`
-                WHERE `deleted` > :deleteTime';
+                WHERE `deleted` > :deleteTime
+                AND LEFT(`userName`, 9) <> "disabled_"';
 
         $return_value = $this->db->prepared_query($sql, $vars);
 
@@ -1063,7 +1068,7 @@ class Employee extends Data
 
         $this->disableEmployees(array($res[0]['userName']));
 
-        $this->disableAllTables(60);
+        $this->disableAllTables();
         $this->disablePortalTables();
 
         return true;
