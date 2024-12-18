@@ -124,6 +124,10 @@ class Employee extends Data
 
         if (!isset($national_emp['data'])) {
             $this->disableEmployees(explode(',', $user_name));
+
+            $this->disableAllTables();
+            $this->disablePortalTables();
+
             $return_value = array(
                 'status' => array(
                     'code' => 4,
@@ -150,6 +154,10 @@ class Employee extends Data
                 );
             } else {
                 $this->disableEmployees(explode(',', $user_name));
+
+                $this->disableAllTables();
+                $this->disablePortalTables();
+
                 $return_value = array(
                     'status' => array(
                         'code' => 4,
@@ -286,10 +294,12 @@ class Employee extends Data
 
         foreach ($this->disableUserNamePortalTables as $table => $field) {
             if (is_array($field)) {
-                $sql .= 'UPDATE `' . $table .'`
-                        SET `' . $field[0] . '` = :disabledUserName,
-                            `' . $field[1] . '` = :disabledUserName
-                        WHERE `' . $field[0] . '` = :originalUserName;';
+                foreach ($field as $fld) {
+                    $sql .= 'UPDATE `' . $table .'`
+                            SET `' . $fld . '` = :disabledUserName
+                            WHERE `' . $fld . '` = :originalUserName;';
+                }
+
             } else {
                 $sql .= 'UPDATE `' . $table .'`
                         SET `' . $field . '` = :disabledUserName
@@ -298,18 +308,54 @@ class Employee extends Data
         }
 
         foreach ($portals as $portal) {
-            $portal_db->query('USE' . $portal['portal_database']);
+            $sql2 = 'USE ' . $portal['portal_database'];
+            $portal_db->prepared_query($sql2, array());
 
             foreach ($this->disabledUsers as $user) {
                 // break down the userName to get original userName
-                $userName = explode('_', $user);
+                $userName = explode('_', $user['userName']);
 
                 // update all tables with the new userName
-                $vars = array(':disabledUserName' => $user,
+                $vars = array(':disabledUserName' => $user['userName'],
                                 ':originalUserName' => $userName[2]);
 
-                $this->db->prepared_query($sql, $vars);
+                $portal_db->prepared_query($sql, $vars);
             }
+        }
+    }
+
+    private function enableAllPortalTables(string $userName): void
+    {
+        $portals = $this->getPortals();
+
+        $portal_db = $this->db;
+
+        $userNameParts = explode('_', $userName);
+
+        $vars = array(':disabledUserName' => $userName,
+                        ':originalUserName' => $userNameParts[2]);
+        $sql = '';
+
+        foreach ($this->disableUserNamePortalTables as $table => $field) {
+            if (is_array($field)) {
+                foreach ($field as $fld) {
+                    $sql .= 'UPDATE `' . $table .'`
+                            SET `' . $fld . '` = :originalUserName
+                            WHERE `' . $fld . '` = :disabledUserName;';
+                }
+
+            } else {
+                $sql .= 'UPDATE `' . $table .'`
+                        SET `' . $field . '` = :originalUserName
+                        WHERE `' . $field . '` = :disabledUserName;';
+            }
+        }
+
+        foreach ($portals as $portal) {
+            $sql2 = 'USE ' . $portal['portal_database'];
+            $portal_db->prepared_query($sql2, array());
+
+            $portal_db->prepared_query($sql, $vars);
         }
     }
 
@@ -317,32 +363,36 @@ class Employee extends Data
     {
         // need to get the portals to update. Use ABSOLUTE_ORG_PATH to get all portals from
         // the sites table will need to strip https://domain
-        $orgchart = str_replace(HTTP_HOST, '', ABSOLUTE_ORG_PATH);
+        $orgchart = str_replace('https://' . HTTP_HOST, '', ABSOLUTE_ORG_PATH);
         $launchpad_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
         $vars = array(':orgchartPath' => $orgchart);
         $sql = 'SELECT `portal_database`
                 FROM `sites`
-                WHERE `orgchart_path` = :orgchartPath';
+                WHERE `orgchart_path` = :orgchartPath
+                AND (`portal_database` IS NOT NULL
+                    OR `portal_database` <> "")';
 
         $return_value = $launchpad_db->prepared_query($sql, $vars);
 
         return $return_value;
     }
 
-    private function disableAllTables(): void
+    private function disableAllTables(int $deletedAgo = 600): void
     {
         // get all the newly disabled users
-        $this->disabledUsers = $this->getNewlyDisabledUsers();
+        $this->disabledUsers = $this->getNewlyDisabledUsers($deletedAgo);
 
         $sql = '';
 
         foreach ($this->disableUserNameOrgchartTables as $table => $field) {
             if (is_array($field)) {
-                $sql .= 'UPDATE `' . $table .'`
-                        SET `' . $field[0] . '` = :disabledUserName,
-                            `' . $field[1] . '` = :disabledUserName
-                        WHERE `' . $field[0] . '` = :originalUserName;';
+                foreach ($field as $fld) {
+                    $sql .= 'UPDATE `' . $table .'`
+                            SET `' . $fld . '` = :disabledUserName
+                            WHERE `' . $fld . '` = :originalUserName;';
+                }
+
             } else {
                 $sql .= 'UPDATE `' . $table .'`
                         SET `' . $field . '` = :disabledUserName
@@ -352,21 +402,47 @@ class Employee extends Data
 
         foreach ($this->disabledUsers as $user) {
             // break down the userName to get original userName
-            $userName = explode('_', $user);
+            $userName = explode('_', $user['userName']);
 
             // update all tables with the new userName
-            $vars = array(':disabledUserName' => $user,
+            $vars = array(':disabledUserName' => $user['userName'],
                             ':originalUserName' => $userName[2]);
 
             $this->db->prepared_query($sql, $vars);
         }
     }
 
-    private function getNewlyDisabledUsers(): array
+    private function enableAllTables(string $userName): void
     {
-        $vars = array(':deleteTime' => time() - 600);
+        $userNameParts = explode('_', $userName);
+
+        $vars = array(':disabledUserName' => $userName,
+                        ':originalUserName' => $userNameParts[2]);
+        $sql = '';
+
+        foreach ($this->disableUserNameOrgchartTables as $table => $field) {
+            if (is_array($field)) {
+                foreach ($field as $fld) {
+                    $sql .= 'UPDATE `' . $table .'`
+                            SET `' . $fld . '` = :originalUserName
+                            WHERE `' . $fld . '` = :disabledUserName;';
+                }
+
+            } else {
+                $sql .= 'UPDATE `' . $table .'`
+                        SET `' . $field . '` = :originalUserName
+                        WHERE `' . $field . '` = :disabledUserName;';
+            }
+        }
+
+        $this->db->prepared_query($sql, $vars);
+    }
+
+    private function getNewlyDisabledUsers(int $deletedAgo = 600): array
+    {
+        $vars = array(':deleteTime' => time() - $deletedAgo);
         $sql = 'SELECT `userName`
-                FROM `employees`
+                FROM `employee`
                 WHERE `deleted` > :deleteTime';
 
         $return_value = $this->db->prepared_query($sql, $vars);
@@ -501,6 +577,23 @@ class Employee extends Data
         }
 
         return $return_value;
+    }
+
+    private function enableEmployee(string $userName): void
+    {
+        // userName will be in the format of disabled_ts_userName.
+        // This will need to be torn apart and only the userName kept.
+        $userNameParts = explode('_', $userName);
+
+        $vars = array(':userName' => $userNameParts[2],
+                        ':disabledUserName' => $userName,
+                        ':deletedTime' => 0);
+        $sql = 'UPDATE `employee`
+                SET `userName` = :userName,
+                    `deleted` = :deletedTime
+                WHERE `userName` = :disabledUserName';
+
+        $this->db->prepared_query($sql, $vars);
     }
 
     /**
@@ -921,54 +1014,70 @@ class Employee extends Data
 
     /**
      * Marks employee as deleted
+     * disabling a user requires that all instances of the userName be updated both in
+     * orgchart and portals
      * @param int $empUID
      * @return bool
      */
     public function disableAccount($empUID)
     {
-        if (!is_numeric($empUID))
-        {
+        if (!is_numeric($empUID)) {
             return false;
         }
+
         $memberships = $this->login->getMembership();
-        if (!isset($memberships['groupID'][1]))
-        {
+
+        if (!isset($memberships['groupID'][1])) {
             throw new Exception('Administrator access required to disable accounts');
         }
 
-        $vars = array(':empUID' => $empUID,
-                      ':time' => time(),
-        );
-        $res = $this->db->prepared_query('UPDATE employee
-                                            SET deleted=:time
-                                            WHERE empUID=:empUID', $vars);
+        $vars = array(':empUID' => $empUID);
+        $sql = 'SELECT `userName`
+                FROM `employee`
+                WHERE `empUID` = :empUID';
+
+        $res = $this->db->prepared_query($sql, $vars);
+
+        $this->disableEmployees(array($res[0]['userName']));
+
+        $this->disableAllTables(60);
+        $this->disablePortalTables();
 
         return true;
     }
 
     /**
      * Marks employee as not deleted
+     * Enabling someone requires that all instances of the userName be updated in both
+     * the orgchart and portals
      * @param int $empUID
      * @return bool
      */
     public function enableAccount($empUID)
     {
-        if (!is_numeric($empUID))
-        {
+        if (!is_numeric($empUID)) {
             return false;
         }
+
         $memberships = $this->login->getMembership();
-        if (!isset($memberships['groupID'][1]))
-        {
+
+        if (!isset($memberships['groupID'][1])) {
             throw new Exception('Administrator access required to enable accounts');
         }
 
-        $vars = array(':empUID' => $empUID,
-                ':time' => 0,
-        );
-        $res = $this->db->prepared_query('UPDATE employee
+        $vars = array(':empUID' => $empUID);
+        $sql = 'SELECT `userName`
+                FROM `employee`
+                WHERE `empUID` = :empUID';
+
+        $res = $this->db->prepared_query($sql, $vars);
+
+        $this->enableEmployee($res[0]['userName']);
+        $this->enableAllTables($res[0]['userName']);
+        $this->enableAllPortalTables($res[0]['userName']);
+        /* $res = $this->db->prepared_query('UPDATE employee
                                             SET deleted=:time
-                                            WHERE empUID=:empUID', $vars);
+                                            WHERE empUID=:empUID', $vars); */
 
         return true;
     }
