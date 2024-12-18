@@ -586,14 +586,13 @@ class Employee extends Data
                         `userName` = concat('disabled_', `deleted`, '_',  `userName`)
                     WHERE `userName` IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
 
-            $result = $this->db->prepared_query($sql, array_values($deleted_employees));
+            $this->db->prepared_query($sql, array_values($deleted_employees));
 
             $return_value = array(
                 'status' => array(
                     'code' => 2,
                     'message' => ''
-                ),
-                'data' => $result
+                )
             );
         } else {
             $return_value = array(
