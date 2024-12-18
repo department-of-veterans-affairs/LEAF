@@ -1075,9 +1075,6 @@ class Employee extends Data
         $this->enableEmployee($res[0]['userName']);
         $this->enableAllTables($res[0]['userName']);
         $this->enableAllPortalTables($res[0]['userName']);
-        /* $res = $this->db->prepared_query('UPDATE employee
-                                            SET deleted=:time
-                                            WHERE empUID=:empUID', $vars); */
 
         return true;
     }
