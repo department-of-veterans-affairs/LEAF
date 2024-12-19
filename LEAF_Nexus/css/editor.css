@@ -92,3 +92,31 @@
     background-color: #2372b0;
     color: white;
 }
+
+#visual_alert_box_container {
+    max-width: 354px;
+    box-sizing: border-box;
+    margin-left: auto;
+}
+#visual_alert_box {
+    text-align: left;
+    position: relative;
+    padding: 0.25em;
+    background-color:#fff;
+}
+#visual_alert_box_container label {
+    display: flex;
+    justify-content:flex-end;
+    padding-top: 0.25rem;
+}
+#visual_alert_box.hide, #visual_alert_box_container label.hide {
+    display: none;
+}
+
+#visual_alert_box_container label input {
+    margin: 0 0 0 0.25rem;
+}
+
+#visual_alert_box_title {
+    font-weight: bolder;
+}
