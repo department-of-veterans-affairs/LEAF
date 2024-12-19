@@ -19,9 +19,19 @@ placeholder<br />
         <button type="button" class="buttonNorm" onclick="window.location='mailto:?subject=FW:%20Org.%20Chart%20-%20&amp;body=Organizational%20Chart%20URL:%20<!--{if $smarty.server.HTTPS == on}-->https<!--{else}-->http<!--{/if}-->://<!--{$smarty.server.SERVER_NAME}--><!--{$smarty.server.REQUEST_URI|escape:'url'}-->%0A%0A'">
             <img src="dynicons/?img=mail-forward.svg&amp;w=24" style="vertical-align: middle" alt="" /> Forward as Email
         </button>
+        <div id="visual_alert_box_container">
+            <div id="visual_alert_box" class="hide">
+                You are moving the <span id="visual_alert_box_title"></span> card<br />
+                Esc - return to original location<br />
+                Enter - save current location
+            </div>
+            <label for="MovementInfoToggle" class="hide">Hide Movement Info
+                <input type="checkbox" id="MovementInfoToggle" onchange="toggleHideClass('visual_alert_box')">
+            </label>
+        </div>
     </span>
 </span>
-<div id="visual_alert_box" role="status" aria-live="assertive" aria-label="" style="position:absolute;opacity:0; z-index:999;background:#fff"></div>
+
 <div id="pageloadIndicator" style="visibility: visible">
     <div style="opacity: 0.8; z-index: 1000; position: absolute; background: #f3f3f3; height: 97%; width: 97%"></div>
     <div style="z-index: 1001; position: absolute; padding: 16px; width: 97%; text-align: center; font-size: 24px; font-weight: bold; background-color: white">Loading... <img src="images/largespinner.gif" alt="" /></div>
@@ -120,6 +130,17 @@ function applyZoomLevel() {
     }
 }
 
+function toggleHideClass( elementID = '') {
+    let el = document.getElementById(elementID);
+    if(el !== null) {
+        if(el.classList.contains('hide')) {
+            el.classList.remove('hide');
+        } else {
+            el.classList.add('hide');
+        }
+    }
+}
+
 function viewSupervisor() {
     $.ajax({
         url: './api/position/<!--{$rootID}-->/supervisor',
@@ -134,7 +155,7 @@ function viewSupervisor() {
     });
 }
 
-function saveLayout(positionID) {
+function saveLayout(positionID, repaint = false) {
     const position = $('#' + positions[positionID].getDomID()).offset();
     let newPosition = new Object();
     newPosition.x = parseInt(position.left);
@@ -153,6 +174,9 @@ function saveLayout(positionID) {
                 if (+res === 1) {
                     positions[positionID].x = newPosition.x;
                     positions[positionID].y = newPosition.y;
+                    if(repaint === true) {
+                        jsPlumb.repaintEverything();
+                    }
                 }
                 $('#busyIndicator').css('visibility', 'hidden');
             },
@@ -259,72 +283,78 @@ function addSupervisor(positionID) {
 }
 
 function moveCoordinates(prefix, position) {
+    let card = document.getElementById(prefix + position);
+    const cardStyle = window.getComputedStyle(card);
+    const originalTopOrg = cardStyle.getPropertyValue('top');
+    const originalLeftOrg = cardStyle.getPropertyValue('left');
+
     const moveCard = (e) => {
         if (e.key === "Tab") {
-            saveLayout(position);
+            saveLayout(position, true);
             $('#' + prefix + position).css('box-shadow', 'none');
-            $('#visual_alert_box').css('opacity', '0');
+            $('#visual_alert_box').addClass('hide');
             document.removeEventListener('keydown', moveCard);
             return;
         } else if (controlKeys.includes(e.key)) {
             e.preventDefault();
+            const cardStyle = window.getComputedStyle(card);
+            const topValue = Number(cardStyle.getPropertyValue('top').replace("px", ""));
+            const leftValue = Number(cardStyle.getPropertyValue('left').replace("px", ""));
+            //only show extra info if keyboard is being used to move the card
+            if(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+                card.setAttribute("data-moving", "true");
+                if( $('#visual_alert_box_container label').hasClass('hide')) {
+                    $('#visual_alert_box_container label').removeClass('hide');
+                    $('#visual_alert_box').removeClass('hide');
+                } else {
+                    if(document.getElementById('MovementInfoToggle').checked !== true) {
+                        $('#visual_alert_box').removeClass('hide');
+                    }
+                }
+            } else {
+                card.removeAttribute("data-moving");
+            }
             switch (e.key) {
                 case "ArrowLeft":
-                    leftValue = (Number(leftValue) - 10);
-                    card.style.left = leftValue + "px";
+                    card.style.left = leftValue - 10 + "px";
                     break;
                 case "ArrowRight":
-                    leftValue = (Number(leftValue) + 10);
-                    card.style.left = leftValue + "px";
+                    card.style.left = leftValue + 10 + "px";
                     break;
                 case "ArrowUp":
-                    topValue = (Number(topValue) - 10);
-                    card.style.top = topValue + "px";
+                    card.style.top = topValue - 10 + "px";
                     break;
                 case "ArrowDown":
-                    topValue = (Number(topValue) + 10);
-                    card.style.top = topValue + "px";
+                    card.style.top = topValue + 10 + "px";
                     break;
                 case "Enter":
                     // save the coordinates as they are now
-                    saveLayout(position);
-                    abort = true;
+                    saveLayout(position, true);
                     break;
                 case "Escape":
                     // revert coordinates back to original
-                    card.style.top = topOrg;
-                    card.style.left = leftOrg;
-                    abort = true;
+                    card.style.top = originalTopOrg;
+                    card.style.left = originalLeftOrg
+                    $('#' + prefix + position).css('box-shadow', 'none');
+                    $('#visual_alert_box').addClass('hide');
+                    document.removeEventListener('keydown', moveCard);
                     break;
-            }
-
-            if (abort) {
-                $('#' + prefix + position).css('box-shadow', 'none');
-                $('#visual_alert_box').css('opacity', '0');
-                document.removeEventListener('keydown', moveCard);
-                return;
             }
         }
     };
     $('div.positionSmall').css('box-shadow', 'none');
     $('#' + prefix + position).css('box-shadow', ' 0 0 6px #c00');
-    let alert_box = document.getElementById('visual_alert_box');
+    let alert_box_card_title = document.getElementById('visual_alert_box_title');
     let title = document.getElementById(prefix + position + '_title');
     let titleText = title.innerHTML;
-    alert_box.innerHTML = "You are moving the " + titleText + " card<br />Esc - return to original location<br />Enter - save current location<br />Tab - Save and move to next card";
-    $('#visual_alert_box').css('opacity', '100');
+    alert_box_card_title.textContent = titleText;
 
-    let card = document.getElementById(prefix + position);
-    let cardStyle = window.getComputedStyle(card);
-    let topOrg = cardStyle.getPropertyValue('top');
-    let leftOrg = cardStyle.getPropertyValue('left');
-    let topValue = cardStyle.getPropertyValue('top').replace("px", "");
-    let leftValue = cardStyle.getPropertyValue('left').replace("px", "");
-    let key;
-    let abort = false;
     const controlKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
     document.addEventListener('keydown', moveCard);
-    title.addEventListener('blur', () => document.removeEventListener('keydown', moveCard));
+    title.addEventListener('blur', () => {
+        card.removeAttribute("data-moving");
+        document.removeEventListener('keydown', moveCard)
+    });
 }
 
 function addSubordinate(parentID) {
