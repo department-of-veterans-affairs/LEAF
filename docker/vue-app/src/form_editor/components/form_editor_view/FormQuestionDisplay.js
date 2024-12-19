@@ -7,6 +7,7 @@ export default {
         depth: Number,
         formPage: Number,
         index: Number,
+        currentListLength: Number,
         formNode: Object
     },
     components: {
@@ -17,7 +18,6 @@ export default {
         'newQuestion',
         'shortIndicatorNameStripped',
         'focusedFormID',
-        'focusIndicator',
         'focusedIndicatorID',
         'editQuestion',
         'hasDevConsoleAccess',
@@ -26,7 +26,6 @@ export default {
         'listTracker',
         'previewMode',
         'makePreviewKey',
-        'clickToMoveListItem'
     ],
     computed: {
         indicatorID() {
@@ -50,7 +49,9 @@ export default {
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
             const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria-hidden="true" alt="">📌&nbsp;</span>` : '';
-            const name = this.formNode.name.trim() !== '' ?  this.formNode.name.trim() : '[ blank ]';
+            const name = this.formNode.name.trim() !== '' ? 
+                '<span class="name">' + this.formNode.name.trim() + '</span>':
+                '<span class="name">[ blank ]</span>';
             return `${page}${staple}${name}${shortLabel}${contentRequired}`;
         },
         hasSpecialAccessRestrictions() {
@@ -61,30 +62,10 @@ export default {
         },
         sensitive() {
             return parseInt(this.formNode.is_sensitive) === 1;
-        }
+        },
     },
     template:`<div class="form_editing_area">
             <div class="name_and_toolbar" :class="{'form-header': isHeader, preview: previewMode}">
-                <!-- VISIBLE DRAG INDICATOR / CLICK UP DOWN -->
-                <button v-show="!previewMode" type="button" :id="'index_listing_' + indicatorID + '_button'"
-                    :title="'drag to move indicatorID (' + indicatorID + '). Click for click to move options.'"
-                    :aria-label="'drag to move indicatorID (' + indicatorID + '). Click for click to move options.'"
-                    class="drag_question_button" @click="focusIndicator(indicatorID)">
-                </button>
-                <div v-show="!previewMode" class="icon_move_container">
-                    <span role="img" aria-hidden="true" alt="" class="icon_drag">∷</span>
-                    <button v-show="indicatorID === focusedIndicatorID" type="button"
-                        :id="'click_to_move_up_' + indicatorID" class="icon_move up"
-                        :title="'move indicatorID ' + indicatorID + ' up'" :aria-label="'move indicatorID ' + indicatorID + ' up'"
-                        @click.stop="clickToMoveListItem($event, indicatorID, true)">
-                    </button>
-                    <button v-show="indicatorID === focusedIndicatorID" type="button"
-                        :id="'click_to_move_down_' + indicatorID" class="icon_move down"
-                        :title="'move indicatorID ' + indicatorID + ' down'" :aria-label="'move indicatorID ' + indicatorID + ' down'"
-                        @click.stop="clickToMoveListItem($event, indicatorID, false)">
-                    </button>
-                </div>
-
                 <!-- TOOLBAR -->
                 <div v-show="!previewMode"
                     :id="'form_editing_toolbar_' + indicatorID">
@@ -131,6 +112,6 @@ export default {
             </div>
 
             <!-- FORMAT PREVIEW -->
-            <format-preview v-if="formNode.format !== ''" :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
+            <format-preview :indicator="formNode" :key="'FP_' + indicatorID"></format-preview>
         </div>`
 }

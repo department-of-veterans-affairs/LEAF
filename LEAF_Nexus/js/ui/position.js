@@ -47,7 +47,8 @@ position.prototype.initialize = function (parentContainerID) {
   $("#" + prefixedPID + "_title").on("click keydown mouseenter", function(ev) {
     //if they are newly focusing an open card just update the tab focus
     const isNewFocus = document.activeElement !== ev.currentTarget;
-    if (ev.type === "click" && isNewFocus) {
+    const cardDataAttr = ev.currentTarget.parentNode.getAttribute('data-moving');
+    if (ev.type === "click" && isNewFocus || cardDataAttr === "true") {
       ev.currentTarget.focus();
       return;
     }

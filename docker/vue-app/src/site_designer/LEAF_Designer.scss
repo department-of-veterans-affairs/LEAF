@@ -1,4 +1,4 @@
-@import '../common/LEAF_Vue_Dialog__Common.scss';
+@use '../common/LEAF_Vue_Dialog__Common.scss' as *;
 
 body {
     background-color: $BG_LightGray;
