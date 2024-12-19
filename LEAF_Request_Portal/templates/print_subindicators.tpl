@@ -14,6 +14,7 @@
     <!--{foreach from=$form item=indicator}-->
                 <!--{if $indicator.conditions != '' && $indicator.conditions !== 'null'}-->
                 <script type="text/javascript">
+                    formPrintConditions = typeof formPrintConditions === 'undefined' ? {} : formPrintConditions;
                     formPrintConditions["id<!--{$indicator.indicatorID}-->"] = {
                         conditions:<!--{$indicator.conditions|strip_tags}-->,
                         format:'<!--{$indicator.format}-->'
