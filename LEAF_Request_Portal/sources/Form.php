@@ -1096,6 +1096,7 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
+        
         if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
             $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);

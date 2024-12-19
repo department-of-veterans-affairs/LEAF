@@ -77,7 +77,7 @@ class Db
 
             $this->isConnected = false;
         }
-
+        $this->db->exec("SET NAMES 'utf8mb4'");
         unset($pass);
     }
 
