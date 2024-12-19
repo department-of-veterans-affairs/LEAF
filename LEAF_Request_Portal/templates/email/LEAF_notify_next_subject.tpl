@@ -1,1 +1,0 @@
-Action needed: {{$truncatedTitle}} (#{{$recordID}}) in {{$service}}

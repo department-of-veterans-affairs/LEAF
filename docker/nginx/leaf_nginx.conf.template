@@ -10,8 +10,8 @@ server {
     listen ${HTTPS_PORT} ssl http2 default_server;
     #listen [::]:${HTTPS_PORT} ssl http2 default_server;
 
-    ssl_certificate /etc/ssl/certs/leaf.pem;
-    ssl_certificate_key /etc/ssl/certs/leaf.key;
+    ssl_certificate /etc/ssl/certs/entra-dev-swarm.crt;
+    ssl_certificate_key /etc/ssl/certs/entra-dev-swarm.key;
     ssl_protocols TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 
@@ -159,6 +159,28 @@ server {
         add_header x-debug-args-info "$args" always;
     }
 
+    location ~ /entra/(.*?)$ {
+        fastcgi_pass entra-proto:9000;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        #fastcgi_split_path_info ^(.+\/entra\/)(.*)$;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param QUERY_STRING $query_string;
+        fastcgi_param REQUEST_METHOD $request_method;
+        fastcgi_param CONTENT_TYPE $content_type;
+        fastcgi_param CONTENT_LENGTH $content_length;
+        #fixes timeouts
+        fastcgi_read_timeout 600;
+        include fastcgi_params;
+        gzip on;
+
+        # debuging
+        add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
+        add_header x-debug-path-info "$fastcgi_path_info" always;
+        add_header x-debug-args-info "$args" always;
+    }
 
 
     #location /adminer {

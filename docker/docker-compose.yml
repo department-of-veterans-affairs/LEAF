@@ -28,8 +28,9 @@ services:
                 - SMTP_HOST=smtp4dev
                 - MAIL_HUB=smtp4dev
         volumes:
-            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+            - ./env_files/entra-dev-swarm.key:/etc/ssl/certs/entra-dev-swarm.key
+            - ./env_files/entra-dev-swarm.pem:/etc/ssl/certs/entra-dev-swarm.crt
+            - ./env_files/entra-dev-swarm.csr:/etc/ssl/certs/entra-dev-swarm.csr
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
             - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
             # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
@@ -44,6 +45,7 @@ services:
             - ../libs:/var/www/html/libs # temp step.  Will shift to below later
             - ../docker/mysql/db:/var/www/db
             - ./php/dev:/var/www/html/dev
+          
         networks:
             - leaf-sql
             - leaf
@@ -58,10 +60,12 @@ services:
             context: ../
             dockerfile: docker/nginx/leaf_nginx.dockerfile
         volumes:
-            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+            - ./env_files/entra-dev-swarm.key:/etc/ssl/certs/entra-dev-swarm.key
+            - ./env_files/entra-dev-swarm.crt:/etc/ssl/certs/entra-dev-swarm.crt
+            - ./env_files/entra-dev-swarm.csr:/etc/ssl/certs/entra-dev-swarm.csr
             - ./nginx/src:/var/www/html
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
+#            - ./nginx/entra_nginx.conf.template:/etc/nginx/templates/entra.conf.template
         volumes_from:
             - php-fpm
         ports:
