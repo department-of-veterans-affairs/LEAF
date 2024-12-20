@@ -1,3 +1,5 @@
+@use "uswds-core";
+@use "~@fortawesome/fontawesome-free/scss/fontawesome";
 @use 'sass:color';
 
 $usa-gray: #dfe1e2;
@@ -9,8 +11,8 @@ $base_navy: #005EA2;
 $fa-font-path: "../common/assets/fontawesome/"; //older FA for style consistency. These are w other src fonts
 //NOTE: if used in future, pkg FA font path is: "~@fortawesome/fontawesome-free/webfonts/";
 
-@import "~@fortawesome/fontawesome-free/scss/fontawesome";
-@import "~@fortawesome/fontawesome-free/scss/solid";
+//@import "~@fortawesome/fontawesome-free/scss/fontawesome";
+//@import "~@fortawesome/fontawesome-free/scss/solid";
 
 /* ################# FONT FAMILY DECLARATIONS #################
 Fonts are built from ../common/assets.  Webpack compiles to libs/css/fonts and updates relative urls */

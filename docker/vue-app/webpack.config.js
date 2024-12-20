@@ -27,7 +27,17 @@ const commonConfig = {
                 use: [
                     MiniCssExtractPlugin.loader,
                     'css-loader',
-                    'sass-loader'
+                    {
+                        loader: "sass-loader",
+                        options: {
+                          sassOptions: {
+                            includePaths: [
+                              "./node_modules/@uswds/uswds/packages",
+                              "./node_modules/@fortawesome/fontawesome-free",
+                            ],
+                          },
+                        },
+                    },
                 ]
             },
             {
