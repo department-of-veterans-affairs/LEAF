@@ -1,5 +1,5 @@
 <?php
-require_once 'scheduled-task-commands/globals.php';
+require_once 'globals.php';
 require_once APP_PATH . '/Leaf/Db.php';
 require_once APP_PATH . '/Leaf/VAMCActiveDirectory.php';
 
