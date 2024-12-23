@@ -26,11 +26,11 @@
     margin-bottom: 1px;
     height: 100vh !important;
 }
-#divSubject .CodeMirror,
+#divSubject .CodeMirror:not(.CodeMirror-fullscreen),
 #divSubject .CodeMirror-merge {
     height: 80px !important;
 }
-#emailBodyCode .CodeMirror,
+#emailBodyCode .CodeMirror:not(.CodeMirror-fullscreen),
 #emailBodyCode .CodeMirror-merge {
     height: 400px !important;
 }
