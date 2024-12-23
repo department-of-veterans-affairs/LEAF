@@ -39,7 +39,9 @@ function dialogController(containerID, contentID, loadIndicatorID, btnSaveID, bt
     $('#' + this.btnCancelID).on('click', function() {
     	t.hide();
     });
-	document.querySelector('#' + this.btnCancelID).removeAttribute('disabled');
+	if(document.getElementById(this.btnCancelID) !== null) {
+		document.getElementById(this.btnCancelID).removeAttribute('disabled');
+	}
     $('button.ui-dialog-titlebar-close').on('click', function() {
         t.hide();
     });
