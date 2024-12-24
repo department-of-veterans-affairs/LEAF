@@ -49,7 +49,15 @@ class VAMCActiveDirectory
         $rawheaders = trim(array_shift($rawdata));
         $rawheaders = explode(',', $rawheaders);
 
-        foreach ($rawdata as $key => $line) {
+        $index = 0;
+        $headerIndex = array();
+
+        foreach ($rawheaders as $header) {
+            $headerIndex[$header] = $index;
+            $index++;
+        }
+
+        /*foreach ($rawdata as $key => $line) {
             $t = $this->splitWithEscape($line);
             array_walk($t, array($this, 'trimField2'));
 
@@ -66,35 +74,39 @@ class VAMCActiveDirectory
 
                 $write_data[$key][$this->headers[$head_check]] = $val;
             }
-        }
+        }*/
 
         $count = 0;
 
-        foreach ($write_data as $employee) {
+        foreach ($rawdata as $line) {
+            $t = $this->splitWithEscape($line);
+            array_walk($t, array($this, 'trimField2'));
+
             if (
-                isset($employee['lname'])
-                && $employee['lname'] != ''
-                && isset($employee['loginName'])
-                && $employee['loginName'] != ''
-                && !is_numeric($employee['loginName'])
-                && !str_contains($employee['loginName'], '.')
+                isset($t[$headerIndex['sn']])
+                && $t[$headerIndex['sn']] != ''
+                && isset($t[$headerIndex['sAMAccountName']])
+                && $t[$headerIndex['sAMAccountName']] != ''
+                && !is_numeric($t[$headerIndex['sAMAccountName']])
+                && !str_contains($t[$headerIndex['sAMAccountName']], '.')
             ) {
                 $id = md5(strtoupper($employee['lname']) . strtoupper($employee['fname']) . strtoupper($employee['midIni']));
 
-                $this->users[$id]['lname'] = $employee['lname'];
-                $this->users[$id]['fname'] = $employee['fname'];
-                $this->users[$id]['midIni'] = $employee['midIni'];
-                $this->users[$id]['email'] = isset($employee['email']) ? $employee['email'] : null;
-                $this->users[$id]['phone'] = $employee['phone'];
-                $this->users[$id]['pager'] = isset($employee['pager']) ? $employee['pager'] : null;
-                $this->users[$id]['roomNum'] = $employee['roomNum'];
-                $this->users[$id]['title'] = $employee['title'];
-                $this->users[$id]['service'] = $employee['service'];
-                $this->users[$id]['mailcode'] = isset($employee['mailcode']) ? $employee['mailcode'] : null;
-                $this->users[$id]['loginName'] = $employee['loginName'];
+                $this->users[$id]['lname'] = $t[$headerIndex['sn']];
+                $this->users[$id]['fname'] = $t[$headerIndex['givenName']];
+                $this->users[$id]['midIni'] = !empty($t[$headerIndex['initials']]) ? trim($t[$headerIndex['initials']]) : null;
+                $this->users[$id]['email'] = isset($t[$headerIndex['mail']]) ? $t[$headerIndex['mail']] : null;
+                $this->users[$id]['phone'] = $t[$headerIndex['telephoneNumber']] ? $t[$headerIndex['telephoneNumber']] : null;
+                $this->users[$id]['pager'] = isset($t[$headerIndex[94]]) ? $t[$headerIndex[94]] : null;
+                $this->users[$id]['roomNum'] = $t[$headerIndex['physicalDeliveryOfficeName']] ? $t[$headerIndex['physicalDeliveryOfficeName']] : null;
+                $this->users[$id]['title'] = $t[$headerIndex['title']] ? $t[$headerIndex['title']] : null;
+                $this->users[$id]['service'] = $t[$headerIndex['description']] ? $t[$headerIndex['description']] : null;
+                $this->users[$id]['mailcode'] = isset($t[$headerIndex[98]]) ? $t[$headerIndex[98]] : null;
+                $this->users[$id]['loginName'] = $t[$headerIndex['sAMAccountName']] ? $t[$headerIndex['sAMAccountName']] : null;
                 $this->users[$id]['objectGUID'] = null;
-                $this->users[$id]['mobile'] = $employee['mobile'];
-                $this->users[$id]['domain'] = $employee['domain'];
+                $this->users[$id]['mobile'] = isset($headerIndex['mobile'] && isset($t[$headerIndex['mobile']]) ? $t[$headerIndex['mobile']] : null;
+                $domain = $t[$headerIndex['DN']] ? $t[$headerIndex['DN']] : null;
+                $this->users[$id]['domain'] = $this->parseVAdomain($domain);
                 $this->users[$id]['source'] = 'ad';
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
@@ -393,5 +405,67 @@ class VAMCActiveDirectory
         }
 
         return $stringToFix;
+    }
+
+    private function parseVAdomain($adPath) {
+    	$dc = '';
+    	$dcSrc = explode(',', $adPath);
+    	foreach($dcSrc as $adElement) {
+    		if(strpos($adElement, 'DC=') !== false) {
+    			$dc .= substr($adElement, 3) . '.';
+    		}
+    	}
+    	$dc = trim($dc, '.');
+    
+    	switch($dc) {
+    		case 'v01.med.va.gov':
+    			return 'VHA01';
+    		case 'v02.med.va.gov':
+    			return 'VHA02';
+    		case 'v03.med.va.gov':
+    			return 'VHA03';
+    		case 'v04.med.va.gov':
+    			return 'VHA04';
+    		case 'v05.med.va.gov':
+    			return 'VHA05';
+    		case 'v06.med.va.gov':
+    			return 'VHA06';
+    		case 'v07.med.va.gov':
+    			return 'VHA07';
+    		case 'v08.med.va.gov':
+    			return 'VHA08';
+    		case 'v09.med.va.gov':
+    			return 'VHA09';
+    		case 'v10.med.va.gov':
+    			return 'VHA10';
+    		case 'v11.med.va.gov':
+    			return 'VHA11';
+    		case 'v12.med.va.gov':
+    			return 'VHA12';
+    		case 'v13.med.va.gov':
+    			return 'VHA13';
+    		case 'v14.med.va.gov':
+    			return 'VHA14';
+    		case 'v15.med.va.gov':
+    			return 'VHA15';
+    		case 'v16.med.va.gov':
+    			return 'VHA16';
+    		case 'v17.med.va.gov':
+    			return 'VHA17';
+    		case 'v18.med.va.gov':
+    			return 'VHA18';
+    		case 'v19.med.va.gov':
+    			return 'VHA19';
+    		case 'v20.med.va.gov':
+    			return 'VHA20';
+    		case 'v21.med.va.gov':
+    			return 'VHA21';
+    		case 'v22.med.va.gov':
+    			return 'VHA22';
+    		case 'v23.med.va.gov':
+    			return 'VHA23';
+    		default:
+    			return $dc;
+    	}
     }
 }
