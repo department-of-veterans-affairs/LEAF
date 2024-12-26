@@ -258,7 +258,7 @@ class Employee extends Data
 
             $this->prepareArrays($national_employee_uids, $local_array, $national_employees_list, $local_employee_array);
 
-            $local_deleted_employees = array_diff(array_column($local_employees_uid, 'userName'), array_column($national_employees_list, 'userName'));
+            $local_deleted_employees = array_diff(array_column($local_employees_uid['data'], 'userName'), array_column($national_employees_list['data'], 'userName'));
 
             if (!empty($local_deleted_employees)) {
                 $results[] = $this->disableEmployees($local_deleted_employees);
