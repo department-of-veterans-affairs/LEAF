@@ -979,39 +979,46 @@
             <div id="indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" style="padding: 0px">
             <script>
             $(function() {
-                $.ajax({
-                    type: 'GET',
-                    url: "<!--{$orgchartPath}-->/api/position/<!--{$indicator.value|strip_tags}-->",
-                    dataType: 'json',
-                    success: function(data) {
-                        $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').html('<b>' + data.title + '</b>'
-                            /* Pay Plan, Series, Pay Grade */ + '<br />' + data[2].data + '-' + data[13].data + '-' + data[14].data);
+                const displayValue = '<!--{$indicator.displayedValue|strip_tags}-->';
+                if(displayValue !== '') {
+                    $.ajax({
+                        type: 'GET',
+                        url: "<!--{$orgchartPath}-->/api/position/<!--{$indicator.value|strip_tags}-->",
+                        dataType: 'json',
+                        success: function(data) {
+                            $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').html('<b>' + data.title + '</b>'
+                                /* Pay Plan, Series, Pay Grade */ + '<br />' + data[2].data + '-' + data[13].data + '-' + data[14].data);
 
-                        if(data[3].data != '') {
-                            for(i in data[3].data) {
-                                var pdLink = document.createElement('a');
-                                pdLink.innerHTML = data[3].data[i];
-                                pdLink.setAttribute('href', '<!--{$orgchartPath}-->/file.php?categoryID=2&UID=<!--{$indicator.value|strip_tags}-->&indicatorID=3&file=' + encodeURIComponent(data[3].data[i]));
-                                pdLink.setAttribute('class', 'printResponse');
-                                pdLink.setAttribute('target', '_blank');
+                            if(data[3].data != '') {
+                                for(i in data[3].data) {
+                                    var pdLink = document.createElement('a');
+                                    pdLink.innerHTML = data[3].data[i];
+                                    pdLink.setAttribute('href', '<!--{$orgchartPath}-->/file.php?categoryID=2&UID=<!--{$indicator.value|strip_tags}-->&indicatorID=3&file=' + encodeURIComponent(data[3].data[i]));
+                                    pdLink.setAttribute('class', 'printResponse');
+                                    pdLink.setAttribute('target', '_blank');
 
-                                $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append('<br />Position Description: ');
-                                $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append(pdLink);
+                                    $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append('<br />Position Description: ');
+                                    $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append(pdLink);
+                                }
                             }
-                        }
 
-                        br = document.createElement('br');
-                        $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append(br);
+                            br = document.createElement('br');
+                            $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append(br);
 
-                        var ocLink = document.createElement('div');
-                        ocLink.innerHTML = '<img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="" /> View Details in Org. Chart';
-                        ocLink.setAttribute('onclick', "window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.value|strip_tags}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');");
-                        ocLink.setAttribute('class', 'buttonNorm');
-                        ocLink.setAttribute('style', 'margin-top: 8px');
-                        $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append(ocLink);
-                    },
-                    cache: false
-                });
+                            var ocLink = document.createElement('div');
+                            ocLink.innerHTML = '<img src="dynicons/?img=preferences-system-windows.svg&w=32" alt="" /> View Details in Org. Chart';
+                            ocLink.setAttribute('onclick', "window.open('<!--{$orgchartPath}-->/?a=view_position&positionID=<!--{$indicator.value|strip_tags}-->','Resource_Request','width=870,resizable=yes,scrollbars=yes,menubar=yes');");
+                            ocLink.setAttribute('class', 'buttonNorm');
+                            ocLink.setAttribute('style', 'margin-top: 8px');
+                            $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').append(ocLink);
+                        },
+                        cache: false
+                    });
+                } else {
+                    $('#indata_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->').html(
+                        `Position #<!--{$indicator.value|strip_tags}--> no longer available`
+                    );
+                }
             });
             </script>
             Loading...
