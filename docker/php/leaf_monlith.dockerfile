@@ -26,7 +26,6 @@ COPY docker/php/ssmtp/revaliases /etc/ssmtp/revaliases
 # install minimal procps (ps aux) and cleanup afterwards
 RUN apt update && apt install --no-install-recommends -y procps && apt clean
 
-# FROM base as prod
 COPY ./LEAF_Nexus /var/www/html/LEAF_Nexus
 COPY ./LEAF_Request_Portal /var/www/html/LEAF_Request_Portal
 COPY ./libs /var/www/html/libs
@@ -34,4 +33,7 @@ COPY ./health_checks /var/www/html/health_checks
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
-# USER www-data
+
+# Setup for static code analysis
+RUN composer require "squizlabs/php_codesniffer=*"
+RUN composer require --dev phpstan/phpstan

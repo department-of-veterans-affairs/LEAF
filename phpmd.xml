@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ruleset name="Custom_PHPMD">
+    <description>Custom ruleset PHPMD</description>
+    <!--Add a rule to be executed-->
+    <!-- List of rules https://phpmd.org/rules/index.html -->
+    <rule ref="rulesets/cleancode.xml">
+        <!-- Rule to exclude -->
+        <exclude name="StaticAccess"/>
+    </rule>
+    <rule ref="rulesets/codesize.xml"/>
+    <rule ref="rulesets/controversial.xml/Superglobals" />
+    <rule ref="rulesets/controversial.xml/CamelCaseClassName" />
+    <rule ref="rulesets/controversial.xml/CamelCaseMethodName" />
+    <rule ref="rulesets/controversial.xml/CamelCaseParameterName" />
+    <rule ref="rulesets/unusedcode.xml"/>
+</ruleset>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!-- Ruleset name -->
+<ruleset name="Custom_PSR12">
+    <!-- Description -->
+    <description>Custom ruleset Based on PSR12</description>
+    <!-- Rule to be referenced (`PSR12`) -->
+    <rule ref="PSR12"/>
+
+    <!-- Specify extensions (.php) -->
+    <arg name="extensions" value="php"/>
+    <!--Color the result output -->
+    <arg name="colors"/> <!--Display progress (-p)-->
+    <!--Display violation rules in error information (-s)-->
+    <arg value="ps"/>
+
+    <!-- Directories to exclude from the check -->
+    <exclude-pattern>/app/</exclude-pattern>
+    <exclude-pattern>/libs/</exclude-pattern>
+    <exclude-pattern>/scripts/</exclude-pattern>
+    <exclude-pattern>/src/</exclude-pattern>
+    <exclude-pattern>/vendor/</exclude-pattern>
+    <exclude-pattern>/LEAF_Nexus/</exclude-pattern>
+    <exclude-pattern>/LEAF_Request_Portal/</exclude-pattern>
+    <exclude-pattern>/LEAF_Request_Portal/</exclude-pattern>
+</ruleset>
