@@ -27,7 +27,7 @@ server {
     root /var/www/html;
     index index.php index.html index.htm;
 
-    location ~ /entra/(.*?)$ {
+    location ~ /entra {
         fastcgi_pass entra-proto:9000;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
@@ -39,7 +39,8 @@ server {
         fastcgi_param REQUEST_METHOD $request_method;
         fastcgi_param CONTENT_TYPE $content_type;
         fastcgi_param CONTENT_LENGTH $content_length;
-        #fixes timeouts
+
+        #fixes timeouts        
         fastcgi_read_timeout 600;
         include fastcgi_params;
         gzip on;

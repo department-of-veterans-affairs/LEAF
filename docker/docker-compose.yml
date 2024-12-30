@@ -62,10 +62,10 @@ services:
         volumes:
             - ./env_files/entra-dev-swarm.key:/etc/ssl/certs/entra-dev-swarm.key
             - ./env_files/entra-dev-swarm.crt:/etc/ssl/certs/entra-dev-swarm.crt
-            - ./env_files/entra-dev-swarm.csr:/etc/ssl/certs/entra-dev-swarm.csr
+#            - ./env_files/entra-dev-swarm.csr:/etc/ssl/certs/entra-dev-swarm.csr
             - ./nginx/src:/var/www/html
             - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
-#            - ./nginx/entra_nginx.conf.template:/etc/nginx/templates/entra.conf.template
+            - ./nginx/entra_nginx.conf.template:/etc/nginx/templates/entra.conf.template
         volumes_from:
             - php-fpm
         ports:
