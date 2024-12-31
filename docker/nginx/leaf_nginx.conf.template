@@ -41,7 +41,7 @@ server {
 #        add_header Content-Type text/plain;
 
         set $entra_pod ${ENTRA_POD}:9000;
-        set $entra_doc_root /var/www/html/entraId/;
+        set $entra_doc_root /var/www/html/;
         fastcgi_split_path_info ^(.+\/entraId\/)(.*)$;
         fastcgi_pass $entra_pod;
         fastcgi_index index.php;
