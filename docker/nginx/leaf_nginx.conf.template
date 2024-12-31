@@ -188,28 +188,6 @@ server {
         add_header x-debug-args-info "$args" always;
     }
 
-    location ~ /entra/  {
-#        return 200 "ok entra test";
-#        add_header Content-Type text/plain;
-
-        set $entra_pod ${ENTRA_POD}:9000;
-        fastcgi_pass $entra_pod;
-        fastcgi_index index.php;
-        fastcgi_buffers 16 16k;
-        fastcgi_buffer_size 32k;
-        fastcgi_param SCRIPT_FILENAME /var/www/html/index.php;
-		
-        #fixes timeouts
-        fastcgi_read_timeout 600;
-        include fastcgi_params;
-        gzip on;
-
-        # debuging
-        add_header x-debug-root-script "$document_root$fastcgi_script_name" always;
-        add_header x-debug-path-info "$fastcgi_path_info" always;
-        add_header x-debug-args-info "$args" always;
-    }
-
 
     #location /adminer {
     #    proxy_pass ${LEAF}:8080;
