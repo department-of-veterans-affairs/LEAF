@@ -36,7 +36,7 @@ server {
 
     }
     
-    location ~ /entraId/$ {
+    location ~ /entraId/(.*?)$ {
 #        return 200 "ok entra test";
 #        add_header Content-Type text/plain;
 
