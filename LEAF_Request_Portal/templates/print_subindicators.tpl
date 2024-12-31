@@ -14,10 +14,12 @@
     <!--{foreach from=$form item=indicator}-->
                 <!--{if $indicator.conditions != '' && $indicator.conditions !== 'null'}-->
                 <script type="text/javascript">
-                    formPrintConditions["id<!--{$indicator.indicatorID}-->"] = {
-                        conditions:<!--{$indicator.conditions|strip_tags}-->,
-                        format:'<!--{$indicator.format}-->'
-                    };
+                    if (typeof formPrintConditions !== 'undefined') {
+                        formPrintConditions["id<!--{$indicator.indicatorID}-->"] = {
+                            conditions:<!--{$indicator.conditions|strip_tags}-->,
+                            format:'<!--{$indicator.format}-->'
+                        };
+                    }
                 </script>
                 <!--{/if}-->
                 <!--{if $indicator.format == null || $indicator.format == 'textarea'}-->
