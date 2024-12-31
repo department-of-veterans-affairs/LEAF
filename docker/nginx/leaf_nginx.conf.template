@@ -42,7 +42,7 @@ server {
 
         set $entra_pod ${ENTRA_POD}:9000;
         set $entra_doc_root /var/www/html/entraId/;
-        fastcgi_split_path_info ^(.+\/entra\/)(.*)$;
+        fastcgi_split_path_info ^(.+\/entraId\/)(.*)$;
         fastcgi_pass $entra_pod;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $entra_doc_root$fastcgi_script_name;
