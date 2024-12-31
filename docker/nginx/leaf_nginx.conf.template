@@ -36,12 +36,12 @@ server {
 
     }
     
-    location ~ /entra/(.*?)$   {
+    location ~ /entraId$ {
 #        return 200 "ok entra test";
 #        add_header Content-Type text/plain;
 
         set $entra_pod ${ENTRA_POD}:9000;
-        set $entra_doc_root /var/www/html/entra/;
+        set $entra_doc_root /var/www/html/entraId/;
         fastcgi_split_path_info ^(.+\/entra\/)(.*)$;
         fastcgi_pass $entra_pod;
         fastcgi_index index.php;
