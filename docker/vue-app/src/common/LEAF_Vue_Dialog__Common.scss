@@ -365,7 +365,7 @@ li.is_being_dragged {
 ul[id^="base_drop_area"] {
     position: relative;
     padding: 1px 0; //top and bottom padding needed for base drop area visibility
-    li {
+    li[id^="index_listing_"] {
         position: relative;
         transition: margin 0.4s ease;
     }
