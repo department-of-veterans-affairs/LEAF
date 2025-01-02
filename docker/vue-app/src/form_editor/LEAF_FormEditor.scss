@@ -612,8 +612,11 @@ table[class$="SelectorTable"] th {
             &.preview.form-header > ul {
                 padding: 0.5em;
             }
-            &.preview.form-header li {
+            &.preview.form-header li[id^="index_listing_"] {
                 margin: 0;
+                border: 0;
+                box-shadow: none;
+                transition: none;
             }
             &.preview {
                 border: 0;
