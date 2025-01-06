@@ -194,6 +194,10 @@ class FormStack
     {
         $indicatorPackage['categoryID'] = $categoryID;
         $indicatorPackage['parentID'] = $parentID;
+        //an issue on conditions editor release could cause some form packets to have 'null' instead of null.
+        if($indicatorPackage['conditions'] === 'null') {
+            $indicatorPackage['conditions'] = null;
+        }
 
         if (is_array($indicatorPackage['options']))
         {
