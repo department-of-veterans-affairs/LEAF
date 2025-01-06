@@ -2661,14 +2661,17 @@ class Form
                             }
                             break;
                         case 'orgchart_employee': //report builder cells
-                            $item['data'] = '';
+                            $dataDisplay = "";
                             if (isset($item['metadata'])) {
                                 $orgchartInfo = json_decode($item['metadata'], true);
                                 if(!empty(trim($orgchartInfo['lastName']))) {
-                                    $item['data'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                                    $dataDisplay = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
                                     $item['dataOrgchart'] = $orgchartInfo;
+                                } else {
+                                    $dataDisplay = "Employee #" . $item['data'] ." no longer available";
                                 }
                             }
+                            $item['data'] = $dataDisplay;
                             break;
                         case 'orgchart_position':
                             $dataDisplay = "";
