@@ -1161,6 +1161,9 @@
                                     console.log(err);
                                 }
                             });
+                        } else {
+                            $('#loadingIndicator_<!--{$indicator.indicatorID|strip_tags}-->').html("");
+                            $("#"+ empSel.prefixID+"input").val("#" + "<!--{$indicator.value}-->");
                         }
                     }
                 }
