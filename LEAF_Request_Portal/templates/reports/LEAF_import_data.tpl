@@ -509,6 +509,7 @@
                 formData.description,
                 function(categoryID) {
                     newCategoryID = categoryID.replace(/"/g, "");
+                    portalAPI.FormEditor.publishForm(newCategoryID); //this is not async
                     if (workflowID > 0) {
                         portalAPI.FormEditor.assignFormWorkflow(
                             newCategoryID.replace(/"/g, ""),
@@ -743,6 +744,7 @@
                     makeIndicator();
                 },
                 function (err) {
+                    console.log(err)
                 }
             );
 

@@ -434,6 +434,7 @@ var PortalFormEditorAPI = function (baseAPIURL) {
                 data: {
                     "name": name,
                     "description": description,
+                    "parentID": "",
                     CSRFToken: csrfToken
                 }
             })
@@ -443,6 +444,27 @@ var PortalFormEditorAPI = function (baseAPIURL) {
                 .fail(function (err) {
                     onFail(err);
                 });
+        },
+
+        publishForm = function (categoryID) {
+            var postURL = apiURL + '/formVisible';
+            $.ajax({
+                method: 'POST',
+                url: postURL,
+                dataType: "text",
+                data: {
+                    "categoryID": categoryID,
+                    "visible": "0",
+                    CSRFToken: csrfToken
+                },
+                onSuccess(res) {
+                    console.log(res)
+                },
+                error(err) {
+                    console.log(err)
+                },
+                async: false
+            });
         },
 
         /**
@@ -565,6 +587,7 @@ var PortalFormEditorAPI = function (baseAPIURL) {
         getBaseAPIURL: getBaseAPIURL,
         assignFormWorkflow: assignFormWorkflow,
         createCustomForm: createCustomForm,
+        publishForm: publishForm,
         createFormIndicator: createFormIndicator,
         getIndicator: getIndicator,
         getIndicatorEditor: getIndicatorEditor,
