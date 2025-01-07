@@ -1,6 +1,5 @@
 <?php
 require_once 'globals.php';
-require_once APP_PATH . '/Leaf/Db.php';
 
 $VISNS = array('acc.dva.va.gov',
                 'cem.va.gov',

@@ -22,12 +22,7 @@ $sql = 'SELECT `userName`
         AND `domain` = :domain
         LIMIT 1000';
 
-$VISNS = $db->prepared_query($sql, $vars);
-$users = array();
-
-foreach ($VISNS as $user) {
-    $users[] = $user['userName'];
-}
+$users = $db->prepared_query($sql, $vars);
 
 $dir = new App\Leaf\VAMCActiveDirectory($national_db);
 
@@ -36,4 +31,4 @@ $dir->disableNationalOrgchartEmployees($users);
 $endTime = microtime(true);
 $totalTime = round(($endTime - $startTime)/60, 2);
 
-error_log(print_r($file . " took " . $totalTime . " minutes to complete.", true), 3 , '/var/www/php-logs/update_existing.log');
+error_log(print_r($file . " took " . $totalTime . " minutes to complete.\r\n", true), 3 , '/var/www/php-logs/update_existing.log');
