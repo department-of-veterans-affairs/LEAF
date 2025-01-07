@@ -2661,27 +2661,40 @@ class Form
                             }
                             break;
                         case 'orgchart_employee': //report builder cells
-                            $item['data'] = '';
+                            $dataDisplay = "";
                             if (isset($item['metadata'])) {
                                 $orgchartInfo = json_decode($item['metadata'], true);
                                 if(!empty(trim($orgchartInfo['lastName']))) {
-                                    $item['data'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                                    $dataDisplay = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
                                     $item['dataOrgchart'] = $orgchartInfo;
+                                } else {
+                                    $dataDisplay = "Employee #" . $item['data'] ." no longer available";
                                 }
                             }
+                            $item['data'] = $dataDisplay;
                             break;
                         case 'orgchart_position':
-                            $positionTitle = $this->position->getTitle($item['data']);
-                            $positionData = $this->position->getAllData($item['data']);
-
-                            $item['dataOrgchart'] = $positionData;
-                            $item['dataOrgchart']['positionID'] = $item['data'];
-                            $item['data'] = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
+                            $dataDisplay = "";
+                            if(!empty(trim($item['data']))) {
+                                $positionTitle = $this->position->getTitle($item['data']);
+                                if ($positionTitle !== false) {
+                                    $positionData = $this->position->getAllData($item['data']);
+                                    $dataDisplay = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
+                                    $item['dataOrgchart'] = $positionData;
+                                    $item['dataOrgchart']['positionID'] = $item['data'];
+                                } else {
+                                    $dataDisplay = "Position #" . $item['data'] ." no longer available";
+                                }
+                            }
+                            $item['data'] = $dataDisplay;
                             break;
                         case 'orgchart_group':
-                            $groupTitle = $this->group->getTitle($item['data']);
-
-                            $item['data'] = $groupTitle;
+                            $dataDisplay = "";
+                            if(!empty(trim($item['data']))) {
+                                $groupTitle = $this->group->getTitle($item['data']);
+                                $dataDisplay = $groupTitle !== false ? $groupTitle : "Group #" . $item['data'] ." no longer available";
+                            }
+                            $item['data'] = $dataDisplay;
                             break;
                         case 'raw_data':
                             if($indicators[$item['indicatorID']]['htmlPrint'] != '') {
