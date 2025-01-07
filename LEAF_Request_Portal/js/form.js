@@ -225,30 +225,34 @@ var LeafForm = function (containerID) {
       }
     }
     /** cross walk end */
-
+    console.log("declare validator")
     let childRequiredValidators = {};
     //store required validators for the controlled question and any subchildren on main entry and modals
     const handleChildValidators = (childID) => {
+      console.log("handle validators", childID)
       let arrValidatorIDs = [ childID ];
       const arrSubchildren = Array.from(
         document.querySelectorAll(`.response.blockIndicator_${childID} div.response[class*="blockIndicator_"]`)
       );
       arrSubchildren.forEach(element => {
-        const id = +element.className.match(/(\d+)$/)?.[0];
+        const id = +element.className.match(/(?<=blockIndicator_)(\d+)/)?.[0];
         if(id > 0) {
           arrValidatorIDs.push(id);
         }
       });
       arrValidatorIDs.forEach(id => {
         if (!childRequiredValidators[id]) {
+          console.log("set child validators.validator to setrequired ", id);
           childRequiredValidators[id] = {
             validator: formRequired[`id${id}`]?.setRequired,
           };
         }
         if (childRequiredValidators[id].validator !== undefined && dialog !== null) {
+          console.log("set dialog requirements to this value too")
           dialog.requirements[id] = childRequiredValidators[id].validator;
         }
       });
+      console.log(dialog.requirements)
     };
     //validator ref for required question in a hidden state
     const hideShowValidator = function () {
@@ -289,8 +293,15 @@ var LeafForm = function (containerID) {
     const checkConditions = (event = 0, selected = 0, parID = 0) => {
       const parentElID =
         event !== null ? parseInt(event.target.id) : parseInt(parID);
+      
+      
+      console.log("check cond", parentElID)
 
-      //get all conditions for children if any of their controllers match parID. sep by hide/show, prefill
+      /*
+      * !! Conditional questions can have multiple controllers, so if one changes, all need to be checked.
+      * Get ALL conditions for children if ANY of their controllers match parID.
+      * !! Separate into batches of hide/show, prefill (prefills are run after conditional display states)
+      */
       let hideShowCondByChild = {};
       let prefillCondByChild = {};
       for(let childKey in formConditions) {
@@ -326,8 +337,8 @@ var LeafForm = function (containerID) {
 
     /**
      * returns true if any of the selected values are in the comparisonValues
-     * @param {array} multiChoiceSelections array of option values
-     * @param {array} comparisonValues array of values to compare against
+     * @param {array} multiChoiceSelections array of selected option values
+     * @param {array} comparisonValues array of trigger values to compare against
      * @returns
      */
     const valIncludesMultiselOption = (multiChoiceSelections = [], comparisonValues = []) => {
@@ -374,55 +385,68 @@ var LeafForm = function (containerID) {
       const arrSubchildren = Array.from(
         document.querySelectorAll(`.response.blockIndicator_${childIndID} div.response[class*="blockIndicator_"]`)
       );
-
       //parse the IDs of any additional subquestions
       let arrChildAndSubquestionIDs = [ childIndID ];
       arrSubchildren.forEach(element => {
-        const id = +element.className.match(/(\d+)$/)?.[0];
+        const id = +element.className.match(/(?<=blockIndicator_)(\d+)/)?.[0];
         if(id > 0) {
           arrChildAndSubquestionIDs.push(id);
         }
       });
-
+      console.log(childIndID, arrChildAndSubquestionIDs)
       arrChildAndSubquestionIDs.forEach(id => {
-        //clear values for questions in a hidden state.
-        $("#" + id).val(""); //most formats
-        $(`input[id^="${id}_"]`).prop("checked", false); //radio and checkbox(es) formats
+        const elResponse = document.querySelector(`div.response[class*="blockIndicator_${id}"]`);
+        const isNotHidden = !elResponse.classList.contains('response-hidden');
 
-        $(`#grid_${id}_1_input tbody td`) //grid table data
-        .each(function () {
-          if ($("textarea", this).length) {
-            $("textarea", this).val('');
-          } else if ($("select", this).length) {
-            $("select", this).val('');
-          } else if ($("input", this).length) {
-            $("input", this).val('');
+        //clear values for questions not already in a hidden state.
+        if(isNotHidden) {
+          $("#" + id).val(""); //most formats
+          $(`input[id^="${id}_"]`).prop("checked", false); //radio and checkbox(es) formats
+
+          $(`#grid_${id}_1_input tbody td`) //grid table data
+          .each(function () {
+            if ($("textarea", this).length) {
+              $("textarea", this).val('');
+            } else if ($("select", this).length) {
+              $("select", this).val('');
+            } else if ($("input", this).length) {
+              $("input", this).val('');
+            }
+          });
+
+          const isChosenDropdown = elResponse.querySelector(`select[id="${id}"] + .chosen-container`)
+          if(isChosenDropdown) {
+            let elChildInput = $("#" + id);
+            elChildInput.chosen().val("");
+            elChildInput.chosen({ width: "100%" });
+            elChildInput.trigger("chosen:updated");
           }
-        });
 
-        const isMultiselectQuestion = document.querySelector(`select[id="${id}"][multiple]`) !== null;
-        if (isMultiselectQuestion) {
-          clearMultiSelectChild($("#" + id), id);
-        }
-
-        const isRadioQuestion = document.querySelector(`input[id^="${id}_radio"]`) !== null;
-        if(isRadioQuestion) {
-          const radioEmpty = $(`input[id^="${id}_radio0"]`); //need to add hidden empty input to clear radio
-          if (radioEmpty.length === 0) {
-            $(`div.response.blockIndicator_${id}`).prepend(
-              `<input id="${id}_radio0" name="${id}" value="" style="display:none;" />`
-            );
+          const isMultiselectQuestion = document.querySelector(`select[id="${id}"][multiple]`) !== null;
+          if (isMultiselectQuestion) {
+            clearMultiSelectChild($("#" + id), id);
           }
-          $(`input[id^="${id}_radio0"]`).prop("checked", true);
-        }
 
-        //if the question is required, use the alternate validator
+          const isRadioQuestion = document.querySelector(`input[id^="${id}_radio"]`) !== null;
+          if(isRadioQuestion) {
+            const radioEmpty = $(`input[id^="${id}_radio0"]`); //need to add hidden empty input to clear radio
+            if (radioEmpty.length === 0) {
+              $(`div.response.blockIndicator_${id}`).prepend(
+                `<input id="${id}_radio0" name="${id}" value="" style="display:none;" />`
+              );
+            }
+            $(`input[id^="${id}_radio0"]`).prop("checked", true);
+          }
+        }
+        
+        //if the question is required, use the alternate validator - do this for all
         if (
           childRequiredValidators[id].validator !== undefined &&
           dialog !== null
         ) {
+          console.log("set hide validator", id)
           dialog.requirements[id] = hideShowValidator;
-        }
+        } else { console.log("no validator", id)}
       });
     };
 
@@ -545,9 +569,10 @@ var LeafForm = function (containerID) {
         }
       });
 
-      /*There should only be hide OR show, and prefills should have only one valid comparison entry, so
-      outcome checking only needs to run once per type (and there should only be one type on the outcomes array).
-      Comparisons are made in two batches, hide/show, then prefills.  Crosswalks are not processed here*/
+      /* Comparisons are made in two batches, hide/show, then prefills.  Crosswalks are not processed here.
+      *  There should logically only be hide OR show for a single question, and one valid prefill.
+      *  This means there should only be one type on the below outcomes array.
+      */
       let outcomes = [];
       if (arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "hide")) outcomes.push("hide");
       if (arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "show")) outcomes.push("show");
@@ -559,6 +584,7 @@ var LeafForm = function (containerID) {
       //update child states and/or values.
       let elsChild = $(`.blockIndicator_${childID}`); //label and response divs to hide/show
       let elChildResponse = document.querySelector(`div.response.blockIndicator_${childID}`);
+
       const co = (outcomes[0] || '').toLowerCase();
       switch (co) {
         case "hide":
@@ -644,19 +670,25 @@ var LeafForm = function (containerID) {
           console.log(co);
           break;
       }
-      //clear stack again before checking for hidden elements
+      //clear stack again before checking for hidden elements (might be some due to the order checks run in)
       setTimeout(() => {
         const closestHidden = elChildResponse.closest('.response-hidden');
         if (closestHidden !== null) {
+          console.log("has hidden anc", childID);
           clearValues(childID);
+        } else {
+          console.log("no hidden anc", childID)
         }
 
-        elChildInput.trigger("change");
-        $(`input[id^="${childID}_"]`).trigger("change"); //radio and checkboxes
-        if (chosenShouldUpdate) {
-          elChildInput.chosen().val(elChildInput.val());
-          elChildInput.chosen({ width: "100%" });
-          elChildInput.trigger("chosen:updated");
+        if(confirmedParElsByIndID.some(id => id === childID)) { //chain trigger if the child is also a controller
+          elChildInput.trigger("change");
+          //radio and checkboxes. only the parent question indicatorID matters here - trigger only one
+          $(`input[id^="${childID}_"]`).eq(0).trigger("change");
+          if (chosenShouldUpdate) {
+            elChildInput.chosen().val(elChildInput.val());
+            elChildInput.chosen({ width: "100%" });
+            elChildInput.trigger("chosen:updated");
+          }
         }
       });
     };
