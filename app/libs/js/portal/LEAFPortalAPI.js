@@ -446,15 +446,16 @@ var PortalFormEditorAPI = function (baseAPIURL) {
                 });
         },
 
-        publishForm = function (categoryID) {
+        setVisibility = function (categoryID, visibility = "0") {
             var postURL = apiURL + '/formVisible';
+
             $.ajax({
                 method: 'POST',
                 url: postURL,
                 dataType: "text",
                 data: {
                     "categoryID": categoryID,
-                    "visible": "0",
+                    "visible": visibility,
                     CSRFToken: csrfToken
                 },
                 onSuccess(res) {
@@ -587,7 +588,7 @@ var PortalFormEditorAPI = function (baseAPIURL) {
         getBaseAPIURL: getBaseAPIURL,
         assignFormWorkflow: assignFormWorkflow,
         createCustomForm: createCustomForm,
-        publishForm: publishForm,
+        setVisibility: setVisibility,
         createFormIndicator: createFormIndicator,
         getIndicator: getIndicator,
         getIndicatorEditor: getIndicatorEditor,
