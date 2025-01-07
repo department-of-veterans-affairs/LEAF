@@ -467,11 +467,12 @@ class Employee extends Data
 
     private function getNewlyDisabledUsers(): array
     {
-        $vars = array(':deleteTime' => 0);
+        $time_minus_24 = time() - 86400;
+
+        $vars = array(':deleteTime' => $time_minus_24);
         $sql = 'SELECT `userName`
                 FROM `employee`
-                WHERE `deleted` > :deleteTime
-                AND LEFT(`userName`, 9) <> "disabled_"';
+                WHERE `deleted` > :deleteTime';
 
         $return_value = $this->db->prepared_query($sql, $vars);
 
