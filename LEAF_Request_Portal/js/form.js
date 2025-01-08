@@ -71,16 +71,27 @@ var LeafForm = function (containerID) {
     dialog = null
   ) {
 
-    /** crosswalk variables and functions */
+    /** CROSSWALK variables and functions */
     let dropdownInfo = {};
 
-    function loadRecordData() {
+    function loadRecordData(indID) {
       return new Promise((resolve, reject)=> {
         $.ajax({
           type: 'GET',
-          url: `./api/form/${recordID}/data`,
-          success: (result) => {
-            resolve(result)
+          //need to know the category ID (different from main form if this is on an internal)
+          url: `./api/form/${recordID}/rawIndicator/${indID}/1?x-filterData=categoryID`,
+          success: (indicator) => {
+            const categoryID = indicator[indID]?.categoryID || "";
+            $.ajax({
+              type: 'GET',
+              url: `./api/form/${recordID}/_${categoryID}/data`,
+              success: (result) => {
+                resolve(result)
+              },
+              error: (err) => {
+                reject(err)
+              }
+            });
           },
           error: (err) => {
             reject(err)
@@ -224,41 +235,6 @@ var LeafForm = function (containerID) {
         }
       }
     }
-    /** cross walk end */
-    console.log("declare validator")
-    let childRequiredValidators = {};
-    //store required validators for the controlled question and any subchildren on main entry and modals
-    const handleChildValidators = (childID) => {
-      console.log("handle validators", childID)
-      let arrValidatorIDs = [ childID ];
-      const arrSubchildren = Array.from(
-        document.querySelectorAll(`.response.blockIndicator_${childID} div.response[class*="blockIndicator_"]`)
-      );
-      arrSubchildren.forEach(element => {
-        const id = +element.className.match(/(?<=blockIndicator_)(\d+)/)?.[0];
-        if(id > 0) {
-          arrValidatorIDs.push(id);
-        }
-      });
-      arrValidatorIDs.forEach(id => {
-        if (!childRequiredValidators[id]) {
-          console.log("set child validators.validator to setrequired ", id);
-          childRequiredValidators[id] = {
-            validator: formRequired[`id${id}`]?.setRequired,
-          };
-        }
-        if (childRequiredValidators[id].validator !== undefined && dialog !== null) {
-          console.log("set dialog requirements to this value too")
-          dialog.requirements[id] = childRequiredValidators[id].validator;
-        }
-      });
-      console.log(dialog.requirements)
-    };
-    //validator ref for required question in a hidden state
-    const hideShowValidator = function () {
-      return false;
-    };
-
     //NOTE: run only for crosswalks
     const runCrosswalk = (indID = 0, formdata = {}) => {
       //there should only be 1, and it is stored under the child id
@@ -288,20 +264,56 @@ var LeafForm = function (containerID) {
         console.log('unexpected number of crosswalk conditions.  check indicator condition entry for ', indID)
       }
     }
+    /** cross walk end */
+
+    /** HIDE/SHOW/PREFILL variables and functions */
+    let childRequiredValidators = {};
+    const arrBlocks = document.querySelectorAll('.mainform div.response[class*="blockIndicator_"]');
+    arrBlocks.forEach(element => {
+      const id = +element.className.match(/(?<=blockIndicator_)(\d+)/)?.[0];
+      if(id > 0) {
+        childRequiredValidators[id] = {
+          validator: formRequired[`id${id}`]?.setRequired,
+        };
+      }
+    });
+
+    /**
+    * Reset required validators if needed.  Based on display status.
+    * @param {number|string} childID ID of the question being assessed
+    **/
+    const handleChildValidators = (childID = "") => {
+      const elChildResponse = document.querySelector(`div.response.blockIndicator_${childID}`);
+      if(elChildResponse !== null) {
+        const arrSubchildren = Array.from(
+          elChildResponse.querySelectorAll(`div.response[class*="blockIndicator_"]`)
+        );
+        const arrBlocks = [ elChildResponse, ...arrSubchildren ];
+        arrBlocks.forEach(element => {
+          const id = +element.className.match(/(?<=blockIndicator_)(\d+)/)?.[0];
+          if(id > 0) {
+            //If required validator and dialog exist, reset validator if there is not a hidden ancestor (exclude the one in the process of being assessed)
+            const closestHidden = element.closest(`.response-hidden:not(.blockIndicator_${childID})`);
+            const shouldSetRequired = closestHidden === null;
+            if (childRequiredValidators[id].validator !== undefined && dialog !== null && shouldSetRequired) {
+              dialog.requirements[id] = childRequiredValidators[id].validator;
+            }
+          }
+        });
+      }
+    };
+    //validator ref for required question in a hidden state, used to allow front end progress when the state is hidden.
+    const hideShowValidator = function () {
+      return false;
+    };
 
     //NOTE: run only for conditional code with parent controllers (hide, show and prefill)
     const checkConditions = (event = 0, selected = 0, parID = 0) => {
       const parentElID =
         event !== null ? parseInt(event.target.id) : parseInt(parID);
-      
-      
-      console.log("check cond", parentElID)
 
-      /*
-      * !! Conditional questions can have multiple controllers, so if one changes, all need to be checked.
-      * Get ALL conditions for children if ANY of their controllers match parID.
-      * !! Separate into batches of hide/show, prefill (prefills are run after conditional display states)
-      */
+      //!! Questions can have multiple controllers. Get ALL conditions for children if ANY of their controllers match parentElID.
+      //!! Checking is separated into batches of hide/show, prefill (prefills are run after conditional display states)
       let hideShowCondByChild = {};
       let prefillCondByChild = {};
       for(let childKey in formConditions) {
@@ -339,7 +351,7 @@ var LeafForm = function (containerID) {
      * returns true if any of the selected values are in the comparisonValues
      * @param {array} multiChoiceSelections array of selected option values
      * @param {array} comparisonValues array of trigger values to compare against
-     * @returns
+     * @returns bool
      */
     const valIncludesMultiselOption = (multiChoiceSelections = [], comparisonValues = []) => {
       let result = false;
@@ -393,7 +405,6 @@ var LeafForm = function (containerID) {
           arrChildAndSubquestionIDs.push(id);
         }
       });
-      console.log(childIndID, arrChildAndSubquestionIDs)
       arrChildAndSubquestionIDs.forEach(id => {
         const elResponse = document.querySelector(`div.response[class*="blockIndicator_${id}"]`);
         const isNotHidden = !elResponse.classList.contains('response-hidden');
@@ -439,14 +450,13 @@ var LeafForm = function (containerID) {
           }
         }
         
-        //if the question is required, use the alternate validator - do this for all
+        //use the alternate hideshow validator for all subchildren
         if (
           childRequiredValidators[id].validator !== undefined &&
           dialog !== null
         ) {
-          console.log("set hide validator", id)
           dialog.requirements[id] = hideShowValidator;
-        } else { console.log("no validator", id)}
+        }
       });
     };
 
@@ -674,10 +684,7 @@ var LeafForm = function (containerID) {
       setTimeout(() => {
         const closestHidden = elChildResponse.closest('.response-hidden');
         if (closestHidden !== null) {
-          console.log("has hidden anc", childID);
           clearValues(childID);
-        } else {
-          console.log("no hidden anc", childID)
         }
 
         if(confirmedParElsByIndID.some(id => id === childID)) { //chain trigger if the child is also a controller
@@ -696,7 +703,7 @@ var LeafForm = function (containerID) {
 
     //confirm that the parent indicators exist on the form (in case of archive/deletion)
     let confirmedParElsByIndID = [];
-    let crosswalks = [];
+    let crosswalkIDs = [];
     for (let entry in formConditionsByChild) {
       const formConditions = formConditionsByChild[entry].conditions || [];
       const currQuestionFormat = formConditionsByChild[entry].format.toLowerCase();
@@ -704,7 +711,7 @@ var LeafForm = function (containerID) {
       formConditions.forEach((c) => {
         if (c.selectedOutcome.toLowerCase() === "crosswalk"
           && ["dropdown", "multiselect"].includes(currQuestionFormat)) {
-          crosswalks.push(parseInt(c.childIndID));
+            crosswalkIDs.push(parseInt(c.childIndID));
 
         } else {
           let parentEl = null;
@@ -728,10 +735,11 @@ var LeafForm = function (containerID) {
       });
     }
     confirmedParElsByIndID = Array.from(new Set(confirmedParElsByIndID));
-    crosswalks = Array.from(new Set(crosswalks));
+    crosswalkIDs = Array.from(new Set(crosswalkIDs));
 
-    /*filter: current format is not raw_data, current and saved formats match,
-    and the parentID is not in the list of IDs for elements not found in the DOM */
+    /*filter:
+    current format is not raw_data, current and saved child formats match,
+    and the parentID is confirmed to be found in the DOM */
     for (let entry in formConditionsByChild) {
       const currentFormat = formConditionsByChild[entry].format.toLowerCase();
       formConditionsByChild[entry].conditions = formConditionsByChild[
@@ -749,9 +757,11 @@ var LeafForm = function (containerID) {
       $(`input[id^="${id}_"]`).on("change", checkConditions); //this should cover both radio and checkboxes
     });
 
-    if(crosswalks.length > 0) {
-      loadRecordData().then(formdata => {
-        crosswalks.forEach(indID => runCrosswalk(indID, formdata));
+    if(crosswalkIDs.length > 0) {
+      //If there is more than one crosswalkID they will still all be on the same page.
+      //The id of the first one is used to confirm the cateogryID for subsequently getting data.
+      loadRecordData(crosswalkIDs[0]).then(formdata => {
+        crosswalkIDs.forEach(indID => runCrosswalk(indID, formdata));
       }).catch(err => console.log('record data did not load', err));
     }
   }
