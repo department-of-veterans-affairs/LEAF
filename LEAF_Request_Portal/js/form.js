@@ -396,11 +396,24 @@ var LeafForm = function (containerID) {
           const id = +element.className.match(/(?<=blockIndicator_)(\d+)/)?.[0];
           if(id > 0) {
             //clear values for questions not already in a hidden state.
-            const isNotHidden = !element.classList.contains('response-hidden');
-            if(isNotHidden) {
-              $("#" + id).val(""); //most formats
-              $(`input[id^="${id}_"]`).prop("checked", false); //radio and checkbox(es) formats
+            const isHidden =  element.closest('.response-hidden') !== null;
+            if(!isHidden) {
+              let hasInput = false;
+              let isBasicInput = false;
 
+              if($("#" + id).val() || "" !== "") {
+                hasInput = true;
+                isBasicInput = true;
+                $("#" + id).val(""); //basic input, single and multiselect dropdown, orgcharts
+              }
+
+              let radioAndCheckboxes = Array.from(element.querySelectorAll(`input[id^="${id}_"]:checked`));
+              if (radioAndCheckboxes.length > 0) {
+                hasInput = true;
+                radioAndCheckboxes.forEach(box => box.checked = false);
+              }
+
+              //grids cannot be controllers so we do not need to worry about them having input for the final check below
               $(`#grid_${id}_1_input tbody td`) //grid table data
               .each(function () {
                 if ($("textarea", this).length) {
@@ -434,6 +447,16 @@ var LeafForm = function (containerID) {
                   );
                 }
                 $(`input[id^="${id}_radio0"]`).prop("checked", true);
+              }
+
+              //if another parent controller is cleared by this, recheck it.
+              if(childIndID !== id && hasInput && confirmedParElsByIndID.includes(id)) {
+                if (isBasicInput === true) {
+                  $("#" + id).trigger("change");
+                } else {
+                  //radio and checkboxes. only the parent question indicatorID matters here - eq(0) to trigger only one
+                  $(`input[id^="${id}_"]`).eq(0).trigger("change");
+                }
               }
             }
             //use the alternate hideshow validator for all subchildren
