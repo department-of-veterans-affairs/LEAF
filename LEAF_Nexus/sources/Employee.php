@@ -125,8 +125,8 @@ class Employee extends Data
         if (!isset($national_emp['data'])) {
             $this->disableEmployees(explode(',', $user_name));
 
-            $this->disableAllTables();
-            $this->disablePortalTables();
+            /* $this->disableAllTables();
+            $this->disablePortalTables(); */
 
             $return_value = array(
                 'status' => array(
@@ -155,8 +155,8 @@ class Employee extends Data
             } else {
                 $this->disableEmployees(explode(',', $user_name));
 
-                $this->disableAllTables();
-                $this->disablePortalTables();
+                /* $this->disableAllTables();
+                $this->disablePortalTables(); */
 
                 $return_value = array(
                     'status' => array(
@@ -262,9 +262,6 @@ class Employee extends Data
 
             if (!empty($local_deleted_employees)) {
                 $results[] = $this->disableEmployees($local_deleted_employees);
-
-                $this->disableAllTables();
-                $this->disablePortalTables();
             }
 
             if (!empty($local_array)) {
@@ -279,14 +276,16 @@ class Employee extends Data
                 $results[] = $this->batchEmployeeDataUpdate($local_data_array);
             }
 
-            $users = $this->updateNationalDisabledEmployees();
+            /* $users = $this->updateNationalDisabledEmployees();
 
             if (!empty($users)) {
                 $results[] = $this->disableEmployees($users);
+            }
 
+            if (!empty($users) || !empty($local_deleted_employees)) {
                 $this->disableAllTables();
                 $this->disablePortalTables();
-            }
+            } */
         }
 
         return $results;
@@ -583,9 +582,13 @@ class Employee extends Data
     {
         if (!empty($deleted_employees)) {
             $sql = "UPDATE `employee`
+                    SET `deleted` = UNIX_TIMESTAMP(NOW())
+                    WHERE `userName` IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
+
+            /* $sql = "UPDATE `employee`
                     SET `deleted` = UNIX_TIMESTAMP(NOW()),
                         `userName` = concat('disabled_', `deleted`, '_',  `userName`)
-                    WHERE `userName` IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")";
+                    WHERE `userName` IN (" . implode(",", array_fill(1, count($deleted_employees), '?')) . ")"; */
 
             $this->db->prepared_query($sql, array_values($deleted_employees));
 
@@ -1068,8 +1071,8 @@ class Employee extends Data
 
         $this->disableEmployees(array($res[0]['userName']));
 
-        $this->disableAllTables();
-        $this->disablePortalTables();
+        /* $this->disableAllTables();
+        $this->disablePortalTables(); */
 
         return true;
     }
