@@ -267,16 +267,6 @@ var LeafForm = function (containerID) {
     /** cross walk end */
 
     /** HIDE/SHOW/PREFILL variables and functions */
-    let childRequiredValidators = {};
-    const arrBlocks = document.querySelectorAll('.mainform div.response[class*="blockIndicator_"]');
-    arrBlocks.forEach(element => {
-      const id = +element.className.match(/(?<=blockIndicator_)(\d+)/)?.[0];
-      if(id > 0) {
-        childRequiredValidators[id] = {
-          validator: formRequired[`id${id}`]?.setRequired,
-        };
-      }
-    });
 
     /**
     * Reset required validators if needed.  Based on display status.
@@ -295,8 +285,8 @@ var LeafForm = function (containerID) {
             //If required validator and dialog exist, reset validator if there is not a hidden ancestor (exclude the one in the process of being assessed)
             const closestHidden = element.closest(`.response-hidden:not(.blockIndicator_${childID})`);
             const shouldSetRequired = closestHidden === null;
-            if (childRequiredValidators[id].validator !== undefined && dialog !== null && shouldSetRequired) {
-              dialog.requirements[id] = childRequiredValidators[id].validator;
+            if (formRequired[`id${id}`]?.setRequired || false && dialog !== null && shouldSetRequired) {
+              dialog.requirements[id] = formRequired[`id${id}`].setRequired;
             }
           }
         });
@@ -448,7 +438,6 @@ var LeafForm = function (containerID) {
             }
             //use the alternate hideshow validator for all subchildren
             if (
-              childRequiredValidators[id].validator !== undefined &&
               dialog !== null
             ) {
               dialog.requirements[id] = hideShowValidator;
