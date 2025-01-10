@@ -94,7 +94,7 @@ class VAMCActiveDirectory
                 $this->users[$id]['loginName'] = $employee['loginName'];
                 $this->users[$id]['objectGUID'] = null;
                 $this->users[$id]['mobile'] = $employee['mobile'];
-                $this->users[$id]['domain'] = $employee['domain'];
+                $this->users[$id]['domain'] = $this->parseVAdomain($employee['domain']);
                 $this->users[$id]['source'] = 'ad';
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
@@ -393,5 +393,67 @@ class VAMCActiveDirectory
         }
 
         return $stringToFix;
+    }
+
+    private function parseVAdomain($adPath) {
+    	$dc = '';
+    	$dcSrc = explode(',', $adPath);
+    	foreach($dcSrc as $adElement) {
+    		if(strpos($adElement, 'DC=') !== false) {
+    			$dc .= substr($adElement, 3) . '.';
+    		}
+    	}
+    	$dc = trim($dc, '.');
+
+    	switch($dc) {
+    		case 'v01.med.va.gov':
+    			return 'VHA01';
+    		case 'v02.med.va.gov':
+    			return 'VHA02';
+    		case 'v03.med.va.gov':
+    			return 'VHA03';
+    		case 'v04.med.va.gov':
+    			return 'VHA04';
+    		case 'v05.med.va.gov':
+    			return 'VHA05';
+    		case 'v06.med.va.gov':
+    			return 'VHA06';
+    		case 'v07.med.va.gov':
+    			return 'VHA07';
+    		case 'v08.med.va.gov':
+    			return 'VHA08';
+    		case 'v09.med.va.gov':
+    			return 'VHA09';
+    		case 'v10.med.va.gov':
+    			return 'VHA10';
+    		case 'v11.med.va.gov':
+    			return 'VHA11';
+    		case 'v12.med.va.gov':
+    			return 'VHA12';
+    		case 'v13.med.va.gov':
+    			return 'VHA13';
+    		case 'v14.med.va.gov':
+    			return 'VHA14';
+    		case 'v15.med.va.gov':
+    			return 'VHA15';
+    		case 'v16.med.va.gov':
+    			return 'VHA16';
+    		case 'v17.med.va.gov':
+    			return 'VHA17';
+    		case 'v18.med.va.gov':
+    			return 'VHA18';
+    		case 'v19.med.va.gov':
+    			return 'VHA19';
+    		case 'v20.med.va.gov':
+    			return 'VHA20';
+    		case 'v21.med.va.gov':
+    			return 'VHA21';
+    		case 'v22.med.va.gov':
+    			return 'VHA22';
+    		case 'v23.med.va.gov':
+    			return 'VHA23';
+    		default:
+    			return $dc;
+    	}
     }
 }
