@@ -434,37 +434,27 @@ var PortalFormEditorAPI = function (baseAPIURL) {
                 data: {
                     "name": name,
                     "description": description,
-                    "parentID": "",
                     CSRFToken: csrfToken
                 }
-            })
-                .done(function (msg) {
+            }).done(function (msg) {
+                const newCategoryID = msg.replace(/"/g, "");
+                $.ajax({
+                    method: 'POST',
+                    url: apiURL + '/formVisible',
+                    dataType: "text",
+                    data: {
+                        "categoryID": newCategoryID,
+                        "visible": 0,
+                        CSRFToken: csrfToken
+                    }
+                }).done(function() {
                     onSuccess(msg);
-                })
-                .fail(function (err) {
-                    onFail(err);
+                }).fail(function(err) {
+                    onFail(err)
                 });
-        },
 
-        setVisibility = function (categoryID, visibility = "0") {
-            var postURL = apiURL + '/formVisible';
-
-            $.ajax({
-                method: 'POST',
-                url: postURL,
-                dataType: "text",
-                data: {
-                    "categoryID": categoryID,
-                    "visible": visibility,
-                    CSRFToken: csrfToken
-                },
-                onSuccess(res) {
-                    console.log(res)
-                },
-                error(err) {
-                    console.log(err)
-                },
-                async: false
+            }).fail(function (err) {
+                onFail(err);
             });
         },
 
@@ -588,7 +578,6 @@ var PortalFormEditorAPI = function (baseAPIURL) {
         getBaseAPIURL: getBaseAPIURL,
         assignFormWorkflow: assignFormWorkflow,
         createCustomForm: createCustomForm,
-        setVisibility: setVisibility,
         createFormIndicator: createFormIndicator,
         getIndicator: getIndicator,
         getIndicatorEditor: getIndicatorEditor,

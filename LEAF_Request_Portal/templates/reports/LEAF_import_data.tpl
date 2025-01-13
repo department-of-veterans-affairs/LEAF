@@ -509,7 +509,6 @@
                 formData.description,
                 function(categoryID) {
                     newCategoryID = categoryID.replace(/"/g, "");
-                    portalAPI.FormEditor.setVisibility(newCategoryID); //this is not async, default visibility 0
                     if (workflowID > 0) {
                         portalAPI.FormEditor.assignFormWorkflow(
                             newCategoryID.replace(/"/g, ""),
