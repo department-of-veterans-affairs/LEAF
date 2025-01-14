@@ -1297,11 +1297,10 @@
     function deleteActionType(actionType) {
         // find out if this action is being used in a workflow currently
         getUsedActionType(actionType, function (res) {
-            console.log(res);
             let workflows = '';
 
             for (let i in res.data) {
-                workflows += res.data[i].description + "<br />";
+                workflows += res.data[i].description + " (step#" + res.data[i].stepID + ")<br />";
             }
 
             if (res.status.code == 2 && res.data.length) {
