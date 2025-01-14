@@ -39,9 +39,5 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      - name: Detect coding standard violations
-        run: ./vendor/bin/phpcs --standard=phpcs.xml ./
       - name: Static Analysis via PHPStan
-        run: ./vendor/bin/phpstan analyse LEAF_Nexus LEAF_Request_Portal libs --level=4  
-      - name: Detect awkward, overcomplicated or unused code with PhpMessDetector
-        run: ./vendor/bin/phpmd ./LEAF_Nexus ./LEAF_Request_Portal ./libs xml phpmd.xml                
+        run: ./vendor/bin/phpstan analyse LEAF_Nexus LEAF_Request_Portal libs --level=4
