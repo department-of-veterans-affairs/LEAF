@@ -6,7 +6,7 @@
 /*
     Refreshes employee data into local orgchart
 */
-exit();
+
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 $employee = new Orgchart\Employee($oc_db, $oc_login);
