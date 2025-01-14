@@ -436,13 +436,26 @@ var PortalFormEditorAPI = function (baseAPIURL) {
                     "description": description,
                     CSRFToken: csrfToken
                 }
-            })
-                .done(function (msg) {
+            }).done(function (msg) {
+                const newCategoryID = msg.replace(/"/g, "");
+                $.ajax({
+                    method: 'POST',
+                    url: apiURL + '/formVisible',
+                    dataType: "text",
+                    data: {
+                        "categoryID": newCategoryID,
+                        "visible": 0,
+                        CSRFToken: csrfToken
+                    }
+                }).done(function() {
                     onSuccess(msg);
-                })
-                .fail(function (err) {
-                    onFail(err);
+                }).fail(function(err) {
+                    onFail(err)
                 });
+
+            }).fail(function (err) {
+                onFail(err);
+            });
         },
 
         /**
