@@ -3791,7 +3791,7 @@ class Form
                     JSON_VALUE(`userMetadata`, "$.lastName"), `userID`
                 ) AS `lastName`';
         }
-        $resSQL = 'SELECT * ' . $initiatorNamesSQL . ' FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
+        $resSQL = 'SELECT * ' . $initiatorNamesSQL . ', userId as userName FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {
