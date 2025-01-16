@@ -177,7 +177,7 @@ class FormEditorController extends RESTfulResponse
                 return $formEditor->createForm(
                     XSSHelpers::sanitizeHTML($_POST['name']),
                     XSSHelpers::sanitizeHTML($_POST['description']),
-                    XSSHelpers::sanitizeHTML($_POST['parentID'])
+                    XSSHelpers::sanitizeHTML($_POST['parentID'] ?? "")
                 );
             });
 
