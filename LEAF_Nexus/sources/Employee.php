@@ -1096,7 +1096,15 @@ class Employee extends Data
             throw new Exception('Administrator access required to enable accounts');
         }
 
-        $vars = array(':empUID' => $empUID);
+        $vars = array(':empUID' => $empUID,
+                      ':time' => 0);
+        $sql = 'UPDATE`employee`
+                SET `deleted` = :time
+                WHERE `empUID` = :empUID';
+
+        $this->db->prepared_query($sql, $vars);
+
+        /* $vars = array(':empUID' => $empUID);
         $sql = 'SELECT `userName`
                 FROM `employee`
                 WHERE `empUID` = :empUID';
@@ -1105,7 +1113,7 @@ class Employee extends Data
 
         $this->enableEmployee($res[0]['userName']);
         $this->enableAllTables($res[0]['userName']);
-        $this->enableAllPortalTables($res[0]['userName']);
+        $this->enableAllPortalTables($res[0]['userName']); */
 
         return true;
     }
