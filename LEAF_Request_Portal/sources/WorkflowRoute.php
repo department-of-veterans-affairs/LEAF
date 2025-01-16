@@ -42,7 +42,7 @@ class WorkflowRoute
     public function getUsedAction(string $action): array
     {
         $vars = array(':actionType' => $action);
-        $sql = 'SELECT `description`, `stepID`
+        $sql = 'SELECT `description`
                 FROM `workflow_routes`
                 LEFT JOIN `workflows` USING (`workflowID`)
                 WHERE `actionType` = :actionType';

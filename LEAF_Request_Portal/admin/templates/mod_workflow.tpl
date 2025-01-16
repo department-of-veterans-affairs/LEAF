@@ -1300,7 +1300,7 @@
             let workflows = '';
 
             for (let i in res.data) {
-                workflows += res.data[i].description + " (step#" + res.data[i].stepID + ")<br />";
+                workflows += res.data[i].description + "<br />";
             }
 
             if (res.status.code == 2 && res.data.length) {
