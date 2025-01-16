@@ -426,6 +426,13 @@ label[for="template_file_select"] {
     font-size: .9rem;
 }
 
+
+#btn_useTrumbowyg, #btn_useCodeMirror {
+    display: none;
+}
+#btn_useTrumbowyg.show_button, #btn_useCodeMirror.show_button {
+    display: block;
+}
 #controls {
     width: 100%;
     padding: 0.5rem;

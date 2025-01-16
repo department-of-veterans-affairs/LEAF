@@ -21,7 +21,7 @@
             </aside>
         </div>
 
-        <main id="codeArea" class="main-content">
+        <div id="codeArea" class="main-content">
             <div id="codeContainer" class="leaf-code-container email_templates">
                 <h2 id="emailTemplateHeader">Default Email Template</h2>
                 <div id="emailNotificationInfo"></div>
@@ -62,6 +62,9 @@
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
+                </div>
+                <div>
+                    <textarea id="editor_code" aria-hidden="true" style="display:none;"></textarea>
                 </div>
                 <div class="email-template-variables">
                     <fieldset>
@@ -166,7 +169,7 @@
                     <p class="cm_editor_nav_help">Within the code editor, tab enters a tab character.  If using the keyboard to navigate, press escape followed by tab to exit the editor.</p>
                 </div>
             </div>
-        </main>
+        </div>
         <div class="leaf-right-nav">
             <button type="button" id="closeMobileToolsNavBtn" aria-label="close tools menu"
                     onclick="showRightNav(false)">X</button>
@@ -197,6 +200,15 @@
                     <button type="button" id="btn_compare"
                         class="usa-button usa-button--outline edit_only" onclick="compare();">
                         Compare with Original
+                    </button>
+
+                    <button type="button" id="btn_useTrumbowyg"
+                        class="usa-button usa-button--outline edit_only show_button"
+                        onclick="emailEditorWYSWYG()">Use Preview Editor
+                    </button>
+                    <button type="button" id="btn_useCodeMirror"
+                        class="usa-button usa-button--outline edit_only"
+                        onclick="rawEmailEditorClick()">Use Code Editor
                     </button>
 
                     <button type="button"
@@ -649,6 +661,7 @@
 
     // compares the current file to the default file content
     function compare() {
+        rawEmailEditorClick();
         const bodyData = getCodeEditorValue(codeEditor);
         const subjectData = getCodeEditorValue(subjectEditor);
         $('.CodeMirror').remove();
@@ -1193,6 +1206,130 @@
             }
         }
     }
+
+    //jQuery plugins for WYSWYG.
+    function emailEditorWYSWYG() {
+        toggleEditorButtons(true);
+        let elCodeMirror = document.getElementById('emailBodyCode');
+        if (elCodeMirror !== null) {
+            elCodeMirror.style.display = 'none';
+        }
+        $('#editor_code').trumbowyg({
+            resetCss: true,
+            btns: ['formatting', 'bold', 'italic', 'underline', '|',
+                'unorderedList', 'orderedList', '|',
+                'link', '|',
+                'foreColor', '|',
+                'justifyLeft', 'justifyCenter', 'justifyRight']
+        });
+        $('.trumbowyg-box').css({
+            'min-height': '130px',
+            'margin': '0.5rem 0'
+        });
+        $('.trumbowyg-editor, .trumbowyg-texteditor').css({
+            'min-height': '100px',
+            'height': '100px',
+            'padding': '1rem',
+            'resize': 'vertical',
+        });
+        let trumbowygBtns = Array.from(document.querySelectorAll('.trumbowyg-box button'));
+
+        /** handle keyboard events.  trumbow uses mousedown so dispatch that event for enter or spacebar */
+        const handleTrumbowEvents = (event) => {
+            const btn = event.currentTarget;
+            const isDropdown = btn.classList.contains('trumbowyg-open-dropdown');
+            const isActive = btn.classList.contains('trumbowyg-active');
+
+            if(event?.which === 13 || event?.which === 32) {
+                btn.dispatchEvent(new Event('mousedown'));
+                event.preventDefault();
+                if(isDropdown) {
+                    btn.setAttribute('aria-expanded', !isActive);
+                }
+            }
+            if(event?.which === 9) { //fix menu tabbing and tabbing order
+                const controllerBtn = document.querySelector(`button[aria-controls="${btn.parentNode.id}"]`);
+
+                const btnWrapperSelector = isDropdown ?
+                    `id_${this.trumbowygTitleClassMap[btn.title]}` : `${btn.parentNode.id}`;
+
+                if (btnWrapperSelector !== "") {
+                    const firstSubmenuBtn = document.querySelector(`#${btnWrapperSelector} button`);
+                    const lastSubmenuBtn = document.querySelector(`#${btnWrapperSelector} button:last-child`);
+                    //if tabbing forward, mv to the first button in the submenu.  prev default to stop another tab
+                    if(event.shiftKey === false && isDropdown && isActive && firstSubmenuBtn !== null) {
+                        firstSubmenuBtn.focus();
+                        event.preventDefault();
+                    }
+                    //end of submenu tab to next controller button and close the first one
+                    if(event.shiftKey === false && btn === lastSubmenuBtn) {
+                        const nextController = controllerBtn?.parentNode?.nextSibling || null;
+                        if(nextController !== null) {
+                            const nextBtn = nextController.querySelector('button');
+                            if(nextBtn !== null) {
+                                nextBtn.focus();
+                                event.preventDefault();
+                                controllerBtn.dispatchEvent(new Event('mousedown'));
+                                controllerBtn.setAttribute('aria-expanded', false);
+                            }
+                        }
+                    }
+                    //if tabbing backwards out of a submenu, mv to the controller.
+                    if(event.shiftKey === true && btn === firstSubmenuBtn && controllerBtn !== null) {
+                        controllerBtn.focus();
+                        event.preventDefault();
+                    }
+                }
+            }
+            if (event.type === 'click' && isDropdown) { //only updating it to whatever trumbow set it to
+                btn.setAttribute('aria-expanded', isActive);
+            }
+        }
+        //make buttons more accessible.  add navigable index and aria-controls.
+        trumbowygBtns.forEach(btn => {
+            btn.setAttribute('tabindex', '0');
+            ['keydown', 'click'].forEach(ev => btn.addEventListener(ev, handleTrumbowEvents));
+            if(btn.classList.contains('trumbowyg-open-dropdown')) {
+                btn.setAttribute('aria-expanded', false);
+                const controlClass = this.trumbowygTitleClassMap?.[btn.title] || null;
+                if(controlClass !== null) {
+                    btn.setAttribute('aria-controls', 'id_' + controlClass);
+                    const elSubmenu = document.querySelector('.' + controlClass);
+                    if(elSubmenu !== null) {
+                        elSubmenu.setAttribute('id', 'id_' + controlClass);
+                    }
+                }
+            }
+        });
+        document.getElementById('btn_useCodeMirror').focus();
+    }
+
+    function rawEmailEditorClick() {
+        toggleEditorButtons(false);
+        $('#editor_code').trumbowyg('destroy');
+        $('#editor_code').hide();
+        let elCodeMirror = document.getElementById('emailBodyCode');
+        if (elCodeMirror !== null) {
+            elCodeMirror.style.display = 'block';
+        }
+        //document.getElementById('btn_useTrumbowyg').focus();
+    }
+
+    function toggleEditorButtons(showTrumbow = true) {
+        let btnUseTrumbow = document.getElementById('btn_useTrumbowyg');
+        let btnUseCodeMirror = document.getElementById('btn_useCodeMirror');
+        if(btnUseTrumbow !== null && btnUseCodeMirror !== null) {
+            if (showTrumbow === true) {
+                btnUseCodeMirror.classList.add('show_button');
+                btnUseTrumbow.classList.remove('show_button');
+            } else {
+                btnUseCodeMirror.classList.remove('show_button');
+                btnUseTrumbow.classList.add('show_button');
+            }
+        }
+    }
+
+
     //loads components when the document loads
     $(document).ready(function() {
         getIndicators(); //get indicators to make format table
