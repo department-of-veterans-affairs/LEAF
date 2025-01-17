@@ -335,19 +335,58 @@ class Employee extends Data
 
         foreach ($portals as $portal) {
             $sql2 = 'USE ' . $portal['portal_database'];
+
             $portal_db->prepared_query($sql2, array());
 
             foreach ($this->disabledUsers as $user) {
                 // break down the userName to get original userName
                 $userName = explode('_', $user['userName']);
 
-                // update all tables with the new userName
-                $vars = array(':disabledUserName' => $user['userName'],
-                                ':originalUserName' => $userName[2]);
+                // Need to check if this user is in this portal, if not bypass
+                if ($this->checkUserToPortal($userName[2], $portal_db)) {
+                    // update all tables with the new userName
+                    $vars = array(':disabledUserName' => $user['userName'],
+                                    ':originalUserName' => $userName[2]);
 
-                $portal_db->prepared_query($sql, $vars);
+                    $portal_db->prepared_query($sql, $vars);
+                }
             }
         }
+    }
+
+    private function checkUserToPortal(string $userName, Db $db): bool
+    {
+        $vars = array(':userName' => $userName);
+        $sql = '';
+
+        foreach ($this->disableUserNamePortalTables as $table => $field) {
+            if ($sql !== '') {
+                $sql .= 'UNION';
+            }
+
+            if (is_array($field)) {
+                foreach ($field as $fld) {
+                    $sql .= 'SELECT `userID`
+                             FROM `' . $table .'`
+                             WHERE `' . $fld . '` = :UserName';
+                }
+
+            } else {
+                $sql .= 'SELECT `userID`
+                         FROM `' . $table .'`
+                         WHERE `' . $field . '` = :UserName';
+            }
+        }
+
+        $result = $db->prepared_query($sql, $vars);
+
+        if (count($result) > 0) {
+            $return_value = true;
+        } else {
+            $return_value = false;
+        }
+
+        return $return_value;
     }
 
     private function enableAllPortalTables(string $userName): void
