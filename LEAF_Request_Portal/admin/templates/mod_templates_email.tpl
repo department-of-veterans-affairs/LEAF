@@ -64,7 +64,7 @@
                     <div id="codeCompare"></div>
                 </div>
                 <div>
-                    <textarea id="editor_code" aria-hidden="true" style="display:none;"></textarea>
+                    <textarea id="editor_trumbowyg" aria-hidden="true" style="display:none;"></textarea>
                 </div>
                 <div class="email-template-variables">
                     <fieldset>
@@ -204,11 +204,11 @@
 
                     <button type="button" id="btn_useTrumbowyg"
                         class="usa-button usa-button--outline edit_only show_button"
-                        onclick="emailEditorWYSWYG()">Use Preview Editor
+                        onclick="useTrumbowygEmailEditor()">Use Preview Editor
                     </button>
                     <button type="button" id="btn_useCodeMirror"
                         class="usa-button usa-button--outline edit_only"
-                        onclick="rawEmailEditorClick()">Use Code Editor
+                        onclick="useCodeEmailEditor(true)">Use Code Editor
                     </button>
 
                     <button type="button"
@@ -661,7 +661,7 @@
 
     // compares the current file to the default file content
     function compare() {
-        rawEmailEditorClick();
+        useCodeEmailEditor();
         const bodyData = getCodeEditorValue(codeEditor);
         const subjectData = getCodeEditorValue(subjectEditor);
         $('.CodeMirror').remove();
@@ -794,6 +794,7 @@
     * @param {string} emailCcFile - eg LEAF_send_back_emailCc.tpl
     */
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
+        useCodeEmailEditor();
         if (!file) {
             if(file === null && currentFile && codeEditor) { //from compare view
                 const mergeViewBodyValue = getCodeEditorValue(codeEditor);
@@ -1068,6 +1069,7 @@
      * Purpose: Initiate the CodeMirror editor functions for the body and subject fields
      */
     function initEditor() {
+        console.log("init")
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
             mode: "htmlmixed",
             lineNumbers: true,
@@ -1208,13 +1210,11 @@
     }
 
     //jQuery plugins for WYSWYG.
-    function emailEditorWYSWYG() {
-        toggleEditorButtons(true);
-        let elCodeMirror = document.getElementById('emailBodyCode');
-        if (elCodeMirror !== null) {
-            elCodeMirror.style.display = 'none';
-        }
-        $('#editor_code').trumbowyg({
+    function useTrumbowygEmailEditor() {
+        toggleEditorElements(true);
+        const data = getCodeEditorValue(codeEditor);
+        $('#editor_trumbowyg').val(data);
+        $('#editor_trumbowyg').trumbowyg({
             resetCss: true,
             btns: ['formatting', 'bold', 'italic', 'underline', '|',
                 'unorderedList', 'orderedList', '|',
@@ -1227,8 +1227,8 @@
             'margin': '0.5rem 0'
         });
         $('.trumbowyg-editor, .trumbowyg-texteditor').css({
-            'min-height': '100px',
-            'height': '100px',
+            'min-height': '360px',
+            'height': '360px',
             'padding': '1rem',
             'resize': 'vertical',
         });
@@ -1304,25 +1304,36 @@
         document.getElementById('btn_useCodeMirror').focus();
     }
 
-    function rawEmailEditorClick() {
-        toggleEditorButtons(false);
-        $('#editor_code').trumbowyg('destroy');
-        $('#editor_code').hide();
-        let elCodeMirror = document.getElementById('emailBodyCode');
-        if (elCodeMirror !== null) {
-            elCodeMirror.style.display = 'block';
+    function useCodeEmailEditor(refreshCodeMirror = false) {
+        //TODO: this removes html and some other tags.
+        //if element associated with Trumbowyg exists, update codemirror element before proceeding.
+        const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
+        if(elTrumbow !== null) {
+            console.log("set trumbow value to cm content", elTrumbow.value);
+            codeEditor.setValue(elTrumbow.value);
+            toggleEditorElements(false);
+            $('#editor_trumbowyg').trumbowyg('destroy');
         }
-        //document.getElementById('btn_useTrumbowyg').focus();
+        if(refreshCodeMirror === true) {
+            $('.CodeMirror').each(function(i, el) {
+                el.CodeMirror.refresh();
+            });
+        }
     }
 
-    function toggleEditorButtons(showTrumbow = true) {
+    //show or hide elements associated with Trumbowyg(true) and CodeMirror for email body editing
+    function toggleEditorElements(showTrumbow = true) {
         let btnUseTrumbow = document.getElementById('btn_useTrumbowyg');
         let btnUseCodeMirror = document.getElementById('btn_useCodeMirror');
         if(btnUseTrumbow !== null && btnUseCodeMirror !== null) {
             if (showTrumbow === true) {
+                $('#editor_trumbowyg').show();
+                $('#emailLists, #subject, #divSubject, #emailBodyCode').hide();
                 btnUseCodeMirror.classList.add('show_button');
                 btnUseTrumbow.classList.remove('show_button');
             } else {
+                $('#editor_trumbowyg').hide();
+                $('#emailLists, #subject, #divSubject, #emailBodyCode').show();
                 btnUseCodeMirror.classList.remove('show_button');
                 btnUseTrumbow.classList.add('show_button');
             }
