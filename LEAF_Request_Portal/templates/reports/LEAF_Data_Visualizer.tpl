@@ -95,6 +95,14 @@ var chartTitle = ''; // selected chart title
 var suggestions = {};
 suggestions.length = [];
 
+function truncateText(text, maxLength = 50) {
+    console.log(text);
+    if (text.length <= maxLength) return text;
+    
+    const truncatedText = text.substr(0, maxLength);
+    return `${truncatedText}...`;
+}
+
 function isNumeric(x) {
     return !isNaN(parseFloat(x));
 }
@@ -245,7 +253,7 @@ function initPieChart(field, dimensions, groups) {
         .ordering(function(d) { return d.value; })
         .ordinalColors(niceColors)
         .label(d => d.key)
-        .externalLabels(10);
+        .externalLabels(5);
 }
 
 // initBoxPlot initializes a single DC.js box plot
@@ -437,7 +445,7 @@ function initCharts(fields) {
                         }
                         break;
                     default:
-                        dimensions[field.indicatorID] = facts.dimension(function(d) { return d[field.indicatorID]; });
+                        dimensions[field.indicatorID] = facts.dimension(function(d) { return truncateText(d[field.indicatorID],15); });
                         groups[field.indicatorID] = dimensions[field.indicatorID].group().reduceCount();
                         if(numUniques[field.indicatorID]['count'] > 6) {
                             initRowChart(field, dimensions, groups);
