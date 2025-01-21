@@ -2660,16 +2660,19 @@ class Form
                                 }
                             }
                             break;
-                        case 'orgchart_employee': //report builder cells
+                        case 'orgchart_employee': //report builder cells, form/query
                             $dataDisplay = "";
-                            if (isset($item['metadata'])) {
-                                $orgchartInfo = json_decode($item['metadata'], true);
-                                if(!empty(trim($orgchartInfo['lastName']))) {
-                                    $dataDisplay = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
-                                    $item['dataOrgchart'] = $orgchartInfo;
-                                } else {
-                                    $dataDisplay = "Employee #" . $item['data'] ." no longer available";
+                            if(!empty($item['data'])) {
+                                $orgchartInfo = array('empUID' => (int)$item['data']);
+                                if (isset($item['metadata'])) {
+                                    $orgchartInfo = array_merge($orgchartInfo, json_decode($item['metadata'], true));
+                                    if(!empty(trim($orgchartInfo['lastName']))) {
+                                        $dataDisplay = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                                    } else {
+                                        $dataDisplay = "Employee #" . $item['data'] ." no longer available";
+                                    }
                                 }
+                                $item['dataOrgchart'] = $orgchartInfo;
                             }
                             $item['data'] = $dataDisplay;
                             break;
@@ -3791,7 +3794,7 @@ class Form
                     JSON_VALUE(`userMetadata`, "$.lastName"), `userID`
                 ) AS `lastName`';
         }
-        $resSQL = 'SELECT * ' . $initiatorNamesSQL . ' FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
+        $resSQL = 'SELECT * ' . $initiatorNamesSQL . ', userId as userName FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {
