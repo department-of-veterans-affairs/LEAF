@@ -244,7 +244,8 @@ function initPieChart(field, dimensions, groups) {
         .title(d => Math.round(d.value / dimensions[field.indicatorID].groupAll().reduceCount().value() * 100) + "% " + d.key + ': ' + d.value)
         .ordering(function(d) { return d.value; })
         .ordinalColors(niceColors)
-        .label(d => d.key);
+        .label(d => d.key)
+        .externalLabels(10);
 }
 
 // initBoxPlot initializes a single DC.js box plot
