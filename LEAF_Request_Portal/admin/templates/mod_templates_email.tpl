@@ -354,8 +354,7 @@
     */
     function save() {
         let reloadTrumbow = false;
-        const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
-        if(elTrumbow !== null) {
+        if(trumbowygIsActive()) {
             useCodeEmailEditor(true);
             reloadTrumbow = true;
         }
@@ -523,6 +522,7 @@
     * @param {bool} updateURL - whether to update URL params and add to URL history
     */
     function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
+        useCodeEmailEditor(true);
         const initialBodyData = getCodeEditorValue(codeEditor);
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
@@ -807,7 +807,11 @@
     * @param {string} emailCcFile - eg LEAF_send_back_emailCc.tpl
     */
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
-        useCodeEmailEditor();
+        let reloadTrumbow = false;
+        if(trumbowygIsActive()) {
+            useCodeEmailEditor(true);
+            reloadTrumbow = true;
+        }
         if (!file) {
             if(file === null && currentFile && codeEditor) { //from compare view
                 const mergeViewBodyValue = getCodeEditorValue(codeEditor);
@@ -884,6 +888,9 @@
                     currentEmailCcContent = res.emailCcFile;
                     $("#emailToCode").val(currentEmailToContent);
                     $("#emailCcCode").val(currentEmailCcContent);
+                    if(reloadTrumbow === true) {
+                        useTrumbowygEmailEditor();
+                    }
                 } else {
                     res?.file === undefined ?
                         console.error('file not found') :
@@ -1317,9 +1324,11 @@
         document.getElementById('btn_useCodeMirror').focus();
     }
 
+    function trumbowygIsActive() {
+        return document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea') !== null;
+    }
+
     function useCodeEmailEditor(refreshCodeMirror = false) {
-        console.log("swapping to codemirror");
-        //TODO: this removes html and some other tags.
         //if element associated with Trumbowyg exists, update codemirror element before proceeding.
         const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
         if(elTrumbow !== null) {
