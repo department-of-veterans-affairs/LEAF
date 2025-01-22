@@ -353,6 +353,13 @@
     * Displays last save time, updates current*Content values, and calls saveFileHistory at success.
     */
     function save() {
+        let reloadTrumbow = false;
+        const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
+        if(elTrumbow !== null) {
+            useCodeEmailEditor(true);
+            reloadTrumbow = true;
+        }
+
         const emailToData = document.getElementById('emailToCode').value;
         const emailCcData = document.getElementById('emailCcCode').value;
         const subject = getCodeEditorValue(subjectEditor);
@@ -361,6 +368,9 @@
         const hasAnyChanges = hasContentChanged(emailToData, emailCcData, subject, data);
         if (!hasAnyChanges) {
             alert('There are no changes to save.');
+            if(reloadTrumbow === true) {
+                useTrumbowygEmailEditor();
+            }
         } else {
             $.ajax({
                 type: 'POST',
@@ -388,6 +398,9 @@
                         saveFileHistory();
                         $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                         $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
+                        if(reloadTrumbow === true) {
+                            useTrumbowygEmailEditor();
+                        }
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -1305,6 +1318,7 @@
     }
 
     function useCodeEmailEditor(refreshCodeMirror = false) {
+        console.log("swapping to codemirror");
         //TODO: this removes html and some other tags.
         //if element associated with Trumbowyg exists, update codemirror element before proceeding.
         const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
@@ -1313,6 +1327,7 @@
             codeEditor.setValue(elTrumbow.value);
             toggleEditorElements(false);
             $('#editor_trumbowyg').trumbowyg('destroy');
+            $('#editor_trumbowyg').hide();
         }
         if(refreshCodeMirror === true) {
             $('.CodeMirror').each(function(i, el) {
@@ -1327,12 +1342,10 @@
         let btnUseCodeMirror = document.getElementById('btn_useCodeMirror');
         if(btnUseTrumbow !== null && btnUseCodeMirror !== null) {
             if (showTrumbow === true) {
-                $('#editor_trumbowyg').show();
                 $('#emailLists, #subject, #divSubject, #emailBodyCode').hide();
                 btnUseCodeMirror.classList.add('show_button');
                 btnUseTrumbow.classList.remove('show_button');
             } else {
-                $('#editor_trumbowyg').hide();
                 $('#emailLists, #subject, #divSubject, #emailBodyCode').show();
                 btnUseCodeMirror.classList.remove('show_button');
                 btnUseTrumbow.classList.add('show_button');
