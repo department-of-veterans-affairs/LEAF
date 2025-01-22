@@ -613,7 +613,8 @@ class Workflow
         $vars = array(
             ':nonWorkflowActions' => implode(",", $this->nonWorkflowActions)
         );
-        $qSQL = "SELECT * FROM actions WHERE NOT FIND_IN_SET(actionType, :nonWorkflowActions) AND deleted=0 ORDER BY actionText";
+        $qSQL = "SELECT `actionType`, `actionText`, `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`, `deleted`
+            FROM actions WHERE NOT FIND_IN_SET(actionType, :nonWorkflowActions) AND deleted=0 ORDER BY actionText";
         $res = $this->db->prepared_query($qSQL, $vars);
 
         return $res;
@@ -1523,7 +1524,8 @@ class Workflow
         $vars = array(
             ':systemAction' => implode(",", $this->systemAction)
         );
-        $qSQL = "SELECT * FROM actions WHERE NOT FIND_IN_SET(actionType, :systemAction) AND NOT (deleted = 1)";
+        $qSQL = "SELECT `actionType`, `actionText`, `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`, `deleted`
+            FROM actions WHERE NOT FIND_IN_SET(actionType, :systemAction) AND NOT (deleted = 1)";
         $res = $this->db->prepared_query($qSQL, $vars);
 
         return $res;
