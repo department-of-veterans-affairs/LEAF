@@ -34,6 +34,15 @@
 #emailBodyCode .CodeMirror-merge {
     height: 400px !important;
 }
+#emailBodyCode + div .trumbowyg-editor {
+    background-color: #fff;
+}
+#editor_trumbowyg_saving {
+    background-color: #fff;
+    padding: 0.5rem;
+    height:360px;
+    display:none;
+}
 .CodeMirror-code {
     font-size: .7rem;
 }

@@ -23,7 +23,7 @@
 
         <div id="codeArea" class="main-content">
             <div id="codeContainer" class="leaf-code-container email_templates">
-                <h2 id="emailTemplateHeader">Default Email Template</h2>
+                <h2 id="emailTemplateHeader">Notify Next Approver</h2>
                 <div id="emailNotificationInfo"></div>
                 <div id="emailLists">
                     <fieldset>
@@ -37,11 +37,11 @@
                         </p>
                         <label for="emailToCode" id="emailTo" class="emailToCc">Email To:</label>
                         <div id="divEmailTo">
-                            <textarea id="emailToCode" style="width: 95%;" rows="5" onchange="checkFieldEntries()"></textarea>
+                            <textarea id="emailToCode" style="width:95%;resize:vertical" rows="4" onchange="checkFieldEntries()"></textarea>
                         </div>
                         <label for="emailCcCode" id="emailCc" class="emailToCc">Email CC:</label>
                         <div id="divEmailCc">
-                            <textarea id="emailCcCode" style="width: 95%;" rows="5" onchange="checkFieldEntries()"></textarea>
+                            <textarea id="emailCcCode" style="width:95%;resize:vertical" rows="4" onchange="checkFieldEntries()"></textarea>
                         </div>
                     </fieldset>
                 </div>
@@ -65,6 +65,7 @@
                 </div>
                 <div>
                     <textarea id="editor_trumbowyg" aria-hidden="true" style="display:none;"></textarea>
+                    <div id="editor_trumbowyg_saving"><h3>Saving...</h3></div>
                 </div>
                 <div class="email-template-variables">
                     <fieldset>
@@ -208,7 +209,7 @@
                     </button>
                     <button type="button" id="btn_useCodeMirror"
                         class="usa-button usa-button--outline edit_only"
-                        onclick="useCodeEmailEditor(true)">Use Code Editor
+                        onclick="useCodeEmailEditor()">Use Code Editor
                     </button>
 
                     <button type="button"
@@ -335,17 +336,12 @@
     * compare content for expected fields to determine if unsaved changes exist
     */
     function hasContentChanged(emailToData, emailCcData, subjectData, bodyData) {
-        const isDefaultTemplate = currentFile === "LEAF_main_email_template.tpl";
-        const changesDetected = (
-            isDefaultTemplate && bodyData !== currentFileContent ||
-            !isDefaultTemplate && (
-                emailToData !== currentEmailToContent ||
-                emailCcData !== currentEmailCcContent ||
-                subjectData !== currentSubjectContent ||
-                bodyData !== currentFileContent
-            )
-        )
-        return changesDetected;
+        return (
+            emailToData !== currentEmailToContent ||
+            emailCcData !== currentEmailCcContent ||
+            subjectData !== currentSubjectContent ||
+            bodyData !== currentFileContent
+        );
     }
 
     /**
@@ -355,8 +351,10 @@
     function save() {
         let reloadTrumbow = false;
         if(trumbowygIsActive()) {
-            useCodeEmailEditor(true);
+            useCodeEmailEditor();
             reloadTrumbow = true;
+            $('#editor_trumbowyg_saving').show();
+            toggleEditorElements(true);
         }
 
         const emailToData = document.getElementById('emailToCode').value;
@@ -369,6 +367,7 @@
             alert('There are no changes to save.');
             if(reloadTrumbow === true) {
                 useTrumbowygEmailEditor();
+                $('#editor_trumbowyg_saving').hide();
             }
         } else {
             $.ajax({
@@ -398,11 +397,16 @@
                         $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                         $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
                         if(reloadTrumbow === true) {
+                            $('#editor_trumbowyg_saving').hide();
                             useTrumbowygEmailEditor();
                         }
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
+                    if(reloadTrumbow === true) {
+                        $('#editor_trumbowyg_saving').hide();
+                        useTrumbowygEmailEditor();
+                    }
                     console.log('Error occurred during the save operation:', errorThrown);
                 }
             });
@@ -522,7 +526,7 @@
     * @param {bool} updateURL - whether to update URL params and add to URL history
     */
     function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
-        useCodeEmailEditor(true);
+        useCodeEmailEditor();
         const initialBodyData = getCodeEditorValue(codeEditor);
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
@@ -656,7 +660,13 @@
         } else if (templateFile !== null) {
             loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
         } else {
-            loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
+            loadContent(
+                'Notify Next Approver',
+                'LEAF_notify_next_body.tpl',
+                'LEAF_notify_next_subject.tpl',
+                'LEAF_notify_next_emailTo.tpl',
+                'LEAF_notify_next_emailCc.tpl'
+            );
         }
         //displays a generic prompt if navigating from page with unsaved changes
         $(window).on('beforeunload', function(e) {
@@ -674,7 +684,7 @@
 
     // compares the current file to the default file content
     function compare() {
-        useCodeEmailEditor();
+        useCodeEmailEditor(false);
         const bodyData = getCodeEditorValue(codeEditor);
         const subjectData = getCodeEditorValue(subjectEditor);
         $('.CodeMirror').remove();
@@ -809,7 +819,7 @@
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
         let reloadTrumbow = false;
         if(trumbowygIsActive()) {
-            useCodeEmailEditor(true);
+            useCodeEmailEditor();
             reloadTrumbow = true;
         }
         if (!file) {
@@ -1089,7 +1099,6 @@
      * Purpose: Initiate the CodeMirror editor functions for the body and subject fields
      */
     function initEditor() {
-        console.log("init")
         codeEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
             mode: "htmlmixed",
             lineNumbers: true,
@@ -1235,12 +1244,13 @@
         const data = getCodeEditorValue(codeEditor);
         $('#editor_trumbowyg').val(data);
         $('#editor_trumbowyg').trumbowyg({
-            resetCss: true,
-            btns: ['formatting', 'bold', 'italic', 'underline', '|',
+            btns: [
+                'formatting', 'bold', 'italic', 'underline', '|',
                 'unorderedList', 'orderedList', '|',
                 'link', '|',
                 'foreColor', '|',
-                'justifyLeft', 'justifyCenter', 'justifyRight']
+                'justifyLeft', 'justifyCenter', 'justifyRight'
+            ],
         });
         $('.trumbowyg-box').css({
             'min-height': '130px',
@@ -1328,20 +1338,19 @@
         return document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea') !== null;
     }
 
-    function useCodeEmailEditor(refreshCodeMirror = false) {
+    function useCodeEmailEditor(refreshCodeMirror = true) {
         //if element associated with Trumbowyg exists, update codemirror element before proceeding.
         const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
         if(elTrumbow !== null) {
-            console.log("set trumbow value to cm content", elTrumbow.value);
             codeEditor.setValue(elTrumbow.value);
             toggleEditorElements(false);
             $('#editor_trumbowyg').trumbowyg('destroy');
             $('#editor_trumbowyg').hide();
-        }
-        if(refreshCodeMirror === true) {
-            $('.CodeMirror').each(function(i, el) {
-                el.CodeMirror.refresh();
-            });
+            if(refreshCodeMirror === true) {
+                $('.CodeMirror').each(function(i, el) {
+                    el.CodeMirror.refresh();
+                });
+            }
         }
     }
 
