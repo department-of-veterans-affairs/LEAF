@@ -292,35 +292,7 @@ class VAMCActiveDirectory
         $sql = 'UPDATE `employee`
                 SET `deleted` = :deleteTime,
                     `userName` = concat("disabled_", `deleted`, "_",  `userName`)
-                WHERE `userName` = :userName;
-
-                UPDATE `employee_data`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `employee_data_history`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `group_data`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `group_data_history`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `position_data`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `position_data_history`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `relation_employee_backup`
-                SET `approverUserName` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `approverUserName` = :userName;';
+                WHERE `userName` = :userName;';
 
         foreach ($userNames as $user) {
             $vars[':userName'] = $user['userName'];
