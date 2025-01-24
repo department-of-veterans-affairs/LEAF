@@ -2,8 +2,6 @@
 require_once 'globals.php';
 require_once APP_PATH . '/Leaf/Db.php';
 
-$dir = '/var/www/scripts/updateNationalOrgchart.php';
-
 $startTime = microtime(true);
 
 $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_orgchart');
@@ -22,14 +20,14 @@ $national = fopen('/var/www/tmp/nationalUpdate.txt', 'w');
 
 foreach ($VISNS as $visn) {
     if (str_starts_with($visn['data'], 'DN,')) {
-        fwrite($national, "{$dir} {$visn['cacheID']}\r\n");
+        fwrite($national, "{$visn['cacheID']}\r\n");
     }
 }
 
 fclose($national);
 
 echo "Updating National Orgcharts\r\n";
-passthru("cat /var/www/tmp/national.txt | parallel -j 100 -d '\r\n' php {}");
+passthru("cat /var/www/tmp/national.txt | parallel -j 100 -d '\r\n' php /var/www/scripts/updateNationalOrgchart.php {}");
 
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
