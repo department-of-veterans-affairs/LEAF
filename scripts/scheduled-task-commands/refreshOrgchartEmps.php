@@ -8,12 +8,11 @@ $startTime = microtime(true);
 
 $db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
 
-$vars = array(':orgcharts' => '/NATIONAL/101/orgchart');
+$vars = array();
 
 $sql = 'SELECT `site_path`
         FROM `sites`
         WHERE `site_type` = "orgchart"
-        AND `site_path` IN (:orgcharts)
         ORDER BY `site_path`';
 
 $paths = $db->prepared_query($sql, $vars);
