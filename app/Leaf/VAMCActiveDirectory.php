@@ -117,11 +117,14 @@ class VAMCActiveDirectory
 
     public function disableNationalOrgchartEmployees(): void
     {
-        // get all userNames that should be disabled
-        $disableUsersList = $this->getUserNamesToBeDisabled();
+        // make sure that an update occurred within the last 2 hours
+        if ($this->checkForUpdates()) {
+            // get all userNames that should be disabled
+            $disableUsersList = $this->getUserNamesToBeDisabled();
 
-        // Disable users not in this array
-        $this->preventRecycledUserName($disableUsersList);
+            // Disable users not in this array
+            $this->preventRecycledUserName($disableUsersList);
+        }
     }
 
     // Imports data from \t and \n delimited file of format:
@@ -242,6 +245,31 @@ class VAMCActiveDirectory
         echo "... Done.\n";
 
         echo "Total: $count";
+    }
+
+    private function checkForUpdates(): bool
+    {
+        // because this runs right after the update I feel confident we can do a 2 hour
+        // check, on staging the update only takes 30-40 minutes.
+        $sql = 'SELECT `userName`
+                FROM `employee`
+                WHERE `deleted` = 0
+                AND `lastUpdated` > (UNIX_TIMESTAMP(NOW()) - 7200)';
+
+        $result = $this->db->prepared_query($sql, array());
+
+        // checking to make sure more than just 1 or 2 were updated
+        // want to do it this way because someone could have updated
+        // someone manually causing this check to be a false positive.
+        // But it's pretty safe to say that if 200,000 got updated that
+        // the update script worked and we are good to disable anyone else.
+        if (count($result) > 200000) {
+            $return_value = true;
+        } else {
+            $return_value = false;
+        }
+
+        return $return_value;
     }
 
     private function getUserNamesToBeDisabled(): array
