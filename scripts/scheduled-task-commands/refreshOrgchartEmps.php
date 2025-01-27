@@ -13,6 +13,7 @@ $vars = array();
 $sql = 'SELECT `site_path`
         FROM `sites`
         WHERE `site_type` = "orgchart"
+        AND `site_path` = "/Academy/Demo1"
         ORDER BY `site_path`';
 
 $paths = $db->prepared_query($sql, $vars);
