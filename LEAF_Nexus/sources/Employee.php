@@ -348,7 +348,7 @@ class Employee extends Data
 
                     $sql .= 'SELECT `userID`
                              FROM `' . $table .'`
-                             WHERE `' . $fld . '` = :UserName';
+                             WHERE `' . $fld . '` = :userName';
 
                     $idx++;
                 }
@@ -356,7 +356,7 @@ class Employee extends Data
             } else {
                 $sql .= 'SELECT `userID`
                          FROM `' . $table .'`
-                         WHERE `' . $field . '` = :UserName';
+                         WHERE `' . $field . '` = :userName';
             }
         }
 
