@@ -46,33 +46,10 @@ class Employee extends Data
     private $disabledUsers;
 
     // the first value is the table, the second is the field. If the field is an array
-    // the first value needs to be the field used for the where clause. The field array
-    // is not current used but is setup to be able to be used later if needed.
-    private $disableUserNameOrgchartTables = array(
-        'employee_data' => 'author',
-        'employee_data_history' => 'author',
-        'group_data' => 'author',
-        'group_data_history' => 'author',
-        'position_data' => 'author',
-        'position_data_history' => 'author',
-        'relation_employee_backup' => 'approverUserName'
-    );
-
-    // the first value is the table, the second is the field. If the field is an array
     // the first value needs to be the field used for the where clause.
     private $disableUserNamePortalTables = array(
-        'action_history' => 'userID',
-        'approvals' => 'userID',
-        'data' => 'userID',
-        'data_extended' => 'userID',
-        'data_history' => 'userID',
-        'email_tracker' => 'userID',
-        'notes' => 'userID',
-        'process_query' => 'userID',
         'records' => 'userID',
         'service_chiefs' => array('userID', 'backupID'),
-        'signatures' => 'userID',
-        'tags' => 'userID',
         'users' => array('userID', 'backupID')
     );
 
@@ -125,7 +102,6 @@ class Employee extends Data
         if (!isset($national_emp['data'])) {
             $this->disableEmployees(explode(',', $user_name));
 
-            $this->disableAllTables();
             $this->disablePortalTables();
 
             $return_value = array(
@@ -155,7 +131,6 @@ class Employee extends Data
             } else {
                 $this->disableEmployees(explode(',', $user_name));
 
-                $this->disableAllTables();
                 $this->disablePortalTables();
 
                 $return_value = array(
@@ -283,7 +258,6 @@ class Employee extends Data
             }
 
             if (!empty($users) || !empty($local_deleted_employees)) {
-                $this->disableAllTables();
                 $this->disablePortalTables();
             }
         }
@@ -312,6 +286,8 @@ class Employee extends Data
 
     private function disablePortalTables(): void
     {
+        $this->disabledUsers = $this->getNewlyDisabledUsers();
+
         $portals = $this->getPortals();
 
         $portal_db = $this->db;
@@ -441,40 +417,6 @@ class Employee extends Data
         $return_value = $launchpad_db->prepared_query($sql, $vars);
 
         return $return_value;
-    }
-
-    private function disableAllTables(): void
-    {
-        // get all the newly disabled users
-        $this->disabledUsers = $this->getNewlyDisabledUsers();
-
-        $sql = '';
-
-        foreach ($this->disableUserNameOrgchartTables as $table => $field) {
-            if (is_array($field)) {
-                foreach ($field as $fld) {
-                    $sql .= 'UPDATE `' . $table .'`
-                            SET `' . $fld . '` = :disabledUserName
-                            WHERE `' . $fld . '` = :originalUserName;';
-                }
-
-            } else {
-                $sql .= 'UPDATE `' . $table .'`
-                        SET `' . $field . '` = :disabledUserName
-                        WHERE `' . $field . '` = :originalUserName;';
-            }
-        }
-
-        foreach ($this->disabledUsers as $user) {
-            // break down the userName to get original userName
-            $userName = explode('_', $user['userName']);
-
-            // update all tables with the new userName
-            $vars = array(':disabledUserName' => $user['userName'],
-                            ':originalUserName' => $userName[2]);
-
-            $this->db->prepared_query($sql, $vars);
-        }
     }
 
     private function enableAllTables(string $userName): void
@@ -1106,7 +1048,6 @@ class Employee extends Data
 
         $this->disableEmployees(array($res[0]['userName']));
 
-        $this->disableAllTables();
         $this->disablePortalTables();
 
         return true;
