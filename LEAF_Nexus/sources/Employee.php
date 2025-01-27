@@ -43,8 +43,6 @@ class Employee extends Data
 
     private $deepSearch = 3;           // Threshold for deeper search (min # of results before searching deeper)
 
-    private $disabledUsers;
-
     // the first value is the table, the second is the field. If the field is an array
     // the first value needs to be the field used for the where clause.
     private $disableUserNamePortalTables = array(
@@ -257,9 +255,7 @@ class Employee extends Data
                 $results[] = $this->disableEmployees($users);
             }
 
-            if (!empty($users) || !empty($local_deleted_employees)) {
-                $this->disablePortalTables();
-            }
+            $this->disablePortalTables();
         }
 
         return $results;
@@ -286,45 +282,47 @@ class Employee extends Data
 
     private function disablePortalTables(): void
     {
-        $this->disabledUsers = $this->getNewlyDisabledUsers();
+        $disabledUsers = $this->getNewlyDisabledUsers();
 
-        $portals = $this->getPortals();
+        if (!empty($disabledUsers)) {
+            $portals = $this->getPortals();
 
-        $portal_db = $this->db;
+            $portal_db = $this->db;
 
-        $sql = '';
+            $sql = '';
 
-        foreach ($this->disableUserNamePortalTables as $table => $field) {
-            if (is_array($field)) {
-                foreach ($field as $fld) {
+            foreach ($this->disableUserNamePortalTables as $table => $field) {
+                if (is_array($field)) {
+                    foreach ($field as $fld) {
+                        $sql .= 'UPDATE `' . $table .'`
+                                SET `' . $fld . '` = :disabledUserName
+                                WHERE `' . $fld . '` = :originalUserName;';
+                    }
+
+                } else {
                     $sql .= 'UPDATE `' . $table .'`
-                            SET `' . $fld . '` = :disabledUserName
-                            WHERE `' . $fld . '` = :originalUserName;';
+                            SET `' . $field . '` = :disabledUserName
+                            WHERE `' . $field . '` = :originalUserName;';
                 }
-
-            } else {
-                $sql .= 'UPDATE `' . $table .'`
-                        SET `' . $field . '` = :disabledUserName
-                        WHERE `' . $field . '` = :originalUserName;';
             }
-        }
 
-        foreach ($portals as $portal) {
-            $sql2 = 'USE ' . $portal['portal_database'];
+            foreach ($portals as $portal) {
+                $sql2 = 'USE ' . $portal['portal_database'];
 
-            $portal_db->prepared_query($sql2, array());
+                $portal_db->prepared_query($sql2, array());
 
-            foreach ($this->disabledUsers as $user) {
-                // break down the userName to get original userName
-                $userName = explode('_', $user['userName']);
+                foreach ($disabledUsers as $user) {
+                    // break down the userName to get original userName
+                    $userName = explode('_', $user['userName']);
 
-                // Need to check if this user is in this portal, if not bypass
-                if ($this->checkUserToPortal($userName[2], $portal_db)) {
-                    // update all tables with the new userName
-                    $vars = array(':disabledUserName' => $user['userName'],
-                                    ':originalUserName' => $userName[2]);
+                    // Need to check if this user is in this portal, if not bypass
+                    if ($this->checkUserToPortal($userName[2], $portal_db)) {
+                        // update all tables with the new userName
+                        $vars = array(':disabledUserName' => $user['userName'],
+                                        ':originalUserName' => $userName[2]);
 
-                    $portal_db->prepared_query($sql, $vars);
+                        $portal_db->prepared_query($sql, $vars);
+                    }
                 }
             }
         }
