@@ -115,10 +115,15 @@ class VAMCActiveDirectory
         $this->importData();
     }
 
-    public function disableNationalOrgchartEmployees(): void
+    public function disableNationalOrgchartEmployees(array $disabledUsers = null): void
     {
         // get all userNames that should be disabled
-        $disableUsersList = $this->getUserNamesToBeDisabled();
+        if ($disabledUsers === null) {
+            $disableUsersList = $this->getUserNamesToBeDisabled();
+        } else {
+            $disableUsersList = $disabledUsers;
+        }
+
 
         // Disable users not in this array
         $this->preventRecycledUserName($disableUsersList);
