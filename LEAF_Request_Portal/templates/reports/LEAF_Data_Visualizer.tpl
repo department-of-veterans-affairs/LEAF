@@ -253,7 +253,8 @@ function initPieChart(field, dimensions, groups) {
         .ordering(function(d) { return d.value; })
         .ordinalColors(niceColors)
         .label(d => d.key)
-        .externalLabels(5);
+        .externalLabels(1)
+        .externalRadiusPadding(8);
 }
 
 // initBoxPlot initializes a single DC.js box plot
