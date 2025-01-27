@@ -27,7 +27,7 @@ foreach ($VISNS as $visn) {
 fclose($national);
 
 echo "Updating National Orgcharts\r\n";
-passthru("cat /var/www/tmp/national.txt | parallel -j 100 -d '\r\n' php /var/www/scripts/updateNationalOrgchart.php {}");
+passthru("cat /var/www/tmp/nationalUpdate.txt | parallel -j 100 -d '\r\n' php /var/www/scripts/updateNationalOrgchart.php {}");
 
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);

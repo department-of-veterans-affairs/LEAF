@@ -113,6 +113,8 @@ class VAMCActiveDirectory
 
         // import any remaining entries
         $this->importData();
+
+        return '';
     }
 
     public function disableNationalOrgchartEmployees(): void
@@ -239,12 +241,6 @@ class VAMCActiveDirectory
 
             unset($this->users[$key]);
         }
-
-        echo 'Cleanup... ';
-        // TODO: do some clean up
-        echo "... Done.\n";
-
-        echo "Total: $count";
     }
 
     private function checkForUpdates(): bool
