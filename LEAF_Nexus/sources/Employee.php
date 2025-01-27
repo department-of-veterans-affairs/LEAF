@@ -427,32 +427,6 @@ class Employee extends Data
         return $return_value;
     }
 
-    private function enableAllTables(string $userName): void
-    {
-        $userNameParts = explode('_', $userName);
-
-        $vars = array(':disabledUserName' => $userName,
-                        ':originalUserName' => $userNameParts[2]);
-        $sql = '';
-
-        foreach ($this->disableUserNameOrgchartTables as $table => $field) {
-            if (is_array($field)) {
-                foreach ($field as $fld) {
-                    $sql .= 'UPDATE `' . $table .'`
-                            SET `' . $fld . '` = :originalUserName
-                            WHERE `' . $fld . '` = :disabledUserName;';
-                }
-
-            } else {
-                $sql .= 'UPDATE `' . $table .'`
-                        SET `' . $field . '` = :originalUserName
-                        WHERE `' . $field . '` = :disabledUserName;';
-            }
-        }
-
-        $this->db->prepared_query($sql, $vars);
-    }
-
     private function getNewlyDisabledUsers(): array
     {
         $time_minus_24 = time() - 86400;
@@ -1088,7 +1062,6 @@ class Employee extends Data
         $res = $this->db->prepared_query($sql, $vars);
 
         $this->enableEmployee($res[0]['userName']);
-        $this->enableAllTables($res[0]['userName']);
         $this->enableAllPortalTables($res[0]['userName']);
 
         return true;
