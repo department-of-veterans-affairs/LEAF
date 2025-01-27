@@ -337,14 +337,22 @@ class Employee extends Data
 
         foreach ($this->disableUserNamePortalTables as $table => $field) {
             if ($sql !== '') {
-                $sql .= 'UNION';
+                $sql .= ' UNION ';
             }
 
             if (is_array($field)) {
+                $idx = 0;
+
                 foreach ($field as $fld) {
+                    if ($idx > 0) {
+                        $sql .= ' UNION ';
+                    }
+
                     $sql .= 'SELECT `userID`
                              FROM `' . $table .'`
                              WHERE `' . $fld . '` = :UserName';
+
+                    $idx++;
                 }
 
             } else {
