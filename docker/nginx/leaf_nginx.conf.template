@@ -27,6 +27,11 @@ server {
     root /var/www/html;
     index index.php index.html index.htm;
 
+    # if slashes appear in the uri, we want to remove them.
+    if ($request_uri ~ "//") {
+        return 301 $uri$is_args$args;
+    }
+
     #this is for everything except gallery.php and svgs since those need to load still
     location ~* ^(.*)/libs/dynicons(?!(/gallery.php|/(.*).svg)){
 
