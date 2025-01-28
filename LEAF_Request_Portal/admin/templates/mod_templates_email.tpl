@@ -243,6 +243,7 @@
     let currentEmailCcFile;
 
     let currentFileContent;
+    let currentTrumbowygFileContent;
     let currentSubjectContent;
     let currentEmailToContent;
     let currentEmailCcContent;
@@ -335,12 +336,17 @@
     /**
     * compare content for expected fields to determine if unsaved changes exist
     */
-    function hasContentChanged(emailToData, emailCcData, subjectData, bodyData) {
+    function hasContentChanged(emailToData, emailCcData, subjectData, bodyData, trumbowValue = null) {
+        let currentBody = currentFileContent;
+        if(trumbowValue !== null) {
+            bodyData = trumbowValue;
+            currentBody = currentTrumbowygFileContent;
+        }
         return (
             emailToData !== currentEmailToContent ||
             emailCcData !== currentEmailCcContent ||
             subjectData !== currentSubjectContent ||
-            bodyData !== currentFileContent
+            bodyData !== currentBody
         );
     }
 
@@ -349,10 +355,12 @@
     * Displays last save time, updates current*Content values, and calls saveFileHistory at success.
     */
     function save() {
-        let reloadTrumbow = false;
-        if(trumbowygIsActive()) {
+        const trumbowValue = document.querySelector(
+            '#emailBodyCode + div textarea.trumbowyg-textarea'
+        )?.value || null;
+
+        if(trumbowValue !== null) {
             useCodeEmailEditor();
-            reloadTrumbow = true;
             $('#editor_trumbowyg_saving').show();
             toggleEditorElements(true);
         }
@@ -362,10 +370,10 @@
         const subject = getCodeEditorValue(subjectEditor);
         const data = getCodeEditorValue(codeEditor);
 
-        const hasAnyChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+        const hasAnyChanges = hasContentChanged(emailToData, emailCcData, subject, data, trumbowValue);
         if (!hasAnyChanges) {
             alert('There are no changes to save.');
-            if(reloadTrumbow === true) {
+            if(trumbowValue !== null) {
                 useTrumbowygEmailEditor();
                 $('#editor_trumbowyg_saving').hide();
             }
@@ -396,14 +404,19 @@
                         saveFileHistory();
                         $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                         $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
-                        if(reloadTrumbow === true) {
+                        //switch to Trumbowyg if it had been used
+                        if(trumbowValue !== null) {
                             $('#editor_trumbowyg_saving').hide();
                             useTrumbowygEmailEditor();
+                            currentTrumbowygFileContent = trumbowValue;
+                        //use (body) data to sync current value regardless.
+                        } else {
+                            currentTrumbowygFileContent = data;
                         }
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    if(reloadTrumbow === true) {
+                    if(trumbowValue !== null) {
                         $('#editor_trumbowyg_saving').hide();
                         useTrumbowygEmailEditor();
                     }
@@ -674,7 +687,9 @@
             const emailCcData = document.getElementById('emailCcCode').value;
             const subject = getCodeEditorValue(subjectEditor);
             const data = getCodeEditorValue(codeEditor);
-            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+            const trumbowValue = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea')?.value || null;
+
+            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data, trumbowValue);
             if (!ignoreUnsavedChanges && !ignorePrompt && hasChanges) {
                 e.preventDefault();
                 return true;
@@ -817,11 +832,13 @@
     * @param {string} emailCcFile - eg LEAF_send_back_emailCc.tpl
     */
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
-        let reloadTrumbow = false;
-        if(trumbowygIsActive()) {
-            useCodeEmailEditor();
-            reloadTrumbow = true;
-        }
+        //current T editor val if it exists
+        const trumbowValue = document.querySelector(
+            '#emailBodyCode + div textarea.trumbowyg-textarea'
+        )?.value || null;
+
+        useCodeEmailEditor();
+
         if (!file) {
             if(file === null && currentFile && codeEditor) { //from compare view
                 const mergeViewBodyValue = getCodeEditorValue(codeEditor);
@@ -850,9 +867,13 @@
             const emailCcData = document.getElementById('emailCcCode').value;
             const subject = getCodeEditorValue(subjectEditor);
             const data = getCodeEditorValue(codeEditor);
-            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+
+            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data, trumbowValue);
             if (!ignoreUnsavedChanges && hasChanges &&
                 !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
+                if(trumbowValue !== null) {
+                    useTrumbowygEmailEditor();
+                }
                 return;
             }
         }
@@ -883,7 +904,7 @@
             success: function(res) {
                 $('#codeContainer').fadeIn();
                 // Check if codeEditor is defined, has a setValue method and file property exists
-                if (codeEditor && typeof codeEditor.setValue === 'function' && res?.file !== undefined) {
+                if (codeEditor && typeof codeEditor.setValue === 'function' && res?.file !== undefined && res?.file !== false) {
                     codeEditor.setValue(res.file);
                     currentFileContent = codeEditor.getValue();
                     if (subjectEditor && res.subjectFile !== null) { //subject is null for default email template
@@ -898,11 +919,16 @@
                     currentEmailCcContent = res.emailCcFile;
                     $("#emailToCode").val(currentEmailToContent);
                     $("#emailCcCode").val(currentEmailCcContent);
-                    if(reloadTrumbow === true) {
-                        useTrumbowygEmailEditor();
+
+                    useTrumbowygEmailEditor();
+                    //update current content from new T editor set up after file load
+                    const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
+                    if(elTrumbow !== null) {
+                        currentTrumbowygFileContent = elTrumbow.value;
                     }
+
                 } else {
-                    res?.file === undefined ?
+                    res?.file === undefined || res?.file === false ?
                         console.error('file not found') :
                         console.error('codeEditor is not properly initialized.');
                 }
@@ -1334,10 +1360,6 @@
         document.getElementById('btn_useCodeMirror').focus();
     }
 
-    function trumbowygIsActive() {
-        return document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea') !== null;
-    }
-
     function useCodeEmailEditor(refreshCodeMirror = true) {
         //if element associated with Trumbowyg exists, update codemirror element before proceeding.
         const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
@@ -1360,11 +1382,11 @@
         let btnUseCodeMirror = document.getElementById('btn_useCodeMirror');
         if(btnUseTrumbow !== null && btnUseCodeMirror !== null) {
             if (showTrumbow === true) {
-                $('#emailLists, #subject, #divSubject, #emailBodyCode').hide();
+                $('#emailBodyCode').hide();
                 btnUseCodeMirror.classList.add('show_button');
                 btnUseTrumbow.classList.remove('show_button');
             } else {
-                $('#emailLists, #subject, #divSubject, #emailBodyCode').show();
+                $('#emailBodyCode').show();
                 btnUseCodeMirror.classList.remove('show_button');
                 btnUseTrumbow.classList.add('show_button');
             }
