@@ -96,7 +96,6 @@ var suggestions = {};
 suggestions.length = [];
 
 function truncateText(text, maxLength = 50) {
-    console.log(text);
     if (text.length <= maxLength) return text;
     
     const truncatedText = text.substr(0, maxLength);
