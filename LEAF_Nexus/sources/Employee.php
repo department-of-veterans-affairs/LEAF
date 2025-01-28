@@ -1053,6 +1053,14 @@ class Employee extends Data
             throw new Exception('Administrator access required to enable accounts');
         }
 
+        $vars = array(':empUID' => $empUID,
+                      ':time' => 0);
+        $sql = 'UPDATE`employee`
+                SET `deleted` = :time
+                WHERE `empUID` = :empUID';
+
+        $this->db->prepared_query($sql, $vars);
+
         $vars = array(':empUID' => $empUID);
         $sql = 'SELECT `userName`
                 FROM `employee`

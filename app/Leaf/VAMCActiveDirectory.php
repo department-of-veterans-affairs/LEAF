@@ -117,7 +117,7 @@ class VAMCActiveDirectory
         return '';
     }
 
-    public function disableNationalOrgchartEmployees(): void
+    public function disableNationalOrgchartEmployees(array $disabledUsers = null): void
     {
         // make sure that an update occurred within the last 2 hours
         if ($this->checkForUpdates()) {
