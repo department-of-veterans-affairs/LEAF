@@ -316,7 +316,7 @@ class Employee extends Data
                     $userName = explode('_', $user['userName']);
 
                     // Need to check if this user is in this portal, if not bypass
-                    if ($this->checkUserToPortal($userName[2], $portal_db)) {
+                    if ($userName[2] != '' && $this->checkUserToPortal($userName[2], $portal_db)) {
                         // update all tables with the new userName
                         $vars = array(':disabledUserName' => $user['userName'],
                                         ':originalUserName' => $userName[2]);
@@ -417,6 +417,7 @@ class Employee extends Data
         $sql = 'SELECT `portal_database`
                 FROM `sites`
                 WHERE `orgchart_path` = :orgchartPath
+                AND `site_type` = "portal"
                 AND (`portal_database` IS NOT NULL
                     OR `portal_database` <> "")';
 
