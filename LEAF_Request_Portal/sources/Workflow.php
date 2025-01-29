@@ -30,6 +30,25 @@ class Workflow
 
     private $dataActionLogger;
 
+    private $systemAction = array(
+        'approve',
+        'concur',
+        'defer',
+        'disapprove',
+        'sendback',
+        'submit',
+        'sign',
+        'deleted',
+        'changeInitiator',
+        'move',
+    );
+    //request cancel, change initiator, change step
+    private $nonWorkflowActions = array(
+        'deleted',
+        'changeInitiator',
+        'move',
+    );
+
     public function __construct($db, $login, $workflowID = 0)
     {
         $this->db = $db;
@@ -591,8 +610,12 @@ class Workflow
 
     public function getActions()
     {
-        $vars = array();
-        $res = $this->db->prepared_query('SELECT * FROM actions WHERE deleted=0 ORDER BY actionText', $vars);
+        $vars = array(
+            ':nonWorkflowActions' => implode(",", $this->nonWorkflowActions)
+        );
+        $qSQL = "SELECT `actionType`, `actionText`, `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`, `deleted`
+            FROM actions WHERE NOT FIND_IN_SET(actionType, :nonWorkflowActions) AND deleted=0 ORDER BY actionText";
+        $res = $this->db->prepared_query($qSQL, $vars);
 
         return $res;
     }
@@ -1498,8 +1521,12 @@ class Workflow
     //returns user created actions
     public function getUserActions()
     {
-        $vars = array();
-        $res = $this->db->prepared_query("SELECT * FROM actions WHERE actionType NOT IN ('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit') AND NOT (deleted = 1)", $vars);
+        $vars = array(
+            ':systemAction' => implode(",", $this->systemAction)
+        );
+        $qSQL = "SELECT `actionType`, `actionText`, `actionTextPasttense`, `actionIcon`, `actionAlignment`, `sort`, `fillDependency`, `deleted`
+            FROM actions WHERE NOT FIND_IN_SET(actionType, :systemAction) AND NOT (deleted = 1)";
+        $res = $this->db->prepared_query($qSQL, $vars);
 
         return $res;
     }
@@ -1526,9 +1553,7 @@ class Workflow
             return 'Admin access required';
         }
 
-        $systemAction = array('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit', 'sign');
-
-        if (in_array($actionType, $systemAction))
+        if (in_array($actionType, $this->systemAction))
         {
             return 'System Actions cannot be edited.';
         }
@@ -1577,9 +1602,8 @@ class Workflow
         {
             return 'Admin access required';
         }
-        $systemAction = array('approve', 'concur', 'defer', 'disapprove', 'sendback', 'submit', 'sign');
 
-        if (in_array($actionType, $systemAction))
+        if (in_array($actionType, $this->systemAction))
         {
             return 'System Actions cannot be removed.';
         }
