@@ -96,7 +96,8 @@ class View
                 } elseif(!empty($tmp['stepTitle']) && $tmp['dependencyID'] < 0) {
                     $packet['description'] = $tmp['stepTitle'] . ': ' . $tmp['actionText'];
                 } else {
-                    $packet['description'] = $tmp['description'] . ': ' . $tmp['actionText'];
+                    $desc = empty($tmp['description']) ? 'Action' : $tmp['description'];
+                    $packet['description'] = $desc . ': ' . $tmp['actionText'];
                 }
 
                 $packet['comment'] = $tmp['comment'];
