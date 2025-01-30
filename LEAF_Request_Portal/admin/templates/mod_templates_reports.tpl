@@ -704,7 +704,7 @@
                     
                     if (!isExcludedFile(file)) {
                         buffer += '<li><a href="#" role="button" data-file="' + file + '">' + file + '</a></li>';
-                        filesMobile += '<option value="' + file + '"><div class="template_files">' + file + '</div></option>';
+                        filesMobile += '<option value="' + file + '">' + file + '</option>';
                     } else {
                         bufferExamples += '<li><a href="#" role="button" data-file="' + file + '">' + file + '</a></li>';
                     }

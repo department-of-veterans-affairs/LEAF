@@ -175,7 +175,7 @@ class TemplateFileHistory
 
         $list = $this->getTemplateList();
         $time = date("Y-m-d h:i:s");
-        $templateID = time();
+        $templateID = uniqid();
 
 
         if (array_search($templateFileHistory, $list) !== false) {
