@@ -165,9 +165,9 @@ class Employee extends Data
         } else {
             $local_employee_usernames = $this->formatUserNames($local_employee_list);
 
-            $chunk_local_employee = array_chunk($local_employee_usernames, 100);
+            //$chunk_local_employee = array_chunk($local_employee_usernames, 100);
 
-            $return_value = $this->processList($chunk_local_employee);
+            $return_value = $this->processList($local_employee_usernames);
         }
 
         return $return_value;
@@ -288,7 +288,7 @@ class Employee extends Data
         $disabledUsers = $this->getNewlyDisabledUsers();
 
         if (!empty($disabledUsers)) {
-            $portal_db = clone $this->db;
+            $portal_db = $this->db;
             $portals = $this->getPortals();
 
             $sql = '';
