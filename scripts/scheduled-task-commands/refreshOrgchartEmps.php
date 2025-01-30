@@ -31,7 +31,7 @@ foreach ($paths as $path) {
 fclose($forgcharts);
 
 echo "Refreshing Orgcharts\r\n";
-passthru("cat /var/www/tmp/refreshOrgcharts.txt | parallel -j 100 -d '\r\n' php {}scripts/refreshOrgchartEmployees.php");
+passthru("cat /var/www/tmp/refreshOrgcharts.txt | parallel -j 10 -d '\r\n' php {}scripts/refreshOrgchartEmployees.php");
 
 $endTime = microtime(true);
 $timeInMinutes = round(($endTime - $startTime) / 60, 2);
