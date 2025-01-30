@@ -287,7 +287,7 @@ class Employee extends Data
         if (!empty($disabledUsers)) {
             $portals = $this->getPortals();
 
-            $portal_db = $this->db;
+            $portal_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $portals[0]['portal_database']);
 
             $sql = '';
 
