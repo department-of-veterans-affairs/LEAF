@@ -43,6 +43,8 @@ class Employee extends Data
 
     private $deepSearch = 3;           // Threshold for deeper search (min # of results before searching deeper)
 
+    private $portal_db;
+
     // the first value is the table, the second is the field. If the field is an array
     // the first value needs to be the field used for the where clause.
     private $disableUserNamePortalTables = array(
@@ -58,6 +60,7 @@ class Employee extends Data
         $this->setDataTableUID($this->dataTableUID);
         $this->setDataTableDescription($this->dataTableDescription);
         $this->setDataTableCategoryID($this->dataTableCategoryID);
+        $this->portal_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'Academy_Demo3');
     }
 
     public function setNoLimit()
@@ -287,8 +290,6 @@ class Employee extends Data
         if (!empty($disabledUsers)) {
             $portals = $this->getPortals();
 
-            $portal_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, $portals[0]['portal_database']);
-
             $sql = '';
 
             foreach ($this->disableUserNamePortalTables as $table => $field) {
@@ -309,19 +310,19 @@ class Employee extends Data
             foreach ($portals as $portal) {
                 $sql2 = 'USE ' . $portal['portal_database'];
 
-                $portal_db->prepared_query($sql2, array());
+                $this->portal_db->prepared_query($sql2, array());
 
                 foreach ($disabledUsers as $user) {
                     // break down the userName to get original userName
                     $userName = explode('_', $user['userName']);
 
                     // Need to check if this user is in this portal, if not bypass
-                    if ($userName[2] != '' && $this->checkUserToPortal($userName[2], $portal_db)) {
+                    if ($userName[2] != '' && $this->checkUserToPortal($userName[2], $this->portal_db)) {
                         // update all tables with the new userName
                         $vars = array(':disabledUserName' => $user['userName'],
                                         ':originalUserName' => $userName[2]);
 
-                        $portal_db->prepared_query($sql, $vars);
+                        $this->portal_db->prepared_query($sql, $vars);
                     }
                 }
             }
@@ -375,8 +376,6 @@ class Employee extends Data
     {
         $portals = $this->getPortals();
 
-        $portal_db = $this->db;
-
         $userNameParts = explode('_', $userName);
 
         $vars = array(':disabledUserName' => $userName,
@@ -400,9 +399,9 @@ class Employee extends Data
 
         foreach ($portals as $portal) {
             $sql2 = 'USE ' . $portal['portal_database'];
-            $portal_db->prepared_query($sql2, array());
+            $this->portal_db->prepared_query($sql2, array());
 
-            $portal_db->prepared_query($sql, $vars);
+            $this->portal_db->prepared_query($sql, $vars);
         }
     }
 
