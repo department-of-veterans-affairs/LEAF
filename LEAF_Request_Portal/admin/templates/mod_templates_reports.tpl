@@ -168,10 +168,30 @@
     * Displays last save time, updates currentFileContent value, and calls saveFileHistory at success.
     */
     function save() {
+        let elSaveBtn = document.getElementById('save_button');
         const data = getCodeEditorValue(codeEditor);
         if (data === currentFileContent) {
             alert('There are no changes to save.');
         } else {
+            elSaveBtn.setAttribute("disabled", "disabled");
+            //if no history exists yet, synchronously snapshot the original first
+            const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
+            if(numRecords === 0) {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        CSRFToken: '<!--{$CSRFToken}-->',
+                        file: currentFileContent
+                    },
+                    url: '../api/applet/fileHistory/_' + currentFile,
+                    success: function(res) {},
+                    error: function(err) {
+                        console.log(err);
+                    },
+                    async: false
+                });
+            }
+
             $.ajax({
                 type: 'POST',
                 data: {
@@ -188,9 +208,11 @@
                         currentFileContent = data;
                         saveFileHistory();
                     }
+                    elSaveBtn.removeAttribute("disabled");
                 },
-                error: function() {
-                    alert('An error occurred while saving the file.');
+                error: function(err) {
+                    alert('An error occurred while saving the file.', err);
+                    elSaveBtn.removeAttribute("disabled");
                 }
             });
         }

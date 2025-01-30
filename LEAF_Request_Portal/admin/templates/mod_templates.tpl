@@ -168,10 +168,30 @@
     * Displays last save time, updates currentFileContent value, and calls saveFileHistory at success.
     */
     function save() {
+        let elSaveBtn = document.getElementById('save_button');
         const data = getCodeEditorValue(codeEditor);
         if (data === currentFileContent) {
             alert('There are no changes to save.');
         } else {
+            elSaveBtn.setAttribute("disabled", "disabled");
+            //if no history exists yet, synchronously snapshot the original first
+            const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
+            if(numRecords === 0) {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        CSRFToken: '<!--{$CSRFToken}-->',
+                        file: currentFileContent
+                    },
+                    url: '../api/templateFileHistory/_' + currentFile,
+                    success: function(res) {},
+                    error: function(err) {
+                        console.log(err);
+                    },
+                    async: false
+                });
+            }
+
             $.ajax({
                 type: 'POST',
                 data: {
@@ -190,9 +210,11 @@
                         $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                         $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
                     }
+                    elSaveBtn.removeAttribute("disabled");
                 },
                 error: function(err) {
                     console.log(err);
+                    elSaveBtn.removeAttribute("disabled");
                 }
             });
         }

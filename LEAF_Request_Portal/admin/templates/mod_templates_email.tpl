@@ -355,6 +355,7 @@
     * Displays last save time, updates current*Content values, and calls saveFileHistory at success.
     */
     function save() {
+        let elSaveBtn = document.getElementById('save_button');
         const trumbowValue = document.querySelector(
             '#emailBodyCode + div textarea.trumbowyg-textarea'
         )?.value || null;
@@ -378,6 +379,31 @@
                 $('#editor_trumbowyg_saving').hide();
             }
         } else {
+            elSaveBtn.setAttribute("disabled", "disabled");
+            //if no history exists yet, synchronously snapshot the original first
+            const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
+            if(numRecords === 0) {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        CSRFToken: '<!--{$CSRFToken}-->',
+                        file: currentFileContent,
+                        subjectFile: currentSubjectContent,
+                        subjectFileName: currentSubjectFile,
+                        emailToFile: currentEmailToContent,
+                        emailToFileName: currentEmailToFile,
+                        emailCcFile: currentEmailCcContent,
+                        emailCcFileName: currentEmailCcFile
+                    },
+                    url: '../api/emailTemplateFileHistory/_' + currentFile,
+                    success: function(res) {},
+                    error: function(err) {
+                        console.log(err);
+                    },
+                    async: false
+                });
+            }
+
             $.ajax({
                 type: 'POST',
                 data: {
@@ -414,12 +440,14 @@
                             currentTrumbowygFileContent = data;
                         }
                     }
+                    elSaveBtn.removeAttribute("disabled");
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     if(trumbowValue !== null) {
                         $('#editor_trumbowyg_saving').hide();
                         useTrumbowygEmailEditor();
                     }
+                    elSaveBtn.removeAttribute("disabled");
                     console.log('Error occurred during the save operation:', errorThrown);
                 }
             });
