@@ -621,7 +621,7 @@ async function getDataBuildCharts(categoryID, customSearch) {
                     activeFilters += `<li>${param.id} ${param.operator} ${param.match}</li>`;
                 }
                 else {
-                    query.addDataTerm(param.indicatorID, param.id, param.operator, param.match);
+                    query.addDataTerm(param.id, param.indicatorID, param.operator, param.match);
 					activeFilters += `<li>${param.id}${param.indicatorID} ${param.operator} ${param.match}</li>`;
                 }
             }

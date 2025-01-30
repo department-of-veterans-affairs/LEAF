@@ -21,6 +21,7 @@ export default {
         return {
             dragLI_Prefix: 'index_listing_',
             dragUL_Prefix: 'drop_area_parent_',
+            draggedElID: '',
             listTracker: {},
             previewMode: false,
             sortOffset: 128, //number to subtract from listindex when comparing or updating sort values
@@ -109,8 +110,10 @@ export default {
             editQuestion: this.editQuestion,
             clearListItem: this.clearListItem,
             addToListTracker: this.addToListTracker,
-            focusIndicator: this.focusIndicator,
+            setIndicatorFocus: this.setIndicatorFocus,
             startDrag: this.startDrag,
+            endDrag: this.endDrag,
+            handleOnDragCustomizations: this.handleOnDragCustomizations,
             onDragEnter: this.onDragEnter,
             onDragLeave: this.onDragLeave,
             onDrop: this.onDrop,
@@ -377,12 +380,21 @@ export default {
                             if(sameForm) {
                                 const selector = this.focusAfterFormUpdateSelector;
                                 if(selector !== null) {
+                                    let element = document.querySelector(selector);
                                     let aria = '';
                                     switch(true) {
                                         case selector.startsWith(`#click_to_move`):
                                             const idArr = selector.split('_');
-                                            if(idArr?.[3] && idArr?.[4]) {
-                                                aria = `moved indicator ${idArr[4]} ${idArr[3]}`;
+                                            const direction = idArr?.[3];
+                                            const id = idArr?.[4];
+                                            if(direction && id) {
+                                                aria = `moved indicator ${id} ${direction}`;
+                                                /*If moved to start or end, the button that had been pressed will be disabled
+                                                In this case, focus the opposite button */
+                                                if(element?.disabled === true) {
+                                                    const otherDir = direction === 'up' ? 'down' : 'up';
+                                                    element = document.getElementById(`click_to_move_${otherDir}_${id}`);
+                                                }
                                             }
                                             break;
                                         case selector.startsWith(`#edit_indicator`):
@@ -398,9 +410,8 @@ export default {
                                         break;
                                     }
                                     this.ariaStatusFormDisplay = aria;
-                                    const btn = document.querySelector(selector);
-                                    if (btn !== null && !this.showFormDialog) {
-                                        btn.focus();
+                                    if (element !== null && !this.showFormDialog) {
+                                        element.focus();
                                         this.focusAfterFormUpdateSelector = null;
                                     }
                                 }
@@ -452,17 +463,10 @@ export default {
          */
         getIndicatorByID(indicatorID = 0) {
             return new Promise((resolve, reject)=> {
-                try {
-                    fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
-                    .then(res => {
-                        res.json()
-                        .then(data => {
-                            resolve(data[indicatorID]);
-                        }).catch(err => reject(err));
-                    }).catch(err => reject(err));
-                } catch (error) {
-                    reject(error);
-                }
+                fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
+                .then(res => res.json())
+                .then(data => resolve(data[indicatorID]))
+                .catch(err => reject(err));
             });
         },
         /**
@@ -496,7 +500,7 @@ export default {
          * @param {number|null} parentID of the new subquestion.  null for new sections.
          */
         newQuestion(parentID = null) {
-            const parentUl = parentID === null ? `ul#base_drop_area_${this.focusedFormID}` : `ul#drop_area_parent_${parentID}`;
+            const parentUl = parentID === null ? `ul#base_drop_area_${this.focusedFormID}` : `ul#${this.dragUL_Prefix}${parentID}`;
             this.focusAfterFormUpdateSelector = `${parentUl} > li:last-child button[id^="edit_indicator"]`;
             this.openIndicatorEditingDialog(null, parentID, {});
             this.focusedIndicatorID = null;
@@ -536,9 +540,10 @@ export default {
         /**
          * @param {Number|null} nodeID indicatorID of the form section selected in the Form Index
          */
-        focusIndicator(nodeID = null) {
-            this.focusedIndicatorID = nodeID;
-            this.ariaStatusFormDisplay = 'click to move options available';
+        setIndicatorFocus(nodeID = null) {
+            if (this.focusedIndicatorID !== nodeID) {
+                this.focusedIndicatorID = nodeID
+            }
         },
         /**
          * switch between edit and preview mode
@@ -563,12 +568,12 @@ export default {
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
         clickToMoveListItem(event = {}, indID = 0, moveup = false) {
-            if(!this.previewMode) {
+            if(!this.previewMode && indID === this.focusedIndicatorID) {
                 if (event?.keyCode === 32) event.preventDefault();
                 this.ariaStatusFormDisplay = '';
                 this.focusAfterFormUpdateSelector = '#' + event?.target?.id || '';
                 const parentEl = event?.currentTarget?.closest('ul');
-                const elToMove = document.getElementById(`index_listing_${indID}`);
+                const elToMove = document.getElementById(`${this.dragLI_Prefix}${indID}`);
                 const oldElsLI = Array.from(document.querySelectorAll(`#${parentEl.id} > li`));
                 const newElsLI = oldElsLI.filter(li => li !== elToMove);
                 const listitem = this.listTracker[indID];
@@ -579,7 +584,7 @@ export default {
                     newElsLI.splice(oldIndex + spliceLoc, 0, elToMove);
                     oldElsLI.forEach(li => parentEl.removeChild(li));
                     newElsLI.forEach((li, i) => {
-                        const liIndID = parseInt(li.id.replace('index_listing_', ''));
+                        const liIndID = parseInt(li.id.replace(this.dragLI_Prefix, ''));
                         parentEl.appendChild(li);
                         this.listTracker[liIndID].listIndex = i;
                     });
@@ -667,32 +672,82 @@ export default {
             item.newParentID = newParIndID;
             this.listTracker[indID] = item;
         },
+        removeDragDropClasses() {
+            //remove possible drag-drop related classes
+            let prevEls = Array.from(document.querySelectorAll(
+                `#base_drop_area_${this.focusedFormID} li[id^="${this.dragLI_Prefix}"],
+                #base_drop_area_${this.focusedFormID} ul[id^="${this.dragUL_Prefix}"]`
+                )
+            );
+            prevEls.forEach(el => {
+                el.classList.remove('entered-empty-ul-drop-zone');
+                el.classList.remove('entered-parent-ul-drop-zone');
+                el.classList.remove('entered-parent-ul-drop-zone-last');
+                el.classList.remove('drop_preview_visible');
+            });
+        },
         startDrag(event = {}) {
-            const classList = event?.target?.classList || [];
-            const dragLimitX = classList.contains('subindicator_heading') ? 30 : 24;
-            if (event?.offsetX > dragLimitX) {
+            //restrict action to bounds of visual drag indicator tab
+            if (event?.offsetX > 25 || event?.offsetY > 78) {
                 event.preventDefault();
             } else {
                 if(!this.previewMode && event?.dataTransfer) {
                     event.dataTransfer.dropEffect = 'move';
                     event.dataTransfer.effectAllowed = 'move';
                     event.dataTransfer.setData('text/plain', event.target.id);
-                    const btn = document.getElementById(`${event.target.id}_button`);
-                    if(btn !== null) {
-                        const x = btn.offsetWidth/2;
-                        const y = btn.offsetHeight/2;
-                        event.dataTransfer.setDragImage(btn, x, y);
+                    //define/update a min height for the form preview element or the dragged item could be dropped when its size changes.
+                    let elFormDisplay = document.getElementById(`form_entry_and_preview`);
+                    const currentFormHeight = +elFormDisplay.getBoundingClientRect().height.toFixed(0);
+                    elFormDisplay.style.minHeight = currentFormHeight + 'px';
+                    //size set programmatically.  Other styles in CSS class.
+                    event.target.style.height = '80px';
+                    event.target.classList.add("is_being_dragged");
+
+                    const elReplacementImg = document.getElementById(`drag_drop_default_img_replacement`);
+                    if(elReplacementImg !== null) {
+                        event.dataTransfer.setDragImage(elReplacementImg, 0, 0);
+                        let text = document.querySelector(`#${event.target.id} .name`)?.textContent;
+                        text = this.shortIndicatorNameStripped(text);
+                        const targetHasSublist = event.target.querySelector('ul > li') !== null;
+                        if (targetHasSublist) {
+                            text += ' (includes sub-questions)';
+                        }
+                        this.$refs.drag_drop_custom_display.textContent = text;
+                        this.draggedElID = event.target.id;
                     }
-                    const indID = (event.target.id || '').replace(this.dragLI_Prefix, '');
-                    this.focusIndicator(+indID);
                 }
             }
         },
+        endDrag(event = {}) {
+            //reset custom display coords and remove drag class regardless of outcome
+            this.$refs.drag_drop_custom_display.style.left = '-9999px';
+            this.$refs.drag_drop_custom_display.style.top = '-1000px';
+            this.$refs.drag_drop_custom_display.textContent = "";
+            event.target.style.height = 'auto';
+            event.target.classList.remove('is_being_dragged');
+        },
+        handleOnDragCustomizations(event = {}) {
+            //increase the ranges at which window will scroll
+            const scrollBuffer = 75;
+            const y = +event?.clientY;
+            if (y < scrollBuffer || y > window.innerHeight - scrollBuffer) {
+                const scrollIncrement = 4;
+                const sX = window.scrollX;
+                const sY = window.scrollY;
+                const increment = y < scrollBuffer ? -scrollIncrement : scrollIncrement;
+                window.scrollTo(sX, sY + increment);
+            }
+            //update the custom display coordinates
+            const parEl = this.$refs.drag_drop_custom_display?.parentElement || null;
+            if(parEl !== null) {
+                const bounds = parEl.getBoundingClientRect();
+                this.$refs.drag_drop_custom_display.style.left = +event?.clientX - bounds.x + 2 + 'px';
+                this.$refs.drag_drop_custom_display.style.top = +event?.clientY - bounds.y + 2 + 'px';
+            }
+        },
         onDrop(event = {}) {
-            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
-                const parentEl = event.currentTarget; //NOTE: drop event is on parent ul, the li is the el being moved
-                if(parentEl.nodeName !== 'UL') return;
-
+            const parentEl = event.currentTarget; //NOTE: drop event is on parent ul, the li is the el being moved
+            if(parentEl.nodeName === 'UL' && event?.dataTransfer && event.dataTransfer.effectAllowed === 'move') {
                 event.preventDefault();
                 const draggedElID = event.dataTransfer.getData('text');
                 const elLiToMove = document.getElementById(draggedElID);
@@ -727,9 +782,7 @@ export default {
                         }
                     }
                 }
-                if(parentEl.classList.contains('entered-drop-zone')){
-                    event.target.classList.remove('entered-drop-zone');
-                }
+                this.removeDragDropClasses();
             }
         },
         /**
@@ -737,15 +790,56 @@ export default {
          */
         onDragLeave(event = {}) {
             if(event?.target?.classList.contains('form-index-listing-ul')){
-                event.target.classList.remove('entered-drop-zone');
+                this.removeDragDropClasses();
             }
         },
         /**
          * @param {Object} event adds the drop zone hilite if target is ul
          */
         onDragEnter(event = {}) {
-            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move' && event?.target?.classList.contains('form-index-listing-ul')){
-                event.target.classList.add('entered-drop-zone');
+            //remove possible drag-drop related classes
+            this.removeDragDropClasses();
+            if(event?.dataTransfer && event.dataTransfer.effectAllowed === 'move' && event?.target?.classList.contains('form-index-listing-ul')) {
+                let dropTargetDirectLIs = Array.from(event.target.querySelectorAll('#' + event.target.id + '> li'));
+
+                const ulTop = event.target.getBoundingClientRect().top;
+                const draggedLi = document.getElementById(this.draggedElID);
+                const draggedLiIndex = dropTargetDirectLIs.indexOf(draggedLi);
+                const closestLi = dropTargetDirectLIs.find(item => event.clientY - ulTop <= item.offsetTop + item.offsetHeight/2) || null;
+                const isSameList = draggedLiIndex > -1;
+                const isDirectlyAboveCurrentLocation = this.draggedElID === closestLi?.id;
+                const isDirectlyBelowCurrentLocation =
+                    isSameList &&
+                    (
+                        //at the end and the dragged item is last
+                        closestLi === null && dropTargetDirectLIs.length - 1 === draggedLiIndex
+                        ||
+                        //next li is immediately next to the dragged one
+                        closestLi !== null &&
+                        dropTargetDirectLIs?.[dropTargetDirectLIs.indexOf(draggedLi) + 1]?.id === closestLi?.id
+                    )
+
+                //don't bother doing anything further if it's in the same location
+                if (!isDirectlyAboveCurrentLocation && !isDirectlyBelowCurrentLocation) {
+
+                    if(dropTargetDirectLIs.length === 0) { //no items in this list - add class to target (UL)
+                        event.target.classList.add('entered-empty-ul-drop-zone');
+                    } else { //add class to closest LI
+                        let el = null;
+                        if (closestLi !== null) {
+                            el = closestLi;
+                            closestLi.classList.add('entered-parent-ul-drop-zone');
+                        } else {
+                            //element is at bottom of list, add 'last' styles to last LI
+                            let lastLI = dropTargetDirectLIs[dropTargetDirectLIs.length - 1]
+                            el = lastLI;
+                            lastLI.classList.add('entered-parent-ul-drop-zone-last');
+                        }
+                        setTimeout(()=>{
+                            el.classList.add('drop_preview_visible');
+                        }, 150);
+                    }
+                }
             }
         },
         /**
@@ -891,6 +985,10 @@ export default {
 
                 <!-- FORM EDITING AND ENTRY PREVIEW -->
                 <div id="form_entry_and_preview">
+                    <!-- visually / access hidden elements used for the drag/drop display -->
+                    <div id="drag_drop_default_img_replacement" aria-hidden="true"></div>
+                    <div id="drag_drop_custom_display" ref="drag_drop_custom_display" aria-hidden="true"></div>
+
                     <div class="printformblock" :data-update-key="updateKey">
 
                         <!-- FORM DISPLAY WITH DRAG-DROP ZONE -->
@@ -903,19 +1001,22 @@ export default {
                             @dragover.prevent
                             @dragenter.prevent="onDragEnter"
                             @dragleave="onDragLeave">
-    
+
                             <form-index-listing v-for="(formSection, i) in fullFormTree"
-                                :id="'index_listing_' + formSection.indicatorID"
+                                :id="dragLI_Prefix + formSection.indicatorID"
                                 :categoryID="formSection.categoryID"
                                 :formPage=i
                                 :depth=0
                                 :indicatorID="formSection.indicatorID"
                                 :formNode="formSection"
                                 :index=i
+                                :currentListLength="fullFormTree.length"
                                 :parentID=null
                                 :key="'index_list_item_' + formSection.indicatorID"
                                 :draggable="!previewMode"
-                                @dragstart.stop="startDrag">
+                                @dragstart.stop="startDrag"
+                                @dragend.stop="endDrag"
+                                @drag.stop="handleOnDragCustomizations">
                             </form-index-listing>
                         </ul>
                     </div>

@@ -173,6 +173,9 @@
             <!--{if $indicator.value != ''}-->
                 <!--{if $indicator.displayedValue != ''}-->
                     <!--{$indicator.displayedValue|sanitize}-->
+                <!--{else}-->
+                    Group #:<!--{$indicator.value|escape }--> not found<br>
+                    Recorded on <!--{$indicator.timestamp|date_format}--> by <!--{$indicator.userID|escape}-->
                 <!--{/if}-->
             <!--{else}-->
             Unassigned
@@ -206,7 +209,10 @@
                             }
                         }
                         else {
-                            $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').html('Position not found.');
+                            $('#data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->').html(
+                                `Position #:<!--{$indicator.value|escape}--> not found<br>
+                                Recorded on <!--{$indicator.timestamp|date_format}--> by <!--{$indicator.userID|escape}-->`
+                            );
                         }
                     }
                 });

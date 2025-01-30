@@ -573,15 +573,16 @@ class Form
                 $form[$idx]['value'] = $this->fileToArray($data[0]['data']);
                 $form[$idx]['raw'] = $data[0]['data'];
             }
-            // special handling for org chart data types
+            // special handling for org chart data types (request header questions, edited report builder cells)
             else if ($data[0]['format'] == 'orgchart_employee'
                 && !empty($data[0]['data']))
             {
-                $empRes = $this->employee->lookupEmpUID($data[0]['data']);
-                if (!empty($empRes)) {
-                    $form[$idx]['displayedValue'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
-                } else {
-                    $form[$idx]['displayedValue'] = '';
+                $form[$idx]['displayedValue'] = '';
+                if (isset($data[0]['metadata'])) {
+                    $orgchartInfo = json_decode($data[0]['metadata'], true);
+                    if(!empty(trim($orgchartInfo['lastName']))) {
+                        $form[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                    }
                 }
             }
             else if ($data[0]['format'] == 'orgchart_position'
@@ -1008,9 +1009,9 @@ class Form
             );
         }
 
-        $dir = new VAMC_Directory;
-        $user = $dir->lookupLogin($res[0]['userID']);
-        $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+        $userMetadata = json_decode($res[0]['userMetadata'], true);
+        $name = isset($userMetadata) && !empty(trim($userMetadata['lastName'])) ?
+            "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $res[0]['userID'];
 
         $data = array('name' => $name,
                       'service' => $res[0]['service'],
@@ -1095,6 +1096,7 @@ class Form
      */
     private function writeDataField($recordID, $key, $series)
     {
+        
         if (is_array($_POST[$key])) //multiselect, checkbox, grid items
         {
             $_POST[$key] = XSSHelpers::scrubObjectOrArray($_POST[$key]);
@@ -1509,206 +1511,259 @@ class Form
         return $return_value;
     }
 
-/**
-     * Get the progress percentage (as integer), accounting for conditinally hidden questions
-     * @param int $recordID
-     * @return int Percent completed
+    /**
+     * Keep track of number of required questions, number visible, and form branch visibility state
+     *
+     * @param array dataTable (ref) lookup table of form data.  Used to check if question is answered and for conditional logic assessment
+     * @param array formNode form question with potential substructure
+     * @param bool parentOrSelfHidden is question and children in hidden state
+     * @param int required_visible (ref) number of required questions that are visible
+     * @param int required_answered (ref) number of required questions that are answered
+     * @param int required_total (ref) total number of required questions found during checking
+     * @param int res_max_required total number of required questions on the form
      */
-    public function getProgress($recordID)
+    private function count_required(
+        array &$dataTable,
+        array $formNode,
+        bool $parentOrSelfHidden = false,
+        int &$required_visible,
+        int &$required_answered,
+        int &$required_total,
+        int $res_max_required): void
     {
-        $returnValue = 0;
-
-        $vars = array(':recordID' => (int)$recordID);
-        //get all the catIDs associated with this record and whether the forms are enabled or submitted
-        $resRecordInfoEachForm = $this->db->prepared_query('SELECT recordID, categoryID, `count`, submitted FROM records
-                                                    LEFT JOIN category_count USING (recordID)
-                                                    WHERE recordID=:recordID', $vars);
-        $isSubmitted = false;
-        foreach ($resRecordInfoEachForm as $request) {
-            if ($request['submitted'] > 0) {
-                $isSubmitted = true;
-                break;
-            }
+        if((int)$formNode['required'] === 1) {
+            $required_total += 1; //keep track to skip calls once all required questions are found.
         }
-        if ($isSubmitted) {
-            $returnValue = 100;
+        //don't care about any of this if the question is in a hidden state
+        if($parentOrSelfHidden === false) {
+            //Check for conditions and if the state is hidden.
+            $format = trim(strtolower($formNode['format']));
+            if(!empty($formNode['conditions']) && $formNode['conditions'] !== 'null') {
+                $conditions = json_decode(strip_tags($formNode['conditions']));
+                $multiChoiceParentFormats = array('multiselect', 'checkboxes');
+                $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency');
+                $conditionMet = false;
+                foreach ($conditions as $c) {
+                    if ($c->childFormat === $format &&
+                        (strtolower($c->selectedOutcome) === 'hide' || strtolower($c->selectedOutcome) === 'show')) {
 
-        } else {
-            //use recordInfo about forms associated with the recordID to get the total number of required questions on the request
-            $allRequiredIndicators = $this->db->prepared_query("SELECT categoryID, indicatorID, `format`, conditions FROM indicators WHERE required=1 AND disabled = 0", array());
-            $categories = array();
-            foreach($resRecordInfoEachForm as $form) {
-                if((int)$form['count'] === 1) {
-                    $categories[] = $form['categoryID'];
-                }
-            }
-            $resRequestRequired = array();
-            foreach ($allRequiredIndicators as $indicator) {
-                if(in_array($indicator['categoryID'], $categories)) {
-                    $resRequestRequired[] = $indicator;
-                }
-            }
-            $countRequestRequired = count($resRequestRequired);
-            //if there are no required questions we are done
-            if($countRequestRequired === 0) {
-                $returnValue = 100;
-
-            } else {
-                //get indicatorID, format, data, and required for all completed questions for non-disabled indicators
-                $resCompleted = $this->db->prepared_query('SELECT indicatorID, `format`, `data`, `required` FROM `data` LEFT JOIN indicators
-                                                                USING (indicatorID)
-                                                                WHERE recordID=:recordID
-                                                                    AND indicators.disabled = 0
-                                                                    AND data != ""
-                                                                    AND data IS NOT NULL', $vars);
-
-                //used to count the number of required completions and organize completed data for possible condition checks
-                $resCountCompletedRequired = 0;
-                $resCompletedIndIDs = array();
-
-                foreach ($resCompleted as $entry) {
-                    $arrData = @unserialize($entry['data']) === false ? array($entry['data']) : unserialize($entry['data']);
-                    $entryFormat = trim(explode(PHP_EOL, $entry['format'])[0]);
-
-                    /*Edgecases: Checkbox and checkboxes format entries save the value 'no' if their corresponding input checkbox is unchecked.
-                    Verifying that entries for these formats do not consist solely of 'no' values prevents a miscount that can occur if
-                    they are later updated to be required, since not having empty values is no longer confirmation that they are answered.*/
-                    $checkBoxesAllNo = strtolower($entryFormat) === 'checkbox' || strtolower($entryFormat) === 'checkboxes';
-                    if ($checkBoxesAllNo === true) {
-                        foreach ($arrData as $ele) {
-                            if ($ele !== 'no') {
-                                $checkBoxesAllNo = false;
-                                break;
-                            }
+                        $parentFormat = $c->parentFormat;
+                        $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
+                        $currentParentDataValue = preg_replace('/&apos;/', '&#039;', $dataTable[$c->parentIndID] ?? '');
+                        /* if ($parentFormat === 'checkbox') { //single checkbox ifthen is either checked or not checked (pending parent checkbox)
+                            $currentParentDataValue = !empty($currentParentDataValue) && $currentParentDataValue !== 'no' ? '1' : '0';
+                        } */
+                        if (in_array($parentFormat, $multiChoiceParentFormats)) {
+                            $currentParentDataValue = @unserialize($currentParentDataValue) === false ?
+                                array($currentParentDataValue) : unserialize($currentParentDataValue);
+                        } else {
+                            $currentParentDataValue = array($currentParentDataValue);
                         }
-                    }
-                    /*Grid formats are likewise not necessarily answered if they are not empty strings.  Unanswered grid cells are empty */
-                    $gridContainsEmptyValue = false;
-                    if (strtolower($entryFormat) === 'grid' && isset($arrData['cells'])) {
-                        $arrRowEntries = $arrData['cells'];
-                        foreach ($arrRowEntries as $row) {
-                            if (in_array("", $row)) {
-                                $gridContainsEmptyValue = true;
-                                break;
-                            }
-                        }
-                    }
-                    if ($checkBoxesAllNo === false && $gridContainsEmptyValue === false) {
-                        if ((int) $entry['required'] === 1) {
-                            $resCountCompletedRequired++;
-                            if ($resCountCompletedRequired === $countRequestRequired) {
-                                break;
-                            }
-                        }
-                        //save the data entry (whether required or not) in case it is needed for condition checking
-                        $resCompletedIndIDs[(int) $entry['indicatorID']] = $entry['data'];
-                    }
-                }
 
-                if ($resCountCompletedRequired === $countRequestRequired) {
-                    $returnValue = 100;
-
-                } else {
-                    //finally, check if there are conditions that result in required questions being in a hidden state, and adjust count and percentage
-                    $multiChoiceParentFormats = array('multiselect', 'checkboxes');
-                    $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency');
-
-                    foreach ($resRequestRequired as $ind) {
-                        //if question is not complete, and there are conditions (conditions could potentially have the string null due to a past import issue) ...
-                        if (!in_array((int) $ind['indicatorID'], array_keys($resCompletedIndIDs)) && !empty($ind['conditions']) && $ind['conditions'] !== 'null') {
-
-                            $conditions = json_decode(strip_tags($ind['conditions']));
-                            $currFormat = preg_split('/\R/', $ind['format'])[0] ?? '';
-
-                            $conditionMet = false;
-                            foreach ($conditions as $c) {
-                                if ($c->childFormat === $currFormat //if current format and condition format match
-                                    && (strtolower($c->selectedOutcome) === 'hide' || strtolower($c->selectedOutcome) === 'show')) { //and outcome is hide or show
-
-                                    $parentFormat = $c->parentFormat;
-                                    $conditionParentValue = preg_split('/\R/', $c->selectedParentValue) ?? [];
-                                    //if parent data does not exist, use an empty string, since potential 'not' comparisons would need this.
-                                    $currentParentDataValue = preg_replace('/&apos;/', '&#039;', $resCompletedIndIDs[(int) $c->parentIndID] ?? '');
-
-                                    if (in_array($parentFormat, $multiChoiceParentFormats)) {
-                                        $currentParentDataValue = @unserialize($currentParentDataValue) === false ? array($currentParentDataValue) : unserialize($currentParentDataValue);
-                                    } else {
-                                        $currentParentDataValue = array($currentParentDataValue);
+                        $operator = $c->selectedOp;
+                        switch ($operator) {
+                            case '==':
+                            case '!=':
+                                if (in_array($parentFormat, $multiChoiceParentFormats)) {
+                                    //true if the current data value includes any of the condition values
+                                    foreach ($currentParentDataValue as $v) {
+                                        if (in_array($v, $conditionParentValue)) {
+                                            $conditionMet = true;
+                                            break;
+                                        }
                                     }
-
-                                    $operator = $c->selectedOp;
-                                    switch ($operator) {
-                                        case '==':
-                                        case '!=':
-                                            if (in_array($parentFormat, $multiChoiceParentFormats)) {
-                                                //true if the current data value includes any of the condition values
-                                                foreach ($currentParentDataValue as $v) {
-                                                    if (in_array($v, $conditionParentValue)) {
-                                                        $conditionMet = true;
-                                                        break;
-                                                    }
-                                                }
-                                            } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
-                                                $conditionMet = true;
-                                            }
-                                            if($operator === "!=") {
-                                                $conditionMet = !$conditionMet;
-                                            }
-                                            break;
-                                        case 'gt':
-                                        case 'gte':
-                                        case 'lt':
-                                        case 'lte':
-                                            $arrNumVals = array();
-                                            $arrNumComp = array();
-                                            foreach($currentParentDataValue as $v) {
-                                                if(is_numeric($v)) {
-                                                    $arrNumVals[] = (float) $v;
-                                                }
-                                            }
-                                            foreach($conditionParentValue as $cval) {
-                                                if(is_numeric($cval)) {
-                                                    $arrNumComp[] = (float) $cval;
-                                                }
-                                            }
-                                            $useOrEqual = str_contains($operator, 'e');
-                                            $useGreaterThan = str_contains($operator, 'g');
-                                            $lenValues = count(array_values($arrNumVals));
-                                            $lenCompare = count(array_values($arrNumComp));
-                                            if($lenCompare > 0) {
-                                                for ($i = 0; $i < $lenValues; $i++) {
-                                                    $currVal = $arrNumVals[$i];
-                                                    if($useGreaterThan === true) {
-                                                        $conditionMet = $useOrEqual === true ? $currVal >= max($arrNumComp) : $currVal > max($arrNumComp);
-                                                    } else {
-                                                        $conditionMet = $useOrEqual === true ? $currVal <= min($arrNumComp) : $currVal < min($arrNumComp);
-                                                    }
-                                                    if($conditionMet === true) {
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                            break;
-                                        default:
-                                            break;
+                                } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
+                                    $conditionMet = true;
+                                }
+                                if($operator === "!=") {
+                                    $conditionMet = !$conditionMet;
+                                }
+                                break;
+                            case 'gt':
+                            case 'gte':
+                            case 'lt':
+                            case 'lte':
+                                $arrNumVals = array();
+                                $arrNumComp = array();
+                                foreach($currentParentDataValue as $v) {
+                                    if(is_numeric($v)) {
+                                        $arrNumVals[] = (float) $v;
                                     }
                                 }
-                                //if the question is not being shown due to its conditions, do not count it as a required question
-                                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
-                                    ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
-                                    $countRequestRequired--;
+                                foreach($conditionParentValue as $cval) {
+                                    if(is_numeric($cval)) {
+                                        $arrNumComp[] = (float) $cval;
+                                    }
+                                }
+                                $useOrEqual = str_contains($operator, 'e');
+                                $useGreaterThan = str_contains($operator, 'g');
+                                $lenValues = count(array_values($arrNumVals));
+                                $lenCompare = count(array_values($arrNumComp));
+                                if($lenCompare > 0) {
+                                    for ($i = 0; $i < $lenValues; $i++) {
+                                        $currVal = $arrNumVals[$i];
+                                        if($useGreaterThan === true) {
+                                            $conditionMet = $useOrEqual === true ? $currVal >= max($arrNumComp) : $currVal > max($arrNumComp);
+                                        } else {
+                                            $conditionMet = $useOrEqual === true ? $currVal <= min($arrNumComp) : $currVal < min($arrNumComp);
+                                        }
+                                        if($conditionMet === true) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            default:
+                            break;
+                        }
+                    }
+                    //if in hidden state, set parenthidden to true and break out of condition checking.
+                    if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
+                        ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
+                        $parentOrSelfHidden = true;
+                        break;
+                    }
+                }
+                unset($conditions);
+            }
+
+            //if not in hidden state and required: increment required total.  Check for answer and increment answered total if answered.
+            if(!$parentOrSelfHidden && (int)$formNode['required'] === 1) {
+                $required_visible += 1;
+                $answered = false;
+                $val = $formNode['value'];
+                if(isset($val) && $val !== '') {
+                    /*value property is already processed based on format and could be string or array.
+                    Convert to array for more consistent comparison and to simplify checkbox(es) and grid formats.*/
+                    $valType = gettype($val);
+
+                    $arrVal = array();
+                    if($valType === 'array') {
+                        $arrVal = $val;
+                    } elseif ($valType === 'string') {
+                        $val = trim($val);
+                        $arrVal =  @unserialize($val) === false ? array($val) : unserialize($val);
+                    }
+                    //these formats can have values despite being unanswered ('no', or serialized data about the entry)
+                    $specialFormat = $format === 'checkbox' || $format === 'checkboxes' || $format === 'grid';
+                    if ($specialFormat === true) {
+                        if($format === 'grid') {
+                            $hasInput = isset($arrVal['cells']);
+                            $gridContainsEmptyValue = !$hasInput;
+                            if($hasInput) {
+                                $arrRowEntries = $arrVal['cells'];
+                                foreach ($arrRowEntries as $row) {
+                                    if (in_array("", $row)) {
+                                        $gridContainsEmptyValue = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            $answered = !$gridContainsEmptyValue;
+
+                        } else {
+                            //checkbox(es) - only one needed
+                            foreach($arrVal as $ele) {
+                                if ($ele !== '' && $ele !== 'no') {
+                                    $answered = true;
                                     break;
                                 }
                             }
                         }
-                    }
-                    if ($countRequestRequired === 0) {
-                        $returnValue = 100;
+
+                    //any other format, confirm the element is not an empty string
                     } else {
-                        $returnValue = round(100 * ($resCountCompletedRequired / $countRequestRequired));
+                        $answered = $arrVal[0] !== '';
                     }
                 }
+
+                if($answered === true) {
+                    $required_answered += 1;
+                }
             }
+        }
+        //progress tree depth if required total is not at max.
+        if(isset($formNode['child'])) {
+            foreach($formNode['child'] as $child) {
+                if($required_total < $res_max_required) {
+                    $this->count_required(
+                        $dataTable,
+                        $child,
+                        $parentOrSelfHidden,
+                        $required_visible,
+                        $required_answered,
+                        $required_total,
+                        $res_max_required
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Get the progress percentage (as integer), accounting for conditinally hidden questions
+     * @param int $recordID
+     * @return int Percent completed
+     */
+    public function getProgress(int $recordID): int
+    {
+        $subSQL = 'SELECT submitted, categoryID FROM records
+            LEFT JOIN category_count USING (recordID)
+            WHERE recordID=:recordID';
+        $subVars = array(':recordID' => (int)$recordID);
+
+        $resRecordInfoEachForm = $this->db->prepared_query($subSQL, $subVars);
+
+        //Check if submitted, return 100 if it is.  Get catIDs for otherwise.
+        $categoryIDs = array();
+        foreach ($resRecordInfoEachForm as $request) {
+            $categoryIDs[] = $request['categoryID'];
+            if ($request['submitted'] > 0) {
+                return 100;
+            }
+        }
+
+        $maxRequiredSQL = "SELECT `indicatorID` FROM `indicators`
+            WHERE `required`=1 AND `disabled`=0 AND FIND_IN_SET(categoryID, :categoryIDs)";
+        $maxRequiredVars = array(
+            ":categoryIDs" => implode(",", $categoryIDs)
+        );
+        $resMaxRequired =  count($this->db->prepared_query($maxRequiredSQL, $maxRequiredVars));
+
+        //Check max count.  Return 100 if there are none.  Otherwise use this count for total checking.
+        if ($resMaxRequired === 0) {
+            return 100;
+        }
+
+        $dataSQL = "SELECT `indicatorID`, `format`, TRIM(`data`) as `data` FROM `data`
+            LEFT JOIN indicators USING (indicatorID)
+            WHERE recordID=:recordID
+            AND indicators.disabled = 0
+            AND TRIM(`data`) != ''";
+        $dataVars = array(':recordID' => (int)$recordID);
+        $resData = $this->db->prepared_query($dataSQL, $dataVars);
+
+        $dataTable = array();
+        foreach($resData as $d) {
+            $dataTable[$d['indicatorID']] = $d['data'];
+        }
+
+        $requiredVisible = 0;
+        $requiredAnswered = 0;
+        $requiredTotal = 0;
+
+        $fullForm = $this->getFullForm($recordID);
+        foreach($fullForm as $page) {
+            if($requiredTotal < $resMaxRequired) {
+                $this->count_required($dataTable, $page, false, $requiredVisible, $requiredAnswered, $requiredTotal, $resMaxRequired);
+            }
+        }
+
+        $returnValue = 0;
+        if ($requiredVisible === 0) {
+            $returnValue = 100;
+        } else {
+            $returnValue = round(100 * ($requiredAnswered / $requiredVisible));
         }
         return $returnValue;
     }
@@ -2605,30 +2660,44 @@ class Form
                                 }
                             }
                             break;
-                        case 'orgchart_employee':
-                            $empRes = $this->employee->lookupEmpUID($item['data']);
-                            if (isset($empRes[0]))
-                            {
-                                $item['data'] = "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
-                                $item['dataOrgchart'] = $empRes[0];
+                        case 'orgchart_employee': //report builder cells, form/query
+                            $dataDisplay = "";
+                            if(!empty($item['data'])) {
+                                $orgchartInfo = array('empUID' => (int)$item['data']);
+                                if (isset($item['metadata'])) {
+                                    $orgchartInfo = array_merge($orgchartInfo, json_decode($item['metadata'], true));
+                                    if(!empty(trim($orgchartInfo['lastName']))) {
+                                        $dataDisplay = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                                    } else {
+                                        $dataDisplay = "Employee #" . $item['data'] ." no longer available";
+                                    }
+                                }
+                                $item['dataOrgchart'] = $orgchartInfo;
                             }
-                            else
-                            {
-                                $item['data'] = '';
-                            }
+                            $item['data'] = $dataDisplay;
                             break;
                         case 'orgchart_position':
-                            $positionTitle = $this->position->getTitle($item['data']);
-                            $positionData = $this->position->getAllData($item['data']);
-
-                            $item['dataOrgchart'] = $positionData;
-                            $item['dataOrgchart']['positionID'] = $item['data'];
-                            $item['data'] = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
+                            $dataDisplay = "";
+                            if(!empty(trim($item['data']))) {
+                                $positionTitle = $this->position->getTitle($item['data']);
+                                if ($positionTitle !== false) {
+                                    $positionData = $this->position->getAllData($item['data']);
+                                    $dataDisplay = "{$positionTitle} ({$positionData[2]['data']}-{$positionData[13]['data']}-{$positionData[14]['data']})";
+                                    $item['dataOrgchart'] = $positionData;
+                                    $item['dataOrgchart']['positionID'] = $item['data'];
+                                } else {
+                                    $dataDisplay = "Position #" . $item['data'] ." no longer available";
+                                }
+                            }
+                            $item['data'] = $dataDisplay;
                             break;
                         case 'orgchart_group':
-                            $groupTitle = $this->group->getTitle($item['data']);
-
-                            $item['data'] = $groupTitle;
+                            $dataDisplay = "";
+                            if(!empty(trim($item['data']))) {
+                                $groupTitle = $this->group->getTitle($item['data']);
+                                $dataDisplay = $groupTitle !== false ? $groupTitle : "Group #" . $item['data'] ." no longer available";
+                            }
+                            $item['data'] = $dataDisplay;
                             break;
                         case 'raw_data':
                             if($indicators[$item['indicatorID']]['htmlPrint'] != '') {
@@ -2732,14 +2801,14 @@ class Form
         } else {
             $vars = array(':recordID' => $recordID);
 
-            $sql = 'SELECT actionTextPasttense, comment, time, userID
+            $sql = 'SELECT actionTextPasttense, comment, time, userID, userMetadata
                     FROM action_history
                     LEFT JOIN dependencies USING (dependencyID)
                     LEFT JOIN actions USING (actionType)
                     WHERE recordID = :recordID
                     AND comment != ""
                     UNION
-                    SELECT "Note Added", note, timestamp, userID
+                    SELECT "Note Added", note, timestamp, userID, userMetadata
                     FROM notes
                     WHERE recordID = :recordID
                     AND deleted IS NULL
@@ -2747,13 +2816,12 @@ class Form
 
             $res = $this->db->prepared_query($sql, $vars);
 
-            $dir = new VAMC_Directory;
-
             $total = count($res);
-
             for ($i = 0; $i < $total; $i++) {
-                $user = $dir->lookupLogin($res[$i]['userID']);
-                $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[$i]['userID'];
+                $userMetadata = json_decode($res[$i]['userMetadata'], true);
+                $name = isset($userMetadata) && !empty(trim($userMetadata['lastName'])) ?
+                    "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $res[$i]['userID'];
+
                 $res[$i]['name'] = $name;
             }
 
@@ -2905,11 +2973,9 @@ class Form
                                             	userID=:userID, userMetadata=:userMetadata
                                             	WHERE recordID=:recordID', $vars);
 
-            // write log entry
-            $dir = new VAMC_Directory;
 
-            $user = $dir->lookupLogin($userID);
-            $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $userID;
+            $newInitiatorInfo = json_decode($newInitiatorMetadata, true);
+            $name = "{$newInitiatorInfo['firstName']} {$newInitiatorInfo['lastName']}";
 
             $actionUserID = $this->login->getUserID();
             $actionUserMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
@@ -3748,14 +3814,27 @@ class Form
 									WHERE format = 'orgchart_employee') rj_OCEmployeeData ON (lj_data.indicatorID = rj_OCEmployeeData.indicatorID) ";
         }
 
-        if ($joinInitiatorNames)
-        {
-            $joins .= "LEFT JOIN (SELECT userName, lastName, firstName FROM {$this->oc_dbName}.employee) lj_OCinitiatorNames ON records.userID = lj_OCinitiatorNames.userName ";
+
+        //joinInitiatorNames backwards compat - additional SQL for records.userMetadata replaces the previous join with orgchart.employee.
+        //userMetadata properties are empty for accounts that were inactive when prior metadata values were updated.  Use lastName to check if empty
+        //because userName might be removed in the future.  Display 'userID (inactive user)' instead of 'null, null' if metadata is empty.
+        $initiatorNamesSQL = '';
+        if ($joinInitiatorNames) {
+            $initiatorNamesSQL = ',
+                IF(
+                    TRIM(JSON_VALUE(`userMetadata`, "$.lastName")) != "",
+                    JSON_VALUE(`userMetadata`, "$.firstName"), "(inactive user)"
+                ) AS `firstName`,
+                IF(
+                    TRIM(JSON_VALUE(`userMetadata`, "$.lastName")) != "",
+                    JSON_VALUE(`userMetadata`, "$.lastName"), `userID`
+                ) AS `lastName`';
         }
+        $resSQL = 'SELECT * ' . $initiatorNamesSQL . ', userId as userName FROM `records` ' . $joins . ' WHERE ' . $conditions . $sort . $limit;
 
         if(isset($_GET['debugQuery'])) {
             if($this->login->checkGroup(1)) {
-                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ";"], ' ', 'SELECT * FROM records ' . $joins . 'WHERE ' . $conditions . $sort . $limit);
+                $debugQuery = str_replace(["\r", "\n","\t", "%0d","%0a","%09","%20", ";"], ' ', $resSQL);
                 $debugVars = [];
                 foreach($vars as $key => $value) {
                     if(strpos($key, ':data') !== false
@@ -3769,22 +3848,20 @@ class Form
 
                 header('X-LEAF-Query: '. str_replace(array_keys($debugVars), $debugVars, $debugQuery));
 
-                return $res = $this->db->prepared_query('EXPLAIN SELECT * FROM records
-                                                        ' . $joins . '
-                                                        WHERE ' . $conditions . $sort . $limit, $vars);
+                return $res = $this->db->prepared_query('EXPLAIN ' . $resSQL, $vars);
             }
             else {
                 return XSSHelpers::scrubObjectOrArray(json_decode(html_entity_decode(html_entity_decode($_GET['q'])), true));
             }
         }
-        $res = $this->db->prepared_query('SELECT * FROM records
-    										' . $joins . '
-                                            WHERE ' . $conditions . $sort . $limit, $vars);
+
+        $res = $this->db->prepared_query($resSQL, $vars);
 
         $data = array();
         $recordIDs = '';
         foreach ($res as $item)
         {
+            $item['userMetadata'] = json_decode($item['userMetadata'], true);
             if(!isset($data[$item['recordID']])) {
                 $recordIDs .= $item['recordID'] . ',';
             }
@@ -3855,17 +3932,15 @@ class Form
 
             if ($joinActionHistory)
             {
-                $dir = new VAMC_Directory;
-
                 $actionHistorySQL =
-                       'SELECT recordID, stepID, userID, time, description,
+                       'SELECT recordID, stepID, userID, userMetadata, time, description,
                             actionTextPasttense, actionType, comment
                         FROM action_history
                         LEFT JOIN dependencies USING (dependencyID)
                         LEFT JOIN actions USING (actionType)
                         WHERE recordID IN (' . $recordIDs . ')
                         UNION
-                        SELECT recordID, "-5", userID, timestamp, "Note Added",
+                        SELECT recordID, "-5", userID, userMetadata, timestamp, "Note Added",
                              "Note Added", "LEAF_note", note
                         FROM notes
                         WHERE recordID IN (' . $recordIDs . ')
@@ -3875,8 +3950,11 @@ class Form
                 $res2 = $this->db->prepared_query($actionHistorySQL, array());
                 foreach ($res2 as $item)
                 {
-                    $user = $dir->lookupLogin($item['userID'], true);
-                    $name = isset($user[0]) ? "{$user[0]['Fname']} {$user[0]['Lname']}" : $res[0]['userID'];
+                    $item['userMetadata'] = json_decode($item['userMetadata'], true);
+                    $userMetadata = $item['userMetadata'];
+                    $name = isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+                        "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $item['userID'];
+
                     $item['approverName'] = $name;
 
                     $data[$item['recordID']]['action_history'][] = $item;
@@ -3914,9 +3992,7 @@ class Form
             }
 
             if ($joinRecordResolutionBy === true) {
-                $dir = new VAMC_Directory;
-
-                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.stepID, action_history.actionType
+                $recordResolutionBySQL = "SELECT recordID, action_history.userID as resolvedBy, action_history.userMetadata, action_history.stepID, action_history.actionType
                 FROM action_history
                 LEFT JOIN records USING (recordID)
                 INNER JOIN workflow_routes USING (stepID)
@@ -3931,8 +4007,9 @@ class Form
                 $res2 = $this->db->prepared_query($recordResolutionBySQL, array());
 
                 foreach ($res2 as $item) {
-                    $user = $dir->lookupLogin($item['resolvedBy'], true);
-                    $nameResolved = isset($user[0]) ? "{$user[0]['Lname']}, {$user[0]['Fname']} " : $item['resolvedBy'];
+                    $userMetadata = json_decode($item['userMetadata'], true);
+                    $nameResolved =  isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
+                        "{$userMetadata['firstName']} {$userMetadata['lastName']} " : $item['resolvedBy'];
                     $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
                 }
             }
@@ -4344,7 +4421,7 @@ class Form
             {
                 $var = array(':series' => (int)$series,
                              ':recordID' => (int)$recordID, );
-                $res2 = $this->db->prepared_query('SELECT data, timestamp, indicatorID, groupID, userID FROM data
+                $res2 = $this->db->prepared_query('SELECT data, metadata, timestamp, indicatorID, groupID, userID FROM data
                 									LEFT JOIN indicator_mask USING (indicatorID)
                 									WHERE indicatorID IN (' . $indicatorList . ') AND series=:series AND recordID=:recordID', $var);
 
@@ -4352,6 +4429,7 @@ class Form
                 {
                     $idx = $resIn['indicatorID'];
                     $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
+                    $data[$idx]['metadata'] = isset($resIn['metadata']) ? $resIn['metadata'] : null;
                     $data[$idx]['timestamp'] = isset($resIn['timestamp']) ? $resIn['timestamp'] : 0;
                     $data[$idx]['groupID'] = isset($resIn['groupID']) ? $resIn['groupID'] : null;
                     $data[$idx]['userID'] = isset($resIn['userID']) ? $resIn['userID'] : '';
@@ -4418,14 +4496,15 @@ class Form
                     $child[$idx]['value'] = $this->fileToArray($data[$idx]['data']);
                 }
 
-                // special handling for org chart data types
+                // special handling for org chart data types (request subquestions / child)
                 if ($field['format'] == 'orgchart_employee')
                 {
-                    $empRes = $this->employee->lookupEmpUID($data[$idx]['data']);
                     $child[$idx]['displayedValue'] = '';
-                    if (isset($empRes[0]))
-                    {
-                      $child[$idx]['displayedValue'] = ($child[$idx]['isMasked']) ? '[protected data]' : "{$empRes[0]['firstName']} {$empRes[0]['lastName']}";
+                    if (isset($data[$idx]['metadata'])) {
+                        $orgchartInfo = json_decode($data[$idx]['metadata'], true);
+                        if(!empty(trim($orgchartInfo['lastName']))) {
+                            $child[$idx]['displayedValue'] = "{$orgchartInfo['firstName']} {$orgchartInfo['lastName']}";
+                        }
                     }
                 }
                 if ($field['format'] == 'orgchart_position')

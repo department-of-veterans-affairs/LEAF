@@ -15,6 +15,8 @@ $lt_cyan: #e8f2ff;
 $BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
 $attention: #a00;
 
+$custom_drop_spacer: 80px;
+
 
 /* mixins, utils, resets, general styles */
 @mixin flexcenter {
@@ -150,7 +152,7 @@ td a.router-link {
     width: auto;
     min-width: 450px;
     resize: horizontal;
-    z-index: 101;
+    z-index: 9999;
     max-width: 900px;
     height: auto;
     min-height: 0;
@@ -317,4 +319,107 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
     &:hover, &:focus, &:active {
         outline: none;
     }
-} 
+}
+
+
+
+/** drag-drop customizations:
+API image replacement, custom display, and drop area list styling 
+**/
+
+/* override the drag-drop API default image so that it does not show. */
+#drag_drop_default_img_replacement {
+    position: absolute;
+    left: -9999px;
+    height: 0;
+    width: 0;
+}
+/* replace custom image (it cannot be styled) with a custom display div/card.
+position of this element will need to be programmatically updated during drag events */
+#drag_drop_custom_display {
+    cursor: pointer;
+    position: absolute;
+    left: -9999px;
+    width: 600px;
+    height: 100px;
+    padding: 0.75rem 1rem;
+    z-index: 1001;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 4px;
+    box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.25);
+}
+
+/* make element being moved look like an empty slot */
+li.is_being_dragged {
+    overflow: hide;
+    margin-bottom: 1rem;
+    background-color: rgba(0,0,0,0.2) !important;
+    box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.3) inset !important;
+    & * {
+        display: none
+    }
+}
+
+/* general styling of base and nested drop area lists */
+ul[id^="base_drop_area"] {
+    position: relative;
+    padding: 1px 0; //top and bottom padding needed for base drop area visibility
+    li[id^="index_listing_"] {
+        position: relative;
+        transition: margin 0.4s ease;
+    }
+    ul[id^="drop_area_parent_"] {
+        position: relative;
+    }
+}
+
+/* drop area ul that do not yet have any li */
+ul.empty_drop_area_ul {
+    height: 10px;
+    transition: height .4s ease;
+}
+ul.entered-empty-ul-drop-zone {
+    height: $custom_drop_spacer;
+    border-radius: 3px;
+    box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.3) inset;
+    background-color: rgba(0,0,25,0.15);
+    outline: 2px solid $LEAF_CSS_outline;
+    margin: 0 1rem 1rem 0 !important;
+}
+
+/* applied to closest li if it is not at end of ul list to add space above */
+li.entered-parent-ul-drop-zone {
+    margin-top: calc($custom_drop_spacer + 2rem) !important;
+}
+/* applied to the last li if the user is dragging element to end of ul list to add space below */
+li.entered-parent-ul-drop-zone-last {
+    margin-bottom: calc($custom_drop_spacer + 2rem) !important;
+}
+
+/* display ::before styles for drop area ul that have li, to create a preview display of where the item will be dropped. */
+li.entered-parent-ul-drop-zone::before, li.entered-parent-ul-drop-zone-last::before {
+    content: "";
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    display: block;
+    margin: 0;
+    top: calc(-1 * $custom_drop_spacer - 1rem);
+    left: 0;
+    height: 10px;
+    width: 100%;
+    border-radius: 3px;
+    box-shadow: 2px 2px 4px 1px rgba(0,0,25,0.3) inset;
+    background-color: rgba(0,0,25,0.15);
+    outline: 2px solid $LEAF_CSS_outline;
+    transition: height 0.2s ease, opacity 0.2s ease;
+}
+li.entered-parent-ul-drop-zone-last::before {
+    top: calc(100% + 1rem);
+}
+li.drop_preview_visible.entered-parent-ul-drop-zone::before,
+li.drop_preview_visible.entered-parent-ul-drop-zone-last::before {
+    opacity: 1;
+    height: $custom_drop_spacer;
+}

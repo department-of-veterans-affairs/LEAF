@@ -37,31 +37,7 @@ LEAF is currently not configured/optimized for usage outside of the VA, proper s
     * [Code Reviews](docs/CodeReviews.md)
     * [Contributing](docs/Development.md)
 
-## USWDS GULP NPM Install
+## U.S. Web Design System (USWDS)
 
-LEAF will be using the United States Web Design System (USWDS): <https://designsystem.digital.gov/how-to-use-uswds/>
-
-The assets include fonts, colors, layout grid, and FontAwesome icons that are managed and compiled with npm and Gulp. 
-The links below provide instructions on how to install the resources using npm and Gulp.
-
-USWDS NPM Install Instructions: <https://www.npmjs.com/package/uswds#install-using-npm>
-
-USWDS Gulp Install Instructions: <https://github.com/uswds/uswds-gulp>
-
-Installation
-A simple Gulp 4.0 workflow for transforming USWDS Sass into browser-readable CSS.
-
-If you've never installed Gulp, you'll need to install the Gulp command line interface:
-
-npm install gulp-cli -g
-
-Add all the required dependencies at once with following command from your project's root directory:
-
-npm install autoprefixer gulp@^4.0.0 gulp-notify gulp-postcss gulp-replace gulp-sass gulp-sourcemaps postcss-csso sass uswds@latest uswds-gulp@github:uswds/uswds-gulp --save-dev
-
-Usage
-If you don't already have a project gulpfile, copy the gulpfile.js to your current directory (the project root):
-
-cp node_modules/uswds-gulp/gulpfile.js .
-
-
+LEAF does not currently explicitly import USWDS componenets but refers to USWDS design principles:
+<https://designsystem.digital.gov/design-principles/>

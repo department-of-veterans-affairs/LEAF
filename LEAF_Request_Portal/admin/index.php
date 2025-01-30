@@ -90,6 +90,7 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6'))
 $main->assign('logo', '<img src="../images/VA_icon_small.png" alt="VA seal, U.S. Department of Veterans Affairs" />');
 
 $t_login->assign('name', $login->getName());
+$main->assign('display_name', $login->getName());
 
 $qrcodeURL = "https://" . HTTP_HOST . $_SERVER['REQUEST_URI'];
 $main->assign('qrcodeURL', urlencode($qrcodeURL));
@@ -288,7 +289,8 @@ switch ($action) {
             $t_form->right_delimiter = '}-->';
 
             $main->assign('useUI', true);
-            $main->assign('javascripts', array(APP_JS_PATH . '/codemirror/lib/codemirror.js',
+            $main->assign('javascripts', array(APP_JS_PATH . '/jquery/trumbowyg/plugins/colors/trumbowyg.colors.min.js',
+                                                APP_JS_PATH . '/codemirror/lib/codemirror.js',
                                                 APP_JS_PATH . '/codemirror/mode/xml/xml.js',
                                                 APP_JS_PATH . '/codemirror/mode/javascript/javascript.js',
                                                 APP_JS_PATH . '/codemirror/mode/css/css.js',
@@ -300,7 +302,8 @@ switch ($action) {
                                                 APP_JS_PATH . '/codemirror/addon/search/matchesonscrollbar.js',
                                                 APP_JS_PATH . '/codemirror/addon/display/fullscreen.js',
             ));
-            $main->assign('stylesheets', array(APP_JS_PATH . '/codemirror/lib/codemirror.css',
+            $main->assign('stylesheets', array(APP_JS_PATH . '/jquery/trumbowyg/plugins/colors/ui/trumbowyg.colors.min.css',
+                                                APP_JS_PATH . '/codemirror/lib/codemirror.css',
                                                 APP_JS_PATH . '/codemirror/addon/dialog/dialog.css',
                                                 APP_JS_PATH . '/codemirror/addon/scroll/simplescrollbars.css',
                                                 APP_JS_PATH . '/codemirror/addon/search/matchesonscrollbar.css',

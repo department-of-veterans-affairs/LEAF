@@ -71,16 +71,27 @@ var LeafForm = function (containerID) {
     dialog = null
   ) {
 
-    /** crosswalk variables and functions */
+    /** CROSSWALK variables and functions */
     let dropdownInfo = {};
 
-    function loadRecordData() {
+    function loadRecordData(indID) {
       return new Promise((resolve, reject)=> {
         $.ajax({
           type: 'GET',
-          url: `./api/form/${recordID}/data`,
-          success: (result) => {
-            resolve(result)
+          //need to know the category ID (different from main form if this is on an internal)
+          url: `./api/form/${recordID}/rawIndicator/${indID}/1?x-filterData=categoryID`,
+          success: (indicator) => {
+            const categoryID = indicator[indID]?.categoryID || "";
+            $.ajax({
+              type: 'GET',
+              url: `./api/form/${recordID}/_${categoryID}/data`,
+              success: (result) => {
+                resolve(result)
+              },
+              error: (err) => {
+                reject(err)
+              }
+            });
           },
           error: (err) => {
             reject(err)
@@ -224,29 +235,6 @@ var LeafForm = function (containerID) {
         }
       }
     }
-    /** cross walk end */
-
-    let childRequiredValidators = {};
-    const handleChildValidators = (childID) => {
-      if (!childRequiredValidators[childID]) {
-        childRequiredValidators[childID] = {
-          validator: formRequired[`id${childID}`]?.setRequired,
-        };
-      }
-      //reset the validator, if there is one, from the stored value
-      if (
-        childRequiredValidators[childID].validator !== undefined &&
-        dialog !== null
-      ) {
-        dialog.requirements[childID] =
-          childRequiredValidators[childID].validator;
-      }
-    };
-    //validator ref for required question in a hidden state
-    const hideShowValidator = function () {
-      return false;
-    };
-
     //NOTE: run only for crosswalks
     const runCrosswalk = (indID = 0, formdata = {}) => {
       //there should only be 1, and it is stored under the child id
@@ -276,13 +264,46 @@ var LeafForm = function (containerID) {
         console.log('unexpected number of crosswalk conditions.  check indicator condition entry for ', indID)
       }
     }
+    /** cross walk end */
+
+    /** HIDE/SHOW/PREFILL variables and functions */
+
+    /**
+    * Reset required validators if needed.  Based on display status.
+    * @param {number|string} childID ID of the question being assessed
+    **/
+    const handleChildValidators = (childID = "") => {
+      const elChildResponse = document.querySelector(`div.response.blockIndicator_${childID}`);
+      if(elChildResponse !== null) {
+        const arrSubchildren = Array.from(
+          elChildResponse.querySelectorAll(`div.response[class*="blockIndicator_"]`)
+        );
+        const arrBlocks = [ elChildResponse, ...arrSubchildren ];
+        arrBlocks.forEach(element => {
+          const id = +element.className.match(/(?<=blockIndicator_)(\d+)/)?.[0];
+          if(id > 0) {
+            //If required validator and dialog exist, reset validator if there is not a hidden ancestor (exclude the one in the process of being assessed)
+            const closestHidden = element.closest(`.response-hidden:not(.blockIndicator_${childID})`);
+            const shouldSetRequired = closestHidden === null;
+            if (formRequired[`id${id}`]?.setRequired || false && dialog !== null && shouldSetRequired) {
+              dialog.requirements[id] = formRequired[`id${id}`].setRequired;
+            }
+          }
+        });
+      }
+    };
+    //validator ref for required question in a hidden state, used to allow front end progress when the state is hidden.
+    const hideShowValidator = function () {
+      return false;
+    };
 
     //NOTE: run only for conditional code with parent controllers (hide, show and prefill)
     const checkConditions = (event = 0, selected = 0, parID = 0) => {
       const parentElID =
         event !== null ? parseInt(event.target.id) : parseInt(parID);
 
-      //get all conditions for children if any of their controllers match parID. sep by hide/show, prefill
+      //!! Questions can have multiple controllers. Get ALL conditions for children if ANY of their controllers match parentElID.
+      //!! Checking is separated into batches of hide/show, prefill (prefills are run after conditional display states)
       let hideShowCondByChild = {};
       let prefillCondByChild = {};
       for(let childKey in formConditions) {
@@ -317,19 +338,20 @@ var LeafForm = function (containerID) {
     };
 
     /**
-     * returns true if any of the selected values are in the comparisonValues
-     * @param {array} multiChoiceSelections array of option values
-     * @param {array} comparisonValues array of values to compare against
-     * @returns
+     * returns true if any of the selected values are in the conditionTriggerValues
+     * @param {array} multiChoiceSelections array of selected option values
+     * @param {array} conditionTriggerValues array of trigger values to compare against
+     * @returns bool
      */
-    const valIncludesMultiselOption = (multiChoiceSelections = [], comparisonValues = []) => {
-      let result = false;
-      multiChoiceSelections.forEach((v) => {
-        if (comparisonValues.includes(v)) {
-          result = true;
+    const valIncludesMultiselOption = (multiChoiceSelections = [], conditionTriggerValues = []) => {
+      let includesValue = false;
+      for (let i = 0; i < multiChoiceSelections.length; i++) {
+        if (conditionTriggerValues.includes(multiChoiceSelections[i])) {
+          includesValue = true;
+          break;
         }
-      });
-      return result;
+      }
+      return includesValue;
     };
 
     const clearMultiSelectChild = (element = [], childID = 0) => {
@@ -361,31 +383,90 @@ var LeafForm = function (containerID) {
       return sanitize(val).trim();
     };
 
-    /* clear out potential entries and set validator for hidden questions */
-    const clearValues = (childFormat = "", childIndID = 0) => {
-      $("#" + childIndID).val(""); //clears most formats
-      $(`input[id^="${childIndID}_"]`).prop("checked", false); //radio and checkbox(es) formats
-      $(`input[id^="${childIndID}_radio0"]`).prop("checked", true);
+    /*hide the question and any subquestions. clear out potential entries and set validator for hidden questions */
+    const clearValues = (childIndID = 0) => {
+      const elChildResponse = document.querySelector(`div.response.blockIndicator_${childIndID}`);
+      if(elChildResponse !== null) {
+        const arrSubchildren = Array.from(
+          elChildResponse.querySelectorAll(`div.response[class*="blockIndicator_"]`)
+        );
+        const arrBlocks = [ elChildResponse, ...arrSubchildren ];
 
-      $(`#grid_${childIndID}_1_input tbody td`) //grid table data
-      .each(function () {
-        if ($("textarea", this).length) {
-          $("textarea", this).val('');
-        } else if ($("select", this).length) {
-          $("select", this).val('');
-        } else if ($("input", this).length) {
-          $("input", this).val('');
-        }
-      });
+        arrBlocks.forEach(element => {
+          const id = +element.className.match(/(?<=blockIndicator_)(\d+)/)?.[0];
+          if(id > 0) {
+            //clear values for questions not already in a hidden state.
+            const isHidden =  element.closest('.response-hidden') !== null;
+            if(!isHidden) {
+              let hasInput = false;
+              let isBasicInput = false;
 
-      if (childFormat === "multiselect") {
-        clearMultiSelectChild($("#" + childIndID), childIndID);
-      }
-      if (
-        childRequiredValidators[childIndID].validator !== undefined &&
-        dialog !== null
-      ) {
-        dialog.requirements[childIndID] = hideShowValidator;
+              if($("#" + id).val() || "" !== "") {
+                hasInput = true;
+                isBasicInput = true;
+                $("#" + id).val(""); //basic input, single and multiselect dropdown, orgcharts
+              }
+
+              let radioAndCheckboxes = Array.from(element.querySelectorAll(`input[id^="${id}_"]:checked`));
+              if (radioAndCheckboxes.length > 0) {
+                hasInput = true;
+                radioAndCheckboxes.forEach(box => box.checked = false);
+              }
+
+              //grids cannot be controllers so we do not need to worry about them having input for the final check below
+              $(`#grid_${id}_1_input tbody td`) //grid table data
+              .each(function () {
+                if ($("textarea", this).length) {
+                  $("textarea", this).val('');
+                } else if ($("select", this).length) {
+                  $("select", this).val('');
+                } else if ($("input", this).length) {
+                  $("input", this).val('');
+                }
+              });
+
+              const isChosenDropdown = element.querySelector(`select[id="${id}"] + .chosen-container`)
+              if(isChosenDropdown) {
+                let elChildInput = $("#" + id);
+                elChildInput.chosen().val("");
+                elChildInput.chosen({ width: "100%" });
+                elChildInput.trigger("chosen:updated");
+              }
+
+              const isMultiselectQuestion = element.querySelector(`select[id="${id}"][multiple]`) !== null;
+              if (isMultiselectQuestion) {
+                clearMultiSelectChild($("#" + id), id);
+              }
+
+              const isRadioQuestion = element.querySelector(`input[id^="${id}_radio"]`) !== null;
+              if(isRadioQuestion) {
+                const radioEmpty = $(`input[id^="${id}_radio0"]`); //need to add hidden empty input to clear radio
+                if (radioEmpty.length === 0) {
+                  $(`div.response.blockIndicator_${id}`).prepend(
+                    `<input id="${id}_radio0" name="${id}" value="" style="display:none;" />`
+                  );
+                }
+                $(`input[id^="${id}_radio0"]`).prop("checked", true);
+              }
+
+              //if another parent controller is cleared by this, recheck it.
+              if(childIndID !== id && hasInput && confirmedParElsByIndID.includes(id)) {
+                if (isBasicInput === true) {
+                  $("#" + id).trigger("change");
+                } else {
+                  //radio and checkboxes. only the parent question indicatorID matters here - eq(0) to trigger only one
+                  $(`input[id^="${id}_"]`).eq(0).trigger("change");
+                }
+              }
+            }
+            //use the alternate hideshow validator for all subchildren
+            if (
+              dialog !== null
+            ) {
+              dialog.requirements[id] = hideShowValidator;
+            }
+          }
+        });
       }
     };
 
@@ -399,17 +480,9 @@ var LeafForm = function (containerID) {
       //childID and childFormat same for all
       const childID = arrChildConditions[0].childIndID;
       const childFormat = arrChildConditions[0].childFormat.toLowerCase();
-      const chosenShouldUpdate = childFormat === "dropdown";
 
       //get child input elements
       const elChildInput = $("#" + childID); //input els for text, multiselect, dropdown and orgchart formats
-
-      const radioEmpty = $(`input[id^="${childID}_radio0"]`); //radio format
-      if (childFormat === "radio" && radioEmpty.length === 0) {
-        $(`div.response.blockIndicator_${childID}`).prepend(
-          `<input id="${childID}_radio0" name="${childID}" value="" style="display:none;" />`
-        );
-      }
       const elChildRadioBtns = $(`input[id^="${childID}_radio"]`);
       const elChildCheckboxes = $(`input[type="checkbox"][id^="${childID}"]`); //checkboxes format
 
@@ -508,9 +581,10 @@ var LeafForm = function (containerID) {
         }
       });
 
-      /*There should only be hide OR show, and prefills should have only one valid comparison entry, so
-      outcome checking only needs to run once per type (and there should only be one type on the outcomes array).
-      Comparisons are made in two batches, hide/show, then prefills.  Crosswalks are not processed here*/
+      /* Comparisons are made in two batches, hide/show, then prefills.  Crosswalks are not processed here.
+      *  There should logically only be hide OR show for a single question, and one valid prefill.
+      *  This means there should only be one type on the below outcomes array.
+      */
       let outcomes = [];
       if (arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "hide")) outcomes.push("hide");
       if (arrChildConditions.some(c => c.selectedOutcome.toLowerCase() === "show")) outcomes.push("show");
@@ -522,11 +596,12 @@ var LeafForm = function (containerID) {
       //update child states and/or values.
       let elsChild = $(`.blockIndicator_${childID}`); //label and response divs to hide/show
       let elChildResponse = document.querySelector(`div.response.blockIndicator_${childID}`);
+
       const co = (outcomes[0] || '').toLowerCase();
       switch (co) {
         case "hide":
           if (hideShowConditionMet === true) {
-            clearValues(childFormat, childID);
+            clearValues(childID);
             elChildResponse.classList.add('response-hidden');
             elsChild.hide();
             elsChild.attr('aria-hidden', true);
@@ -542,7 +617,7 @@ var LeafForm = function (containerID) {
             elsChild.removeAttr('aria-hidden');
             elsChild.show();
           } else {
-            clearValues(childFormat, childID);
+            clearValues(childID);
             elChildResponse.classList.add('response-hidden');
             elsChild.hide();
             elsChild.attr('aria-hidden', true);
@@ -607,19 +682,22 @@ var LeafForm = function (containerID) {
           console.log(co);
           break;
       }
-      //clear stack again before checking for hidden elements
+      //clear stack again before checking for hidden elements (might be some due to the order checks run in)
       setTimeout(() => {
         const closestHidden = elChildResponse.closest('.response-hidden');
         if (closestHidden !== null) {
-          clearValues(childFormat, childID);
+          clearValues(childID);
         }
 
-        elChildInput.trigger("change");
-        $(`input[id^="${childID}_"]`).trigger("change"); //radio and checkboxes
-        if (chosenShouldUpdate) {
-          elChildInput.chosen().val(elChildInput.val());
-          elChildInput.chosen({ width: "100%" });
-          elChildInput.trigger("chosen:updated");
+        if(confirmedParElsByIndID.some(id => id === childID)) { //chain trigger if the child is also a controller
+          elChildInput.trigger("change");
+          //radio and checkboxes. only the parent question indicatorID matters here - eq(0) to trigger only one
+          $(`input[id^="${childID}_"]`).eq(0).trigger("change");
+          if (childFormat === "dropdown") {
+            elChildInput.chosen().val(elChildInput.val());
+            elChildInput.chosen({ width: "100%" });
+            elChildInput.trigger("chosen:updated");
+          }
         }
       });
     };
@@ -627,7 +705,7 @@ var LeafForm = function (containerID) {
 
     //confirm that the parent indicators exist on the form (in case of archive/deletion)
     let confirmedParElsByIndID = [];
-    let crosswalks = [];
+    let crosswalkIDs = [];
     for (let entry in formConditionsByChild) {
       const formConditions = formConditionsByChild[entry].conditions || [];
       const currQuestionFormat = formConditionsByChild[entry].format.toLowerCase();
@@ -635,7 +713,7 @@ var LeafForm = function (containerID) {
       formConditions.forEach((c) => {
         if (c.selectedOutcome.toLowerCase() === "crosswalk"
           && ["dropdown", "multiselect"].includes(currQuestionFormat)) {
-          crosswalks.push(parseInt(c.childIndID));
+            crosswalkIDs.push(parseInt(c.childIndID));
 
         } else {
           let parentEl = null;
@@ -659,10 +737,11 @@ var LeafForm = function (containerID) {
       });
     }
     confirmedParElsByIndID = Array.from(new Set(confirmedParElsByIndID));
-    crosswalks = Array.from(new Set(crosswalks));
+    crosswalkIDs = Array.from(new Set(crosswalkIDs));
 
-    /*filter: current format is not raw_data, current and saved formats match,
-    and the parentID is not in the list of IDs for elements not found in the DOM */
+    /*filter:
+    current format is not raw_data, current and saved child formats match,
+    and the parentID is confirmed to be found in the DOM */
     for (let entry in formConditionsByChild) {
       const currentFormat = formConditionsByChild[entry].format.toLowerCase();
       formConditionsByChild[entry].conditions = formConditionsByChild[
@@ -680,9 +759,11 @@ var LeafForm = function (containerID) {
       $(`input[id^="${id}_"]`).on("change", checkConditions); //this should cover both radio and checkboxes
     });
 
-    if(crosswalks.length > 0) {
-      loadRecordData().then(formdata => {
-        crosswalks.forEach(indID => runCrosswalk(indID, formdata));
+    if(crosswalkIDs.length > 0) {
+      //If there is more than one crosswalkID they will still all be on the same page.
+      //The id of the first one is used to confirm the cateogryID for subsequently getting data.
+      loadRecordData(crosswalkIDs[0]).then(formdata => {
+        crosswalkIDs.forEach(indID => runCrosswalk(indID, formdata));
       }).catch(err => console.log('record data did not load', err));
     }
   }

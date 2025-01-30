@@ -522,7 +522,7 @@ function doSubmit(recordID) {
                 const selectedParentOptionsLI = Array.from(document.querySelectorAll(`#xhrIndicator_${conditions[i].parentIndID}_1 > span > ul > li`)); //multiselect and checkboxes li elements
 
                 let arrParVals = [];
-                selectedParentOptionsLI.forEach(li => arrParVals.push(li.innerText.trim()));
+                selectedParentOptionsLI.forEach(li => arrParVals.push(li.textContent.trim()));
 
                 const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
                 const outcome = conditions[i].selectedOutcome.toLowerCase();
@@ -534,7 +534,7 @@ function doSubmit(recordID) {
                         let val = multiChoiceFormats.includes(parentFormat) ?
                             arrParVals :
                             [
-                                (elParentInd?.innerText || '').trim()
+                                (elParentInd?.textContent || '').trim()
                             ];
                         val = val.filter(v => v !== '');
 

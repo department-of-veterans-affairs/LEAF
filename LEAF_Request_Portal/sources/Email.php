@@ -415,7 +415,7 @@ class Email
     private function getHeaders(): string
     {
         $header = 'MIME-Version: 1.0';
-        $header .= "\r\nContent-type: text/html; charset=iso-8859-1";
+        $header .= "\r\nContent-type: text/html; charset=utf-8";
         if ($this->emailSender == '') {
             $header .= "\r\nFrom: {$this->emailFrom}";
         } else {
