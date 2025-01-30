@@ -165,9 +165,9 @@ class Employee extends Data
         } else {
             $local_employee_usernames = $this->formatUserNames($local_employee_list);
 
-            //$chunk_local_employee = array_chunk($local_employee_usernames, 100);
+            $chunk_local_employee = array_chunk($local_employee_usernames, 100);
 
-            $return_value = $this->processList($local_employee_usernames);
+            $return_value = $this->processList($chunk_local_employee);
         }
 
         return $return_value;
@@ -202,9 +202,11 @@ class Employee extends Data
     {
         $results = [];
 
-        // foreach ($employee_list as $employee) {
-            $results[] = $this->updateEmployeeDataBatch($employee_list);
-        //}
+        foreach ($employee_list as $employee) {
+            $results[] = $this->updateEmployeeDataBatch($employee);
+        }
+
+        $this->disablePortalTables();
 
         return $results;
     }
@@ -257,8 +259,6 @@ class Employee extends Data
             if (!empty($users)) {
                 $results[] = $this->disableEmployees($users);
             }
-
-            $this->disablePortalTables();
         }
 
         return $results;
