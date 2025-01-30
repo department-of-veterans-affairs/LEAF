@@ -43,7 +43,9 @@ class Employee extends Data
 
     private $deepSearch = 3;           // Threshold for deeper search (min # of results before searching deeper)
 
-    private $portal_db;
+    private $national_db = null;
+
+    private $launchpad_db = null;
 
     // the first value is the table, the second is the field. If the field is an array
     // the first value needs to be the field used for the where clause.
@@ -60,7 +62,6 @@ class Employee extends Data
         $this->setDataTableUID($this->dataTableUID);
         $this->setDataTableDescription($this->dataTableDescription);
         $this->setDataTableCategoryID($this->dataTableCategoryID);
-        //$this->portal_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'Academy_Demo3');
     }
 
     public function setNoLimit()
@@ -97,8 +98,11 @@ class Employee extends Data
         // get employee data from national db
         // update employee data locally
         // if employee is inactive nationally for more than a week make inactive locally
-        $global_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
-        $national_emp = $this->getEmployeeByUserName($user_array, $global_db);
+        if ($this->national_db === null) {
+            $this->national_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        }
+
+        $national_emp = $this->getEmployeeByUserName($user_array, $this->national_db);
 
         if (!isset($national_emp['data'])) {
             $this->disableEmployees(explode(',', $user_name));
@@ -114,7 +118,7 @@ class Employee extends Data
         } else {
             $this->updateEmployeeByUserName($user_name, $national_emp['data'][0], $this->db);
             $local_emp = $this->getEmployeeByUserName($user_array, $this->db);
-            $national_emp_data = $this->getEmployeeDataByEmpUID(explode(',', $national_emp['data'][0]['empUID']), $global_db);
+            $national_emp_data = $this->getEmployeeDataByEmpUID(explode(',', $national_emp['data'][0]['empUID']), $this->national_db);
             $this->updateEmployeeDataByEmpUID($local_emp['data'][0]['empUID'], $national_emp_data['data'], $this->db);
             $local_emp_data = $this->getEmployeeDataByEmpUID(explode(',', $local_emp['data'][0]['empUID']), $this->db);
 
@@ -202,6 +206,10 @@ class Employee extends Data
     {
         $results = [];
 
+        if ($this->national_db === null) {
+            $this->national_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        }
+
         foreach ($employee_list as $employee) {
             $results[] = $this->updateEmployeeDataBatch($employee);
         }
@@ -220,9 +228,7 @@ class Employee extends Data
      */
     private function updateEmployeeDataBatch(array $local_employees): array
     {
-        $global_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
-
-        $national_employees_list = $this->getEmployeeByUserName($local_employees, $global_db);
+        $national_employees_list = $this->getEmployeeByUserName($local_employees, $this->national_db);
         $local_employees_uid = $this->getEmployeeByUserName($local_employees, $this->db);
 
         $results = [];
@@ -246,7 +252,7 @@ class Employee extends Data
                 $results[] = $this->batchEmployeeUpdate($local_array);
             }
 
-            $national_employee_data = $this->getEmployeeDataByEmpUID($national_employee_uids, $global_db);
+            $national_employee_data = $this->getEmployeeDataByEmpUID($national_employee_uids, $this->national_db);
 
             $this->prepareDataArray($local_data_array, $national_employee_data, $local_employee_array);
 
@@ -411,7 +417,10 @@ class Employee extends Data
         // need to get the portals to update. Use ABSOLUTE_ORG_PATH to get all portals from
         // the sites table will need to strip https://domain
         $orgchart = str_replace('https://' . HTTP_HOST, '', ABSOLUTE_ORG_PATH);
-        $launchpad_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+        if ($this->launchpad_db === null) {
+            $this->launchpad_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_leaf_launchpad');
+        }
+
 
         $vars = array(':orgchartPath' => $orgchart);
         $sql = 'SELECT `portal_database`
@@ -421,7 +430,7 @@ class Employee extends Data
                 AND (`portal_database` IS NOT NULL
                     OR `portal_database` <> "")';
 
-        $return_value = $launchpad_db->prepared_query($sql, $vars);
+        $return_value = $this->launchpad_db->prepared_query($sql, $vars);
 
         return $return_value;
     }
@@ -923,10 +932,13 @@ class Employee extends Data
         $cacheHash = "lookupLogin{$userName}";
         unset($this->cache[$cacheHash]);
 
-        $db_nat = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
-        $login_nat = new Login($db_nat, $db_nat);
+        if ($this->national_db === null) {
+            $this->national_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
+        }
 
-        $natEmployee = new NationalEmployee($db_nat, $login_nat);
+        $login_nat = new Login($this->national_db, $this->national_db);
+
+        $natEmployee = new NationalEmployee($this->national_db, $login_nat);
 
         $res = $natEmployee->lookupLogin($userName);
         if (isset($res[0]))
