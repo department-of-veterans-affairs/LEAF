@@ -202,9 +202,9 @@ class Employee extends Data
     {
         $results = [];
 
-        foreach ($employee_list as $employee) {
-            $results[] = $this->updateEmployeeDataBatch($employee);
-        }
+        // foreach ($employee_list as $employee) {
+            $results[] = $this->updateEmployeeDataBatch($employee_list);
+        //}
 
         return $results;
     }
