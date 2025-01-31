@@ -464,10 +464,6 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         },
                     });
                 }
-                else {
-                    workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step, rootURL);
-                    $(`#form_dep_container${step.dependencyID} .button`).attr("disabled", false);
-                }
             }
         }
 
