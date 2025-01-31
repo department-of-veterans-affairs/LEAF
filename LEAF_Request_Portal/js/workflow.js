@@ -444,7 +444,6 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     );
                     $.ajax({
                         type: "GET",
-                        async: false,
                         url:
                             rootURL +
                             "ajaxScript.php?a=workflowStepModules&s=" +
@@ -464,10 +463,6 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                             console.log("Error: " + err);
                         },
                     });
-                }
-                else {
-                    workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step, rootURL);
-                    $(`#form_dep_container${step.dependencyID} .button`).attr("disabled", false);
                 }
             }
         }
