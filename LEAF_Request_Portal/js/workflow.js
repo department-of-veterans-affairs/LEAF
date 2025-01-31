@@ -444,6 +444,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     );
                     $.ajax({
                         type: "GET",
+                        async: false,
                         url:
                             rootURL +
                             "ajaxScript.php?a=workflowStepModules&s=" +
