@@ -380,7 +380,7 @@
             }
         } else {
             elSaveBtn.setAttribute("disabled", "disabled");
-            //if no history exists yet, synchronously snapshot the original first
+            //if no history exists yet, snapshot the original first
             const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
             if(numRecords === 0) {
                 $.ajax({
@@ -400,7 +400,6 @@
                     error: function(err) {
                         console.log(err);
                     },
-                    async: false
                 });
             }
 
