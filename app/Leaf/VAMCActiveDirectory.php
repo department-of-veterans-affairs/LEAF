@@ -115,7 +115,16 @@ class VAMCActiveDirectory
         $this->importData();
     }
 
-    public function disableNationalOrgchartEmployees(array $disabledUsers = null): void
+    /**
+     * get a list of employees to disable if not supplied in the parameter list
+     * then disable them in the national orgchart
+     *
+     * @param array|null $disabledUsers
+     *
+     * @return void
+     *
+     */
+    public function disableNationalOrgchartEmployees(?array $disabledUsers = null): void
     {
         // get all userNames that should be disabled
         if ($disabledUsers === null) {
@@ -123,7 +132,6 @@ class VAMCActiveDirectory
         } else {
             $disableUsersList = $disabledUsers;
         }
-
 
         // Disable users not in this array
         $this->preventRecycledUserName($disableUsersList);
@@ -249,6 +257,17 @@ class VAMCActiveDirectory
         echo "Total: $count";
     }
 
+    /**
+     * Get the users that need to be disabled.
+     * All users in the national orgchart get updated if they are pulled from AD
+     * the lastUpdated field is always updated regardless if there's any other
+     * data that needs to be updated. So it is safe to say that if they haven't
+     * been updated within the last 30 hours they are no longer in the AD and should
+     * be disabled.
+     *
+     * @return array
+     *
+     */
     private function getUserNamesToBeDisabled(): array
     {
         $sql = 'SELECT `userName`
@@ -267,37 +286,8 @@ class VAMCActiveDirectory
 
         $vars = array(':deleteTime' => $deleteTime);
         $sql = 'UPDATE `employee`
-                SET `deleted` = :deleteTime,
-                    `userName` = concat("disabled_", `deleted`, "_",  `userName`)
-                WHERE `userName` = :userName;
-
-                UPDATE `employee_data`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `employee_data_history`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `group_data`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `group_data_history`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `position_data`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `position_data_history`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `relation_employee_backup`
-                SET `approverUserName` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `approverUserName` = :userName;';
+                SET `deleted` = :deleteTime
+                WHERE `userName` = :userName;';
 
         foreach ($userNames as $user) {
             $vars[':userName'] = $user['userName'];
