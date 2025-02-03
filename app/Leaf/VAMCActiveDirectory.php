@@ -19,6 +19,8 @@ class VAMCActiveDirectory
 
     private $users = array();
 
+    private $disable_time = time();
+
     private $headers = array('sn' => 'lname',
                 'givenName' => 'fname',
                 'initials' => 'midIni',
@@ -282,7 +284,7 @@ class VAMCActiveDirectory
 
     private function preventRecycledUserName(array $userNames): void
     {
-        $deleteTime = time();
+        $deleteTime = $this->disable_time;
 
         $vars = array(':deleteTime' => $deleteTime);
         $sql = 'UPDATE `employee`
