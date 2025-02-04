@@ -930,10 +930,28 @@ var LeafFormGrid = function (containerID, options) {
     );
 
     $("#" + prefixID + "getExcel").on("click", async function () {
-      // get indicator formats in case they need special handling (e.g. dates)
-      let iFormatData = [];
-      const isOrgchartPath = /\/orgchart\//i.test(window.location.href);
-      if(!isOrgchartPath) {
+      if (currentRenderIndex != currentData.length) {
+        renderBody(0, Infinity);
+      }
+      let output = [];
+      let headers = [];
+      //removes triangle symbols so that ascii chars are not present in exported headers.
+      $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
+        $(val).html("");
+      });
+      let hasPossibleIndicator = false;
+      $("#" + prefixID + "thead>tr>th").each(function (idx, val) {
+        if(/header_\d+$/.test(val?.id)) {
+          hasPossibleIndicator = true;
+        }
+        headers.push($(val).text().trim());
+      });
+      output.push(headers); //first row will be headers
+
+      let indicatorFormats = {};
+      if(hasPossibleIndicator === true) {
+        let iFormatData = [];
+        //try to get indicator formats in case they need special handling (e.g. dates)
         try {
           iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format")
           .then(res => res.json())
@@ -944,25 +962,10 @@ var LeafFormGrid = function (containerID, options) {
         } catch (e) {
           console.log(e);
         }
+        iFormatData.forEach(i => {
+          indicatorFormats[i.indicatorID] = i.format;
+        });
       }
-      let indicatorFormats = {};
-      iFormatData.forEach(i => {
-        indicatorFormats[i.indicatorID] = i.format;
-      });
-
-      if (currentRenderIndex != currentData.length) {
-        renderBody(0, Infinity);
-      }
-      let output = [];
-      let headers = [];
-      //removes triangle symbols so that ascii chars are not present in exported headers.
-      $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
-        $(val).html("");
-      });
-      $("#" + prefixID + "thead>tr>th").each(function (idx, val) {
-        headers.push($(val).text().trim());
-      });
-      output.push(headers); //first row will be headers
 
       let line = [];
       let i = 0;
