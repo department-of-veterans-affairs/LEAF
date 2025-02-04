@@ -558,7 +558,7 @@
                         isValidValue = true;
                     } else {
                         value = value.replace(/,/ig, '');
-                        if (/^(\d*)(\.\d+)?$/.test(value)) {
+                        if (/^-?(\d*)(\.\d+)?$/.test(value)) {
                             let floatValue = parseFloat(value);
                             let strRoundTwoDecimals = (Math.round(100 * floatValue) / 100).toFixed(2);
                             $('#<!--{$indicator.indicatorID|strip_tags}-->').val(strRoundTwoDecimals);
