@@ -205,9 +205,10 @@ var LeafWorkflow = function (containerID, CSRFToken) {
      * @memberOf LeafWorkflow
      * Called for each requirement with access. Initializes the step module if one exists for the step ID.
      * @param {object} step includes both step and depencency information for a specific requirement
+     * @param {number} firstDepID dependencyID associated with first requirement drawn (where fields are loaded)
      */
     var modulesLoaded = {};
-    function drawWorkflow(step) {
+    function drawWorkflow(step, firstDepID = null) {
         // draw frame and header
         let stepDescription =
             step.description == null
@@ -433,7 +434,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 ) {
                     modulesLoaded[
                         step.stepModules[x].moduleName + "_" + step.stepID
-                    ] = step.dependencyID;
+                    ] = 1;
 
                     $(`#form_dep_extension${step.dependencyID}`)
                         .html(`<div style="padding: 8px 24px 8px">
@@ -467,10 +468,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         },
                     });
                 } else {
-                    //the module is already flagged as loaded
-                    const shouldReinit = modulesLoaded?.[step.stepModules[x].moduleName + "_" + step.stepID] === step.dependencyID;
-                    if(shouldReinit && typeof workflowStepModule?.[step.stepID] !== "undefined") {
-                        //if the initial dependencyID is here, getworkflow has been called again - re-initialize for this depID only
+                    //the module is already flagged as loaded and the first dependencyID is being drawn here, reinit
+                    if(firstDepID === step.dependencyID && typeof workflowStepModule?.[step.stepID] !== "undefined") {
                         workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step, rootURL);
                     }
                 }
@@ -830,9 +829,13 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 masquerade,
             dataType: "json",
             success: function (res) {
+                let firstDepID = null;
                 for (let i in res) {
                     if (res[i].hasAccess == 1) {
-                        drawWorkflow(res[i]);
+                        if(firstDepID === null) {
+                            firstDepID = res[i].dependencyID;
+                        }
+                        drawWorkflow(res[i], firstDepID);
                     } else {
                         drawWorkflowNoAccess(res[i]);
                     }
