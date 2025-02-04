@@ -203,6 +203,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
     /**
      * @memberOf LeafWorkflow
+     * Called for each requirement with access. Initializes the step module if one exists for the step ID.
+     * @param {object} step includes both step and depencency information for a specific requirement
      */
     var modulesLoaded = {};
     function drawWorkflow(step) {
@@ -417,7 +419,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         rootURL
                     );
                 },
-                fail: function (err) {
+                error: function (err) {
                     console.log("Error: " + err);
                 },
             });
@@ -431,7 +433,8 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 ) {
                     modulesLoaded[
                         step.stepModules[x].moduleName + "_" + step.stepID
-                    ] = 1;
+                    ] = step.dependencyID;
+
                     $(`#form_dep_extension${step.dependencyID}`)
                         .html(`<div style="padding: 8px 24px 8px">
                         <div style="background-color: white; border: 1px solid black; padding: 16px">
@@ -459,10 +462,17 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 `#form_dep_container${step.dependencyID} .button`
                             ).attr("disabled", false);
                         },
-                        fail: function (err) {
+                        error: function (err) {
                             console.log("Error: " + err);
                         },
                     });
+                } else {
+                    //the module is already flagged as loaded
+                    const shouldReinit = modulesLoaded?.[step.stepModules[x].moduleName + "_" + step.stepID] === step.dependencyID;
+                    if(shouldReinit && typeof workflowStepModule?.[step.stepID] !== "undefined") {
+                        //if the initial dependencyID is here, getworkflow has been called again - re-initialize for this depID only
+                        workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step, rootURL);
+                    }
                 }
             }
         }
@@ -479,7 +489,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         rootURL
                     );
                 },
-                fail: function (err) {
+                error: function (err) {
                     console.log("Error: " + err);
                 },
             });
@@ -541,7 +551,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         color: step.stepFontColor,
                     });
                 },
-                fail: function (err) {
+                error: function (err) {
                     console.log("Error: " + err);
                 },
             });
@@ -574,7 +584,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         color: step.stepFontColor,
                     });
                 },
-                fail: function (err) {
+                error: function (err) {
                     console.log("Error: " + err);
                 },
             });
@@ -789,7 +799,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     $("#workflowcontent").append('<br style="clear: both" />');
                 }
             },
-            fail: function (err) {
+            error: function (err) {
                 console.log("Error: " + err);
             },
             cache: false,
@@ -830,7 +840,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 getLastAction(recordID, res);
                 $("#" + containerID).show("blind", 250);
             },
-            fail: function (err) {
+            error: function (err) {
                 console.log("Error: " + err);
             },
             cache: false,
