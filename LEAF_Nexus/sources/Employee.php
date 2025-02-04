@@ -245,34 +245,9 @@ class Employee extends Data
             if (!empty($local_data_array)) {
                 $results[] = $this->batchEmployeeDataUpdate($local_data_array);
             }
-
-            $users = $this->updateNationalDisabledEmployees();
-
-            if (!empty($users)) {
-                $results[] = $this->disableEmployees($users);
-            }
         }
 
         return $results;
-    }
-
-    private function updateNationalDisabledEmployees(): array
-    {
-        $vars = array();
-        $sql = 'SELECT `userName`
-                FROM `employee`
-                WHERE `deleted` > 0
-                AND LEFT(`userName`, 9) <> "disabled_"';
-
-        $res = $this->db->prepared_query($sql, $vars);
-
-        $userNames = array();
-
-        foreach ($res as $user) {
-            $userNames[] = $user['userName'];
-        }
-
-        return $userNames;
     }
 
     /**
