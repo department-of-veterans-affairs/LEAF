@@ -19,7 +19,7 @@ class VAMCActiveDirectory
 
     private $users = array();
 
-    private $disable_time = time();
+    private $disable_time;
 
     private $headers = array('sn' => 'lname',
                 'givenName' => 'fname',
