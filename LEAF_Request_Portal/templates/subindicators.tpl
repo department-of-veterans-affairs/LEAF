@@ -238,13 +238,15 @@
                         const elDialog = document.querySelector('div[id^="LeafForm"][id$="_xhrDialog"]');
                         if(ev?.key === 'Tab' && ev?.shiftKey === false && elDialog !== null) {
                             const formInputs = Array.from(elDialog.querySelectorAll('input'));
-                            const lastEl = formInputs[formInputs.length - 1];
-                            const elGroupParent = lastEl.closest('#radio_options_<!--{$indicator.indicatorID|strip_tags}-->');
-                            if (elGroupParent !== null) {
-                                ev.preventDefault();
-                                const elClose = elDialog.parentNode.querySelector('.ui-dialog-titlebar-close');
-                                if(elClose !== null) {
-                                    elClose.focus();
+                            if(formInputs.length > 0) {
+                                const lastEl = formInputs[formInputs.length - 1];
+                                const elGroupParent = lastEl.closest('#radio_options_<!--{$indicator.indicatorID|strip_tags}-->');
+                                if (elGroupParent !== null) {
+                                    ev.preventDefault();
+                                    const elClose = elDialog.parentNode.querySelector('.ui-dialog-titlebar-close');
+                                    if(elClose !== null) {
+                                        elClose.focus();
+                                    }
                                 }
                             }
                         }
