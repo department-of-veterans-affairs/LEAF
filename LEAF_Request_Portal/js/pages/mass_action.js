@@ -77,10 +77,15 @@ $(document).ready(function () {
 function chooseAction() {
     // If nothing selected and action selected is not 'Email Reminder'
     let actionValue = $("#action").val();
+    $("#comment_cancel").val("");
+    $("#comment_cancel_container").hide();
     if (actionValue !== "" && actionValue !== "email") {
         // Hide the email reminder and reset then show other options search and perform
         $("#emailSection").hide();
         $("#searchRequestsContainer").show();
+        if(actionValue === "cancel") {
+            $("#comment_cancel_container").show();
+        }
         leafSearch.init();
         doSearch();
     }
@@ -225,7 +230,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
     $("#errorMessage").hide();
     $("table#requests tr.requestRow").remove();
     $("#iconBusy").show();
-    console.log(queryObj);
+
     $.ajax({
         type: "GET",
         url: "./api/form/query",
@@ -321,6 +326,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
 function executeMassAction() {
     let selectedRequests = $("input.massActionRequest:checked");
     let reminderDaysSince = Number($("#lastAction").val());
+    const commentValue = ($("#comment_cancel").val() || "").trim();
     // Update global variables for execution - used in updateProgress function
     // Setting them to default at beginning of mass execution run
     processedRequests = 0;
@@ -341,6 +347,7 @@ function executeMassAction() {
                 break;
             case "cancel":
                 ajaxPath = "./api/form/" + recordID + "/cancel";
+                ajaxData["comment"] = commentValue;
                 break;
             case "restore":
                 ajaxPath = "./ajaxIndex.php?a=restore";
