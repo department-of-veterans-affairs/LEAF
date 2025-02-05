@@ -229,6 +229,10 @@ function doSubmit(recordID) {
                 $('#submitContent').hide('blind', 500);
                 $('#comments').css({'display': "block"});
                 $('#notes').css({'display': "block"});
+                const isAdmin = '<!--{$is_admin}-->';
+                if (isAdmin !== "1") {
+                    $('#btn_cancelRequest').hide();
+                }
                 workflow.setExtraParams('masquerade=nonAdmin');
                 workflow.getWorkflow(recordID);
             } else {
