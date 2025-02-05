@@ -46,7 +46,7 @@
     <div id="tools" class="tools">
         <h1>Tools</h1>
         <!--{if $submitted == 0}-->
-            <button class="tools" onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags}-->'"><img
+            <button type="button" class="tools" onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags}-->'"><img
                     src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="" title="Guided editor" aria-hidden="true"
                     style="vertical-align: middle" /> Edit this form</button>
             <br />
@@ -78,9 +78,11 @@
             Copy Request</button>
         <br />
         <br />
+        <!--{if $submitted == 0 || $is_admin}-->
         <button type="button" class="tools" id="btn_cancelRequest" title="Cancel Request" onclick="cancelRequest()"><img
                 src="dynicons/?img=process-stop.svg&amp;w=16" alt="" style="vertical-align: middle" />
             Cancel Request</button>
+        <!--{/if}-->
     </div>
 
 
