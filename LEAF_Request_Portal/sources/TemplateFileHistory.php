@@ -157,7 +157,7 @@ class TemplateFileHistory
         $sql = 'SELECT file_id, file_parent_name, file_name, file_path, file_size, file_modify_by, file_created
                   FROM `template_history_files`
                   WHERE file_parent_name = :template_file
-                  ORDER BY `file_created` DESC';
+                  ORDER BY `file_id` DESC';
 
         return $this->db->prepared_query($sql, $vars);
     }
@@ -175,7 +175,7 @@ class TemplateFileHistory
 
         $list = $this->getTemplateList();
         $time = date("Y-m-d h:i:s");
-        $templateID = time();
+        $templateID = uniqid();
 
 
         if (array_search($templateFileHistory, $list) !== false) {
