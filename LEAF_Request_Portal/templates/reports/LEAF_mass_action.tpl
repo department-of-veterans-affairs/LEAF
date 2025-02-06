@@ -51,6 +51,10 @@
             <option value="submit">Submit</option>
             <option value="email">Email Reminder</option>
         </select>
+        <div id="comment_cancel_container" style="display:none;margin:0.75rem 0;">
+            <label for="comment_cancel">Comment for cancel (optional)</label>
+            <textarea id="comment_cancel" rows="4" style="display:block;resize:vertical;width:530px;margin-top:2px"></textarea>
+        </div>
     </div>
 
     <div id="searchRequestsContainer"></div>
