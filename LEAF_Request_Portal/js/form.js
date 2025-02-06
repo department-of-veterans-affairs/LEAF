@@ -285,7 +285,8 @@ var LeafForm = function (containerID) {
             //If required validator and dialog exist, reset validator if there is not a hidden ancestor (exclude the one in the process of being assessed)
             const closestHidden = element.closest(`.response-hidden:not(.blockIndicator_${childID})`);
             const shouldSetRequired = closestHidden === null;
-            if ((formRequired[`id${id}`]?.setRequired || false) && dialog !== null && shouldSetRequired) {
+            const isRequired = typeof formRequired[`id${id}`]?.setRequired === "function";
+            if (isRequired && dialog !== null && shouldSetRequired) {
               dialog.requirements[id] = formRequired[`id${id}`].setRequired;
             }
           }
