@@ -101,6 +101,23 @@ class VAMCActiveDirectory
                 $this->users[$id]['source'] = 'ad';
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
+            } else if (strpos($employee['service'], 'ervice account')) {
+                $this->users[$id]['lname'] = 'Account';
+                $this->users[$id]['fname'] = 'Service';
+                $this->users[$id]['midIni'] = '';
+                $this->users[$id]['email'] = isset($employee['email']) ? $employee['email'] : null;
+                $this->users[$id]['phone'] = $employee['phone'];
+                $this->users[$id]['pager'] = isset($employee['pager']) ? $employee['pager'] : null;
+                $this->users[$id]['roomNum'] = $employee['roomNum'];
+                $this->users[$id]['title'] = $employee['title'];
+                $this->users[$id]['service'] = $employee['service'];
+                $this->users[$id]['mailcode'] = isset($employee['mailcode']) ? $employee['mailcode'] : null;
+                $this->users[$id]['loginName'] = $employee['loginName'];
+                $this->users[$id]['objectGUID'] = null;
+                $this->users[$id]['mobile'] = $employee['mobile'];
+                $this->users[$id]['domain'] = $this->parseVAdomain($employee['domain']);
+                $this->users[$id]['source'] = 'ad';
+                $count++;
             } else {
                 $ln = isset($employee['loginName']) ? $employee['loginName'] : 'no login name';
                 $lan = isset($employee['lname']) ? $employee['lname'] : 'no last name';
