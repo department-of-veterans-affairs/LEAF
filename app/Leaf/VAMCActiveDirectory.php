@@ -102,6 +102,8 @@ class VAMCActiveDirectory
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
             } else if (isset($employee['service']) && strpos($employee['service'], 'ervice account')) {
+                $id = md5('ACCOUNT' . 'SERVICE' . $count);
+
                 $this->users[$id]['lname'] = 'Account';
                 $this->users[$id]['fname'] = 'Service';
                 $this->users[$id]['midIni'] = '';
