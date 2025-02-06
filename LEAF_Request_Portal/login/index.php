@@ -38,7 +38,7 @@ $authCertURL = $protocol . AUTH_CERT_URL . '/auth_token/index.php?r=' . base64_e
     <style type="text/css" media="screen">
         @import "../css/style.css";
     </style>
-    <link rel="icon" href="vafavicon.ico" type="image/x-icon" />
+    <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 <body>
 <div id="header">
