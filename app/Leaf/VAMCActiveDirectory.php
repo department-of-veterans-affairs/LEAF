@@ -320,7 +320,8 @@ class VAMCActiveDirectory
         $sql = 'SELECT `userName`
                 FROM `employee`
                 WHERE `deleted` = 0
-                AND `lastUpdated` < (UNIX_TIMESTAMP(NOW()) - 108000)';
+                AND `lastUpdated` < (UNIX_TIMESTAMP(NOW()) - 108000)
+                AND `lastUpdated` > 0';
 
         $return_value = $this->db->prepared_query($sql, array());
 
