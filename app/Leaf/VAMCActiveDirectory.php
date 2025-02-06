@@ -101,7 +101,7 @@ class VAMCActiveDirectory
                 $this->users[$id]['source'] = 'ad';
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
-            } else if (strpos($employee['service'], 'ervice account')) {
+            } else if (isset($employee['service']) && strpos($employee['service'], 'ervice account')) {
                 $this->users[$id]['lname'] = 'Account';
                 $this->users[$id]['fname'] = 'Service';
                 $this->users[$id]['midIni'] = '';
