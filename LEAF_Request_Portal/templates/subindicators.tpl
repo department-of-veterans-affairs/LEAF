@@ -238,13 +238,15 @@
                         const elDialog = document.querySelector('div[id^="LeafForm"][id$="_xhrDialog"]');
                         if(ev?.key === 'Tab' && ev?.shiftKey === false && elDialog !== null) {
                             const formInputs = Array.from(elDialog.querySelectorAll('input'));
-                            const lastEl = formInputs[formInputs.length - 1];
-                            const elGroupParent = lastEl.closest('#radio_options_<!--{$indicator.indicatorID|strip_tags}-->');
-                            if (elGroupParent !== null) {
-                                ev.preventDefault();
-                                const elClose = elDialog.parentNode.querySelector('.ui-dialog-titlebar-close');
-                                if(elClose !== null) {
-                                    elClose.focus();
+                            if(formInputs.length > 0) {
+                                const lastEl = formInputs[formInputs.length - 1];
+                                const elGroupParent = lastEl.closest('#radio_options_<!--{$indicator.indicatorID|strip_tags}-->');
+                                if (elGroupParent !== null) {
+                                    ev.preventDefault();
+                                    const elClose = elDialog.parentNode.querySelector('.ui-dialog-titlebar-close');
+                                    if(elClose !== null) {
+                                        elClose.focus();
+                                    }
                                 }
                             }
                         }
@@ -558,7 +560,7 @@
                         isValidValue = true;
                     } else {
                         value = value.replace(/,/ig, '');
-                        if (/^(\d*)(\.\d+)?$/.test(value)) {
+                        if (/^-?(\d*)(\.\d+)?$/.test(value)) {
                             let floatValue = parseFloat(value);
                             let strRoundTwoDecimals = (Math.round(100 * floatValue) / 100).toFixed(2);
                             $('#<!--{$indicator.indicatorID|strip_tags}-->').val(strRoundTwoDecimals);
