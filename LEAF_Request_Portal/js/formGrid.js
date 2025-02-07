@@ -930,13 +930,6 @@ var LeafFormGrid = function (containerID, options) {
     );
 
     $("#" + prefixID + "getExcel").on("click", async function () {
-      // get indicator formats in case they need special handling (e.g. dates)
-      let iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format").then(res => res.json());
-      let indicatorFormats = {};
-      iFormatData.forEach(i => {
-        indicatorFormats[i.indicatorID] = i.format;
-      });
-
       if (currentRenderIndex != currentData.length) {
         renderBody(0, Infinity);
       }
@@ -946,10 +939,33 @@ var LeafFormGrid = function (containerID, options) {
       $("#" + prefixID + "thead>tr>th>span").each(function (idx, val) {
         $(val).html("");
       });
+      let hasPossibleIndicator = false;
       $("#" + prefixID + "thead>tr>th").each(function (idx, val) {
+        if(/header_\d+$/.test(val?.id)) {
+          hasPossibleIndicator = true;
+        }
         headers.push($(val).text().trim());
       });
       output.push(headers); //first row will be headers
+
+      let indicatorFormats = {};
+      if(hasPossibleIndicator === true) {
+        let iFormatData = [];
+        //try to get indicator formats in case they need special handling (e.g. dates)
+        try {
+          iFormatData = await fetch(rootURL + "api/form/indicator/list?x-filterData=indicatorID,format")
+          .then(res => res.json())
+          .catch(err => {
+            console.log(err)
+            return new Promise((resolve, reject) => resolve([]));
+          });
+        } catch (e) {
+          console.log(e);
+        }
+        iFormatData.forEach(i => {
+          indicatorFormats[i.indicatorID] = i.format;
+        });
+      }
 
       let line = [];
       let i = 0;
