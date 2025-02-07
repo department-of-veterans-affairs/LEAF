@@ -34,6 +34,15 @@
 #emailBodyCode .CodeMirror-merge {
     height: 400px !important;
 }
+#emailBodyCode + div .trumbowyg-editor {
+    background-color: #fff;
+}
+#editor_trumbowyg_saving {
+    background-color: #fff;
+    padding: 0.5rem;
+    height:360px;
+    display:none;
+}
 .CodeMirror-code {
     font-size: .7rem;
 }
@@ -426,6 +435,13 @@ label[for="template_file_select"] {
     font-size: .9rem;
 }
 
+
+#btn_useTrumbowyg, #btn_useCodeMirror {
+    display: none;
+}
+#btn_useTrumbowyg.show_button, #btn_useCodeMirror.show_button {
+    display: block;
+}
 #controls {
     width: 100%;
     padding: 0.5rem;

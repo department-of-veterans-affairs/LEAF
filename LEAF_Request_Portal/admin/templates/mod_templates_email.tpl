@@ -21,9 +21,9 @@
             </aside>
         </div>
 
-        <main id="codeArea" class="main-content">
+        <div id="codeArea" class="main-content">
             <div id="codeContainer" class="leaf-code-container email_templates">
-                <h2 id="emailTemplateHeader">Default Email Template</h2>
+                <h2 id="emailTemplateHeader">Notify Next Approver</h2>
                 <div id="emailNotificationInfo"></div>
                 <div id="emailLists">
                     <fieldset>
@@ -37,11 +37,11 @@
                         </p>
                         <label for="emailToCode" id="emailTo" class="emailToCc">Email To:</label>
                         <div id="divEmailTo">
-                            <textarea id="emailToCode" style="width: 95%;" rows="5" onchange="checkFieldEntries()"></textarea>
+                            <textarea id="emailToCode" style="width:95%;resize:vertical" rows="4" onchange="checkFieldEntries()"></textarea>
                         </div>
                         <label for="emailCcCode" id="emailCc" class="emailToCc">Email CC:</label>
                         <div id="divEmailCc">
-                            <textarea id="emailCcCode" style="width: 95%;" rows="5" onchange="checkFieldEntries()"></textarea>
+                            <textarea id="emailCcCode" style="width:95%;resize:vertical" rows="4" onchange="checkFieldEntries()"></textarea>
                         </div>
                     </fieldset>
                 </div>
@@ -62,6 +62,10 @@
                     </div>
                     <textarea id="code"></textarea>
                     <div id="codeCompare"></div>
+                </div>
+                <div>
+                    <textarea id="editor_trumbowyg" aria-hidden="true" style="display:none;"></textarea>
+                    <div id="editor_trumbowyg_saving"><h3>Saving...</h3></div>
                 </div>
                 <div class="email-template-variables">
                     <fieldset>
@@ -166,7 +170,7 @@
                     <p class="cm_editor_nav_help">Within the code editor, tab enters a tab character.  If using the keyboard to navigate, press escape followed by tab to exit the editor.</p>
                 </div>
             </div>
-        </main>
+        </div>
         <div class="leaf-right-nav">
             <button type="button" id="closeMobileToolsNavBtn" aria-label="close tools menu"
                     onclick="showRightNav(false)">X</button>
@@ -197,6 +201,15 @@
                     <button type="button" id="btn_compare"
                         class="usa-button usa-button--outline edit_only" onclick="compare();">
                         Compare with Original
+                    </button>
+
+                    <button type="button" id="btn_useTrumbowyg"
+                        class="usa-button usa-button--outline edit_only show_button"
+                        onclick="useTrumbowygEmailEditor()">Use Preview Editor
+                    </button>
+                    <button type="button" id="btn_useCodeMirror"
+                        class="usa-button usa-button--outline edit_only"
+                        onclick="useCodeEmailEditor()">Use Code Editor
                     </button>
 
                     <button type="button"
@@ -230,6 +243,7 @@
     let currentEmailCcFile;
 
     let currentFileContent;
+    let currentTrumbowygFileContent;
     let currentSubjectContent;
     let currentEmailToContent;
     let currentEmailCcContent;
@@ -322,18 +336,18 @@
     /**
     * compare content for expected fields to determine if unsaved changes exist
     */
-    function hasContentChanged(emailToData, emailCcData, subjectData, bodyData) {
-        const isDefaultTemplate = currentFile === "LEAF_main_email_template.tpl";
-        const changesDetected = (
-            isDefaultTemplate && bodyData !== currentFileContent ||
-            !isDefaultTemplate && (
-                emailToData !== currentEmailToContent ||
-                emailCcData !== currentEmailCcContent ||
-                subjectData !== currentSubjectContent ||
-                bodyData !== currentFileContent
-            )
-        )
-        return changesDetected;
+    function hasContentChanged(emailToData, emailCcData, subjectData, bodyData, trumbowValue = null) {
+        let currentBody = currentFileContent;
+        if(trumbowValue !== null) {
+            bodyData = trumbowValue;
+            currentBody = currentTrumbowygFileContent;
+        }
+        return (
+            emailToData !== currentEmailToContent ||
+            emailCcData !== currentEmailCcContent ||
+            subjectData !== currentSubjectContent ||
+            bodyData !== currentBody
+        );
     }
 
     /**
@@ -341,15 +355,54 @@
     * Displays last save time, updates current*Content values, and calls saveFileHistory at success.
     */
     function save() {
+        let elSaveBtn = document.getElementById('save_button');
+        const trumbowValue = document.querySelector(
+            '#emailBodyCode + div textarea.trumbowyg-textarea'
+        )?.value || null;
+
+        if(trumbowValue !== null) {
+            useCodeEmailEditor();
+            $('#editor_trumbowyg_saving').show();
+            toggleEditorElements(true);
+        }
+
         const emailToData = document.getElementById('emailToCode').value;
         const emailCcData = document.getElementById('emailCcCode').value;
         const subject = getCodeEditorValue(subjectEditor);
         const data = getCodeEditorValue(codeEditor);
 
-        const hasAnyChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+        const hasAnyChanges = hasContentChanged(emailToData, emailCcData, subject, data, trumbowValue);
         if (!hasAnyChanges) {
             alert('There are no changes to save.');
+            if(trumbowValue !== null) {
+                useTrumbowygEmailEditor();
+                $('#editor_trumbowyg_saving').hide();
+            }
         } else {
+            elSaveBtn.setAttribute("disabled", "disabled");
+            //if no history exists yet, snapshot the original first
+            const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
+            if(numRecords === 0) {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        CSRFToken: '<!--{$CSRFToken}-->',
+                        file: currentFileContent,
+                        subjectFile: currentSubjectContent,
+                        subjectFileName: currentSubjectFile,
+                        emailToFile: currentEmailToContent,
+                        emailToFileName: currentEmailToFile,
+                        emailCcFile: currentEmailCcContent,
+                        emailCcFileName: currentEmailCcFile
+                    },
+                    url: '../api/emailTemplateFileHistory/_' + currentFile,
+                    success: function(res) {},
+                    error: function(err) {
+                        console.log(err);
+                    },
+                });
+            }
+
             $.ajax({
                 type: 'POST',
                 data: {
@@ -376,9 +429,24 @@
                         saveFileHistory();
                         $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                         $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
+                        //switch to Trumbowyg if it had been used
+                        if(trumbowValue !== null) {
+                            $('#editor_trumbowyg_saving').hide();
+                            useTrumbowygEmailEditor();
+                            currentTrumbowygFileContent = trumbowValue;
+                        //use (body) data to sync current value regardless.
+                        } else {
+                            currentTrumbowygFileContent = data;
+                        }
                     }
+                    elSaveBtn.removeAttribute("disabled");
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
+                    if(trumbowValue !== null) {
+                        $('#editor_trumbowyg_saving').hide();
+                        useTrumbowygEmailEditor();
+                    }
+                    elSaveBtn.removeAttribute("disabled");
                     console.log('Error occurred during the save operation:', errorThrown);
                 }
             });
@@ -498,6 +566,7 @@
     * @param {bool} updateURL - whether to update URL params and add to URL history
     */
     function compareHistoryFile(fileName = '', parentFile = '', updateURL = false) {
+        useCodeEmailEditor();
         const initialBodyData = getCodeEditorValue(codeEditor);
         $('#bodyarea').off('keydown');
         $('#file_replace_file_btn').off('click');
@@ -631,7 +700,13 @@
         } else if (templateFile !== null) {
             loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
         } else {
-            loadContent(undefined, 'LEAF_main_email_template.tpl', undefined, undefined, undefined);
+            loadContent(
+                'Notify Next Approver',
+                'LEAF_notify_next_body.tpl',
+                'LEAF_notify_next_subject.tpl',
+                'LEAF_notify_next_emailTo.tpl',
+                'LEAF_notify_next_emailCc.tpl'
+            );
         }
         //displays a generic prompt if navigating from page with unsaved changes
         $(window).on('beforeunload', function(e) {
@@ -639,7 +714,9 @@
             const emailCcData = document.getElementById('emailCcCode').value;
             const subject = getCodeEditorValue(subjectEditor);
             const data = getCodeEditorValue(codeEditor);
-            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+            const trumbowValue = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea')?.value || null;
+
+            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data, trumbowValue);
             if (!ignoreUnsavedChanges && !ignorePrompt && hasChanges) {
                 e.preventDefault();
                 return true;
@@ -649,6 +726,7 @@
 
     // compares the current file to the default file content
     function compare() {
+        useCodeEmailEditor(false);
         const bodyData = getCodeEditorValue(codeEditor);
         const subjectData = getCodeEditorValue(subjectEditor);
         $('.CodeMirror').remove();
@@ -781,6 +859,13 @@
     * @param {string} emailCcFile - eg LEAF_send_back_emailCc.tpl
     */
     function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
+        //current T editor val if it exists
+        const trumbowValue = document.querySelector(
+            '#emailBodyCode + div textarea.trumbowyg-textarea'
+        )?.value || null;
+
+        useCodeEmailEditor();
+
         if (!file) {
             if(file === null && currentFile && codeEditor) { //from compare view
                 const mergeViewBodyValue = getCodeEditorValue(codeEditor);
@@ -809,9 +894,13 @@
             const emailCcData = document.getElementById('emailCcCode').value;
             const subject = getCodeEditorValue(subjectEditor);
             const data = getCodeEditorValue(codeEditor);
-            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data);
+
+            const hasChanges = hasContentChanged(emailToData, emailCcData, subject, data, trumbowValue);
             if (!ignoreUnsavedChanges && hasChanges &&
                 !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
+                if(trumbowValue !== null) {
+                    useTrumbowygEmailEditor();
+                }
                 return;
             }
         }
@@ -842,7 +931,7 @@
             success: function(res) {
                 $('#codeContainer').fadeIn();
                 // Check if codeEditor is defined, has a setValue method and file property exists
-                if (codeEditor && typeof codeEditor.setValue === 'function' && res?.file !== undefined) {
+                if (codeEditor && typeof codeEditor.setValue === 'function' && res?.file !== undefined && res?.file !== false) {
                     codeEditor.setValue(res.file);
                     currentFileContent = codeEditor.getValue();
                     if (subjectEditor && res.subjectFile !== null) { //subject is null for default email template
@@ -857,8 +946,16 @@
                     currentEmailCcContent = res.emailCcFile;
                     $("#emailToCode").val(currentEmailToContent);
                     $("#emailCcCode").val(currentEmailCcContent);
+
+                    useTrumbowygEmailEditor();
+                    //update current content from new T editor set up after file load
+                    const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
+                    if(elTrumbow !== null) {
+                        currentTrumbowygFileContent = elTrumbow.value;
+                    }
+
                 } else {
-                    res?.file === undefined ?
+                    res?.file === undefined || res?.file === false ?
                         console.error('file not found') :
                         console.error('codeEditor is not properly initialized.');
                 }
@@ -1193,6 +1290,137 @@
             }
         }
     }
+
+    //jQuery plugins for WYSWYG.
+    function useTrumbowygEmailEditor() {
+        toggleEditorElements(true);
+        const data = getCodeEditorValue(codeEditor);
+        $('#editor_trumbowyg').val(data);
+        $('#editor_trumbowyg').trumbowyg({
+            btns: [
+                'formatting', 'bold', 'italic', 'underline', '|',
+                'unorderedList', 'orderedList', '|',
+                'link', '|',
+                'foreColor', '|',
+                'justifyLeft', 'justifyCenter', 'justifyRight'
+            ],
+        });
+        $('.trumbowyg-box').css({
+            'min-height': '130px',
+            'margin': '0.5rem 0'
+        });
+        $('.trumbowyg-editor, .trumbowyg-texteditor').css({
+            'min-height': '360px',
+            'height': '360px',
+            'padding': '1rem',
+            'resize': 'vertical',
+        });
+        let trumbowygBtns = Array.from(document.querySelectorAll('.trumbowyg-box button'));
+
+        /** handle keyboard events.  trumbow uses mousedown so dispatch that event for enter or spacebar */
+        const handleTrumbowEvents = (event) => {
+            const btn = event.currentTarget;
+            const isDropdown = btn.classList.contains('trumbowyg-open-dropdown');
+            const isActive = btn.classList.contains('trumbowyg-active');
+
+            if(event?.which === 13 || event?.which === 32) {
+                btn.dispatchEvent(new Event('mousedown'));
+                event.preventDefault();
+                if(isDropdown) {
+                    btn.setAttribute('aria-expanded', !isActive);
+                }
+            }
+            if(event?.which === 9) { //fix menu tabbing and tabbing order
+                const controllerBtn = document.querySelector(`button[aria-controls="${btn.parentNode.id}"]`);
+
+                const btnWrapperSelector = isDropdown ?
+                    `id_${this.trumbowygTitleClassMap[btn.title]}` : `${btn.parentNode.id}`;
+
+                if (btnWrapperSelector !== "") {
+                    const firstSubmenuBtn = document.querySelector(`#${btnWrapperSelector} button`);
+                    const lastSubmenuBtn = document.querySelector(`#${btnWrapperSelector} button:last-child`);
+                    //if tabbing forward, mv to the first button in the submenu.  prev default to stop another tab
+                    if(event.shiftKey === false && isDropdown && isActive && firstSubmenuBtn !== null) {
+                        firstSubmenuBtn.focus();
+                        event.preventDefault();
+                    }
+                    //end of submenu tab to next controller button and close the first one
+                    if(event.shiftKey === false && btn === lastSubmenuBtn) {
+                        const nextController = controllerBtn?.parentNode?.nextSibling || null;
+                        if(nextController !== null) {
+                            const nextBtn = nextController.querySelector('button');
+                            if(nextBtn !== null) {
+                                nextBtn.focus();
+                                event.preventDefault();
+                                controllerBtn.dispatchEvent(new Event('mousedown'));
+                                controllerBtn.setAttribute('aria-expanded', false);
+                            }
+                        }
+                    }
+                    //if tabbing backwards out of a submenu, mv to the controller.
+                    if(event.shiftKey === true && btn === firstSubmenuBtn && controllerBtn !== null) {
+                        controllerBtn.focus();
+                        event.preventDefault();
+                    }
+                }
+            }
+            if (event.type === 'click' && isDropdown) { //only updating it to whatever trumbow set it to
+                btn.setAttribute('aria-expanded', isActive);
+            }
+        }
+        //make buttons more accessible.  add navigable index and aria-controls.
+        trumbowygBtns.forEach(btn => {
+            btn.setAttribute('tabindex', '0');
+            ['keydown', 'click'].forEach(ev => btn.addEventListener(ev, handleTrumbowEvents));
+            if(btn.classList.contains('trumbowyg-open-dropdown')) {
+                btn.setAttribute('aria-expanded', false);
+                const controlClass = this.trumbowygTitleClassMap?.[btn.title] || null;
+                if(controlClass !== null) {
+                    btn.setAttribute('aria-controls', 'id_' + controlClass);
+                    const elSubmenu = document.querySelector('.' + controlClass);
+                    if(elSubmenu !== null) {
+                        elSubmenu.setAttribute('id', 'id_' + controlClass);
+                    }
+                }
+            }
+        });
+        document.getElementById('btn_useCodeMirror').focus();
+    }
+
+    function useCodeEmailEditor(refreshCodeMirror = true) {
+        //if element associated with Trumbowyg exists, update codemirror element before proceeding.
+        const elTrumbow = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea');
+        if(elTrumbow !== null) {
+            codeEditor.setValue(elTrumbow.value);
+            toggleEditorElements(false);
+            $('#editor_trumbowyg').trumbowyg('destroy');
+            $('#editor_trumbowyg').hide();
+            if(refreshCodeMirror === true) {
+                $('.CodeMirror').each(function(i, el) {
+                    el.CodeMirror.refresh();
+                });
+            }
+        }
+    }
+
+    //show or hide elements associated with Trumbowyg(true) and CodeMirror for email body editing
+    function toggleEditorElements(showTrumbow = true) {
+        let btnUseTrumbow = document.getElementById('btn_useTrumbowyg');
+        let btnUseCodeMirror = document.getElementById('btn_useCodeMirror');
+        if(btnUseTrumbow !== null && btnUseCodeMirror !== null) {
+            if (showTrumbow === true) {
+                $('#emailBodyCode').hide();
+                btnUseCodeMirror.classList.add('show_button');
+                btnUseTrumbow.classList.remove('show_button');
+            } else {
+                $('#emailBodyCode').show();
+                btnUseCodeMirror.classList.remove('show_button');
+                btnUseTrumbow.classList.add('show_button');
+            }
+        }
+    }
+
+
     //loads components when the document loads
     $(document).ready(function() {
         getIndicators(); //get indicators to make format table

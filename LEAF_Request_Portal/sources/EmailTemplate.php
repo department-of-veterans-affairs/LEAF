@@ -116,7 +116,7 @@ class EmailTemplate
         }
         $out = array();
         $emailList = $this->db->query(
-            'SELECT label, emailTo, emailCc, subject, body from email_templates ORDER BY emailTemplateID DESC'
+            'SELECT label, emailTo, emailCc, subject, body from email_templates WHERE emailTemplateID != 1 ORDER BY emailTemplateID DESC'
         );
         foreach ($emailList as $listItem) {
             $data = array(
