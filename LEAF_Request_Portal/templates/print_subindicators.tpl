@@ -1,3 +1,33 @@
+<script>
+    function setPrintViewUserContent(elResBlock) {
+        let htmlContent = elResBlock?.innerHTML || "";
+        //links must have https, they could have tags
+        let matchLinks = htmlContent.match(/(?<=https:\/\/).*?(?=\s|$|"|'|&gt;|<)/gi);
+        matchLinks = Array.from(new Set(matchLinks));
+        matchLinks.forEach(match => {
+            const linkText = match.length <= 50 ? match : match.slice(50) + '...';
+            const oldText = `https://${match}`;
+            const newText =   `<a href="https://${match}">${linkText}</a>`;
+
+            htmlContent = htmlContent.replaceAll(oldText, newText);
+            console.log(htmlContent);
+            const textEscaped = newText.replaceAll(".", "\\.").replaceAll("/", "\\/");
+            //<a\s+[^>]*href=['"]([^'"]*)['"][^>]*>(.*?)<\/a>
+            const regStr = `(&lt;|<)a\s+href=['"]${textEscaped}['"](>|&gt;)(.*?)(&lt;|<)/a(>|&gt;)`;
+            const tagReg = new RegExp(regStr, "gi");
+            const tagMatch = htmlContent.match(tagReg);
+            if(tagMatch?.length > 0) {
+                console.log("if", tagReg, tagMatch)
+                console.log(htmlContent);
+                htmlContent = htmlContent.replaceAll(tagMatch[0], newText);
+                console.log(htmlContent);
+            } else {
+                console.log("else", tagReg, tagMatch)
+            }
+        });
+        elResBlock.innerHTML = htmlContent;
+    }
+</script>
 <!--{strip}-->
     <!--{if !isset($depth)}-->
     <!--{assign var='depth' value=0}-->
