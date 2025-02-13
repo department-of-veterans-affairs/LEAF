@@ -43,7 +43,7 @@
             <script>
                 $(function() {
                     const elResBlock = document.getElementById("data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->");
-                    setPrintViewUserContent(elResBlock);
+                    setPrintViewUserLinkContent(elResBlock);
                 });
             </script>
         <!--{/if}-->

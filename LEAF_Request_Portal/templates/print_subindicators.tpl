@@ -1,28 +1,31 @@
 <script>
-    function setPrintViewUserContent(elResBlock) {
+    function setPrintViewUserLinkContent(elResBlock) {
+        const whitelist = {
+            "dvagov.sharepoint.com": 1,
+            "apps.gov.powerapps.us": 1
+        }
         let htmlContent = elResBlock?.innerHTML || "";
-        //links must have https, they could have tags
+        //links must have https, they could have tags. only grab the url content here and filter based on whitelist
         let matchLinks = htmlContent.match(/(?<=https:\/\/).*?(?=\s|$|"|'|&gt;|<)/gi);
         matchLinks = Array.from(new Set(matchLinks));
-        matchLinks.forEach(match => {
-            const linkText = match.length <= 50 ? match : match.slice(50) + '...';
-            const oldText = `https://${match}`;
-            const newText =   `<a href="https://${match}">${linkText}</a>`;
+        matchLinks = matchLinks.filter(url => {
+            const baseurl = (url.split("/")[0] || "").toLowerCase();
+            return baseurl.endsWith(".gov") || whitelist[baseurl] === 1;
+        });
 
-            htmlContent = htmlContent.replaceAll(oldText, newText);
-            console.log(htmlContent);
-            const textEscaped = newText.replaceAll(".", "\\.").replaceAll("/", "\\/");
-            //<a\s+[^>]*href=['"]([^'"]*)['"][^>]*>(.*?)<\/a>
-            const regStr = `(&lt;|<)a\s+href=['"]${textEscaped}['"](>|&gt;)(.*?)(&lt;|<)/a(>|&gt;)`;
+        matchLinks.forEach(match => {
+            const linkText = match.length <= 50 ? match : match.slice(0,50) + '...';
+            const oldText = `https://${match}`;
+            const newText =   `<a href="https://${match}" target="_blank">https://${linkText}</a>`;
+            //initial replacement
+            htmlContent = htmlContent.replace(oldText, newText);
+
+            //if user tried to add anchor tags this will replace them. link text was will be replaced by the new link text.
+            const textEscaped = newText.replaceAll(".", "\\.").replaceAll("?", "\\?");
+            const regStr = `(&lt;|<)a\\s+href=['"]${textEscaped}['"](>|&gt;)(.*)?(&lt;|<)/a(>|&gt;)`;
             const tagReg = new RegExp(regStr, "gi");
-            const tagMatch = htmlContent.match(tagReg);
-            if(tagMatch?.length > 0) {
-                console.log("if", tagReg, tagMatch)
-                console.log(htmlContent);
-                htmlContent = htmlContent.replaceAll(tagMatch[0], newText);
-                console.log(htmlContent);
-            } else {
-                console.log("else", tagReg, tagMatch)
+            if(tagReg.test(htmlContent)) {
+                htmlContent = htmlContent.replace(tagReg, newText);
             }
         });
         elResBlock.innerHTML = htmlContent;
