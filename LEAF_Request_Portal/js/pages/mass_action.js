@@ -39,15 +39,20 @@ $(document).ready(function () {
 
     // Confirm submission for mass action and perform action if accepted
     $("button.takeAction").click(function () {
-        dialog_confirm.setContent(
-            '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to perform this action?'
-        );
+        const commentValue = ($("#comment_cancel").val() || "").trim();
+        if (actionValue === "cancel" && commentValue === "") {
+            noteRequired();
+        } else {
+            dialog_confirm.setContent(
+                '<img src="dynicons/?img=process-stop.svg&amp;w=48" alt="" style="float: left; padding-right: 24px" /> Are you sure you want to perform this action?'
+            );
 
-        dialog_confirm.setSaveHandler(function () {
-            executeMassAction();
-            dialog_confirm.hide();
-        });
-        dialog_confirm.show();
+            dialog_confirm.setSaveHandler(function () {
+                executeMassAction();
+                dialog_confirm.hide();
+            });
+            dialog_confirm.show();
+        }
     });
 
     // When "Select All" selected/de-selected, set all of the request checkboxes to match
@@ -70,6 +75,16 @@ $(document).ready(function () {
         doSearch();
     });
 });
+
+function noteRequired() {
+    let elRequired = document.getElementById('comment_required');
+    if(elRequired !== null) {
+        elRequired.classList.add('attention');
+        setTimeout(() => {
+            elRequired.classList.remove('attention');
+        }, 2500);
+    }
+}
 
 /**
  * Purpose: Setup of choosing which action to take overall
@@ -324,9 +339,15 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
  * Executes the selected action on each request selected in the table
  */
 function executeMassAction() {
+    const commentValue = ($("#comment_cancel").val() || "").trim();
+    if (actionValue === "cancel" && commentValue === "") {
+        noteRequired();
+        return
+    }
+
     let selectedRequests = $("input.massActionRequest:checked");
     let reminderDaysSince = Number($("#lastAction").val());
-    const commentValue = ($("#comment_cancel").val() || "").trim();
+
     // Update global variables for execution - used in updateProgress function
     // Setting them to default at beginning of mass execution run
     processedRequests = 0;
@@ -425,6 +446,7 @@ function updateProgress(recordID, success) {
         );
 
         $("button.takeAction").removeAttr("disabled");
+        $("#comment_cancel").val("");
     }
 }
 

@@ -32,6 +32,15 @@
         font-weight: bold;
         white-space: normal
     }
+    #comment_required {
+        transition: all 0.5s ease;
+        color: #c00;
+        font-weight: bolder;
+    }
+    #comment_required.attention {
+        color: #fff;
+        background-color: #c00;
+    }
 </style>
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <script id="mass-action-js" src="./js/pages/mass_action.js"
@@ -52,7 +61,7 @@
             <option value="email">Email Reminder</option>
         </select>
         <div id="comment_cancel_container" style="display:none;margin:0.75rem 0;">
-            <label for="comment_cancel">Comment for cancel (optional)</label>
+            <label for="comment_cancel">Comment for cancel <span id="comment_required">* required</span></label>
             <textarea id="comment_cancel" rows="4" style="display:block;resize:vertical;width:530px;margin-top:2px"></textarea>
         </div>
     </div>
