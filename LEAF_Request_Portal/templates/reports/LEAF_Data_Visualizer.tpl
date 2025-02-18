@@ -95,6 +95,13 @@ var chartTitle = ''; // selected chart title
 var suggestions = {};
 suggestions.length = [];
 
+function truncateText(text, maxLength = 50) {
+    if (text.length <= maxLength) return text;
+    
+    const truncatedText = text.substr(0, maxLength);
+    return `${truncatedText}...`;
+}
+
 function isNumeric(x) {
     return !isNaN(parseFloat(x));
 }
@@ -244,7 +251,9 @@ function initPieChart(field, dimensions, groups) {
         .title(d => Math.round(d.value / dimensions[field.indicatorID].groupAll().reduceCount().value() * 100) + "% " + d.key + ': ' + d.value)
         .ordering(function(d) { return d.value; })
         .ordinalColors(niceColors)
-        .label(d => d.key);
+        .label(d => d.key)
+        .externalLabels(1)
+        .externalRadiusPadding(8);
 }
 
 // initBoxPlot initializes a single DC.js box plot
@@ -436,7 +445,7 @@ function initCharts(fields) {
                         }
                         break;
                     default:
-                        dimensions[field.indicatorID] = facts.dimension(function(d) { return d[field.indicatorID]; });
+                        dimensions[field.indicatorID] = facts.dimension(function(d) { return truncateText(d[field.indicatorID],15); });
                         groups[field.indicatorID] = dimensions[field.indicatorID].group().reduceCount();
                         if(numUniques[field.indicatorID]['count'] > 6) {
                             initRowChart(field, dimensions, groups);

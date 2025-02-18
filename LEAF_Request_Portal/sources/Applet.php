@@ -286,7 +286,7 @@ class Applet
         $list = $this->getReportTemplateList();
         $time = date("Y-m-d h:i:s");
 
-        $templateID = time();
+        $templateID = uniqid();
 
         if (array_search($template, $list) !== false) {
             $fileData = $_POST['file'];
