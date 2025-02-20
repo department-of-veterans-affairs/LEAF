@@ -225,6 +225,24 @@ class VAMCActiveDirectory
                             ':data' => $this->fixIfHex($this->users[$key]['mobile']));
 
                     $this->db->prepared_query($sql, $vars);
+                } else {
+                    // need to check and see if mobile exists in the db now, if it does
+                    // need to remove it or change it to a blank string
+                    $vars[':indicatorID'] = 16;
+                    unset($vars[':data']);
+
+                    $mobile_sql = 'SELECT *
+                                   FROM `employee_data`
+                                   WHERE `indicatorID` = :indicatorID
+                                   AND `empUID` = :empUID';
+
+                    $res = $this->db->prepared_query($mobile_sql, $vars);
+
+                    if (!empty($res)) {
+                        $vars[':data'] = '';
+
+                        $this->db->prepared_query($sql, $vars);
+                    }
                 }
 
                 $vars = array(':lname' => $this->users[$key]['lname'],
@@ -295,7 +313,9 @@ class VAMCActiveDirectory
         // someone manually causing this check to be a false positive.
         // But it's pretty safe to say that if 200,000 got updated that
         // the update script worked and we are good to disable anyone else.
-        if (count($result) > 200000) {
+        $minimum_count = strpos(LEAF_NEXUS_URL, 'host.docker.internal') ? 200 : 200000;
+
+        if (count($result) > $minimum_count) {
             $return_value = true;
         } else {
             $return_value = false;

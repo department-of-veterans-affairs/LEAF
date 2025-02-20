@@ -1,4 +1,4 @@
-FROM php:8.2-fpm 
+FROM php:8.2-fpm
 COPY docker/php/php-dev.ini "$PHP_INI_DIR/php.ini"
 RUN docker-php-ext-install pdo pdo_mysql
 
@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
 		libjpeg62-turbo-dev \
 		libpng-dev \
 		ssmtp \
+		parallel \
 	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
 	&& docker-php-ext-install -j$(nproc) gd
 
@@ -34,4 +35,5 @@ COPY ./health_checks /var/www/html/health_checks
 RUN chmod +x /var/www/html/
 RUN chown -R www-data:www-data /var/www
 RUN chmod -R g+rwX /var/www
+RUN mkdir /var/www/tmp/ && chown www-data:www-data /var/www/tmp/
 # USER www-data
