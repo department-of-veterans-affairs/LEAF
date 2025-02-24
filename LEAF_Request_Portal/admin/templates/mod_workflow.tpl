@@ -1365,11 +1365,12 @@
                 sort = sort < -128 ? -128
                         : sort > 127 ? 127
                         : sort;
+                const actionText = $('#actionText').val();
                 $.ajax({
                     type: 'POST',
                     url: '../api/system/action',
                     data: {
-                        actionText: $('#actionText').val(),
+                        actionText: actionText,
                         actionTextPasttense: $('#actionTextPasttense').val(),
                         actionIcon: $('#actionIcon').val(),
                         sort: sort,
@@ -1377,6 +1378,11 @@
                         CSRFToken: CSRFToken
                     },
                     success: function(res) {
+                        if(res?.status?.code === 3) {
+                            const reg = new RegExp(/[^a-zA-Z0-9_]/, "gi");
+                            const actionType = actionText.replaceAll(reg, '');
+                            alert (`An action for ${actionText}, (${actionType}), already exists.\nPlease try using a different action name.`);
+                        }
                         loadWorkflow(currentWorkflow);
                     },
                     error: (err) => console.log(err),
