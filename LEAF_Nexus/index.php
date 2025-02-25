@@ -9,7 +9,7 @@
 
 */
 /*
- * test comment for 4583 
+ * test comment for 4583
  */
 
 use App\Leaf\XSSHelpers;
@@ -255,6 +255,7 @@ switch ($action) {
             $t_form->assign('tag_hierarchy', $tag->getAll());
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $oc_login->getDomain());
+            $t_form->assign('orgchart_path', trim(PORTAL_PATH, '/'));
             $t_form->assign('timeZone', $tz);
 
             if (count($resGroup) > 0)
@@ -394,7 +395,7 @@ switch ($action) {
         break;
     case 'view_group_permissions':
         $group = new Orgchart\Group($oc_db, $oc_login);
-    
+
         $t_form = new \Smarty;
         $t_form->left_delimiter = '<!--{';
         $t_form->right_delimiter = '}-->';
