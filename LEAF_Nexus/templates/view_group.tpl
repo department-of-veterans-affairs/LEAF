@@ -347,7 +347,7 @@ function confirmDeleteTag(inTag) {
     let validate = {'groupID': '<!--{$groupID}-->'};
     $.ajax({
         type: 'GET',
-        url: './api/platform/portal/_<!--{$leaf_domain}-->',
+        url: './api/platform/portal/_<!--{$orgchart_path}-->',
         success: function(response) {
             if (response.constructor === Array) {
                 response.forEach(function (item, index) {
@@ -370,7 +370,7 @@ function confirmDeleteTag(inTag) {
                                     if (found) {
                                         // need to display a message that this can't be done
                                         dialog_ok.setTitle('Warning');
-                                        dialog_ok.setContent('Tags cannot be removed here until all references to them are removed from the cooresponding portal.');
+                                        dialog_ok.setContent('Corresponding portal tags must be removed prior to taking this action.');
                                         dialog_ok.setSaveHandler(function() {
                                             dialog_ok.clearDialog();
                                             dialog_ok.hide();

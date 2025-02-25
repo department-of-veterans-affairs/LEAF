@@ -255,7 +255,7 @@ switch ($action) {
             $t_form->assign('tag_hierarchy', $tag->getAll());
             $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
             $t_form->assign('userDomain', $oc_login->getDomain());
-            $t_form->assign('leaf_domain', trim(PORTAL_PATH, '/'));
+            $t_form->assign('orgchart_path', trim(PORTAL_PATH, '/'));
             $t_form->assign('timeZone', $tz);
 
             if (count($resGroup) > 0)
