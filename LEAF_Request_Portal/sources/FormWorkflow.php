@@ -204,11 +204,10 @@ class FormWorkflow
                 // Only amend approverName for person designated records
                 if($v['dependencyID'] == -1) {
                     $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
-                    
                     if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
                         $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' ( *NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'] . ')';
                         $srcRecords[$i]['approverName'] = '*NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'];
-                        $srcRecords[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
+                        $srcRecords[$i]['approverUID'] = 'indicatorID:' . $srcRecords[$i]['indicatorID_for_assigned_empUID'];
                     }
                     else {
                         $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
