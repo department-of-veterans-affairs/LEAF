@@ -19,6 +19,8 @@ class VAMCActiveDirectory
 
     private $users = array();
 
+    private $disable_time;
+
     private $headers = array('sn' => 'lname',
                 'givenName' => 'fname',
                 'initials' => 'midIni',
@@ -38,6 +40,7 @@ class VAMCActiveDirectory
     public function __construct($national_db)
     {
         $this->db = $national_db;
+        $this->disable_time = time();
     }
 
     // Imports data from \t and \n delimited file of format:
@@ -98,6 +101,25 @@ class VAMCActiveDirectory
                 $this->users[$id]['source'] = 'ad';
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
+            } else if (isset($employee['service']) && strpos($employee['service'], 'ervice account')) {
+                $id = md5('ACCOUNT' . 'SERVICE' . $count);
+
+                $this->users[$id]['lname'] = 'Account';
+                $this->users[$id]['fname'] = 'Service';
+                $this->users[$id]['midIni'] = '';
+                $this->users[$id]['email'] = isset($employee['email']) ? $employee['email'] : null;
+                $this->users[$id]['phone'] = $employee['phone'];
+                $this->users[$id]['pager'] = isset($employee['pager']) ? $employee['pager'] : null;
+                $this->users[$id]['roomNum'] = $employee['roomNum'];
+                $this->users[$id]['title'] = $employee['title'];
+                $this->users[$id]['service'] = $employee['service'];
+                $this->users[$id]['mailcode'] = isset($employee['mailcode']) ? $employee['mailcode'] : null;
+                $this->users[$id]['loginName'] = $employee['loginName'];
+                $this->users[$id]['objectGUID'] = null;
+                $this->users[$id]['mobile'] = $employee['mobile'];
+                $this->users[$id]['domain'] = $this->parseVAdomain($employee['domain']);
+                $this->users[$id]['source'] = 'ad';
+                $count++;
             } else {
                 $ln = isset($employee['loginName']) ? $employee['loginName'] : 'no login name';
                 $lan = isset($employee['lname']) ? $employee['lname'] : 'no last name';
@@ -113,20 +135,34 @@ class VAMCActiveDirectory
 
         // import any remaining entries
         $this->importData();
+
+        return '';
     }
 
-    public function disableNationalOrgchartEmployees(array $disabledUsers = null): void
+    /**
+     * get a list of employees to disable if not supplied in the parameter list
+     * then disable them in the national orgchart
+     *
+     * @param array|null $disabledUsers
+     *
+     * @return void
+     *
+     */
+    public function disableNationalOrgchartEmployees(?array $disabledUsers = null): void
     {
-        // get all userNames that should be disabled
-        if ($disabledUsers === null) {
-            $disableUsersList = $this->getUserNamesToBeDisabled();
-        } else {
-            $disableUsersList = $disabledUsers;
+        // make sure that an update occurred within the last 2 hours
+        if ($this->checkForUpdates()) {
+            // get all userNames that should be disabled
+            if ($disabledUsers === null) {
+                $disableUsersList = $this->getUserNamesToBeDisabled();
+            } else {
+                $disableUsersList = $disabledUsers;
+            }
+
+            // Disable users not in this array
+            $this->preventRecycledUserName($disableUsersList);
         }
 
-
-        // Disable users not in this array
-        $this->preventRecycledUserName($disableUsersList);
     }
 
     // Imports data from \t and \n delimited file of format:
@@ -189,6 +225,24 @@ class VAMCActiveDirectory
                             ':data' => $this->fixIfHex($this->users[$key]['mobile']));
 
                     $this->db->prepared_query($sql, $vars);
+                } else {
+                    // need to check and see if mobile exists in the db now, if it does
+                    // need to remove it or change it to a blank string
+                    $vars[':indicatorID'] = 16;
+                    unset($vars[':data']);
+
+                    $mobile_sql = 'SELECT *
+                                   FROM `employee_data`
+                                   WHERE `indicatorID` = :indicatorID
+                                   AND `empUID` = :empUID';
+
+                    $res = $this->db->prepared_query($mobile_sql, $vars);
+
+                    if (!empty($res)) {
+                        $vars[':data'] = '';
+
+                        $this->db->prepared_query($sql, $vars);
+                    }
                 }
 
                 $vars = array(':lname' => $this->users[$key]['lname'],
@@ -241,20 +295,53 @@ class VAMCActiveDirectory
 
             unset($this->users[$key]);
         }
-
-        echo 'Cleanup... ';
-        // TODO: do some clean up
-        echo "... Done.\n";
-
-        echo "Total: $count";
     }
 
+    private function checkForUpdates(): bool
+    {
+        // because this runs right after the update I feel confident we can do a 2 hour
+        // check, on staging the update only takes 30-40 minutes.
+        $sql = 'SELECT `userName`
+                FROM `employee`
+                WHERE `deleted` = 0
+                AND `lastUpdated` > (UNIX_TIMESTAMP(NOW()) - 7200)';
+
+        $result = $this->db->prepared_query($sql, array());
+
+        // checking to make sure more than just 1 or 2 were updated
+        // want to do it this way because someone could have updated
+        // someone manually causing this check to be a false positive.
+        // But it's pretty safe to say that if 200,000 got updated that
+        // the update script worked and we are good to disable anyone else.
+        $minimum_count = strpos(LEAF_NEXUS_URL, 'host.docker.internal') ? 200 : 200000;
+
+        if (count($result) > $minimum_count) {
+            $return_value = true;
+        } else {
+            $return_value = false;
+        }
+
+        return $return_value;
+    }
+
+    /**
+     * Get the users that need to be disabled.
+     * All users in the national orgchart get updated if they are pulled from AD
+     * the lastUpdated field is always updated regardless if there's any other
+     * data that needs to be updated. So it is safe to say that if they haven't
+     * been updated within the last 30 hours they are no longer in the AD and should
+     * be disabled.
+     *
+     * @return array
+     *
+     */
     private function getUserNamesToBeDisabled(): array
     {
         $sql = 'SELECT `userName`
                 FROM `employee`
                 WHERE `deleted` = 0
-                AND `lastUpdated` < (UNIX_TIMESTAMP(NOW()) - 108000)';
+                AND `lastUpdated` < (UNIX_TIMESTAMP(NOW()) - 108000)
+                AND `lastUpdated` > 0';
 
         $return_value = $this->db->prepared_query($sql, array());
 
@@ -263,41 +350,12 @@ class VAMCActiveDirectory
 
     private function preventRecycledUserName(array $userNames): void
     {
-        $deleteTime = time();
+        $deleteTime = $this->disable_time;
 
         $vars = array(':deleteTime' => $deleteTime);
         $sql = 'UPDATE `employee`
-                SET `deleted` = :deleteTime,
-                    `userName` = concat("disabled_", `deleted`, "_",  `userName`)
-                WHERE `userName` = :userName;
-
-                UPDATE `employee_data`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `employee_data_history`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `group_data`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `group_data_history`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `position_data`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `position_data_history`
-                SET `author` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `author` = :userName;
-
-                UPDATE `relation_employee_backup`
-                SET `approverUserName` = concat("disabled_", :deleteTime, "_",  :userName)
-                WHERE `approverUserName` = :userName;';
+                SET `deleted` = :deleteTime
+                WHERE `userName` = :userName;';
 
         foreach ($userNames as $user) {
             $vars[':userName'] = $user['userName'];
