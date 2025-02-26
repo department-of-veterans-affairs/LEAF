@@ -10,7 +10,15 @@ $sql = 'SELECT `cacheID`, LEFT(`data`, 5) AS `data`
         FROM `cache`
         WHERE LEFT(`data`, 3) = "DN,"';
 
-$VISNS = $db->query($sql);
+
+$VISNS = null;
+do {
+    if ($VISNS !== null) {
+        sleep(300);
+    }
+
+    $VISNS = $db->query($sql);
+} while (count($VISNS) < 56);
 
 passthru("cat /dev/null > /var/www/tmp/nationalUpdate.txt");
 
