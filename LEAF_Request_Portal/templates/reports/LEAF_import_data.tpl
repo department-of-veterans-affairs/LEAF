@@ -17,7 +17,7 @@
 
     .modalBackground {
         width: 100%;
-        height: 100%;
+        height: 100vh;
         z-index: 5;
         position: absolute;
         background-color: grey;
@@ -25,11 +25,15 @@
         margin-left: 0px;
         opacity: 0.5;
     }
+    .ui-progressbar-value {
+        background-color: #28a0cb;
+    }
 
 </style>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@1eb1ec/dist/xlsx.full.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@64798fd/shim.js"></script>
 <script type="text/javascript" src="js/lz-string/lz-string.min.js"></script>
+<script src="<!--{$app_js_path}-->/LEAF/intervalQueue.js"></script>
 
 <script src="<!--{$app_js_path}-->/jquery/jquery-ui.custom.min.js"></script>
 <script src="<!--{$app_js_path}-->/promise-pollyfill/polyfill.min.js"></script>
@@ -108,12 +112,16 @@
     </table>
 </div>
 <div id="request_status" style="padding: 20px;"></div>
+
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
-            <div id="dialog" title="Import Status" style="z-index:100;">
-                <div class="progress-label">Starting import...</div>
-                <div id="progressbar"></div>
-            </div>
+
+<div id="dialog" title="Import Status" style="z-index:100;">
+    <div class="progress-label">Starting import...</div>
+    <div id="progressbar"></div>
+</div>
+
 <div id="modal-background"></div>
+
 <script>
     var CSRFToken = '<!--{$CSRFToken}-->';
     var orgChartPath = '<!--{$orgchartPath}-->';
@@ -153,9 +161,13 @@
     var indicatorArray = [];
     var blankIndicators = [];
     var sheet_data = {};
-    var dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
-
-
+    var dialog_confirm = new dialogController(
+        'confirm_xhrDialog',
+        'confirm_xhr',
+        'confirm_loadIndicator',
+        'confirm_button_save',
+        'confirm_button_cancelchange'
+    );
 
     function toggleImport(e) {
         if(e.target.id === "newFormToggler") {
@@ -366,39 +378,7 @@
         }
     }
 
-    function makeRequests(categoryID, requestData) {
-        return new Promise(function(resolve, reject){
-        var title = $('input[name="toggle"]:checked').attr('id') === 'newFormToggler' ? titleInputNew.val() : titleInputExisting.val();
-
-        if (typeof (requestData['failed']) !== "undefined") {
-            failedRequests.push(requestData['failed']);
-        } else {
-            portalAPI.Forms.newRequest(
-                categoryID,
-                requestData,
-                function (recordID) {
-
-                    /* recordID is the recordID of the newly created request, it's 0 if there was an error */
-                    if (recordID > 0) {
-                        createdRequests++;
-                        requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
-                    } else {
-                        failedRequests.push('Error creating request for the following data: ' + requestData);
-                    }
-                    if (createdRequests + failedRequests.length === (sheet_data.cells.length - 1)) {
-                        generateReport(title);
-                        createdRequests = 0;
-                        failedRequests = new Array();
-
-                    }
-                    resolve();
-                },
-                function (error) {
-                    failedRequests.push(requestData);
-                    resolve();
-                }
-            );
-        }
+    function updateReportStatus(title) {
         requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
         if (failedRequests.length === (sheet_data.cells.length - 1)) {
             requestStatus.html('All requests failed!  See log for details.');
@@ -409,9 +389,42 @@
             failedRequests = new Array();
         } else if (createdRequests + failedRequests.length === (sheet_data.cells.length - 1)) {
             generateReport(title);
-            createdRequests = 0;
-            failedRequests = new Array();
         }
+    }
+
+    function makeRequests(categoryID, requestData) {
+        const preserveOrder = $("#preserve_new").prop("checked");
+        requestData.sendRequestsSynchronously = preserveOrder;
+        
+        const title = $('input[name="toggle"]:checked').attr('id') === 'newFormToggler' ? titleInputNew.val() : titleInputExisting.val();
+
+        return new Promise((resolve, reject) => {
+            if (typeof (requestData['failed']) !== "undefined") {
+                failedRequests.push(requestData['failed']);
+                resolve();
+            } else {
+                portalAPI.Forms.newRequest(
+                    categoryID,
+                    requestData,
+                    function (recordID) {
+                        console.log(recordID);
+                        // recordID is the recordID of the newly created request, it's 0 if there was an error
+                        if (recordID > 0) {
+                            createdRequests++;
+                            requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
+                        } else {
+                            failedRequests.push('Error creating request for the following data: ' + requestData);
+                        }
+                        updateReportStatus(title);
+                        resolve();
+                    },
+                    function (error) {
+                        failedRequests.push(requestData);
+                        updateReportStatus(title);
+                        resolve();
+                    }
+                );
+            }
         });
     }
 
@@ -456,19 +469,23 @@
         function closeImport() {
             $("#modal-background").removeClass("modalBackground");
             clearTimeout( progressTimer );
-            dialog
-                .dialog( "close" );
+            dialog.dialog( "close" );
             progressbar.progressbar( "value", false );
             progressLabel.text( "Starting import..." );
             progressbar.progressbar( "value", 0);
+            createdRequests = 0;
+            failedRequests = new Array();
         }
 
         function progress() {
-
             var val = progressbar.progressbar( "value" ) || 0;
 
-
-            progressbar.progressbar( "value", Math.floor( totalImported/totalRecords *100) );
+            progressbar.progressbar(
+                "value",
+                Math.floor(
+                    100 * (createdRequests + failedRequests.length)/totalRecords
+                )
+            );
 
             if ( val <= 99 ) {
                 progressTimer = setTimeout( progress, 50 );
@@ -489,10 +506,14 @@
                 }
             },
             function (err) {
+                console.log(err);
             }
         );
 
         function importNew() {
+            let queue = new intervalQueue();
+            queue.setConcurrency(3);
+
             $('#status').html('Processing...'); /* UI hint */
             var newFormIndicators = $('#new_form_indicators');
             var workflowID = $('#workflowID > option:selected').val();
@@ -517,6 +538,7 @@
                                 requestStatus.html('Workflow assigned...');
                             },
                             function (err) {
+                                console.log(err);
                             }
                         );
                     }
@@ -524,7 +546,7 @@
                     var formCreationIndex = 0;
                     var indicatorTableRows = newFormIndicators.children('tbody').find('tr');
 
-                    /* parses user's input and makes an indicator for each row of the table */
+                    /* parses user's input and makes an indicator for each row of the indicator table */
                     function makeIndicator() {
                         var indicatorObj = new Object();
                         indicatorObj.name = $("td:eq(1)", indicatorTableRows[formCreationIndex]).html();
@@ -552,6 +574,7 @@
                                     alert("Error creating form.  See log for details.");
                                 }
                             );
+
                         } else {
                             requestStatus.html(indicators.length.toString() + ' out of ' + indicatorTableRows.length + ' questions added.');
                             requestStatus.html('Filling out form...');
@@ -561,153 +584,151 @@
                             });
 
                             function selectRowToAnswer(i) {
-                                return new Promise(function(resolve, reject){
+                                return new Promise(function(resolve, reject) {
                                     var titleIndex = i;
-                                var completed = 0;
-                                var row = sheet_data.cells[titleIndex];
-                                var requestData = new Object();
-                                function answerQuestions() {
-                                    return new Promise(function(resolve, reject){
-                                    if (completed >= indicatorArray.length) {
-                                        requestData['title'] = titleInputNew.val() + '_' + titleIndex;
-                                        makeRequests(newCategoryID, requestData).then(function(){
-                                            resolve();
-                                        });
-                                    } else if (titleIndex <= sheet_data.cells.length - 1) {
-                                        var currentCol = newFormIndicators.find('tbody > tr:eq(' + completed + ') > td:first').html();
-                                        var currentFormat = newFormIndicators.find('tbody > tr:eq(' + completed + ') > td:eq(2) > select > option:selected').val();
-                                        switch (currentFormat) {
-                                            case 'orgchart_employee':
-                                                var sheetEmp = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null && !$.isNumeric(row[currentCol]) ? row[currentCol].toString() : '';
-                                                nexusAPI.Employee.getByEmailNational({
-                                                    'onSuccess': function (user) {
-                                                        var res = Object.keys(user);
-                                                        var emp = user[res[0]];
-                                                        if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
-                                                            nexusAPI.Employee.importFromNational({
-                                                                'onSuccess': function (results) {
-                                                                    if (!isNaN(results)) {
-                                                                        requestData[indicatorArray[completed]] = parseInt(results);
-                                                                    } else {
-                                                                        requestData['failed'] = currentCol + titleIndex + ': Employee ' + sheetEmp + ' not found. Error: '+ results;
-                                                                    }
-                                                                    completed++;
-                                                                    answerQuestions().then(function(){resolve();});
-                                                                },
-                                                                'onFail': function (err) {
-                                                                    requestData['failed'] = currentCol + titleIndex + ": Error retrieving employee on sheet row " + titleIndex + " for indicator " + formCreationIndex;
-                                                                    completed++;
-                                                                    answerQuestions().then(function(){resolve();});
-                                                                },
-                                                                'async': true
-                                                            }, emp.userName);
-                                                        } else if (res.length > 1) {
-                                                            requestData['failed'] = currentCol + titleIndex + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
-                                                            completed++;
-                                                            answerQuestions().then(function(){resolve();});
-                                                        } else {
-                                                            requestData['failed'] = currentCol + titleIndex + ': Employee ' + sheetEmp + ' not found.';
-                                                            completed++;
-                                                            answerQuestions().then(function(){resolve();});
-                                                        }
-                                                    },
-                                                    'onFail': function (err) {
-                                                        requestData['failed'] = currentCol + titleIndex + ": Error retrieving email for employee on sheet row " + titleIndex + " indicator " + formCreationIndex;
-                                                        completed++;
-                                                        answerQuestions().then(function(){resolve();});
-                                                    },
-                                                    'async': true
-                                                }, sheetEmp);
-                                                break;
-                                            case 'orgchart_group':
-                                                var sheetGroup = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
-                                                nexusAPI.Groups.searchGroups({
-                                                    'onSuccess': function (groups) {
-                                                        if (groups.length === 1) {
-                                                            var grp = groups[Object.keys(groups)[0]];
-                                                            requestData[indicatorArray[completed]] = parseInt(grp.groupID);
-                                                        } else if (groups.length > 1) {
-                                                            requestData['failed'] = currentCol + titleIndex + ': Multiple groups found for ' + sheetGroup + '.  Make sure that the name is exact.';
-                                                        } else {
-                                                            requestData['failed'] = currentCol + titleIndex + ': Group ' + sheetGroup + ' not found.';
-                                                        }
-                                                        completed++;
-                                                        answerQuestions().then(function(){resolve();});
-                                                    },
-                                                    'onFail': function (err) {
-                                                        requestData['failed'] = currentCol + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + formCreationIndex;
-                                                        completed++;
-                                                        answerQuestions().then(function(){resolve();});
-                                                    },
-                                                    'async': true
-                                                }, sheetGroup);
-                                                break;
-                                            case 'orgchart_position':
-                                                var sheetPosition = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
-                                                nexusAPI.Positions.searchPositions({
-                                                    'onSuccess': function (positions) {
-                                                        if (positions.length === 1) {
-                                                            var pos = positions[Object.keys(positions)[0]];
-                                                            requestData[indicatorArray[completed]] = parseInt(pos.positionID);
-                                                        } else if (positions.length > 1) {
-                                                            requestData['failed'] = currentCol + titleIndex + ': Multiple positions found for ' + sheetPosition + '.  Make sure that the name is exact.';
-                                                        } else {
-                                                            requestData['failed'] = currentCol + titleIndex + ': Position ' + sheetPosition + ' not found.';
-                                                        }
-                                                        completed++;
-                                                        answerQuestions().then(function(){resolve();});
-                                                    },
-                                                    'onFail': function (err) {
-                                                        requestData['failed'] = currentCol + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + formCreationIndex;
-                                                        completed++;
-                                                        answerQuestions().then(function(){resolve();});
-                                                    },
-                                                    'async': true
-                                                }, sheetPosition);
-                                                break;
-                                            case 'date':
-                                                var cellDate = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                    var completed = 0;
+                                    var row = sheet_data.cells[titleIndex];
+                                    var requestData = new Object();
+                                    
+                                    function answerQuestions() {
+                                        return new Promise(function(resolve, reject) {
+                                            if (completed >= indicatorArray.length) {
+                                                requestData['title'] = titleInputNew.val() + '_' + titleIndex;
+                                                queue.push({
+                                                    categoryID: newCategoryID,
+                                                    requestData: requestData,
+                                                });
+                                                resolve();
 
-                                                // check if excel formatted number
-                                                if (!isNaN(cellDate) && cellDate !== '') {
-                                                    var convertedDate = convertExcelDateToShortString(parseInt(cellDate));
-                                                    requestData[indicatorArray[completed]] = convertedDate;
-                                                } else {
-                                                    requestData[indicatorArray[completed]] = cellDate;
+                                            } else if (titleIndex <= sheet_data.cells.length - 1) {
+                                                var currentCol = newFormIndicators.find('tbody > tr:eq(' + completed + ') > td:first').html();
+                                                var currentFormat = newFormIndicators.find('tbody > tr:eq(' + completed + ') > td:eq(2) > select > option:selected').val();
+                                                switch (currentFormat) {
+                                                    case 'orgchart_employee':
+                                                        var sheetEmp = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null && !$.isNumeric(row[currentCol]) ? row[currentCol].toString() : '';
+                                                        nexusAPI.Employee.getByEmailNational({
+                                                            'onSuccess': function (user) {
+                                                                var res = Object.keys(user);
+                                                                var emp = user[res[0]];
+                                                                if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
+                                                                    nexusAPI.Employee.importFromNational({
+                                                                        'onSuccess': function (results) {
+                                                                            if (!isNaN(results)) {
+                                                                                requestData[indicatorArray[completed]] = parseInt(results);
+                                                                            } else {
+                                                                                requestData['failed'] = currentCol + titleIndex + ': Employee ' + sheetEmp + ' not found. Error: '+ results;
+                                                                            }
+                                                                            completed++;
+                                                                            answerQuestions().then(function(){resolve();});
+                                                                        },
+                                                                        'onFail': function (err) {
+                                                                            requestData['failed'] = currentCol + titleIndex + ": Error retrieving employee on sheet row " + titleIndex + " for indicator " + formCreationIndex;
+                                                                            completed++;
+                                                                            answerQuestions().then(function(){resolve();});
+                                                                        },
+                                                                        'async': true
+                                                                    }, emp.userName);
+                                                                } else if (res.length > 1) {
+                                                                    requestData['failed'] = currentCol + titleIndex + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
+                                                                    completed++;
+                                                                    answerQuestions().then(function(){resolve();});
+                                                                } else {
+                                                                    requestData['failed'] = currentCol + titleIndex + ': Employee ' + sheetEmp + ' not found.';
+                                                                    completed++;
+                                                                    answerQuestions().then(function(){resolve();});
+                                                                }
+                                                            },
+                                                            'onFail': function (err) {
+                                                                requestData['failed'] = currentCol + titleIndex + ": Error retrieving email for employee on sheet row " + titleIndex + " indicator " + formCreationIndex;
+                                                                completed++;
+                                                                answerQuestions().then(function(){resolve();});
+                                                            },
+                                                            'async': true
+                                                        }, sheetEmp);
+                                                        break;
+                                                    case 'orgchart_group':
+                                                        var sheetGroup = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                                        nexusAPI.Groups.searchGroups({
+                                                            'onSuccess': function (groups) {
+                                                                if (groups.length === 1) {
+                                                                    var grp = groups[Object.keys(groups)[0]];
+                                                                    requestData[indicatorArray[completed]] = parseInt(grp.groupID);
+                                                                } else if (groups.length > 1) {
+                                                                    requestData['failed'] = currentCol + titleIndex + ': Multiple groups found for ' + sheetGroup + '.  Make sure that the name is exact.';
+                                                                } else {
+                                                                    requestData['failed'] = currentCol + titleIndex + ': Group ' + sheetGroup + ' not found.';
+                                                                }
+                                                                completed++;
+                                                                answerQuestions().then(function(){resolve();});
+                                                            },
+                                                            'onFail': function (err) {
+                                                                requestData['failed'] = currentCol + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + formCreationIndex;
+                                                                completed++;
+                                                                answerQuestions().then(function(){resolve();});
+                                                            },
+                                                            'async': true
+                                                        }, sheetGroup);
+                                                        break;
+                                                    case 'orgchart_position':
+                                                        var sheetPosition = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
+                                                        nexusAPI.Positions.searchPositions({
+                                                            'onSuccess': function (positions) {
+                                                                if (positions.length === 1) {
+                                                                    var pos = positions[Object.keys(positions)[0]];
+                                                                    requestData[indicatorArray[completed]] = parseInt(pos.positionID);
+                                                                } else if (positions.length > 1) {
+                                                                    requestData['failed'] = currentCol + titleIndex + ': Multiple positions found for ' + sheetPosition + '.  Make sure that the name is exact.';
+                                                                } else {
+                                                                    requestData['failed'] = currentCol + titleIndex + ': Position ' + sheetPosition + ' not found.';
+                                                                }
+                                                                completed++;
+                                                                answerQuestions().then(function(){resolve();});
+                                                            },
+                                                            'onFail': function (err) {
+                                                                requestData['failed'] = currentCol + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + formCreationIndex;
+                                                                completed++;
+                                                                answerQuestions().then(function(){resolve();});
+                                                            },
+                                                            'async': true
+                                                        }, sheetPosition);
+                                                        break;
+                                                    case 'date':
+                                                        var cellDate = typeof (row[currentCol]) !== "undefined" && row[currentCol] !== null ? row[currentCol].toString() : '';
+
+                                                        // check if excel formatted number
+                                                        if (!isNaN(cellDate) && cellDate !== '') {
+                                                            var convertedDate = convertExcelDateToShortString(parseInt(cellDate));
+                                                            requestData[indicatorArray[completed]] = convertedDate;
+                                                        } else {
+                                                            requestData[indicatorArray[completed]] = cellDate;
+                                                        }
+
+                                                        completed++;
+                                                        answerQuestions().then(function(){resolve();});
+                                                        break;
+                                                    default:
+                                                    requestData[indicatorArray[completed]] = row[currentCol];
+                                                    completed++;
+                                                    answerQuestions().then(function(){resolve();});
+                                                    break;
                                                 }
+                                            }
+                                        });
+                                	}
 
-                                                completed++;
-                                                answerQuestions().then(function(){resolve();});
-                                                break;
-                                            default:
-                                                requestData[indicatorArray[completed]] = row[currentCol];
-                                                completed++;
-                                                answerQuestions().then(function(){resolve();});
-                                                break;
-                                        }
-                                    }
+                                	answerQuestions().then(function(res) {
+                                        resolve();
                                     });
-
-                                }
-
-                                answerQuestions().then(function(){resolve();});
                                 });
-
-
                             }
 
                             /* iterate through the sheet cells, which are organized by row */
                             totalRecords = sheet_data.cells.length - 1;
-
-
                             dialog.dialog( "open" );
-
                             var preserveOrder = $("#preserve_new").prop("checked");
 
                             if(preserveOrder){
-
                                 placeInOrder = 1;
-
                                 selectRowToAnswer(placeInOrder).then(iterate);
 
                                 function iterate(){
@@ -718,26 +739,27 @@
                                     }
                                 }
 
-                            }
-                            else{
+                            } else {
                                 for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
 
                                     var doublet = [];
                                     doublet.push(selectRowToAnswer(i));
 
                                     var addAnother = i+1 <= sheet_data.cells.length - 1;
-
                                     if(addAnother){
                                         doublet.push(selectRowToAnswer(i+1));
                                     }
 
                                     Promise.all(doublet).then(function(results){
-
                                         totalImported += results.length;
                                     });
                                 }
                             }
-
+                            queue.setWorker(item => makeRequests(item.categoryID, item.requestData));
+                            queue.start().then(res => {
+                                progressbar.progressbar("value", 100);
+                                $('#status').html('Data has been imported');
+                            });
                         }
                     }
                     makeIndicator();
@@ -746,176 +768,173 @@
                     console.log(err)
                 }
             );
-
         }
 
         function importExisting() {
+            let queue = new intervalQueue();
+            queue.setConcurrency(3);
+
             totalImported = 0;
             $('#status').html('Processing...'); /* UI hint */
-
             requestStatus.html('Parsing sheet data...');
 
             function selectRowToAnswer(i) {
+                return new Promise(function(resolve,reject) {
+                    var titleIndex = i;
+                    var completed = 0;
+                    var row = sheet_data.cells[titleIndex];
+                    var requestData = new Object();
 
-                return new Promise(function(resolve,reject){
-                var titleIndex = i;
-                var completed = 0;
-                var row = sheet_data.cells[titleIndex];
-                var requestData = new Object();
-                function answerQuestions() {
-                    return new Promise(function(resolve, reject){
+                    function answerQuestions() {
+                        return new Promise(function(resolve, reject) {
+                            if (completed === indicatorArray.length) {
+                                requestData['title'] = titleInputExisting.val() + '_' + titleIndex;
+                                queue.push({
+                                    categoryID: categorySelect.val(),
+                                    requestData: requestData,
+                                });
+                                resolve();
 
-                    if (completed === indicatorArray.length) {
-                        requestData['title'] = titleInputExisting.val() + '_' + titleIndex;
-                        makeRequests(categorySelect.val(), requestData).then(function(){
+                            } else {
+                                var indicatorColumn = $('#' + indicatorArray[completed].indicatorID + '_sheet_column').val();
 
-                            resolve();
-                        });
-                    } else {
-                        var indicatorColumn = $('#' + indicatorArray[completed].indicatorID + '_sheet_column').val();
+                                /* skips indicators that aren't set*/
+                                if (indicatorColumn === "-1") {
+                                    completed++;
+                                    answerQuestions().then(function(){resolve();});
 
-                        /* skips indicators that aren't set*/
-                        if (indicatorColumn === "-1") {
-                            completed++;
-                            answerQuestions().then(function(){resolve();});
-
-                        } else {
-                            var currentIndicator = indicatorArray[completed].indicatorID;
-                            var currentFormat = indicatorArray[completed].format;
-                            switch (currentFormat) {
-                                case 'orgchart_employee':
-                                    var sheetEmp = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
-                                    nexusAPI.Employee.getByEmailNational({
-                                        'onSuccess': function (user) {
-                                            var res = Object.keys(user);
-                                            var emp = user[res[0]];
-                                            if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
-                                                nexusAPI.Employee.importFromNational({
-                                                    'onSuccess': function (results) {
-                                                        if (!isNaN(results)) {
-                                                            requestData[currentIndicator] = parseInt(results);
-                                                        } else {
-                                                            requestData['failed'] = indicatorColumn + titleIndex + ': Employee ' + sheetEmp + ' not found. Error: '+ results;
-                                                        }
+                                } else {
+                                    var currentIndicator = indicatorArray[completed].indicatorID;
+                                    var currentFormat = indicatorArray[completed].format;
+                                    switch (currentFormat) {
+                                        case 'orgchart_employee':
+                                            var sheetEmp = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                            nexusAPI.Employee.getByEmailNational({
+                                                'onSuccess': function (user) {
+                                                    var res = Object.keys(user);
+                                                    var emp = user[res[0]];
+                                                    if (typeof (emp) !== "undefined" && emp !== null && res.length === 1) {
+                                                        nexusAPI.Employee.importFromNational({
+                                                            'onSuccess': function (results) {
+                                                                if (!isNaN(results)) {
+                                                                    requestData[currentIndicator] = parseInt(results);
+                                                                } else {
+                                                                    requestData['failed'] = indicatorColumn + titleIndex + ': Employee ' + sheetEmp + ' not found. Error: '+ results;
+                                                                }
+                                                                completed++;
+                                                                answerQuestions().then(function(){resolve();})
+                                                            },
+                                                            'onFail': function (err) {
+                                                                requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving employee on sheet row " + titleIndex + " for indicator " + index;
+                                                                completed++;
+                                                                answerQuestions().then(function(){resolve();})
+                                                            },
+                                                            'async': true
+                                                        }, emp.userName);
+                                                    } else if (res.length > 1) {
+                                                        requestData['failed'] = indicatorColumn + titleIndex + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();})
-                                                    },
-                                                    'onFail': function (err) {
-                                                        requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving employee on sheet row " + titleIndex + " for indicator " + index;
+                                                    } else {
+                                                        requestData['failed'] = indicatorColumn + titleIndex + ': Employee ' + sheetEmp + ' not found.';
                                                         completed++;
                                                         answerQuestions().then(function(){resolve();})
-                                                    },
-                                                    'async': true
-                                                }, emp.userName);
-                                            } else if (res.length > 1) {
-                                                requestData['failed'] = indicatorColumn + titleIndex + ': Multiple employees found for ' + sheetEmp + '.  Make sure it is in the correct format.';
-                                                completed++;
-                                                answerQuestions().then(function(){resolve();})
-                                            } else {
-                                                requestData['failed'] = indicatorColumn + titleIndex + ': Employee ' + sheetEmp + ' not found.';
-                                                completed++;
-                                                answerQuestions().then(function(){resolve();})
-                                            }
-                                        },
-                                        'onFail': function (err) {
-                                            requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving email for employee on sheet row " + titleIndex + " indicator " + index;
-                                            completed++;
-                                            answerQuestions().then(function(){resolve();})
-                                        },
-                                        'async': true
-                                    }, sheetEmp);
-                                    break;
-                                case 'orgchart_group':
-                                    var sheetGroup = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
-                                    nexusAPI.Groups.searchGroups({
-                                        'onSuccess': function (groups) {
-                                            if (groups.length === 1) {
-                                                var grp = groups[Object.keys(groups)[0]];
-                                                requestData[currentIndicator] = parseInt(grp.groupID);
-                                            } else if (groups.length > 1) {
-                                                requestData['failed'] = indicatorColumn + titleIndex + ': Multiple groups found for ' + sheetGroup + '.  Make sure that the name is exact.';
-                                            } else {
-                                                requestData['failed'] = indicatorColumn + titleIndex + ': Group ' + sheetGroup + ' not found.';
-                                            }
-                                            completed++;
-                                            answerQuestions().then(function(){resolve();})
-                                        },
-                                        'onFail': function (err) {
-                                            requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + index;
-                                            completed++;
-                                            answerQuestions().then(function(){resolve();})
-                                        },
-                                        'async': true
-                                    }, sheetGroup);
-                                    break;
-                                case 'orgchart_position':
-                                    var sheetPosition = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
-                                    nexusAPI.Positions.searchPositions({
-                                        'onSuccess': function (positions) {
-                                            if (positions.length === 1) {
-                                                var pos = positions[Object.keys(positions)[0]];
-                                                requestData[currentIndicator] = parseInt(pos.positionID);
-                                            } else if (positions.length > 1) {
-                                                requestData['failed'] = indicatorColumn + titleIndex + ': Multiple positions found for ' + sheetPosition + '.  Make sure that the name is exact.';
-                                            } else {
-                                                requestData['failed'] = indicatorColumn + titleIndex + ': Position ' + sheetPosition + ' not found.';
-                                            }
-                                            completed++;
-                                            answerQuestions().then(function(){resolve();})
-                                        },
-                                        'onFail': function (err) {
-                                            requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + index;
-                                            completed++;
-                                            answerQuestions().then(function(){resolve();})
-                                        },
-                                        'async': true
-                                    }, sheetPosition);
-                                    break;
-                                case 'date':
-                                    var cellDate = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                                    }
+                                                },
+                                                'onFail': function (err) {
+                                                    requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving email for employee on sheet row " + titleIndex + " indicator " + index;
+                                                    completed++;
+                                                    answerQuestions().then(function(){resolve();})
+                                                },
+                                                'async': true
+                                            }, sheetEmp);
+                                            break;
+                                        case 'orgchart_group':
+                                            var sheetGroup = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                            nexusAPI.Groups.searchGroups({
+                                                'onSuccess': function (groups) {
+                                                    if (groups.length === 1) {
+                                                        var grp = groups[Object.keys(groups)[0]];
+                                                        requestData[currentIndicator] = parseInt(grp.groupID);
+                                                    } else if (groups.length > 1) {
+                                                        requestData['failed'] = indicatorColumn + titleIndex + ': Multiple groups found for ' + sheetGroup + '.  Make sure that the name is exact.';
+                                                    } else {
+                                                        requestData['failed'] = indicatorColumn + titleIndex + ': Group ' + sheetGroup + ' not found.';
+                                                    }
+                                                    completed++;
+                                                    answerQuestions().then(function(){resolve();})
+                                                },
+                                                'onFail': function (err) {
+                                                    requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + index;
+                                                    completed++;
+                                                    answerQuestions().then(function(){resolve();})
+                                                },
+                                                'async': true
+                                            }, sheetGroup);
+                                            break;
+                                        case 'orgchart_position':
+                                            var sheetPosition = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
+                                            nexusAPI.Positions.searchPositions({
+                                                'onSuccess': function (positions) {
+                                                    if (positions.length === 1) {
+                                                        var pos = positions[Object.keys(positions)[0]];
+                                                        requestData[currentIndicator] = parseInt(pos.positionID);
+                                                    } else if (positions.length > 1) {
+                                                        requestData['failed'] = indicatorColumn + titleIndex + ': Multiple positions found for ' + sheetPosition + '.  Make sure that the name is exact.';
+                                                    } else {
+                                                        requestData['failed'] = indicatorColumn + titleIndex + ': Position ' + sheetPosition + ' not found.';
+                                                    }
+                                                    completed++;
+                                                    answerQuestions().then(function(){resolve();})
+                                                },
+                                                'onFail': function (err) {
+                                                    requestData['failed'] = indicatorColumn + titleIndex + ": Error retrieving group on sheet row " + titleIndex + " indicator " + index;
+                                                    completed++;
+                                                    answerQuestions().then(function(){resolve();})
+                                                },
+                                                'async': true
+                                            }, sheetPosition);
+                                            break;
+                                        case 'date':
+                                            var cellDate = typeof (row[indicatorColumn]) !== "undefined" && row[indicatorColumn] !== null ? row[indicatorColumn].toString() : '';
 
-                                    // check if excel formatted number
-                                    if (!isNaN(cellDate) && cellDate !== '') {
-                                        var convertedDate = convertExcelDateToShortString(parseInt(cellDate));
-                                        requestData[currentIndicator] = convertedDate;
-                                    } else {
-                                        requestData[currentIndicator] = cellDate;
+                                            // check if excel formatted number
+                                            if (!isNaN(cellDate) && cellDate !== '') {
+                                                var convertedDate = convertExcelDateToShortString(parseInt(cellDate));
+                                                requestData[currentIndicator] = convertedDate;
+                                            } else {
+                                                requestData[currentIndicator] = cellDate;
+                                            }
+
+                                            completed++;
+                                            answerQuestions().then(function(){resolve();})
+                                            break;
+                                        default:
+                                        requestData[currentIndicator] = row[indicatorColumn];
+                                        completed++;
+                                        answerQuestions().then(function(){resolve();})
+                                        break;
                                     }
-
-                                    completed++;
-                                    answerQuestions().then(function(){resolve();})
-                                    break;
-                                default:
-                                    requestData[currentIndicator] = row[indicatorColumn];
-                                    completed++;
-                                    answerQuestions().then(function(){resolve();})
-                                    break;
+                                }
                             }
-                        }
+                        });
                     }
-                    })
-                }
-
-
-                 answerQuestions().then(function(){resolve();})
+                    answerQuestions().then(function(res) {
+                        resolve();
+                    });
                 });
-
             }
 
             /* iterate through the sheet cells, which are organized by row */
             totalRecords = sheet_data.cells.length -1;
-
             dialog.dialog( "open" );
-
             var preserveOrder = $("#preserve_existing").prop("checked");
-
+         
             if(preserveOrder){
-
                 placeInOrder = 1;
-
                 selectRowToAnswer(placeInOrder).then(iterate);
 
-                function iterate(){
+                function iterate() {
                     placeInOrder++;
                     totalImported++;
                     if(placeInOrder <= sheet_data.cells.length -1){
@@ -923,26 +942,27 @@
                     }
                 }
 
-            }
-            else{
+            } else {
                 for (var i = 1; i <= sheet_data.cells.length - 1; i+=2) {
-
                     var doublet = [];
                     doublet.push(selectRowToAnswer(i));
 
                     var addAnother = i+1 <= sheet_data.cells.length - 1;
-
                     if(addAnother){
                         doublet.push(selectRowToAnswer(i+1));
                     }
 
                     Promise.all(doublet).then(function(results){
-
                         totalImported += results.length;
                     });
                 }
             }
-            $('#status').html('Data has been imported');
+
+            queue.setWorker(item => makeRequests(item.categoryID, item.requestData));
+            queue.start().then(res => {
+                progressbar.progressbar("value", 100);
+                $('#status').html('Data has been imported');
+            });
         }
 
         portalAPI.Forms.getAllForms(
@@ -965,9 +985,9 @@
 
             },
             function (error) {
+                console.log(error)
             }
         );
-
 
         /*  build the rows for the given indicator data, also processes its children if present */
         function buildRows(indicator) {
