@@ -14,12 +14,15 @@
     #category_indicators td, #new_form_indicators td {
         padding: 7px;
     }
+    #category_select {
+        max-width: 600px;
+    }
 
     .modalBackground {
         width: 100%;
         height: 100vh;
         z-index: 5;
-        position: absolute;
+        position: fixed;
         background-color: grey;
         margin-top: 0px;
         margin-left: 0px;
@@ -81,7 +84,7 @@
     <br/><br/>
 </div>
 <div id="import_data_existing_form" style="display: none;">
-    <h4>Select a Form</h4>
+    <label for="category_select"><b>Select a Form</b></label>
     <select id="category_select"></select>
 
     <button id="import_btn_existing" type="button">Import</button>
@@ -392,10 +395,13 @@
         }
     }
 
-    function makeRequests(categoryID, requestData) {
-        const preserveOrder = $("#preserve_new").prop("checked");
-        requestData.sendRequestsSynchronously = preserveOrder;
-        
+    function handleMakeRequestFail(requestData, title, msg = "") {
+        failedRequests.push(requestData);
+        updateReportStatus(title);
+        console.log(msg)
+    }
+
+    function makeRequests(categoryID, requestData, preserveOrder) {
         const title = $('input[name="toggle"]:checked').attr('id') === 'newFormToggler' ? titleInputNew.val() : titleInputExisting.val();
 
         return new Promise((resolve, reject) => {
@@ -403,27 +409,51 @@
                 failedRequests.push(requestData['failed']);
                 resolve();
             } else {
-                portalAPI.Forms.newRequest(
-                    categoryID,
-                    requestData,
-                    function (recordID) {
-                        console.log(recordID);
-                        // recordID is the recordID of the newly created request, it's 0 if there was an error
-                        if (recordID > 0) {
-                            createdRequests++;
-                            requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
-                        } else {
-                            failedRequests.push('Error creating request for the following data: ' + requestData);
-                        }
-                        updateReportStatus(title);
-                        resolve();
+                $.ajax({
+                    method: 'POST',
+                    url: './api/form/new',
+                    data: {
+                        CSRFToken: CSRFToken,
+                        ['num' + categoryID]: 1,
+                        title: requestData.title,
                     },
-                    function (error) {
-                        failedRequests.push(requestData);
-                        updateReportStatus(title);
+                    dataType: 'json',
+                    async: !preserveOrder,
+                    success(recordID) {
+                        delete requestData.title;
+                        requestData['CSRFToken'] = CSRFToken;
+
+                        $.ajax({
+                            method: 'POST',
+                            url: './api/form/' + recordID,
+                            data: requestData,
+                            dataType: 'json',
+                            success(result) {
+                                if (result > 0) {
+                                    if (recordID > 0) {
+                                        createdRequests++;
+                                        requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
+                                    } else {
+                                        failedRequests.push('Error creating request for the following data: ' + requestData);
+                                    }
+                                    updateReportStatus(title);
+                                    resolve();
+                                } else {
+                                    handleMakeRequestFail(requestData, title, result)
+                                    resolve();
+                                }
+                            },
+                            error(err) {
+                                handleMakeRequestFail(requestData, title, err)
+                                resolve();
+                            }
+                        });
+                    },
+                    error(err) {
+                        handleMakeRequestFail(requestData, title, err)
                         resolve();
                     }
-                );
+                });
             }
         });
     }
@@ -521,6 +551,7 @@
             var formData = {"name": formName, "description": formDescription.val()};
             var indicators = [];
             var newCategoryID = '';
+            var preserveOrder = $("#preserve_new").prop("checked");
             totalImported = 0;
             requestStatus.html('Making custom form...');
 
@@ -548,32 +579,32 @@
 
                     /* parses user's input and makes an indicator for each row of the indicator table */
                     function makeIndicator() {
-                        var indicatorObj = new Object();
-                        indicatorObj.name = $("td:eq(1)", indicatorTableRows[formCreationIndex]).html();
-                        indicatorObj.format = $("td:eq(2) > select > option:selected", indicatorTableRows[formCreationIndex]).val();
-                        indicatorObj.required = $("td:eq(3) > input", indicatorTableRows[formCreationIndex]).is(":checked") === true ? 1 : 0;
-                        indicatorObj.is_sensitive = $("td:eq(4) > input", indicatorTableRows[formCreationIndex]).is(":checked") === true ? 1 : 0;
-
-                        /* creates indicator from indicatorObj */
-                        /* when all indicators are parsed, moves on to next step of filling out requests */
+                        /* Creates indicators synchronously, then moves on to next step of filling out requests */
                         if (formCreationIndex < indicatorTableRows.length) {
-                            portalAPI.FormEditor.createFormIndicator(
-                                indicatorObj.name,
-                                indicatorObj.format,
-                                newCategoryID,
-                                indicatorObj.required,
-                                indicatorObj.is_sensitive,
-                                function (indicatorID) {
+                            $.ajax({
+                                method: 'POST',
+                                url: './api/formEditor/newIndicator',
+                                dataType: "text",
+                                async: false,
+                                data: {
+                                    name: $("td:eq(1)", indicatorTableRows[formCreationIndex]).html(),
+                                    format: $("td:eq(2) > select > option:selected", indicatorTableRows[formCreationIndex]).val(),
+                                    categoryID: newCategoryID,
+                                    required:  $("td:eq(3) > input", indicatorTableRows[formCreationIndex]).is(":checked") === true ? 1 : 0,
+                                    is_sensitive: $("td:eq(4) > input", indicatorTableRows[formCreationIndex]).is(":checked") === true ? 1 : 0,
+                                    CSRFToken: CSRFToken
+                                },
+                                success(indicatorID) {
                                     /* adds index by 1, pushes indicator to array, makes next indicator */
                                     formCreationIndex++;
                                     indicators.push(indicatorID.replace(/"/g, ""));
                                     requestStatus.html(indicators.length.toString() + ' out of ' + indicatorTableRows.length + ' questions added.');
                                     makeIndicator();
                                 },
-                                function (err) {
+                                error(err) {
                                     alert("Error creating form.  See log for details.");
                                 }
-                            );
+                            });
 
                         } else {
                             requestStatus.html(indicators.length.toString() + ' out of ' + indicatorTableRows.length + ' questions added.');
@@ -725,7 +756,6 @@
                             /* iterate through the sheet cells, which are organized by row */
                             totalRecords = sheet_data.cells.length - 1;
                             dialog.dialog( "open" );
-                            var preserveOrder = $("#preserve_new").prop("checked");
 
                             if(preserveOrder){
                                 placeInOrder = 1;
@@ -755,7 +785,7 @@
                                     });
                                 }
                             }
-                            queue.setWorker(item => makeRequests(item.categoryID, item.requestData));
+                            queue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
                             queue.start().then(res => {
                                 progressbar.progressbar("value", 100);
                                 $('#status').html('Data has been imported');
@@ -777,6 +807,7 @@
             totalImported = 0;
             $('#status').html('Processing...'); /* UI hint */
             requestStatus.html('Parsing sheet data...');
+            var preserveOrder = $("#preserve_existing").prop("checked");
 
             function selectRowToAnswer(i) {
                 return new Promise(function(resolve,reject) {
@@ -928,7 +959,6 @@
             /* iterate through the sheet cells, which are organized by row */
             totalRecords = sheet_data.cells.length -1;
             dialog.dialog( "open" );
-            var preserveOrder = $("#preserve_existing").prop("checked");
          
             if(preserveOrder){
                 placeInOrder = 1;
@@ -958,7 +988,7 @@
                 }
             }
 
-            queue.setWorker(item => makeRequests(item.categoryID, item.requestData));
+            queue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
             queue.start().then(res => {
                 progressbar.progressbar("value", 100);
                 $('#status').html('Data has been imported');
