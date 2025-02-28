@@ -41,10 +41,12 @@
             </span>
             <!--{$indicator.htmlPrint}-->
             <script>
-                $(function() {
-                    const elResBlock = document.getElementById("data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->");
-                    setPrintViewUserLinkContent(elResBlock);
-                });
+                (function() {
+                    if(typeof setPrintViewUserLinkContent === 'function') {
+                        const elResBlock = document.getElementById("data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->");
+                        setPrintViewUserLinkContent(elResBlock);
+                    }
+                })();
             </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'radio'}-->
