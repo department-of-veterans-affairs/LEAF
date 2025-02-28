@@ -171,6 +171,8 @@
         'confirm_button_save',
         'confirm_button_cancelchange'
     );
+    let progressbar = $("#progressbar");
+    let progressLabel = $(".progress-label");
 
     function toggleImport(e) {
         if(e.target.id === "newFormToggler") {
@@ -355,7 +357,10 @@
             .append(buildSheetSelect(indicator.indicatorID, sheet_data, indicator.required, indicator.format))
             .appendTo(row);
 
-        indicatorArray.push({'indicatorID': indicator.indicatorID, 'format': indicator.format});
+        indicatorArray.push({
+            'indicatorID': indicator.indicatorID,
+            'format': indicator.format
+        });
 
         return row;
     }
@@ -390,24 +395,33 @@
                 'Failed to import values: <br/>' + failedRequests.join("<br/>"));
             $('#status').html('Import has failed');
             failedRequests = new Array();
-        } else if (createdRequests + failedRequests.length === (sheet_data.cells.length - 1)) {
+        } else if ((createdRequests + failedRequests.length) === (sheet_data.cells.length - 1)) {
             generateReport(title);
         }
     }
 
-    function handleMakeRequestFail(requestData, title, msg = "") {
-        failedRequests.push(requestData);
+    function updateProgress() {
+        if(typeof progressbar?.progressbar === 'function') {
+            const newVal = Math.floor(100 * (createdRequests + failedRequests.length)/totalRecords);
+            progressbar.progressbar("value", newVal);
+            progressLabel.text( "Current Progress: " + newVal + "%" );
+        }
+    }
+
+    function logFailure(title, msg = "") {
+        failedRequests.push(msg);
+        updateProgress();
         updateReportStatus(title);
-        console.log(msg)
     }
 
     function makeRequests(categoryID, requestData, preserveOrder) {
-        const title = $('input[name="toggle"]:checked').attr('id') === 'newFormToggler' ? titleInputNew.val() : titleInputExisting.val();
+        const title = requestData['title'];
 
         return new Promise((resolve, reject) => {
-            if (typeof (requestData['failed']) !== "undefined") {
-                failedRequests.push(requestData['failed']);
+            if (typeof requestData['failed'] !== "undefined") {
+                logFailure(title, requestData['failed']);
                 resolve();
+
             } else {
                 $.ajax({
                     method: 'POST',
@@ -415,42 +429,44 @@
                     data: {
                         CSRFToken: CSRFToken,
                         ['num' + categoryID]: 1,
-                        title: requestData.title,
+                        title: title
                     },
                     dataType: 'json',
                     async: !preserveOrder,
                     success(recordID) {
-                        delete requestData.title;
-                        requestData['CSRFToken'] = CSRFToken;
+                        if(recordID > 0) {
+                            delete requestData.title;
+                            requestData['CSRFToken'] = CSRFToken;
 
-                        $.ajax({
-                            method: 'POST',
-                            url: './api/form/' + recordID,
-                            data: requestData,
-                            dataType: 'json',
-                            success(result) {
-                                if (result > 0) {
-                                    if (recordID > 0) {
+                            $.ajax({
+                                method: 'POST',
+                                url: './api/form/' + recordID,
+                                data: requestData,
+                                dataType: 'json',
+                                success(result) {
+                                    if (result > 0) {
                                         createdRequests++;
-                                        requestStatus.html(createdRequests + ' out of ' + (sheet_data.cells.length - 1) + ' requests completed, ' + failedRequests.length + ' failures.');
+                                        updateProgress();
+                                        updateReportStatus(title);
+                                        resolve();
                                     } else {
-                                        failedRequests.push('Error creating request for the following data: ' + requestData);
+                                        logFailure(title, `error adding data for request ${recordID}`)
+                                        resolve();
                                     }
-                                    updateReportStatus(title);
-                                    resolve();
-                                } else {
-                                    handleMakeRequestFail(requestData, title, result)
+                                },
+                                error(err) {
+                                    logFailure(title, `error adding data for request ${recordID}`);
                                     resolve();
                                 }
-                            },
-                            error(err) {
-                                handleMakeRequestFail(requestData, title, err)
-                                resolve();
-                            }
-                        });
+                            });
+
+                        } else {
+                            logFailure(title, "error creating new request")
+                            resolve();
+                        }
                     },
                     error(err) {
-                        handleMakeRequestFail(requestData, title, err)
+                        logFailure(title, "error creating new request")
                         resolve();
                     }
                 });
@@ -470,57 +486,33 @@
     $(function () {
         document.querySelector('title').innerText = 'Import Spreadsheet - <!--{$title}-->';
         $("body").prepend($("#modal-background"));
-        var progressTimer;
-        var progressbar = $( "#progressbar" );
-        var progressLabel = $( ".progress-label" );
-        var dialog = $( "#dialog" ).dialog({
-            autoOpen: false,
-            closeOnEscape: false,
-            resizable: false,
-            open: function() {
-                $("#modal-background").addClass("modalBackground");
-                 $(".ui-dialog-titlebar-close").hide();
-                progressTimer = setTimeout( progress, 2000 );
-            },
-            close: closeImport
-        });
 
         progressbar.progressbar({
-            value: false,
-            change: function() {
-                progressLabel.text( "Current Progress: " + progressbar.progressbar( "value" ) + "%" );
-
-            },
+            value: 0,
             complete: function() {
                  $(".ui-dialog-titlebar-close").show();
             }
         });
-
         function closeImport() {
             $("#modal-background").removeClass("modalBackground");
-            clearTimeout( progressTimer );
             dialog.dialog( "close" );
-            progressbar.progressbar( "value", false );
             progressLabel.text( "Starting import..." );
             progressbar.progressbar( "value", 0);
             createdRequests = 0;
             failedRequests = new Array();
         }
-
-        function progress() {
-            var val = progressbar.progressbar( "value" ) || 0;
-
-            progressbar.progressbar(
-                "value",
-                Math.floor(
-                    100 * (createdRequests + failedRequests.length)/totalRecords
-                )
-            );
-
-            if ( val <= 99 ) {
-                progressTimer = setTimeout( progress, 50 );
-            }
-        }
+        const dialog = $( "#dialog" ).dialog({
+            autoOpen: false,
+            closeOnEscape: false,
+            resizable: false,
+            open: function() {
+                $("#modal-background").addClass("modalBackground");
+                $(".ui-dialog-titlebar-close").hide();
+                progressbar.progressbar( "value", false);
+                progressLabel.text( "Starting Import..." );
+            },
+            close: closeImport
+        });
 
         /*builds select options of workflows */
         portalAPI.Workflow.getAllWorkflows(
@@ -620,7 +612,7 @@
                                     var completed = 0;
                                     var row = sheet_data.cells[titleIndex];
                                     var requestData = new Object();
-                                    
+
                                     function answerQuestions() {
                                         return new Promise(function(resolve, reject) {
                                             if (completed >= indicatorArray.length) {
@@ -629,6 +621,15 @@
                                                     categoryID: newCategoryID,
                                                     requestData: requestData,
                                                 });
+                                                if(i === sheet_data.cells.length - 1) {
+                                                    queue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
+                                                    progressbar.progressbar( "value", 0);
+                                                    progressLabel.text( "Current Progress: 0%");
+                                                    queue.start().then(res => {
+                                                        progressbar.progressbar("value", 100);
+                                                        $('#status').html('Data has been imported');
+                                                    });
+                                                }
                                                 resolve();
 
                                             } else if (titleIndex <= sheet_data.cells.length - 1) {
@@ -745,9 +746,9 @@
                                                 }
                                             }
                                         });
-                                	}
+                                    }
 
-                                	answerQuestions().then(function(res) {
+                                    answerQuestions().then(function(res) {
                                         resolve();
                                     });
                                 });
@@ -785,11 +786,6 @@
                                     });
                                 }
                             }
-                            queue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
-                            queue.start().then(res => {
-                                progressbar.progressbar("value", 100);
-                                $('#status').html('Data has been imported');
-                            });
                         }
                     }
                     makeIndicator();
@@ -824,6 +820,15 @@
                                     categoryID: categorySelect.val(),
                                     requestData: requestData,
                                 });
+                                if(i === sheet_data.cells.length - 1) {
+                                    queue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
+                                    progressbar.progressbar( "value", 0);
+                                    progressLabel.text( "Current Progress: 0%");
+                                    queue.start().then(res => {
+                                        progressbar.progressbar("value", 100);
+                                        $('#status').html('Data has been imported');
+                                    });
+                                }
                                 resolve();
 
                             } else {
@@ -958,8 +963,8 @@
 
             /* iterate through the sheet cells, which are organized by row */
             totalRecords = sheet_data.cells.length -1;
-            dialog.dialog( "open" );
-         
+            dialog.dialog("open");
+
             if(preserveOrder){
                 placeInOrder = 1;
                 selectRowToAnswer(placeInOrder).then(iterate);
@@ -987,12 +992,6 @@
                     });
                 }
             }
-
-            queue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
-            queue.start().then(res => {
-                progressbar.progressbar("value", 100);
-                $('#status').html('Data has been imported');
-            });
         }
 
         portalAPI.Forms.getAllForms(
