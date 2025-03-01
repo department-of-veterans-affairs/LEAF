@@ -1,5 +1,8 @@
 <script>
 async function main_print_form_ajax() {
+    if(typeof enableUserContentLinks != 'function') {
+        return;
+    }
     let dataTextarea = document.querySelectorAll('[leaf-datatype="textarea"]');
     dataTextarea.forEach(el => enableUserContentLinks(el));
 }

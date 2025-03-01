@@ -381,6 +381,7 @@ function doSubmit(recordID) {
                     xhrIndicator.fadeIn(250);
                 });
                 handlePrintConditionalIndicators(formPrintConditions);
+                handleUserContentLinks();
             },
             error: function(res) {
                 console.log(res);
@@ -615,6 +616,14 @@ function doSubmit(recordID) {
                 }
             }
         }
+    }
+
+    function handleUserContentLinks() {
+        if(typeof enableUserContentLinks != 'function') {
+            return;
+        }
+        let dataTextarea = document.querySelectorAll('[leaf-datatype="textarea"]');
+        dataTextarea.forEach(el => enableUserContentLinks(el));
     }
 
     function openContent(url) {
