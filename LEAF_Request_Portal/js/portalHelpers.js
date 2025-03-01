@@ -25,7 +25,7 @@ function enableUserContentLinks(element) {
         matchLinks.forEach(match => {
             const linkText = match.length <= 50 ? match : match.slice(0,50) + '...';
             const oldText = `https://${match}`;
-            const newText =   `<a href="https://${match}" target="_blank">https://${linkText}</a>`;
+            const newText = `<a href="https://${match}" target="_blank">https://${linkText}</a>`;
             
             // parse htmlContent by segments, each containing a matching link
             let end = htmlContent.indexOf(oldText, i);
