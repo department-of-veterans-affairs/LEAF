@@ -36,10 +36,18 @@
             <!--{$indicator.htmlPrint}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'textarea'}-->
-            <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->" leaf-datatype="textarea">
+            <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
                 <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
+            <script>
+                $(function() {
+                    if(typeof enableUserContentLinks === 'function') {
+                        const element = document.getElementById("data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->");
+                        enableUserContentLinks(element);
+                    }
+                });
+            </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'radio'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
