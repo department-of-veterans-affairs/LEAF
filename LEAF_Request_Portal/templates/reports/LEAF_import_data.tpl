@@ -28,10 +28,6 @@
         margin-left: 0px;
         opacity: 0.5;
     }
-    .ui-progressbar-value {
-        background-color: #28a0cb;
-    }
-
 </style>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@1eb1ec/dist/xlsx.full.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@64798fd/shim.js"></script>
@@ -365,9 +361,11 @@
         return row;
     }
 
-    function generateReport(title) {
+    function generateReport() {
+        const baseTitleForReport = $('input[name="toggle"]:checked').attr('id') === 'newFormToggler' ?
+            titleInputNew.val() : titleInputExisting.val();
         urlTitle = "Requests have been generated for each row of the imported spreadsheet";
-        urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*' + title + '*"},{"id":"deleted","operator":"=","match":0}],"joins":["service"],"sort":{}}';
+        urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*' + baseTitleForReport + '*"},{"id":"deleted","operator":"=","match":0}],"joins":["service"],"sort":{}}';
         urlIndicatorsJSON = '[{"indicatorID":"","name":"","sort":0},{"indicatorID":"title","name":"","sort":0}]';
 
         urlTitle = encodeURIComponent(btoa(urlTitle));
@@ -488,16 +486,16 @@
         $("body").prepend($("#modal-background"));
 
         progressbar.progressbar({
-            value: 0,
+            value: false,
             complete: function() {
-                 $(".ui-dialog-titlebar-close").show();
+                $(".ui-dialog-titlebar-close").show();
             }
         });
         function closeImport() {
             $("#modal-background").removeClass("modalBackground");
             dialog.dialog( "close" );
             progressLabel.text( "Starting import..." );
-            progressbar.progressbar( "value", 0);
+            progressbar.progressbar( "value", false);
             createdRequests = 0;
             failedRequests = new Array();
         }
@@ -508,7 +506,6 @@
             open: function() {
                 $("#modal-background").addClass("modalBackground");
                 $(".ui-dialog-titlebar-close").hide();
-                progressbar.progressbar( "value", false);
                 progressLabel.text( "Starting Import..." );
             },
             close: closeImport
@@ -533,8 +530,8 @@
         );
 
         function importNew() {
-            let queue = new intervalQueue();
-            queue.setConcurrency(3);
+            let requestQueue = new intervalQueue();
+            requestQueue.setConcurrency(3);
 
             $('#status').html('Processing...'); /* UI hint */
             var newFormIndicators = $('#new_form_indicators');
@@ -605,28 +602,30 @@
                             var indicatorArray = Object.keys(indicators).map(function(e) {
                                 return indicators[e]
                             });
-
+                            let rowsCompleted = 0;
                             function selectRowToAnswer(i) {
                                 return new Promise(function(resolve, reject) {
-                                    var titleIndex = i;
-                                    var completed = 0;
-                                    var row = sheet_data.cells[titleIndex];
-                                    var requestData = new Object();
+                                    const titleIndex = i;
+                                    const row = sheet_data.cells[titleIndex];
+                                    let completed = 0;
+                                    let requestData = new Object();
 
                                     function answerQuestions() {
                                         return new Promise(function(resolve, reject) {
                                             if (completed >= indicatorArray.length) {
                                                 requestData['title'] = titleInputNew.val() + '_' + titleIndex;
-                                                queue.push({
+                                                requestQueue.push({
                                                     categoryID: newCategoryID,
                                                     requestData: requestData,
                                                 });
-                                                if(i === sheet_data.cells.length - 1) {
-                                                    queue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
+                                                rowsCompleted++;
+                                                if(rowsCompleted === sheet_data.cells.length - 1) {
+                                                    requestQueue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
                                                     progressbar.progressbar( "value", 0);
                                                     progressLabel.text( "Current Progress: 0%");
-                                                    queue.start().then(res => {
+                                                    requestQueue.start().then(res => {
                                                         progressbar.progressbar("value", 100);
+                                                        progressLabel.text( "Import Complete");
                                                         $('#status').html('Data has been imported');
                                                     });
                                                 }
@@ -797,35 +796,38 @@
         }
 
         function importExisting() {
-            let queue = new intervalQueue();
-            queue.setConcurrency(3);
+            let requestQueue = new intervalQueue();
+            requestQueue.setConcurrency(3);
 
             totalImported = 0;
             $('#status').html('Processing...'); /* UI hint */
             requestStatus.html('Parsing sheet data...');
             var preserveOrder = $("#preserve_existing").prop("checked");
 
+            let rowsCompleted = 0;
             function selectRowToAnswer(i) {
                 return new Promise(function(resolve,reject) {
-                    var titleIndex = i;
-                    var completed = 0;
-                    var row = sheet_data.cells[titleIndex];
-                    var requestData = new Object();
+                    const titleIndex = i;
+                    const row = sheet_data.cells[titleIndex];
+                    let completed = 0;
+                    let requestData = new Object();
 
                     function answerQuestions() {
                         return new Promise(function(resolve, reject) {
                             if (completed === indicatorArray.length) {
                                 requestData['title'] = titleInputExisting.val() + '_' + titleIndex;
-                                queue.push({
+                                requestQueue.push({
                                     categoryID: categorySelect.val(),
                                     requestData: requestData,
                                 });
-                                if(i === sheet_data.cells.length - 1) {
-                                    queue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
+                                rowsCompleted++;
+                                if(rowsCompleted === sheet_data.cells.length - 1) {
+                                    requestQueue.setWorker(item => makeRequests(item.categoryID, item.requestData, preserveOrder));
                                     progressbar.progressbar( "value", 0);
                                     progressLabel.text( "Current Progress: 0%");
-                                    queue.start().then(res => {
+                                    requestQueue.start().then(res => {
                                         progressbar.progressbar("value", 100);
+                                        progressLabel.text( "Import Complete");
                                         $('#status').html('Data has been imported');
                                     });
                                 }
