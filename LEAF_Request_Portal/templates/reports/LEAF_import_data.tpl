@@ -423,7 +423,6 @@
                     async: !preserveOrder,
                     success(recordID) {
                         if(recordID > 0) {
-                            //console.log("req create success", recordID)
                             delete requestData.title;
                             requestData['CSRFToken'] = CSRFToken;
 
@@ -436,7 +435,6 @@
                                     if (result > 0) {
                                         createdRequests++;
                                         updateReportStatus(title);
-                                        //console.log("req update success")
                                         resolve();
                                     } else {
                                         logFailure(title, `error adding data for request ${recordID}`)
@@ -781,7 +779,7 @@
                                     });
                                 });
                             });
-                            const concurrency = preserveOrder ? 1 : 2;
+                            const concurrency = preserveOrder ? 0 : 1;
                             requestQueue.setConcurrency(concurrency);
                             requestQueue.start().then(res => {
                                 progressbar.progressbar("value", 100);
@@ -974,7 +972,7 @@
                     });
                 });
             });
-            const concurrency = preserveOrder ? 1 : 2;
+            const concurrency = preserveOrder ? 0 : 1;
             console.log("set con", concurrency)
             requestQueue.setConcurrency(concurrency);
             requestQueue.start().then(res => {
