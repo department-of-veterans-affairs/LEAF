@@ -7,9 +7,11 @@ async function main_print_form_ajax() {
     dataTextarea.forEach(el => enableUserContentLinks(el));
 }
 
-$(function() {
+if (document.readyState !== 'loading') {
     main_print_form_ajax();
-});
+} else {
+    document.addEventListener('DOMContentLoaded', main_print_form_ajax);
+}
 </script>
 <!-- form -->
 <br />
