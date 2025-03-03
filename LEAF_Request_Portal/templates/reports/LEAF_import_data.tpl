@@ -52,9 +52,11 @@
 <div id="toggler" style="display: none">
     <fieldset>
         <legend>Import Type</legend>
-        <label for="newFormToggler">New Form<label>
+        <!--{if $empMembership['groupID'][1]}-->
+        <label for="newFormToggler">New Form</label>
         <input id="newFormToggler" name="toggle" style="margin-right: 1rem;" onclick="toggleImport(event)" type="radio" />
-        <label for="existingFormToggler">Existing Form<label>
+        <!--{/if}-->
+        <label for="existingFormToggler">Existing Form</label>
         <input id="existingFormToggler" name="toggle" onclick="toggleImport(event)" type="radio" />
     </fieldset>
 </div>
@@ -117,7 +119,7 @@
 
 <div id="dialog" title="Import Status" style="z-index:100;">
     <div class="progress-label">Starting import...</div>
-    <div id="progressbar"></div>
+    <div id="progressbar" title="Form import progress"></div>
 </div>
 
 <div id="modal-background"></div>
@@ -554,9 +556,10 @@
             var formData = {"name": formName, "description": formDescription.val()};
             var indicators = [];
             var newCategoryID = '';
-            var preserveOrder = $("#preserve_new").prop("checked");
+            const preserveOrder = $("#preserve_new").prop("checked");
             totalImported = 0;
             requestStatus.html('Making custom form...');
+            dialog.dialog("open");
 
             /* creates custom form */
             portalAPI.FormEditor.createCustomForm(
@@ -582,7 +585,6 @@
 
                     /* parses user's input and makes an indicator for each row of the indicator table */
                     function makeIndicator() {
-                        console.log("make indicator", Date.now())
                         /* Creates indicators synchronously, then moves on to next step of filling out requests */
                         if (formCreationIndex < indicatorTableRows.length) {
                             $.ajax({
@@ -596,6 +598,7 @@
                                     categoryID: newCategoryID,
                                     required:  $("td:eq(3) > input", indicatorTableRows[formCreationIndex]).is(":checked") === true ? 1 : 0,
                                     is_sensitive: $("td:eq(4) > input", indicatorTableRows[formCreationIndex]).is(":checked") === true ? 1 : 0,
+                                    sort: formCreationIndex,
                                     CSRFToken: CSRFToken
                                 },
                                 success(indicatorID) {
@@ -611,7 +614,6 @@
                             });
 
                         } else {
-                            console.log("start filling")
                             requestStatus.html(indicators.length.toString() + ' out of ' + indicatorTableRows.length + ' questions added.');
                             requestStatus.html('Filling out form...');
 
@@ -620,7 +622,6 @@
                             });
 
                             function selectRowToAnswer(i) {
-                                console.log("processing row", i)
                                 return new Promise(function(resolve, reject) {
                                     const titleIndex = i;
                                     const row = sheet_data.cells[titleIndex];
@@ -630,7 +631,6 @@
                                     function answerQuestions() {
                                         return new Promise(function(resolve, reject) {
                                             if (completed >= indicatorArray.length) {
-                                                console.log("have all data row", i);
                                                 requestData['title'] = titleInputNew.val() + '_' + titleIndex;
                                                 makeRequests(newCategoryID, requestData, preserveOrder).then(function(){
                                                     resolve();
@@ -760,7 +760,6 @@
 
                             /* iterate through the sheet cells, which are organized by row */
                             totalRecords = sheet_data.cells.length - 1;
-                            dialog.dialog( "open" );
                             progressbar.progressbar("value", 0);
                             progressLabel.text( "Current Progress: 0%");
 
@@ -772,14 +771,13 @@
 
                             requestQueue.setWorker(item => {
                                 return new Promise((resolve, reject) => {
-                                    console.log("worker on", item.rowToAnswer, Date.now())
                                     selectRowToAnswer(item.rowToAnswer).then(() => {
                                         totalImported++
                                         resolve();
                                     });
                                 });
                             });
-                            const concurrency = preserveOrder ? 0 : 1;
+                            const concurrency = preserveOrder ? 0 : 2;
                             requestQueue.setConcurrency(concurrency);
                             requestQueue.start().then(res => {
                                 progressbar.progressbar("value", 100);
@@ -798,12 +796,11 @@
 
         function importExisting() {
             let requestQueue = new intervalQueue();
-            requestQueue.setConcurrency(3);
 
             totalImported = 0;
             $('#status').html('Processing...'); /* UI hint */
             requestStatus.html('Parsing sheet data...');
-            var preserveOrder = $("#preserve_existing").prop("checked");
+            const preserveOrder = $("#preserve_existing").prop("checked");
 
             let rowsCompleted = 0;
             function selectRowToAnswer(i) {
@@ -965,15 +962,13 @@
 
             requestQueue.setWorker(item => {
                 return new Promise((resolve, reject) => {
-                    console.log("worker on", item.rowToAnswer, Date.now())
                     selectRowToAnswer(item.rowToAnswer).then(() => {
                         totalImported++
                         resolve();
                     });
                 });
             });
-            const concurrency = preserveOrder ? 0 : 1;
-            console.log("set con", concurrency)
+            const concurrency = preserveOrder ? 0 : 2;
             requestQueue.setConcurrency(concurrency);
             requestQueue.start().then(res => {
                 progressbar.progressbar("value", 100);
