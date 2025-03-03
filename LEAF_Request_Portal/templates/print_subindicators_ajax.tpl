@@ -41,12 +41,10 @@
             </span>
             <!--{$indicator.htmlPrint}-->
             <script>
-                $(function() {
-                    if(typeof enableUserContentLinks === 'function') {
-                        const element = document.getElementById("data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->");
-                        enableUserContentLinks(element);
-                    }
-                });
+                if(typeof enableUserContentLinks === 'function') {
+                    const element = document.getElementById("data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->");
+                    enableUserContentLinks(element);
+                }
             </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'radio'}-->
