@@ -1382,8 +1382,11 @@
                             const reg = new RegExp(/[^a-zA-Z0-9_]/, "gi");
                             const actionType = actionText.replaceAll(reg, '');
                             alert (`An action for ${actionText}, (${actionType}), already exists.\nPlease try using a different action name.`);
+                            newAction();
                         }
-                        loadWorkflow(currentWorkflow);
+                        if(res?.status?.code === 2) {
+                            loadWorkflow(currentWorkflow);
+                        }
                     },
                     error: (err) => console.log(err),
                 });
