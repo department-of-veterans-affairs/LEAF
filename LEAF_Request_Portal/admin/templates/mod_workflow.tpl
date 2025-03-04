@@ -54,6 +54,20 @@
 
 <script type="text/javascript">
     var CSRFToken = '<!--{$CSRFToken}-->';
+    const reservedActionTypes = {
+        approve: 1,
+        changeinitiator: 1,
+        concur: 1,
+        defer: 1,
+        deleted: 1,
+        disapprove: 1,
+        move: 1,
+        sendback: 1,
+        sign: 1,
+        submit: 1,
+    }
+    let allWorkflowActionMap = {} //populated when user opens custom or workflow action selection areas
+
 
     function isJSON(input = '') {
         try {
@@ -1141,6 +1155,7 @@
             type: 'GET',
             url: '../api/workflow/userActions',
             success: function(res) {
+                allWorkflowActionMap = {};
                 let buffer = `<table id="actions" class="table" border="1">
                     <caption><h2>List of Actions</h2></caption>
                     <thead>
@@ -1151,6 +1166,7 @@
                     </thead>`;
 
                 for (let i in res) {
+                    allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += `<tr>
                         <td width="300px" id="${res[i].actionType}">${res[i].actionText}</td>
                         <td width="300px" id="${res[i].actionTextPasttense}">${res[i].actionTextPasttense}</td>
@@ -1196,6 +1212,9 @@
     function renderActionInputModal(action = {}) {
         return `
             <table style="margin-bottom:2rem;">
+                <tr id="availability_info" style="display:none;font-weight:bold;">
+                    <td></td><td id="availability_message" colspan="2" role="status" aria-label=""></td>
+                </tr>
                 <tr>
                     <td><label for="actionText" id="action_label">Action <span style="color: #c00000">*Required</span></label></td>
                     <td>
@@ -1349,6 +1368,19 @@
         document.getElementById('backwards_action_note').style.display = parseInt(val) < 0 ? 'block': 'none';
     }
 
+    function checkAvailability(event) {
+        const actionTypeRegex = new RegExp(/[^a-zA-Z0-9_]/, "gi");
+        const actionType = (event?.target?.value || "").replaceAll(actionTypeRegex, "").toLowerCase();
+
+        if (reservedActionTypes[actionType] === 1 || allWorkflowActionMap[actionType] === 1) {
+            $("#availability_message").text("action name not available");
+            $("#availability_message").css("color", "#c00");
+        } else {
+            $("#availability_message").text("action name available")
+            $("#availability_message").css("color", "#076");
+        }
+    }
+
     // create a brand new action
     function newAction() {
         dialog.hide();
@@ -1366,15 +1398,18 @@
                         : sort > 127 ? 127
                         : sort;
                 const actionText = $('#actionText').val();
+                const actionTextPasttense = $('#actionTextPasttense').val();
+                const actionIcon = $('#actionIcon').val();
+                const fillDependency =  $('#fillDependency').val();
                 $.ajax({
                     type: 'POST',
                     url: '../api/system/action',
                     data: {
                         actionText: actionText,
-                        actionTextPasttense: $('#actionTextPasttense').val(),
-                        actionIcon: $('#actionIcon').val(),
+                        actionTextPasttense: actionTextPasttense,
+                        actionIcon: actionIcon,
                         sort: sort,
-                        fillDependency: $('#fillDependency').val(),
+                        fillDependency: fillDependency,
                         CSRFToken: CSRFToken
                     },
                     success: function(res) {
@@ -1383,6 +1418,10 @@
                             const actionType = actionText.replaceAll(reg, '');
                             alert (`An action for ${actionText}, (${actionType}), already exists.\nPlease try using a different action name.`);
                             newAction();
+                            $('#actionTextPasttense').val(actionTextPasttense);
+                            $('#actionIcon').val(actionIcon);
+                            $('#actionSortNumber').val(sort);
+                            $('#fillDependency').val(fillDependency);
                         }
                         if(res?.status?.code === 2) {
                             loadWorkflow(currentWorkflow);
@@ -1395,6 +1434,8 @@
         });
 
         dialog.setContent(renderActionInputModal());
+        $("#availability_info").css("display", "table-row");
+        $("#actionText").on("change", (event) => checkAvailability(event));
         document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
     }
 
@@ -1448,6 +1489,7 @@
             type: 'GET',
             url: '../api/workflow/actions',
             success: function(res) {
+                allWorkflowActionMap = {};
                 let buffer = '';
                 buffer = 'Select action for ';
                 buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
@@ -1455,6 +1497,7 @@
                     '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
 
                 for (let i in res) {
+                    allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
                 }
 
