@@ -166,7 +166,8 @@
                 function useAdvancedEditor() {
                     indicator.val(XSSHelpers.stripTags(indicator.val(), ['<script>']));
                     indicator.trumbowyg({
-                        btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen']
+                        btns: ['bold', 'italic', 'underline', '|', 'unorderedList', 'orderedList', '|', 'justifyLeft', 'justifyCenter', 'justifyRight', 'fullscreen'],
+                        removeformatPasted: true
                     });
                     $('#textarea_format_button_<!--{$indicator.indicatorID|strip_tags}-->').css('display', 'none');
                     document.querySelector('div.response.blockIndicator_<!--{$indicator.indicatorID|strip_tags}--> .trumbowyg-editor')?.setAttribute('aria-labelledby', 'format_label_<!--{$indicator.indicatorID|strip_tags}-->');
