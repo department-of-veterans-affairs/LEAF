@@ -1212,8 +1212,8 @@
     function renderActionInputModal(action = {}) {
         return `
             <table style="margin-bottom:2rem;">
-                <tr id="availability_info" style="display:none;font-weight:bold;">
-                    <td></td><td id="availability_message" colspan="2" role="status" aria-label=""></td>
+                <tr id="input_status_info" style="display:none;font-weight:bold;">
+                    <td></td><td id="status_message" colspan="2" role="status" aria-live="polite"></td>
                 </tr>
                 <tr>
                     <td><label for="actionText" id="action_label">Action <span style="color: #c00000">*Required</span></label></td>
@@ -1268,11 +1268,13 @@
         getAction(actionType, function (res) {
             dialog.indicateIdle();
             dialog.setContent(renderActionInputModal(res[0]));
-
+            $("#actionText").on("change", (event) => validateInputFields((event?.target?.id ?? ""), false));
+            $("#actionTextPasttense").on("change", (event) => validateInputFields((event?.target?.id ?? ""), false));
             $('#fillDependency').val(res[0].fillDependency);
             document.getElementById('backwards_action_note').style.display = parseInt(res[0].fillDependency) < 0 ? 'block': 'none';
             document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
 
+            dialog.setCancelHandler(enableSaveButton);
             dialog.setSaveHandler(function() {
                 let sort = parseInt($('#actionSortNumber').val());
                 sort = Number.isInteger(sort) ? sort : 0;
@@ -1368,16 +1370,49 @@
         document.getElementById('backwards_action_note').style.display = parseInt(val) < 0 ? 'block': 'none';
     }
 
-    function checkAvailability(event) {
-        const actionTypeRegex = new RegExp(/[^a-zA-Z0-9_]/, "gi");
-        const actionType = (event?.target?.value || "").replaceAll(actionTypeRegex, "").toLowerCase();
 
-        if (reservedActionTypes[actionType] === 1 || allWorkflowActionMap[actionType] === 1) {
-            $("#availability_message").text("action name not available");
-            $("#availability_message").css("color", "#c00");
-        } else {
-            $("#availability_message").text("action name available")
-            $("#availability_message").css("color", "#076");
+    function enableSaveButton() {
+        $("#button_save").removeAttr("disabled");
+        $("#button_save").css("background-color", "#005EA2");
+    }
+
+    /*
+    * Purpose: validate modal input.  Sets of cases apply to different modals.
+    * @param  targetID {string} id of input element changed
+    * @param  newEntry {bool} whether user is creating new or editing existing
+    */
+    function validateInputFields(targetID = "", newEntry = false) {
+        switch(targetID) {
+            case "actionText":
+            case "actionTextPasttense":
+                $("#status_message").text("");
+                const actionTypeInputValue = $("#actionText").val().trim();
+                const actionPastTenseInputValue = $("#actionTextPasttense").val().trim();
+
+                const actionTypeRegex = new RegExp(/[^a-zA-Z0-9_]/, "gi");
+                const actionType = actionTypeInputValue.replaceAll(actionTypeRegex, "").toLowerCase();
+
+                let actionTypeValid = actionType !== "";
+                //if there is an entry for 'action' at this point and it's a new action, check for reserved or taken actionTypes
+                if (actionTypeValid && newEntry === true) {
+                    if (reservedActionTypes[actionType] === 1 || allWorkflowActionMap[actionType] === 1) {
+                        actionTypeValid = false;
+                        $("#status_message").text("action name not available");
+                        $("#status_message").css("color", "#c00");
+                    } else {
+                        $("#status_message").text("action name available")
+                        $("#status_message").css("color", "#076");
+                    }
+                }
+
+                if(actionTypeValid === true && actionPastTenseInputValue !== "") {
+                    enableSaveButton();
+                } else {
+                    $("#button_save").attr("disabled", true);
+                    $("#button_save").css("background-color", "#58585b");
+                }
+            default:
+            break;
         }
     }
 
@@ -1386,56 +1421,40 @@
         dialog.hide();
         dialog.setTitle('Create New Action Type');
         dialog.show();
-
+        dialog.setCancelHandler(enableSaveButton);
         dialog.setSaveHandler(function() {
-            if ($('#actionText').val() == '' ||
-                $('#actionTextPasttense').val() == '') {
-                alert('Please fill out required fields.');
-            } else {
-                let sort = parseInt($('#actionSortNumber').val());
-                sort = Number.isInteger(sort) ? sort : 0;
-                sort = sort < -128 ? -128
-                        : sort > 127 ? 127
-                        : sort;
-                const actionText = $('#actionText').val();
-                const actionTextPasttense = $('#actionTextPasttense').val();
-                const actionIcon = $('#actionIcon').val();
-                const fillDependency =  $('#fillDependency').val();
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/system/action',
-                    data: {
-                        actionText: actionText,
-                        actionTextPasttense: actionTextPasttense,
-                        actionIcon: actionIcon,
-                        sort: sort,
-                        fillDependency: fillDependency,
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
-                        if(res?.status?.code === 3) {
-                            const reg = new RegExp(/[^a-zA-Z0-9_]/, "gi");
-                            const actionType = actionText.replaceAll(reg, '');
-                            alert (`An action for ${actionText}, (${actionType}), already exists.\nPlease try using a different action name.`);
-                            newAction();
-                            $('#actionTextPasttense').val(actionTextPasttense);
-                            $('#actionIcon').val(actionIcon);
-                            $('#actionSortNumber').val(sort);
-                            $('#fillDependency').val(fillDependency);
-                        }
-                        if(res?.status?.code === 2) {
-                            loadWorkflow(currentWorkflow);
-                        }
-                    },
-                    error: (err) => console.log(err),
-                });
-                dialog.hide();
-            }
+            let sort = parseInt($('#actionSortNumber').val());
+            sort = Number.isInteger(sort) ? sort : 0;
+            sort = sort < -128 ? -128
+                    : sort > 127 ? 127
+                    : sort;
+
+            $.ajax({
+                type: 'POST',
+                url: '../api/system/action',
+                data: {
+                    actionText: $('#actionText').val().trim(),
+                    actionTextPasttense: $('#actionTextPasttense').val().trim(),
+                    actionIcon: $('#actionIcon').val(),
+                    sort: sort,
+                    fillDependency: $('#fillDependency').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    if(res?.status?.code === 2) {
+                        loadWorkflow(currentWorkflow);
+                    }
+                },
+                error: (err) => console.log(err),
+            });
+            dialog.hide();
         });
 
         dialog.setContent(renderActionInputModal());
-        $("#availability_info").css("display", "table-row");
-        $("#actionText").on("change", (event) => checkAvailability(event));
+        $("#input_status_info").css("display", "table-row");
+        validateInputFields('actionText');
+        $("#actionText").on("change", (event) => validateInputFields((event?.target?.id ?? ""), true));
+        $("#actionTextPasttense").on("change", (event) => validateInputFields((event?.target?.id ?? ""), true));
         document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
     }
 
