@@ -347,9 +347,7 @@ function confirmDeleteTag(inTag) {
     let validate = {'groupID': '<!--{$groupID}-->'};
     let warning = '';
     let domain = '<!--{$domain}-->' + '/';
-    let orgchart_path = '<!--{$orgchart_path}-->' + '/';
     let tag_found = false;
-    orgchart_path = orgchart_path.replace('/orgchart', '');
 
     warning = '<br /><br /><span style="color: red">WARNING!! removal of service would potentially impact your org chart structure, if you are trying to grant service chief access go to Request Portal->Admin panel-> Service Chief</span>';
 
@@ -358,11 +356,11 @@ function confirmDeleteTag(inTag) {
 
     $.ajax({
         type: 'GET',
-        url: './api/platform/portal/_' + orgchart_path,
+        url: './api/platform/portal',
         success: function(response) {
             if (response.constructor === Array) {
                 response.forEach(function (item, index) {
-                    item.tags.forEach(function (tag) {
+                    item.orgchartImportTags.forEach(function (tag) {
                         if (tag === inTag) {
                             // need to check the portal for this tag in this group
                             $.ajax({
