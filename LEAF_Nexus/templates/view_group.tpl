@@ -346,6 +346,7 @@ function confirmUnlinkEmployee(empUID) {
 function confirmDeleteTag(inTag) {
     let validate = {'groupID': '<!--{$groupID}-->'};
     let warning = '';
+    let domain = '<!--{$domain}-->' + '/';
     let orgchart_path = '<!--{$orgchart_path}-->';
     orgchart_path = orgchart_path.replace('/orgchart', '');
 
@@ -365,7 +366,7 @@ function confirmDeleteTag(inTag) {
                             // need to check the portal for this tag in this group
                             $.ajax({
                                 type: 'GET',
-                                url: '..' + item.site_path + '/api/group/list',
+                                url: domain + item.site_path + '/api/group/list',
                                 success: function (response) {
                                     if (response.some(group => group.groupID === Number(validate.groupID))) {
                                         // need to display a message that this can't be done
@@ -402,7 +403,7 @@ function confirmDeleteTag(inTag) {
                                     console.log(err);
                                 }
                             });
-                        } else {
+                        } else if (inTag == 'service' || inTag == 'ELT' || inTag == 'Quadrad') {
                             // tag was not found in any portal need to ask to delete
                             confirm_dialog.setSaveHandler(function() {
                                 $.ajax({

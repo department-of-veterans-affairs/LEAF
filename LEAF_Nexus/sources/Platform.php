@@ -35,7 +35,7 @@ class Platform
 
     public function getLaunchpadSites(string $orgchart_path): array
     {
-        $vars = array(':orgchart_path' => '/' . $orgchart_path);
+        $vars = array(':orgchart_path' => '/' . $orgchart_path . '/orgchart');
         $sql = 'SELECT `launchpadID`, `site_path`, `portal_database`
                 FROM `sites`
                 WHERE `orgchart_path` = :orgchart_path
