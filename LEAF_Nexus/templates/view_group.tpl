@@ -347,7 +347,7 @@ function confirmDeleteTag(inTag) {
     let validate = {'groupID': '<!--{$groupID}-->'};
     let warning = '';
     let domain = '<!--{$domain}-->' + '/';
-    let orgchart_path = '<!--{$orgchart_path}-->';
+    let orgchart_path = '<!--{$orgchart_path}-->' + '/';
     orgchart_path = orgchart_path.replace('/orgchart', '');
 
     warning = '<br /><br /><span style="color: red">WARNING!! removal of service would potentially impact your org chart structure, if you are trying to grant service chief access go to Request Portal->Admin panel-> Service Chief</span>';
