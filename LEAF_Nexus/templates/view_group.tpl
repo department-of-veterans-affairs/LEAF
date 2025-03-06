@@ -348,6 +348,7 @@ function confirmDeleteTag(inTag) {
     let warning = '';
     let domain = '<!--{$domain}-->' + '/';
     let orgchart_path = '<!--{$orgchart_path}-->' + '/';
+    let tag_found = false;
     orgchart_path = orgchart_path.replace('/orgchart', '');
 
     warning = '<br /><br /><span style="color: red">WARNING!! removal of service would potentially impact your org chart structure, if you are trying to grant service chief access go to Request Portal->Admin panel-> Service Chief</span>';
@@ -370,6 +371,7 @@ function confirmDeleteTag(inTag) {
                                 success: function (response) {
                                     if (response.some(group => group.groupID === Number(validate.groupID))) {
                                         // need to display a message that this can't be done
+                                        tag_found = true;
                                         dialog_ok.setTitle('Warning');
                                         dialog_ok.setContent('Corresponding portal tags must be removed prior to taking this action.');
                                         dialog_ok.setSaveHandler(function() {
@@ -378,52 +380,36 @@ function confirmDeleteTag(inTag) {
                                             dialog.hide();
                                         });
                                         dialog_ok.show();
-
-                                    } else {
-                                        // proceed with the delete
-                                        confirm_dialog.setSaveHandler(function() {
-                                            $.ajax({
-                                                type: 'DELETE',
-                                                url: './api/group/<!--{$groupID}-->/tag?' +
-                                                    $.param({tag: inTag,
-                                                            CSRFToken: '<!--{$CSRFToken}-->'}),
-                                                success: function(response) {
-                                                    window.location.reload();
-                                                },
-                                                error: function (err) {
-                                                    console.log(err);
-                                                },
-                                                cache: false
-                                            });
-                                        });
-                                        confirm_dialog.show();
                                     }
                                 },
                                 error: function(err) {
                                     console.log(err);
-                                }
+                                },
+                                async: false
                             });
-                        } else if (inTag == 'service' || inTag == 'ELT' || inTag == 'Quadrad') {
-                            // tag was not found in any portal need to ask to delete
-                            confirm_dialog.setSaveHandler(function() {
-                                $.ajax({
-                                    type: 'DELETE',
-                                    url: './api/group/<!--{$groupID}-->/tag?' +
-                                        $.param({tag: inTag,
-                                                CSRFToken: '<!--{$CSRFToken}-->'}),
-                                    success: function(response) {
-                                        window.location.reload();
-                                    },
-                                    error: function (err) {
-                                        console.log(err);
-                                    },
-                                    cache: false
-                                });
-                            });
-                            confirm_dialog.show();
                         }
                     })
-                })
+                });
+
+                if (!tag_found) {
+                    // tag was not found in any portal need to ask to delete
+                    confirm_dialog.setSaveHandler(function() {
+                        $.ajax({
+                            type: 'DELETE',
+                            url: './api/group/<!--{$groupID}-->/tag?' +
+                                $.param({tag: inTag,
+                                        CSRFToken: '<!--{$CSRFToken}-->'}),
+                            success: function(response) {
+                                window.location.reload();
+                            },
+                            error: function (err) {
+                                console.log(err);
+                            },
+                            cache: false
+                        });
+                    });
+                    confirm_dialog.show();
+                }
             } else {
                 dialog_ok.setTitle('Warning');
                 dialog_ok.setContent(response);
@@ -440,9 +426,6 @@ function confirmDeleteTag(inTag) {
         },
         cache: false
     });
-
-
-
 }
 
 function writeTag(input, groupID) {
