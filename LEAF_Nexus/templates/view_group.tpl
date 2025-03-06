@@ -346,6 +346,9 @@ function confirmUnlinkEmployee(empUID) {
 function confirmDeleteTag(inTag) {
     let validate = {'groupID': '<!--{$groupID}-->'};
     let warning = '';
+    let orgchart_path = '<!--{$orgchart_path}-->';
+    orgchart_path = orgchart_path.replace('/orgchart', '');
+
     warning = '<br /><br /><span style="color: red">WARNING!! removal of service would potentially impact your org chart structure, if you are trying to grant service chief access go to Request Portal->Admin panel-> Service Chief</span>';
 
     confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this tag?</span>'+ warning);
@@ -353,7 +356,7 @@ function confirmDeleteTag(inTag) {
 
     $.ajax({
         type: 'GET',
-        url: './api/platform/portal/_<!--{$orgchart_path}-->',
+        url: './api/platform/portal/_' + orgchart_path,
         success: function(response) {
             if (response.constructor === Array) {
                 response.forEach(function (item, index) {
