@@ -40,6 +40,14 @@
                 <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
+            <script>
+                (function() {
+                    if(typeof setPrintViewUserLinkContent === 'function') {
+                        const elResBlock = document.getElementById("data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->");
+                        setPrintViewUserLinkContent(elResBlock);
+                    }
+                })();
+            </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'radio'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
