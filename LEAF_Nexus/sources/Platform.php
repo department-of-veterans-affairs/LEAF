@@ -35,7 +35,8 @@ class Platform
 
     public function getLaunchpadSites(string $orgchart_path): array
     {
-        $vars = array(':orgchart_path' => '/' . $orgchart_path);
+        $path = strpos(LEAF_NEXUS_URL, 'host.docker.internal') ? '' : '/orgchart';
+        $vars = array(':orgchart_path' => '/' . $orgchart_path . $path);
         $sql = 'SELECT `launchpadID`, `site_path`, `portal_database`
                 FROM `sites`
                 WHERE `orgchart_path` = :orgchart_path

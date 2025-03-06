@@ -346,6 +346,10 @@ function confirmUnlinkEmployee(empUID) {
 function confirmDeleteTag(inTag) {
     let validate = {'groupID': '<!--{$groupID}-->'};
     let warning = '';
+    let domain = '<!--{$domain}-->' + '/';
+    let orgchart_path = '<!--{$orgchart_path}-->' + '/';
+    orgchart_path = orgchart_path.replace('/orgchart', '');
+
     warning = '<br /><br /><span style="color: red">WARNING!! removal of service would potentially impact your org chart structure, if you are trying to grant service chief access go to Request Portal->Admin panel-> Service Chief</span>';
 
     confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this tag?</span>'+ warning);
@@ -353,7 +357,7 @@ function confirmDeleteTag(inTag) {
 
     $.ajax({
         type: 'GET',
-        url: './api/platform/portal/_<!--{$orgchart_path}-->',
+        url: './api/platform/portal/_' + orgchart_path,
         success: function(response) {
             if (response.constructor === Array) {
                 response.forEach(function (item, index) {
@@ -362,7 +366,7 @@ function confirmDeleteTag(inTag) {
                             // need to check the portal for this tag in this group
                             $.ajax({
                                 type: 'GET',
-                                url: '..' + item.site_path + '/api/group/list',
+                                url: domain + item.site_path + '/api/group/list',
                                 success: function (response) {
                                     if (response.some(group => group.groupID === Number(validate.groupID))) {
                                         // need to display a message that this can't be done
@@ -399,7 +403,7 @@ function confirmDeleteTag(inTag) {
                                     console.log(err);
                                 }
                             });
-                        } else {
+                        } else if (inTag == 'service' || inTag == 'ELT' || inTag == 'Quadrad') {
                             // tag was not found in any portal need to ask to delete
                             confirm_dialog.setSaveHandler(function() {
                                 $.ajax({
