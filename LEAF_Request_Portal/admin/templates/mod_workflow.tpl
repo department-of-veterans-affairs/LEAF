@@ -54,6 +54,20 @@
 
 <script type="text/javascript">
     var CSRFToken = '<!--{$CSRFToken}-->';
+    const reservedActionTypes = {
+        approve: 1,
+        changeinitiator: 1,
+        concur: 1,
+        defer: 1,
+        deleted: 1,
+        disapprove: 1,
+        move: 1,
+        sendback: 1,
+        sign: 1,
+        submit: 1,
+    }
+    let allWorkflowActionMap = {} //populated when user opens custom or workflow action selection areas
+
 
     function isJSON(input = '') {
         try {
@@ -1141,6 +1155,7 @@
             type: 'GET',
             url: '../api/workflow/userActions',
             success: function(res) {
+                allWorkflowActionMap = {};
                 let buffer = `<table id="actions" class="table" border="1">
                     <caption><h2>List of Actions</h2></caption>
                     <thead>
@@ -1151,6 +1166,7 @@
                     </thead>`;
 
                 for (let i in res) {
+                    allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += `<tr>
                         <td width="300px" id="${res[i].actionType}">${res[i].actionText}</td>
                         <td width="300px" id="${res[i].actionTextPasttense}">${res[i].actionTextPasttense}</td>
@@ -1196,6 +1212,9 @@
     function renderActionInputModal(action = {}) {
         return `
             <table style="margin-bottom:2rem;">
+                <tr id="input_status_info" style="display:none;font-weight:bold;">
+                    <td></td><td id="status_message" colspan="2" role="status" aria-live="polite"></td>
+                </tr>
                 <tr>
                     <td><label for="actionText" id="action_label">Action <span style="color: #c00000">*Required</span></label></td>
                     <td>
@@ -1249,11 +1268,13 @@
         getAction(actionType, function (res) {
             dialog.indicateIdle();
             dialog.setContent(renderActionInputModal(res[0]));
-
+            $("#actionText").on("change", (event) => validateInputFields((event?.target?.id ?? ""), false));
+            $("#actionTextPasttense").on("change", (event) => validateInputFields((event?.target?.id ?? ""), false));
             $('#fillDependency').val(res[0].fillDependency);
             document.getElementById('backwards_action_note').style.display = parseInt(res[0].fillDependency) < 0 ? 'block': 'none';
             document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
 
+            dialog.setCancelHandler(enableSaveButton);
             dialog.setSaveHandler(function() {
                 let sort = parseInt($('#actionSortNumber').val());
                 sort = Number.isInteger(sort) ? sort : 0;
@@ -1349,43 +1370,91 @@
         document.getElementById('backwards_action_note').style.display = parseInt(val) < 0 ? 'block': 'none';
     }
 
+
+    function enableSaveButton() {
+        $("#button_save").removeAttr("disabled");
+        $("#button_save").css("background-color", "#005EA2");
+    }
+
+    /*
+    * Purpose: validate modal input.  Sets of cases apply to different modals.
+    * @param  targetID {string} id of input element changed
+    * @param  newEntry {bool} whether user is creating new or editing existing
+    */
+    function validateInputFields(targetID = "", newEntry = false) {
+        switch(targetID) {
+            case "actionText":
+            case "actionTextPasttense":
+                $("#status_message").text("");
+                const actionTypeInputValue = $("#actionText").val().trim();
+                const actionPastTenseInputValue = $("#actionTextPasttense").val().trim();
+
+                const actionTypeRegex = new RegExp(/[^a-zA-Z0-9_]/, "gi");
+                const actionType = actionTypeInputValue.replaceAll(actionTypeRegex, "").toLowerCase();
+
+                let actionTypeValid = actionType !== "";
+                //if there is an entry for 'action' at this point and it's a new action, check for reserved or taken actionTypes
+                if (actionTypeValid && newEntry === true) {
+                    if (reservedActionTypes[actionType] === 1 || allWorkflowActionMap[actionType] === 1) {
+                        actionTypeValid = false;
+                        $("#status_message").text("action name not available");
+                        $("#status_message").css("color", "#c00");
+                    } else {
+                        $("#status_message").text("action name available")
+                        $("#status_message").css("color", "#076");
+                    }
+                }
+
+                if(actionTypeValid === true && actionPastTenseInputValue !== "") {
+                    enableSaveButton();
+                } else {
+                    $("#button_save").attr("disabled", true);
+                    $("#button_save").css("background-color", "#58585b");
+                }
+            default:
+            break;
+        }
+    }
+
     // create a brand new action
     function newAction() {
         dialog.hide();
         dialog.setTitle('Create New Action Type');
         dialog.show();
-
+        dialog.setCancelHandler(enableSaveButton);
         dialog.setSaveHandler(function() {
-            if ($('#actionText').val() == '' ||
-                $('#actionTextPasttense').val() == '') {
-                alert('Please fill out required fields.');
-            } else {
-                let sort = parseInt($('#actionSortNumber').val());
-                sort = Number.isInteger(sort) ? sort : 0;
-                sort = sort < -128 ? -128
-                        : sort > 127 ? 127
-                        : sort;
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/system/action',
-                    data: {
-                        actionText: $('#actionText').val(),
-                        actionTextPasttense: $('#actionTextPasttense').val(),
-                        actionIcon: $('#actionIcon').val(),
-                        sort: sort,
-                        fillDependency: $('#fillDependency').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
+            let sort = parseInt($('#actionSortNumber').val());
+            sort = Number.isInteger(sort) ? sort : 0;
+            sort = sort < -128 ? -128
+                    : sort > 127 ? 127
+                    : sort;
+
+            $.ajax({
+                type: 'POST',
+                url: '../api/system/action',
+                data: {
+                    actionText: $('#actionText').val().trim(),
+                    actionTextPasttense: $('#actionTextPasttense').val().trim(),
+                    actionIcon: $('#actionIcon').val(),
+                    sort: sort,
+                    fillDependency: $('#fillDependency').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    if(res?.status?.code === 2) {
                         loadWorkflow(currentWorkflow);
-                    },
-                    error: (err) => console.log(err),
-                });
-                dialog.hide();
-            }
+                    }
+                },
+                error: (err) => console.log(err),
+            });
+            dialog.hide();
         });
 
         dialog.setContent(renderActionInputModal());
+        $("#input_status_info").css("display", "table-row");
+        validateInputFields('actionText');
+        $("#actionText").on("change", (event) => validateInputFields((event?.target?.id ?? ""), true));
+        $("#actionTextPasttense").on("change", (event) => validateInputFields((event?.target?.id ?? ""), true));
         document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
     }
 
@@ -1439,6 +1508,7 @@
             type: 'GET',
             url: '../api/workflow/actions',
             success: function(res) {
+                allWorkflowActionMap = {};
                 let buffer = '';
                 buffer = 'Select action for ';
                 buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
@@ -1446,6 +1516,7 @@
                     '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
 
                 for (let i in res) {
+                    allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
                 }
 
