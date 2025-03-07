@@ -79,8 +79,6 @@ class VAMCActiveDirectory
                 && $employee['lname'] != ''
                 && isset($employee['loginName'])
                 && $employee['loginName'] != ''
-                && !is_numeric($employee['loginName'])
-                && !str_contains($employee['loginName'], '.')
             ) {
                 $id = md5(strtoupper($employee['lname']) . strtoupper($employee['fname']) . strtoupper($employee['midIni']));
 
