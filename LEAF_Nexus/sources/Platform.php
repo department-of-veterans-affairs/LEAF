@@ -33,10 +33,10 @@ class Platform
         $this->siteRoot = "{$protocol}://" . HTTP_HOST . dirname($_SERVER['REQUEST_URI']) . '/';
     }
 
-    public function getLaunchpadSites(string $orgchart_path): array
+    public function getLaunchpadSites(): array
     {
-        $path = strpos(LEAF_NEXUS_URL, 'host.docker.internal') ? '' : '/orgchart';
-        $vars = array(':orgchart_path' => '/' . $orgchart_path . $path);
+        $orgchart_path = strpos(LEAF_NEXUS_URL, 'host.docker.internal') ? str_replace('/orgchart', '', trim(PORTAL_PATH, '/')) : trim(PORTAL_PATH, '/');
+        $vars = array(':orgchart_path' => '/' . $orgchart_path);
         $sql = 'SELECT `launchpadID`, `site_path`, `portal_database`
                 FROM `sites`
                 WHERE `orgchart_path` = :orgchart_path
