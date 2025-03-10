@@ -1218,7 +1218,7 @@
                 <tr>
                     <td><label for="actionText" id="action_label">Action <span style="color: #c00000">*Required</span></label></td>
                     <td>
-                        <input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="${action?.actionText || ''}" />
+                        <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}" />
                     </td>
                     <td>eg: Approve</td>
                 </tr>
@@ -1227,7 +1227,7 @@
                         Action Past Tense <span style="color: #c00000">*Required</span>
                         </label></td>
                     <td>
-                        <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red" value="${action?.actionTextPasttense || ''}" />
+                        <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}" />
                     </td>
                     <td>eg: Approved</td>
                 </tr>
@@ -1400,7 +1400,7 @@
                         $("#status_message").text("action name not available");
                         $("#status_message").css("color", "#c00");
                     } else {
-                        $("#status_message").text("action name available")
+                        $("#status_message").text("")
                         $("#status_message").css("color", "#076");
                     }
                 }
