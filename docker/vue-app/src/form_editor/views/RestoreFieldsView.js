@@ -70,7 +70,7 @@ export default {
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Restore Fields
             </h2>
             <h3>List of disabled fields available for recovery</h3>
-            <div>Deleted fields and associated data will be not display in the Report Builder</div>
+            <div>Deleted fields and associated data will not display in the Report Builder</div>
 
             <div v-if="disabledFields === null" class="page_loading">
                 Loading...
