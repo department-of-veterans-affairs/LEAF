@@ -46,7 +46,7 @@
     <div id="tools" class="tools">
         <h1>Tools</h1>
         <!--{if $submitted == 0}-->
-            <button class="tools" onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags}-->'"><img
+            <button type="button" class="tools" onclick="window.location='?a=view&amp;recordID=<!--{$recordID|strip_tags}-->'"><img
                     src="dynicons/?img=edit-find-replace.svg&amp;w=32" alt="" title="Guided editor" aria-hidden="true"
                     style="vertical-align: middle" /> Edit this form</button>
             <br />
@@ -78,9 +78,11 @@
             Copy Request</button>
         <br />
         <br />
+        <!--{if $submitted == 0 || $is_admin}-->
         <button type="button" class="tools" id="btn_cancelRequest" title="Cancel Request" onclick="cancelRequest()"><img
                 src="dynicons/?img=process-stop.svg&amp;w=16" alt="" style="vertical-align: middle" />
             Cancel Request</button>
+        <!--{/if}-->
     </div>
 
 
@@ -214,6 +216,41 @@ var recordID = <!--{$recordID|strip_tags}-->;
 var serviceID = <!--{$serviceID|strip_tags}-->;
 let CSRFToken = '<!--{$CSRFToken}-->';
 let formPrintConditions = {};
+
+function setPrintViewUserLinkContent(elResBlock) {
+    let htmlContent = (elResBlock?.innerHTML || "").trim();
+    if (htmlContent !== "") {
+        const whitelist = {
+            "dvagov.sharepoint.com": 1,
+            "apps.gov.powerapps.us": 1
+        }
+        //links must have https, they could have tags. only grab the url content here and filter based on whitelist
+        let matchLinks = htmlContent.match(/(?<=https:\/\/).*?(?=\s|$|"|'|&gt;|<)/gi);
+        matchLinks = Array.from(new Set(matchLinks));
+        matchLinks = matchLinks.filter(url => {
+            const baseurl = (url.split("/")[0] || "").toLowerCase();
+            return baseurl.endsWith(".gov") || whitelist[baseurl] === 1;
+        });
+
+        matchLinks.forEach(match => {
+            const linkText = match.length <= 50 ? match : match.slice(0,50) + '...';
+            const oldText = `https://${match}`;
+            const newText =   `<a href="https://${match}" target="_blank">https://${linkText}</a>`;
+            //initial replacement
+            htmlContent = htmlContent.replace(oldText, newText);
+
+            //if user tried to add anchor tags this will replace them. link text was will be replaced by the new link text.
+            const textEscaped = newText.replaceAll(".", "\\.").replaceAll("?", "\\?");
+            const regStr = `(&lt;|<)a\\s+href=['"]${textEscaped}['"](>|&gt;)(.*)?(&lt;|<)/a(>|&gt;)`;
+            const tagReg = new RegExp(regStr, "gi");
+            if(tagReg.test(htmlContent)) {
+                htmlContent = htmlContent.replace(tagReg, newText);
+            }
+        });
+        elResBlock.innerHTML = htmlContent;
+    }
+}
+
 function doSubmit(recordID) {
     $('#submitControl').empty().html('<img alt="" src="./images/indicator.gif" />Submitting...');
     $.ajax({
@@ -227,6 +264,10 @@ function doSubmit(recordID) {
                 $('#submitContent').hide('blind', 500);
                 $('#comments').css({'display': "block"});
                 $('#notes').css({'display': "block"});
+                const isAdmin = '<!--{$is_admin}-->';
+                if (isAdmin !== "1") {
+                    $('#btn_cancelRequest').hide();
+                }
                 workflow.setExtraParams('masquerade=nonAdmin');
                 workflow.getWorkflow(recordID);
             } else {
