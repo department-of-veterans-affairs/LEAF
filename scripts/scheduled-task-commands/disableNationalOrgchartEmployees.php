@@ -2,7 +2,7 @@
 require_once 'globals.php';
 require_once APP_PATH . '/Leaf/Db.php';
 require_once APP_PATH . '/Leaf/VAMCActiveDirectory.php';
-exit();
+
 $startTime = microtime(true);
 
 $national_db = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, 'national_orgchart');
