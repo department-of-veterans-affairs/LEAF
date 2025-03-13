@@ -518,11 +518,7 @@
         }];
         headers = customCols.concat(headers);
 
-        let currentStatus;
-
-        if (noSpaceCurrentStatus !== '') {
-            currentStatus = '_' + noSpaceCurrentStatus;
-        }
+        let currentStatus = noSpaceCurrentStatus !== '' ? '_' + noSpaceCurrentStatus : '';
 
         let formGrid = new LeafFormGrid('depList' + hash + '_' + stepID + currentStatus);
         formGrid.setRootURL(site.url);
@@ -533,10 +529,12 @@
         let tGridData = [];
         let hasServices = false;
         recordIDs.forEach(recordID => {
-            if (res[recordID].service != null) {
-                hasServices = true;
+            if (res[recordID].stepTitle === noSpaceCurrentStatus.replace(/_/g, ' ')) {
+                if (res[recordID].service != null) {
+                    hasServices = true;
+                }
+                tGridData.push(res[recordID]);
             }
-            tGridData.push(res[recordID]);
         });
         // remove service column if there's no services
         if (hasServices == false) {
@@ -575,7 +573,6 @@
                 currentStatus[record.stepTitle] = 1;
             }
         });
-        console.log(record);
 
         let hash = Sha1.hash(site.url);
 		let categoryName = '';
@@ -602,7 +599,7 @@
                 <button type="button" id="depLabel${hash}_${stepID}_${noSpaceCurrentStatus}" class="depInbox" style="background-color: ${site.backgroundColor}"
                     aria-controls="depList${hash}_${stepID}_${noSpaceCurrentStatus}" aria-expanded="false">
                     <div>
-                        <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName} - ${key}</span><br />
+                        <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName} (${key})</span><br />
                     </div>
                     <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${currentStatus[key]} requests</span>
                 </button>
