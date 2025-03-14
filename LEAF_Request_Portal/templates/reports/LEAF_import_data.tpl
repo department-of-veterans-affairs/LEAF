@@ -548,7 +548,7 @@
 
         function importNew() {
             let requestQueue = new intervalQueue();
-
+            let hasSensitiveField = false; //updated to true in makeIndicator if a question is marked as sensitive
             $('#status').html('Processing...'); /* UI hint */
             var newFormIndicators = $('#new_form_indicators');
             var workflowID = $('#workflowID > option:selected').val();
@@ -587,6 +587,9 @@
                     function makeIndicator() {
                         /* Creates indicators synchronously, then moves on to next step of filling out requests */
                         if (formCreationIndex < indicatorTableRows.length) {
+                            if ($("td:eq(4) > input", indicatorTableRows[formCreationIndex]).is(":checked") === true) {
+                                hasSensitiveField = true;
+                            }
                             $.ajax({
                                 method: 'POST',
                                 url: './api/formEditor/newIndicator',
@@ -614,6 +617,19 @@
                             });
 
                         } else {
+                            if (hasSensitiveField === true) {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: `./api/formEditor/formNeedToKnow`,
+                                    data: {
+                                        needToKnow: 1,
+                                        categoryID: newCategoryID,
+                                        CSRFToken: CSRFToken
+                                    },
+                                    success: () => {},
+                                    error: err => console.log('set form need to know post err', err)
+                                });
+                            }
                             requestStatus.html(indicators.length.toString() + ' out of ' + indicatorTableRows.length + ' questions added.');
                             requestStatus.html('Filling out form...');
 
