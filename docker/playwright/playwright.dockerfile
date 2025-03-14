@@ -6,4 +6,4 @@ RUN npm install -D mysql2
 
 WORKDIR /usr/app/leaf
 RUN npx playwright install --with-deps
-CMD node main.js
+CMD npx playwright install && node main.js
