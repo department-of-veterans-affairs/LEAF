@@ -1,3 +1,18 @@
+<script>
+async function main_print_form_ajax() {
+    if(typeof enableUserContentLinks != 'function') {
+        return;
+    }
+    let dataTextarea = document.querySelectorAll('[leaf-datatype="textarea"]');
+    dataTextarea.forEach(el => enableUserContentLinks(el));
+}
+
+if (document.readyState !== 'loading') {
+    main_print_form_ajax();
+} else {
+    document.addEventListener('DOMContentLoaded', main_print_form_ajax);
+}
+</script>
 <!-- form -->
 <br />
 <div class="printmainform" style="border-bottom: 0px; min-height: 64px">
