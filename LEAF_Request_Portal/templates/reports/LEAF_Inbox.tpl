@@ -528,8 +528,9 @@
         formGrid.setHeaders(headers);
         let tGridData = [];
         let hasServices = false;
+
         recordIDs.forEach(recordID => {
-            if (res[recordID].stepTitle === noSpaceCurrentStatus.replace(/_/g, ' ')) {
+            if (noSpaceCurrentStatus === '' || res[recordID].stepTitle === noSpaceCurrentStatus.replace(/_/g, ' ')) {
                 if (res[recordID].service != null) {
                     hasServices = true;
                 }
