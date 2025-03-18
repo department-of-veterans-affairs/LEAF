@@ -44,7 +44,7 @@ class PlatformController extends RESTfulResponse
                 $return_value = array();
 
                 foreach ($portals as $portal) {
-                    $sql = 'USE ' . $portal['portal_database'];
+                    $sql = 'USE `' . $portal['portal_database'] . '`';
                     $this->db->query($sql);
 
                     $return_value[] = array(
