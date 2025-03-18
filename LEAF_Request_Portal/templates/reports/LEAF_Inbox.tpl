@@ -349,6 +349,7 @@
                 let recordIDs = depDesc[hash];
                 let stepName = hash.substring(0, hash.indexOf(':;ROLEID'));
                 let stepID = hash.substring(hash.indexOf(':;ROLEID') + 8);
+
                 buildDepInboxByStep(dataInboxes[sites[i].url], stepID, stepName, recordIDs,
                     sites[i]);
             });
@@ -412,7 +413,7 @@
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
-				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
+				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black;
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
 				<div style="padding:0.5rem;font-weight:bold;font-size:200%;line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
@@ -437,7 +438,7 @@
         });
     }
 
-    function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
+    function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined, noSpaceCurrentStatus = '') {
         let customColumns = false;
         let categoryID = null;
         if (categoryIDs != undefined) {
@@ -517,7 +518,9 @@
         }];
         headers = customCols.concat(headers);
 
-        let formGrid = new LeafFormGrid('depList' + hash + '_' + stepID);
+        let currentStatus = noSpaceCurrentStatus !== '' ? '_' + noSpaceCurrentStatus : '';
+
+        let formGrid = new LeafFormGrid('depList' + hash + '_' + stepID + currentStatus);
         formGrid.setRootURL(site.url);
         formGrid.setStickyHeaderOffset('36px');
         formGrid.setDataBlob(res);
@@ -526,10 +529,12 @@
         let tGridData = [];
         let hasServices = false;
         recordIDs.forEach(recordID => {
-            if (res[recordID].service != null) {
-                hasServices = true;
+            if (res[recordID].stepTitle === noSpaceCurrentStatus.replace(/_/g, ' ')) {
+                if (res[recordID].service != null) {
+                    hasServices = true;
+                }
+                tGridData.push(res[recordID]);
             }
-            tGridData.push(res[recordID]);
         });
         // remove service column if there's no services
         if (hasServices == false) {
@@ -557,6 +562,18 @@
 
     // Build forms and grids for the inbox's requests based on the list of $recordIDs, organized by step
     function buildDepInboxByStep(res, stepID, stepName, recordIDs, site) {
+        let currentStatus = new Array();
+        let record;
+
+        recordIDs.forEach(recordID => {
+            record = res[recordID];
+            if (currentStatus[record.stepTitle] !== undefined) {
+                currentStatus[record.stepTitle]++;
+            } else {
+                currentStatus[record.stepTitle] = 1;
+            }
+        });
+
         let hash = Sha1.hash(site.url);
 		let categoryName = '';
         let categoryID = '';
@@ -569,31 +586,37 @@
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
-				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
+				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black;
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
 				<div style="padding:0.5rem;font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
     			</div>`);
         }
-        $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}" class="depContainer">
-            <button type="button" id="depLabel${hash}_${stepID}" class="depInbox" style="background-color: ${site.backgroundColor}"
-                aria-controls="depList${hash}_${stepID}" aria-expanded="false">
-                <div>
-                    <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
-                </div>
-                <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
-            </button>
-			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
-        $('#depLabel' + hash + '_' + stepID).on('click', function() {
-            buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);
-            if ($('#depList' + hash + '_' + stepID).css('display') == 'none') {
-                $('#depList' + hash + '_' + stepID).css('display', 'inline');
-                $('#depLabel' + hash + '_' + stepID).attr('aria-expanded', 'true');
-            } else {
-                $('#depList' + hash + '_' + stepID).css('display', 'none');
-                $('#depLabel' + hash + '_' + stepID).attr('aria-expanded', 'false');
-            }
-        });
+
+        for (let key in currentStatus) {
+            let noSpaceCurrentStatus = key.replace(/ /g,'_');
+            $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}_${noSpaceCurrentStatus}" class="depContainer">
+                <button type="button" id="depLabel${hash}_${stepID}_${noSpaceCurrentStatus}" class="depInbox" style="background-color: ${site.backgroundColor}"
+                    aria-controls="depList${hash}_${stepID}_${noSpaceCurrentStatus}" aria-expanded="false">
+                    <div>
+                        <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName} (${key})</span><br />
+                    </div>
+                    <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${currentStatus[key]} requests</span>
+                </button>
+                <div id="depList${hash}_${stepID}_${noSpaceCurrentStatus}" style="width: 90%; margin: auto; display: none"></div></div>`);
+            $('#depLabel' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).on('click', function() {
+                buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, undefined, noSpaceCurrentStatus);
+                if ($('#depList' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).css('display') == 'none') {
+                    $('#depList' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).css('display', 'inline');
+                    $('#depLabel' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).attr('aria-expanded', 'true');
+                } else {
+                    $('#depList' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).css('display', 'none');
+                    $('#depLabel' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).attr('aria-expanded', 'false');
+                }
+            });
+        }
+
+
     }
 
     let dataInboxes = {};
@@ -659,7 +682,7 @@
                 }
             }
         }
-        
+
         if (getData.length > 0) {
             getData.forEach(id => query.getData(id));
             return $.ajax({
@@ -813,12 +836,12 @@
             nonAdmin = false;
             document.querySelector('#btn_adminView').innerText = 'View as non-admin';
         }
-        
+
         if(urlParams.get('organizeByRole') != null) {
             organizeByRole = true;
             document.querySelector('#btn_organize').innerText = 'Organize by Forms';
         }
-        
+
         getMapSites.then((value) => {
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
                 'genericDialogloadIndicator', 'genericDialogbutton_save',
@@ -841,14 +864,14 @@
                 if(urlParams.get('organizeByRole') != null) {
                    renderInboxByRole();
             	}
-                else {             
+                else {
                 	renderInbox();
         		}
             });
             queue.setAbortSignal(abortController.signal);
 
             sites.forEach(site => queue.push(site));
-            
+
             // If $sites is empty, load the local inbox
             if(Object.keys(sites).length == 0 || urlParams.get('local') != null) {
                 let localSite = {
@@ -874,7 +897,7 @@
                     $('#inbox_view_selection_status').attr('aria-label', '');
                 });
             });
-            
+
             $('#btn_adminView').on('click', function() {
 				let currLocation = getCurrLocation();
 
@@ -929,18 +952,18 @@
     .inbox {
         display: none;
     }
-    
+
     .depInbox {
         padding: 8px;
         position: sticky;
         top: 0px;
     }
-    
+
     .siteFormContainers {
         padding: 8px;
         background-color: white;
     }
-    
+
     .depContainer {
         border: 1px solid black;
         cursor: pointer;
