@@ -1,6 +1,7 @@
+import { computed } from 'vue';
+
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
-import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
-import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
+import RestoreFieldOptionsDialog from "../components/dialog_content/RestoreFieldOptionsDialog.js";
 
 export default {
     name: 'restore-fields-view',
@@ -12,22 +13,32 @@ export default {
                 categoryName: null,
                 name: null,
                 format: null,
-            }
+            },
+            restoreIndicatorID: null,
+            disabledAncestors: [],
         }
     },
     components: {
         LeafFormDialog,
-        NewFormDialog,
-        ImportFormDialog,
+        RestoreFieldOptionsDialog,
     },
     inject: [
         'APIroot',
         'CSRFToken',
         'setDefaultAjaxResponseMessage',
+        'openRestoreFieldOptionsDialog',
 
         'showFormDialog',
         'dialogFormContent'
     ],
+    provide() {
+        return {
+            restoreIndicatorID: computed(() => this.restoreIndicatorID),
+            disabledAncestors: computed(() => this.disabledAncestors),
+
+            restoreField: this.restoreField,
+        }
+    },
     /**
      * get all disabled or archived indicators for indID > 0 and update app disabledFields (array)
      */
@@ -65,47 +76,35 @@ export default {
     },
     methods: {
         /**
+         * Update restoreIndicatorID and disabledAncestors component data
+         * Restore if no disabled ancestors, otherwise use options modal
+         * @param {number} indicatorID
+         * @param {number} parentIndicatorID
+         */
+        restoreFieldGate(indicatorID, parentIndicatorID) {
+            this.restoreIndicatorID = indicatorID;
+            this.disabledAncestors = this.getDisabledAncestors(parentIndicatorID);
+            if(this.disabledAncestors.length === 0) {
+                this.restoreField(indicatorID);
+            } else {
+                this.openRestoreFieldOptionsDialog();
+            }
+        },
+        /**
          * 
          * @param {number} indicatorID 
          */
         restoreField(indicatorID) {
-            const indicator = this.disabledFields.find(element => element.indicatorID === indicatorID);
+            let formData = new FormData();
+            formData.append('CSRFToken', this.CSRFToken);
+            formData.append('disabled', 0);
 
-            let userConfirm = true;
-            const disabledAncestors = this.getDisabledAncestors(indicator.parentIndicatorID);
-            if(disabledAncestors.length > 0) {
-                userConfirm = confirm(
-                    "This question has disabled parent questions:\n" +
-                    disabledAncestors.join(", ") + "\n" +
-                    "It is recommended to restore these first."
-                );
-            }
-            if(userConfirm) {
-                $.ajax({
-                    type: 'POST',
-                    url: `${this.APIroot}formEditor/${indicatorID}/disabled`,
-                    data: {
-                        CSRFToken: this.CSRFToken,
-                        disabled: 0
-                    },
-                    success: () => {
-                        this.disabledFields = this.disabledFields.filter(f => f !== indicator);
-                        if(disabledAncestors.length > 0 && userConfirm) {
-                            $.ajax({
-                                type: 'POST',
-                                url: `${this.APIroot}formEditor/${indicatorID}/parentID`,
-                                data: {
-                                    parentID: null,
-                                    CSRFToken: this.CSRFToken
-                                },
-                                error: err => console.log('ind parentID post err', err)
-                            });
-                        };
-                        alert('The field has been restored.');
-                    },
-                    error: (err) => console.log(err)
-                });
-            }
+            fetch(`${this.APIroot}formEditor/${indicatorID}/disabled`, {
+                method: 'POST',
+                body: formData
+            }).then(res => res.json()).then(() => {
+                this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
+            }).catch(err => console.log(err));
         },
         sortHeader(sortKey = "") {
             if(this.disabledFields.length > 1 && this.headerSortTracking?.[sortKey] !== undefined) {
@@ -225,7 +224,7 @@ export default {
                             <td>{{ f.format }}</td>
                             <td>{{ f.disabled }}</td>
                             <td :id="'restore_td_' + f.indicatorID"><button type="button" class="btn-general" style="margin:auto;"
-                                @click="restoreField(parseInt(f.indicatorID))">
+                                @click="restoreFieldGate(+f.indicatorID, +f.parentIndicatorID)">
                                 Restore this field</button>
                             </td>
                         </tr>
