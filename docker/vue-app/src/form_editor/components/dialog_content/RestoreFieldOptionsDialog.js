@@ -4,13 +4,14 @@ export default {
         return {
             initialFocusElID: 'radio_restore_all',
             userOptionSelection: "all",
-            userMessage: ''
+            userMessage: "",
         }
     },
     inject: [
         'APIroot',
         'CSRFToken',
 
+        'restoreField',
         'restoreIndicatorID',
         'disabledAncestors',
 
@@ -21,46 +22,76 @@ export default {
         this.setDialogSaveFunction(this.onSave);
     },
     mounted() {
+        this.userMessage = `<p><b>This question has disabled parent questions:</b><br>${this.disabledAncestorsText}</p>`;
         const allRadio = document.getElementById(this.initialFocusElID);
         if(allRadio !== null) {
             allRadio.focus();
         }
-        
     },
     computed: {
         disabledAncestorsText() {
-            return "indicatorIDs: " + this.disabledAncestors.join(", ");
+            return "IDs: " + this.disabledAncestors.join(", ");
         }
     },
     methods: {
         onSave() {
-            console.log("save clicked");
-            console.log(this.restoreIndicatorID);
-            console.log(this.disabledAncestors);
-            console.log(this.userOptionSelection);
-            /* TODO:
-            get the user choice
-            if all, interval restore all disabled ancestors
-            if one, restore only restoreIndicatorID and also unset its parentID
-            */
-            this.closeFormDialog();
+            this.userMessage = "<b>Processing...</b>";
+            if(this.userOptionSelection === "one") {
+                Promise.all([
+                    this.unsetParentID(this.restoreIndicatorID),
+                    this.restoreField(this.restoreIndicatorID)
+                ]).then(() => {
+                    this.userMessage = "";
+                    this.closeFormDialog();
+                }).catch(err => console.log(err));
+
+            } else {
+                //start with parents in case this is interrupted
+                let arrRestore = [ ...this.disabledAncestors, this.restoreIndicatorID ].reverse();
+
+                const total = arrRestore.length;
+                let count = 0;
+                const restore = () => {
+                    if(arrRestore.length > 0) {
+                        const id = arrRestore.pop();
+                        this.restoreField(id)
+                        .then(() => {
+                        }).catch(err => {
+                            console.log(err);
+                        }).finally(() => {
+                            count++;
+                            if(count === total) {
+                                clearInterval(intervalID);
+                                this.userMessage = "";
+                                this.closeFormDialog();
+                            }
+                        });
+                    }
+                }
+                const intervalID = setInterval(restore, 150);
+            }
         },
         unsetParentID() {
-            let formData = new FormData();
-            formData.append('CSRFToken', this.CSRFToken);
-            formData.append('parentID', null);
+            return new Promise((resolve, reject) => {
+                let formData = new FormData();
+                formData.append('CSRFToken', this.CSRFToken);
+                formData.append('parentID', null);
 
-            fetch(`${this.APIroot}formEditor/${this.restoreIndicatorID}/parentID`, {
-                method: 'POST',
-                body: formData
-            }).then(res => res.json()).then(() => {
-            }).catch(err => console.log("error setting parentID", err));
+                fetch(`${this.APIroot}formEditor/${this.restoreIndicatorID}/parentID`, {
+                    method: 'POST',
+                    body: formData
+                }).then(res => res.json()).then(() => {
+                    resolve();
+                }).catch(err => {
+                    console.log("error setting parentID", err)
+                    reject(err);
+                });
+            });
         }
     },
     template: `
             <div id="restore_fields_parent_options" style="margin: 1em 0; min-height: 50px;">
-                <p><b>This question has disabled parent questions:</b></p>
-                <p>{{ disabledAncestorsText }}</p>
+                <div v-if="userMessage !== ''" v-html="userMessage"></div>
                 <fieldset>
                     <legend id="restore_fields_legend">Restore Options</legend>
                     <label class="checkable leaf_check" for="radio_restore_all">
@@ -79,9 +110,8 @@ export default {
                             class="icheck leaf_check"
                             value="one"
                             aria-describedby="restore_fields_parent_options">
-                        <span class="leaf_check"></span> Restore only this field (This will break its associations)
+                        <span class="leaf_check"></span> Only restore this field (This will break its associations)
                     </label>
                 </fieldset>
-                <div v-if="userMessage" style="padding: 0.5rem 0"><b>{{ userMessage }}</b></div>
             </div>`
 }

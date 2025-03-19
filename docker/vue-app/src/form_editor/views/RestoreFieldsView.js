@@ -87,7 +87,7 @@ export default {
             if(this.disabledAncestors.length === 0) {
                 this.restoreField(indicatorID);
             } else {
-                this.openRestoreFieldOptionsDialog();
+                this.openRestoreFieldOptionsDialog(indicatorID);
             }
         },
         /**
@@ -95,16 +95,28 @@ export default {
          * @param {number} indicatorID 
          */
         restoreField(indicatorID) {
-            let formData = new FormData();
-            formData.append('CSRFToken', this.CSRFToken);
-            formData.append('disabled', 0);
+            return new Promise((resolve, reject) => {
+                let formData = new FormData();
+                formData.append('CSRFToken', this.CSRFToken);
+                formData.append('disabled', 0);
 
-            fetch(`${this.APIroot}formEditor/${indicatorID}/disabled`, {
-                method: 'POST',
-                body: formData
-            }).then(res => res.json()).then(() => {
-                this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
-            }).catch(err => console.log(err));
+                fetch(`${this.APIroot}formEditor/${indicatorID}/disabled`, {
+                    method: 'POST',
+                    body: formData
+                }).then(res => res.json()).then(() => {
+                    let tableCell = document.getElementById(`restore_td_${indicatorID}`);
+                    if(tableCell !== null) {
+                        tableCell.innerHTML = `<b style="color:#064;">Field restored</b>`
+                    }
+                    setTimeout(() => {
+                        this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
+                    }, 750);
+                    resolve();
+                }).catch(err => {
+                    console.log(err)
+                    reject(err);
+                });
+            });
         },
         sortHeader(sortKey = "") {
             if(this.disabledFields.length > 1 && this.headerSortTracking?.[sortKey] !== undefined) {
@@ -220,7 +232,7 @@ export default {
                         <tr v-for="f in disabledFields" :key="f.indicatorID">
                             <td>{{ f.indicatorID }}</td>
                             <td>{{ f.categoryName }}</td>
-                            <td>{{ f.name }}</td>
+                            <td style="word-break:break-word;">{{ f.name }}</td>
                             <td>{{ f.format }}</td>
                             <td>{{ f.disabled }}</td>
                             <td :id="'restore_td_' + f.indicatorID"><button type="button" class="btn-general" style="margin:auto;"
