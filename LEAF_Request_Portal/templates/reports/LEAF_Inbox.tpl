@@ -349,7 +349,6 @@
                 let recordIDs = depDesc[hash];
                 let stepName = hash.substring(0, hash.indexOf(':;ROLEID'));
                 let stepID = hash.substring(hash.indexOf(':;ROLEID') + 8);
-
                 buildDepInboxByStep(dataInboxes[sites[i].url], stepID, stepName, recordIDs,
                     sites[i]);
             });
@@ -438,7 +437,7 @@
         });
     }
 
-    function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined, noSpaceCurrentStatus = '') {
+    function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
         let customColumns = false;
         let categoryID = null;
         if (categoryIDs != undefined) {
@@ -518,9 +517,7 @@
         }];
         headers = customCols.concat(headers);
 
-        let currentStatus = noSpaceCurrentStatus !== '' ? '_' + noSpaceCurrentStatus : '';
-
-        let formGrid = new LeafFormGrid('depList' + hash + '_' + stepID + currentStatus);
+        let formGrid = new LeafFormGrid('depList' + hash + '_' + stepID);
         formGrid.setRootURL(site.url);
         formGrid.setStickyHeaderOffset('36px');
         formGrid.setDataBlob(res);
@@ -528,14 +525,11 @@
         formGrid.setHeaders(headers);
         let tGridData = [];
         let hasServices = false;
-
         recordIDs.forEach(recordID => {
-            if (noSpaceCurrentStatus === '' || res[recordID].stepTitle === noSpaceCurrentStatus.replace(/_/g, ' ')) {
-                if (res[recordID].service != null) {
-                    hasServices = true;
-                }
-                tGridData.push(res[recordID]);
+            if (res[recordID].service != null) {
+                hasServices = true;
             }
+            tGridData.push(res[recordID]);
         });
         // remove service column if there's no services
         if (hasServices == false) {
@@ -563,18 +557,6 @@
 
     // Build forms and grids for the inbox's requests based on the list of $recordIDs, organized by step
     function buildDepInboxByStep(res, stepID, stepName, recordIDs, site) {
-        let currentStatus = new Array();
-        let record;
-
-        recordIDs.forEach(recordID => {
-            record = res[recordID];
-            if (currentStatus[record.stepTitle] !== undefined) {
-                currentStatus[record.stepTitle]++;
-            } else {
-                currentStatus[record.stepTitle] = 1;
-            }
-        });
-
         let hash = Sha1.hash(site.url);
 		let categoryName = '';
         let categoryID = '';
@@ -593,31 +575,25 @@
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
     			</div>`);
         }
-
-        for (let key in currentStatus) {
-            let noSpaceCurrentStatus = key.replace(/ /g,'_');
-            $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}_${noSpaceCurrentStatus}" class="depContainer">
-                <button type="button" id="depLabel${hash}_${stepID}_${noSpaceCurrentStatus}" class="depInbox" style="background-color: ${site.backgroundColor}"
-                    aria-controls="depList${hash}_${stepID}_${noSpaceCurrentStatus}" aria-expanded="false">
-                    <div>
-                        <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName} (${key})</span><br />
-                    </div>
-                    <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${currentStatus[key]} requests</span>
-                </button>
-                <div id="depList${hash}_${stepID}_${noSpaceCurrentStatus}" style="width: 90%; margin: auto; display: none"></div></div>`);
-            $('#depLabel' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).on('click', function() {
-                buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, undefined, noSpaceCurrentStatus);
-                if ($('#depList' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).css('display') == 'none') {
-                    $('#depList' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).css('display', 'inline');
-                    $('#depLabel' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).attr('aria-expanded', 'true');
-                } else {
-                    $('#depList' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).css('display', 'none');
-                    $('#depLabel' + hash + '_' + stepID + '_' + noSpaceCurrentStatus).attr('aria-expanded', 'false');
-                }
-            });
-        }
-
-
+        $(`#siteFormContainer${hash}`).append(`<div id="depContainer${hash}_${stepID}" class="depContainer">
+            <button type="button" id="depLabel${hash}_${stepID}" class="depInbox" style="background-color: ${site.backgroundColor}"
+                aria-controls="depList${hash}_${stepID}" aria-expanded="false">
+                <div>
+                    <span style="font-size: 130%; font-weight: bold; color: ${site.fontColor}">${stepName}</span><br />
+                </div>
+                <span style="text-align:end;text-decoration: underline; font-weight: bold; color: ${site.fontColor}">View ${recordIDs.length} requests</span>
+            </button>
+			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
+        $('#depLabel' + hash + '_' + stepID).on('click', function() {
+            buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);
+            if ($('#depList' + hash + '_' + stepID).css('display') == 'none') {
+                $('#depList' + hash + '_' + stepID).css('display', 'inline');
+                $('#depLabel' + hash + '_' + stepID).attr('aria-expanded', 'true');
+            } else {
+                $('#depList' + hash + '_' + stepID).css('display', 'none');
+                $('#depLabel' + hash + '_' + stepID).attr('aria-expanded', 'false');
+            }
+        });
     }
 
     let dataInboxes = {};
