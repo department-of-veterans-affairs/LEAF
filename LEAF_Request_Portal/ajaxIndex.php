@@ -24,9 +24,6 @@ function customTemplate($tpl)
 $dataActionLogger = new DataActionLogger($db, $login);
 
 $login->loginUser();
-if ($login)
-{
-}
 
 $action = isset($_GET['a']) ? $_GET['a'] : '';
 

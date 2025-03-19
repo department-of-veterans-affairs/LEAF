@@ -18,14 +18,6 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 header('X-UA-Compatible: IE=edge');
 
 $login->loginUser();
-if (!$login->isLogin() || !$login->isInDB())
-{
-    echo 'Session expired, please refresh the page.<br /><br />If this message persists, please contact your administrator.';
-    echo '<br />' . $login->getName();
-    echo '<br />' . $login->getUserID();
-    $login->logout(); // destroy current session tokens
-    exit;
-}
 
 $main = new Smarty;
 $t_login = new Smarty;
