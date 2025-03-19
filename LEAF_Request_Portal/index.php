@@ -16,12 +16,6 @@ header('X-UA-Compatible: IE=edge');
 
 $login->loginUser();
 
-if (!$login->isLogin() || !$login->isInDB()) {
-    $login->logout(); // destroy current session tokens
-    header("Location: session_expire.php");
-    exit;
-}
-
 $main = new Smarty;
 $t_login = new Smarty;
 $t_menu = new Smarty;
