@@ -14,7 +14,7 @@ export default {
                 name: null,
                 format: null,
             },
-            restoreIndicatorID: null,
+            indicatorID_toRestore: null,
             disabledAncestors: [],
         }
     },
@@ -33,10 +33,11 @@ export default {
     ],
     provide() {
         return {
-            restoreIndicatorID: computed(() => this.restoreIndicatorID),
+            indicatorID_toRestore: computed(() => this.indicatorID_toRestore),
             disabledAncestors: computed(() => this.disabledAncestors),
 
             restoreField: this.restoreField,
+            updateDisabledFields: this.updateDisabledFields,
         }
     },
     /**
@@ -76,47 +77,43 @@ export default {
     },
     methods: {
         /**
-         * Update restoreIndicatorID and disabledAncestors component data
+         * Update indicatorID_toRestore and disabledAncestors component data
          * Restore if no disabled ancestors, otherwise use options modal
          * @param {number} indicatorID
          * @param {number} parentIndicatorID
          */
         restoreFieldGate(indicatorID, parentIndicatorID) {
-            this.restoreIndicatorID = indicatorID;
+            this.indicatorID_toRestore = indicatorID;
             this.disabledAncestors = this.getDisabledAncestors(parentIndicatorID);
             if(this.disabledAncestors.length === 0) {
-                this.restoreField(indicatorID);
+                this.restoreField(indicatorID).then(() => this.updateDisabledFields(indicatorID));
             } else {
                 this.openRestoreFieldOptionsDialog(indicatorID);
             }
         },
         /**
          * 
-         * @param {number} indicatorID 
+         * @param {number} indicatorID
+         * returns promise
          */
         restoreField(indicatorID) {
-            return new Promise((resolve, reject) => {
-                let formData = new FormData();
-                formData.append('CSRFToken', this.CSRFToken);
-                formData.append('disabled', 0);
+            let formData = new FormData();
+            formData.append('CSRFToken', this.CSRFToken);
+            formData.append('disabled', 0);
 
-                fetch(`${this.APIroot}formEditor/${indicatorID}/disabled`, {
-                    method: 'POST',
-                    body: formData
-                }).then(res => res.json()).then(() => {
-                    let tableCell = document.getElementById(`restore_td_${indicatorID}`);
-                    if(tableCell !== null) {
-                        tableCell.innerHTML = `<b style="color:#064;">Field restored</b>`
-                    }
-                    setTimeout(() => {
-                        this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
-                    }, 750);
-                    resolve();
-                }).catch(err => {
-                    console.log(err)
-                    reject(err);
-                });
+            return fetch(`${this.APIroot}formEditor/${indicatorID}/disabled`, {
+                method: 'POST',
+                body: formData
             });
+        },
+        updateDisabledFields(indicatorID = "") {
+            let tableCell = document.getElementById(`restore_td_${indicatorID}`);
+            if(tableCell !== null) {
+                tableCell.innerHTML = `<b style="color:#064;">Field restored</b>`
+            }
+            setTimeout(() => {
+                this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
+            }, 750);
         },
         sortHeader(sortKey = "") {
             if(this.disabledFields.length > 1 && this.headerSortTracking?.[sortKey] !== undefined) {
@@ -166,7 +163,6 @@ export default {
                 }
                 nextID = this.disabledFieldsParentIDLookup[nextID];
             }
-            indIDs = indIDs.reverse();
             return indIDs;
         }
     },

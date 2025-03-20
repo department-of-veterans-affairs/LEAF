@@ -12,7 +12,8 @@ export default {
         'CSRFToken',
 
         'restoreField',
-        'restoreIndicatorID',
+        'updateDisabledFields',
+        'indicatorID_toRestore',
         'disabledAncestors',
 
         'setDialogSaveFunction',
@@ -22,6 +23,7 @@ export default {
         this.setDialogSaveFunction(this.onSave);
     },
     mounted() {
+        //set the initial message for the user and set focus
         this.userMessage = `<p><b>This question has disabled parent questions:</b><br>${this.disabledAncestorsText}</p>`;
         const allRadio = document.getElementById(this.initialFocusElID);
         if(allRadio !== null) {
@@ -30,24 +32,32 @@ export default {
     },
     computed: {
         disabledAncestorsText() {
-            return "IDs: " + this.disabledAncestors.join(", ");
+            let idsOrderByParent = [ ...this.disabledAncestors ].reverse();
+            return "IDs: " + idsOrderByParent.join(", ");
         }
     },
     methods: {
+        /*
+        * Performs restore actions according to user choice.
+        * If restoring only a single question, the parent ID is also unset so that the question will appear on the form
+        * If restoring all associated fields, the question and its disabled ancestors restored at intervals
+        */
         onSave() {
             this.userMessage = "<b>Processing...</b>";
             if(this.userOptionSelection === "one") {
                 Promise.all([
-                    this.unsetParentID(this.restoreIndicatorID),
-                    this.restoreField(this.restoreIndicatorID)
+                    this.unsetParentID(this.indicatorID_toRestore),
+                    this.restoreField(this.indicatorID_toRestore)
                 ]).then(() => {
+                    this.updateDisabledFields(this.indicatorID_toRestore);
                     this.userMessage = "";
                     this.closeFormDialog();
                 }).catch(err => console.log(err));
 
             } else {
-                //start with parents in case this is interrupted
-                let arrRestore = [ ...this.disabledAncestors, this.restoreIndicatorID ].reverse();
+                //restore method below will pop one each time
+                //in case of interruption, safe order is most distant parent to direct parent, then the ID to restore
+                let arrRestore = [ this.indicatorID_toRestore, ...this.disabledAncestors ];
 
                 const total = arrRestore.length;
                 let count = 0;
@@ -56,36 +66,37 @@ export default {
                         const id = arrRestore.pop();
                         this.restoreField(id)
                         .then(() => {
+                            this.updateDisabledFields(id);
                         }).catch(err => {
                             console.log(err);
                         }).finally(() => {
                             count++;
                             if(count === total) {
-                                clearInterval(intervalID);
                                 this.userMessage = "";
                                 this.closeFormDialog();
                             }
                         });
+
+                    } else {
+                        clearInterval(intervalID);
                     }
                 }
                 const intervalID = setInterval(restore, 150);
             }
         },
+        /**
+         * sets the parent ID of the indicator being restored to null.
+         * Used if a user decides to restore only a specific question when that question has disabled ancestors.
+         * @returns promise
+         */
         unsetParentID() {
-            return new Promise((resolve, reject) => {
-                let formData = new FormData();
-                formData.append('CSRFToken', this.CSRFToken);
-                formData.append('parentID', null);
+            let formData = new FormData();
+            formData.append('CSRFToken', this.CSRFToken);
+            formData.append('parentID', null);
 
-                fetch(`${this.APIroot}formEditor/${this.restoreIndicatorID}/parentID`, {
-                    method: 'POST',
-                    body: formData
-                }).then(res => res.json()).then(() => {
-                    resolve();
-                }).catch(err => {
-                    console.log("error setting parentID", err)
-                    reject(err);
-                });
+            return fetch(`${this.APIroot}formEditor/${this.indicatorID_toRestore}/parentID`, {
+                method: 'POST',
+                body: formData
             });
         }
     },
