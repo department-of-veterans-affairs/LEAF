@@ -600,8 +600,12 @@ class Email
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
-        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
+        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ".
+            "ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus, ".
+            "needToKnow,categoryName FROM records_workflow_state ".
             "LEFT JOIN records AS rec USING (recordID) ".
+            "LEFT JOIN category_count USING (recordID) ".
+            "LEFT JOIN categories USING (categoryID) ".
             "LEFT JOIN step_dependencies AS sd USING (stepID) ".
             "LEFT JOIN dependency_privs USING (dependencyID) ".
             "LEFT JOIN users USING (groupID) ".
@@ -611,12 +615,21 @@ class Email
 
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
-            $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
+            $fullTitle = $approvers[0]['title'];
+            $formType = $approvers[0]['categoryName'];
+
+            if($approvers[0]['needToKnow'] === 1) {
+                $title = $formType;
+                $fullTitle = $formType;
+            } else {
+                $title = strlen($fullTitle) > 45 ? substr($rfullTitle, 0, 42) . '...' : $fullTitle;
+            }
             $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
-                "fullTitle" => $approvers[0]['title'],
+                "fullTitle" => $fullTitle,
+                "formType" => $formType,
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
                 "lastStatus" => $approvers[0]['lastStatus'],

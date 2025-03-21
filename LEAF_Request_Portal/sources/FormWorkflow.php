@@ -1333,23 +1333,32 @@ class FormWorkflow
             $email = new Email();
 
             $vars = array(':recordID' => $this->recordID);
-            $strSQL = 'SELECT rec.title, rec.userID, ser.service FROM records AS rec
+            $strSQL = 'SELECT rec.title, rec.userID, ser.service, needToKnow, categoryName FROM records AS rec
+                LEFT JOIN category_count USING (recordID)
+                LEFT JOIN categories USING (categoryID)
                 LEFT JOIN services AS ser USING (serviceID)
                 WHERE recordID = :recordID';
             $record = $this->db->prepared_query($strSQL, $vars);
-
 
             $vars = array(':stepID' => $stepID);
             $strSQL = 'SELECT stepTitle FROM workflow_steps WHERE stepID = :stepID';
             $groupName = $this->db->prepared_query($strSQL, $vars);
 
+            $fullTitle = $record[0]['title'];
+            $formType = $record[0]['categoryName'];
 
-            $title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
+            if($record[0]['needToKnow'] === 1) {
+                $title = $formType;
+                $fullTitle = $formType;
+            } else {
+                $title = strlen($fullTitle) > 45 ? substr($rfullTitle, 0, 42) . '...' : $fullTitle;
+            }
             $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
             $email->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
-                "fullTitle" => $record[0]['title'],
+                "fullTitle" => $fullTitle,
+                "formType" => $formType,
                 "recordID" => $this->recordID,
                 "service" => $record[0]['service'],
                 "stepTitle" => $groupName[0]['stepTitle'],
@@ -1424,8 +1433,10 @@ class FormWorkflow
                     $vars = array(':recordID' => $this->recordID);
 
                     // get the record and requestor
-                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
+                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service,needToKnow,categoryName
                         FROM records AS rec
+                        LEFT JOIN category_count USING (recordID)
+                        LEFT JOIN categories USING (categoryID)
                         LEFT JOIN services AS ser USING (serviceID)
                         WHERE recordID = :recordID';
                     $requestRecords = $this->db->prepared_query($strSQL, $vars);
@@ -1443,12 +1454,21 @@ class FormWorkflow
 
                         $email = new Email();
 
-                        $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
+                        $fullTitle = $requestRecords[0]['title'];
+                        $formType = $requestRecords[0]['categoryName'];
+
+                        if($requestRecords[0]['needToKnow'] === 1) {
+                            $title = $formType;
+                            $fullTitle = $formType;
+                        } else {
+                            $title = strlen($fullTitle) > 45 ? substr($rfullTitle, 0, 42) . '...' : $fullTitle;
+                        }
                         $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
-                            "fullTitle" => $requestRecords[0]['title'],
+                            "fullTitle" => $fullTitle,
+                            "formType" => $formType,
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],
                             "lastStatus" => $requestRecords[0]['lastStatus'],
@@ -1493,8 +1513,10 @@ class FormWorkflow
                     $vars = array(':recordID' => $this->recordID);
 
                     // get the record and requestor
-                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
+                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service,needToKnow,categoryName
                         FROM records AS rec
+                        LEFT JOIN category_count USING (recordID)
+                        LEFT JOIN categories USING (categoryID)
                         LEFT JOIN services AS ser USING (serviceID)
                         WHERE recordID = :recordID';
                     $requestRecords = $this->db->prepared_query($strSQL, $vars);
@@ -1512,12 +1534,21 @@ class FormWorkflow
 
                         $email = new Email();
 
-                        $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
+                        $fullTitle = $requestRecords[0]['title'];
+                        $formType = $requestRecords[0]['categoryName'];
+
+                        if($requestRecords[0]['needToKnow'] === 1) {
+                            $title = $formType;
+                            $fullTitle = $formType;
+                        } else {
+                            $title = strlen($fullTitle) > 45 ? substr($rfullTitle, 0, 42) . '...' : $fullTitle;
+                        }
                         $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
-                            "fullTitle" => $requestRecords[0]['title'],
+                            "fullTitle" => $fullTitle,
+                            "formType" => $formType,
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],
                             "lastStatus" => $requestRecords[0]['lastStatus'],
