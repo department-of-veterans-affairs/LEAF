@@ -5,6 +5,7 @@ export default {
             initialFocusElID: 'radio_restore_all',
             userOptionSelection: "all",
             userMessage: "",
+            processing: false,
         }
     },
     inject: [
@@ -12,9 +13,11 @@ export default {
         'CSRFToken',
 
         'restoreField',
-        'updateDisabledFields',
+        'updateAppData',
         'indicatorID_toRestore',
         'disabledAncestors',
+        'firstOrphanID',
+        'searchPending',
 
         'setDialogSaveFunction',
         'closeFormDialog'
@@ -24,7 +27,7 @@ export default {
     },
     mounted() {
         //set the initial message for the user and set focus
-        this.userMessage = `<p><b>This question has disabled parent questions:</b><br>${this.disabledAncestorsText}</p>`;
+        this.userMessage = `<p><b>This question has disabled parent questions:</b></p>`;
         const allRadio = document.getElementById(this.initialFocusElID);
         if(allRadio !== null) {
             allRadio.focus();
@@ -33,7 +36,7 @@ export default {
     computed: {
         disabledAncestorsText() {
             let idsOrderByParent = [ ...this.disabledAncestors ].reverse();
-            return "IDs: " + idsOrderByParent.join(", ");
+            return "parents: " + idsOrderByParent.join(", ");
         }
     },
     methods: {
@@ -44,36 +47,48 @@ export default {
         */
         onSave() {
             this.userMessage = "<b>Processing...</b>";
+            const indID = this.indicatorID_toRestore;
+            this.processing = true;
             if(this.userOptionSelection === "one") {
                 Promise.all([
-                    this.unsetParentID(this.indicatorID_toRestore),
-                    this.restoreField(this.indicatorID_toRestore)
+                    this.unsetParentID(indID),
+                    this.restoreField(indID)
                 ]).then(() => {
-                    this.updateDisabledFields(this.indicatorID_toRestore);
-                    this.userMessage = "";
+                    this.updateAppData(indID);
+                    //<b style="color:#064;">Field ${indID} restored</b>
+                    this.userMessage = ``;
                     this.closeFormDialog();
                 }).catch(err => console.log(err));
 
             } else {
+                this.userMessage = `<b style="color:#064;">Restoring Fields: `;
                 //restore method below will pop one each time
                 //in case of interruption, safe order is most distant parent to direct parent, then the ID to restore
-                let arrRestore = [ this.indicatorID_toRestore, ...this.disabledAncestors ];
+                let arrRestore = [ indID, ...this.disabledAncestors ];
 
                 const total = arrRestore.length;
                 let count = 0;
                 const restore = () => {
                     if(arrRestore.length > 0) {
                         const id = arrRestore.pop();
+                        const remaining = arrRestore.length;
                         this.restoreField(id)
                         .then(() => {
-                            this.updateDisabledFields(id);
+                            this.updateAppData(id, 750);
+                            this.userMessage += `${id}${remaining > 0 ? ", " : "</b>"}`;
                         }).catch(err => {
                             console.log(err);
                         }).finally(() => {
+                            //for the most distant parent restored, reset the parentID if there is an orphan NOTE: feedback?
+                            if (count === 0 && this.firstOrphanID !== null) {
+                                console.log("clear parent for", id)
+                                this.unsetParentID(id);
+                            }
                             count++;
                             if(count === total) {
-                                this.userMessage = "";
-                                this.closeFormDialog();
+                                setTimeout(() => {
+                                    this.closeFormDialog();
+                                }, 750);
                             }
                         });
 
@@ -81,20 +96,22 @@ export default {
                         clearInterval(intervalID);
                     }
                 }
-                const intervalID = setInterval(restore, 150);
+                const intervalID = setInterval(restore, 100);
             }
         },
         /**
-         * sets the parent ID of the indicator being restored to null.
+         * sets the parent ID of an indicator to null.
          * Used if a user decides to restore only a specific question when that question has disabled ancestors.
+         * Used on the most distant parentID for multiple restores in an orphan is detected
+         * @param {number} indicatorID
          * @returns promise
          */
-        unsetParentID() {
+        unsetParentID(indicatorID = 0) {
             let formData = new FormData();
             formData.append('CSRFToken', this.CSRFToken);
             formData.append('parentID', null);
 
-            return fetch(`${this.APIroot}formEditor/${this.indicatorID_toRestore}/parentID`, {
+            return fetch(`${this.APIroot}formEditor/${indicatorID}/parentID`, {
                 method: 'POST',
                 body: formData
             });
@@ -102,27 +119,35 @@ export default {
     },
     template: `
             <div id="restore_fields_parent_options" style="margin: 1em 0; min-height: 50px;">
-                <div v-if="userMessage !== ''" v-html="userMessage"></div>
-                <fieldset>
-                    <legend id="restore_fields_legend">Restore Options</legend>
-                    <label class="checkable leaf_check" for="radio_restore_all">
-                        <input type="radio" checked
-                            v-model="userOptionSelection"
-                            id="radio_restore_all"
-                            class="icheck leaf_check"
-                            value="all"
-                            aria-describedby="restore_fields_parent_options">
-                        <span class="leaf_check"></span> Restore associated fields
-                    </label>
-                    <label class="checkable leaf_check" for="radio_restore_one">
-                        <input type="radio"
-                            v-model="userOptionSelection"
-                            id="radio_restore_one"
-                            class="icheck leaf_check"
-                            value="one"
-                            aria-describedby="restore_fields_parent_options">
-                        <span class="leaf_check"></span> Only restore this field (This will break its associations)
-                    </label>
-                </fieldset>
+                <div v-if="searchPending === true" class="page_loading">
+                    Loading...
+                    <img src="../images/largespinner.gif" alt="" />
+                </div>
+                <template v-else>
+                <p>{{ firstOrphanID }} </p>
+                    <div v-if="userMessage !== ''" v-html="userMessage"></div>
+                    <div v-if="!processing">{{ disabledAncestorsText }}</div>
+                    <fieldset>
+                        <legend id="restore_fields_legend">Restore Options</legend>
+                        <label class="checkable leaf_check" for="radio_restore_all">
+                            <input type="radio" checked
+                                v-model="userOptionSelection"
+                                id="radio_restore_all"
+                                class="icheck leaf_check"
+                                value="all"
+                                aria-describedby="restore_fields_parent_options">
+                            <span class="leaf_check"></span> Restore associated fields
+                        </label>
+                        <label class="checkable leaf_check" for="radio_restore_one">
+                            <input type="radio"
+                                v-model="userOptionSelection"
+                                id="radio_restore_one"
+                                class="icheck leaf_check"
+                                value="one"
+                                aria-describedby="restore_fields_parent_options">
+                            <span class="leaf_check"></span> Only restore this field (This will break its associations)
+                        </label>
+                    </fieldset>
+                </template>
             </div>`
 }

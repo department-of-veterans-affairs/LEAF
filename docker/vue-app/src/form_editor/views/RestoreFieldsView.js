@@ -18,6 +18,8 @@ export default {
             },
             indicatorID_toRestore: null,
             disabledAncestors: [],
+            firstOrphanID: null,
+            searchPending: true
         }
     },
     components: {
@@ -37,9 +39,11 @@ export default {
         return {
             indicatorID_toRestore: computed(() => this.indicatorID_toRestore),
             disabledAncestors: computed(() => this.disabledAncestors),
+            firstOrphanID: computed(() => this.firstOrphanID),
+            searchPending: computed(() => this.searchPending),
 
             restoreField: this.restoreField,
-            updateDisabledFields: this.updateDisabledFields,
+            updateAppData: this.updateAppData,
         }
     },
     /**
@@ -61,14 +65,13 @@ export default {
             //set component data disabled fields array and enabled fields object
             this.disabledFields = resDisabled.filter(obj => +obj.indicatorID > 0);
             const enabledFields = resUnabridged.filter(obj => +obj.indicatorID > 0 && +obj.isDisabled === 0);
-            enabledFields.forEach(f => this.enabledFields[f.indicatorID] = f);
-
-            const arrOrphanIDs = this.getListOfOrphans();
-            if (arrOrphanIDs.length === 0) {
-                this.loading = false;
-            } else {
-                this.intervalArchiveOrphans(arrOrphanIDs)
-            }
+            enabledFields.forEach(
+                f => this.enabledFields[f.indicatorID] = { 
+                    indicatorID: f.indicatorID,
+                    parentIndicatorID: f.parentIndicatorID
+                }
+            );
+            this.loading = false;
 
         }).catch(err => console.log(err));
     },
@@ -110,15 +113,18 @@ export default {
          * Update indicatorID_toRestore and disabledAncestors component data
          * Restore if no disabled ancestors, otherwise use options modal
          * @param {number} indicatorID
-         * @param {number} parentIndicatorID
+         * @param {number|null} parentIndicatorID
          */
         restoreFieldGate(indicatorID, parentIndicatorID) {
             this.indicatorID_toRestore = indicatorID;
-            this.disabledAncestors = this.getDisabledAncestors(parentIndicatorID);
-            if(this.disabledAncestors.length === 0) {
-                this.restoreField(indicatorID).then(() => this.updateDisabledFields(indicatorID));
+            this.searchAncestorStates(parentIndicatorID);
+            
+            if(this.searchPending === false && this.disabledAncestors.length === 0 && this.firstOrphanID === null) {
+                this.restoreField(this.indicatorID_toRestore)
+                    .then(() => this.updateAppData(indicatorID, 750))
+                    .catch(err => console.log(err));
             } else {
-                this.openRestoreFieldOptionsDialog(indicatorID);
+                this.openRestoreFieldOptionsDialog(this.indicatorID_toRestore);
             }
         },
         /**
@@ -136,37 +142,11 @@ export default {
                 body: formData
             });
         },
-        intervalArchiveOrphans(arrOrphanIDs = []) {
-            const total = arrOrphanIDs.length;
-            let count = 0;
-            const archive = () => {
-                if(arrOrphanIDs.length > 0) {
-                    const id = arrOrphanIDs.pop();
-                    this.archiveField(id)
-                    .then(() => {
-                        console.log("success", id)
-                    }).catch(err => {
-                        console.log(err);
-                    }).finally(() => {
-                        count++;
-                        if(count === total) {
-                            fetch(`${this.APIroot}form/indicator/list/disabled`)
-                                .then(res => res.json())
-                                .then(data => {
-                                    this.disabledFields = data.filter(obj => +obj.indicatorID > 0);
-                                    this.loading = false;
-                                });
-                        }
-                    });
-
-                } else {
-                    clearInterval(intervalID);
-                }
-            }
-            const intervalID = setInterval(archive, 100);
+        getIndicator(indicatorID) {
+            return fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
         },
         /**
-         * Used to re-archive orphan enabled IDs
+         * Used to re-archive orphan enabled IDs NOTE: pending
          * @param {number} indicatorID
          * returns promise
         */
@@ -181,14 +161,18 @@ export default {
             });
         },
 
-        updateDisabledFields(indicatorID = "") {
+        updateAppData(indicatorID = "", timeout = 0) {
             let tableCell = document.getElementById(`restore_td_${indicatorID}`);
             if(tableCell !== null) {
                 tableCell.innerHTML = `<b style="color:#064;">Field restored</b>`
             }
             setTimeout(() => {
                 this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
-            }, 750);
+                this.enabledFields[indicatorID] = {
+                    indicatorID,
+                    parentIndicatorID: this.fieldParentIDLookup[indicatorID],
+                };
+            }, timeout);
         },
         sortHeader(sortKey = "") {
             if(this.disabledFields.length > 1 && this.headerSortTracking?.[sortKey] !== undefined) {
@@ -225,55 +209,61 @@ export default {
                 }
             }
         },
-        //checks a field to be restored for disabled ancestors
-        getDisabledAncestors(firstDirectParent = null) {
-            let indIDs = [];
-            if (this.disabledFieldsLookup[firstDirectParent] === 1) {
-                indIDs.push(firstDirectParent);
-            }
-            let nextID = +this.fieldParentIDLookup[firstDirectParent];
-            while(nextID > 0) {
-                if (this.disabledFieldsLookup[nextID] === 1) {
-                    indIDs.push(nextID);
-                }
-                nextID = +this.fieldParentIDLookup[nextID];
-            }
-            return indIDs;
-        },
-        getListOfOrphans() {
-            let iIDs = [];
-            let pID = null;
-            this.disabledFields.forEach(f => {
-                pID = f.parentIndicatorID;
-                if (pID !== null) { //exclude page level questions
-                    const firstOrphanID = this.getFirstEnabledOrphanIndicatorID(pID);
-                    if(firstOrphanID > 0) {
-                        iIDs.push(firstOrphanID);
+        //searches up the ancestor chain for the field to be restored.
+        //updates app data disabledAncestors if any are found
+        //updates app data firstOrphanID if an orphan is found
+        searchAncestorStates(directParentID = null) {
+            this.disabledAncestors = [];
+            this.firstOrphanID = null;
+            
+            let baseParent = null;
+            if(directParentID !== null) {
+                baseParent = directParentID;
+                while(directParentID > 0) {
+                    //if ancestor is confirmed inactive, add it and update variable
+                    if (this.disabledFieldsLookup[directParentID] === 1) {
+                        this.disabledAncestors.push(directParentID);
+                        directParentID = +this.fieldParentIDLookup[directParentID];
+
+                    } else {
+                        //if it's accounted for, just update the loop variable
+                        if (this.enabledFields[directParentID]?.indicatorID > 0) {
+                            directParentID = +this.fieldParentIDLookup[directParentID];
+
+                        //otherwise, try to get the data (this situation only occurs if an enabled q is a child of a delete one and should not occur often)
+                        } else {
+                            this.firstOrphanID = directParentID;
+                            directParentID = 0;
+                        } 
                     }
                 }
-            });
-            iIDs = Array.from(new Set(iIDs));
-            return iIDs;
-        },
-        /*Orphaned fields are enabled children of deleted(not archived) questions.
-        They are not in the disabled list, nor returned by /unabridged, but can be found via direct disabled subchildren.
-        They interfer with the prevention of ophans because they create gaps in the ID: parent chain. */
-        getFirstEnabledOrphanIndicatorID(firstIndicatorID = null) {
-            let returnValue = null;
-            if (this.disabledFieldsLookup[firstIndicatorID] !== 1 && !this.enabledFields[firstIndicatorID]?.indicatorID > 0) {
-                returnValue = firstIndicatorID;
+                
+                if(this.firstOrphanID !== null) {
+                    this.getIndicator(this.firstOrphanID)
+                        .then(res => res.json()
+                        .then(data => {
+                            const indicator = data?.[this.firstOrphanID];
+                            console.log("got ind", indicator);
+                            if(indicator?.indicatorID > 0) {
+                                const { parentID:parentIndicatorID, indicatorID } = indicator;
+                                this.enabledFields[indicatorID] = { indicatorID, parentIndicatorID }
+                                this.searchAncestorStates(baseParent);
+                            } else {
+                                this.searchPending = false;
+                            }
+
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                    );
+
+                } else {
+                    this.searchPending = false;
+                }
             } else {
-                let nextID = this.fieldParentIDLookup[firstIndicatorID];
-                while(nextID > 0) {
-                    if (this.disabledFieldsLookup[nextID] !== 1 && !this.enabledFields[nextID]?.indicatorID > 0) {
-                        returnValue = nextID;
-                        break;
-                    }
-                    nextID = this.fieldParentIDLookup[nextID];
-                }
+                this.searchPending = false;
             }
-            return returnValue;
-        }
+        },
     },
     template: `<section id="restore_fields_view">
             <h2 id="page_breadcrumbs">
@@ -341,7 +331,7 @@ export default {
                             <td style="word-break:break-word;">{{ f.format }}</td>
                             <td>{{ f.disabled }}</td>
                             <td :id="'restore_td_' + f.indicatorID"><button type="button" class="btn-general" style="margin:auto;"
-                                @click="restoreFieldGate(+f.indicatorID, +f.parentIndicatorID)">
+                                @click="restoreFieldGate(f.indicatorID, f.parentIndicatorID)">
                                 Restore this field</button>
                             </td>
                         </tr>
