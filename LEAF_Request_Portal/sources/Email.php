@@ -615,16 +615,17 @@ class Email
 
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
-            $fullTitle = $approvers[0]['title'];
-            $formType = $approvers[0]['categoryName'];
+            $formType = trim(strip_tags(
+                htmlspecialchars_decode($approvers[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+            ));
 
+            $fullTitle = trim(strip_tags(
+                htmlspecialchars_decode($approvers[0]['title'], ENT_QUOTES | ENT_HTML5)
+            ));
             if($approvers[0]['needToKnow'] === 1) {
-                $title = $formType;
                 $fullTitle = $formType;
-            } else {
-                $title = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
             }
-            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+            $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
@@ -765,16 +766,17 @@ class Email
         } elseif ($emailTemplateID === -4) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
             $recordInfo = $this->getRecord($recordID);
-            $fullTitle = $recordInfo[0]['title'];
-            $formType = $recordInfo[0]['categoryName'];
+            $formType = trim(strip_tags(
+                htmlspecialchars_decode($recordInfo[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+            ));
 
+            $fullTitle = trim(strip_tags(
+                htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
+            ));
             if($recordInfo[0]['needToKnow'] === 1) {
-                $title = $formType;
                 $fullTitle = $formType;
-            } else {
-                $title = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
             }
-            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+            $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
@@ -803,16 +805,17 @@ class Email
 
             $comment = $comments[0]['comment'] === '' ? '' : 'Reason for cancelling: ' . $comments[0]['comment'] . '<br /><br />';
 
-            $fullTitle = $recordInfo[0]['title'];
-            $formType = $recordInfo[0]['categoryName'];
+            $formType = trim(strip_tags(
+                htmlspecialchars_decode($recordInfo[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+            ));
 
+            $fullTitle = trim(strip_tags(
+                htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
+            ));
             if($recordInfo[0]['needToKnow'] === 1) {
-                $title = $formType;
                 $fullTitle = $formType;
-            } else {
-                $title = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
             }
-            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+            $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
 
 
             $this->addSmartyVariables(array(

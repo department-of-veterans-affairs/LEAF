@@ -1344,16 +1344,17 @@ class FormWorkflow
             $strSQL = 'SELECT stepTitle FROM workflow_steps WHERE stepID = :stepID';
             $groupName = $this->db->prepared_query($strSQL, $vars);
 
-            $fullTitle = $record[0]['title'];
-            $formType = $record[0]['categoryName'];
+            $formType = trim(strip_tags(
+                htmlspecialchars_decode($record[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+            ));
 
+            $fullTitle = trim(strip_tags(
+                htmlspecialchars_decode($record[0]['title'], ENT_QUOTES | ENT_HTML5)
+            ));
             if($record[0]['needToKnow'] === 1) {
-                $title = $formType;
                 $fullTitle = $formType;
-            } else {
-                $title = strlen($fullTitle) > 45 ? substr($rfullTitle, 0, 42) . '...' : $fullTitle;
             }
-            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+            $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
 
             $email->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
@@ -1454,16 +1455,17 @@ class FormWorkflow
 
                         $email = new Email();
 
-                        $fullTitle = $requestRecords[0]['title'];
-                        $formType = $requestRecords[0]['categoryName'];
+                        $formType = trim(strip_tags(
+                            htmlspecialchars_decode($requestRecords[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+                        ));
 
+                        $fullTitle = trim(strip_tags(
+                            htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
+                        ));
                         if($requestRecords[0]['needToKnow'] === 1) {
-                            $title = $formType;
                             $fullTitle = $formType;
-                        } else {
-                            $title = strlen($fullTitle) > 45 ? substr($rfullTitle, 0, 42) . '...' : $fullTitle;
                         }
-                        $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+                        $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
@@ -1534,16 +1536,17 @@ class FormWorkflow
 
                         $email = new Email();
 
-                        $fullTitle = $requestRecords[0]['title'];
-                        $formType = $requestRecords[0]['categoryName'];
+                        $formType = trim(strip_tags(
+                            htmlspecialchars_decode($requestRecords[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+                        ));
 
+                        $fullTitle = trim(strip_tags(
+                            htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
+                        ));
                         if($requestRecords[0]['needToKnow'] === 1) {
-                            $title = $formType;
                             $fullTitle = $formType;
-                        } else {
-                            $title = strlen($fullTitle) > 45 ? substr($rfullTitle, 0, 42) . '...' : $fullTitle;
                         }
-                        $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+                        $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
