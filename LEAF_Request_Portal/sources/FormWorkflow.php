@@ -171,7 +171,7 @@ class FormWorkflow
 
         $pdRecordIDs = implode(',', $pdRecordIDs);
 
-        $query = "SELECT recordID, `data`, `name`, indicatorID FROM `data`
+        $query = "SELECT recordID, `data`, `name`, indicatorID, metadata FROM `data`
                     LEFT JOIN indicators USING (indicatorID)
                     WHERE indicatorID IN ({$pdIndicators}) 
                         AND recordID IN ({$pdRecordIDs})
@@ -185,16 +185,20 @@ class FormWorkflow
             if(isset($pdRecordsMap[$record['recordID']][$record['indicatorID']])) {
                 $dRecords[$record['recordID']]['data'] = $record['data'];
                 $dRecords[$record['recordID']]['name'] = $record['name'];
+                $metaData = json_decode($record['metadata'], true);
+                if($metaData != null) {
+                    $dRecords[$record['recordID']]['metadata'] = $metaData;
+                }
             }
         }
 
-        $dir = $this->getDirectory();
         // loop through all srcRecords
         foreach($srcRecords as $i => $v) {
+            $recordID = $v['recordID'];
             // amend actionable status
             if(isset($dRecords[$v['recordID']])) {
                 if($srcRecords[$i]['isActionable'] == 0) {
-                    $srcRecords[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$v['recordID']]['data']);
+                    $srcRecords[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$recordID]['data']);
                 }
 
                 if($skipNames) {
@@ -203,16 +207,17 @@ class FormWorkflow
 
                 // Only amend approverName for person designated records
                 if($v['dependencyID'] == -1) {
-                    $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
-                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' ( *NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'] . ')';
-                        $srcRecords[$i]['approverName'] = '*NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'];
+                    if (!isset($dRecords[$recordID]['metadata'])
+                        || empty($dRecords[$recordID]['metadata']['userName'])) {
+                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' ( *NEEDS REASSIGNMENT* ' . $dRecords[$recordID]['name'] . ')';
+                        $srcRecords[$i]['approverName'] = '*NEEDS REASSIGNMENT* ' . $dRecords[$recordID]['name'];
                         $srcRecords[$i]['approverUID'] = 'indicatorID:' . $srcRecords[$i]['indicatorID_for_assigned_empUID'];
                     }
                     else {
-                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                        $srcRecords[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
-                        $srcRecords[$i]['approverUID'] = $approver[0]['Email'];
+                        $metaData = $dRecords[$recordID]['metadata'];
+                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $metaData['firstName'] . ' ' . $metaData['lastName'] . ')';
+                        $srcRecords[$i]['approverName'] = $metaData['firstName'] . ' ' . $metaData['lastName'];
+                        $srcRecords[$i]['approverUID'] = $metaData['email'];
                     }
                 }
             }
