@@ -43,6 +43,7 @@
     }
 </style>
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
+<script src="../libs/js/LEAF/intervalQueue.js"></script>
 
 <div id="massActionContainer">
     <h1>Mass Action</h1>
@@ -60,6 +61,10 @@
             <textarea id="comment_cancel" rows="4" style="display:block;resize:vertical;width:530px;margin-top:2px"></textarea>
         </div>
     </div>
+    <div id="progressContainer">
+        <div id="progressbar"></div>
+    </div>
+    <div class="progress" style="text-align: center;"></div>
 
     <div id="searchRequestsContainer"></div>
 
@@ -72,7 +77,7 @@
     <img id="iconBusy" src="./images/indicator.gif" class="employeeSelectorIcon" alt="busy" />
     <div id="searchResults">
         <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal">Take Action</button>
-        <div class="progress"></div>
+
         <table id="requests">
             <tr id="headerRow">
                 <th>UID</th>
@@ -84,7 +89,6 @@
         </table>
         <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal">Take Action</button>
     </div>
-    <div class="progress"></div>
     <div id="errorMessage"></div>
 </div>
 <script>
@@ -130,6 +134,8 @@ $(document).ready(function () {
             );
 
             dialog_confirm.setSaveHandler(function () {
+                // hide all the extra stuff on the screen and show the progress bar
+                $("#searchRequestsContainer, #searchResults, #errorMessage").hide();
                 executeMassAction();
                 dialog_confirm.hide();
             });
@@ -176,36 +182,41 @@ function chooseAction() {
     let actionValue = $("#action").val();
     $("#comment_cancel").val("");
     $("#comment_cancel_container").hide();
-    if (actionValue !== "" && actionValue !== "email") {
-        // Hide the email reminder and reset then show other options search and perform
-        $("#emailSection").hide();
-        $("#searchRequestsContainer").show();
-        if(actionValue === "cancel") {
-            $("#comment_cancel_container").show();
-        }
-        leafSearch.init();
-        doSearch();
-    }
-    // If selected 'Email Reminder' then hide searches, show last action select
-    else if (actionValue === "email") {
-        $(
-            "#emailSection, #searchRequestsContainer, #searchResults, #errorMessage"
-        ).show();
-        // When changing the time of last action, grab the value selected and search it
-        $("#lastAction").change(function () {
+
+    switch (actionValue) {
+        case "cancel":
+            // no break;
+        case "restore":
+            // no break;
+        case "submit":
+            $("#emailSection").hide();
+            $("#searchRequestsContainer").show();
+
+            if(actionValue === "cancel") {
+                $("#comment_cancel_container").show();
+            }
+
+            leafSearch.init();
+            doSearch();
+            break;
+        case "email":
+            $("#emailSection, #searchRequestsContainer, #searchResults, #errorMessage").show();
+
+            // When changing the time of last action, grab the value selected and search it
+            $("#lastAction").change(function () {
+                reminderDaysSearch();
+            });
+
+            $("#submitSearchByDays").click(function () {
+                reminderDaysSearch();
+            });
+
+            leafSearch.init();
             reminderDaysSearch();
-        });
-        $("#submitSearchByDays").click(function () {
-            reminderDaysSearch();
-        });
-        leafSearch.init();
-        reminderDaysSearch();
-    }
-    // Nothing selected so hide search and email sections
-    else {
-        $(
-            "#emailSection, #searchRequestsContainer, #searchResults, #errorMessage"
-        ).hide();
+            break;
+        default:
+            $("#emailSection, #searchRequestsContainer, #searchResults, #errorMessage").hide();
+            break;
     }
 }
 
@@ -421,6 +432,10 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
  * Executes the selected action on each request selected in the table
  */
 function executeMassAction() {
+    let progressbar = $('#progressbar').progressbar();
+    $('#progressbar').attr('aria-label', `Searching for records`);
+
+    let queue = new intervalQueue();
     const commentValue = ($("#comment_cancel").val() || "").trim();
     if (actionValue === "cancel" && commentValue === "") {
         noteRequired();
@@ -436,6 +451,8 @@ function executeMassAction() {
     totalActions = selectedRequests.length;
     successfulActionRecordIDs = [];
     failedActionRecordIDs = [];
+
+    $('#progressbar').progressbar('option', 'max', totalActions);
 
     if (totalActions) {
         $("button.takeAction").attr("disabled", "disabled");
@@ -461,8 +478,37 @@ function executeMassAction() {
                     "./api/form/" + recordID + "/reminder/" + reminderDaysSince;
                 break;
         }
+        queue.push({ recordID, ajaxPath, ajaxData });
+    });
 
-        executeOneAction(recordID, ajaxPath, ajaxData);
+    queue.setWorker(item => {
+        $('#progressContainer').slideDown();
+        $('#progressbar').progressbar('option', 'value', queue.getLoaded());
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: "POST",
+                url: item.ajaxPath,
+                data: item.ajaxData,
+                dataType: "text",
+                cache: false,
+            }).done(function () {
+                successTrueFalse = true;
+                updateProgress(item.recordID, successTrueFalse);
+                resolve();
+            }).fail(function (jqXHR, error, errorThrown) {
+                successTrueFalse = false;
+                updateProgress(item.recordID, successTrueFalse);
+                console.log(jqXHR);
+                console.log(error);
+                console.log(errorThrown);
+                reject();
+            });
+        });
+    });
+
+    queue.setConcurrency(1);
+    queue.start().then(res => {
+        $('#progressContainer').slideUp();
     });
 }
 
