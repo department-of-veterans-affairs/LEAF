@@ -84,6 +84,10 @@
                                 <td>A truncated version of the request title</td>
                             </tr>
                             <tr>
+                                <td><b>{{$formType}}</b></td>
+                                <td>The type of form</td>
+                            </tr>
+                            <tr>
                                 <td><b>{{$lastStatus}}</b></td>
                                 <td>The last action taken for the request</td>
                             </tr>

@@ -622,7 +622,7 @@ class Email
                 $title = $formType;
                 $fullTitle = $formType;
             } else {
-                $title = strlen($fullTitle) > 45 ? substr($rfullTitle, 0, 42) . '...' : $fullTitle;
+                $title = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
             }
             $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
@@ -765,13 +765,21 @@ class Email
         } elseif ($emailTemplateID === -4) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
             $recordInfo = $this->getRecord($recordID);
+            $fullTitle = $recordInfo[0]['title'];
+            $formType = $recordInfo[0]['categoryName'];
 
-            $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
+            if($recordInfo[0]['needToKnow'] === 1) {
+                $title = $formType;
+                $fullTitle = $formType;
+            } else {
+                $title = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            }
             $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
-                "fullTitle" => $recordInfo[0]['title'],
+                "fullTitle" => $fullTitle,
+                "formType" => $formType,
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $recordInfo[0]['lastStatus'],
@@ -795,12 +803,22 @@ class Email
 
             $comment = $comments[0]['comment'] === '' ? '' : 'Reason for cancelling: ' . $comments[0]['comment'] . '<br /><br />';
 
-            $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
+            $fullTitle = $recordInfo[0]['title'];
+            $formType = $recordInfo[0]['categoryName'];
+
+            if($recordInfo[0]['needToKnow'] === 1) {
+                $title = $formType;
+                $fullTitle = $formType;
+            } else {
+                $title = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            }
             $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
-                "fullTitle" => $recordInfo[0]['title'],
+                "fullTitle" => $fullTitle,
+                "formType" => $formType,
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $comments[0]['actionType'],
@@ -823,8 +841,10 @@ class Email
     {
         $vars = array(':recordID' => $recordID);
         $strSQL =  "SELECT `rec`.`userID`, `rec`.`serviceID`, `ser`.`service`, `rec`.`title`,
-                        `rec`.`lastStatus`
+                        `rec`.`lastStatus`,`needToKnow`,`categoryName`
                     FROM `records` AS `rec`
+                    LEFT JOIN category_count USING (recordID)
+                    LEFT JOIN categories USING (categoryID)
                     LEFT JOIN `services` AS `ser` USING (`serviceID`)
                     WHERE `recordID` = :recordID";
 
