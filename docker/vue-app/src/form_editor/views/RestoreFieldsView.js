@@ -104,7 +104,10 @@ export default {
 
         disabledFieldsLookup() {
             let lookup = {};
-            this.disabledFields.forEach(f => lookup[f.indicatorID] = 1)
+            this.disabledFields.forEach(f => lookup[f.indicatorID] = {
+                indicatorID: f.indicatorID,
+                name: f.name
+            })
             return lookup;
         },
     },
@@ -145,22 +148,6 @@ export default {
         getIndicator(indicatorID) {
             return fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
         },
-        /**
-         * Used to re-archive orphan enabled IDs NOTE: pending
-         * @param {number} indicatorID
-         * returns promise
-        */
-        archiveField(indicatorID) {
-            let formData = new FormData();
-            formData.append('CSRFToken', this.CSRFToken);
-            formData.append('disabled', 1);
-
-            return fetch(`${this.APIroot}formEditor/${indicatorID}/disabled`, {
-                method: 'POST',
-                body: formData
-            });
-        },
-
         updateAppData(indicatorID = "", timeout = 0) {
             let tableCell = document.getElementById(`restore_td_${indicatorID}`);
             if(tableCell !== null) {
@@ -221,8 +208,8 @@ export default {
                 baseParent = directParentID;
                 while(directParentID > 0) {
                     //if ancestor is confirmed inactive, add it and update variable
-                    if (this.disabledFieldsLookup[directParentID] === 1) {
-                        this.disabledAncestors.push(directParentID);
+                    if (this.disabledFieldsLookup[directParentID]?.indicatorID > 0) {
+                        this.disabledAncestors.push(this.disabledFieldsLookup[directParentID]);
                         directParentID = +this.fieldParentIDLookup[directParentID];
 
                     } else {

@@ -34,9 +34,17 @@ export default {
         }
     },
     computed: {
-        disabledAncestorsText() {
-            let idsOrderByParent = [ ...this.disabledAncestors ].reverse();
-            return "parents: " + idsOrderByParent.join(", ");
+        disabledAncestorsList() {
+            return [ ...this.disabledAncestors ].reverse();
+        },
+        listStyles() {
+            return {
+                listStyleType: "disc",
+                marginLeft: "0.5rem",
+                paddingTop: "0.75rem",
+                lineHeight: "1.4",
+                paddingInlineStart: "1rem",
+            }
         }
     },
     methods: {
@@ -64,13 +72,13 @@ export default {
                 this.userMessage = `<b style="color:#064;">Restoring Fields: `;
                 //restore method below will pop one each time
                 //in case of interruption, safe order is most distant parent to direct parent, then the ID to restore
-                let arrRestore = [ indID, ...this.disabledAncestors ];
+                let arrRestore = [ { indicatorID: indID }, ...this.disabledAncestors ];
 
                 const total = arrRestore.length;
                 let count = 0;
                 const restore = () => {
                     if(arrRestore.length > 0) {
-                        const id = arrRestore.pop();
+                        const id = arrRestore.pop().indicatorID;
                         const remaining = arrRestore.length;
                         this.restoreField(id)
                         .then(() => {
@@ -79,9 +87,8 @@ export default {
                         }).catch(err => {
                             console.log(err);
                         }).finally(() => {
-                            //for the most distant parent restored, reset the parentID if there is an orphan NOTE: feedback?
+                            //for the most distant parent restored, reset the parentID if there is an orphan
                             if (count === 0 && this.firstOrphanID !== null) {
-                                console.log("clear parent for", id)
                                 this.unsetParentID(id);
                             }
                             count++;
@@ -126,7 +133,11 @@ export default {
                 <template v-else>
                 <p>{{ firstOrphanID }} </p>
                     <div v-if="userMessage !== ''" v-html="userMessage"></div>
-                    <div v-if="!processing">{{ disabledAncestorsText }}</div>
+                    <ul v-if="!processing" :style="listStyles">
+                        <li v-for="element in disabledAncestorsList" style="display:list-item;">
+                            <b>{{ element.indicatorID }}</b>: {{ element.name. length > 45 ? element.name.slice(0, 42) + "..." : element.name }}
+                        </li>
+                    </ul>
                     <fieldset>
                         <legend id="restore_fields_legend">Restore Options</legend>
                         <label class="checkable leaf_check" for="radio_restore_all">
