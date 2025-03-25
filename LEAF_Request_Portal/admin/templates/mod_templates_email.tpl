@@ -77,11 +77,11 @@
                             </tr>
                             <tr>
                                 <td><b>{{$fullTitle}}</b></td>
-                                <td>The full title of the request. <span style="color:#c00000;">If Need to Know is on: The type of form.</span></td>
+                                <td>The full title of the request. <span style="color:#c00000;">If need to know is on: The type of form.</span></td>
                             </tr>
                             <tr>
                                 <td><b>{{$truncatedTitle}}</b></td>
-                                <td>A truncated version of the request title. <span style="color:#c00000;">If Need to Know is on: The type of form.</span></td>
+                                <td>A truncated version of the request title. <span style="color:#c00000;">If need to know is on: The type of form.</span></td>
                             </tr>
                             <tr>
                                 <td><b>{{$formType}}</b></td>
