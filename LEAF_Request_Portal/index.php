@@ -265,6 +265,11 @@ switch ($action) {
 
         break;
     case 'inbox':
+        header('Refresh: 2;URL=report.php?a=LEAF_Inbox&organizeByRole&adminView');
+
+        echo 'Redirecting to the Inbox. Please update your bookmarks.';
+        exit();
+    case 'inbox_old':
         $main->assign('useUI', true);
         $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
         $main->assign('javascripts', array('js/form.js',
