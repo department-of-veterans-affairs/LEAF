@@ -990,5 +990,4 @@
 
 <h2 style="text-align: center; padding-top: 5em">No more items in your inbox. Have a good day!</h2>
 
-<a href="index.php?a=inbox" style="margin-top: 3em">View Original Inbox</a>
 </div>
