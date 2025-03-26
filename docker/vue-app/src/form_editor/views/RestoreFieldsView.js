@@ -8,14 +8,9 @@ export default {
     data() {
         return {
             loading: true,
+            formGrid: null,
             disabledFields: [],
             enabledFields: {},
-            headerSortTracking: {
-                indicatorID: null,
-                categoryName: null,
-                name: null,
-                format: null,
-            },
             indicatorID_toRestore: null,
             disabledAncestors: [],
             firstOrphanID: null,
@@ -31,6 +26,7 @@ export default {
         'CSRFToken',
         'setDefaultAjaxResponseMessage',
         'openRestoreFieldOptionsDialog',
+        'decodeAndStripHTML',
 
         'showFormDialog',
         'dialogFormContent'
@@ -62,8 +58,16 @@ export default {
         Promise.all([disabledPromise, unabridgedPromise]).then(data => {
             const resDisabled = data[0];
             const resUnabridged = data[1];
+            let dFields = [];
             //set component data disabled fields array and enabled fields object
-            this.disabledFields = resDisabled.filter(obj => +obj.indicatorID > 0);
+            resDisabled.map(obj => {
+                if(+obj.indicatorID > 0) {
+                    obj.name = this.decodeAndStripHTML(obj.name);
+                    dFields.push(obj);
+                }
+            });
+            this.disabledFields = dFields;
+
             const enabledFields = resUnabridged.filter(obj => +obj.indicatorID > 0 && +obj.isDisabled === 0);
             enabledFields.forEach(
                 f => this.enabledFields[f.indicatorID] = { 
@@ -101,13 +105,9 @@ export default {
             }
             return lookup;
         },
-
         disabledFieldsLookup() {
             let lookup = {};
-            this.disabledFields.forEach(f => lookup[f.indicatorID] = {
-                indicatorID: f.indicatorID,
-                name: f.name
-            })
+            this.disabledFields.forEach(f => lookup[f.indicatorID] = { ...f, recordID: f.indicatorID });
             return lookup;
         },
     },
@@ -121,10 +121,10 @@ export default {
         restoreFieldGate(indicatorID, parentIndicatorID) {
             this.indicatorID_toRestore = indicatorID;
             this.searchAncestorStates(parentIndicatorID);
-            
+
             if(this.searchPending === false && this.disabledAncestors.length === 0 && this.firstOrphanID === null) {
                 this.restoreField(this.indicatorID_toRestore)
-                    .then(() => this.updateAppData(indicatorID, 750))
+                    .then(() => this.updateAppData(indicatorID, 1250))
                     .catch(err => console.log(err));
             } else {
                 this.openRestoreFieldOptionsDialog(this.indicatorID_toRestore);
@@ -148,52 +148,35 @@ export default {
         getIndicator(indicatorID) {
             return fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
         },
-        updateAppData(indicatorID = "", timeout = 0) {
-            let tableCell = document.getElementById(`restore_td_${indicatorID}`);
-            if(tableCell !== null) {
-                tableCell.innerHTML = `<b style="color:#064;">Field restored</b>`
-            }
+        updateTableIfNoResults() {
+            //force full file read before running - default message would otherwise be added after this method runs.
             setTimeout(() => {
-                this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
-                this.enabledFields[indicatorID] = {
-                    indicatorID,
-                    parentIndicatorID: this.fieldParentIDLookup[indicatorID],
-                };
-            }, timeout);
+                let tBody = document.getElementById(this.formGrid.getPrefixID() + "tbody");
+                if (this.disabledFields.length === 0 && tBody !== null) {
+                    tBody.innerHTML = `<tr><td colspan="6" style="text-align: center">No Fields To Restore</td></tr>`;
+                }
+            });
         },
-        sortHeader(sortKey = "") {
-            if(this.disabledFields.length > 1 && this.headerSortTracking?.[sortKey] !== undefined) {
-                if(this.headerSortTracking[sortKey] === null) {
-                    this.disabledFields = this.disabledFields.toSorted(
-                        (a, b) => String(a[sortKey]).localeCompare(
-                            String(b[sortKey]),
-                            undefined,
-                            {
-                                numeric: sortKey === 'indicatorID',
-                                sensitivity: 'base',
-                            }
-                        )
-                    );
-                    this.headerSortTracking[sortKey] = 0;
-                } else {
-                    const isAsc = this.headerSortTracking[sortKey] === 0;
-                    this.headerSortTracking[sortKey] = isAsc ? 1 : 0;
-                    this.disabledFields = this.disabledFields.toSorted(
-                        (a, b) => (isAsc ? -1 : 1) * String(a[sortKey]).localeCompare(
-                            String(b[sortKey]),
-                            undefined,
-                            {
-                                numeric: sortKey === 'indicatorID',
-                                sensitivity: 'base',
-                            }
-                        )
-                    );
-                }
-                for (let k in this.headerSortTracking) {
-                    if (k !== sortKey) {
-                        this.headerSortTracking[k] = null;
-                    }
-                }
+        updateAppData(indicatorID = "", timeout = 0) {
+            this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
+            this.enabledFields[indicatorID] = {
+                indicatorID,
+                parentIndicatorID: this.fieldParentIDLookup[indicatorID],
+            };
+            this.formGrid.setDataBlob(this.disabledFieldsLookup)
+
+            const tableBodyID = this.formGrid.getPrefixID() + "tbody";
+            const tableRowID = this.formGrid.getPrefixID() + "tbody_tr" + indicatorID;
+            let tableBody = document.getElementById(tableBodyID);
+            let tableRow = document.getElementById(tableRowID);
+            if(tableBody !== null && tableRow !== null) {
+                tableRow.innerHTML = `<td colspan="6" style="text-align:center;">
+                    <b style="color:#064;">Field restored</b>
+                </td>`;
+                setTimeout(() => {
+                    tableBody.removeChild(tableRow);
+                    this.updateTableIfNoResults();
+                }, timeout);
             }
         },
         //searches up the ancestor chain for the field to be restored.
@@ -230,7 +213,6 @@ export default {
                         .then(res => res.json()
                         .then(data => {
                             const indicator = data?.[this.firstOrphanID];
-                            console.log("got ind", indicator);
                             if(indicator?.indicatorID > 0) {
                                 const { parentID:parentIndicatorID, indicatorID } = indicator;
                                 this.enabledFields[indicatorID] = { indicatorID, parentIndicatorID }
@@ -251,6 +233,110 @@ export default {
                 this.searchPending = false;
             }
         },
+        initializeAppGrid() {
+            this.formGrid = new LeafFormGrid("restore_fields_grid", {});
+            this.formGrid.setRootURL('../');
+            this.formGrid.hideIndex();
+            this.formGrid.enableToolbar();
+            this.formGrid.setHeaders([
+                {
+                    name: 'indicatorID&nbsp;',
+                    indicatorID: 'indicatorID',
+                    editable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].indicatorID;
+                        }
+                    }
+                },
+                {
+                    name: 'Form&nbsp;',
+                    indicatorID:'categoryName',
+                    editable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].categoryName;
+                        }
+                    }
+                },
+                {
+                    name: 'Field Name&nbsp;',
+                    indicatorID:'name',
+                    editable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].name;
+                        }
+                    }
+                },
+                {
+                    name: 'Input Format',
+                    indicatorID:'fomrat',
+                    editable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].format;
+                        }
+                    }
+                },
+                {
+                    name: 'Status ',
+                    indicatorID:'disabled',
+                    editable: false,
+                    sortable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].disabled;
+                        }
+                    }
+                },
+                {
+                    name: 'Restore ',
+                    indicatorID:'restore',
+                    editable: false,
+                    sortable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            const ID = blob[data.recordID].indicatorID;
+                            const pID = blob[data.recordID].parentIndicatorID;
+                            elContainer.innerHTML = `
+                                <button type="button" id="restore_indicator_${ID}"
+                                    class="btn-general" style="margin: auto;">
+                                    Restore this field
+                                </button>`;
+                            let elBtn = document.getElementById(`restore_indicator_${ID}`);
+                            if(elBtn !== null) {
+                                elBtn.addEventListener("click", () => this.restoreFieldGate(ID, pID));
+                            }
+                        }
+                    }
+                },
+            ]);
+            let arrHeaders = Array.from(document.querySelectorAll('table > thead > tr > th'));
+            arrHeaders.forEach(h => {
+                h.style.padding = "4px 8px";
+                h.style.fontSize = "1rem";
+                h.style.fontWeight = "bold";
+            });
+
+            this.formGrid.setDataBlob(this.disabledFieldsLookup);
+            this.formGrid.renderBody();
+            this.updateTableIfNoResults();
+            this.formGrid.setPostSortRequestFunc(this.updateTableIfNoResults);
+        }
+    },
+    watch: {
+        loading(newValue, oldValue) {
+            if(newValue === false) {
+                this.initializeAppGrid();
+            }
+        }
     },
     template: `<section id="restore_fields_view">
             <h2 id="page_breadcrumbs">
@@ -261,71 +347,11 @@ export default {
             </h2>
             <h3>List of disabled fields available for recovery</h3>
             <div>Deleted fields and associated data will not display in the Report Builder.</div>
-
             <div v-if="loading === true" class="page_loading">
                 Loading...
                 <img src="../images/largespinner.gif" alt="" />
             </div>
-            <template v-else>
-                <table v-if="disabledFields.length > 0">
-                    <thead>
-                        <tr>
-                            <th>
-                                <button type="button" @click="sortHeader('indicatorID')">
-                                    indicatorID
-                                    <span aria-hidden="true">
-                                        {{ headerSortTracking.indicatorID === 0 ? "▲" :
-                                           headerSortTracking.indicatorID === 1 ? "▼" : "" }}
-                                    </span>
-                                </button>
-                            </th>
-                            <th>
-                                <button type="button" @click="sortHeader('categoryName')">
-                                    Form
-                                    <span aria-hidden="true">
-                                        {{ headerSortTracking.categoryName === 0 ? "▲" :
-                                           headerSortTracking.categoryName === 1 ? "▼" : "" }}
-                                    </span>
-                                </button>
-                            </th>
-                            <th>
-                                <button type="button" @click="sortHeader('name')">
-                                    Field Name
-                                    <span aria-hidden="true">
-                                        {{ headerSortTracking.name === 0 ? "▲" :
-                                           headerSortTracking.name === 1 ? "▼" : "" }}
-                                    </span>
-                                </button>
-                            </th>
-                            <th>
-                                <button type="button" @click="sortHeader('format')">
-                                    Input Format
-                                    <span aria-hidden="true">
-                                        {{ headerSortTracking.format === 0 ? "▲" :
-                                           headerSortTracking.format === 1 ? "▼" : "" }}
-                                    </span>
-                                </button>
-                            </th>
-                            <th>Status</th>
-                            <th>Restore</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fields">
-                        <tr v-for="f in disabledFields" :key="f.indicatorID">
-                            <td>{{ f.indicatorID }}</td>
-                            <td>{{ f.categoryName }}</td>
-                            <td style="word-break:break-word;">{{ f.name }}</td>
-                            <td style="word-break:break-word;">{{ f.format }}</td>
-                            <td>{{ f.disabled }}</td>
-                            <td :id="'restore_td_' + f.indicatorID"><button type="button" class="btn-general" style="margin:auto;"
-                                @click="restoreFieldGate(f.indicatorID, f.parentIndicatorID)">
-                                Restore this field</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <p v-else style="margin:1rem 0;">There are no disabled fields to restore.</p>
-            </template>
+            <div id="restore_fields_grid"></div> <!-- this won't work inside of else -->
 
             <!-- DIALOGS -->
             <leaf-form-dialog v-if="showFormDialog">

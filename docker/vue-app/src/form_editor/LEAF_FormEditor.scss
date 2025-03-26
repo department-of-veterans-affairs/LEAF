@@ -60,39 +60,55 @@ nav#top-menu-nav {
     gap: 0.125rem;
 }
 
-#restore_fields_view table {
-    position: relative;
-    width: 100%;
-    background-color: white;
-    border-collapse: collapse;
-    border: 1px solid $charcoal;
-    border-radius: 2px;
-    margin: 2rem 0;
 
-    th {
-        padding: 0;
-        background-color: $charcoal;
-        color: white;
-        border: 1px solid black;
-        button {
-            position: relative;
-            color: inherit;
-            width: 100%;
-            height: 100%;
-            padding: 0.25rem 1.375rem 0.25rem 0.5rem !important;
-            background-color: transparent;
-            border: 0;
-            span {
-                position: absolute;
-                font-size: 0.75rem;
-                right: 0.375rem;
+
+#restore_fields_view {
+    button[id$="_getExcel"] {
+        font-size: 1rem;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+    }
+    table {
+        position: relative;
+        width: 100%;
+        background-color: white;
+        border-collapse: collapse;
+        border: 1px solid $charcoal;
+        border-radius: 2px;
+        margin: 2rem 0;
+        border-collapse: separate;
+        border-spacing: 0;
+
+        th {
+            padding: 0;
+            background-color: $charcoal;
+            color: white;
+            border: 1px solid black;
+            button {
+                position: relative;
+                color: inherit;
+                width: 100%;
+                height: 100%;
+                padding: 0.25rem 1.375rem 0.25rem 0.5rem !important;
+                background-color: transparent;
+                border: 0;
+                span {
+                    position: absolute;
+                    font-size: 0.75rem;
+                    right: 0.375rem;
+                }
             }
         }
-    }
-    td {
-        padding: 0.25rem 0.5rem;
-        border: 1px solid $charcoal;
-        max-width: 300px;
+        td {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid $charcoal;
+            max-width: 300px;
+            //field name and input format
+            &:nth-child(3), &:nth-child(4) {
+                word-break: break-word;
+            }
+        }
     }
 }
 

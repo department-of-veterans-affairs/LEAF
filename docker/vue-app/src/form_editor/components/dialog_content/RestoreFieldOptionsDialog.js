@@ -5,7 +5,6 @@ export default {
             initialFocusElID: 'radio_restore_all',
             userOptionSelection: "all",
             userMessage: "",
-            processing: false,
         }
     },
     inject: [
@@ -56,7 +55,6 @@ export default {
         onSave() {
             this.userMessage = "<b>Processing...</b>";
             const indID = this.indicatorID_toRestore;
-            this.processing = true;
             if(this.userOptionSelection === "one") {
                 Promise.all([
                     this.unsetParentID(indID),
@@ -82,7 +80,7 @@ export default {
                         const remaining = arrRestore.length;
                         this.restoreField(id)
                         .then(() => {
-                            this.updateAppData(id, 750);
+                            this.updateAppData(id, 1250);
                             this.userMessage += `${id}${remaining > 0 ? ", " : "</b>"}`;
                         }).catch(err => {
                             console.log(err);
@@ -131,9 +129,8 @@ export default {
                     <img src="../images/largespinner.gif" alt="" />
                 </div>
                 <template v-else>
-                <p>{{ firstOrphanID }} </p>
                     <div v-if="userMessage !== ''" v-html="userMessage"></div>
-                    <ul v-if="!processing" :style="listStyles">
+                    <ul :style="listStyles">
                         <li v-for="element in disabledAncestorsList" style="display:list-item;">
                             <b>{{ element.indicatorID }}</b>: {{ element.name. length > 45 ? element.name.slice(0, 42) + "..." : element.name }}
                         </li>
