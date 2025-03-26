@@ -386,8 +386,7 @@ class FormWorkflow
                     $isActionable = $depRecord['userID'] == $this->login->getUserID();
 
                     if(!$isActionable){
-                        $empUID = $this->getEmpUIDByUserName($depRecord['userID']);
-                        $isActionable = $this->checkEmployeeAccess($empUID);
+                        $isActionable = $this->checkEmployeeAccessUsername($depRecord['userID']);
                     }
 
                     $records[$depRecordID]['isActionable'] = $isActionable;
@@ -534,8 +533,7 @@ class FormWorkflow
                     $isActionable = $res[$i]['userID'] == $this->login->getUserID();
 
                     if(!$isActionable){
-                        $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
-                        $isActionable = $this->checkEmployeeAccess($empUID);
+                        $isActionable = $this->checkEmployeeAccessUsername($res[$i]['userID']);
                     }
 
                     $res[$i]['isActionable'] = $isActionable;
@@ -912,9 +910,7 @@ class FormWorkflow
 
                     if ($resPerson[0]['userID'] != $this->login->getUserID())
                     {
-                        $empUID = $this->getEmpUIDByUserName($resPerson[0]['userID']);
-
-                        $userAuthorized = $this->checkEmployeeAccess($empUID);
+                        $userAuthorized = $this->checkEmployeeAccessUsername($resPerson[0]['userID']);
 
                         if (!$userAuthorized)
                         {
@@ -1280,6 +1276,42 @@ class FormWorkflow
         }
 
         return isset($this->cache['checkEmployeeAccess'][$empUID]);
+    }
+
+    /**
+     * Checks if logged in user has access to the given userName
+     * Also checks if the current user is a backup of the given userName
+     *
+     * @param string $userName userName to check
+     * @return boolean
+     */
+    public function checkEmployeeAccessUsername(string $userName): bool
+    {
+        $userName = strtolower($userName);
+        if ($userName == strtolower($this->login->getUserID()))
+        {
+            return true;
+        }
+
+        if(isset($this->cache['checkEmployeeAccessUsername'])) {
+            return isset($this->cache['checkEmployeeAccessUsername'][$userName]);
+        }
+
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':currEmpUID' => $this->login->getEmpUID());
+        $strSQL = 'SELECT userName FROM relation_employee_backup
+                    INNER JOIN employee USING (empUID)
+                    WHERE backupEmpUID =:currEmpUID
+                        AND approved=1';
+        $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+
+        $this->cache['checkEmployeeAccessUsername'] = [];
+        foreach ($backupIds as $row)
+        {
+            $this->cache['checkEmployeeAccessUsername'][strtolower($row['userName'])] = true;
+        }
+
+        return isset($this->cache['checkEmployeeAccessUsername'][$userName]);
     }
 
     /**
