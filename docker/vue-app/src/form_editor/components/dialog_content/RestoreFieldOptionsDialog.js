@@ -109,7 +109,7 @@ export default {
          * Used if a user decides to restore only a specific question when that question has disabled ancestors.
          * Used on the most distant parentID for multiple restores in an orphan is detected
          * @param {number} indicatorID
-         * @returns promise
+         * @returns Promise
          */
         unsetParentID(indicatorID = 0) {
             let formData = new FormData();
