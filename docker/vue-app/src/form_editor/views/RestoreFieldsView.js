@@ -154,7 +154,7 @@ export default {
          * @returns Promise
          */
         getIndicator(indicatorID) {
-            return fetch(`${this.APIroot}formEditor/indicator/${indicatorID}`)
+            return fetch(`${this.APIroot}formEditor/indicator/${indicatorID}?x-filterData=indicatorID,parentID`)
         },
         updateTableIfNoResults() {
             //force full file read first - default message would otherwise be added after this method runs.
@@ -259,7 +259,7 @@ export default {
             this.formGrid.enableToolbar();
             this.formGrid.setHeaders([
                 {
-                    name: 'indicatorID&nbsp;',
+                    name: 'IndicatorID&nbsp;',
                     indicatorID: 'indicatorID',
                     editable: false,
                     callback: (data, blob) => {
