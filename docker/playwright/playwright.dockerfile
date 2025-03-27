@@ -6,4 +6,5 @@ RUN npm install -D mysql2
 
 WORKDIR /usr/app/leaf
 RUN npx playwright install --with-deps
-CMD node main.js
+# Second "playwright install" needed to workaround issue on first run: "Playwright was just installed or updated"
+CMD npx playwright install && node main.js

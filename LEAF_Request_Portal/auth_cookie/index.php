@@ -51,7 +51,7 @@ if (isset($_COOKIE['REMOTE_USER']))
         $res = $globalDB->prepared_query('SELECT * FROM employee
                                           LEFT JOIN employee_data USING (empUID)
                                           WHERE userName=:userName
-                                          AND indicatorID = 6
+                                          AND (indicatorID = 6 or indicatorID IS NULL)
                                                   AND deleted=0', $vars);
         // add user to local DB
         if (count($res) > 0)
@@ -78,15 +78,19 @@ if (isset($_COOKIE['REMOTE_USER']))
                                                           WHERE userName=:userName', $vars)[0]['empUID'];
             }
 
-            $vars = array(':empUID' => $empUID,
+            // this is to get around if the data is not found in instances like service accounts
+            if (!empty($res[0]['data']))
+            {
+                $vars = array(':empUID' => $empUID,
                     ':indicatorID' => 6,
                     ':data' => $res[0]['data'],
                     ':author' => 'viaLogin',
                     ':timestamp' => time(),
-            );
-            $oc_db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
-                                            VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
-                                            ON DUPLICATE KEY UPDATE data=:data', $vars);
+                );
+                $oc_db->prepared_query('INSERT INTO employee_data (empUID, indicatorID, data, author, timestamp)
+                                        VALUES (:empUID, :indicatorID, :data, :author, :timestamp)
+                                        ON DUPLICATE KEY UPDATE data=:data', $vars);
+            }
 
             // redirect as usual
             $_SESSION['userID'] = $res[0]['userName'];
