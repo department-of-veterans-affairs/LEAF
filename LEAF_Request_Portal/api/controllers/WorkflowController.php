@@ -225,6 +225,10 @@ class WorkflowController extends RESTfulResponse
             return $workflow->requireDigitalSignature($args[0], (int)$_POST['requiresSig']);
         });
 
+        $this->index['POST']->register('workflow/step/[digit]/type', function($args) use ($workflow) {
+            return $workflow->setStepType((int)$args[0], (int)$_POST['stepType']);
+        });
+
         $this->index['POST']->register('workflow/dependencies', function ($args) use ($workflow) {
             return $workflow->addDependency(XSSHelpers::xscrub($_POST['description']));
         });

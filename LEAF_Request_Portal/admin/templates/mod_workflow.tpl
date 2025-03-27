@@ -811,6 +811,20 @@
         dialog.show();
     }
 
+    function editStepType(stepID) {
+        let stepType = $('#stepType').val();
+
+        let formData = new FormData();
+        formData.append('CSRFToken', CSRFToken);
+        formData.append('stepType', stepType);
+        fetch(`../api/workflow/step/${stepID}/type`, {
+            method: 'POST',
+            body: formData
+        }).then(() => {
+            steps[stepID].stepType = stepType;
+        });
+    }
+
     function editRequirement(dependencyID, description = "", reopenStepID = null) {
         const inputDescription = description.replace(/"|'/g, '');
         $('.workflowStepInfo').css('display', 'none');
@@ -1931,9 +1945,15 @@
                                 <button type="button" class="buttonNorm icon" onclick="editStep(${stepID})" title="Edit Step Name" aria-label="Edit Step Name">
                                     <img src="../dynicons/?img=accessories-text-editor.svg&w=16" alt="" />
                                 </button>
+                            </div>
+                            <div>
+                                Type: <select id="stepType" onchange="editStepType(${stepID})">
+                                    <option value="1" ${steps[stepID].stepType == 1 ? 'selected' : ''}>Review</option>
+                                    <option value="2" ${steps[stepID].stepType == 2 ? 'selected' : ''}>Holding</option>
+                                </select>
                             </div>`;
 
-                        output += '<br /><br /><div>Requirements:<ul id="step_requirements">';
+                        output += '<br /><div>Requirements:<ul id="step_requirements">';
                         let tDeps = {};
                         for (let i in res) {
                             const depID = res[i].dependencyID;

@@ -3450,6 +3450,20 @@ class Form
                     }
 
                     break;
+                case 'stepType':
+                    switch($q['operator'])
+                    {
+                        case '=':
+                            $conditions .= "{$gate}stepType = :stepType{$count}";
+                            break;
+                        case '!=':
+                            $conditions .= "{$gate}stepType != :stepType{$count}";
+                            break;
+                        default:
+                            return 'Invalid operator for stepType';
+                    }
+
+                    break;
                 case 'data':
                     if (!isset($q['indicatorID']) || !is_numeric($q['indicatorID']))
                     {
@@ -3642,6 +3656,7 @@ class Form
             $conditions = '';
         }
 
+        $joinStatus = false;
         $joinCategoryID = false;
         $joinAllCategoryID = false;
         $joinRecordsDependencies = false;
@@ -3662,9 +3677,8 @@ class Form
 
                         break;
                     case 'status':
-                        $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state) lj_status USING (recordID)
-							   LEFT JOIN (SELECT stepID, stepTitle FROM workflow_steps) lj_steps ON (lj_status.stepID = lj_steps.stepID) ';
-
+                        $joinStatus = true;
+                        // see below
                         break;
                     case 'categoryName':
                         $joinCategoryID = true;
@@ -3763,6 +3777,13 @@ class Form
             $sort = '';
         }
 
+        // Add requested joins that affect the result set
+        if ($joinStatus)
+        {
+            $joins .= 'LEFT JOIN (SELECT * FROM records_workflow_state) lj_status USING (recordID)
+                LEFT JOIN (SELECT stepID, stepTitle, stepType FROM workflow_steps) lj_steps ON (lj_status.stepID = lj_steps.stepID) ';
+        }
+
         // join tables for queries on data fields without filtering by indicatorID
         if ($joinSearchAllData
             || $joinSearchOrgchartEmployeeData)
@@ -3842,10 +3863,9 @@ class Form
             header('LEAF-Query: continue'); // signal frontend there might be more data
         }
 
-        // These all require the recordIDs to be set
+        // Add requested supplemental joins. These all require a non-empty set
         if (!empty($recordIDs))
         {
-
             if ($joinCategoryID)
             {
                 $categorySQL = 'SELECT recordID,categoryName,categoryID,destructionAge

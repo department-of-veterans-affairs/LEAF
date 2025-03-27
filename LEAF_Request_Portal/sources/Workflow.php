@@ -835,6 +835,36 @@ class Workflow
         return $res > 0;
     }
 
+    /**
+     * Set the step type for a particular $stepID
+     *
+     * @param int $stepID 				the step id to require a signature for
+     * @param int $type 	            1 = Review, 2 = Holding
+     *
+     * @return int|string if the query was successful
+     */
+    public function setStepType(int $stepID, int $type) {
+        if(!$this->login->checkGroup(1)) {
+            return 'Admin access required.';
+        }
+
+        // Don't allow changes to standardized components
+        if($stepID < 0) {
+            return 'Restricted command.';
+        }
+
+        $vars = array(
+            ':stepID' => $stepID,
+            ':stepType' => $type
+        );
+
+        $this->db->prepared_query(
+            'UPDATE `workflow_steps` SET `stepType` = :stepType WHERE `stepID` = :stepID',
+            $vars);
+
+        return true;
+    }
+
     public function linkDependency($stepID, $dependencyID)
     {
         if (!$this->login->checkGroup(1))
