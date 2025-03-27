@@ -574,6 +574,15 @@ function buildQuery(getCancelled, getSubmitted, getReminder, getAction) {
     if (getAction !== "") {
         let stepID = $("select#step_select").val();
         let dependencyID = $("select#requirements_select").val();
+        let formID = $("select#form_select").val();
+        let categoryID = formID.split("-")[0];
+
+        requestQuery.terms.push({
+            id: "categoryID",
+            operator: "=",
+            match: categoryID,
+            gate: "AND",
+        });
 
         requestQuery.terms.push({
             id: "stepID",
