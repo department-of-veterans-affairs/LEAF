@@ -55,11 +55,17 @@
             <option value="restore">Restore</option>
             <option value="submit">Submit</option>
             <option value="email">Email Reminder</option>
+            <option value="take_action">Take Action</option>
         </select>
+        <div id="form_container" style="padding: 2px;margin:0.75rem 0;"></div>
+        <div id="step_container" style="padding: 2px;margin:0.75rem 0;"></div>
+        <div id="requirements_container" style="padding: 2px;margin:0.75rem 0;"></div>
+        <div id="relevant_action_container" style="padding: 2px;margin:0.75rem 0;"></div>
         <div id="comment_cancel_container" style="display:none;margin:0.75rem 0;">
-            <label for="comment_cancel">Comment for cancel <span id="comment_required">* required</span></label>
+            <label for="comment_cancel">Comment <span id="comment_required">* required</span></label>
             <textarea id="comment_cancel" rows="4" style="display:block;resize:vertical;width:530px;margin-top:2px"></textarea>
         </div>
+
     </div>
     <div id="progressContainer">
         <div id="progressbar"></div>
@@ -126,7 +132,7 @@ $(document).ready(function () {
     // Confirm submission for mass action and perform action if accepted
     $("button.takeAction").click(function () {
         const commentValue = ($("#comment_cancel").val() || "").trim();
-        if (actionValue === "cancel" && commentValue === "") {
+        if ((actionValue === "cancel" || actionValue === "take_action") && commentValue === "") {
             noteRequired();
         } else {
             dialog_confirm.setContent(
@@ -182,6 +188,11 @@ function chooseAction() {
     let actionValue = $("#action").val();
     $("#comment_cancel").val("");
     $("#comment_cancel_container").hide();
+    $("#form_container, #step_container, #relevant_action_container, #requirements_container, #emailSection").hide();
+    document.getElementById("relevant_action_container").innerHTML = "";
+    document.getElementById("step_container").innerHTML = "";
+    document.getElementById("form_container").innerHTML = "";
+    document.getElementById("requirements_container").innerHTML = "";
 
     switch (actionValue) {
         case "cancel":
@@ -214,10 +225,262 @@ function chooseAction() {
             leafSearch.init();
             reminderDaysSearch();
             break;
+        case "take_action":
+            // need to get forms and put them in the form_container as a drop down
+            let forms = getForms();
+
+            populateFormDropdown(forms);
+
+            // show the form container
+            $("#form_container").show();
+            $("#searchRequestsContainer").hide();
+            $("#searchResults").hide();
+            break;
         default:
             $("#emailSection, #searchRequestsContainer, #searchResults, #errorMessage").hide();
             break;
     }
+}
+
+/**
+ * Purpose: populate a dropdown with the form types
+ */
+
+function populateFormDropdown(forms) {
+    let formContainer = document.getElementById("form_container");
+    let formSelect = document.createElement("select");
+    formSelect.id = "form_select";
+    formSelect.name = "form_select";
+    formSelect.onchange = function () {
+        $("#step_container, #relevant_action_container, #requirements_container, #comment_cancel_container, #searchResults, #errorMessage").hide();
+        let formID = this.value;
+        let workflowID = formID.split("-")[1];
+        let steps = getSteps();
+        populateStepDropdown(steps, workflowID);
+        $("#step_container").show();
+    };
+
+    let formOption = document.createElement("option");
+    formOption.value = "";
+    formOption.text = "-Select-";
+    formSelect.appendChild(formOption);
+
+    for (let i = 0; i < forms.length; i++) {
+        if (forms[i].workflowID > 0) {
+            let formOption = document.createElement("option");
+            formOption.value = forms[i].categoryID + "-" + forms[i].workflowID;
+            formOption.text = forms[i].categoryName;
+            formSelect.appendChild(formOption);
+        }
+    }
+
+    const labelElement = document.createElement('label');
+    labelElement.setAttribute('for', 'form_select');
+    labelElement.textContent = 'Select Form Type: ';
+
+    formContainer.appendChild(labelElement);
+    formContainer.appendChild(formSelect);
+}
+
+function populateStepDropdown(steps, formID) {
+    if (formID !== undefined) {
+        let stepContainer = document.getElementById("step_container");
+        let stepSelect = document.createElement("select");
+        stepSelect.id = "step_select";
+        stepSelect.name = "step_select";
+        stepSelect.onchange = function () {
+            $("#relevant_action_container, #requirements_container, #comment_cancel_container, #searchResults, #errorMessage").hide();
+            let stepID = $("select#step_select").val();
+            let requirements = getRequirements(stepID);
+            populateRequirementDropdown(requirements, stepID);
+        };
+
+        let stepOption = document.createElement("option");
+        stepOption.value = "";
+        stepOption.text = "-Select-";
+        stepSelect.appendChild(stepOption);
+
+        for (let i = 0; i < steps.length; i++) {
+            let stepOption = document.createElement("option");
+
+            if (steps[i].workflowID === Number(formID)) {
+                stepOption.value = steps[i].stepID;
+                stepOption.text = steps[i].stepTitle;
+                stepSelect.appendChild(stepOption);
+            }
+        }
+
+        const labelElement = document.createElement('label');
+        labelElement.setAttribute('for', 'step_select');
+        labelElement.textContent = 'Select Step: ';
+
+        stepContainer.innerHTML = '';
+        stepContainer.appendChild(labelElement);
+        stepContainer.appendChild(stepSelect);
+    }
+}
+
+function populateRequirementDropdown(requirements, stepID) {
+    let requirementsContainer = document.getElementById("requirements_container");
+    let requirementsSelect = document.createElement("select");
+    requirementsSelect.id = "requirements_select";
+    requirementsSelect.name = "requirements_select";
+    requirementsSelect.onchange = function () {
+        $("#relevant_action_container, #comment_cancel_container, #searchResults, #errorMessage").hide();
+        let formID = $("select#form_select").val();
+        let workflowID = formID.split("-")[1];
+        let stepID = $("select#step_select").val();
+        let actions = getActions(workflowID);
+        populateActionDropdown(actions, stepID);
+        $("#relevant_action_container").show();
+    };
+
+    let requirementsOption = document.createElement("option");
+    requirementsOption.value = "";
+    requirementsOption.text = "-Select-";
+    requirementsSelect.appendChild(requirementsOption);
+
+    for (let i = 0; i < requirements.length; i++) {
+        if (requirements[i].stepID === Number(stepID)) {
+            let requirementsOption = document.createElement("option");
+            requirementsOption.value = requirements[i].dependencyID;
+            requirementsOption.text = requirements[i].description;
+            requirementsSelect.appendChild(requirementsOption);
+        }
+    }
+
+    const labelElement = document.createElement('label');
+    labelElement.setAttribute('for', 'requirements_select');
+    labelElement.textContent = 'Select Requirement: ';
+
+    requirementsContainer.innerHTML = '';
+    requirementsContainer.appendChild(labelElement);
+    requirementsContainer.appendChild(requirementsSelect);
+
+    if (requirements.length > 1) {
+        $("#requirements_container").show();
+    } else {
+        $("#requirements_container").hide();
+        requirementsSelect.value = requirements[0].dependencyID;
+        requirementsSelect.dispatchEvent(new Event('change'));
+    }
+}
+
+function populateActionDropdown(actions, stepID) {
+    let actionContainer = document.getElementById("relevant_action_container");
+    let actionSelect = document.createElement("select");
+    actionSelect.id = "action_select";
+    actionSelect.name = "action_select";
+    actionSelect.onchange = function () {
+        let actionValue = document.getElementById("action").value;
+        if(actionValue === "take_action") {
+            $("#comment_cancel_container").show();
+        }
+        leafSearch.init();
+        doSearch();
+    };
+
+    let actionOption = document.createElement("option");
+    actionOption.value = "";
+    actionOption.text = "-Select-";
+    actionSelect.appendChild(actionOption);
+
+    for (let i = 0; i < actions.length; i++) {
+        if (actions[i].stepID === Number(stepID)) {
+            let actionOption = document.createElement("option");
+            actionOption.value = actions[i].actionType;
+            actionOption.text = actions[i].actionText;
+            actionSelect.appendChild(actionOption);
+        }
+    }
+
+    const labelElement = document.createElement('label');
+    labelElement.setAttribute('for', 'action_select');
+    labelElement.textContent = 'Select Action: ';
+
+    actionContainer.innerHTML = '';
+    actionContainer.appendChild(labelElement);
+    actionContainer.appendChild(actionSelect);
+}
+
+function getRequirements(stepID) {
+    let requirements;
+
+    $.ajax({
+        type: "GET",
+        url: "./api/workflow/step/" + stepID + "/dependencies",
+        cache: false,
+        success: function (res) {
+            requirements = res;
+        },
+        error: function (err) {
+            console.log(err);
+        },
+        async: false
+    });
+
+    return requirements;
+}
+
+function getActions(workflowID) {
+    let actions;
+
+    $.ajax({
+        type: "GET",
+        url: "./api/workflow/" + workflowID + "/route",
+        cache: false,
+        success: function (res) {
+            actions = res;
+        },
+        error: function (err) {
+            console.log(err);
+        },
+        async: false
+    });
+
+    return actions;
+}
+
+function getSteps() {
+    let steps;
+
+    $.ajax({
+        type: "GET",
+        url: "./api/workflow/steps",
+        cache: false,
+        success: function (res) {
+            steps = res;
+        },
+        error: function (err) {
+            console.log(err);
+        },
+        async: false
+    });
+
+    return steps;
+}
+
+/**
+ * Purpose: need to get the form types and put them in the form_container as a drop down
+ */
+
+function getForms() {
+    let forms;
+
+    $.ajax({
+        type: "GET",
+        url: "./api/workflow/categoriesUnabridged",
+        cache: false,
+        success: function (res) {
+            forms = res;
+        },
+        error: function (err) {
+            console.log(err);
+        },
+        async: false
+    });
+
+    return forms;
 }
 
 /**
@@ -235,6 +498,7 @@ function doSearch() {
     let getCancelled = false;
     let getSubmitted = true;
     let getReminder = 0;
+    let getAction = "";
 
     $("input#selectAllRequests").prop("checked", false);
     setProgress("");
@@ -250,9 +514,12 @@ function doSearch() {
         case "restore":
             getCancelled = true;
             break;
+        case "take_action":
+            getAction = document.getElementById("action_select").value;
+            break;
     }
 
-    let queryObj = buildQuery(getCancelled, getSubmitted, getReminder);
+    let queryObj = buildQuery(getCancelled, getSubmitted, getReminder, getAction);
     searchID = Math.floor(Math.random() * 1000000000);
     listRequests(queryObj, searchID, getReminder);
 }
@@ -266,7 +533,7 @@ function doSearch() {
 *
 * @return {Object} query object to pass to form/query.
 */
-function buildQuery(getCancelled, getSubmitted, getReminder) {
+function buildQuery(getCancelled, getSubmitted, getReminder, getAction) {
     let requestQuery = {
         terms: [],
         joins: ["service", "recordsDependencies", "categoryName", "status"],
@@ -279,7 +546,7 @@ function buildQuery(getCancelled, getSubmitted, getReminder) {
             operator: "=",
             match: "deleted",
         });
-    } else {
+    } else if (!getAction) {
         requestQuery.terms.push({
             id: "stepID",
             operator: "!=",
@@ -301,6 +568,25 @@ function buildQuery(getCancelled, getSubmitted, getReminder) {
             id: "stepID",
             operator: "!=",
             match: "resolved",
+        });
+    }
+
+    if (getAction !== "") {
+        let stepID = $("select#step_select").val();
+        let dependencyID = $("select#requirements_select").val();
+
+        requestQuery.terms.push({
+            id: "stepID",
+            operator: "=",
+            match: stepID,
+            gate: "AND",
+        });
+
+        requestQuery.terms.push({
+            id: "dependencyID",
+            operator: "=",
+            indicatorID: dependencyID,
+            gate: "AND",
         });
     }
 
@@ -428,6 +714,25 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
         });
 }
 
+function getDependencyID(recordID) {
+    let result;
+
+    $.ajax({
+        type: "GET",
+        url: "./api/formWorkflow/" + recordID + "/currentStep",
+        success: function (res) {
+            result = Object.keys(res)[0];
+        },
+        error: function (err) {
+            console.log("Error: " + err);
+        },
+        cache: false,
+        async: false
+    });
+
+    return result;
+}
+
 /**
  * Executes the selected action on each request selected in the table
  */
@@ -437,7 +742,7 @@ function executeMassAction() {
 
     let queue = new intervalQueue();
     const commentValue = ($("#comment_cancel").val() || "").trim();
-    if (actionValue === "cancel" && commentValue === "") {
+    if ((actionValue === "cancel" || actionValue === "take_action") && commentValue === "") {
         noteRequired();
         return
     }
@@ -476,6 +781,15 @@ function executeMassAction() {
             case "email":
                 ajaxPath =
                     "./api/form/" + recordID + "/reminder/" + reminderDaysSince;
+                break;
+            case "take_action":
+                let dependencyID = $("select#requirements_select").val();
+
+                ajaxPath = "./api/formWorkflow/" + recordID + "/apply";
+                ajaxData["comment"] = commentValue;
+                ajaxData["actionType"] = document.getElementById("action_select").value;
+                ajaxData["dependencyID"] = Number(dependencyID);
+
                 break;
         }
         queue.push({ recordID, ajaxPath, ajaxData });
