@@ -289,6 +289,8 @@ var LeafFormSearch = function (containerID) {
                     $("#" + prefixID + "widgetMat_" + i).val(
                         advSearch[i].match.replace(/\*/g, "")
                     );
+                } else {
+                    $("#" + prefixID + "widgetMat_" + i).val(advSearch[i].match);
                 }
             }
         }
@@ -752,10 +754,13 @@ var LeafFormSearch = function (containerID) {
                         "widgetCod_" +
                         widgetID +
                         '" class="chosen"  aria-label="title" style="width: 120px">\
-						<option value="LIKE">CONTAINS</option>\
-						<option value="NOT LIKE">DOES NOT CONTAIN</option>\
-	            		<option value="=">=</option>\
-						<option value="!=">!=</option>\
+                        <option value="MATCH ALL">CONTAINS</option>\
+                        <option value="NOT MATCH">DOES NOT CONTAIN</option>\
+                        <option value="MATCH">CONTAINS EITHER</option>\
+                        <option value="=">=</option>\
+                        <option value="!=">!=</option>\
+                        <option value="LIKE">HAS FRAGMENT</option>\
+                        <option value="NOT LIKE">DOES NOT HAVE FRAGMENT</option>\
 	            	</select>'
                 );
                 $("#" + prefixID + "widgetMatch_" + widgetID).html(

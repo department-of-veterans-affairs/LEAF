@@ -3234,9 +3234,31 @@ class Form
 
                     break;
                 case 'title':
-                    $conditions .= "{$gate}title {$operator} :title{$count}";
-                    $scrubSpace = array('/^(%\s)+/', '/(\s+%)$/');
-                    $vars[':title' . $count] = preg_replace($scrubSpace, '%', $vars[':title' . $count]);
+                    switch ($operator) {
+                        case 'MATCH':
+                        case 'MATCH ALL':
+                        case 'NOT MATCH':
+                            $titleTermSql = '';
+
+                            if($operator == 'MATCH ALL') {
+                                $vars[":title{$count}"] = $this->parseBooleanQuery($vars[":title{$count}"]);
+                            }
+
+                            if($operator == 'NOT MATCH') {
+                                $titleTermSql = "NOT MATCH (title)";
+                            }
+                            else {
+                                $titleTermSql = "MATCH (title)";
+                            }
+
+                            $conditions .= "{$gate}{$titleTermSql} AGAINST (:title{$count} IN BOOLEAN MODE)";
+                            break;
+                        default:
+                            $conditions .= "{$gate}title {$operator} :title{$count}";
+                            $scrubSpace = array('/^(%\s)+/', '/(\s+%)$/');
+                            $vars[":title{$count}"] = preg_replace($scrubSpace, '%', $vars[":title{$count}"]);
+                            break;
+                    }
 
                     break;
                 case 'userID':
