@@ -808,16 +808,17 @@ class Form
         if ($resIsSubmitted[0]['submitted'] != 0 && !$this->login->checkGroup(1)) {
             $return_value = 'To help avoid confusion in the process, Please contact your administrator to cancel this request.';
         } else if ($this->hasWriteAccess($recordID)) {
+            $actionUserID = $this->login->getUserID();
+            $userMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
+
+            $this->db->beginTransaction();
             $vars = array(':recordID' => $recordID,
                         ':time' => time());
             $sql = 'UPDATE `records`
                     SET `deleted` = :time
                     WHERE `recordID` = :recordID';
 
-            $res = $this->db->prepared_query($sql, $vars);
-
-            $actionUserID = $this->login->getUserID();
-            $userMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
+            $this->db->prepared_query($sql, $vars);
 
             // actionID 4 = delete
             $vars = array(':recordID' => $recordID,
@@ -834,7 +835,7 @@ class Form
                     VALUES
                         (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
 
-            $res = $this->db->prepared_query($sql, $vars);
+            $this->db->prepared_query($sql, $vars);
 
             // delete state
             $vars = array(':recordID' => $recordID);
@@ -850,12 +851,15 @@ class Form
                     FROM `tags`
                     WHERE `recordID` = :recordID';
 
-            $res = $this->db->prepared_query($sql, $vars);
+            $this->db->prepared_query($sql, $vars);
 
-            // need to send emails to everyone upstream from the currect step.
-            $this->notifyPriorSteps($recordID);
+            if($this->db->commitTransaction())
+            {
+                // need to send emails to everyone upstream from the currect step.
+                $this->notifyPriorSteps($recordID);
 
-            $return_value = 1;
+                $return_value = 1;
+            }
         }
 
         return $return_value;

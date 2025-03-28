@@ -79,8 +79,6 @@ class VAMCActiveDirectory
                 && $employee['lname'] != ''
                 && isset($employee['loginName'])
                 && $employee['loginName'] != ''
-                && !is_numeric($employee['loginName'])
-                && !str_contains($employee['loginName'], '.')
             ) {
                 $id = md5(strtoupper($employee['lname']) . strtoupper($employee['fname']) . strtoupper($employee['midIni']));
 
@@ -266,14 +264,14 @@ class VAMCActiveDirectory
 
                 $this->db->prepared_query($sql, $vars);
             } else {
-                $vars = array(':loginName', $this->users[$key]['loginName'],
-                            ':lname', $this->users[$key]['lname'],
-                            ':fname', $this->users[$key]['fname'],
-                            ':midIni', $this->users[$key]['midIni'],
-                            ':phoneticFname', $phoneticFname,
-                            ':phoneticLname', $phoneticLname,
-                            ':domain', $this->users[$key]['domain'],
-                            ':lastUpdated', $time);
+                $vars = array(':loginName' => $this->users[$key]['loginName'],
+                            ':lname' => $this->users[$key]['lname'],
+                            ':fname' => $this->users[$key]['fname'],
+                            ':midIni' => $this->users[$key]['midIni'],
+                            ':phoneticFname' => $phoneticFname,
+                            ':phoneticLname' => $phoneticLname,
+                            ':domain' => $this->users[$key]['domain'],
+                            ':lastUpdated' => $time);
 
                 $this->db->prepared_query($sql1, $vars);
 

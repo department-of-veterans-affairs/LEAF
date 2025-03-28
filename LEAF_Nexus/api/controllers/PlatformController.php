@@ -36,21 +36,21 @@ class PlatformController extends RESTfulResponse
             return $this->API_VERSION;
         });
 
-        $this->index['GET']->register('platform/portal/[text]', function ($args) use ($verified) {
+        $this->index['GET']->register('platform/portal', function ($args) use ($verified) {
             if (!isset($verified['groupID'][1])) {
                 $return_value = 'You do not have access to this resource, only Admin\'s can delete Tags.';
             } else {
-                $portals = $this->platform->getLaunchpadSites($args[0]);
+                $portals = $this->platform->getLaunchpadSites();
                 $return_value = array();
 
                 foreach ($portals as $portal) {
-                    $sql = 'USE ' . $portal['portal_database'];
+                    $sql = 'USE `' . $portal['portal_database'] . '`';
                     $this->db->query($sql);
 
                     $return_value[] = array(
                         'launchpadID' => $portal['launchpadID'],
                         'site_path' => $portal['site_path'],
-                        'tags' => $this->platform->getTags($this->db)
+                        'orgchartImportTags' => $this->platform->getTags($this->db)
                     );
                 }
             }
