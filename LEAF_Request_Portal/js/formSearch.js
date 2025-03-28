@@ -227,7 +227,8 @@ var LeafFormSearch = function (containerID) {
                     advSearch[i].id == "serviceID" ||
                     advSearch[i].id == "categoryID" ||
                     advSearch[i].id == "stepID" ||
-                    advSearch[i].id == "stepAction"
+                    advSearch[i].id == "stepAction" ||
+                    advSearch[i].id == "stepType"
                 ) {
                     renderWidget(
                         i,
@@ -1006,10 +1007,12 @@ var LeafFormSearch = function (containerID) {
                 }
                 let allStepsData = await cache['api/workflow/steps'];
                 let categories = `<select id="${prefixID}widgetMat_${widgetID}" class="chosen" aria-label="stepID" style="width: 250px">
-                                    <option value="submitted">Submitted</option>
+                                    <option value="actionable">Actionable by me</option>
                                     <option value="deleted">Cancelled</option>
+                                    <option value="submitted">Submitted</option>
                                     <option value="resolved" selected>Resolved</option>
-                                    <option value="actionable">Actionable by me</option>`;
+                                    <option value="resolved,exclude-holding">Resolved (exclude holding)</option>
+                                    `;
                 //categories += '<option value="destruction">Scheduled for Destruction</option>';
                 for (let i in allStepsData) {
                     categories += `<option value="${allStepsData[i].stepID}">${allStepsData[i].description}: ${allStepsData[i].stepTitle}</option>`;
@@ -1023,6 +1026,25 @@ var LeafFormSearch = function (containerID) {
                         categories
                     );
                 }
+
+                if (callback != undefined) {
+                    callback();
+                }
+                break;
+            case "stepType":
+                $(`#${prefixID}widgetCondition_${widgetID}`).html(`
+                    <select id="${prefixID}widgetCod_${widgetID}" style="width: 140px" class="chosen" aria-label="categoryID">
+                        <option value="=">IS</option>
+                        <option value="!=" selected>IS NOT</option>
+                    </select>`
+                );
+
+                let stepTypeOptions = `<select id="${prefixID}widgetMat_${widgetID}" class="chosen" aria-label="stepID" style="width: 250px">
+                                    <option value="1">Review</option>
+                                    <option value="2">Holding</option>
+                                    </select>`;
+
+                $(`#${prefixID}widgetMatch_${widgetID}`).html(stepTypeOptions);
 
                 if (callback != undefined) {
                     callback();
@@ -1604,41 +1626,33 @@ var LeafFormSearch = function (containerID) {
         }
 
         let widget = `<tr id="${prefixID}widget_${widgetCounter}" style="border-spacing: 5px">
-                <td id="${prefixID}widgetRemove_${widgetCounter}">
-                    <button type="button" id="${prefixID}widgetRemoveButton_${widgetCounter}" aria-label="remove filter row" style="cursor: pointer">
-                        <img src="${rootURL}dynicons/?img=list-remove.svg&w=16" alt="" />
-                    </button>
-                </td>
-                <td style="text-align: center">
-                    <strong id="${prefixID}widgetGate_${widgetCounter}" value="${gate}">${gate}</strong>
-                </td>` +
-			'<td><select id="' +
-            prefixID +
-            "widgetTerm_" +
-            widgetCounter +
-            '" style="width: 150px" class="chosen" aria-label="condition">\
-                            <option value="stepID">Current Status</option>\
-            				<option value="data">Data Field ...</option>\
-            				<option value="dateSubmitted">Date Submitted</option>\
-                            <option value="userID">Initiator</option>\
-            				<option value="serviceID">Service</option>\
-            				<option value="title">Title</option>\
-            				<option value="categoryID">Type</option>\
-                            <option value="recordID">Record ID</option>\
-                            <option value="stepAction">Record Actions ...</option>\
-            				<option value="dependencyID">Requirement ...</option>\
-            				</select></td>\
-			            <td id="' +
-            prefixID +
-            "widgetCondition_" +
-            widgetCounter +
-            '"></td>\
-						<td id="' +
-            prefixID +
-            "widgetMatch_" +
-            widgetCounter +
-            '"></td>\
-					  </tr>';
+                        <td id="${prefixID}widgetRemove_${widgetCounter}">
+                            <button type="button" id="${prefixID}widgetRemoveButton_${widgetCounter}" aria-label="remove filter row" style="cursor: pointer">
+                                <img src="${rootURL}dynicons/?img=list-remove.svg&w=16" alt="" />
+                            </button>
+                        </td>
+                        <td style="text-align: center">
+                            <strong id="${prefixID}widgetGate_${widgetCounter}" value="${gate}">${gate}</strong>
+                        </td>
+                        <td>
+                            <select id="${prefixID}widgetTerm_${widgetCounter}" style="width: 150px" class="chosen" aria-label="condition">
+                                <option value="stepID">Current Status</option>
+                                <option value="data">Data Field ...</option>
+                                <option value="dateSubmitted">Date Submitted</option>
+                                <option value="userID">Initiator</option>
+                                <option value="serviceID">Service</option>
+                                <option value="title">Title</option>
+                                <option value="categoryID">Type</option>
+                                <option value="recordID">Record ID</option>
+                                <option value="stepAction">Record Actions ...</option>
+                                <option value="dependencyID">Requirement ...</option>
+                                <option value="stepType" style="display: none">Step Type</option>
+                            </select>
+                        </td>
+                        <td id="${prefixID}widgetCondition_${widgetCounter}"></td>
+                        <td id="${prefixID}widgetMatch_${widgetCounter}"></td>
+                    </tr>`;
+
 
         $(widget).appendTo("#" + prefixID + "searchTerms");
         renderWidget(widgetCounter);
@@ -1687,6 +1701,15 @@ var LeafFormSearch = function (containerID) {
                     if (cod == "LIKE") {
                         match = "*" + match + "*";
                     }
+
+                    // Special handling for Current Status ... Resolved (exclude holding)
+                    if(id == 'stepID' && match == 'resolved,exclude-holding') {
+                        
+                        leafFormQuery.addTerm('stepID', cod, 'resolved', gate);
+                        leafFormQuery.addTerm('stepType', '!=', '2', gate);
+                        continue;
+                    }                    
+
                     leafFormQuery.addTerm(id, cod, match, gate);
                 } else {
                     id = $("#" + prefixID + "widgetTerm_" + i).val();
