@@ -546,7 +546,7 @@ function buildQuery(getCancelled, getSubmitted, getReminder, getAction) {
             operator: "=",
             match: "deleted",
         });
-    } else if (!getAction) {
+    } else if (getAction !== "") {
         requestQuery.terms.push({
             id: "stepID",
             operator: "!=",
@@ -562,7 +562,7 @@ function buildQuery(getCancelled, getSubmitted, getReminder, getAction) {
         });
     }
 
-    if (getReminder) {
+    if (getReminder > 0) {
         requestQuery.joins.push("action_history");
         requestQuery.terms.push({
             id: "stepID",
@@ -648,7 +648,7 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
                     $.each(data, function (index, value) {
                         let displayRecord = true;
                         // If this is email reminder list, then compare against give time period
-                        if (getReminder) {
+                        if (getReminder > 0) {
                             // Get if we can show record for time period selected
                             if (value.action_history !== undefined) {
                                 let numberActions = value.action_history.length;
@@ -723,25 +723,6 @@ function listRequests(queryObj, thisSearchID, getReminder = 0) {
         });
 }
 
-function getDependencyID(recordID) {
-    let result;
-
-    $.ajax({
-        type: "GET",
-        url: "./api/formWorkflow/" + recordID + "/currentStep",
-        success: function (res) {
-            result = Object.keys(res)[0];
-        },
-        error: function (err) {
-            console.log("Error: " + err);
-        },
-        cache: false,
-        async: false
-    });
-
-    return result;
-}
-
 /**
  * Executes the selected action on each request selected in the table
  */
@@ -768,7 +749,7 @@ function executeMassAction() {
 
     $('#progressbar').progressbar('option', 'max', totalActions);
 
-    if (totalActions) {
+    if (totalActions > 0) {
         $("button.takeAction").attr("disabled", "disabled");
     }
     $.each(selectedRequests, function (key, item) {
@@ -829,7 +810,6 @@ function executeMassAction() {
         });
     });
 
-    queue.setConcurrency(1);
     queue.start().then(res => {
         $('#progressContainer').slideUp();
     });
