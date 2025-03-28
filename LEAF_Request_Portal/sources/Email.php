@@ -622,7 +622,7 @@ class Email
             $fullTitle = trim(strip_tags(
                 htmlspecialchars_decode($approvers[0]['title'], ENT_QUOTES | ENT_HTML5)
             ));
-            if($approvers[0]['needToKnow'] === 1) {
+            if((int)$approvers[0]['needToKnow'] === 1) {
                 $fullTitle = $formType;
             }
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
@@ -773,7 +773,7 @@ class Email
             $fullTitle = trim(strip_tags(
                 htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
             ));
-            if($recordInfo[0]['needToKnow'] === 1) {
+            if((int)$recordInfo[0]['needToKnow'] === 1) {
                 $fullTitle = $formType;
             }
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
@@ -812,7 +812,7 @@ class Email
             $fullTitle = trim(strip_tags(
                 htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
             ));
-            if($recordInfo[0]['needToKnow'] === 1) {
+            if((int)$recordInfo[0]['needToKnow'] === 1) {
                 $fullTitle = $formType;
             }
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;

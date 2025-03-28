@@ -1351,7 +1351,7 @@ class FormWorkflow
             $fullTitle = trim(strip_tags(
                 htmlspecialchars_decode($record[0]['title'], ENT_QUOTES | ENT_HTML5)
             ));
-            if($record[0]['needToKnow'] === 1) {
+            if((int)$record[0]['needToKnow'] === 1) {
                 $fullTitle = $formType;
             }
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
@@ -1462,7 +1462,7 @@ class FormWorkflow
                         $fullTitle = trim(strip_tags(
                             htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
                         ));
-                        if($requestRecords[0]['needToKnow'] === 1) {
+                        if((int)$requestRecords[0]['needToKnow'] === 1) {
                             $fullTitle = $formType;
                         }
                         $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
@@ -1543,7 +1543,7 @@ class FormWorkflow
                         $fullTitle = trim(strip_tags(
                             htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
                         ));
-                        if($requestRecords[0]['needToKnow'] === 1) {
+                        if((int)$requestRecords[0]['needToKnow'] === 1) {
                             $fullTitle = $formType;
                         }
                         $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
