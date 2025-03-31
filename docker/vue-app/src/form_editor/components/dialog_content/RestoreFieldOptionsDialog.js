@@ -14,6 +14,7 @@ export default {
         'restoreField',
         'updateAppData',
         'indicatorID_toRestore',
+        'indicatorName_toRestore',
         'disabledAncestors',
         'firstOrphanID',
         'searchPending',
@@ -40,7 +41,7 @@ export default {
             return {
                 listStyleType: "disc",
                 marginLeft: "0.5rem",
-                paddingTop: "0.75rem",
+                paddingTop: "0.5rem",
                 lineHeight: "1.4",
                 paddingInlineStart: "1rem",
             }
@@ -53,7 +54,7 @@ export default {
         * If restoring all associated fields, the question and its disabled ancestors restored at intervals
         */
         onSave() {
-            this.userMessage = "<b>Processing...</b>";
+            this.userMessage = `<b style="color:#064;">Restoring Fields...</b>`;
             const indID = this.indicatorID_toRestore;
             if(this.userOptionSelection === "one") {
                 Promise.all([
@@ -61,13 +62,10 @@ export default {
                     this.restoreField(indID)
                 ]).then(() => {
                     this.updateAppData(indID);
-                    //<b style="color:#064;">Field ${indID} restored</b>
-                    this.userMessage = ``;
                     this.closeFormDialog();
                 }).catch(err => console.log(err));
 
             } else {
-                this.userMessage = `<b style="color:#064;">Restoring Fields: `;
                 //restore method below will pop one each time
                 //in case of interruption, safe order is most distant parent to direct parent, then the ID to restore
                 let arrRestore = [ { indicatorID: indID }, ...this.disabledAncestors ];
@@ -77,11 +75,9 @@ export default {
                 const restore = () => {
                     if(arrRestore.length > 0) {
                         const id = arrRestore.pop().indicatorID;
-                        const remaining = arrRestore.length;
                         this.restoreField(id)
                         .then(() => {
                             this.updateAppData(id, 1250);
-                            this.userMessage += `${id}${remaining > 0 ? ", " : "</b>"}`;
                         }).catch(err => {
                             console.log(err);
                         }).finally(() => {
@@ -123,16 +119,17 @@ export default {
         }
     },
     template: `
-            <div id="restore_fields_parent_options" style="margin: 1em 0; min-height: 50px;">
+            <div id="restore_fields_parent_options" style="margin-bottom: 1rem; min-height: 50px;">
                 <div v-if="searchPending === true" class="page_loading">
                     Loading...
                     <img src="../images/largespinner.gif" alt="" />
                 </div>
                 <template v-else>
+                    <h3 style="margin:0 0 1rem 0; color:#000;">{{ indicatorName_toRestore }}</h3>
                     <div v-if="userMessage !== ''" v-html="userMessage"></div>
                     <ul :style="listStyles">
                         <li v-for="element in disabledAncestorsList" style="display:list-item;">
-                            <b>{{ element.indicatorID }}</b>: {{ element.name. length > 45 ? element.name.slice(0, 42) + "..." : element.name }}
+                            {{ element.name.length > 50 ? element.name.slice(0, 47) + "..." : element.name }}
                         </li>
                     </ul>
                     <fieldset>

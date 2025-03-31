@@ -595,8 +595,8 @@ export default {
             this.setFormDialogComponent('history-dialog');
             this.showFormDialog = true;
         },
-        openRestoreFieldOptionsDialog(indicatorID = "") {
-            this.setCustomDialogTitle(`<h2>Restore Indicator ${indicatorID}</h2>`);
+        openRestoreFieldOptionsDialog() {
+            this.setCustomDialogTitle(`<h2>Restore Field</h2>`);
             this.setFormDialogComponent('restore-field-options-dialog');
             this.dialogButtonText = {confirm: 'Restore', cancel: 'Close'};
             this.showFormDialog = true;

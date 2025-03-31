@@ -12,6 +12,7 @@ export default {
             disabledFields: [],
             enabledFields: {},
             indicatorID_toRestore: null,
+            indicatorName_toRestore: "",
             disabledAncestors: [],
             firstOrphanID: null,
             searchPending: true
@@ -34,6 +35,7 @@ export default {
     provide() {
         return {
             indicatorID_toRestore: computed(() => this.indicatorID_toRestore),
+            indicatorName_toRestore: computed(() => this.indicatorName_toRestore),
             disabledAncestors: computed(() => this.disabledAncestors),
             firstOrphanID: computed(() => this.firstOrphanID),
             searchPending: computed(() => this.searchPending),
@@ -57,25 +59,27 @@ export default {
             .then(res => res.json());
 
         Promise.all([disabledPromise, unabridgedPromise]).then(data => {
-            const resDisabled = data[0];
-            const resUnabridged = data[1];
-            let dFields = [];
-            //set component data disabled fields array and enabled fields object
-            resDisabled.map(obj => {
-                if(+obj.indicatorID > 0) {
-                    obj.name = this.decodeAndStripHTML(obj.name);
-                    dFields.push(obj);
-                }
-            });
-            this.disabledFields = dFields;
-
-            const enabledFields = resUnabridged.filter(obj => +obj.indicatorID > 0 && +obj.isDisabled === 0);
-            enabledFields.forEach(
-                f => this.enabledFields[f.indicatorID] = { 
-                    indicatorID: f.indicatorID,
-                    parentIndicatorID: f.parentIndicatorID
-                }
-            );
+            if(Array.isArray(data?.[0])) {
+                const resDisabled = data[0];
+                let dFields = [];
+                resDisabled.map(obj => {
+                    if(+obj.indicatorID > 0) {
+                        obj.name = this.decodeAndStripHTML(obj.name || "[ blank ]");
+                        dFields.push(obj);
+                    }
+                });
+                this.disabledFields = dFields;
+            }
+            if(Array.isArray(data?.[1])) {
+                const resUnabridged = data[1];
+                const enabledFields = resUnabridged.filter(obj => +obj.indicatorID > 0 && +obj.isDisabled === 0);
+                enabledFields.forEach(
+                    f => this.enabledFields[f.indicatorID] = {
+                        indicatorID: f.indicatorID,
+                        parentIndicatorID: f.parentIndicatorID
+                    }
+                );
+            }
             this.loading = false;
             this.initializeAppGrid();
 
@@ -119,10 +123,12 @@ export default {
          * Update indicatorID_toRestore and disabledAncestors component data
          * Restore if no disabled ancestors, otherwise use options modal
          * @param {number} indicatorID
+         * @param {string} name
          * @param {number|null} parentIndicatorID
          */
-        restoreFieldGate(indicatorID, parentIndicatorID) {
+        restoreFieldGate(indicatorID, name, parentIndicatorID) {
             this.indicatorID_toRestore = indicatorID;
+            this.indicatorName_toRestore = name;
             this.searchAncestorStates(parentIndicatorID);
 
             if(this.searchPending === false && this.disabledAncestors.length === 0 && this.firstOrphanID === null) {
@@ -130,7 +136,7 @@ export default {
                     .then(() => this.updateAppData(indicatorID, 1250))
                     .catch(err => console.log(err));
             } else {
-                this.openRestoreFieldOptionsDialog(this.indicatorID_toRestore);
+                this.openRestoreFieldOptionsDialog();
             }
         },
         /**
@@ -177,7 +183,7 @@ export default {
                     indicatorID,
                     parentIndicatorID: this.fieldParentIDLookup[indicatorID],
                 };
-                this.formGrid.setDataBlob(this.disabledFieldsLookup)
+                this.formGrid.setDataBlob(this.disabledFieldsLookup);
 
                 const tableBodyID = this.formGrid.getPrefixID() + "tbody";
                 const tableRowID = this.formGrid.getPrefixID() + "tbody_tr" + indicatorID;
@@ -188,7 +194,9 @@ export default {
                         <b style="color:#064;">Field restored</b>
                     </td>`;
                     setTimeout(() => {
-                        tableBody.removeChild(tableRow);
+                        if (tableBody.contains(tableRow)) {
+                            tableBody.removeChild(tableRow);
+                        }
                         this.updateTableIfNoResults();
                     }, timeout);
                 }
@@ -324,6 +332,10 @@ export default {
                         if(elContainer !== null) {
                             const ID = blob[data.recordID].indicatorID;
                             const pID = blob[data.recordID].parentIndicatorID;
+                            let name = blob[data.recordID].name;
+                            if(name.length > 45) {
+                                name = name.slice(0, 42) + "...";
+                            }
                             elContainer.innerHTML = `
                                 <button type="button" id="restore_indicator_${ID}"
                                     class="btn-general" style="margin: auto;">
@@ -331,7 +343,7 @@ export default {
                                 </button>`;
                             let elBtn = document.getElementById(`restore_indicator_${ID}`);
                             if(elBtn !== null) {
-                                elBtn.addEventListener("click", () => this.restoreFieldGate(ID, pID));
+                                elBtn.addEventListener("click", () => this.restoreFieldGate(ID, name, pID));
                             }
                         }
                     }
