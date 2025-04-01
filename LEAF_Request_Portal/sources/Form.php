@@ -2243,7 +2243,7 @@ class Form
                         AND approved=1';
         $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
-        $this->cache['checkIfBackup'] = [];
+        $this->cache['checkIfBackupUserName'] = [];
         foreach ($backupIds as $row)
         {
             $this->cache['checkIfBackupUserName'][strtolower($row['userName'])] = true;
