@@ -1818,6 +1818,13 @@
     function modalSetup(stepID) {
         const modalEl = document.getElementById('stepInfo_' + stepID);
         if(modalEl !== null) {
+            const rect = modalEl.getBoundingClientRect();
+            if(rect.right > window.innerWidth) {
+                const adjustedLeft = 16 + rect.right - window.innerWidth;
+                const currentLeft = parseInt(modalEl.style.left);
+                modalEl.style.left = currentLeft - adjustedLeft + 'px';
+            }
+
             $('#step_' + stepID).attr('aria-expanded', true);
             const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
             const first = interActiveEls[0] || null
@@ -2079,6 +2086,7 @@
     var endPoints = [];
 
     function drawRoutes(workflowID, stepID = null) {
+        let loc = 0.5;
         $.ajax({
             type: 'GET',
             url: '../api/workflow/' + workflowID + '/route',
@@ -2094,8 +2102,8 @@
                 }
 
                 // draw connector
+                let actionCounts = {};
                 for (let i in res) {
-                    var loc = 0.5;
                     switch (res[i].actionType.toLowerCase()) {
                         case 'sendback':
                             loc = 0.30;
@@ -2111,6 +2119,21 @@
                             loc = 0.75;
                             break;
                         default:
+                            const from = String(res[i].stepID);
+                            const to = String(res[i].nextStepID);
+                            if (from !== to) {
+                                const fromStepToStep = from + "_" + to;
+                                if(actionCounts?.[fromStepToStep] >= 0) {
+                                    actionCounts[fromStepToStep] += 1;
+                                    loc = Math.min(
+                                        +((0.20 + 0.08 * actionCounts[fromStepToStep]).toFixed(2)),
+                                        0.80
+                                    );
+                                } else {
+                                    actionCounts[fromStepToStep] = 0;
+                                    loc = 0.20;
+                                }
+                            }
                             break;
                     }
                     if (res[i].nextStepID == 0 && res[i].actionType == 'sendback') {
