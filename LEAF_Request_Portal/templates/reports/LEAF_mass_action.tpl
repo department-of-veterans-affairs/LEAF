@@ -81,26 +81,15 @@
     </div>
 
     <img id="iconBusy" src="./images/indicator.gif" class="employeeSelectorIcon" alt="busy" />
-    <div id="searchResults">
-        <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal">Take Action</button>
-
-        <table id="requests">
-            <tr id="headerRow">
-                <th>UID</th>
-                <th>Type</th>
-                <th>Service</th>
-                <th>Title</th>
-                <th><input type="checkbox" name="selectAllRequests" id="selectAllRequests" value=""></th>
-            </tr>
-        </table>
-        <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal">Take Action</button>
-    </div>
+    <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal; display: none">Take Action</button>
+    <div id="searchResults" class="grid_table"></div>
+    <button class="buttonNorm takeAction" style="text-align: center; font-weight: bold; white-space: normal; display: none">Take Action</button>
     <div id="errorMessage"></div>
 </div>
 <script>
 // Global variables
 let leafSearch;
-let massActionToken = '<!--{$CSRFToken}-->';
+let CSRFToken = '<!--{$CSRFToken}-->';
 let orgChartPath = '<!--{$orgchartPath}-->';
 let app_js_path = '<!--{$app_js_path}-->';
 let processedRequests = 0;
@@ -110,6 +99,13 @@ let failedActionRecordIDs = [];
 let dialog_confirm;
 let searchID = "";
 let extraTerms;
+let takeActionButton = document.querySelectorAll("button.takeAction");
+let stepContainer = document.getElementById("step_container");
+let relevantActionContainer = document.getElementById("relevant_action_container");
+let requirementsContainer = document.getElementById("requirements_container");
+let commentCancelContainer = document.getElementById("comment_cancel_container");
+let searchResults = document.getElementById("searchResults");
+let errorMessage = document.getElementById("errorMessage");
 
 $(document).ready(function () {
     document.querySelector('title').innerText = 'Mass Actions - <!--{$title}-->';
@@ -149,11 +145,6 @@ $(document).ready(function () {
         }
     });
 
-    // When "Select All" selected/de-selected, set all of the request checkboxes to match
-    $("input#selectAllRequests").change(function () {
-        $("input.massActionRequest").prop("checked", $(this).is(":checked"));
-    });
-
     // When changing any mass action, reset all record checkboxes to unchecked
     $(document).on("change", "input.massActionRequest", function () {
         $("input#selectAllRequests").prop("checked", false);
@@ -166,7 +157,8 @@ $(document).ready(function () {
     leafSearch.setOrgchartPath(orgChartPath);
     leafSearch.setSearchFunc(function (search) {
         extraTerms = search;
-        doSearch();
+        searchID = Math.floor(Math.random() * 1000000000);
+        listRequests(searchID);
     });
 });
 
@@ -193,6 +185,10 @@ function chooseAction() {
     document.getElementById("step_container").innerHTML = "";
     document.getElementById("form_container").innerHTML = "";
     document.getElementById("requirements_container").innerHTML = "";
+    let takeActionButton = document.querySelectorAll("button.takeAction");
+    takeActionButton.forEach(tabutton => {
+        tabutton.style.display = "none";
+    });
 
     switch (actionValue) {
         case "cancel":
@@ -208,7 +204,8 @@ function chooseAction() {
             }
 
             leafSearch.init();
-            doSearch();
+            searchID = Math.floor(Math.random() * 1000000000);
+            listRequests(searchID);
             break;
         case "email":
             $("#emailSection, #searchRequestsContainer, #searchResults, #errorMessage").show();
@@ -252,7 +249,18 @@ function populateFormDropdown(forms) {
     formSelect.id = "form_select";
     formSelect.name = "form_select";
     formSelect.onchange = function () {
-        $("#step_container, #relevant_action_container, #requirements_container, #comment_cancel_container, #searchResults, #errorMessage").hide();
+        //$("#step_container, #relevant_action_container, #requirements_container, #comment_cancel_container, #searchResults, #errorMessage").hide();
+        stepContainer.style.display = "none";
+        relevantActionContainer.style.display = "none";
+        requirementsContainer.style.display = "none";
+        commentCancelContainer.style.display = "none";
+        searchResults.style.display = "none";
+        errorMessage.style.display = "none";
+
+        takeActionButton.forEach(tabutton => {
+            tabutton.style.display = "none";
+        });
+
         let formID = this.value;
         let workflowID = formID.split("-")[1];
         let steps = getSteps();
@@ -289,7 +297,16 @@ function populateStepDropdown(steps, formID) {
         stepSelect.id = "step_select";
         stepSelect.name = "step_select";
         stepSelect.onchange = function () {
-            $("#relevant_action_container, #requirements_container, #comment_cancel_container, #searchResults, #errorMessage").hide();
+            relevantActionContainer.style.display = "none";
+            requirementsContainer.style.display = "none";
+            commentCancelContainer.style.display = "none";
+            searchResults.style.display = "none";
+            errorMessage.style.display = "none";
+
+            takeActionButton.forEach(tabutton => {
+                tabutton.style.display = "none";
+            });
+
             let stepID = $("select#step_select").val();
             let requirements = getRequirements(stepID);
             populateRequirementDropdown(requirements, stepID);
@@ -326,7 +343,15 @@ function populateRequirementDropdown(requirements, stepID) {
     requirementsSelect.id = "requirements_select";
     requirementsSelect.name = "requirements_select";
     requirementsSelect.onchange = function () {
-        $("#relevant_action_container, #comment_cancel_container, #searchResults, #errorMessage").hide();
+        relevantActionContainer.style.display = "none";
+        commentCancelContainer.style.display = "none";
+        searchResults.style.display = "none";
+        errorMessage.style.display = "none";
+
+        takeActionButton.forEach(tabutton => {
+            tabutton.style.display = "none";
+        });
+
         let formID = $("select#form_select").val();
         let workflowID = formID.split("-")[1];
         let stepID = $("select#step_select").val();
@@ -377,7 +402,8 @@ function populateActionDropdown(actions, stepID) {
             $("#comment_cancel_container").show();
         }
         leafSearch.init();
-        doSearch();
+        searchID = Math.floor(Math.random() * 1000000000);
+        listRequests(searchID);
     };
 
     let actionOption = document.createElement("option");
@@ -488,120 +514,49 @@ function getForms() {
  */
 function reminderDaysSearch() {
     let daysSince = document.getElementById("lastAction").valueOf();
-    doSearch();
+    searchID = Math.floor(Math.random() * 1000000000);
+    listRequests(searchID);
 }
 
-/**
- * Sets up and builds the search query, passing it along to listRequests
- */
-function doSearch() {
-    let getCancelled = false;
-    let getSubmitted = true;
-    let getReminder = 0;
-    let getAction = "";
-
-    $("input#selectAllRequests").prop("checked", false);
-    setProgress("");
-    // Get Dropdown values
-    actionValue = $("select#action").val();
+function addTerms(leafFormQuery) {
+    let actionValue = $("select#action").val();
     switch (actionValue) {
+        case "cancel":
+            leafFormQuery.addTerm('stepID', '!=', 'deleted');
+            break;
         case "email":
-            getReminder = Number(document.getElementById("lastAction").value);
+            leafFormQuery.addTerm('stepID', '!=', 'deleted');
+            if (Number(document.getElementById("lastAction").value) > 0) {
+                leafFormQuery.addTerm('stepID', '!=', 'resolved');
+            }
             break;
         case "submit":
-            getSubmitted = false;
+            leafFormQuery.addTerm('stepID', '!=', 'deleted');
+            leafFormQuery.addTerm('stepID', '!=', 'submitted');
             break;
         case "restore":
-            getCancelled = true;
+            leafFormQuery.addTerm('stepID', '=', 'deleted');
             break;
         case "take_action":
+            leafFormQuery.addTerm('stepID', '!=', 'deleted');
             getAction = document.getElementById("action_select").value;
+
+            if (getAction !== "") {
+                let stepID = $("select#step_select").val();
+                let dependencyID = $("select#requirements_select").val();
+                let formID = $("select#form_select").val();
+                let categoryID = formID.split("-")[0];
+
+                leafFormQuery.addTerm('categoryID', '=', categoryID);
+                leafFormQuery.addTerm('stepID', '=', stepID);
+                leafFormQuery.addDataTerm('dependencyID', dependencyID, '=');
+            }
             break;
     }
 
-    let queryObj = buildQuery(getCancelled, getSubmitted, getReminder, getAction);
-    searchID = Math.floor(Math.random() * 1000000000);
-    listRequests(queryObj, searchID, getReminder);
-}
-
-/**
- * Builds query object to pass to form/query
- *
- * @param {boolean}                [getCancelled]                                 filter by cancelled
-* @param {boolean}                [getSubmitted]                                 filter by submitted
-* @param {int}                                                [getReminder]                                                value of email reminder selection
-*
-* @return {Object} query object to pass to form/query.
-*/
-function buildQuery(getCancelled, getSubmitted, getReminder, getAction) {
-    let requestQuery = {
-        terms: [],
-        joins: ["service", "recordsDependencies", "categoryName", "status"],
-        sort: {},
-    };
-
-    if (getCancelled) {
-        requestQuery.terms.push({
-            id: "stepID",
-            operator: "=",
-            match: "deleted",
-        });
-    } else if (getAction !== "") {
-        requestQuery.terms.push({
-            id: "stepID",
-            operator: "!=",
-            match: "deleted",
-        });
-    }
-
-    if (!getSubmitted) {
-        requestQuery.terms.push({
-            id: "stepID",
-            operator: "!=",
-            match: "submitted",
-        });
-    }
-
-    if (getReminder > 0) {
-        requestQuery.joins.push("action_history");
-        requestQuery.terms.push({
-            id: "stepID",
-            operator: "!=",
-            match: "resolved",
-        });
-    }
-
-    if (getAction !== "") {
-        let stepID = $("select#step_select").val();
-        let dependencyID = $("select#requirements_select").val();
-        let formID = $("select#form_select").val();
-        let categoryID = formID.split("-")[0];
-
-        requestQuery.terms.push({
-            id: "categoryID",
-            operator: "=",
-            match: categoryID,
-            gate: "AND",
-        });
-
-        requestQuery.terms.push({
-            id: "stepID",
-            operator: "=",
-            match: stepID,
-            gate: "AND",
-        });
-
-        requestQuery.terms.push({
-            id: "dependencyID",
-            operator: "=",
-            indicatorID: dependencyID,
-            gate: "AND",
-        });
-    }
-
-    //handle extraTerms
     let isJSON = true;
     let advSearch = {};
+
     try {
         advSearch = $.parseJSON(extraTerms);
     } catch (err) {
@@ -609,16 +564,26 @@ function buildQuery(getCancelled, getSubmitted, getReminder, getAction) {
     }
 
     if (isJSON) {
-        requestQuery.terms = $.merge(requestQuery.terms, advSearch);
+        for (let i = 0; i < advSearch.length; i++) {
+            leafFormQuery.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);
+        }
     } else if (typeof extraTerms === "string") {
-        requestQuery.terms.push({
-            id: "title",
-            operator: "LIKE",
-            match: "*" + extraTerms.trim() + "*",
-        });
+        leafFormQuery.addTerm('title', 'LIKE', '*' + extraTerms.trim() + '*');
     }
+}
 
-    return requestQuery;
+function addJoins(leafFormQuery) {
+    leafFormQuery.join("service");
+    leafFormQuery.join("recordsDependencies");
+    leafFormQuery.join("categoryName");
+    leafFormQuery.join("status");
+
+    let actionValue = $("select#action").val();
+    let lastAction = document.getElementById("lastAction");
+
+    if (actionValue === "email" && Number(lastAction.value) > 0) {
+        leafFormQuery.join("action_history");
+    }
 }
 
 /**
@@ -628,99 +593,92 @@ function buildQuery(getCancelled, getSubmitted, getReminder, getAction) {
 * @param {Integer} [thisSearchID]                When done() is called, this param is compared to the global searchID. If they are not equal, then the results are not processed.
 * @param {Number}                [getReminder]                 Number of days for email reminder selection
 */
-function listRequests(queryObj, thisSearchID, getReminder = 0) {
-    $("#searchResults").hide();
-    $("#errorMessage").hide();
-    $("table#requests tr.requestRow").remove();
-    $("#iconBusy").show();
+async function listRequests(thisSearchID) {
+    let searchResult = document.getElementById("searchResults");
+    let errorMessage = document.getElementById("errorMessage");
+    let iconBusy = document.getElementById("iconBusy");
 
-    $.ajax({
-        type: "GET",
-        url: "./api/form/query",
-        data: { q: JSON.stringify(queryObj), CSRFToken: massActionToken },
-        cache: false,
-    })
-        .done(function (data) {
-            if (thisSearchID === searchID) {
-                if (Object.keys(data).length) {
-                    let totalCount = 0;
+    searchResult.style.display = "none";
+    errorMessage.style.display = "none";
+    iconBusy.style.display = "none";
 
-                    $.each(data, function (index, value) {
-                        let displayRecord = true;
-                        // If this is email reminder list, then compare against give time period
-                        if (getReminder > 0) {
-                            // Get if we can show record for time period selected
-                            if (value.action_history !== undefined) {
-                                let numberActions = value.action_history.length;
-                                let lastActionDate =
-                                    Number(
-                                        value.action_history[numberActions - 1]
-                                            .time
-                                    ) * 1000;
-
-                                // Current date minus selected reminder time period
-                                let comparisonDate =
-                                    Date.now() - getReminder * 86400 * 1000;
-                                if (lastActionDate >= comparisonDate) {
-                                    displayRecord = false;
-                                }
-                            } else {
-                                console.log("No record to display");
-                                displayRecord = false;
-                            }
+    let leafFormQuery = new LeafFormQuery();
+    leafFormQuery.setRootURL("./");
+    leafFormQuery.clearTerms();
+    addTerms(leafFormQuery);
+    addJoins(leafFormQuery);
+    leafFormQuery.onSuccess(result => {
+        if (thisSearchID === searchID) {
+            if (result instanceof Object && Object.keys(result).length > 0 && result[0] === undefined) {
+                const formGrid = new LeafFormGrid('searchResults', {});
+                formGrid.setRootURL("./");
+                formGrid.setDataBlob(result);
+                formGrid.setHeaders([
+                    {
+                        name: "Type",
+                        indicatorID: "categoryNames",
+                        callback: function (data, blob) {
+                            let containerEl = document.getElementById(data.cellContainerID);
+                            containerEl.innerText = blob[data.recordID]?.categoryNames?.[0] ?? "none";
                         }
-                        if (displayRecord) {
-                            totalCount++;
-                            requestsRow = '<tr class="requestRow">';
-                            requestsRow +=
-                                '<td><a href="index.php?a=printview&amp;recordID=' +
-                                value.recordID +
-                                '" target="_blank">' +
-                                value.recordID +
-                                "</a></td>";
-                            requestsRow +=
-                                "<td>" +
-                                (value.categoryNames === undefined ||
-                                value.categoryNames.length === 0
-                                    ? "non"
-                                    : value.categoryNames[0]) +
-                                "</td>";
-                            requestsRow +=
-                                "<td>" +
-                                (value.service == null ? "" : value.service) +
-                                "</td>";
-                            requestsRow += "<td>" + value.title + "</td>";
-                            requestsRow +=
-                                '<td><input type="checkbox" name="massActionRequest" class="massActionRequest" value="' +
-                                value.recordID +
-                                '"></td>';
-                            requestsRow += "</tr>";
-                            $("table#requests").append(requestsRow);
+                    },
+                    {
+                        name: "Service",
+                        indicatorID: "service",
+                        callback: function (data, blob) {
+                            let containerEl = document.getElementById(data.cellContainerID);
+                            containerEl.innerText = blob[data.recordID].service;
                         }
-                    });
-
-                    if (totalCount == 0) {
-                        requestsRow = '<tr class="requestRow">';
-                        requestsRow +=
-                            "<td colspan='5'>No records to display</td>";
-                        requestsRow += "</tr>";
-                        $("table#requests").append(requestsRow);
+                    },
+                    {
+                        name: 'Title',
+                        indicatorID: 'title',
+                        callback: function(data, blob) {
+                            $('#'+data.cellContainerID).html(blob[data.recordID].title);
+                            $('#'+data.cellContainerID).on('click', function() {
+                                window.open('index.php?a=printview&recordID='+data.recordID, 'LEAF', 'width=800,resizable=yes,scrollbars=yes,menubar=yes');
+                            });
+                        }
+                    },
+                    {
+                        name: `<input type="checkbox" name="selectAllRequests" id="selectAllRequests" value="">`,
+                        indicatorID: "checkboxes",
+                        editable: false,
+                        sortable: false,
+                        callback: function(data, blob) {
+                            $('#'+data.cellContainerID).html('<input type="checkbox" name="massActionRequest" class="massActionRequest" value="' + data.recordID + '">');
+                        }
                     }
+                ]);
 
-                    $("#searchResults").show();
-                } else {
-                    $("#errorMessage").html("No Results").show();
+                $("input#selectAllRequests").change(function () {
+                    $("input.massActionRequest").prop("checked", $(this).is(":checked"));
+                });
+
+                formGrid.renderBody();
+                let takeActionButton = document.querySelectorAll("button.takeAction");
+
+                takeActionButton.forEach(tabutton => {
+                    tabutton.style.display = "block";
+                });
+
+                if (searchResult !== null) {
+                    searchResult.style.display = "block";
+                }
+            } else {
+                if (errorMessage !== null) {
+                    errorMessage.innerHTML = "No Results";
+                    errorMessage.style.display = "block";
                 }
             }
-        })
-        .fail(function (jqXHR, error, errorThrown) {
-            console.log(jqXHR);
-            console.log(error);
-            console.log(errorThrown);
-        })
-        .always(function () {
-            $("#iconBusy").hide();
-        });
+        }
+    });
+
+    leafFormQuery.execute();
+
+    if (iconBusy !== null) {
+        iconBusy.style.display = "none";
+    }
 }
 
 /**
@@ -754,7 +712,7 @@ function executeMassAction() {
     }
     $.each(selectedRequests, function (key, item) {
         let ajaxPath = "";
-        let ajaxData = { CSRFToken: massActionToken };
+        let ajaxData = { CSRFToken: CSRFToken };
         let recordID = $(item).val();
         switch (actionValue) {
             case "submit":
@@ -866,7 +824,9 @@ function updateProgress(recordID, success) {
             alert(alertMessage);
         }
 
-        doSearch();
+        searchID = Math.floor(Math.random() * 1000000000);
+        listRequests(searchID);
+
         setProgress(
             successfulActionRecordIDs.length +
                 " successes and " +
