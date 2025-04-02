@@ -4109,7 +4109,7 @@ class Form
     {
         $vars = array(':disabled' => (int)$disabled);
         $strSQL = "SELECT indicatorID, name, format, description, categories.categoryName, ".
-                    "indicators.disabled FROM indicators ".
+                    "indicators.parentID AS parentIndicatorID, indicators.disabled FROM indicators ".
                     "LEFT JOIN categories USING (categoryID) ".
                     "WHERE indicators.disabled >= :disabled ".
                     "AND categories.disabled = 0 ".
@@ -4124,6 +4124,7 @@ class Form
             $delDate = $item['disabled'] + 30*24*60*60; //30 days from timestamp
             $delDateFormat = date("m/d/Y",$delDate);
             $temp['indicatorID'] = $item['indicatorID'];
+            $temp['parentIndicatorID'] = $item['parentIndicatorID'];
             $temp['name'] = $item['name'];
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
