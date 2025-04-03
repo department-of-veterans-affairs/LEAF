@@ -1532,9 +1532,9 @@
             }
 
             output += '<br /><div>Triggers these events:<ul>';
-            // the sendback action always notifies the requestor
+            // the sendback action always notifies the requestor and uses the Send Back template
             if (params.action == 'sendback') {
-                output += '<li><b>Email - Notify the requestor</b></li>';
+                output += '<li><b>Email - Send Back Notification for Requestor</b></li>';
             }
             for (let i in res) {
                 output += `<li><b>${res[i].eventType} - ${res[i].eventDescription}</b>
@@ -2087,7 +2087,7 @@
 
     function drawRoutes(workflowID, stepID = null) {
         let loc = 0.5;
-        const locIncrement = 0.1;
+        const locIncrement = 0.15;
         $.ajax({
             type: 'GET',
             url: '../api/workflow/' + workflowID + '/route',
@@ -2127,8 +2127,8 @@
                             if(actionCounts?.[fromStepToStep] >= 0) {
                                 actionCounts[fromStepToStep] += 1;
                                 loc = Math.min(
-                                    +((0.20 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
-                                    0.70
+                                    +((0.05 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
+                                    0.65
                                 );
                                 if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
                                     loc += locIncrement;
