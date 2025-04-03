@@ -109,6 +109,20 @@
                     }
                 }
             },
+            'type': function(site) {
+                return {
+                    name: 'Type',
+                    indicatorID: 'type',
+                    editable: false,
+                    callback: function(data, blob) {
+                        let types = '';
+                        for(let i in blob[data.recordID].categoryNames) {
+                            types += blob[data.recordID].categoryNames[i] + ' | ';
+                        }
+                        types = types.substr(0, types.length - 3);
+                        document.querySelector(`#${data.cellContainerID}`).innerHTML = types;
+                }}
+            },
             'status': function(site) {
                 return {
                     name: 'Status',
@@ -440,6 +454,8 @@
     function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
         let customColumns = false;
         let categoryID = null;
+
+        // categoryIDs is undefined when the user has selected the "Organize by Roles" view
         if (categoryIDs != undefined) {
             categoryID = categoryIDs[0];
             categoryIDs.forEach(categoryID => {
@@ -468,7 +484,18 @@
 
         let headerColumns = "";
         if (customColumns === false) {
-            const baseColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+            let baseColumns = '';
+            if(site.columns == null || site.columns == 'UID') {
+                // Add the Form Type to the "Organize by Roles" view. Provides feature parity with the old Inbox.
+                if(categoryIDs == undefined) {
+                    baseColumns = 'UID,type,service,title,status';
+                } else {
+                    baseColumns = 'UID,service,title,status';
+                }
+            } else {
+                baseColumns = site.columns;
+            }
+
             const formColumns = site?.formColumns?.[categoryID] || null;
             if (formColumns !== null) {
                 headerColumns = 'UID,' + formColumns;
@@ -478,6 +505,7 @@
             headerColumns = headerColumns.split(",")
         }
         let customCols = [];
+
         headerColumns.forEach(col => {
             if (isNaN(col) && typeof headerDefinitions[col] === 'function') {
                 customCols.push(headerDefinitions[col](site));
@@ -861,8 +889,12 @@
                 };
                 sites.push(localSite);
                 queue.setQueue([localSite]);
+
+                // workaround for jquery animation?
                 document.querySelector('#index').style.visibility = 'hidden';
-                document.querySelector('#inbox').style.width = '70%';
+                document.querySelector('#index').style.width = '0px';
+
+                document.querySelector('#inbox').style.width = '95%';
             }
 
             queue.start();

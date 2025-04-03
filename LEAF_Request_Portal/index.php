@@ -258,7 +258,7 @@ switch ($action) {
 
         break;
     case 'inbox':
-        header('Refresh: 2;URL=report.php?a=LEAF_Inbox&organizeByRole&adminView');
+        header('Refresh: 0;URL=report.php?a=LEAF_Inbox&organizeByRole&adminView');
 
         echo 'Redirecting to the Inbox. Please update your bookmarks.';
         exit();
