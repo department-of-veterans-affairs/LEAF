@@ -2087,6 +2087,7 @@
 
     function drawRoutes(workflowID, stepID = null) {
         let loc = 0.5;
+        const locIncrement = 0.1;
         $.ajax({
             type: 'GET',
             url: '../api/workflow/' + workflowID + '/route',
@@ -2104,6 +2105,7 @@
                 // draw connector
                 let actionCounts = {};
                 for (let i in res) {
+                    loc = 0.5;
                     switch (res[i].actionType.toLowerCase()) {
                         case 'sendback':
                             loc = 0.30;
@@ -2121,18 +2123,18 @@
                         default:
                             const from = String(res[i].stepID);
                             const to = String(res[i].nextStepID);
-                            if (from !== to) {
-                                const fromStepToStep = from + "_" + to;
-                                if(actionCounts?.[fromStepToStep] >= 0) {
-                                    actionCounts[fromStepToStep] += 1;
-                                    loc = Math.min(
-                                        +((0.20 + 0.08 * actionCounts[fromStepToStep]).toFixed(2)),
-                                        0.80
-                                    );
-                                } else {
-                                    actionCounts[fromStepToStep] = 0;
-                                    loc = 0.20;
+                            const fromStepToStep = from + "_" + to;
+                            if(actionCounts?.[fromStepToStep] >= 0) {
+                                actionCounts[fromStepToStep] += 1;
+                                loc = Math.min(
+                                    +((0.20 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
+                                    0.70
+                                );
+                                if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
+                                    loc += locIncrement;
                                 }
+                            } else {
+                                actionCounts[fromStepToStep] = 0;
                             }
                             break;
                     }
