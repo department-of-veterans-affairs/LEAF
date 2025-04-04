@@ -140,14 +140,17 @@ var LeafFormQuery = function () {
    * @memberOf LeafFormQuery
    */
   function getData(indicatorID = "") {
-	if(Array.isArray(indicatorID)) {
-		indicatorID.forEach(id => {
-			getData(id);
-		});
-	}
-	else if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
-	    query.getData.push(indicatorID);
-	}
+    if(query.getData === undefined) {
+      query.getData = [];
+    }
+    if(Array.isArray(indicatorID)) {
+      indicatorID.forEach(id => {
+        getData(id);
+      });
+    }
+    else if (indicatorID !== "" && query.getData.indexOf(indicatorID) == -1) {
+        query.getData.push(indicatorID);
+    }
   }
 
   /**
