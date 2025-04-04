@@ -139,6 +139,16 @@
                             status = waitText + listRecord.stepTitle;
                         }
 
+                        // Show individually assigned name, if present
+                        if(listRecord.assignedIndividual != undefined && listRecord.assignedIndividual == true) {
+                            if(listRecord.unfilledDependencyData[-1] != undefined) {
+                                status += ': ' + listRecord.unfilledDependencyData[-1].approverName;
+                            }
+                            if(listRecord.unfilledDependencyData[-2] != undefined) {
+                                status += ': ' + listRecord.unfilledDependencyData[-2].approverName;
+                            }
+                        }
+
                         cellContainer.html(status).attr('tabindex', '0').attr('aria-label', status);
                         if (listRecord.userID == '<!--{$userID}-->') {
                         cellContainer.css('background-color', '#feffd1');
@@ -563,6 +573,11 @@
             if (res[recordID].service != null) {
                 hasServices = true;
             }
+            res[recordID].assignedIndividual = false;
+            if(stepID == 'assignedIndividual') {
+                res[recordID].assignedIndividual = true;
+            }
+
             tGridData.push(res[recordID]);
         });
         // remove service column if there's no services
