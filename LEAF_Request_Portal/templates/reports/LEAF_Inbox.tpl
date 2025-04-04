@@ -325,8 +325,15 @@
                 let roleID = Number(depID);
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
-                    roleID = Sha1.hash(uDD.approverUID);
-                    description = scrubHTML(uDD.approverName);
+                    // For Admins in the "Organize by Roles" view:
+                    // Organize individually assigned records into a section (e.g. person designated, requestor followup)
+                    if(!nonAdmin && (roleID == -1 || roleID == -2)) {
+                        roleID = 'assignedIndividual';
+                        description = '* Assigned to an individual *';
+                    } else {
+                        roleID = Sha1.hash(uDD.approverUID);
+                        description = scrubHTML(uDD.approverName);
+                    }
                 }
 
                 let stepHash = `${description}:;ROLEID${roleID}`;
