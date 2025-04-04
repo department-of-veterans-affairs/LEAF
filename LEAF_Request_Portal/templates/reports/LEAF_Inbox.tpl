@@ -115,12 +115,7 @@
                     indicatorID: 'type',
                     editable: false,
                     callback: function(data, blob) {
-                        let types = '';
-                        for(let i in blob[data.recordID].categoryNames) {
-                            types += blob[data.recordID].categoryNames[i] + ' | ';
-                        }
-                        types = types.substr(0, types.length - 3);
-                        document.querySelector(`#${data.cellContainerID}`).innerHTML = types;
+                        document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].categoryNames.join(' | ');
                 }}
             },
             'status': function(site) {
