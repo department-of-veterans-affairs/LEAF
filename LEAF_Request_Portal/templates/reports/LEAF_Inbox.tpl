@@ -109,6 +109,15 @@
                     }
                 }
             },
+            'type': function(site) {
+                return {
+                    name: 'Type',
+                    indicatorID: 'type',
+                    editable: false,
+                    callback: function(data, blob) {
+                        document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].categoryNames.join(' | ');
+                }}
+            },
             'status': function(site) {
                 return {
                     name: 'Status',
@@ -359,7 +368,7 @@
 
     // Get site icons and name
     function getIcon(icon, name) {
-        if (icon != '') {
+        if (icon != '' && icon != undefined) {
             if (icon.indexOf('/') != -1) {
                 icon = '<img src="' + icon + '" alt="icon for ' + name +
                     '" style="vertical-align: middle; width: 76px; height:76px;" />';
@@ -367,6 +376,8 @@
                 icon = '<img src="../libs/dynicons/?img=' + icon + '&w=76" alt="icon for ' + name +
                     '" style="vertical-align: middle" />';
             }
+        } else {
+            icon = '';
         }
         return icon;
     }
@@ -409,6 +420,8 @@
         let depID = Sha1.hash(categoryIDs.join(','));
 
         let icon = getIcon(site.icon, site.name);
+        site.backgroundColor = site.backgroundColor == undefined ? 'initial' : site.backgroundColor;
+        site.fontColor = site.fontColor == undefined ? 'initial' : site.fontColor;
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
@@ -440,6 +453,8 @@
     function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
         let customColumns = false;
         let categoryID = null;
+
+        // categoryIDs is undefined when the user has selected the "Organize by Roles" view
         if (categoryIDs != undefined) {
             categoryID = categoryIDs[0];
             categoryIDs.forEach(categoryID => {
@@ -468,7 +483,18 @@
 
         let headerColumns = "";
         if (customColumns === false) {
-            const baseColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+            let baseColumns = '';
+            if(site.columns == null || site.columns == 'UID') {
+                // Add the Form Type to the "Organize by Roles" view. Provides feature parity with the old Inbox.
+                if(categoryIDs == undefined) {
+                    baseColumns = 'UID,type,service,title,status';
+                } else {
+                    baseColumns = 'UID,service,title,status';
+                }
+            } else {
+                baseColumns = site.columns;
+            }
+
             const formColumns = site?.formColumns?.[categoryID] || null;
             if (formColumns !== null) {
                 headerColumns = 'UID,' + formColumns;
@@ -478,6 +504,7 @@
             headerColumns = headerColumns.split(",")
         }
         let customCols = [];
+
         headerColumns.forEach(col => {
             if (isNaN(col) && typeof headerDefinitions[col] === 'function') {
                 customCols.push(headerDefinitions[col](site));
@@ -566,6 +593,8 @@
         }
 
         let icon = getIcon(site.icon, site.name);
+        site.backgroundColor = site.backgroundColor == undefined ? 'initial' : site.backgroundColor;
+        site.fontColor = site.fontColor == undefined ? 'initial' : site.fontColor;
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
@@ -861,8 +890,12 @@
                 };
                 sites.push(localSite);
                 queue.setQueue([localSite]);
+
+                // workaround for jquery animation?
                 document.querySelector('#index').style.visibility = 'hidden';
-                document.querySelector('#inbox').style.width = '70%';
+                document.querySelector('#index').style.width = '0px';
+
+                document.querySelector('#inbox').style.width = '95%';
             }
 
             queue.start();
