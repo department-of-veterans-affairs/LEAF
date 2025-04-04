@@ -368,7 +368,7 @@
 
     // Get site icons and name
     function getIcon(icon, name) {
-        if (icon != '') {
+        if (icon != '' && icon != undefined) {
             if (icon.indexOf('/') != -1) {
                 icon = '<img src="' + icon + '" alt="icon for ' + name +
                     '" style="vertical-align: middle; width: 76px; height:76px;" />';
@@ -376,6 +376,8 @@
                 icon = '<img src="../libs/dynicons/?img=' + icon + '&w=76" alt="icon for ' + name +
                     '" style="vertical-align: middle" />';
             }
+        } else {
+            icon = '';
         }
         return icon;
     }
@@ -418,6 +420,8 @@
         let depID = Sha1.hash(categoryIDs.join(','));
 
         let icon = getIcon(site.icon, site.name);
+        site.backgroundColor = site.backgroundColor == undefined ? 'initial' : site.backgroundColor;
+        site.fontColor = site.fontColor == undefined ? 'initial' : site.fontColor;
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
@@ -589,6 +593,8 @@
         }
 
         let icon = getIcon(site.icon, site.name);
+        site.backgroundColor = site.backgroundColor == undefined ? 'initial' : site.backgroundColor;
+        site.fontColor = site.fontColor == undefined ? 'initial' : site.fontColor;
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
