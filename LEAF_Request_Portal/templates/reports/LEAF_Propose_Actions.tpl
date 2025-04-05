@@ -234,7 +234,9 @@ async function setupProposals(stepID) {
                         i++;
                     });
                     document.querySelector(`#${data.cellContainerID}`).innerHTML = output;
-                } else{
+                } else if(format == 'currency') {
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = Intl.NumberFormat(undefined, {style: 'currency', currency: 'USD'}).format(blob[data.recordID].s1[`id${colID}`]);
+                } else {
                     document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].s1[`id${colID}`];
                 }
             }};
@@ -296,6 +298,8 @@ async function setupProposals(stepID) {
                     i++;
                 });
                 document.querySelector(`#${data.cellContainerID}`).innerHTML = output;
+            } else if(indicator.format == 'currency') {
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = Intl.NumberFormat(undefined, {style: 'currency', currency: 'USD'}).format(blob[data.recordID].s1[`id${colID}`]);
             } else {
                 document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].s1[`id${colID}`];
             }
@@ -480,6 +484,8 @@ async function showProposal(encodedProposal) {
                         i++;
                     });
                     document.querySelector(`#${data.cellContainerID}`).innerHTML = output;
+                } else if(indicator.format == 'currency') {
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = Intl.NumberFormat(undefined, {style: 'currency', currency: 'USD'}).format(blob[data.recordID].s1[`id${indicator.indicatorID}`]);
                 } else {
                     document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].s1[`id${indicator.indicatorID}`];
                 }
