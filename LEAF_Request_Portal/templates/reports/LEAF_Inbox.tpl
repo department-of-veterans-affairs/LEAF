@@ -139,6 +139,16 @@
                             status = waitText + listRecord.stepTitle;
                         }
 
+                        // Show individually assigned name, if present
+                        if(listRecord.assignedIndividual != undefined && listRecord.assignedIndividual == true) {
+                            if(listRecord.unfilledDependencyData[-1] != undefined) {
+                                status += ': ' + listRecord.unfilledDependencyData[-1].approverName;
+                            }
+                            if(listRecord.unfilledDependencyData[-2] != undefined) {
+                                status += ': ' + listRecord.unfilledDependencyData[-2].approverName;
+                            }
+                        }
+
                         cellContainer.html(status).attr('tabindex', '0').attr('aria-label', status);
                         if (listRecord.userID == '<!--{$userID}-->') {
                         cellContainer.css('background-color', '#feffd1');
@@ -325,8 +335,15 @@
                 let roleID = Number(depID);
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
-                    roleID = Sha1.hash(uDD.approverUID);
-                    description = scrubHTML(uDD.approverName);
+                    // For Admins in the "Organize by Roles" view:
+                    // Organize individually assigned records into a section (e.g. person designated, requestor followup)
+                    if(!nonAdmin && (roleID == -1 || roleID == -2)) {
+                        roleID = 'assignedIndividual';
+                        description = '* Assigned to an individual *';
+                    } else {
+                        roleID = Sha1.hash(uDD.approverUID);
+                        description = scrubHTML(uDD.approverName);
+                    }
                 }
 
                 let stepHash = `${description}:;ROLEID${roleID}`;
@@ -556,6 +573,11 @@
             if (res[recordID].service != null) {
                 hasServices = true;
             }
+            res[recordID].assignedIndividual = false;
+            if(stepID == 'assignedIndividual') {
+                res[recordID].assignedIndividual = true;
+            }
+
             tGridData.push(res[recordID]);
         });
         // remove service column if there's no services
