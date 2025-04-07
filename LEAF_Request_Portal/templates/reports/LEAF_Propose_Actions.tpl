@@ -22,6 +22,9 @@ table.leaf_grid > tbody > tr > td, table select {
     margin: 4px;
     font-size: 12pt;
 }
+.buttonNorm {
+    border-radius: 8px;
+}
 </style>
 <script>
 function scrubHTML(input) {
@@ -38,7 +41,22 @@ function scrubHTML(input) {
 async function showSetup() {
     document.querySelector('#setup').style.display = 'block';
 
-    let formsObj = await fetch('api/workflow/steps').then(res => res.json());
+    let activeForms = await fetch('api/formStack/categoryList').then(res => res.json());
+    let forms = '<option></option>';
+    activeForms.forEach(form => {
+        forms += `<option value="${form.workflowID}">${form.categoryName}</option>`;
+    });
+    
+    document.querySelector('#forms').innerHTML = forms;
+    document.querySelector('#forms').addEventListener('change', (evt) => {
+        showSetupP2(evt.target.value);
+    });
+}
+
+async function showSetupP2(workflowID) {
+    document.querySelector('#setupP2').style.display = 'block';
+
+    let formsObj = await fetch(`api/workflow/${workflowID}`).then(res => res.json());
     let forms = [];
     for(let i in formsObj) {
         forms.push(formsObj[i]);
@@ -80,6 +98,55 @@ function updateUrlColumnState(customColumns) {
     history.pushState({}, "", url);
 }
 
+function getDataHeader(colID, fieldData = null, indicator = null, isFinalProposal = false) {
+    let fieldName = '';
+    if(fieldData != null && fieldData[colID] != undefined) {
+        fieldName = fieldData[colID][1].description == '' ? fieldData[colID][1].name : fieldData[colID][1].description;
+        indicator = fieldData[colID][1];
+    } else if (indicator != null) {
+        fieldName = indicator.name;
+    } else if (colID == 'service') {
+        fieldName = 'Service';
+    } else {
+        console.error('unknown field');
+        return;
+    }
+
+    let colRemovalBtn = '';
+    if (!isFinalProposal) {
+        colRemovalBtn = ` <img src="dynicons/?img=process-stop.svg&w=16" style="cursor: pointer" data-id="${colID}">`;
+    }
+
+    fieldName = scrubHTML(fieldName);
+    let newHeader = {};
+    if(colID == 'service') {
+        newHeader = {name: 'Service' + colRemovalBtn, indicatorID: 'service', editable: false, callback: function(data, blob) {
+                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
+                }};
+    } else {
+        newHeader = {name: fieldName + colRemovalBtn, indicatorID: colID, sortable: false, editable: false, callback: function(data, blob) {
+            if(indicator.format == 'fileupload' && blob[data.recordID].s1[`id${colID}`] != null) {
+                let files = blob[data.recordID].s1[`id${colID}`].split("\n");
+                let output = '';
+                let i = 0;
+                files.forEach(file => {
+                    if(file.length > 20) {
+                        file = file.substring(0, 17) + '...' + file.substring(file.length-10, file.length);
+                    }
+                    output += `<div class="file"><img src="dynicons/?img=mail-attachment.svg&w=24" alt=""><a href="file.php?form=${data.recordID}&id=${colID}&series=1&file=${i}" target="_blank">${file}</a></div>`;
+                    i++;
+                });
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = output;
+            } else if(indicator.format == 'currency') {
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = Intl.NumberFormat(undefined, {style: 'currency', currency: 'USD'}).format(blob[data.recordID].s1[`id${colID}`]);
+            } else {
+                document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].s1[`id${colID}`];
+            }
+        }};
+    }
+    return newHeader;
+}
+
 async function setupProposals(stepID) {
 
     function initColRemovalListeners() {
@@ -106,6 +173,8 @@ async function setupProposals(stepID) {
 
     let customColumns = [];
     let stepInfo = await fetch(`api/workflow/step/${stepID}`).then(res => res.json());
+    document.querySelector('#stepName').innerHTML = `: ${stepInfo.stepTitle}`;
+
     let promiseData = [];
     promiseData.push(fetch(`api/workflow/${stepInfo.workflowID}/route`).then(res => res.json()));
     promiseData.push(fetch('api/formStack/categoryList').then(res => res.json()));
@@ -148,6 +217,7 @@ async function setupProposals(stepID) {
     let query = new LeafFormQuery();
     query.addTerm('stepID', '=', stepID);
     query.join('categoryName');
+    query.join('service');
     let data = await query.execute();
     
     if(Object.keys(data).length == 0) {
@@ -157,7 +227,6 @@ async function setupProposals(stepID) {
 
     // prep data for column customization
     let firstRecordCategories = data[Object.keys(data)[0]].categoryIDs;
-    console.log(firstRecordCategories);
     let catID = getPrimaryCategory(activeCategories, firstRecordCategories).categoryID;
     let fieldData = {};
     let fieldPromises = [];
@@ -213,33 +282,17 @@ async function setupProposals(stepID) {
         let query = new LeafFormQuery();
         query.addTerm('stepID', '=', stepID);
         query.join('categoryName');
+        query.join('service');
 
         let indicatorList = indicatorIDs.split('-');
         indicatorList.forEach(colID => {
-            query.getData(colID);
+            if(Number.isFinite(+colID)) {
+                query.getData(colID);
+            }
+
             customColumns.push(colID);
-            let fieldName = fieldData[colID][1].description == '' ? fieldData[colID][1].name : fieldData[colID][1].description;
-            let format = fieldData[colID][1].format;
-            fieldName = scrubHTML(fieldName);
-            let newHeader = {name: fieldName + ` <img src="dynicons/?img=process-stop.svg&w=16" style="cursor: pointer" data-id="${colID}">`, indicatorID: colID, sortable: false, editable: false, callback: function(data, blob) {
-                if(format == 'fileupload' && blob[data.recordID].s1[`id${colID}`] != null) {
-                    let files = blob[data.recordID].s1[`id${colID}`].split("\n");
-                    let output = '';
-                    let i = 0;
-                    files.forEach(file => {
-                        if(file.length > 20) {
-                            file = file.substring(0, 17) + '...' + file.substring(file.length-10, file.length);
-                        }
-                        output += `<div class="file"><img src="dynicons/?img=mail-attachment.svg&w=24" alt=""><a href="file.php?form=${data.recordID}&id=${colID}&series=1&file=${i}" target="_blank">${file}</a></div>`;
-                        i++;
-                    });
-                    document.querySelector(`#${data.cellContainerID}`).innerHTML = output;
-                } else if(format == 'currency') {
-                    document.querySelector(`#${data.cellContainerID}`).innerHTML = Intl.NumberFormat(undefined, {style: 'currency', currency: 'USD'}).format(blob[data.recordID].s1[`id${colID}`]);
-                } else {
-                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].s1[`id${colID}`];
-                }
-            }};
+
+            let newHeader = getDataHeader(colID, fieldData, null);
             headers = grid.headers();
             headers.splice(headers.length - 2, 0, newHeader);
             grid.setHeaders(headers);
@@ -265,7 +318,7 @@ async function setupProposals(stepID) {
     let collator = new Intl.Collator('en', {numeric: true, sensitivity: 'base'});
     fields.sort((a, b) => collator.compare(a.name, b.name));
 
-    let columnsHTML = '';
+    let columnsHTML = '<option value="service">Service</option>';
     fields.forEach(field => {
         if(field.format != '') {
             let fieldName = field.description == '' ? field.name : field.description;
@@ -278,32 +331,14 @@ async function setupProposals(stepID) {
     document.querySelector('#btn_addColumn').addEventListener('click', async () => {
         let colID = document.querySelector('#fieldNames').value;
 
+        // prevent duplicate columns
         if(customColumns.indexOf(colID) != -1) {
             return;
         }
         customColumns.push(colID);
-        let fieldName = fieldData[colID][1].description == '' ? fieldData[colID][1].name : fieldData[colID][1].description;
-        let indicator = fieldData[colID][1];
-        fieldName = scrubHTML(fieldName);
-        let newHeader = {name: fieldName + ` <img src="dynicons/?img=process-stop.svg&w=16" style="cursor: pointer" data-id="${colID}">`, indicatorID: colID, sortable: false, editable: false, callback: function(data, blob) {
-            if(indicator.format == 'fileupload' && blob[data.recordID].s1[`id${colID}`] != null) {
-                let files = blob[data.recordID].s1[`id${colID}`].split("\n");
-                let output = '';
-                let i = 0;
-                files.forEach(file => {
-                    if(file.length > 20) {
-                        file = file.substring(0, 17) + '...' + file.substring(file.length-10, file.length);
-                    }
-                    output += `<div class="file"><img src="dynicons/?img=mail-attachment.svg&w=24" alt=""><a href="file.php?form=${data.recordID}&id=${colID}&series=1&file=${i}" target="_blank">${file}</a></div>`;
-                    i++;
-                });
-                document.querySelector(`#${data.cellContainerID}`).innerHTML = output;
-            } else if(indicator.format == 'currency') {
-                document.querySelector(`#${data.cellContainerID}`).innerHTML = Intl.NumberFormat(undefined, {style: 'currency', currency: 'USD'}).format(blob[data.recordID].s1[`id${colID}`]);
-            } else {
-                document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].s1[`id${colID}`];
-            }
-        }};
+
+        let newHeader = getDataHeader(colID, fieldData);
+
         headers = grid.headers();
         headers.splice(headers.length - 2, 0, newHeader);
         grid.setHeaders(headers);
@@ -311,8 +346,11 @@ async function setupProposals(stepID) {
         var query = new LeafFormQuery();
         query.addTerm('stepID', '=', stepID);
         query.join('categoryName');
+        query.join('service');
         customColumns.forEach(col => {
-            query.getData(col);
+            if(Number.isFinite(+col)) {
+                query.getData(col);
+            }
         });
         let data = await query.execute();
 
@@ -378,6 +416,13 @@ function prepareProposal(actions, dependencyID, fieldData) {
     if(indicatorIDs != null && indicatorIDs != '') {
         indicatorIDs = indicatorIDs.split('-');
         indicatorIDs.forEach(id => {
+            if(id == 'service') {
+                fieldData['service'] = {};
+                fieldData['service'][1] = {};
+                fieldData['service'][1].description = 'Service';
+                fieldData['service'][1].description = '';
+                fieldData['service'][1].format = 'text';
+            }
             let fieldName = fieldData[id][1].description == '' ? fieldData[id][1].name : fieldData[id][1].description;
             fieldName = scrubHTML(fieldName);
             proposal.indicatorIDs.push({
@@ -423,8 +468,11 @@ async function showProposal(encodedProposal) {
     let query = new LeafFormQuery();
     query.addTerm('stepID', '=', proposal.stepID);
     query.join('categoryName');
+    query.join('service');
     proposal.indicatorIDs.forEach(indicator => {
-        query.getData(indicator.indicatorID);
+        if(Number.isFinite(+indicator.indicatorID)) {
+            query.getData(indicator.indicatorID);
+        }
     });
     let data = await query.execute();
 
@@ -471,26 +519,7 @@ async function showProposal(encodedProposal) {
     ];
 
     proposal.indicatorIDs.forEach(indicator => {
-        let newHeader = {name: indicator.name, indicatorID: indicator.indicatorID, editable: false, callback: function(data, blob) {
-                if(indicator.format == 'fileupload' && blob[data.recordID].s1[`id${indicator.indicatorID}`] != null) {
-                    let files = blob[data.recordID].s1[`id${indicator.indicatorID}`].split("\n");
-                    let output = '';
-                    let i = 0;
-                    files.forEach(file => {
-                        if(file.length > 20) {
-                            file = file.substring(0, 17) + '...' + file.substring(file.length-10, file.length);
-                        }
-                        output += `<div class="file"><img src="dynicons/?img=mail-attachment.svg&w=24" alt=""><a href="file.php?form=${data.recordID}&id=${indicator.indicatorID}&series=1&file=${i}" target="_blank">${file}</a></div>`;
-                        i++;
-                    });
-                    document.querySelector(`#${data.cellContainerID}`).innerHTML = output;
-                } else if(indicator.format == 'currency') {
-                    document.querySelector(`#${data.cellContainerID}`).innerHTML = Intl.NumberFormat(undefined, {style: 'currency', currency: 'USD'}).format(blob[data.recordID].s1[`id${indicator.indicatorID}`]);
-                } else {
-                    document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].s1[`id${indicator.indicatorID}`];
-                }
-            }
-        };
+        let newHeader = getDataHeader(indicator.indicatorID, null, indicator, true);
         headers.splice(headers.length - 2, 0, newHeader);
     });
 
@@ -571,7 +600,10 @@ document.addEventListener('DOMContentLoaded', main);
 
     <br /><br />
     <div class="card">
-        Select a step: <select id="steps"><option>Loading...</option></select>
+        Select a form type: <select id="forms">Loading...</select>
+    </div>
+    <div id="setupP2" class="card" style="display: none">
+        Select a step: <select id="steps">Loading...</select>
         <br /><br />
 
         <button id="create" class="buttonNorm">Setup Proposed Actions</button>
@@ -579,7 +611,7 @@ document.addEventListener('DOMContentLoaded', main);
     </div>
 </div>
 <div id="setupProposals" style="display: none" class="card">
-    <h1>Create Proposal</h1>
+    <h1>Create Proposal<span id="stepName">Loading...</span></h1>
     <p>Records without a proposed action will not be listed during final review.</p>
     <ul>
         <li id="selectDependency" style="display: none"></li>
@@ -588,7 +620,7 @@ document.addEventListener('DOMContentLoaded', main);
     </ul>
     <h2>Customize View</h2>
     <p>Data columns may be added to provide relevant information during final review.</p>
-    <p>Tip: Save the URL to use your customizations for future reviews.</p>
+    <p>Tip: Bookmark this page to save your selected columns.</p>
     <ul>
         <li>
             <select id="fieldNames"></select>
