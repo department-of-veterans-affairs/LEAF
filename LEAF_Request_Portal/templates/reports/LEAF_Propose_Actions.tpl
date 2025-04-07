@@ -458,10 +458,8 @@ async function showProposal(encodedProposal) {
         activeCategories[cat.categoryID] = cat;
     });
 
-    let htmlActions = '';
     let actionText = {};
     proposal.actions.forEach(action => {
-        htmlActions += `<option value="${action.type}">${action.text}</option>`;
         actionText[action.type] = action.text;
     });
 
@@ -505,11 +503,21 @@ async function showProposal(encodedProposal) {
             document.querySelector(`#${data.cellContainerID}`).innerHTML = `<a href="index.php?a=printview&recordID=${data.recordID}" target="_blank">${blob[data.recordID].title}</a>`;
         }},
         {name: 'Proposed Action', indicatorID: 'decision', editable: false, callback: function(data, blob) {
+            let htmlActions = `<select class="recordDecision" data-record-id="${data.recordID}" style="text-align: center">`;
+            htmlActions += '<option value=""></option>';
+            proposal.actions.forEach(action => {
+                if(action.type == proposal.decisions[data.recordID]) {
+                    htmlActions += `<option value="${action.type}" selected>${action.text}</option>`;
+                } else {
+                    htmlActions += `<option value="${action.type}">${action.text}</option>`;
+                }
+            });
+            htmlActions += '</select>';
+
             let proposedAction = actionText[proposal.decisions[data.recordID]];
-            document.querySelector(`#${data.cellContainerID}`).style.textAlign = 'center';
             document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#fee685';
             
-            document.querySelector(`#${data.cellContainerID}`).innerHTML = proposedAction;
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = htmlActions;
         }},
         {name: 'Comments', indicatorID: 'comments', editable: false, callback: function(data, blob) {
             document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#e0e0e0';
@@ -548,6 +556,15 @@ async function showProposal(encodedProposal) {
                     delete proposal.decisions[i];
                 }
             }
+
+            document.querySelectorAll('.recordDecision').forEach(decision => {
+                let recordID = decision.getAttribute('data-record-id');
+                if(decision.value == '') {
+                    delete proposal.decisions[recordID];
+                } else if (proposal.decisions[recordID] != undefined) {
+                    proposal.decisions[recordID] = decision.value;
+                }
+            });
 
             let queue = new intervalQueue();
             queue.setQueue(Object.keys(proposal.decisions));
