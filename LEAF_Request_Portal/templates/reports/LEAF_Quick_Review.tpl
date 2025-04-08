@@ -634,11 +634,11 @@ document.addEventListener('DOMContentLoaded', main);
 <div id="proposal" style="display: none">
     <h1 style="text-align: center">Records pending <span id="reviewTitle">Loading...</span></h1>
     <p id="reviewDescription" style="margin: auto; width: 40vw; margin-bottom: 2rem">...</p>
+    <div id="proposalStatus" style="text-align: center; margin: 2rem">
+        <button id="btn_approveProposal" class="buttonNorm" style="font-size: 14pt; padding: 8px"><img src="dynicons/?img=gnome-emblem-default.svg&w=32" alt=""> Apply Actions</button>
+    </div>
     <div style="display: flex; justify-content: center; align-items: center">
         <div id="grid" style="margin-bottom: 3rem; margin: auto; min-width: 0">Loading...</div>
-    </div>
-    <div id="proposalStatus" style="text-align: center; margin-top: 2rem">
-        <button id="btn_approveProposal" class="buttonNorm" style="font-size: 14pt; padding: 8px"><img src="dynicons/?img=gnome-emblem-default.svg&w=32" alt=""> Apply Actions</button>
     </div>
 </div>
 
