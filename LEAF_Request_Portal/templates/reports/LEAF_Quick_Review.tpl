@@ -253,21 +253,8 @@ async function setupProposals(stepID) {
         }},
         {name: 'Propose Action', indicatorID: 'decision', editable: false, sortable: false, callback: function(data, blob) {
             document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#fee685';
-            let options = `<select class="recordDecision" data-record-id="${data.recordID}">
-    				${htmlActions}
-    			</select>`;
-            document.querySelector(`#${data.cellContainerID}`).innerHTML = options;
-            document.querySelector(`#${data.cellContainerID}>select`).addEventListener('change', (evt) => {
-                if(evt.target.value != '') {
-                    document.querySelector(`#${grid.getPrefixID()}${data.recordID}_comments>textarea`).style.display = 'inline';
-                } else {
-                    document.querySelector(`#${grid.getPrefixID()}${data.recordID}_comments>textarea`).style.display = 'none';
-                }
-            });
         }},
         {name: 'Comments', indicatorID: 'comments', editable: false, sortable: false, callback: function(data, blob) {
-            let options = `<textarea style="display: none" class="recordComment" data-record-id="${data.recordID}"></textarea>`;
-            document.querySelector(`#${data.cellContainerID}`).innerHTML = options;
         }}
     ];
 
@@ -362,42 +349,18 @@ async function setupProposals(stepID) {
     });
 
     document.querySelector('#btn_prepareProposal').addEventListener('click', () => {
-        prepareProposal(actions, dependencyID, fieldData);
+        prepareProposal(stepInfo.stepTitle, actions, dependencyID, fieldData);
     });
 }
 
-function prepareProposal(actions, dependencyID, fieldData) {
+function prepareProposal(stepTitle, actions, dependencyID, fieldData) {
     let numDecisions = 0;
     let decisions = {};
     let comments = {};
-    document.querySelectorAll('.recordDecision').forEach(decision => {
-        let recordID = decision.getAttribute('data-record-id');
-        if(decision.value != '') {
-            decisions[recordID] = decision.value;
-            numDecisions++;
-        }
-    });
-    document.querySelectorAll('.recordComment').forEach(comment => {
-        let recordID = comment.getAttribute('data-record-id');
-        if(comment.value != '') {
-            comments[recordID] = comment.value;
-        }
-    });
-
-    if(numDecisions == 0) {
-        alert("No proposed actions have been prepared.");
-        return;
-    }
 
     const url = new URL(location);
 
     let cleanActions = [];
-    actions.forEach(action => {
-        cleanActions.push({
-            type: action.actionType,
-            text: action.actionText
-        });
-    });
     
     // encode proposal
     if(dependencyID == null) {
@@ -432,14 +395,31 @@ function prepareProposal(actions, dependencyID, fieldData) {
             });
         });
     }
-    proposal.title = document.querySelector('#proposalTitle').value;
-    proposal.description = document.querySelector('#proposalDescription').value;
+    proposal.title = stepTitle;
+    proposal.description = '';
     let proposalParam = LZString.compressToBase64(JSON.stringify(proposal));;
 
     let newUrl = window.location.href.substring(0, window.location.href.indexOf('&'));
-    newUrl += `&proposal=${encodeURIComponent(proposalParam)}`;
+    newUrl += `&inbox=${encodeURIComponent(proposalParam)}`;
 
-    window.location.href = newUrl;
+    let output = `<h1></h1>
+        <p>Quick Review Link:</p><p><textarea id="link" style="width: 95%; height: 5rem"/>${newUrl}</textarea></p>
+        <button id="btn_copy" class="buttonNorm">Copy to Clipboard</button><span id="copyStatus"></span>`;
+
+    let dialog = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+    dialog.setContent(output);
+    dialog.setTitle('Quick Review Link');
+    dialog.show();
+
+    document.querySelector('#link').addEventListener('click', () => {
+        document.execCommand("selectAll", false, null);
+    });
+
+    document.querySelector('#btn_copy').addEventListener('click', () => {
+        navigator.clipboard.writeText(document.querySelector('#link').value);
+        $("#copyStatus").show().text("Copied!");
+        $("#copyStatus").fadeOut(3000);
+    });
 }
 
 async function showProposal(encodedProposal) {
@@ -451,6 +431,10 @@ async function showProposal(encodedProposal) {
     document.querySelector('#reviewTitle').innerText = proposal.title;
     document.querySelector('#reviewDescription').innerText = proposal.description;
 
+    let stepInfo = await fetch(`api/workflow/step/${proposal.stepID}`).then(res => res.json());
+
+    let routeInfo = await fetch(`api/workflow/${stepInfo.workflowID}/route`).then(res => res.json());
+
     let activeCategoryData = await fetch('api/formStack/categoryList').then(res => res.json());
     let activeCategories = {};
     // need this to provide a cleaner view (e.g. avoid showing names of stapled forms)
@@ -459,8 +443,10 @@ async function showProposal(encodedProposal) {
     });
 
     let actionText = {};
-    proposal.actions.forEach(action => {
-        actionText[action.type] = action.text;
+    routeInfo.forEach(route => {
+    	if(route.stepID == proposal.stepID) {
+            actionText[route.actionType] = route.actionText;
+        }
     });
 
     let query = new LeafFormQuery();
@@ -473,13 +459,6 @@ async function showProposal(encodedProposal) {
         }
     });
     let data = await query.execute();
-
-    // filter out data, only show ones with proposed decisions
-    for(let i in data) {
-        if(proposal.decisions[i] == undefined) {
-            delete data[i];
-        }
-    }
 
     if(Object.keys(data).length == 0) {
         document.querySelector('#grid').style.display = 'none';
@@ -502,15 +481,11 @@ async function showProposal(encodedProposal) {
         {name: 'Title', indicatorID: 'title', editable: false, callback: function(data, blob) {
             document.querySelector(`#${data.cellContainerID}`).innerHTML = `<a href="index.php?a=printview&recordID=${data.recordID}" target="_blank">${blob[data.recordID].title}</a>`;
         }},
-        {name: 'Proposed Action', indicatorID: 'decision', editable: false, callback: function(data, blob) {
+        {name: 'Action', indicatorID: 'decision', editable: false, callback: function(data, blob) {
             let htmlActions = `<select class="recordDecision" data-record-id="${data.recordID}" style="text-align: center">`;
             htmlActions += '<option value=""></option>';
-            proposal.actions.forEach(action => {
-                if(action.type == proposal.decisions[data.recordID]) {
-                    htmlActions += `<option value="${action.type}" selected>${action.text}</option>`;
-                } else {
-                    htmlActions += `<option value="${action.type}">${action.text}</option>`;
-                }
+            Object.keys(actionText).forEach(actionType => {
+                htmlActions += `<option value="${actionType}">${actionText[actionType]}</option>`;
             });
             htmlActions += '</select>';
 
@@ -550,18 +525,11 @@ async function showProposal(encodedProposal) {
                 }
             });
 
-            // clear out old decisions on repeat runs
-            for(let i in proposal.decisions) {
-                if(data[i] == undefined) {
-                    delete proposal.decisions[i];
-                }
-            }
-
             document.querySelectorAll('.recordDecision').forEach(decision => {
                 let recordID = decision.getAttribute('data-record-id');
                 if(decision.value == '') {
                     delete proposal.decisions[recordID];
-                } else if (proposal.decisions[recordID] != undefined) {
+                } else {
                     proposal.decisions[recordID] = decision.value;
                 }
             });
@@ -570,9 +538,9 @@ async function showProposal(encodedProposal) {
             let queue = new intervalQueue();
             queue.setQueue(Object.keys(proposal.decisions));
             queue.setWorker(item => {
-                let comment = '(Decision as per proposal)';
+                let comment = '';
                 if(comments[item] != undefined && comments[item] != '') {
-                    comment = comments[item].trim() + "\n" + comment;
+                    comment = comments[item].trim();
                 }
                 document.querySelector('#confirmProgress').innerHTML = `Confirmed ${queue.getLoaded()}/${Object.keys(proposal.decisions).length}`;
                 let formData = new FormData();
@@ -613,7 +581,7 @@ async function main() {
 
     const urlParams = new URLSearchParams(window.location.search);
     let stepID = urlParams.get('stepID');
-    let proposal = urlParams.get('proposal');
+    let proposal = urlParams.get('inbox');
 
     if(proposal != null) {
         showProposal(proposal);
@@ -629,7 +597,7 @@ async function main() {
 document.addEventListener('DOMContentLoaded', main);
 </script>
 <div id="setup" style="display: none">
-    <h1>Create Proposal</h1>
+    <h1>Create Quick Review Page</h1>
     <p>This will create a custom page to help an approving official review and execute proposed actions.</p>
 
     <br /><br />
@@ -645,16 +613,13 @@ document.addEventListener('DOMContentLoaded', main);
     </div>
 </div>
 <div id="setupProposals" style="display: none" class="card">
-    <h1>Create Proposal<span id="stepName">Loading...</span></h1>
+    <h1>Create Quick Review Page<span id="stepName">Loading...</span></h1>
     <p>Records without a proposed action will not be listed during final review.</p>
     <ul>
         <li id="selectDependency" style="display: none"></li>
-        <li>Title of proposal: <input type="text" id="proposalTitle" /></li>
-        <li>Description: <textarea id="proposalDescription"></textarea></li>
     </ul>
     <h2>Customize View</h2>
     <p>Data columns may be added to provide relevant information during final review.</p>
-    <p>Tip: Bookmark this page to save your selected columns.</p>
     <ul>
         <li>
             <select id="fieldNames"></select>
@@ -662,16 +627,25 @@ document.addEventListener('DOMContentLoaded', main);
         </li>
     </ul>
     <div id="proposalGrid" style="margin-bottom: 3rem">Loading...</div>
-    <button id="btn_prepareProposal" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black"><img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="" /> Prepare Proposal</button>
+    <button id="btn_prepareProposal" class="buttonNorm" style="position: fixed; bottom: 14px; margin: auto; left: 0; right: 0; font-size: 140%; height: 52px; padding-top: 8px; padding-bottom: 4px; width: 70%; margin: auto; text-align: center; box-shadow: 0 0 20px black"><img src="dynicons/?img=x-office-spreadsheet-template.svg&w=32" alt="" /> Create Quick Review Page</button>
 </div>
 <div id="proposal" style="display: none">
-    <h1 id="reviewTitle" style="text-align: center">Loading...</h1>
+    <h1 style="text-align: center">Records pending <span id="reviewTitle">Loading...</span></h1>
     <p id="reviewDescription" style="margin: auto; width: 40vw; margin-bottom: 2rem">...</p>
     <div style="display: flex; justify-content: center; align-items: center">
         <div id="grid" style="margin-bottom: 3rem; margin: auto; min-width: 0">Loading...</div>
     </div>
     <div id="proposalStatus" style="text-align: center; margin-top: 2rem">
-        <button id="btn_approveProposal" class="buttonNorm" style="font-size: 14pt; padding: 8px"><img src="dynicons/?img=gnome-emblem-default.svg&w=32" alt=""> Approve this Proposal</button>
+        <button id="btn_approveProposal" class="buttonNorm" style="font-size: 14pt; padding: 8px"><img src="dynicons/?img=gnome-emblem-default.svg&w=32" alt=""> Apply Actions</button>
+    </div>
+</div>
+
+<div id="genericDialog" style="visibility: hidden; display: none">
+    <div>
+        <div id="genericDialogbutton_cancelchange" style="display: none"></div>
+        <div id="genericDialogbutton_save" style="display: none"></div>
+        <div id="genericDialogloadIndicator" style="visibility: hidden; z-index: 9000; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background-color: #f2f5f7; padding: 16px; height: 400px; width: 526px"><img src="images/largespinner.gif" alt="" /></div>
+        <div id="genericDialogxhr" style="min-width: 540px; min-height: 420px; padding: 8px; overflow: auto; font-size: 12px"></div>
     </div>
 </div>
 
