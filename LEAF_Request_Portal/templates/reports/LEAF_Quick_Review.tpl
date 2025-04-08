@@ -433,9 +433,11 @@ async function showProposal(encodedProposal) {
 
     let stepInfo = await fetch(`api/workflow/step/${proposal.stepID}`).then(res => res.json());
 
-    let routeInfo = await fetch(`api/workflow/${stepInfo.workflowID}/route`).then(res => res.json());
+    let [routeInfo, activeCategoryData] = await Promise.all([
+        fetch(`api/workflow/${stepInfo.workflowID}/route`).then(res => res.json()),
+        fetch('api/formStack/categoryList').then(res => res.json())
+    ]);
 
-    let activeCategoryData = await fetch('api/formStack/categoryList').then(res => res.json());
     let activeCategories = {};
     // need this to provide a cleaner view (e.g. avoid showing names of stapled forms)
     activeCategoryData.forEach(cat => {
