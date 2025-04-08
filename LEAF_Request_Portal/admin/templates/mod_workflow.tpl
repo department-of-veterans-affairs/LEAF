@@ -2123,18 +2123,20 @@
                         default:
                             const from = String(res[i].stepID);
                             const to = String(res[i].nextStepID);
-                            const fromStepToStep = from + "_" + to;
-                            if(actionCounts?.[fromStepToStep] >= 0) {
-                                actionCounts[fromStepToStep] += 1;
-                                loc = Math.min(
-                                    +((0.05 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
-                                    0.65
-                                );
-                                if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
-                                    loc += locIncrement;
+                            if(from !== to) {
+                                const fromStepToStep = from + "_" + to;
+                                if(actionCounts?.[fromStepToStep] >= 0) {
+                                    actionCounts[fromStepToStep] += 1;
+                                    loc = Math.min(
+                                        +((0.05 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
+                                        0.65
+                                    );
+                                    if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
+                                        loc += locIncrement;
+                                    }
+                                } else {
+                                    actionCounts[fromStepToStep] = 0;
                                 }
-                            } else {
-                                actionCounts[fromStepToStep] = 0;
                             }
                             break;
                     }
