@@ -513,7 +513,7 @@ async function showProposal(encodedProposal) {
 
     document.querySelector('#btn_approveProposal').addEventListener('click', async () => {
         let confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
-        confirm_dialog.setContent('<img src="dynicons/?img=application-certificate.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Please confirm your approval of this proposal.</span>');
+        confirm_dialog.setContent('<img src="dynicons/?img=application-certificate.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Please confirm your actions.</span>');
         confirm_dialog.setTitle('Confirmation');
         confirm_dialog.setSaveHandler(async function() {
             confirm_dialog.setContent('Applying actions...<br /><div id="confirmProgress"></div>');
