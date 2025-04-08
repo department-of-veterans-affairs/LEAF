@@ -337,7 +337,7 @@
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
                     // For Admins in the "Organize by Roles" view:
                     // Organize individually assigned records into a section (e.g. person designated, requestor followup)
-                    if(!nonAdmin && (roleID == -1 || roleID == -2)) {
+                    if(!nonAdmin && (roleID == -1 || roleID == -2) && combineIndividuals) {
                         roleID = 'assignedIndividual';
                         description = '* Assigned to an individual *';
                     } else {
@@ -573,6 +573,7 @@
             if (res[recordID].service != null) {
                 hasServices = true;
             }
+
             res[recordID].assignedIndividual = false;
             if(stepID == 'assignedIndividual') {
                 res[recordID].assignedIndividual = true;
@@ -852,6 +853,7 @@
     let dialog_message;
     let nonAdmin = true;
     let organizeByRole = false;
+    let combineIndividuals = false;
     let abortController = new AbortController();
     // Script Start
     $(function() {
@@ -869,6 +871,16 @@
             organizeByRole = true;
             document.querySelector('#btn_organize').innerText = 'Organize by Forms';
         }
+
+        if(urlParams.get('combineIndividuals') != null) {
+            combineIndividuals = true;
+            if(organizeByRole && !nonAdmin) {
+                document.querySelector('#btn_combineIndividuals').style.display = 'inline';
+            }
+        } else if(organizeByRole && !nonAdmin) {
+                document.querySelector('#btn_combineIndividuals').style.display = 'inline';
+                document.querySelector('#btn_combineIndividuals').innerText = 'Combine Individuals';
+            }
         
         getMapSites.then((value) => {
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
@@ -952,6 +964,17 @@
                 }
             });
 
+            $('#btn_combineIndividuals').on('click', function() {
+				let currLocation = getCurrLocation();
+
+                if(combineIndividuals) {
+                    window.location.href = currLocation.replace('&combineIndividuals', '');
+                }
+                else {
+                    window.location.href = currLocation + '&combineIndividuals';
+                }
+            });
+
             $('#btn_progressStop').on('click', function() {
                 abortController.abort();
                 $('#progressDetail').html(`Cleaning up...`);
@@ -1032,6 +1055,7 @@
     <span id="inbox_view_selection_status" style="position:absolute;top:-40rem" role="status" aria-live="assertive" aria-label=""></span>
     <button type="button" id="btn_expandAll" class="buttonNorm">Toggle sections</button>
     <button type="button" id="btn_organize" class="buttonNorm">Organize by Roles</button>
+    <button type="button" id="btn_combineIndividuals" class="buttonNorm" style="display: none">Do not combine Individuals</button>
     <button type="button" id="btn_adminView" class="buttonNorm" style="<!--{if !$empMembership['groupID'][1]}-->display: none<!--{/if}-->">View as Admin</button>
 </div>
 <br />
