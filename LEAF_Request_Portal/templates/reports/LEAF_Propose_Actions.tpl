@@ -566,6 +566,7 @@ async function showProposal(encodedProposal) {
                 }
             });
 
+            let errors = [];
             let queue = new intervalQueue();
             queue.setQueue(Object.keys(proposal.decisions));
             queue.setWorker(item => {
@@ -582,10 +583,26 @@ async function showProposal(encodedProposal) {
                 return fetch(`./api/formWorkflow/${item}/apply`, {
                     method: 'POST',
                     body: formData
+                }).then(res => {
+                    if(res.status != 200) {
+                        errors.push(item);
+                    }
                 });
             });
             await queue.start();
-            window.location.reload();
+
+            document.querySelector('#btn_approveProposal').style.display = 'none';
+            if(errors.length == 0) {
+                document.querySelector('#confirmProgress').innerHTML = '<br /><br /><img src="dynicons/?img=gnome-emblem-default.svg&w=48" alt="" style="vertical-align: middle"> All actions have been successfully applied.';
+            } else {
+                let errText = 'Error applying actions. Please review these individually:<br /><ul>';
+                errors.forEach(err => {
+                    errText += `<li><a href="index.php?a=printview&recordID=${err}" target="_blank">${err}</a> - Proposed action: ${actionText[proposal.decisions[err]]}</li>`;
+                });
+                errText += '</ul>';
+                confirm_dialog.setContent(errText);
+                confirm_dialog.hideButtons();
+            }
         });
         confirm_dialog.show();
     });
