@@ -367,7 +367,6 @@
             // sort by workflow step
             let siteData = getSiteRoleData(sites, i);
             let depDesc = siteData.depDesc;
-            let categoryIDs = siteData.categoryIDs;
 
             let sortedDepDesc = Object.keys(depDesc).sort();
 
@@ -376,7 +375,7 @@
                 let stepName = hash.substring(0, hash.indexOf(':;ROLEID'));
                 let stepID = hash.substring(hash.indexOf(':;ROLEID') + 8);
                 buildDepInboxByStep(dataInboxes[sites[i].url], stepID, stepName, recordIDs,
-                    sites[i]);
+                    sites[i], siteData.categoryIDs);
             });
         }
 
@@ -606,13 +605,31 @@
     }
 
     // Build forms and grids for the inbox's requests based on the list of $recordIDs, organized by step
-    function buildDepInboxByStep(res, stepID, stepName, recordIDs, site) {
+    function buildDepInboxByStep(res, stepID, stepName, recordIDs, site, categoryIDs = undefined) {
         let hash = Sha1.hash(site.url);
-		let categoryName = '';
-        let categoryID = '';
-        if(Object.keys(recordIDs).length > 0) {
-            categoryName = `${res[recordIDs[0]].categoryName} - ${res[recordIDs[0]].stepTitle}`;
-            categoryID = res[recordIDs[0]].categoryID;
+
+        // If all records within the step have the same form type (categoryID), then enable custom columns
+        let enabledCategoryIDs = undefined;
+        let firstMatch = null;
+        let allCategoriesMatch = true;
+        if(recordIDs.length > 0) {
+            recordIDs.forEach(recordID => {
+                if(firstMatch == null) {
+                    firstMatch = res[recordID].categoryIDs[0];
+                }
+                if(firstMatch != res[recordID].categoryIDs[0]) {
+                    allCategoriesMatch = false;
+                    return;
+                }
+            });
+
+            if(allCategoriesMatch) {
+                for(let i in categoryIDs) {
+                    if(categoryIDs[i][0] == firstMatch) {
+                        enabledCategoryIDs = categoryIDs[i];
+                    }
+                }
+            }
         }
 
         let icon = getIcon(site.icon, site.name);
@@ -637,7 +654,7 @@
             </button>
 			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + stepID).on('click', function() {
-            buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);
+            buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, enabledCategoryIDs);
             if ($('#depList' + hash + '_' + stepID).css('display') == 'none') {
                 $('#depList' + hash + '_' + stepID).css('display', 'inline');
                 $('#depLabel' + hash + '_' + stepID).attr('aria-expanded', 'true');
