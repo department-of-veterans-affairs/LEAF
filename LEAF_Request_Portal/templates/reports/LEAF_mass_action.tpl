@@ -99,6 +99,7 @@ let failedActionRecordIDs = [];
 let dialog_confirm;
 let searchID = "";
 let extraTerms;
+let actionValue;
 let takeActionButton = document.querySelectorAll("button.takeAction");
 let stepContainer = document.getElementById("step_container");
 let relevantActionContainer = document.getElementById("relevant_action_container");
@@ -177,7 +178,7 @@ function noteRequired() {
  */
 function chooseAction() {
     // If nothing selected and action selected is not 'Email Reminder'
-    let actionValue = $("#action").val();
+    actionValue = $("#action").val();
     $("#comment_cancel").val("");
     $("#comment_cancel_container").hide();
     $("#form_container, #step_container, #relevant_action_container, #requirements_container, #emailSection").hide();
