@@ -196,6 +196,7 @@ switch ($action) {
                                             APP_JS_PATH . '/LEAF/XSSHelpers.js',
                                             APP_JS_PATH . '/choicesjs/choices.min.js',
                                             '../js/formQuery.js',
+                                            '../js/formGrid.js',
                                             $site_paths['orgchart_path'] . '/js/employeeSelector.js',
                                             $site_paths['orgchart_path'] . '/js/groupSelector.js',
                                             $site_paths['orgchart_path'] . '/js/positionSelector.js'
