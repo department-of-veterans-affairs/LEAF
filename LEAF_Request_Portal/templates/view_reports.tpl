@@ -103,7 +103,9 @@ function addHeader(column) {
                 indicatorID: 'type',
                 editable: false,
                 callback: function(data, blob) {
-                     document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].categoryNames.join(' | ');
+                    if(blob[data.recordID].categoryNames != undefined) {
+                        document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].categoryNames.join(' | ');
+                    }
             }});
             break;
         case 'status':
