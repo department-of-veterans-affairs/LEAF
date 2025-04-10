@@ -283,30 +283,37 @@ function addEmployeePosition() {
 }
 
 function confirmRemove() {
-	var warning = '';
-	<!--{if count($tags) > 1}-->
-	   warning = '<br /><br /><span style="color: red">WARNING: This group may be shared by other projects. Check &quot;Tags&quot; to see which projects are using this group.</span>';
-	<!--{/if}-->
-    confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this group?</span>' + warning);
-    confirm_dialog.setTitle('Confirmation');
-    confirm_dialog.setSaveHandler(function() {
-    	$.ajax({
-            type: 'DELETE',
-            url: './api/group/<!--{$groupID}-->?' +
-                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
-            success: function(response) {
-            	if(response == 1) {
-            		alert('Group has been deleted.');
-                    history.back();
-            	}
-            	else {
-            		alert(response);
-            	}
-            },
-            cache: false
+    if (Object.keys(tags).length > 0) {
+        dialog_ok.setTitle('Warning');
+        dialog_ok.setContent('<span style="color: red; font-size: 125%;">WARNING: There are tags that must be removed before deleting this group.</span>');
+        dialog_ok.setSaveHandler(function() {
+            dialog_ok.clearDialog();
+            dialog_ok.hide();
+            dialog.hide();
         });
-    });
-    confirm_dialog.show();
+        dialog_ok.show();
+    } else {
+        confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this group?</span>' + warning);
+        confirm_dialog.setTitle('Confirmation');
+        confirm_dialog.setSaveHandler(function() {
+            $.ajax({
+                type: 'DELETE',
+                url: './api/group/<!--{$groupID}-->?' +
+                    $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+                success: function(response) {
+                    if(response == 1) {
+                        alert('Group has been deleted.');
+                        history.back();
+                    }
+                    else {
+                        alert(response);
+                    }
+                },
+                cache: false
+            });
+        });
+        confirm_dialog.show();
+    }
 }
 
 function confirmUnlinkPosition(positionID) {
