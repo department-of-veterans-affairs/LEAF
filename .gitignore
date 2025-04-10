@@ -53,3 +53,4 @@ libs/css/leaf.js
 x-test/API-tests/result_cache/*
 test/Test-Automation/ExtentReports/*
 mermaid.md
+load/__pycache__/*
