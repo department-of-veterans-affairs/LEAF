@@ -264,14 +264,14 @@ class VAMCActiveDirectory
 
                 $this->db->prepared_query($sql, $vars);
             } else {
-                $vars = array(':loginName', $this->users[$key]['loginName'],
-                            ':lname', $this->users[$key]['lname'],
-                            ':fname', $this->users[$key]['fname'],
-                            ':midIni', $this->users[$key]['midIni'],
-                            ':phoneticFname', $phoneticFname,
-                            ':phoneticLname', $phoneticLname,
-                            ':domain', $this->users[$key]['domain'],
-                            ':lastUpdated', $time);
+                $vars = array(':loginName' => $this->users[$key]['loginName'],
+                            ':lname' => $this->users[$key]['lname'],
+                            ':fname' => $this->users[$key]['fname'],
+                            ':midIni' => $this->users[$key]['midIni'],
+                            ':phoneticFname' => $phoneticFname,
+                            ':phoneticLname' => $phoneticLname,
+                            ':domain' => $this->users[$key]['domain'],
+                            ':lastUpdated' => $time);
 
                 $this->db->prepared_query($sql1, $vars);
 

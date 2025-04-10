@@ -808,16 +808,17 @@ class Form
         if ($resIsSubmitted[0]['submitted'] != 0 && !$this->login->checkGroup(1)) {
             $return_value = 'To help avoid confusion in the process, Please contact your administrator to cancel this request.';
         } else if ($this->hasWriteAccess($recordID)) {
+            $actionUserID = $this->login->getUserID();
+            $userMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
+
+            $this->db->beginTransaction();
             $vars = array(':recordID' => $recordID,
                         ':time' => time());
             $sql = 'UPDATE `records`
                     SET `deleted` = :time
                     WHERE `recordID` = :recordID';
 
-            $res = $this->db->prepared_query($sql, $vars);
-
-            $actionUserID = $this->login->getUserID();
-            $userMetadata  = $this->employee->getInfoForUserMetadata($actionUserID, false);
+            $this->db->prepared_query($sql, $vars);
 
             // actionID 4 = delete
             $vars = array(':recordID' => $recordID,
@@ -834,7 +835,7 @@ class Form
                     VALUES
                         (:recordID, :userID, :dependencyID, :actionType, :actionTypeID, :time, :comment, :userMetadata)';
 
-            $res = $this->db->prepared_query($sql, $vars);
+            $this->db->prepared_query($sql, $vars);
 
             // delete state
             $vars = array(':recordID' => $recordID);
@@ -850,12 +851,15 @@ class Form
                     FROM `tags`
                     WHERE `recordID` = :recordID';
 
-            $res = $this->db->prepared_query($sql, $vars);
+            $this->db->prepared_query($sql, $vars);
 
-            // need to send emails to everyone upstream from the currect step.
-            $this->notifyPriorSteps($recordID);
+            if($this->db->commitTransaction())
+            {
+                // need to send emails to everyone upstream from the currect step.
+                $this->notifyPriorSteps($recordID);
 
-            $return_value = 1;
+                $return_value = 1;
+            }
         }
 
         return $return_value;
@@ -1839,7 +1843,7 @@ class Form
 
         // give the requestor access if the record explictly gives them write access
         if ($resRecords[0]['isWritableUser'] == 1 &&
-            (strtolower($this->login->getUserID()) == strtolower($resRecords[0]['userID']) || $this->checkIfBackup($this->getEmpUID($resRecords[0]['userID'])))
+            (strtolower($this->login->getUserID()) == strtolower($resRecords[0]['userID']) || $this->checkIfBackupUserName($resRecords[0]['userID']))
         )
         {
             $this->cache["hasWriteAccess_{$recordID}_{$categoryID}"] = 1;
@@ -2055,9 +2059,7 @@ class Form
                  }
                  else
                  {
-                    $empUID = $this->getEmpUID($details['userID']);
-
-                    return $this->checkIfBackup($empUID);
+                    return $this->checkIfBackupUserName($details['userID']);
                  }
                  // unreachable code so no break
             case -3: // dependencyID -3 : group designated by the requestor
@@ -2220,6 +2222,37 @@ class Form
     }
 
     /**
+     * checkIfBackupUserName determines if the current user is a backup of the provided $userName
+     *
+     * @param string $empUID empUID to check
+     * @return boolean
+     */
+    public function checkIfBackupUserName(string $userName): bool
+    {
+        $userName = strtolower($userName);
+        if(isset($this->cache['checkIfBackupUserName'])) {
+            return isset($this->cache['checkIfBackupUserName'][$userName]);
+        }
+
+        $nexusDB = $this->login->getNexusDB();
+
+        $vars = array(':currEmpUID' => $this->login->getEmpUID());
+        $strSQL = 'SELECT userName FROM relation_employee_backup
+                    INNER JOIN employee USING (empUID)
+                    WHERE backupEmpUID =:currEmpUID
+                        AND approved=1';
+        $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+
+        $this->cache['checkIfBackupUserName'] = [];
+        foreach ($backupIds as $row)
+        {
+            $this->cache['checkIfBackupUserName'][strtolower($row['userName'])] = true;
+        }
+
+        return isset($this->cache['checkIfBackupUserName'][$userName]);
+    }
+
+    /**
      * Scrubs a list of records to remove records that the current user doesn't have access to
      * Defaults to enable read access, unless needToKnow mode is set for any form
      * @param array
@@ -2363,7 +2396,7 @@ class Form
                         }
 
                         // backup of the request initiator
-                        if($temp[$dep['recordID']] == 0 && $this->checkIfBackup($this->getEmpUID($dep['userID']))) {
+                        if($temp[$dep['recordID']] == 0 && $this->checkIfBackupUserName($dep['userID'])) {
                             $temp[$dep['recordID']] = 1;
                         }
 

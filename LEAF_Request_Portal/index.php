@@ -16,12 +16,6 @@ header('X-UA-Compatible: IE=edge');
 
 $login->loginUser();
 
-if (!$login->isLogin() || !$login->isInDB()) {
-    $login->logout(); // destroy current session tokens
-    header("Location: session_expire.php");
-    exit;
-}
-
 $main = new Smarty;
 $t_login = new Smarty;
 $t_menu = new Smarty;
@@ -173,11 +167,10 @@ switch ($action) {
             'js/formGrid.js',
             'js/formQuery.js',
             'js/formPrint.js',
+            'js/portalHelpers.js',
             'js/jsdiff.js',
             APP_JS_PATH . '/LEAF/XSSHelpers.js',
             APP_JS_PATH . '/portal/LEAFPortalAPI.js',
-            APP_JS_PATH . '/es6-promise/es6-promise.min.js',
-            APP_JS_PATH . '/es6-promise/es6-promise.auto.min.js',
             APP_JS_PATH . '/jspdf/jspdf.min.js',
             APP_JS_PATH . '/jspdf/jspdf.plugin.autotable.min.js',
             APP_JS_PATH . '/choicesjs/choices.min.js',
@@ -265,6 +258,11 @@ switch ($action) {
 
         break;
     case 'inbox':
+        header('Refresh: 0;URL=report.php?a=LEAF_Inbox&organizeByRole&adminView&combineIndividuals');
+
+        echo 'Redirecting to the Inbox. Please update your bookmarks.';
+        exit();
+    case 'inbox_old':
         $main->assign('useUI', true);
         $main->assign('stylesheets', array(APP_JS_PATH . '/choicesjs/choices.min.css'));
         $main->assign('javascripts', array('js/form.js',

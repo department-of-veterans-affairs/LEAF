@@ -109,6 +109,15 @@
                     }
                 }
             },
+            'type': function(site) {
+                return {
+                    name: 'Type',
+                    indicatorID: 'type',
+                    editable: false,
+                    callback: function(data, blob) {
+                        document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].categoryNames.join(' | ');
+                }}
+            },
             'status': function(site) {
                 return {
                     name: 'Status',
@@ -128,6 +137,16 @@
                             status = '<span style="font-weight: bold">' + lastStatus + '</span>';
                         } else {
                             status = waitText + listRecord.stepTitle;
+                        }
+
+                        // Show individually assigned name, if present
+                        if(listRecord.assignedIndividual != undefined && listRecord.assignedIndividual == true) {
+                            if(listRecord.unfilledDependencyData[-1] != undefined) {
+                                status += ': ' + listRecord.unfilledDependencyData[-1].approverName;
+                            }
+                            if(listRecord.unfilledDependencyData[-2] != undefined) {
+                                status += ': ' + listRecord.unfilledDependencyData[-2].approverName;
+                            }
                         }
 
                         cellContainer.html(status).attr('tabindex', '0').attr('aria-label', status);
@@ -316,8 +335,15 @@
                 let roleID = Number(depID);
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
-                    roleID = Sha1.hash(uDD.approverUID);
-                    description = scrubHTML(uDD.approverName);
+                    // For Admins in the "Organize by Roles" view:
+                    // Organize individually assigned records into a section (e.g. person designated, requestor followup)
+                    if(!nonAdmin && (roleID == -1 || roleID == -2) && combineIndividuals) {
+                        roleID = 'assignedIndividual';
+                        description = '* Assigned to an individual *';
+                    } else {
+                        roleID = Sha1.hash(uDD.approverUID);
+                        description = scrubHTML(uDD.approverName);
+                    }
                 }
 
                 let stepHash = `${description}:;ROLEID${roleID}`;
@@ -359,7 +385,7 @@
 
     // Get site icons and name
     function getIcon(icon, name) {
-        if (icon != '') {
+        if (icon != '' && icon != undefined) {
             if (icon.indexOf('/') != -1) {
                 icon = '<img src="' + icon + '" alt="icon for ' + name +
                     '" style="vertical-align: middle; width: 76px; height:76px;" />';
@@ -367,6 +393,8 @@
                 icon = '<img src="../libs/dynicons/?img=' + icon + '&w=76" alt="icon for ' + name +
                     '" style="vertical-align: middle" />';
             }
+        } else {
+            icon = '';
         }
         return icon;
     }
@@ -409,6 +437,8 @@
         let depID = Sha1.hash(categoryIDs.join(','));
 
         let icon = getIcon(site.icon, site.name);
+        site.backgroundColor = site.backgroundColor == undefined ? 'initial' : site.backgroundColor;
+        site.fontColor = site.fontColor == undefined ? 'initial' : site.fontColor;
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
@@ -440,6 +470,8 @@
     function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
         let customColumns = false;
         let categoryID = null;
+
+        // categoryIDs is undefined when the user has selected the "Organize by Roles" view
         if (categoryIDs != undefined) {
             categoryID = categoryIDs[0];
             categoryIDs.forEach(categoryID => {
@@ -468,7 +500,18 @@
 
         let headerColumns = "";
         if (customColumns === false) {
-            const baseColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
+            let baseColumns = '';
+            if(site.columns == null || site.columns == 'UID') {
+                // Add the Form Type to the "Organize by Roles" view. Provides feature parity with the old Inbox.
+                if(categoryIDs == undefined) {
+                    baseColumns = 'UID,type,service,title,status';
+                } else {
+                    baseColumns = 'UID,service,title,status';
+                }
+            } else {
+                baseColumns = site.columns;
+            }
+
             const formColumns = site?.formColumns?.[categoryID] || null;
             if (formColumns !== null) {
                 headerColumns = 'UID,' + formColumns;
@@ -478,6 +521,7 @@
             headerColumns = headerColumns.split(",")
         }
         let customCols = [];
+
         headerColumns.forEach(col => {
             if (isNaN(col) && typeof headerDefinitions[col] === 'function') {
                 customCols.push(headerDefinitions[col](site));
@@ -529,6 +573,12 @@
             if (res[recordID].service != null) {
                 hasServices = true;
             }
+
+            res[recordID].assignedIndividual = false;
+            if(stepID == 'assignedIndividual') {
+                res[recordID].assignedIndividual = true;
+            }
+
             tGridData.push(res[recordID]);
         });
         // remove service column if there's no services
@@ -566,6 +616,8 @@
         }
 
         let icon = getIcon(site.icon, site.name);
+        site.backgroundColor = site.backgroundColor == undefined ? 'initial' : site.backgroundColor;
+        site.fontColor = site.fontColor == undefined ? 'initial' : site.fontColor;
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
@@ -801,6 +853,7 @@
     let dialog_message;
     let nonAdmin = true;
     let organizeByRole = false;
+    let combineIndividuals = false;
     let abortController = new AbortController();
     // Script Start
     $(function() {
@@ -818,6 +871,16 @@
             organizeByRole = true;
             document.querySelector('#btn_organize').innerText = 'Organize by Forms';
         }
+
+        if(urlParams.get('combineIndividuals') != null) {
+            combineIndividuals = true;
+            if(organizeByRole && !nonAdmin) {
+                document.querySelector('#btn_combineIndividuals').style.display = 'inline';
+            }
+        } else if(organizeByRole && !nonAdmin) {
+                document.querySelector('#btn_combineIndividuals').style.display = 'inline';
+                document.querySelector('#btn_combineIndividuals').innerText = 'Combine Individuals';
+            }
         
         getMapSites.then((value) => {
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
@@ -861,8 +924,12 @@
                 };
                 sites.push(localSite);
                 queue.setQueue([localSite]);
+
+                // workaround for jquery animation?
                 document.querySelector('#index').style.visibility = 'hidden';
-                document.querySelector('#inbox').style.width = '70%';
+                document.querySelector('#index').style.width = '0px';
+
+                document.querySelector('#inbox').style.width = '95%';
             }
 
             queue.start();
@@ -894,6 +961,17 @@
                 }
                 else {
                     window.location.href = currLocation + '&organizeByRole';
+                }
+            });
+
+            $('#btn_combineIndividuals').on('click', function() {
+				let currLocation = getCurrLocation();
+
+                if(combineIndividuals) {
+                    window.location.href = currLocation.replace('&combineIndividuals', '');
+                }
+                else {
+                    window.location.href = currLocation + '&combineIndividuals';
                 }
             });
 
@@ -977,6 +1055,7 @@
     <span id="inbox_view_selection_status" style="position:absolute;top:-40rem" role="status" aria-live="assertive" aria-label=""></span>
     <button type="button" id="btn_expandAll" class="buttonNorm">Toggle sections</button>
     <button type="button" id="btn_organize" class="buttonNorm">Organize by Roles</button>
+    <button type="button" id="btn_combineIndividuals" class="buttonNorm" style="display: none">Do not combine Individuals</button>
     <button type="button" id="btn_adminView" class="buttonNorm" style="<!--{if !$empMembership['groupID'][1]}-->display: none<!--{/if}-->">View as Admin</button>
 </div>
 <br />
@@ -990,5 +1069,4 @@
 
 <h2 style="text-align: center; padding-top: 5em">No more items in your inbox. Have a good day!</h2>
 
-<a href="index.php?a=inbox" style="margin-top: 3em">View Original Inbox</a>
 </div>
