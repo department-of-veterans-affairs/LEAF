@@ -9,6 +9,12 @@ p, .card {
     padding: 1rem;
     margin-bottom: 1rem;
 }
+code {
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    padding: 4px;
+    margin: 4px;
+}
 </style>
 <script>
 function scrubHTML(input) {
@@ -126,5 +132,6 @@ document.addEventListener('DOMContentLoaded', main);
 
     <div class="card">
         Quickstart Link: <input id="link" type="text" style="width: 50vw" />
+        <p>Tip: The request's title can be customized by adding <code>&title=Your+Request+Title</code> to the end of the link.</p>
     </div>
 </div>
