@@ -608,7 +608,7 @@ async function showProposal(encodedProposal) {
 }
 
 async function main() {
-    document.querySelector('title').innerText = 'Proposed Actions';
+    document.querySelector('title').innerText = 'Quick Review';
 
     const urlParams = new URLSearchParams(window.location.search);
     let stepID = urlParams.get('stepID');
@@ -646,7 +646,6 @@ document.addEventListener('DOMContentLoaded', main);
 </div>
 <div id="setupProposals" style="display: none" class="card">
     <h1>Create Quick Review Page<span id="stepName">Loading...</span></h1>
-    <p>Records without a proposed action will not be listed during final review.</p>
     <ul>
         <li id="selectDependency" style="display: none"></li>
     </ul>
@@ -687,7 +686,7 @@ document.addEventListener('DOMContentLoaded', main);
             <div id="confirm_loadIndicator" style="visibility: hidden; position: absolute; text-align: center; font-size: 24px; font-weight: bold; background: white; padding: 16px; height: 100px; width: 360px">Loading... <img src="images/largespinner.gif" alt="" /></div>
             <div id="confirm_xhr" style="font-size: 130%; width: 400px; height: 120px; padding: 16px; overflow: auto"></div>
             <div style="position: absolute; left: 10px; font-size: 140%"><button type="button" class="buttonNorm" id="confirm_button_cancelchange" disabled><img src="dynicons/?img=edit-undo.svg&amp;w=32" alt="" /> Cancel</button></div>
-            <div style="text-align: right; padding-right: 6px"><button type="button" class="buttonNorm" id="confirm_button_save" disabled><img src="dynicons/?img=dialog-apply.svg&amp;w=32" alt="" /><span id="confirm_saveBtnText"> Approve this Proposal</span></button></div><br />
+            <div style="text-align: right; padding-right: 6px"><button type="button" class="buttonNorm" id="confirm_button_save" disabled><img src="dynicons/?img=dialog-apply.svg&amp;w=32" alt="" /><span id="confirm_saveBtnText"> Confirm Actions</span></button></div><br />
         </div>
     </form>
 </div>
