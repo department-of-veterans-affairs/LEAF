@@ -192,7 +192,7 @@ async function setupProposals(stepID) {
     // get dependencyID or prompt user to select it
     let dependencyID = null;
     if(dependencies.length > 1) {
-        document.querySelector('#selectDependency').style.display = 'inline';
+        document.querySelector('#selectDependency').style.display = 'list-item';
         document.querySelector('#selectDependency').innerHTML = 'Select a role <span style="color: red">*required</span>: <select id="dependencySelect"><option value="">Select...</option></select>';
         dependencies.forEach(dep => {
             document.querySelector('#dependencySelect').innerHTML += `<option value="${dep.dependencyID}">${dep.description}</option>`;
@@ -262,11 +262,6 @@ async function setupProposals(stepID) {
         }},
         {name: 'Title', indicatorID: 'title', editable: false, callback: function(data, blob) {
             document.querySelector(`#${data.cellContainerID}`).innerHTML = `<a href="index.php?a=printview&recordID=${data.recordID}" target="_blank">${blob[data.recordID].title}</a>`;
-        }},
-        {name: 'Propose Action', indicatorID: 'decision', editable: false, sortable: false, callback: function(data, blob) {
-            document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#fee685';
-        }},
-        {name: 'Comments', indicatorID: 'comments', editable: false, sortable: false, callback: function(data, blob) {
         }}
     ];
 
@@ -294,7 +289,7 @@ async function setupProposals(stepID) {
 
             let newHeader = getDataHeader(colID, fieldData, null);
             headers = grid.headers();
-            headers.splice(headers.length - 2, 0, newHeader);
+            headers.splice(headers.length, 0, newHeader);
             grid.setHeaders(headers);
         });
 
@@ -340,7 +335,7 @@ async function setupProposals(stepID) {
         let newHeader = getDataHeader(colID, fieldData);
 
         headers = grid.headers();
-        headers.splice(headers.length - 2, 0, newHeader);
+        headers.splice(headers.length, 0, newHeader);
         grid.setHeaders(headers);
 
         var query = new LeafFormQuery();
@@ -632,9 +627,10 @@ async function main() {
 
 document.addEventListener('DOMContentLoaded', main);
 </script>
-<div id="setup" style="display: none">
+<div id="setup" style="display: none" class="card">
     <h1>Create Quick Review Page</h1>
-    <p>This will create a custom page to help an approving official review and execute proposed actions.</p>
+    <p>The Quick Review page contains a list of records ready for review. The actions can be applied all at once.</p>
+    <p>The provided URL may be bookmarked or placed on the homepage.</p>
 
     <br /><br />
     <div class="card">
@@ -644,7 +640,7 @@ document.addEventListener('DOMContentLoaded', main);
         Select a step: <select id="steps">Loading...</select>
         <br /><br />
 
-        <button id="create" class="buttonNorm">Setup Proposed Actions</button>
+        <button id="create" class="buttonNorm">Setup Quick Review</button>
         <br /><br />
     </div>
 </div>
@@ -654,7 +650,7 @@ document.addEventListener('DOMContentLoaded', main);
     <ul>
         <li id="selectDependency" style="display: none"></li>
     </ul>
-    <h2>Customize View</h2>
+    <h2>Customize Columns</h2>
     <p>Data columns may be added to provide relevant information during final review.</p>
     <ul>
         <li>

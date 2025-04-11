@@ -192,7 +192,7 @@ async function setupProposals(stepID) {
     // get dependencyID or prompt user to select it
     let dependencyID = null;
     if(dependencies.length > 1) {
-        document.querySelector('#selectDependency').style.display = 'inline';
+        document.querySelector('#selectDependency').style.display = 'list-item';
         document.querySelector('#selectDependency').innerHTML = 'Select a role <span style="color: red">*required</span>: <select id="dependencySelect"><option value="">Select...</option></select>';
         dependencies.forEach(dep => {
             document.querySelector('#dependencySelect').innerHTML += `<option value="${dep.dependencyID}">${dep.description}</option>`;
@@ -654,9 +654,9 @@ async function main() {
 
 document.addEventListener('DOMContentLoaded', main);
 </script>
-<div id="setup" style="display: none">
+<div id="setup" style="display: none" class="card">
     <h1>Create Proposal</h1>
-    <p>This will create a custom page to help an approving official review and execute proposed actions.</p>
+    <p>A Proposal contains a list of specific records and their proposed actions. The actions can be applied all at once.</p>
 
     <br /><br />
     <div class="card">
@@ -678,7 +678,7 @@ document.addEventListener('DOMContentLoaded', main);
         <li>Title of proposal: <input type="text" id="proposalTitle" /></li>
         <li>Description: <textarea id="proposalDescription"></textarea></li>
     </ul>
-    <h2>Customize View</h2>
+    <h2>Customize Columns</h2>
     <p>Data columns may be added to provide relevant information during final review.</p>
     <p>Tip: Bookmark this page to save your selected columns.</p>
     <ul>
