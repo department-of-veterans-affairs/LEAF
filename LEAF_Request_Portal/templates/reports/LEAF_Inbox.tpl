@@ -557,7 +557,7 @@
                         }
                     });
                 });
-                $('#btn_action' + hash + '_' + stepID + '_' + data.recordID).removeAttribute('disabled');
+                document.querySelector(`#btn_action${hash}_${stepID}_${data.recordID}`).removeAttribute('disabled');
             }
         }];
         headers = customCols.concat(headers);
