@@ -309,6 +309,9 @@ function confirmRemove() {
                         alert(response);
                     }
                 },
+                error: function (err) {
+                    console.log(err);
+                },
                 cache: false
             });
         });
