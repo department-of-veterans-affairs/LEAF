@@ -293,7 +293,7 @@ function confirmRemove() {
         });
         dialog_ok.show();
     } else {
-        confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this group?</span>' + warning);
+        confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this group?</span>');
         confirm_dialog.setTitle('Confirmation');
         confirm_dialog.setSaveHandler(function() {
             $.ajax({
