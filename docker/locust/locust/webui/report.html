@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% raw %}
+  <head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="../../assets/favicon-light.png" media="(prefers-color-scheme: light)">
+    <link rel="shortcut icon" href="../../assets/favicon-dark.png" media="(prefers-color-scheme: dark)">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+
+    <title>Locust</title>
+  </head>
+  {% endraw %}
+  <body>
+    <div id="root"></div>
+
+    <script>
+      window.templateArgs = {{ template_args|tojson }}
+      window.theme = "{{theme}}"
+    </script>
+    
+    <script type="module" src="./src/HtmlReport.tsx"></script>
+  </body>
+</html>

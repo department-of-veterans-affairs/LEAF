@@ -1,7 +1,10 @@
 name: leaf
 services:
     master:
-        image: locustio/locust
+        build:
+            context: ./locust
+            dockerfile: locust.dockerfile
+        #image: locustio/locust
         ports:
             - "8089:8089"
         volumes:
@@ -11,7 +14,10 @@ services:
             - leaf
     
     worker:
-        image: locustio/locust
+        build:
+            context: ./locust
+            dockerfile: locust.dockerfile
+        #image: locustio/locust
         volumes:
             - ../load:/mnt/locust
         command: -f /mnt/locust/locustfile.py --worker --master-host master
