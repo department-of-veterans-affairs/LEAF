@@ -1,5 +1,12 @@
 from locust import HttpUser, task, between
+import auth  # Import the authentication function
 class HelloWorldUser(HttpUser):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cookie = None
+        username = "your_username"
+        password = "your_password"
+        self.cookie = auth.authenticate(username, password)
 
     wait_time = between(1, 5)
 
@@ -15,7 +22,8 @@ class HelloWorldUser(HttpUser):
     # Weight home page over other pages
     @task(3)
     def home_page(self):
-        self.client.get("/Test_Request_Portal/")
+        headers = {"Cookie": f"PHPSESSID={self.cookie}"}
+        self.client.get("/Test_Request_Portal/", headers=headers)
 
     @task
     def report_builder(self):
