@@ -642,6 +642,7 @@ async function listRequests(thisSearchID) {
                 if (Number(lastAction.value) > 0) {
                     filterData = filterEmailData(result);
                 }
+
                 formGrid.setDataBlob(filterData);
                 formGrid.setHeaders([
                     {
