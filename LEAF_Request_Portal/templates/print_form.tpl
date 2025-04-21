@@ -216,6 +216,7 @@ var recordID = <!--{$recordID|strip_tags}-->;
 var serviceID = <!--{$serviceID|strip_tags}-->;
 let CSRFToken = '<!--{$CSRFToken}-->';
 let formPrintConditions = {};
+
 function doSubmit(recordID) {
     $('#submitControl').empty().html('<img alt="" src="./images/indicator.gif" />Submitting...');
     $.ajax({

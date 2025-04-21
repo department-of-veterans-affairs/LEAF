@@ -171,7 +171,7 @@ class FormWorkflow
 
         $pdRecordIDs = implode(',', $pdRecordIDs);
 
-        $query = "SELECT recordID, `data`, `name`, indicatorID FROM `data`
+        $query = "SELECT recordID, `data`, `name`, indicatorID, metadata FROM `data`
                     LEFT JOIN indicators USING (indicatorID)
                     WHERE indicatorID IN ({$pdIndicators}) 
                         AND recordID IN ({$pdRecordIDs})
@@ -185,16 +185,20 @@ class FormWorkflow
             if(isset($pdRecordsMap[$record['recordID']][$record['indicatorID']])) {
                 $dRecords[$record['recordID']]['data'] = $record['data'];
                 $dRecords[$record['recordID']]['name'] = $record['name'];
+                $metaData = json_decode($record['metadata'], true);
+                if($metaData != null) {
+                    $dRecords[$record['recordID']]['metadata'] = $metaData;
+                }
             }
         }
 
-        $dir = $this->getDirectory();
         // loop through all srcRecords
         foreach($srcRecords as $i => $v) {
+            $recordID = $v['recordID'];
             // amend actionable status
             if(isset($dRecords[$v['recordID']])) {
                 if($srcRecords[$i]['isActionable'] == 0) {
-                    $srcRecords[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$v['recordID']]['data']);
+                    $srcRecords[$i]['isActionable'] = $this->checkEmployeeAccess($dRecords[$recordID]['data']);
                 }
 
                 if($skipNames) {
@@ -203,17 +207,17 @@ class FormWorkflow
 
                 // Only amend approverName for person designated records
                 if($v['dependencyID'] == -1) {
-                    $approver = $dir->lookupEmpUID($dRecords[$v['recordID']]['data']);
-                    
-                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
-                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' ( *NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'] . ')';
-                        $srcRecords[$i]['approverName'] = '*NEEDS REASSIGNMENT* ' . $dRecords[$v['recordID']]['name'];
-                        $srcRecords[$i]['approverUID'] = 'indicatorID:' . $res[$i]['indicatorID_for_assigned_empUID'];
+                    if (!isset($dRecords[$recordID]['metadata'])
+                        || empty($dRecords[$recordID]['metadata']['userName'])) {
+                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' ( *NEEDS REASSIGNMENT* ' . $dRecords[$recordID]['name'] . ')';
+                        $srcRecords[$i]['approverName'] = '*NEEDS REASSIGNMENT* ' . $dRecords[$recordID]['name'];
+                        $srcRecords[$i]['approverUID'] = 'indicatorID:' . $srcRecords[$i]['indicatorID_for_assigned_empUID'];
                     }
                     else {
-                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                        $srcRecords[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
-                        $srcRecords[$i]['approverUID'] = $approver[0]['Email'];
+                        $metaData = $dRecords[$recordID]['metadata'];
+                        $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $metaData['firstName'] . ' ' . $metaData['lastName'] . ')';
+                        $srcRecords[$i]['approverName'] = $metaData['firstName'] . ' ' . $metaData['lastName'];
+                        $srcRecords[$i]['approverUID'] = $metaData['email'];
                     }
                 }
             }
@@ -387,8 +391,7 @@ class FormWorkflow
                     $isActionable = $depRecord['userID'] == $this->login->getUserID();
 
                     if(!$isActionable){
-                        $empUID = $this->getEmpUIDByUserName($depRecord['userID']);
-                        $isActionable = $this->checkEmployeeAccess($empUID);
+                        $isActionable = $this->checkEmployeeAccessUsername($depRecord['userID']);
                     }
 
                     $records[$depRecordID]['isActionable'] = $isActionable;
@@ -491,18 +494,16 @@ class FormWorkflow
                         $personDesignatedIndicators[$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                         break;
                     case -2: // dependencyID -2 is for requestor followup
-                        $dir = $this->getDirectory();
-                        $approver = $dir->lookupLogin($res[$i]['userID']);
-
-                        if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                        $metaData = json_decode($record['userMetadata'], true);
+                        if ($metaData == null || $metaData['firstName'] == '') {
                             $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Inactive User)';
                             $res[$i]['approverName'] = '(Inactive User)';
                             $res[$i]['approverUID'] = $res[$i]['userID'];
                         }
                         else {
-                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                            $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
-                            $res[$i]['approverUID'] = $approver[0]['Email'];
+                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $metaData['firstName'] . ' ' . $metaData['lastName'] . ')';
+                            $res[$i]['approverName'] = $metaData['firstName'] . ' ' . $metaData['lastName'];
+                            $res[$i]['approverUID'] = $metaData['email'];
                         }
                         break;
                     case -3: // dependencyID -3 is for a group designated by the requestor
@@ -535,8 +536,7 @@ class FormWorkflow
                     $isActionable = $res[$i]['userID'] == $this->login->getUserID();
 
                     if(!$isActionable){
-                        $empUID = $this->getEmpUIDByUserName($res[$i]['userID']);
-                        $isActionable = $this->checkEmployeeAccess($empUID);
+                        $isActionable = $this->checkEmployeeAccessUsername($res[$i]['userID']);
                     }
 
                     $res[$i]['isActionable'] = $isActionable;
@@ -913,9 +913,7 @@ class FormWorkflow
 
                     if ($resPerson[0]['userID'] != $this->login->getUserID())
                     {
-                        $empUID = $this->getEmpUIDByUserName($resPerson[0]['userID']);
-
-                        $userAuthorized = $this->checkEmployeeAccess($empUID);
+                        $userAuthorized = $this->checkEmployeeAccessUsername($resPerson[0]['userID']);
 
                         if (!$userAuthorized)
                         {
@@ -1284,6 +1282,42 @@ class FormWorkflow
     }
 
     /**
+     * Checks if logged in user has access to the given userName
+     * Also checks if the current user is a backup of the given userName
+     *
+     * @param string $userName userName to check
+     * @return boolean
+     */
+    public function checkEmployeeAccessUsername(string $userName): bool
+    {
+        $userName = strtolower($userName);
+        if ($userName == strtolower($this->login->getUserID()))
+        {
+            return true;
+        }
+
+        if(isset($this->cache['checkEmployeeAccessUsername'])) {
+            return isset($this->cache['checkEmployeeAccessUsername'][$userName]);
+        }
+
+        $nexusDB = $this->login->getNexusDB();
+        $vars = array(':currEmpUID' => $this->login->getEmpUID());
+        $strSQL = 'SELECT userName FROM relation_employee_backup
+                    INNER JOIN employee USING (empUID)
+                    WHERE backupEmpUID =:currEmpUID
+                        AND approved=1';
+        $backupIds = $nexusDB->prepared_query($strSQL, $vars);
+
+        $this->cache['checkEmployeeAccessUsername'] = [];
+        foreach ($backupIds as $row)
+        {
+            $this->cache['checkEmployeeAccessUsername'][strtolower($row['userName'])] = true;
+        }
+
+        return isset($this->cache['checkEmployeeAccessUsername'][$userName]);
+    }
+
+    /**
      * Handle events tied to actions, if there are any
      * @param int $workflowID
      * @param int $stepID
@@ -1334,23 +1368,33 @@ class FormWorkflow
             $email = new Email();
 
             $vars = array(':recordID' => $this->recordID);
-            $strSQL = 'SELECT rec.title, rec.userID, ser.service FROM records AS rec
+            $strSQL = 'SELECT rec.title, rec.userID, ser.service, needToKnow, categoryName FROM records AS rec
+                LEFT JOIN category_count USING (recordID)
+                LEFT JOIN categories USING (categoryID)
                 LEFT JOIN services AS ser USING (serviceID)
                 WHERE recordID = :recordID';
             $record = $this->db->prepared_query($strSQL, $vars);
-
 
             $vars = array(':stepID' => $stepID);
             $strSQL = 'SELECT stepTitle FROM workflow_steps WHERE stepID = :stepID';
             $groupName = $this->db->prepared_query($strSQL, $vars);
 
+            $formType = trim(strip_tags(
+                htmlspecialchars_decode($record[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+            ));
 
-            $title = strlen($record[0]['title']) > 45 ? substr($record[0]['title'], 0, 42) . '...' : $record[0]['title'];
-            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+            $fullTitle = trim(strip_tags(
+                htmlspecialchars_decode($record[0]['title'], ENT_QUOTES | ENT_HTML5)
+            ));
+            if((int)$record[0]['needToKnow'] === 1) {
+                $fullTitle = $formType;
+            }
+            $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
 
             $email->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
-                "fullTitle" => $record[0]['title'],
+                "fullTitle" => $fullTitle,
+                "formType" => $formType,
                 "recordID" => $this->recordID,
                 "service" => $record[0]['service'],
                 "stepTitle" => $groupName[0]['stepTitle'],
@@ -1425,8 +1469,10 @@ class FormWorkflow
                     $vars = array(':recordID' => $this->recordID);
 
                     // get the record and requestor
-                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
+                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service,needToKnow,categoryName
                         FROM records AS rec
+                        LEFT JOIN category_count USING (recordID)
+                        LEFT JOIN categories USING (categoryID)
                         LEFT JOIN services AS ser USING (serviceID)
                         WHERE recordID = :recordID';
                     $requestRecords = $this->db->prepared_query($strSQL, $vars);
@@ -1444,12 +1490,22 @@ class FormWorkflow
 
                         $email = new Email();
 
-                        $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
-                        $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+                        $formType = trim(strip_tags(
+                            htmlspecialchars_decode($requestRecords[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+                        ));
+
+                        $fullTitle = trim(strip_tags(
+                            htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
+                        ));
+                        if((int)$requestRecords[0]['needToKnow'] === 1) {
+                            $fullTitle = $formType;
+                        }
+                        $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
-                            "fullTitle" => $requestRecords[0]['title'],
+                            "fullTitle" => $fullTitle,
+                            "formType" => $formType,
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],
                             "lastStatus" => $requestRecords[0]['lastStatus'],
@@ -1494,8 +1550,10 @@ class FormWorkflow
                     $vars = array(':recordID' => $this->recordID);
 
                     // get the record and requestor
-                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service
+                    $strSQL = 'SELECT rec.title, rec.lastStatus, rec.userID, ser.service,needToKnow,categoryName
                         FROM records AS rec
+                        LEFT JOIN category_count USING (recordID)
+                        LEFT JOIN categories USING (categoryID)
                         LEFT JOIN services AS ser USING (serviceID)
                         WHERE recordID = :recordID';
                     $requestRecords = $this->db->prepared_query($strSQL, $vars);
@@ -1513,12 +1571,22 @@ class FormWorkflow
 
                         $email = new Email();
 
-                        $title = strlen($requestRecords[0]['title']) > 45 ? substr($requestRecords[0]['title'], 0, 42) . '...' : $requestRecords[0]['title'];
-                        $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+                        $formType = trim(strip_tags(
+                            htmlspecialchars_decode($requestRecords[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+                        ));
+
+                        $fullTitle = trim(strip_tags(
+                            htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
+                        ));
+                        if((int)$requestRecords[0]['needToKnow'] === 1) {
+                            $fullTitle = $formType;
+                        }
+                        $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
-                            "fullTitle" => $requestRecords[0]['title'],
+                            "fullTitle" => $fullTitle,
+                            "formType" => $formType,
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],
                             "lastStatus" => $requestRecords[0]['lastStatus'],
