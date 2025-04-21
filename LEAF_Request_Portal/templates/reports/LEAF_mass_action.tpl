@@ -514,7 +514,6 @@ function getForms() {
  * Purpose do reminder search (used by click or change of lastAction text)
  */
 function reminderDaysSearch() {
-    console.log("reminderDaysSearch");
     let daysSince = document.getElementById("lastAction").valueOf();
     searchID = Math.floor(Math.random() * 1000000000);
     listRequests(searchID);
@@ -531,7 +530,6 @@ function addTerms(leafFormQuery) {
             let lastAction = document.getElementById("lastAction");
 
             if (Number(lastAction.value) > 0) {
-                console.log("adding unresolved term")
                 leafFormQuery.addTerm('stepID', '!=', 'resolved');
             }
             break;
@@ -761,7 +759,6 @@ function executeMassAction() {
             case "email":
                 ajaxPath =
                     "./api/form/" + recordID + "/reminder/" + reminderDaysSince;
-                console.log(ajaxPath);
                 break;
             case "take_action":
                 let dependencyID = $("select#requirements_select").val();
