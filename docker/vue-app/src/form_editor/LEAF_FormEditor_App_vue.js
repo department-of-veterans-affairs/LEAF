@@ -71,6 +71,7 @@ export default {
             openEditCollaboratorsDialog: this.openEditCollaboratorsDialog,
             openIndicatorEditingDialog: this.openIndicatorEditingDialog,
             openIfThenDialog: this.openIfThenDialog,
+            openRestoreFieldOptionsDialog: this.openRestoreFieldOptionsDialog,
             orgchartFormats: this.orgchartFormats,
             initializeOrgSelector: this.initializeOrgSelector,
             truncateText: this.truncateText,
@@ -568,7 +569,7 @@ export default {
             }
             this.setCustomDialogTitle(`<h2>Advanced Options for indicator ${indicator.indicatorID}</h2>`);
             this.setFormDialogComponent('advanced-options-dialog');
-            this.showFormDialog = true;   
+            this.showFormDialog = true;
         },
         openNewFormDialog(mainFormID = '') {
             this.dialogData = {
@@ -577,13 +578,13 @@ export default {
             const titleHTML = mainFormID === '' ? '<h2>New Form</h2>' : '<h2>New Internal Use Form</h2>';
             this.setCustomDialogTitle(titleHTML);
             this.setFormDialogComponent('new-form-dialog');
-            this.showFormDialog = true; 
+            this.showFormDialog = true;
         },
         openImportFormDialog() {
             this.setCustomDialogTitle('<h2>Import Form</h2>');
             this.setFormDialogComponent('import-form-dialog');
             this.dialogButtonText = {confirm: 'Import', cancel: 'Close'};
-            this.showFormDialog = true;  
+            this.showFormDialog = true;
         },
         openFormHistoryDialog(catID = '') {
             this.dialogData = {
@@ -593,6 +594,12 @@ export default {
             this.setCustomDialogTitle(`<h2>Form History</h2>`);
             this.setFormDialogComponent('history-dialog');
             this.showFormDialog = true;
-        }
+        },
+        openRestoreFieldOptionsDialog() {
+            this.setCustomDialogTitle(`<h2>Restore Field</h2>`);
+            this.setFormDialogComponent('restore-field-options-dialog');
+            this.dialogButtonText = {confirm: 'Restore', cancel: 'Close'};
+            this.showFormDialog = true;
+        },
     }
 }
