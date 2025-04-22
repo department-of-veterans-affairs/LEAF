@@ -541,7 +541,7 @@
                 $('#' + data.cellContainerID).css('text-align', 'center');
                 $('#' + data.cellContainerID).html('<button type="button" id="btn_action' + hash + '_' + stepID + '_' +
                                                    data.recordID +
-                                                   '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal">' +
+                                                   '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" disabled>' +
                                                    depDescription + '</button>');
                 $('#btn_action' + hash + '_' + stepID + '_' + data.recordID).on('click', function() {
                     loadWorkflow(data.recordID, formGrid.getPrefixID(), site.url);
@@ -555,7 +555,8 @@
                             });
                         }
                     });
-                })
+                });
+                document.querySelector(`#btn_action${hash}_${stepID}_${data.recordID}`).removeAttribute('disabled');
             }
         }];
         headers = customCols.concat(headers);
