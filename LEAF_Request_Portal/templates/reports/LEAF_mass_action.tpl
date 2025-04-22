@@ -527,7 +527,9 @@ function addTerms(leafFormQuery) {
             break;
         case "email":
             leafFormQuery.addTerm('stepID', '!=', 'deleted');
-            if (Number(document.getElementById("lastAction").value) > 0) {
+            let lastAction = document.getElementById("lastAction");
+
+            if (Number(lastAction.value) > 0) {
                 leafFormQuery.addTerm('stepID', '!=', 'resolved');
             }
             break;
@@ -587,6 +589,25 @@ function addJoins(leafFormQuery) {
     }
 }
 
+function filterEmailData(result) {
+    for (let item in result) {
+        if (result[item].action_history !== undefined) {
+            let numberActions = result[item].action_history.length;
+            let lastActionDate = Number(result[item].action_history[numberActions - 1].time) * 1000;
+            let lastAction = document.getElementById("lastAction");
+            let comparisonDate = Date.now() - (Number(lastAction.value) * 24 * 60 * 60 * 1000);
+
+            if (lastActionDate >= comparisonDate) {
+                delete result[item];
+            }
+        } else {
+            delete result[item];
+        }
+    };
+
+    return result;
+}
+
 /**
  * Looks up requests based on filter/searchbar and builds table with the results
  *
@@ -613,7 +634,14 @@ async function listRequests(thisSearchID) {
             if (result instanceof Object && Object.keys(result).length > 0 && result[0] === undefined) {
                 const formGrid = new LeafFormGrid('searchResults', {});
                 formGrid.setRootURL("./");
-                formGrid.setDataBlob(result);
+                let lastAction = document.getElementById("lastAction");
+                let filterData = result;
+
+                if (Number(lastAction.value) > 0) {
+                    filterData = filterEmailData(result);
+                }
+
+                formGrid.setDataBlob(filterData);
                 formGrid.setHeaders([
                     {
                         name: "Type",
@@ -697,7 +725,8 @@ function executeMassAction() {
     }
 
     let selectedRequests = $("input.massActionRequest:checked");
-    let reminderDaysSince = Number($("#lastAction").val());
+    let lastAction = document.getElementById("lastAction").valueOf()
+    let reminderDaysSince = Number(lastAction);
 
     // Update global variables for execution - used in updateProgress function
     // Setting them to default at beginning of mass execution run
