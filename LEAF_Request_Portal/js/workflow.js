@@ -201,6 +201,59 @@ var LeafWorkflow = function (containerID, CSRFToken) {
         }
     }
 
+    function parseWorkflowMap(workflowMap, currStepID) {
+        let requirement = [];
+        for(let i in workflowMap[currStepID].dependencies) {
+            requirement.push(workflowMap[currStepID].dependencies[i]);
+        }
+
+        let output = [{stepID: currStepID, 
+                        stepTitle: workflowMap[currStepID].stepTitle, 
+                        requirement: requirement}];
+
+        workflowMap[currStepID].routes.forEach(route => {
+            if(route.nextStepID != 0) {
+                output = output.concat(parseWorkflowMap(workflowMap, route.nextStepID));
+            }
+        });
+
+        return output;
+    }
+
+    async function getWorkflowSummary(recordID, workflowID) {
+        let [formData, workflowMap] = await Promise.all([
+            fetch(`./api/form/query?q={"terms":[{"id":"recordID","operator":"=","match":"${recordID}","gate":"AND"}],"joins":["stepFulfillment"],"sort":{},"limit":1,"limitOffset":0}&x-filterData=stepFulfillment`).then(res => res.json()),
+            fetch(`./api/workflow/${workflowID}/map/summary`).then(res => res.json())
+        ]);
+        let workflowSteps = parseWorkflowMap(workflowMap, 0);
+
+        if(formData[recordID] != undefined) {
+            formData = formData[recordID];
+        } else {
+            console.error('Unexpected error: form data not found');
+            return;
+        }
+
+        let output = '';
+        workflowSteps.forEach(step => {
+            if(step.stepID == 0) {
+                return;
+            }
+
+            if(formData.stepFulfillment != undefined && formData.stepFulfillment[step.stepID] != undefined) {
+                let date = new Date(formData.stepFulfillment[step.stepID].time * 1000);
+                output += `<div>
+                            <img src="dynicons/?img=gnome-emblem-default.svg&w=32" style="vertical-align: middle" alt="Completed step"> ${step.stepTitle} (${date.toLocaleDateString()})
+                        </div>`;
+            } else {
+                output += `<div>
+                            <img src="dynicons/?img=appointment.svg&w=32" style="vertical-align: middle" alt="Pending step"> ${step.stepTitle} ... [ Estimated time ]
+                        </div>`;
+            }
+        });
+        return output;
+    }
+
     /**
      * @memberOf LeafWorkflow
      * Called for each requirement with access. Initializes the step module if one exists for the step ID.
@@ -828,9 +881,13 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 "/currentStep" +
                 masquerade,
             dataType: "json",
-            success: function (res) {
+            success: async function (res) {
                 let firstDepID = null;
+                let step = null;
                 for (let i in res) {
+                    if(step == null) {
+                        step = res[i];
+                    }
                     if (res[i].hasAccess == 1) {
                         if(firstDepID === null) {
                             firstDepID = res[i].dependencyID;
@@ -842,6 +899,18 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 }
                 getLastAction(recordID, res);
                 $("#" + containerID).show("blind", 250);
+
+                if(step != null) {
+                    let summary = await getWorkflowSummary(step.recordID, step.workflowID);
+                    let domLastAction = document.querySelector(`#workflowbox_lastAction`);
+                    summary = `<div style="max-width: 20rem; margin: auto">${summary}</div>`;
+                    if(domLastAction != undefined) {
+                        document.querySelector(`#workflowbox_lastAction`).insertAdjacentHTML('beforebegin', summary);
+                    }
+                    else {
+                        document.querySelector(`#workflowcontent`).insertAdjacentHTML('beforeend', summary);
+                    }
+                }
             },
             error: function (err) {
                 console.log("Error: " + err);
