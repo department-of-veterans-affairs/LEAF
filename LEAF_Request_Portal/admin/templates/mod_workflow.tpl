@@ -1210,52 +1210,41 @@
     * @returns string template for action editing modal
     */
     function renderActionInputModal(action = {}) {
-        return `
-            <table style="margin-bottom:2rem;">
-                <tr id="input_status_info" style="display:none;font-weight:bold;">
-                    <td></td><td id="status_message" colspan="2" role="status" aria-live="polite"></td>
-                </tr>
-                <tr>
-                    <td><label for="actionText" id="action_label">Action <span style="color: #c00000">*Required</span></label></td>
-                    <td>
-                        <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}" />
-                    </td>
-                    <td>eg: Approve</td>
-                </tr>
-                <tr>
-                    <td><label for="actionTextPasttense" id="action_past_tense_label">
-                        Action Past Tense <span style="color: #c00000">*Required</span>
-                        </label></td>
-                    <td>
-                        <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}" />
-                    </td>
-                    <td>eg: Approved</td>
-                </tr>
-                <tr>
-                    <td><label for="actionIcon" id="choose_icon_label">Icon</label></td>
-                    <td>
-                        <input id="actionIcon" type="text" maxlength="50" value="${action?.actionIcon || ''}" />
-                    </td>
-                    <td>eg: go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></td>
-                </tr>
-                <tr>
-                    <td><label for="actionSortNumber" id="action_sort_label">Button Order</label></td>
-                    <td>
-                        <input id="actionSortNumber" type="number" min="-128" max="127" value="${action?.sort || 0}" />
-                    </td>
-                    <td>lower numbers appear first</td>
-                </tr>
-            </table>
-            <label for="fillDependency" style="font-family:'Source Sans Pro Web', sans-serif; font-size: 1rem;">
-                Does this action represent moving forwards or backwards in the process?
-            </label>
-            <select id="fillDependency">
-                <option value="1">Forwards</option>
-                <option value="-1">Backwards</option>
-            </select>
-            <div id="backwards_action_note" style="margin-top:0.5rem; max-width:600px; display: none;">
-                Note: Backwards actions do not save form field data.
-            </div>`
+        return `<div id="action_input_modal">
+            <div>
+                <label for="actionText" id="action_label">Action <span style="color: #c00">*Required</span></label><br>
+                <div class="helper_text">eg: Approve</div>
+                <div id="actionText_error_message" class="error_message"></div>
+                <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}">
+            </div>
+            <div>
+                <label for="actionTextPasttense" id="action_past_tense_label"> Action Past Tense <span style="color: #c00">*Required</span></label><br>
+                <div class="helper_text">eg: Approved</div>
+                <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}">
+            </div>
+            <div>
+                <label for="actionIcon" id="choose_icon_label">Icon</label><br>
+                <div class="helper_text">eg: go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></div>
+                <input id="actionIcon" type="text" maxlength="50" value="${action?.actionIcon || ''}">
+            </div>
+            <div>
+                <label for="actionSortNumber" id="action_sort_label">Button Order</label><br>
+                <div class="helper_text">Lower numbers appear first</div>
+                <input id="actionSortNumber" type="number" min="-128" max="127" value="${action?.sort || 0}">
+            </div>
+            <div>
+                <label for="fillDependency" style="font-family:'Source Sans Pro Web', sans-serif; font-size: 1rem;">
+                    Does this action represent moving forwards or backwards in the process?
+                </label><br>
+                <div id="backwards_action_note" style="max-width:600px; display: none;" class="helper_text">
+                    Note: Backwards actions do not save form field data.
+                </div>
+                <select id="fillDependency">
+                    <option value="1">Forwards</option>
+                    <option value="-1">Backwards</option>
+                </select>
+            </div>
+        </div>`
     }
 
     //edit action type
@@ -1382,35 +1371,58 @@
     * @param  newEntry {bool} whether user is creating new or editing existing
     */
     function validateInputFields(targetID = "", newEntry = false) {
+        const setError = (elementID = "", isValid = false) => {
+            let wrapperElement = document.getElementById(elementID)?.parentNode || null;
+            if (wrapperElement !== null && isValid === false) {
+                wrapperElement.classList.add("entry_error");
+            }
+        }
+
+        let parentWrapper = document.getElementById(targetID)?.parentElement ?? null;
+        if (parentWrapper !== null) {
+            parentWrapper.classList.remove("entry_error");
+        }
+
         switch(targetID) {
             case "actionText":
             case "actionTextPasttense":
-                $("#status_message").text("");
+                let actionErrorEl = $("#actionText_error_message");
+                actionErrorEl.text("")
+
                 const actionTypeInputValue = $("#actionText").val().trim();
                 const actionPastTenseInputValue = $("#actionTextPasttense").val().trim();
 
                 const actionTypeRegex = new RegExp(/[^a-zA-Z0-9_]/, "gi");
                 const actionType = actionTypeInputValue.replaceAll(actionTypeRegex, "").toLowerCase();
 
-                let actionTypeValid = actionType !== "";
-                //if there is an entry for 'action' at this point and it's a new action, check for reserved or taken actionTypes
-                if (actionTypeValid && newEntry === true) {
-                    if (reservedActionTypes[actionType] === 1 || allWorkflowActionMap[actionType] === 1) {
-                        actionTypeValid = false;
-                        $("#status_message").text("action name not available");
-                        $("#status_message").css("color", "#c00");
-                    } else {
-                        $("#status_message").text("")
-                        $("#status_message").css("color", "#076");
+                let actionTextValid = true;
+                let actionPastTenseValid = true;
+
+                if (actionType === "") {
+                    actionTextValid = false;
+
+                } else {
+                    //if there is an entry for 'action' and it's a new action, check for reserved or taken actionTypes
+                    if (newEntry === true &&
+                        (reservedActionTypes[actionType] === 1 || allWorkflowActionMap[actionType] === 1)
+                    ) {
+                        actionTextValid = false;
+                        setError("actionText", actionTextValid);
+                        actionErrorEl.text("This action name is not available");
                     }
                 }
 
-                if(actionTypeValid === true && actionPastTenseInputValue !== "") {
+                if (actionPastTenseInputValue === "") {
+                    actionPastTenseValid = false;
+                }
+
+                if(actionTextValid === true && actionPastTenseValid === true) {
                     enableSaveButton();
                 } else {
                     $("#button_save").attr("disabled", true);
                     $("#button_save").css("background-color", "#58585b");
                 }
+                break;
             default:
             break;
         }
