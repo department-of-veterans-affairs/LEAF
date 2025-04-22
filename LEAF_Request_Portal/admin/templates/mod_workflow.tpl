@@ -1042,7 +1042,7 @@
                 buffer += `<div><span id="req_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
                     <select id="dependencyID" name="dependencyID" title="Select a requiremement" onchange="updateSelectionStatus(this, 'req_select_status')">`;
 
-                var reservedDependencies = [-3, -2, -1, 1, 8];
+                var reservedDependencies = [-4, -3, -2, -1, 1, 8];
                 var maskedDependencies = [5];
 
                 buffer += '<optgroup label="Custom Requirements" aria-label="Custom Requirements">';
