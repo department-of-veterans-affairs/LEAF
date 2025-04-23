@@ -635,9 +635,10 @@ async function listRequests(thisSearchID) {
                 const formGrid = new LeafFormGrid('searchResults', {});
                 formGrid.setRootURL("./");
                 let lastAction = document.getElementById("lastAction");
+                let action = document.getElementById("action");
                 let filterData = result;
 
-                if (Number(lastAction.value) > 0) {
+                if (action.value === 'email' && Number(lastAction.value) > 0) {
                     filterData = filterEmailData(result);
                 }
 
