@@ -1979,6 +1979,9 @@
                                     <div>indicatorID: ${res[i].indicatorID_for_assigned_groupID ?? '<b style="color: #c00000;">not set</b>'}</div>
                                     <button type="button" class="buttonNorm" onclick="setDynamicGroupApprover('${res[i].stepID}')">Set Data Field</button>
                                 </li>`;
+                            } else if (depID === -4) { // dependencyID -4 : leaf agent
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})</li>`;
+
                             } else {
                                 if (tDeps[depID] == undefined) {
                                     tDeps[depID] = 1;
