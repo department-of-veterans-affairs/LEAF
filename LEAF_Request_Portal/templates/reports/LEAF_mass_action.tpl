@@ -726,7 +726,7 @@ function executeMassAction() {
     }
 
     let selectedRequests = $("input.massActionRequest:checked");
-    let lastAction = document.getElementById("lastAction").valueOf()
+    let lastAction = document.getElementById("lastAction").value;
     let reminderDaysSince = Number(lastAction);
 
     // Update global variables for execution - used in updateProgress function
