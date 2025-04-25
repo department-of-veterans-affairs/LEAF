@@ -402,6 +402,10 @@ class FormWorkflow
                     $groupDesignatedIndicators[$depRecord['indicatorID_for_assigned_groupID']] = 1;
                     break;
 
+                case -4: // dependencyID -4 is for the LEAF Agent
+                    $records[$depRecordID]['isActionable'] = $this->login->getUserID() == getenv('APP_AGENT_USERNAME');
+                    break;
+
                 default:
                     // check groups associated with dependency privileges
                     foreach ($res2 as $group)

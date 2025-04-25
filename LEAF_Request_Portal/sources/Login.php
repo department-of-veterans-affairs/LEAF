@@ -141,9 +141,11 @@ class Login
             $token = trim(str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']));
             if(hash_equals(getenv('AGENT_TOKEN'), $token)) {
                 $_SESSION['CSRFToken'] = "";
+                // This must never intersect with a real user account. *LEAF Agent* uses invalid Active Directory characters
                 $_SESSION['userID'] = getenv('APP_AGENT_USERNAME');
                 $this->name = "Account: {$_SESSION['userID']}";
                 $this->userID = $_SESSION['userID'];
+                $this->empUID = -1; // This must never intersect with a real user account
                 $this->isLogin = true;
                 $this->isInDB = false;
                 $this->setSession();
