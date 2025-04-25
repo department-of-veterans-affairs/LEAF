@@ -1218,17 +1218,19 @@ class Form
     /**
      * Write data from input fields if the current user has access - HTTP POST
      * @param int $recordID
-     * @return int 1 for success, 0 for error
+     * @return int|string 1 for success, error string for error
      */
     public function doModify($recordID)
     {
         if (!is_numeric($recordID))
         {
-            return 0;
+            http_response_code(400);
+            return 'Invalid recordID';
         }
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
-            return 0;
+            http_response_code(401);
+            return 'CSRF Token mismatch';
         }
 
         $series = isset($_POST['series']) && is_numeric($_POST['series']) ? $_POST['series'] : 1;
@@ -1246,7 +1248,8 @@ class Form
                     // check write access
                     if (!$this->hasWriteAccess($recordID, 0, $indicator))
                     {
-                        return 0;
+                        http_response_code(401);
+                        return 'No write access';
                     }
                     $_FILES[$indicator]['name'] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
                     $_POST[$indicator] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
@@ -1267,7 +1270,9 @@ class Form
                     }
                     else
                     {
-                        return 0;
+                        http_response_code(500);
+                        error_log('PHP _FILES error code: ' . $_FILES[$indicator]['error']);
+                        return 'File upload error code: ' . $_FILES[$indicator]['error'];
                     }
                 }
             }
@@ -1286,7 +1291,8 @@ class Form
                     // check write access
                     if (!$this->hasWriteAccess($recordID, $categoryID))
                     {
-                        return 0;
+                        http_response_code(401);
+                        return 'No write access (title)';
                     }
                     $vars = array(':recordID' => (int)$recordID,
                                   ':categoryID' => XSSHelpers::xscrub($categoryID),
@@ -1319,7 +1325,8 @@ class Form
             if (is_numeric($key))
             {
                 if (!$this->writeDataField($recordID, $key, $series)) {
-                    return 0;
+                    http_response_code(401);
+                    return 'No write access (data field)';
                 }
             }
             else // Check for keys
@@ -1328,7 +1335,8 @@ class Form
                 if ($tRecordID == $recordID
                     && is_numeric($tIndicatorID)) {
                     if (!$this->writeDataField($recordID, $tIndicatorID, $series)) {
-                        return 0;
+                        http_response_code(401);
+                        return 'No write access (data field, list)';
                     }
                 }
 
