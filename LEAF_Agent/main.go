@@ -56,7 +56,7 @@ func handleRunTest(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 
-		req.Header.Set("Authorization", "Bearer "+os.Getenv("AGENT_TOKEN"))
+		req.Header.Set("Authorization", os.Getenv("AGENT_TOKEN"))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		res, _ := client.Do(req)
