@@ -614,7 +614,7 @@
         let allCategoriesMatch = true;
         if(recordIDs.length > 0) {
             recordIDs.forEach(recordID => {
-                if(res[recordID].categoryIDs !== undefined && firstMatch == null) {
+                if(res[recordID]?.categoryIDs?.length > 0 && firstMatch == null) {
                     firstMatch = res[recordID].categoryIDs[0];
                 }
                 if( res[recordID].categoryIDs !== undefined && firstMatch != res[recordID].categoryIDs[0]) {
