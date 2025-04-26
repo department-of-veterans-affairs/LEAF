@@ -51,6 +51,7 @@ export default {
             //static values
             APIroot: this.APIroot,
             libsPath: this.libsPath,
+            isJSON: this.isJSON,
             getEnabledCategories: this.getEnabledCategories,
             hasDevConsoleAccess: this.hasDevConsoleAccess,
             getSiteSettings: this.getSiteSettings,
@@ -163,6 +164,14 @@ export default {
                 });
                 })();
             }
+        },
+        isJSON(input = '') {
+            try {
+                JSON.parse(input);
+            } catch (e) {
+                return false;
+            }
+            return true;
         },
         truncateText(str = '', maxlength = 40, overflow = '...') {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;

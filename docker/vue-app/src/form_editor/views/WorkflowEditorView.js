@@ -1,4 +1,5 @@
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
+import { nextTick } from 'vue';
 
 import '../LEAF_WorkflowEditor.scss';
 
@@ -36,6 +37,7 @@ export default {
         'libsPath',
         'CSRFToken',
         'getSiteSettings',
+        'isJSON',
         'siteSettings',
 
         'setDefaultAjaxResponseMessage',
@@ -50,20 +52,38 @@ export default {
             vm.setDefaultAjaxResponseMessage();
         });
     },
+    created() {
+        this.loadWorkflowList();
+    },
     mounted() {
         this.setupJSPlumb();
         this.updateChosen(
             "workflows",
+            "workflows_label",
             "Select a Workflow",
             event => { this.currentWorkflowID = event.target.value }
         );
     },
-    created() {
-        this.loadWorkflowList();
+    updated() {
+        console.log("updated")
     },
     computed: {
         hasWorkflows() {
             return Object.keys(this.workflows)?.length > 0;
+        },
+        workflowMaxY() {
+            let max = 80;
+            let stepY = null;
+            for (let stepID in this.steps) {
+                stepY = parseInt(this.steps[stepID].posY);
+                if (stepY > max) {
+                    max = stepY;
+                }
+            }
+            return max;
+        },
+        workflowHeight() {
+            return { height: 300 + this.workflowMaxY + 'px' };
         },
         selectedWorkflowDescription() {
             return this.workflows[this.currentWorkflowID]?.description ?? "";
@@ -78,9 +98,18 @@ export default {
             return {
                 left: 180 + 40 + 'px',
                 top: 80 + 40 + 'px',
-                backgroundColor: '#e0e0e0'
+                backgroundColor: '#e0e0e0',
+                fontWeight: 'normal',
             }
-        }
+        },
+        lastStepStyle() {
+            return {
+                left: 580 + 'px',
+                top: 160 + this.workflowMaxY + 'px',
+                backgroundColor: '#ff8181',
+                fontWeight: 'normal',
+            }
+        },
     },
     methods: {
         setupJSPlumb() {
@@ -91,17 +120,28 @@ export default {
             jsPlumb.Defaults.Anchor = "Continuous";
             jsPlumb.Defaults.Endpoint = "Blank";
         },
-        updateChosen(selectID = '', title = 'Select an Option', callback) {
-            console.log("updating", selectID)
+        stepStyle(stepID = 0) {
+            const minY = 80;
+            const minX = 0;
+
+            const step = this.steps[stepID];
+            return {
+                left: Math.max(parseInt(step.posX), minX) + 'px',
+                top: Math.max(parseInt(step.posY), minY) + 'px',
+                backgroundColor: step.stepBgColor,
+                fontWeight: 'normal',
+            }
+        },
+        updateChosen(selectID = '', selectLabelID = '', title = 'Select an Option', callback) {
             if(selectID !== '') {
-                setTimeout(() => { //finish running file for this plugin
+                nextTick(() => {
                     $('#' + selectID).chosen('destroy');
                     $('#' + selectID).chosen({
                         disable_search_threshold: 5,
                         allow_single_deselect: true,
                     }).change(event => callback(event));
 
-                    this.updateChosenAttributes(selectID, selectID + '_label', title);
+                    this.updateChosenAttributes(selectID, selectLabelID, title);
                 });
             }
         },
@@ -148,23 +188,82 @@ export default {
                 `${this.APIroot}workflow/${this.currentWorkflowID}`
             ).then(res => res.json()).then(workflowSteps => {
                 this.steps = workflowSteps;
+                this.jsPlumbConfig();
+
+            }).catch(err => console.log(err));
+        },
+        jsPlumbConfig() {
+            nextTick(() => {
+                for (let stepID in this.steps) {
+                    if (this.endPoints[stepID] == undefined) {
+                        this.endPoints[stepID] = jsPlumb.addEndpoint('step_' + stepID, {anchor: 'Continuous'}, this.endpointOptions);
+
+                        jsPlumb.draggable('step_' + stepID, {
+                            allowNegative: false,
+                            stop: () => {
+                                const stepEl = document.getElementById(`step_${stepID}`);
+                                if (stepEl !== null) {
+                                    const left = stepEl.offsetLeft;
+                                    const top = stepEl.offsetTop;
+                                    this.updatePosition(stepID, left, top);
+                                }
+                            }
+                        });
+                    }
+                }
+
+                if (this.endPoints[-1] == undefined) {
+                    this.endPoints[-1] = jsPlumb.addEndpoint('step_-1', {anchor: 'Continuous'}, this.endpointOptions);
+                    jsPlumb.draggable('step_-1', { allowNegative: false });
+                }
+                if (this.endPoints[0] == undefined) {
+                    this.endPoints[0] = jsPlumb.addEndpoint('step_0', {anchor: 'Continuous'}, this.endpointOptions);
+                    jsPlumb.draggable('step_0', { allowNegative: false });
+                }
+            });
+        },
+        updatePosition(stepID, left, top) {
+            let formData = new FormData();
+            formData.append('CSRFToken', this.CSRFToken);
+            formData.append('stepID', stepID);
+            formData.append('x', left);
+            formData.append('y', top);
+
+            fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/editorPosition`, {
+                method: 'POST',
+                body: formData
             }).catch(err => console.log(err));
         },
         showStepInfo(stepID = -1) {
             console.log("show step info", stepID)
+        },
+        emailNotificationIcon(stepID = 0) {
+            let html = '';
+            const step = this.steps?.[stepID];
+            if (typeof step?.stepData === 'string' && this.isJSON(step.stepData)) {
+                const stepParse = JSON.parse(step.stepData);
+                if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
+                    const dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
+                    const dayText = ((dayCount > 1) ? 'Days' : 'Day');
+                    html = `<img src="${this.libsPath}dynicons/svg/appointment.svg"
+                        style="height:18px;width:18px;margin-bottom:-3px;"
+                        alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity"
+                        title="Email reminders will be sent after ${dayCount} ${dayText} of inactivity">`;
+                }
+            }
+            return html
         }
     },
     watch: {
         currentWorkflowID(newVal, oldVal) {
-            console.log("watching currentWorkflowID", newVal);
             if(this.workflows[newVal] !== undefined) {
                 this.loadWorkflow(newVal);
             }
         },
-        workflows(newVal, oldVal) {
-            console.log("workflows changed")
+        workflows() {
             this.updateChosen(
                 "workflows",
+                "workflows_label",
                 "Select a Workflow",
                 event => { this.currentWorkflowID = event.target.value }
             );
@@ -172,6 +271,7 @@ export default {
         steps() {
             this.updateChosen(
                 "workflow_steps",
+                "steps_label",
                 "Select a Step",
                 event => { this.currentStepID = event.target.value }
             );
@@ -204,7 +304,7 @@ export default {
                         </button>
                     </div>
                     <div>
-                        <label id="workflow_steps_label" for="workflow_steps">Workflow Steps:</label>
+                        <label id="steps_label" for="workflow_steps">Workflow Steps:</label>
                         <div id="stepList">
                             <span id="step_select_status" role="status" aria-live="polite" :aria-label="selectedStepAria"></span>
                             <select id="workflow_steps" title="Select a Workflow Step to edit it">
@@ -219,9 +319,10 @@ export default {
                             <img :src="libsPath + 'dynicons/svg/list-add.svg'" alt=""> New Step
                         </button>
                     </div>
+                    <hr>
                 </div> <!-- END SIDEBAR -->
 
-                <div id="workflow">
+                <div id="workflow" :style="workflowHeight">
                     <button type="button" class="workflowStep" id="step_-1" :style="requestorStepStyle"
                         aria-label="workflow step: Requestor"
                         aria-controls="stepInfo_-1"
@@ -229,12 +330,34 @@ export default {
                         @click="showStepInfo(-1)">
                         Requestor
                     </button>
+                    <div class="workflowStepInfo" id="stepInfo_-1"></div>
+
+                    <template v-for="s in steps" :key="'wf_step_' + s.stepID">
+                        <button type="button" class="workflowStep" :id="'step_' + s.stepID" :style="stepStyle(s.stepID)"
+                            :aria-label="'workflow step: ' + s.stepTitle"
+                            :aria-controls="'stepInfo_' + s.stepID"
+                            aria-expanded="false"
+                            @click="showStepInfo(s.stepID)">
+                                {{ s.stepTitle }}&nbsp;<span v-if="typeof s?.stepData === 'string'" v-html="emailNotificationIcon(s.stepID)"></span>
+                        </button>
+                        <div class="workflowStepInfo" :id="'stepInfo_' + s.stepID"></div>
+                    </template>
+
+                    <button type="button" class="workflowStep" id="step_0" :style="lastStepStyle"
+                        aria-label="Workflow End"
+                        aria-controls="stepInfo_0"
+                        aria-expanded="false"
+                        @click="showStepInfo(0)">
+                            End
+                    </button>
+                    <div class="workflowStepInfo" id="stepInfo_0"></div>
                 </div>
             </section>
             <p>{{ currentWorkflowID }}</p>
             <p>{{ selectedWorkflowDescription }}</p>
             <p>{{ steps }}</p>
             <p>{{ currentStepID }}</p>
+            <p>{{ workflowMaxY }} {{ workflowHeight }} </p>
         </div>
 
         <!-- DIALOGS -->
