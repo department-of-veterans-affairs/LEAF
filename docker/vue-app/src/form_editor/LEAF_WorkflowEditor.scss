@@ -1,0 +1,45 @@
+#workflow_editor {
+    display: flex;
+    gap: 0.375rem;
+    padding: 0.75rem 0.25rem !important;
+}
+
+#sideBar {
+    width: 180px;
+    min-width: 180px;
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+
+    .chosen-container {
+        width: 100% !important;
+    }
+    label {
+        margin: 0;
+        font-family: "PublicSans-Bold", sans-serif;
+        font-size: 0.9rem;
+    }
+    button.buttonNorm {
+        margin-top: 0.5rem;
+        width: 100%;
+        min-height: 2.25rem;
+        font-size: 1rem;
+        font-weight: normal;
+        justify-content: flex-start;
+
+        img {
+            width:24px;
+            height:24px;
+            margin-right:2px
+        }
+    }
+}
+
+#workflow {
+    position: relative;
+    height: 800px;
+    background-color: #444446;
+    overflow-x: auto;
+    overflow-y: auto;
+    width: 100%;
+}

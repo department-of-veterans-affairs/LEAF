@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 const FormBrowserView = () => import(/* webpackChunkName:"form-browser-view" */"../views/FormBrowserView");
 const FormEditorView = () => import(/* webpackChunkName:"form-editor-view" */"../views/FormEditorView");
+const WorkflowEditorView = () => import(/* webpackChunkName:"workflow-editor-view" */"../views/WorkflowEditorView");
 const RestoreFieldsView = () => import(/* webpackChunkName:"restore-fields-view" */"../views/RestoreFieldsView");
 
 const routes = [
@@ -13,6 +14,11 @@ const routes = [
         path: '/forms',
         name: 'category',
         component: FormEditorView
+    },
+    {
+        path: '/workflows',
+        name: 'workflows',
+        component: WorkflowEditorView
     },
     {
         path: '/restore',
