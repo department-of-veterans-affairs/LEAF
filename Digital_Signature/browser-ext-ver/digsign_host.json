@@ -1,0 +1,9 @@
+{
+  "name": "gov.va.leaf.digsign",
+  "description": "Digital Signature Native Messaging Host",
+  "path": "C:\\Users\\pelen\\AppData\\Local\\VA\\DigSign\\digsign_host.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://gigbphganaopcaoabddmhefpehebimia/"
+  ]
+}

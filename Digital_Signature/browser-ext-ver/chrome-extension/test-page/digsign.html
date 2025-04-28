@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Digital Signature Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    textarea { width: 100%; margin-bottom: 10px; padding: 8px; }
+    button { padding: 8px 16px; background-color: #003366; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #004080; }
+    button:disabled { background-color: #cccccc; cursor: not-allowed; }
+    #result { margin-top: 20px; padding: 10px; border: 1px solid #ddd; min-height: 50px; }
+    .status { margin-bottom: 10px; font-style: italic; color: #666; }
+    .error { color: #cc0000; }
+  </style>
+</head>
+<body>
+  <h1>Digital Signature Test</h1>
+  
+  <div class="status" id="extension-status">Checking for VA Digital Signature extension...</div>
+  
+  <textarea id="dataInput" rows="5" placeholder="Enter data to sign..."></textarea><br>
+  <button id="signButton" disabled>Sign with PIV Card</button><br>
+  
+  <div id="result"></div>
+  
+  <script>
+    // Debug helper
+    function debug(message) {
+      console.log("DEBUG:", message);
+      const status = document.getElementById('extension-status');
+      status.textContent = message;
+    }
+
+    // Check if the extension is installed by listening for a message
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'VA_DIGSIGN_READY') {
+        debug('VA Digital Signature extension detected and ready');
+        document.getElementById('signButton').disabled = false;
+      }
+      
+      if (event.data && event.data.type === 'VA_DIGSIGN_RESPONSE') {
+        debug('Received response from extension');
+        handleSigningResponse(event.data.response);
+      }
+    });
+    
+    // If no response after 2 seconds, assume extension is not installed
+    setTimeout(function() {
+      const status = document.getElementById('extension-status');
+      if (status.textContent.includes('Checking')) {
+        status.textContent = 'VA Digital Signature extension not detected. Please install the extension.';
+        status.className = 'status error';
+      }
+    }, 2000);
+    
+    // Function to handle response from extension
+    function handleSigningResponse(response) {
+      console.log("Response received:", response);
+      
+      if (response.signatureCreated) {
+        document.getElementById('result').innerHTML = 
+          '<p><strong>Result:</strong> ' + response.result + '</p>' +
+          '<p><strong>Signature:</strong><br><textarea rows="3">' + response.signature + '</textarea></p>' +
+          '<p><strong>Certificate:</strong><br><textarea rows="3">' + response.pivCertificate + '</textarea></p>' +
+          '<p><strong>Signed by:</strong> ' + response.signerEmail + '</p>' +
+          '<p><strong>Date:</strong> ' + response.dateSigned + '</p>';
+      } else {
+        document.getElementById('result').innerHTML = 
+          '<p class="error"><strong>Error:</strong> ' + response.result + '</p>';
+      }
+    }
+    
+    // Send a message to the page to check if extension is loaded
+    document.getElementById('signButton').addEventListener('click', function() {
+      const data = document.getElementById('dataInput').value;
+      
+      if (!data) {
+        document.getElementById('result').innerHTML = '<p class="error">Please enter data to sign.</p>';
+        return;
+      }
+      
+      document.getElementById('result').innerHTML = '<p>Signing... Please wait.</p>';
+      
+      // Send message to the extension's content script
+      window.postMessage({
+        type: 'VA_DIGSIGN_REQUEST',
+        action: '2', // Sign data
+        data: data
+      }, '*');
+      
+      debug('Sent signing request to extension');
+    });
+    
+    // Announce that the page is loaded
+    debug('Test page loaded. Waiting for extension...');
+  </script>
+</body>
+</html>
