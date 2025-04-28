@@ -1213,24 +1213,25 @@
         return `<div id="action_input_modal">
             <div>
                 <label for="actionText" id="action_label">Action <span style="color: #c00">*Required</span></label><br>
-                <div class="helper_text">eg: Approve</div>
+                <div class="helper_text">e.g., Approve</div>
                 <div id="actionText_error_message" class="error_message"></div>
                 <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}">
             </div>
             <div>
                 <label for="actionTextPasttense" id="action_past_tense_label"> Action Past Tense <span style="color: #c00">*Required</span></label><br>
-                <div class="helper_text">eg: Approved</div>
+                <div class="helper_text">e.g., Approved</div>
                 <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}">
             </div>
             <div>
                 <label for="actionIcon" id="choose_icon_label">Icon</label><br>
-                <div class="helper_text">eg: go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></div>
+                <div class="helper_text">e.g., go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></div>
                 <input id="actionIcon" type="text" maxlength="50" value="${action?.actionIcon || ''}">
             </div>
             <div>
                 <label for="actionSortNumber" id="action_sort_label">Button Order</label><br>
                 <div class="helper_text">Lower numbers appear first</div>
-                <input id="actionSortNumber" type="number" min="-128" max="127" value="${action?.sort || 0}">
+                <input id="actionSortNumber" type="number"
+                    min="-128" max="127" value="${action?.sort || 0}" style="width:80px;">
             </div>
             <div>
                 <label for="fillDependency" style="font-family:'Source Sans Pro Web', sans-serif; font-size: 1rem;">
@@ -1408,7 +1409,7 @@
                     ) {
                         actionTextValid = false;
                         setError("actionText", actionTextValid);
-                        actionErrorEl.text("This action name is not available");
+                        actionErrorEl.text("This action name is not available.  Try another name.");
                     }
                 }
 
