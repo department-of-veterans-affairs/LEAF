@@ -1386,14 +1386,18 @@ class FormWorkflow
             $fullTitle = trim(strip_tags(
                 htmlspecialchars_decode($record[0]['title'], ENT_QUOTES | ENT_HTML5)
             ));
+            $fullTitleInsecure = $fullTitle;
             if((int)$record[0]['needToKnow'] === 1) {
                 $fullTitle = $formType;
             }
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
             $email->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
+                "truncatedTitle_insecure" => $truncatedTitleInsecure,
                 "fullTitle" => $fullTitle,
+                "fullTitle_insecure" => $fullTitleInsecure,
                 "formType" => $formType,
                 "recordID" => $this->recordID,
                 "service" => $record[0]['service'],
@@ -1497,14 +1501,18 @@ class FormWorkflow
                         $fullTitle = trim(strip_tags(
                             htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
                         ));
+                        $fullTitleInsecure = $fullTitle;
                         if((int)$requestRecords[0]['needToKnow'] === 1) {
                             $fullTitle = $formType;
                         }
                         $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+                        $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
+                            "truncatedTitle_insecure" => $truncatedTitleInsecure,
                             "fullTitle" => $fullTitle,
+                            "fullTitle_insecure" => $fullTitleInsecure,
                             "formType" => $formType,
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],
@@ -1578,14 +1586,18 @@ class FormWorkflow
                         $fullTitle = trim(strip_tags(
                             htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
                         ));
+                        $fullTitleInsecure = $fullTitle;
                         if((int)$requestRecords[0]['needToKnow'] === 1) {
                             $fullTitle = $formType;
                         }
                         $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+                        $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
+                            "truncatedTitle_insecure" => $truncatedTitleInsecure,
                             "fullTitle" => $fullTitle,
+                            "fullTitle_insecure" => $fullTitleInsecure,
                             "formType" => $formType,
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],
