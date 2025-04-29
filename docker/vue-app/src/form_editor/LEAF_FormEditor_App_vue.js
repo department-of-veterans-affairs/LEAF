@@ -63,16 +63,25 @@ export default {
             removeCategory: this.removeCategory,
             updateChosenAttributes: this.updateChosenAttributes,
 
-            openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
+            //Form Browser
             openNewFormDialog: this.openNewFormDialog,
             openImportFormDialog: this.openImportFormDialog,
-            openFormHistoryDialog: this.openFormHistoryDialog,
+
+            //Form Editor
+            openAdvancedOptionsDialog: this.openAdvancedOptionsDialog,
+            openHistoryDialog: this.openHistoryDialog,
             openConfirmDeleteFormDialog: this.openConfirmDeleteFormDialog,
             openStapleFormsDialog: this.openStapleFormsDialog,
             openEditCollaboratorsDialog: this.openEditCollaboratorsDialog,
             openIndicatorEditingDialog: this.openIndicatorEditingDialog,
             openIfThenDialog: this.openIfThenDialog,
+
+            //Restore Fields
             openRestoreFieldOptionsDialog: this.openRestoreFieldOptionsDialog,
+
+            //Workflow Editor
+            openWorkflowActionDialog: this.openWorkflowActionDialog,
+
             orgchartFormats: this.orgchartFormats,
             initializeOrgSelector: this.initializeOrgSelector,
             truncateText: this.truncateText,
@@ -595,12 +604,13 @@ export default {
             this.dialogButtonText = {confirm: 'Import', cancel: 'Close'};
             this.showFormDialog = true;
         },
-        openFormHistoryDialog(catID = '') {
+        openHistoryDialog(historyID = '', type = 'form') {
             this.dialogData = {
-                historyType: 'form',
-                historyID: catID,
+                historyType: type,
+                historyID: historyID,
             };
-            this.setCustomDialogTitle(`<h2>Form History</h2>`);
+            const text = (type?.[0] ?? "").toUpperCase() + type.slice(1);
+            this.setCustomDialogTitle(`<h2>${text} History</h2>`);
             this.setFormDialogComponent('history-dialog');
             this.showFormDialog = true;
         },
@@ -608,6 +618,14 @@ export default {
             this.setCustomDialogTitle(`<h2>Restore Field</h2>`);
             this.setFormDialogComponent('restore-field-options-dialog');
             this.dialogButtonText = {confirm: 'Restore', cancel: 'Close'};
+            this.showFormDialog = true;
+        },
+        openWorkflowActionDialog(action = {}, isNewAction = false) {
+            const title = isNewAction ?
+                '<h2>Create New Action Type</h2>' : `<h2>Editing Action Type</h2>`;
+            this.setCustomDialogTitle(title);
+            this.setFormDialogComponent('workflow-action-dialog');
+            this.dialogData = { ...action, isNewAction };
             this.showFormDialog = true;
         },
     }

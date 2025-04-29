@@ -8,22 +8,26 @@ const routes = [
     {
         path: '/',
         name: 'browser',
-        component: FormBrowserView
+        component: FormBrowserView,
+        meta: { title: 'Form Browser' }
     },
     {
         path: '/forms',
         name: 'category',
-        component: FormEditorView
+        component: FormEditorView,
+        meta: { title: 'Form Editor' }
     },
     {
         path: '/workflows',
         name: 'workflows',
-        component: WorkflowEditorView
+        component: WorkflowEditorView,
+        meta: { title: 'Workflow Editor' }
     },
     {
         path: '/restore',
         name: 'restore',
-        component: RestoreFieldsView
+        component: RestoreFieldsView,
+        meta: { title: 'Restore Fields' }
     },
 ];
 
@@ -37,6 +41,8 @@ router.beforeEach(to => {
     if (to.path === '/bodyarea') {
         return false;
     }
+    const defaultTitle = document?.title || '';
+    document.title = to?.meta?.title || defaultTitle;
 });
 
 export default router;
