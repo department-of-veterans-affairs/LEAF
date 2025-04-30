@@ -4,6 +4,7 @@ export default {
         'libsPath',
 
         'currentWorkflowID',
+        'currentStep',
         'workflows',
         'steps',
 
@@ -16,6 +17,13 @@ export default {
         'listEvents',
         'deleteWorkflow'
     ],
+    mounted() {
+        let inputEl = document.getElementById('workflows');
+        if (inputEl !== null && inputEl.value !== this.currentWorkflowID) {
+            inputEl.value = this.currentWorkflowID;
+            $("#workflows").trigger('chosen:updated');
+        }
+    },
     computed: {
         selectedWorkflowDescription() {
             return this.workflows[this.currentWorkflowID]?.description ?? "";
@@ -24,10 +32,22 @@ export default {
             return this.selectedWorkflowDescription + 'is selected.';
         },
         selectedStepAria() {
-            return 'TODO:' + 'is selected.';
+            return this.currentStep?.stepTitle !== undefined ?
+                this.currentStep.stepTitle + 'is selected.' : "";
+        },
+        stepList() {
+            let arrSteps = [];
+            for (let key in this.steps) {
+                arrSteps.push({ ...this.steps[key] });
+            }
+            const sortedSteps = arrSteps.sort((a, b) => {
+                const stepA = a.stepTitle.toLowerCase();
+                const stepB = b.stepTitle.toLowerCase();
+                return stepA < stepB ? -1 : stepA > stepB ? 1 : 0
+            });
+            return sortedSteps;
         },
     },
-
     template: `<div id="sideBar">
         <div>
             <label id="workflows_label" for="workflows">Workflows:</label>
@@ -49,9 +69,9 @@ export default {
             <div id="stepList">
                 <span id="step_select_status" role="status" aria-live="polite" :aria-label="selectedStepAria"></span>
                 <select id="workflow_steps" title="Select a Workflow Step to edit it">
-                    <option>Choose a step to edit</option>
+                    <option value="0">Choose a step to edit</option>
                     <option value="-1">Requestor</option>
-                    <option v-for="s in steps" :key="'workflow_steps_' + s.stepID" :value="s.stepID">
+                    <option v-for="s in stepList" :key="'workflow_steps_' + s.stepID" :value="s.stepID">
                         {{ s.stepTitle }} (#{{ s.stepID }})
                     </option>
                 </select>

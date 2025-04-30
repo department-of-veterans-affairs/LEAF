@@ -55,10 +55,10 @@ export default {
                 <input id="actionSortNumber" type="number" min="-128" max="127" style="width:80px;" v-model="sort">
             </div>
             <div>
-                <label for="fillDependency" style="font-family:'Source Sans Pro Web', sans-serif; font-size: 1rem;">
+                <label for="fillDependency">
                     Does this action represent moving forwards or backwards in the process?
                 </label>
-                <div id="backwards_action_note" style="max-width:600px; display: none;" class="helper_text">
+                <div v-if="+fillDependency < 1" id="backwards_action_note" class="helper_text">
                     Note: Backwards actions do not save form field data.
                 </div>
                 <select id="fillDependency" v-model="fillDependency">
