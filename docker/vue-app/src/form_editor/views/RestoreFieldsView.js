@@ -1,68 +1,368 @@
+import { computed } from 'vue';
+
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
-import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
-import ImportFormDialog from "../components/dialog_content/ImportFormDialog.js";
+import RestoreFieldOptionsDialog from "../components/dialog_content/RestoreFieldOptionsDialog.js";
 
 export default {
     name: 'restore-fields-view',
     data() {
         return {
-            disabledFields: null
+            loading: true,
+            formGrid: null,
+            disabledFields: [],
+            enabledFields: {},
+            indicatorID_toRestore: null,
+            indicatorName_toRestore: "",
+            disabledAncestors: [],
+            firstOrphanID: null,
+            searchPending: true
         }
     },
     components: {
         LeafFormDialog,
-        NewFormDialog,
-        ImportFormDialog,
+        RestoreFieldOptionsDialog,
     },
     inject: [
         'APIroot',
         'CSRFToken',
         'setDefaultAjaxResponseMessage',
+        'openRestoreFieldOptionsDialog',
+        'decodeAndStripHTML',
 
         'showFormDialog',
         'dialogFormContent'
     ],
+    provide() {
+        return {
+            indicatorID_toRestore: computed(() => this.indicatorID_toRestore),
+            indicatorName_toRestore: computed(() => this.indicatorName_toRestore),
+            disabledAncestors: computed(() => this.disabledAncestors),
+            firstOrphanID: computed(() => this.firstOrphanID),
+            searchPending: computed(() => this.searchPending),
+
+            restoreField: this.restoreField,
+            updateAppData: this.updateAppData,
+        }
+    },
     /**
      * get all disabled or archived indicators for indID > 0 and update app disabledFields (array)
      */
     created() {
-        $.ajax({
-            type: 'GET',
-            url: `${this.APIroot}form/indicator/list/disabled`,
-            success: (res) => {
-                this.disabledFields = res.filter(obj => parseInt(obj.indicatorID) > 0);
-            },
-            error: (err) => console.log(err),
-            cache: false
-        });
+        //get information used for table for all non-builtin disabled fields.
+        const disabledPromise = fetch(
+            `${this.APIroot}form/indicator/list/disabled`)
+            .then(res => res.json());
+
+        //get other indicators to identify enabled fields (used to complete indicator: parent ID chain)
+        const unabridgedPromise = fetch(
+            `${this.APIroot}form/indicator/list/unabridged?x-filterData=indicatorID,parentIndicatorID,isDisabled`)
+            .then(res => res.json());
+
+        Promise.all([disabledPromise, unabridgedPromise]).then(data => {
+            if(Array.isArray(data?.[0])) {
+                const resDisabled = data[0];
+                let dFields = [];
+                resDisabled.map(obj => {
+                    if(+obj.indicatorID > 0) {
+                        obj.name = this.decodeAndStripHTML(obj.name || "[ blank ]");
+                        dFields.push(obj);
+                    }
+                });
+                this.disabledFields = dFields;
+            }
+            if(Array.isArray(data?.[1])) {
+                const resUnabridged = data[1];
+                const enabledFields = resUnabridged.filter(obj => +obj.indicatorID > 0 && +obj.isDisabled === 0);
+                enabledFields.forEach(
+                    f => this.enabledFields[f.indicatorID] = {
+                        indicatorID: f.indicatorID,
+                        parentIndicatorID: f.parentIndicatorID
+                    }
+                );
+            }
+            this.loading = false;
+            this.initializeAppGrid();
+
+        }).catch(err => console.log(err));
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
             vm.setDefaultAjaxResponseMessage();
         });
     },
-    methods: {
-        /**
-         * 
-         * @param {number} indicatorID 
-         */
-        restoreField(indicatorID) {
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}formEditor/${indicatorID}/disabled`,
-                data: {
-                    CSRFToken: CSRFToken,
-                    disabled: 0
-                },
-                success: () => {
-                    this.disabledFields = this.disabledFields.filter(f => parseInt(f.indicatorID) !== indicatorID);
-                    alert('The field has been restored.');
-                },
-                error: (err) => console.log(err)
+    computed: {
+        /* Lookup table of parentID information keyed by indicatorID */
+        fieldParentIDLookup() {
+            let lookup = {}
+            let pID = null;
+
+            this.disabledFields.forEach(f => {
+                pID = f.parentIndicatorID;
+                if (pID !== null) {
+                    lookup[f.indicatorID] = pID;
+                }
             });
+
+            for(let indID in this.enabledFields) {
+                pID = this.enabledFields[indID].parentIndicatorID;
+                if (pID !== null) {
+                    lookup[indID] = pID;
+                }
+            }
+            return lookup;
+        },
+        /* Lookup table of disabled fields information keyed by indicator ID.  RecordID is added for grid use*/
+        disabledFieldsLookup() {
+            let lookup = {};
+            this.disabledFields.forEach(f => lookup[f.indicatorID] = { ...f, recordID: f.indicatorID });
+            return lookup;
         },
     },
-    template: `<section>
+    methods: {
+        /**
+         * Update indicatorID_toRestore and disabledAncestors component data
+         * Restore if no disabled ancestors, otherwise use options modal
+         * @param {number} indicatorID
+         * @param {string} name
+         * @param {number|null} parentIndicatorID
+         */
+        restoreFieldGate(indicatorID, name, parentIndicatorID) {
+            this.indicatorID_toRestore = indicatorID;
+            this.indicatorName_toRestore = name;
+            this.searchAncestorStates(parentIndicatorID);
+
+            if(this.searchPending === false && this.disabledAncestors.length === 0 && this.firstOrphanID === null) {
+                this.restoreField(this.indicatorID_toRestore)
+                    .then(() => this.updateAppData(indicatorID, 1250))
+                    .catch(err => console.log(err));
+            } else {
+                this.openRestoreFieldOptionsDialog();
+            }
+        },
+        /**
+         * 
+         * @param {number} indicatorID
+         * returns promise
+         */
+        restoreField(indicatorID) {
+            let formData = new FormData();
+            formData.append('CSRFToken', this.CSRFToken);
+            formData.append('disabled', 0);
+
+            return fetch(`${this.APIroot}formEditor/${indicatorID}/disabled`, {
+                method: 'POST',
+                body: formData
+            });
+        },
+        /**
+         * Used for edge-case of retrieving indicator information for prior orphaned questions
+         * @param {number} indicatorID
+         * @returns Promise
+         */
+        getIndicator(indicatorID) {
+            return fetch(`${this.APIroot}formEditor/indicator/${indicatorID}?x-filterData=indicatorID,parentID`)
+        },
+        updateTableIfNoResults() {
+            //force full file read first - default message would otherwise be added after this method runs.
+            setTimeout(() => {
+                let tBody = document.getElementById(this.formGrid.getPrefixID() + "tbody");
+                if (this.disabledFields.length === 0 && tBody !== null) {
+                    tBody.innerHTML = `<tr><td colspan="6" style="text-align: center">No Fields To Restore</td></tr>`;
+                }
+            });
+        },
+        /**
+         *
+         * @param {number} indicatorID for fields to be updated
+         * @param {number} timeout time (ms) 'Restore' message is displayed in table
+         */
+        updateAppData(indicatorID = 0, timeout = 0) {
+            if(indicatorID > 0) {
+                this.disabledFields = this.disabledFields.filter(f => f.indicatorID !== indicatorID);
+                this.enabledFields[indicatorID] = {
+                    indicatorID,
+                    parentIndicatorID: this.fieldParentIDLookup[indicatorID],
+                };
+                this.formGrid.setDataBlob(this.disabledFieldsLookup);
+
+                const tableBodyID = this.formGrid.getPrefixID() + "tbody";
+                const tableRowID = this.formGrid.getPrefixID() + "tbody_tr" + indicatorID;
+                let tableBody = document.getElementById(tableBodyID);
+                let tableRow = document.getElementById(tableRowID);
+                if(tableBody !== null && tableRow !== null) {
+                    tableRow.innerHTML = `<td colspan="6" style="text-align:center;">
+                        <b style="color:#064;">Field restored</b>
+                    </td>`;
+                    setTimeout(() => {
+                        if (tableBody.contains(tableRow)) {
+                            tableBody.removeChild(tableRow);
+                        }
+                        this.updateTableIfNoResults();
+                    }, timeout);
+                }
+            }
+        },
+        /**
+         * Searches up the ancestor chain of the field to be restored. Adds inactive fields to app disabledAncestors array.
+         * Updates app firstOrphanID if an orphan is found - attempts once to get information for it.
+         * If successful, updates app enabledFields and reattempts ancestor search - otherwise ends search.
+         * @param {number} directParentID
+         */
+        searchAncestorStates(directParentID = null) {
+            this.disabledAncestors = [];
+            this.firstOrphanID = null;
+            
+            let baseParent = null;
+            if(directParentID !== null) {
+                baseParent = directParentID;
+                while(directParentID > 0) {
+                    //if ancestor is confirmed inactive, add it and update variable
+                    if (this.disabledFieldsLookup[directParentID]?.indicatorID > 0) {
+                        this.disabledAncestors.push(this.disabledFieldsLookup[directParentID]);
+                        directParentID = +this.fieldParentIDLookup[directParentID];
+
+                    } else {
+                        //if it's accounted for, just update the loop variable
+                        if (this.enabledFields[directParentID]?.indicatorID > 0) {
+                            directParentID = +this.fieldParentIDLookup[directParentID];
+                        //otherwise, try to get the data (likely rare - occurs if an enabled q is a child of a deleted one)
+                        } else {
+                            this.firstOrphanID = directParentID;
+                            directParentID = 0;
+                        } 
+                    }
+                }
+
+                if(this.firstOrphanID !== null) {
+                    this.getIndicator(this.firstOrphanID)
+                        .then(res => res.json()
+                        .then(data => {
+                            const indicator = data?.[this.firstOrphanID];
+                            if(indicator?.indicatorID > 0) {
+                                const { parentID:parentIndicatorID, indicatorID } = indicator;
+                                this.enabledFields[indicatorID] = { indicatorID, parentIndicatorID };
+                                //try again if indicator info could be found
+                                this.searchAncestorStates(baseParent);
+
+                            //set searching to false if: not found, on error, no orphan detection, first parent is page level.
+                            } else {
+                                this.searchPending = false;
+                            }
+                        }).catch(err => {
+                            this.searchPending = false;
+                            console.log(err)
+                        })
+                    );
+                } else {
+                    this.searchPending = false;
+                }
+            } else {
+                this.searchPending = false;
+            }
+        },
+        initializeAppGrid() {
+            this.formGrid = new LeafFormGrid("restore_fields_grid", {});
+            this.formGrid.setRootURL('../');
+            this.formGrid.hideIndex();
+            this.formGrid.enableToolbar();
+            this.formGrid.setHeaders([
+                {
+                    name: 'IndicatorID&nbsp;',
+                    indicatorID: 'indicatorID',
+                    editable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].indicatorID;
+                        }
+                    }
+                },
+                {
+                    name: 'Form&nbsp;',
+                    indicatorID:'categoryName',
+                    editable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].categoryName;
+                        }
+                    }
+                },
+                {
+                    name: 'Field Name&nbsp;',
+                    indicatorID:'name',
+                    editable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].name;
+                        }
+                    }
+                },
+                {
+                    name: 'Input Format',
+                    indicatorID:'fomrat',
+                    editable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].format;
+                        }
+                    }
+                },
+                {
+                    name: 'Status ',
+                    indicatorID:'disabled',
+                    editable: false,
+                    sortable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            elContainer.textContent = blob[data.recordID].disabled;
+                        }
+                    }
+                },
+                {
+                    name: 'Restore ',
+                    indicatorID:'restore',
+                    editable: false,
+                    sortable: false,
+                    callback: (data, blob) => {
+                        let elContainer = document.getElementById(data.cellContainerID);
+                        if(elContainer !== null) {
+                            const ID = blob[data.recordID].indicatorID;
+                            const pID = blob[data.recordID].parentIndicatorID;
+                            let name = blob[data.recordID].name;
+                            if(name.length > 45) {
+                                name = name.slice(0, 42) + "...";
+                            }
+                            elContainer.innerHTML = `
+                                <button type="button" id="restore_indicator_${ID}"
+                                    class="btn-general" style="margin: auto;">
+                                    Restore this field
+                                </button>`;
+                            let elBtn = document.getElementById(`restore_indicator_${ID}`);
+                            if(elBtn !== null) {
+                                elBtn.addEventListener("click", () => this.restoreFieldGate(ID, name, pID));
+                            }
+                        }
+                    }
+                },
+            ]);
+            let arrHeaders = Array.from(document.querySelectorAll('table > thead > tr > th'));
+            arrHeaders.forEach(h => {
+                h.style.padding = "4px 8px";
+                h.style.fontSize = "1rem";
+                h.style.fontWeight = "bold";
+            });
+
+            this.formGrid.setDataBlob(this.disabledFieldsLookup);
+            this.formGrid.renderBody();
+            this.updateTableIfNoResults();
+            this.formGrid.setPostSortRequestFunc(this.updateTableIfNoResults);
+        }
+    },
+    template: `<section id="restore_fields_view">
             <h2 id="page_breadcrumbs">
                 <a href="../admin" class="leaf-crumb-link" title="to Admin Home">Admin</a>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>
@@ -70,37 +370,12 @@ export default {
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Restore Fields
             </h2>
             <h3>List of disabled fields available for recovery</h3>
-            <div>Deleted fields and associated data will be not display in the Report Builder</div>
-
-            <div v-if="disabledFields === null" class="page_loading">
+            <div>Deleted fields and associated data will not display in the Report Builder.</div>
+            <div v-if="loading === true" class="page_loading">
                 Loading...
                 <img src="../images/largespinner.gif" alt="" />
             </div>
-            <table v-else class="usa-table leaf-whitespace-normal">
-                <thead>
-                    <tr>
-                        <th>indicatorID</th>
-                        <th>Form</th>
-                        <th>Field Name</th>
-                        <th>Input Format</th>
-                        <th>Status</th>
-                        <th>Restore</th>
-                    </tr>
-                </thead>
-                <tbody id="fields">
-                    <tr v-for="f in disabledFields" key="f.indicatorID">
-                        <td>{{ f.indicatorID }}</td>
-                        <td>{{ f.categoryName }}</td>
-                        <td>{{ f.name }}</td>
-                        <td>{{ f.format }}</td>
-                        <td>{{ f.disabled }}</td>
-                        <td><button class="btn-general"
-                            @click="restoreField(parseInt(f.indicatorID))">
-                            Restore this field</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div id="restore_fields_grid"></div> <!-- this won't work inside of else -->
 
             <!-- DIALOGS -->
             <leaf-form-dialog v-if="showFormDialog">
