@@ -16,7 +16,7 @@ export default {
     inject: [
         'workflowStepInfoType',
         'currentStep',
-        'currentRouteParams',
+        'currentJSPlumbParams',
         'steps',
         'routes',
         'closeWorkflowStepInfo',
@@ -26,10 +26,17 @@ export default {
             return this.currentStep?.stepID ?? null;
         },
         actionType() {
-            return this.currentRouteParams?.action ?? null;
+            return this.currentJSPlumbParams?.action ?? null;
+        },
+        fromStepID() {
+            return this.currentJSPlumbParams?.stepID ?? null;
         },
         fromStepTitle() {
-            return this.steps?.[this.currentRouteParams?.stepID]?.stepTitle || 'Requestor';
+            let title = 'Requestor';
+            if (this.fromStepID !== -1) {
+                title = this.steps?.[this.fromStepID]?.stepTitle || ''
+            }
+            return title;
         },
         //for action editing via stepInfo dropdown.
         outboundRoutes() {
@@ -65,10 +72,10 @@ export default {
                     }
                 }
             }
-            if(this.workflowStepInfoType === 'action' && this.currentRouteParams !== null) {
+            if(this.workflowStepInfoType === 'action' && this.currentJSPlumbParams !== null) {
                 returnValue = {
-                    top: this.currentRouteParams.pageY + 'px',
-                    left: this.currentRouteParams.pageX + 'px',
+                    top: this.currentJSPlumbParams.pageY + 'px',
+                    left: this.currentJSPlumbParams.pageX + 'px',
                 }
             }
             return returnValue;
@@ -108,7 +115,7 @@ export default {
         currentStep(newVal, oldVal) {
             console.log("step watch", newVal, oldVal)
         },
-        currentRouteParams(newVal, oldVal) {
+        currentJSPlumbParams(newVal, oldVal) {
             console.log("action watch", newVal, oldVal)
         }
     },
@@ -140,7 +147,7 @@ export default {
             <button type="button" class="buttonNorm"
                 @keydown.tab="tabControls($event, false)" ref="lastEl">test last</button>
          </div>
-         <div v-if="workflowStepInfoType === 'action' && currentRouteParams !== null" id="stepInfo_content">
+         <div v-if="workflowStepInfoType === 'action' && currentJSPlumbParams !== null" id="stepInfo_content">
          </div>
     </div>`
 }

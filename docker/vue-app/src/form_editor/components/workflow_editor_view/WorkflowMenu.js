@@ -6,6 +6,7 @@ export default {
         'currentWorkflowID',
         'currentStep',
         'workflows',
+        'workflowsList',
         'steps',
 
         'newWorkflow',
@@ -18,6 +19,7 @@ export default {
         'deleteWorkflow'
     ],
     mounted() {
+        console.log("menu mounted", Date.now())
         let inputEl = document.getElementById('workflows');
         if (inputEl !== null && inputEl.value !== this.currentWorkflowID) {
             inputEl.value = this.currentWorkflowID;
@@ -54,7 +56,7 @@ export default {
             <div id="workflowList">
                 <span id="workflow_select_status" role="status" aria-live="polite" :aria-label="selectedWorkflowAria"></span>
                 <select id="workflows" title="Select a Workflow">
-                    <option v-for="w in workflows" :key="'workflows_' + w.workflowID" :value="w.workflowID">
+                    <option v-for="w in workflowsList" :key="'workflows_' + w.workflowID" :value="w.workflowID">
                         {{ w.description }} (ID:# {{ w.workflowID }})
                     </option>
                 </select>
