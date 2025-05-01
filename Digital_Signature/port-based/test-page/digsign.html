@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Form</title>
+    <link rel="stylesheet" href="digsign.css">
+</head>
+<body>
+    <div class="container">
+        <label for="action">Action:</label>
+        <select id="action">
+            <option value="1">Sign file</option>
+            <option value="2">Sign form</option>
+            <option value="3">Verify Signature</option>
+            <option value="4">Verify Signature With Cert</option>
+            <option value="-1">Get info</option>
+        </select>
+
+        <label for="dataToSign">Data to Sign:</label>
+        <textarea id="dataToSign" rows="4" cols="50"></textarea>
+        <label for="signedHash">Signed Hash:</label>
+        <textarea id="signedHash" rows="4" cols="50"></textarea>
+        <label for="signedHash">Card Cert (PEM-format):</label>
+        <textarea id="cardCertPem" rows="4" cols="50"></textarea>
+
+        <button id="submitBtn">Submit</button>
+
+        <div id="responseContainer">
+            <label for="response">Response:</label>
+            <textarea id="response" rows="4" cols="50" readonly></textarea>
+        </div>
+    </div>
+    <script src="digsign.js"></script>
+</body>
+</html>

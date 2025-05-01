@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>VA Digital Signature</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>VA Digital Signature</h1>
+    
+    <div class="tabs">
+      <button id="tab-sign" class="tab-button active">Sign</button>
+      <button id="tab-verify" class="tab-button">Verify</button>
+    </div>
+    
+    <div id="sign-panel" class="panel active">
+      <h2>Sign Document</h2>
+      <div class="form-group">
+        <label for="sign-data">Text to Sign:</label>
+        <textarea id="sign-data" rows="5" placeholder="Enter text to sign..."></textarea>
+      </div>
+      <div class="form-group">
+        <button id="sign-file-btn" class="secondary-btn">Select File</button>
+        <span id="selected-file">No file selected</span>
+      </div>
+      <div class="form-group">
+        <button id="sign-btn" class="primary-btn">Sign with PIV Card</button>
+      </div>
+      <div class="result-container">
+        <div id="sign-result" class="result"></div>
+      </div>
+    </div>
+    
+    <div id="verify-panel" class="panel">
+      <h2>Verify Signature</h2>
+      <div class="form-group">
+        <label for="verify-data">Text to Verify:</label>
+        <textarea id="verify-data" rows="5" placeholder="Enter text to verify..."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="verify-signature">Signature:</label>
+        <textarea id="verify-signature" rows="3" placeholder="Enter signature..."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="verify-cert">Certificate:</label>
+        <textarea id="verify-cert" rows="3" placeholder="Enter certificate..."></textarea>
+      </div>
+      <div class="form-group">
+        <button id="verify-btn" class="primary-btn">Verify Signature</button>
+      </div>
+      <div class="result-container">
+        <div id="verify-result" class="result"></div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <button id="copy-btn" class="secondary-btn" disabled>Copy Results</button>
+      <button id="clear-btn" class="secondary-btn">Clear</button>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

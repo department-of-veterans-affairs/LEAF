@@ -1,0 +1,27 @@
+{
+  "name": "VA Digital Signature",
+  "version": "1.0",
+  "manifest_version": 3,
+  "description": "Digital signature verification for VA documents",
+  "permissions": ["nativeMessaging"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [{
+    "matches": ["file:///*", "https://leaf.va.gov/*", "https://*.leaf-preprod.va.gov/*"],
+    "js": ["content-script.js"],
+    "run_at": "document_end"
+  }],
+  "web_accessible_resources": [{
+    "resources": ["bridge.js"],
+    "matches": ["file:///*", "https://leaf.va.gov/*", "https://*.leaf-preprod.va.gov/*"]
+  }],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.jpeg", 
+      "48": "icons/icon48.jpeg",
+      "128": "icons/icon128.jpeg"
+    }
+  }
+}
