@@ -57,6 +57,7 @@
         box-shadow: 2px 2px 6px 1px rgba(0,0,25,0.4);
         cursor: pointer;
     }
+
     .workflowStepInfo {
         z-index: 100;
         position: absolute;
@@ -68,12 +69,12 @@
         #stepInfo_header {
             position: relative;
             padding: 0.75rem;
-            background-color: $lt_cyan;
+            background-color: #eee;
             color: $charcoal;
             border-top: 3px solid white;
             border-left: 3px solid white;
-            border-right: 3px solid #cadff0;
-            border-bottom: 2px solid #cadff0;
+            border-right: 3px solid #ddd;
+            border-bottom: 2px solid #ddd;
             border-radius: 3px 3px 0 0;
             padding-right: 4rem;
             h3 {
@@ -94,12 +95,44 @@
             border-radius: 0 0 3px 3px;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
-
-            .workflow_actions {
-                display: flex;
+            gap: 1.25rem;
+            fieldset {
+                margin: 0;
+                padding-right: 0;
+            }
+            label:not([for="toggleManageActions"]) {
                 flex-direction: column;
-                gap: 0.25;
+                align-items: flex-start;
+            }
+            #step_requirements {
+                padding: 0.75rem 0;
+                list-style-type: disc;
+                padding-left: 1.5rem;
+                list-style-position: inside;
+            }
+
+            #outbound_actions_list {
+                padding: 0.5rem 0;
+
+                li {
+                    display: flex;
+                    gap: 1rem;
+                    align-items: space-between;
+                    padding: 0.125rem 0;
+                    div.action_text {
+                        min-width: 180px;
+                    }
+                    div.action_options {
+                        display: flex;
+                        gap: 1.5rem;
+                        button {
+                            border: 0;
+                            padding: 0;
+                            background-color: #fff;
+                        }
+                    }
+
+                }
             }
         }
     }

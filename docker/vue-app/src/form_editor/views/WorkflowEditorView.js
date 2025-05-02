@@ -24,11 +24,8 @@ export default {
             loading: true,
 
             workflowMinHeight: 300,
-            minEndStepPosY: 80,
+            spacerVector: { x:180, y:80 },
             endStepDiffY: 160,
-            endStepInitialX: 580,
-            requestorStepInitialX: 220,
-            requestorStepInitialY: 120,
 
             currentWorkflowID: null,
             currentStepID: null,
@@ -149,7 +146,7 @@ export default {
             return Object.keys(this.workflows)?.length > 0;
         },
         workflowMaxY() {
-            let max = this.minEndStepPosY;
+            let max = this.spacerVector.y;
             let stepY = null;
             for (let stepID in this.steps) {
                 stepY = parseInt(this.steps[stepID].posY);
@@ -162,21 +159,27 @@ export default {
         workflowHeight() {
             return { height: this.workflowMinHeight + this.workflowMaxY + 'px' };
         },
+        requestorStepInitialVector() {
+            return { x: this.spacerVector.x + 40, y: this.spacerVector.y + 40 }
+        },
+        endStepInitialVector() {
+            return { x: this.spacerVector.x + 400, y: this.endStepDiffY + this.workflowMaxY };
+        },
         requestorStepStyle() {
             return {
-                left: (this.localSteps[-1].posX || this.requestorStepInitialX) + 'px',
-                top: (this.localSteps[-1].posY || this.requestorStepInitialY) + 'px',
+                left: (this.localSteps[-1].posX || this.requestorStepInitialVector.x) + 'px',
+                top: (this.localSteps[-1].posY || this.requestorStepInitialVector.y) + 'px',
                 backgroundColor: '#e0e0e0',
                 fontWeight: 'normal',
             }
         },
         lastStepStyle() {
-            //set End posY locally once
-            if(this.workflowMaxY > this.minEndStepPosY && this.localSteps[0].posY === null) {
-                this.localSteps[0].posY = this.endStepDiffY + this.workflowMaxY;
+            //adjust End posY locally once, and only after maxY has been updated from its initial value
+            if(this.localSteps[0].posY === null && this.workflowMaxY > this.spacerVector.y) {
+                this.localSteps[0].posY = this.endStepInitialVector.y;
             }
             return {
-                left: (this.localSteps[0].posX || this.endStepInitialX) + 'px',
+                left: (this.localSteps[0].posX || this.endStepInitialVector.x) + 'px',
                 top: this.localSteps[0].posY + 'px',
                 backgroundColor: '#ff8181',
                 fontWeight: 'normal',
@@ -196,6 +199,13 @@ export default {
             }
             return returnValue
         },
+        stepInfoKey() {
+            const affix = this.currentStepID !== null ?
+                this.currentStepID :
+                `${this.currentJSPlumbParams?.stepID || ""}_${this.currentJSPlumbParams?.action || ""}`;
+
+            return `step_info_${this.workflowStepInfoType}_${affix}`;
+        }
     },
     methods: {
         setupJSPlumb() {
@@ -225,7 +235,7 @@ export default {
             }
         },
         getStepStyle(stepID = 0) {
-            const minY = 80;
+            const minY = this.spacerVector.y;
             const minX = 0;
 
             const step = this.localSteps[stepID] || this.steps[stepID];
@@ -307,6 +317,8 @@ export default {
             }
             this.jsPlumbInstance.reset();
             this.jsPlumbInstance.setSuspendDrawing(true);
+            this.steps = {};
+            this.routes = [];
 
             Promise.all([
                 fetch(`${this.APIroot}workflow/${this.currentWorkflowID}`),
@@ -573,7 +585,7 @@ export default {
             } else {
                 this.currentStepID = +stepID;
                 let inputEl = document.getElementById('workflow_steps');
-                if (inputEl !== null && inputEl.value !== stepID) {
+                if (inputEl !== null && +inputEl.value !== stepID) {
                     inputEl.value = stepID;
                     $("#workflow_steps").trigger('chosen:updated');
                 }
@@ -634,19 +646,21 @@ export default {
     },
     watch: {
         routeQueryWorkflowID(newVal, oldVal) {
-            console.log("route wfID changed, updating select value", newVal, oldVal)
+            console.log("watch route wfID changed", newVal, oldVal)
             let inputEl = document.getElementById('workflows');
-            if (inputEl !== null && inputEl.value !== newVal) {
+            if (inputEl !== null && +inputEl.value !== newVal) {
+                console.log("updating select value and dispatching change event");
                 inputEl.value = newVal;
                 inputEl.dispatchEvent(new Event('change'));
                 $("#workflows").trigger('chosen:updated');
             }
         },
-        hasRouteQueryDev(newVal, oldVal) {
-            console.log("dev param changed, refetching wfs")
+        hasRouteQueryDev() {
+            console.log("dev param changed, refetching wf list")
             this.loadWorkflowList();
         },
         currentWorkflowID() {
+            console.log("wf id changed, reset local step positions")
             //reset local positions of requestor and end steps, close submenu
             this.localSteps[-1].posX = null;
             this.localSteps[-1].posY = null;
@@ -700,7 +714,7 @@ export default {
 
                 <div id="workflow" :style="workflowHeight">
                     <template v-if="currentStepID !== null || currentJSPlumbParams !== null">
-                        <WorkflowStepInfo :key="'step_info_' + currentStepID" />
+                        <WorkflowStepInfo :key="stepInfoKey" />
                     </template>
                     <button type="button" class="workflowStep" id="step_-1" :style="requestorStepStyle"
                         aria-label="workflow step: Requestor"
