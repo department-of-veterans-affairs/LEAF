@@ -33,8 +33,7 @@ export default {
             workflowStepInfoType: '',
 
             firstWorkflowID: 1,
-            workflowsList: [],
-            workflows: {},
+            allWorkflows: [],
 
             steps: {},
             localSteps: {
@@ -71,7 +70,6 @@ export default {
                 sort: 0,
                 fillDependency: 1,
             },
-            mock_isNew: false,
         }
     },
     inject: [
@@ -99,7 +97,7 @@ export default {
     mounted() {
         this.loadWorkflowList(); //here instead of in created hook for better chosen plugin handling
         this.setupJSPlumb();
-        console.log("mounted", Date.now())
+        console.log("mounted workflow editor view", Date.now())
         document.addEventListener('mousedown', this.closeWorkflowStepInfo);
     },
     beforeUnmount() {
@@ -141,6 +139,14 @@ export default {
          */
         hasRouteQueryDev() {
             return this.$route.query.dev !== undefined;
+        },
+        workflowsList() {
+            return this.hasRouteQueryDev ? this.allWorkflows : this.allWorkflows.filter(wf => wf.workflowID > 0);
+        },
+        workflows() {
+            let map = {};
+            this.workflowsList.forEach(ele => { map[ele.workflowID] = ele });
+            return map;
         },
         hasWorkflows() {
             return Object.keys(this.workflows)?.length > 0;
@@ -280,13 +286,7 @@ export default {
             fetch(
                 `${this.APIroot}workflow`
             ).then(res => res.json()).then(workflowArray => {
-                // Don't show built-in workflows unless 'dev' exists as a GET parameter
-                this.workflowsList = this.hasRouteQueryDev ?
-                    workflowArray : workflowArray.filter(wf => wf.workflowID > 0);
-
-                let map = {};
-                workflowArray.forEach(ele => { map[ele.workflowID] = ele });
-                this.workflows = map;
+                this.allWorkflows = workflowArray;
 
                 this.firstWorkflowID = this.workflowsList?.[0]?.workflowID || 0;
 
@@ -524,7 +524,7 @@ export default {
                 // bind connection events
                 this.jsPlumbInstance.bind(
                     "connection",
-                    (jsPlumbParams) => this.createAction(jsPlumbParams)
+                    (jsPlumbParams) => this.openWorkflowActionDialog(jsPlumbParams, true, true)
                 );
                 this.jsPlumbInstance.setSuspendDrawing(false, true);
 
@@ -624,9 +624,6 @@ export default {
                 this.workflowStepInfoType = '';
             }
         },
-        createAction(jsPlumbParams) {
-            console.log(jsPlumbParams);
-        },
         emailNotificationIcon(stepID = 0) {
             let html = '';
             const step = this.steps?.[stepID];
@@ -654,10 +651,6 @@ export default {
                 inputEl.dispatchEvent(new Event('change'));
                 $("#workflows").trigger('chosen:updated');
             }
-        },
-        hasRouteQueryDev() {
-            console.log("dev param changed, refetching wf list")
-            this.loadWorkflowList();
         },
         currentWorkflowID() {
             console.log("wf id changed, reset local step positions")
@@ -744,8 +737,8 @@ export default {
                 </div>
             </section>
 
-            <button type="button" @click="openWorkflowActionDialog(mock_action, mock_isNew)">MOCK Action</button>
-            <label for="mocktest"><input id="mocktest" type="checkbox" v-model="mock_isNew"> is new action</label>
+            <button type="button" @click="openWorkflowActionDialog(mock_action, false)">MOCK Edit Action</button>
+            <button type="button" @click="openWorkflowActionDialog({}, true)">New Action</button>
         </div>
 
         <!-- DIALOGS -->

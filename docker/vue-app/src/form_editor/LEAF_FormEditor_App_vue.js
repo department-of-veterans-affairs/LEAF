@@ -620,12 +620,16 @@ export default {
             this.dialogButtonText = {confirm: 'Restore', cancel: 'Close'};
             this.showFormDialog = true;
         },
-        openWorkflowActionDialog(action = {}, isNewAction = false) {
-            const title = isNewAction ?
-                '<h2>Create New Action Type</h2>' : `<h2>Editing Action Type</h2>`;
+        openWorkflowActionDialog(actionData = {}, isNewAction = false, isWorkflowConnection = false) {
+            console.log(actionData)
+            const title = isWorkflowConnection ?
+                `<h2>Create New Workflow Action</h2>` :
+                isNewAction ?
+                '<h2>Create New Action Type</h2>' :
+                `<h2>Editing Action Type</h2>`;
             this.setCustomDialogTitle(title);
             this.setFormDialogComponent('workflow-action-dialog');
-            this.dialogData = { ...action, isNewAction };
+            this.dialogData = { ...actionData, isNewAction, isWorkflowConnection };
             this.showFormDialog = true;
         },
     }
