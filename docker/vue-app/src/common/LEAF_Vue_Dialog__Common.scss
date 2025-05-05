@@ -209,6 +209,12 @@ td a.router-link {
         margin-top: 1em;
         #button_save {
             margin-right:auto;
+            &:disabled {
+                cursor:not-allowed;
+                background-color: #d8d8db;
+                color: $charcoal;
+                border: 2px solid $charcoal;
+            }
         }
         #button_cancelchange {
             margin-left: auto;

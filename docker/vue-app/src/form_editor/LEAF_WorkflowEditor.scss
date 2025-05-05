@@ -8,12 +8,11 @@
 
 fieldset {
     margin: 0;
-    padding-right: 0;
 }
 
 #sideBar {
-    width: 175;
-    min-width: 175px;
+    width: 182px;
+    min-width: 182px;
     display: flex;
     gap: 0.5rem;
     flex-direction: column;
@@ -32,13 +31,13 @@ fieldset {
     button.buttonNorm {
         width: 100%;
         min-height: 2.25rem;
-        font-size: 1rem;
+        font-size: 1.06rem;
         font-weight: normal;
         justify-content: flex-start;
 
         img {
-            width:24px;
-            height:24px;
+            width:26px;
+            height:26px;
             margin-right:4px
         }
     }
@@ -118,7 +117,7 @@ fieldset {
                 li {
                     display: flex;
                     gap: 1rem;
-                    align-items: space-between;
+                    justify-content: space-between;
                     padding: 0.125rem 0;
                     div.action_text {
                         min-width: 180px;

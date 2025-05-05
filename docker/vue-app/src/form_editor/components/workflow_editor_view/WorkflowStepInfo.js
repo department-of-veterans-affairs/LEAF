@@ -5,7 +5,8 @@ export default {
             submenu: null,
             stepElement: null,
 
-            stepTitleInput: this.currentStep?.stepTitle ?? "",
+            stepTitleInput: this.currentStep?.stepTitle ?? '',
+            selectedNextID: '',
 
             viewStepActions: false,
             stepDependencies: [],
@@ -32,6 +33,7 @@ export default {
         'currentJSPlumbParams',
         'steps',
         'routes',
+        'createConnection',
         'closeWorkflowStepInfo',
     ],
     computed: {
@@ -136,9 +138,14 @@ export default {
             .then(deps => this.stepDependencies = deps)
             .catch(err => console.log(err));
         },
-
         addConnection() {
-            console.log("addConnection TEMP")
+            if(this.selectedNextID !== '') {
+                console.log(this.currentWorkflowID, this.stepID, )
+                this.createConnection(this.currentWorkflowID, this.stepID, +this.selectedNextID);
+            }
+        },
+        updateStepTitle() {
+            console.log("update title")
         }
     },
     watch: {
@@ -165,7 +172,7 @@ export default {
             <!-- EDIT title, view ADD/RM requirements -->
             <template v-if="stepID > 0">
                 <label for="step_title"> Step Title:
-                    <input id="step_title" type="text" v-model="stepTitleInput">
+                    <input id="step_title" type="text" v-model="stepTitleInput" @change="updateStepTitle">
                 </label>
 
                 <div>
@@ -209,7 +216,8 @@ export default {
                             </li>
                         </ul>
                         <label for="create_route">Add Action:</label>
-                        <select id="create_route" title="Choose a step to connect to" @change="addConnection">
+                        <select id="create_route" title="Choose a step to connect to" v-model="selectedNextID"
+                            @change="addConnection">
                             <option value="">Choose Step to Connect to</option>
                             <option value="0">End</option>
                         </select>
