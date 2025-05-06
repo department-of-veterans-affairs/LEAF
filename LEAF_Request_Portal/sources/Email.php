@@ -622,14 +622,18 @@ class Email
             $fullTitle = trim(strip_tags(
                 htmlspecialchars_decode($approvers[0]['title'], ENT_QUOTES | ENT_HTML5)
             ));
+            $fullTitleInsecure = $fullTitle;
             if((int)$approvers[0]['needToKnow'] === 1) {
                 $fullTitle = $formType;
             }
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
+                "truncatedTitle_insecure" => $truncatedTitleInsecure,
                 "fullTitle" => $fullTitle,
+                "fullTitle_insecure" => $fullTitleInsecure,
                 "formType" => $formType,
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
@@ -773,14 +777,18 @@ class Email
             $fullTitle = trim(strip_tags(
                 htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
             ));
+            $fullTitleInsecure = $fullTitle;
             if((int)$recordInfo[0]['needToKnow'] === 1) {
                 $fullTitle = $formType;
             }
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
+                "truncatedTitle_insecure" => $truncatedTitleInsecure,
                 "fullTitle" => $fullTitle,
+                "fullTitle_insecure" => $fullTitleInsecure,
                 "formType" => $formType,
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
@@ -812,15 +820,19 @@ class Email
             $fullTitle = trim(strip_tags(
                 htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
             ));
+            $fullTitleInsecure = $fullTitle;
             if((int)$recordInfo[0]['needToKnow'] === 1) {
                 $fullTitle = $formType;
             }
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
+                "truncatedTitle_insecure" => $truncatedTitleInsecure,
                 "fullTitle" => $fullTitle,
+                "fullTitle_insecure" => $fullTitleInsecure,
                 "formType" => $formType,
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
