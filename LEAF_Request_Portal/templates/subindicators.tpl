@@ -30,9 +30,6 @@
                 <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><br />
             </span>
             <!--{/if}-->
-            <!--{if $indicator.format == ''}-->
-                <!--{$indicator.html}-->
-            <!--{/if}-->
             </div>
         <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
@@ -42,11 +39,7 @@
             </label>
             <!--{else}-->
             <span id="format_label_<!--{$indicator.indicatorID|strip_tags}-->" <!--{if $indicator.format|in_array:['','fileupload','image'] }-->tabindex="0"<!--{/if}-->>
-                    <!--{if $indicator.format === ''}-->
-                        <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
-                    <!--{else}-->
-                        <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
-                    <!--{/if}-->
+                    <br><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
             </span>
             <!--{/if}-->
         <!--{/if}-->
@@ -56,6 +49,10 @@
             <span class="text">
                 [protected data]
             </span>
+        <!--{/if}-->
+
+        <!--{if $indicator.format == ''}-->
+            <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
