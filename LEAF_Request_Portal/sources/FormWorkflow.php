@@ -541,17 +541,16 @@ class FormWorkflow
 
                     $res[$i]['isActionable'] = $isActionable;
 
-                    $dir = $this->getDirectory();
-                    $approver = $dir->lookupLogin($res[$i]['userID']);
-                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                    $metaData = json_decode($record['userMetadata'], true);
+                    if ($metaData == null || $metaData['firstName'] == '') {
                         $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Inactive User)';
                         $res[$i]['approverName'] = '(Inactive User)';
                         $res[$i]['approverUID'] = $res[$i]['userID'];
                     }
                     else {
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                        $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
-                        $res[$i]['approverUID'] = $approver[0]['Email'];
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $metaData['firstName'] . ' ' . $metaData['lastName'] . ')';
+                        $res[$i]['approverName'] = $metaData['firstName'] . ' ' . $metaData['lastName'];
+                        $res[$i]['approverUID'] = $metaData['email'];
                     }
                     break;
 
