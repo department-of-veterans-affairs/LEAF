@@ -237,6 +237,7 @@ export default {
                 this.jsPlumbInstance.Defaults.Connector = ["StateMachine", {curviness: 10}];
                 this.jsPlumbInstance.Defaults.Anchor = "Continuous";
                 this.jsPlumbInstance.Defaults.Endpoint = "Blank";
+                console.log(this.jsPlumbInstance);
             });
         },
         updateChosen(selectID = '', selectLabelID = '', title = 'Select an Option', callback) {
@@ -253,13 +254,13 @@ export default {
             }
         },
         getStepStyle(stepID = 0) {
-            const minY = this.spacerVector.y;
-            const minX = 0;
-
             const step = this.localSteps[stepID] || this.steps[stepID];
+            const spacerY = this.steps[stepID]?.hasUpdate === true || this.localSteps[stepID]?.hasUpdate === true ?
+                0 : this.spacerVector.y;
+
             return step !== undefined ? {
-                left: Math.max(parseInt(step.posX), minX) + 'px',
-                top: Math.max(parseInt(step.posY), minY) + 'px',
+                left: Math.max(parseInt(step.posX), 0) + 'px',
+                top: Math.max(parseInt(step.posY), spacerY) + 'px',
                 fontSize: step?.stepTitle?.length > 40 ? '90%' : '100%',
                 backgroundColor: step.stepBgColor,
                 fontWeight: 'normal',
@@ -279,7 +280,7 @@ export default {
                     this.updateStepPosition(scopedStepID, left, top);
                 }
             }
-            return handler
+            return handler;
         },
 
 
@@ -573,6 +574,7 @@ export default {
                 const intitialY = this.steps[stepID].posY;
                 this.steps[stepID].posX = left;
                 this.steps[stepID].posY = top;
+                this.steps[stepID].hasUpdate = true; //workaround for the initial Y guard.  look into jsPlumb drop constraints
 
                 fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/editorPosition`, {
                     method: 'POST',
@@ -586,8 +588,9 @@ export default {
             //Requestor, End, and built-in step positions are not saved, but can be moved locally
             } else {
                 if (Number.isInteger(stepID) && this.localSteps?.[stepID] === undefined) {
-                    const { stepID:newLocalID, posX, posY, stepBgColor } = this.steps[stepID];
-                    this.localSteps[newLocalID] = { stepID:newLocalID, posX, posY, stepBgColor };
+                    const { stepID:newLocalID, posX, posY, stepBgColor, stepTitle } = this.steps[stepID];
+                    this.localSteps[newLocalID] = { stepID:newLocalID, posX, posY, stepBgColor, stepTitle };
+                    this.steps[newLocalID].hasUpdate = true; //here only
                 }
                 if(this.localSteps[stepID] !== undefined) {
                     this.localSteps[stepID].posX = left;

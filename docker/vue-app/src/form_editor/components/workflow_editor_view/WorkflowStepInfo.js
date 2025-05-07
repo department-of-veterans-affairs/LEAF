@@ -56,7 +56,7 @@ export default {
             }
             return title;
         },
-        //for list of outbound actions step info submenu.
+        //list of existing outbound actions for the step info submenu.
         outboundRoutes() {
             let hasSubmit = false;
 
@@ -74,8 +74,49 @@ export default {
             if(this.stepID === -1 && hasSubmit === false) {
                 routesArr.push( { actionText: 'Submit', actionType: 'submit', actionIcon: '' } );
             }
-            routesArr = routesArr.sort((a, b) => a.actionText < b.actionText);
             return routesArr;
+        },
+        stepRouteOptions() {
+            let options = [];
+            if (this.currentWorkflowID > 0) {
+                const stepKeys = Object.keys(this.steps);
+                stepKeys.forEach(k => {
+                    if (+k !== this.stepID) {
+                        options.push({ ...this.steps[k] });
+                    }
+                });
+                options = options.sort((a, b) => {
+                    const stepA = a.stepTitle.toLowerCase();
+                    const stepB = b.stepTitle.toLowerCase();
+                    return stepA < stepB ? -1 : stepA > stepB ? 1 : 0;
+                });
+            }
+            return options;
+        },
+        uniqueStepDependencies() {
+            let added = {};
+            let uniqueDeps = [];
+            this.stepDependencies.forEach(d => {
+                if (added[d.dependencyID] === undefined) {
+                    uniqueDeps.push(d);
+                    added[d.dependencyID] = 1;
+                }
+            });
+            return uniqueDeps;
+        },
+        customRequirementGroupMap() {
+            let map = {};
+            let depID = null;
+            this.stepDependencies.forEach(d => {
+                depID = d.dependencyID;
+                if (d.groupID > 0) {
+                    if (map[depID] === undefined) {
+                        map[depID] = [];
+                    }
+                    map[depID].push({ groupID: d.groupID, name: d.name });
+                }
+            });
+            return map;
         },
         modalHeaderHTML() {
             let html = '';
@@ -96,7 +137,10 @@ export default {
                 break;
             }
             return html;
-        }
+        },
+        smartRequirementIDs() {
+            return [-3, -2, -1, 1, 8];
+        },
     },
     methods: {
         tabControls(event, closeBtn = false) {
@@ -146,6 +190,18 @@ export default {
         },
         updateStepTitle() {
             console.log("update title")
+        },
+        editRequirement() {
+            console.log("edit requirement")
+        },
+        unlinkDependency() {
+            console.log("unlink dep")
+        },
+        setDynamicGroupApprover() {
+            console.log("apr group")
+        },
+        dependencyGrantAccess() {
+
         }
     },
     watch: {
@@ -176,11 +232,76 @@ export default {
                 </label>
 
                 <div>
-                    <b>Step Requirements</b>
+                    <b>Requirements</b>
                     <ul id="step_requirements">
-                        <li>temp 1</li>
-                        <li>temp 2</li>
-                        <li>temp 3</li>
+                        <li v-for="d in uniqueStepDependencies" :key="'step_' + stepID + 'dep_' + d.dependencyID">
+                            <template v-if="smartRequirementIDs.includes(d.dependencyID)">
+                                <b style="color:green;vertical-align:middle;">{{ d.description }}</b>
+                                <!-- service chief and quadrad -->
+                                <button v-if="d.dependencyID === 1 || d.dependencyID === 8" type="button" class="buttonNorm icon"
+                                    @click="editRequirement(d.dependencyID, d.description, stepID)"
+                                    title="Edit Requirement Name" aria-label="Edit Requirement Name">
+                                    <img :src="libsPath + 'dynicons/svg/accessories-text-editor.svg'" alt="">
+                                </button>
+                                <button type="button" class="buttonNorm icon"
+                                    @click="unlinkDependency(stepID, d.dependencyID)"
+                                    title="Remove Requirement" aria-label="Remove Requirement">
+                                    <img :src="libsPath + 'dynicons/svg/dialog-error.svg'" alt="">
+                                </button>
+                                (depID: {{ d.dependencyID }})
+                                <template v-if="d.dependencyID === -1">
+                                    <div v-if="d.indicatorID_for_assigned_empUID === null || d.indicatorID_for_assigned_empUID === 0"
+                                        class="error_message">A data field (indicatorID) must be set.</div>
+                                    <div>
+                                        indicatorID:
+                                        <span :class="{error_message: !d.indicatorID_for_assigned_empUID}">
+                                            {{ d.indicatorID_for_assigned_empUID ?? 'not set' }}
+                                        </span>
+                                    </div>
+                                    <button type="button" class="buttonNorm" @click="setDynamicApprover(stepID)">Set Data Field</button>
+                                </template>
+                                <template v-if="d.dependencyID === -3">
+                                    <div v-if="d.indicatorID_for_assigned_groupID === null || d.indicatorID_for_assigned_groupID === 0"
+                                        class="error_message">A data field (indicatorID) must be set.</div>
+                                    <div>
+                                        indicatorID:
+                                        <span :class="{error_message: !d.indicatorID_for_assigned_groupID}">
+                                            {{ d.indicatorID_for_assigned_groupID ?? 'not set' }}
+                                        </span>
+                                    </div>
+                                    <button type="button" class="buttonNorm" @click="setDynamicGroupApprover(stepID)">Set Data Field</button>
+                                </template>
+                            </template>
+                            <template v-else>
+                                <b tabindex=0 role="button"
+                                    :title="'Choose access groups for depID: ' + d.dependencyID"
+                                    :aria-label="'Choose access groups for depID: ' + d.dependencyID"
+                                    @click="dependencyGrantAccess(d.dependencyID, stepID)">
+                                    {{ d.description }}
+                                </b>
+                                <button type="button" class="buttonNorm icon"
+                                    @click="editRequirement(d.dependencyID, d.description, stepID)"
+                                    title="Edit Requirement Name" aria-label="Edit Requirement Name">
+                                    <img :src="libsPath + 'dynicons/svg/accessories-text-editor.svg'" alt="">
+                                </button>
+                                <button type="button" class="buttonNorm icon"
+                                    @click="unlinkDependency(stepID, d.dependencyID)"
+                                    title="Remove Requirement" aria-label="Remove Requirement">
+                                    <img :src="libsPath + 'dynicons/svg/dialog-error.svg'" alt="">
+                                </button>
+                                <ul v-if="customRequirementGroupMap[d.dependencyID]?.length > 0"
+                                    :id="'step_' + stepID + '_dep' + d.dependencyID">
+                                    <li v-for="g in customRequirementGroupMap[d.dependencyID]"
+                                        :key="'groups_' + d.dependencyID + '_' + g.groupID">
+                                        {{ g.name }}
+                                    </li>
+                                    <button type="button" class="buttonNorm" @click="dependencyGrantAccess(d.dependencyID, stepID)">
+                                        <img :src="libsPath + 'dynicons/svg/list-add.svg'" alt=""> Add Group
+                                    </button>
+                                </ul>
+                                <div v-else>no groups</div>
+                            </template>
+                        </li>
                     </ul>
                     <button type="button" class="buttonNorm">Add maybe here</button>
                 </div>
@@ -189,38 +310,47 @@ export default {
             <template v-if="stepID !== 0">
                 <fieldset>
                     <legend>Step Options</legend>
-                    <label v-if="stepID > 0" :for="'workflowIndicator_' + stepID" style="margin:0 0 1rem 0;"> Form Field:
+                    <label v-if="stepID > 0" :for="'workflowIndicator_' + stepID" style="margin:0 0 1.25rem 0;"> Form Field:
                         <select :id="'workflowIndicator_' + stepID">
                         </select>
                     </label>
-                    <label for="toggleManageActions">
+                    <label for="toggleManageActions" style="margin:0;">
                         <input id="toggleManageActions" type="checkbox" style="margin:0;" v-model="viewStepActions">
-                        &nbsp;View Step Actions
+                        &nbsp; View Step Actions
                     </label>
                     <div v-show="viewStepActions" id="manage_actions_options">
                         <ul id="outbound_actions_list">
                             <li v-for="r in outboundRoutes" :key="'route_info_' + r.actionType">
-                                <div class="action_text">{{ r.actionText }}</div>
-                                <div class="action_options">
-                                    <button type="button"
-                                        :aria-label="'Manage events for action: ' + r.actionText + ', step ' + r.stepID"
-                                        title="Manage Action Events"
-                                        aria-label="Manage Action Events">📃
-                                    </button>
-                                    <button v-if="currentWorkflowID > 0 && r.stepID !== -1" type="button"
-                                        :aria-label="'Remove action: ' + r.actionText + ', step ' + r.stepID"
-                                        title="Remove this action"
-                                        aria-label="Remove Action">❌
-                                    </button>
-                                </div>
+                                {{ r.actionText }}
+                                <button type="button" class="icon"
+                                    :aria-label="'Manage events for action: ' + r.actionText + ', step ' + r.stepID"
+                                    title="Manage Action Events"
+                                    aria-label="Manage Action Events">
+                                    <img :src="libsPath + 'dynicons/svg/accessories-text-editor.svg'" alt="">
+                                </button>
+                                <button v-if="currentWorkflowID > 0 && r.stepID !== -1" type="button" class="icon"
+                                    :aria-label="'Remove action: ' + r.actionText + ', step ' + r.stepID"
+                                    title="Remove this action"
+                                    aria-label="Remove Action">
+                                    <img :src="libsPath + 'dynicons/svg/dialog-error.svg'" alt="">
+                                </button>
                             </li>
                         </ul>
-                        <label for="create_route">Add Action:</label>
-                        <select id="create_route" title="Choose a step to connect to" v-model="selectedNextID"
-                            @change="addConnection">
-                            <option value="">Choose Step to Connect to</option>
-                            <option value="0">End</option>
-                        </select>
+                        <template v-if="currentWorkflowID > 0">
+                            <label for="create_route">Add Action:</label>
+                            <select id="create_route" title="Choose a step to connect to" v-model="selectedNextID"
+                                @change="addConnection">
+                                <option value="">Choose Step to Connect to</option>
+                                <option value="0">End</option>
+                                <template v-if="stepID > 0">
+                                    <option value="-1">Requestor</option>
+                                    <option :value="stepID">Self</option>
+                                </template>
+                                <option v-for="o in stepRouteOptions" :key="'route_option_' + o.stepID" :value="o.stepID">
+                                    {{ o.stepTitle }} (id#{{ o.stepID }})
+                                </option>
+                            </select>
+                        </template>
                     </div>
                 </fieldset>
                 <div>TODO Email reminder info

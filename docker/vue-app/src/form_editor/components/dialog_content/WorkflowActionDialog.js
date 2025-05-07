@@ -25,8 +25,8 @@ export default {
             actionText: this.dialogData.actionText || '',
             actionTextPasttense: this.dialogData.actionTextPasttense || '',
             actionIcon: (this.dialogData.actionIcon || '').trim(),
-            sort: this.dialogData.sort || 0,
-            fillDependency: this.dialogData.fillDependency || 1,
+            sort: this.dialogData?.sort ?? 0,
+            fillDependency: this.dialogData?.fillDependency ?? 1,
         }
     },
     inject: [
@@ -83,6 +83,11 @@ export default {
             const actionTypeRegex = new RegExp(/[^a-zA-Z0-9_]/, "gi");
             return this.actionText.replaceAll(actionTypeRegex, "");
         },
+        sortValue() {
+            return +this.sort < -128 ?
+                -128 : +this.sort > 127 ?
+                127 : +this.sort;
+        },
         sourceTitle() {
             return this.stepID === -1 ? 'Requestor' : this.steps[this.stepID]?.stepTitle || '';
         },
@@ -128,8 +133,8 @@ export default {
                 formData.append('actionText', this.actionText);
                 formData.append('actionTextPasttense', this.actionTextPasttense);
                 formData.append('actionIcon', this.actionIcon);
-                formData.append('sort', this.sort);
-                formData.append('fillDependency', this.fillDependency);
+                formData.append('sort', this.sortValue);
+                formData.append('fillDependency', +this.fillDependency);
 
                 if(this.isNewAction === true) {
                     this.postNewAction(formData, callback);
