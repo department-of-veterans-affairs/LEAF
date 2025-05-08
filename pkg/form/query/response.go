@@ -53,7 +53,6 @@ type ActionHistory struct {
 
 // Data represents the dynamic data fields in the record
 // The map's key is "id" + the indicatorID of the field
-// TODO: Migrate the key format from "id###"" to "###"
 type Data map[string]any
 
 type OrgchartEmployee struct {
