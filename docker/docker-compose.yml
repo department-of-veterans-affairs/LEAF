@@ -1,5 +1,28 @@
 name: leaf
 services:
+    master:
+        build:
+            context: ./locust
+            dockerfile: locust.dockerfile
+        #image: locustio/locust
+        ports:
+            - "8089:8089"
+        volumes:
+            - ../load:/mnt/locust
+        command: -f /mnt/locust/locustfile.py --master -H https://host.docker.internal 
+        networks:
+            - leaf
+    
+    worker:
+        build:
+            context: ./locust
+            dockerfile: locust.dockerfile
+        #image: locustio/locust
+        volumes:
+            - ../load:/mnt/locust
+        command: -f /mnt/locust/locustfile.py --worker --master-host master
+        networks:
+            - leaf
     vue-ui:
         env_file:
             - ./env_files/vue_ui_local.env

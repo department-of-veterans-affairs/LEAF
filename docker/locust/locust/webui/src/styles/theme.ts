@@ -1,0 +1,27 @@
+import { PaletteMode, createTheme as baseCreateTheme } from '@mui/material';
+
+const createTheme = (mode: PaletteMode) =>
+  baseCreateTheme({
+    palette: {
+      mode,
+      primary: {
+        main: '#15803d',
+      },
+      success: {
+        main: '#00C853',
+      },
+    },
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          ':root': {
+            '--footer-height': '40px',
+          },
+          p: { margin: 0 },
+          ul: { paddingLeft: '16px' },
+        },
+      },
+    },
+  });
+
+export default createTheme;
