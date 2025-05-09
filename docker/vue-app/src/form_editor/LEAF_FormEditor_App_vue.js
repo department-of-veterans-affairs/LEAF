@@ -63,6 +63,8 @@ export default {
             removeCategory: this.removeCategory,
             updateChosenAttributes: this.updateChosenAttributes,
 
+            openBasicConfirmDialog: this.openBasicConfirmDialog,
+
             //Form Browser
             openNewFormDialog: this.openNewFormDialog,
             openImportFormDialog: this.openImportFormDialog,
@@ -520,6 +522,19 @@ export default {
             });
             if(notFound.length > 0) {
                 console.warn('expected dialogData key was not found', notFound);
+            }
+        },
+        openBasicConfirmDialog(messageHTML = '', saveFunction = {}) {
+            if(typeof saveFunction === 'function') {
+                this.formSaveFunction = () => {
+                    saveFunction();
+                    this.closeFormDialog();
+                }
+                this.dialogData = messageHTML;
+                this.setCustomDialogTitle('<h2>Confirmation Required</h2>');
+                this.setFormDialogComponent('basic-confirm-dialog');
+                this.dialogButtonText = {confirm: 'Confirm', cancel: 'Cancel'};
+                this.showFormDialog = true;
             }
         },
         openConfirmDeleteFormDialog() {

@@ -1,5 +1,6 @@
 import LeafFormDialog from "@/common/components/LeafFormDialog.js";
 import HistoryDialog from "@/common/components/HistoryDialog.js";
+import BasicConfirmDialog from "@/common/components/BasicConfirmDialog";
 import WorkflowActionDialog from "../components/dialog_content/WorkflowActionDialog";
 
 import WorkflowMenu from "../components/workflow_editor_view/WorkflowMenu";
@@ -18,6 +19,7 @@ export default {
         LeafFormDialog,
         HistoryDialog,
         WorkflowActionDialog,
+        BasicConfirmDialog,
     },
     data() {
         return {
@@ -50,6 +52,7 @@ export default {
             },
 
             routes: [],
+            workflowCategories: [],
 
             jsPlumbInstance: null,
             currentJSPlumbParams: null,
@@ -76,6 +79,7 @@ export default {
         'APIroot',
         'libsPath',
         'CSRFToken',
+        'dialogData',
         'getSiteSettings',
         'isJSON',
         'siteSettings',
@@ -93,6 +97,9 @@ export default {
             vm.getSiteSettings();
             vm.setDefaultAjaxResponseMessage();
         });
+    },
+    beforeRouteLeave(to, from) {
+        this.jsPlumbInstance.reset();
     },
     mounted() {
         this.loadWorkflowList(); //here instead of in created hook for better chosen plugin handling
@@ -112,6 +119,7 @@ export default {
             workflowsList: computed(() => this.workflowsList),
             steps: computed(() => this.steps),
             routes: computed(() => this.routes),
+            workflowCategories: computed(() => this.workflowCategories),
 
             workflowStepInfoType: computed(() => this.workflowStepInfoType),
             currentJSPlumbParams: computed(() => this.currentJSPlumbParams),
@@ -129,6 +137,7 @@ export default {
             postNewAction: this.postNewAction,
             postEditAction: this.postEditAction,
             loadWorkflow: this.loadWorkflow,
+            updateWorkflowSteps: this.updateWorkflowSteps,
             closeWorkflowStepInfo: this.closeWorkflowStepInfo,
         }
     },
@@ -205,7 +214,7 @@ export default {
         },
         currentStep() {
             let returnValue = null;
-            if (this.currentStepID > 0) {
+            if (this.currentStepID !== 0 && this.currentStepID !== -1) {
                 returnValue = this.steps?.[this.currentStepID] ?? null;
             } else {
                 //0 and -1 are not in steps object
@@ -314,6 +323,13 @@ export default {
         getCurrentWorkflowRoutes() {
             return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/route`).then(res => res.json());
         },
+        //** return Promise */
+        getCurrentWorkflowCategories() {
+            return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/categories`).then(res => res.json());
+        },
+        updateWorkflowSteps() {
+            this.getCurrentWorkflow().then(data => this.steps = data).catch(err => console.log(err));
+        },
         /**
          * fetch workflows once view is mounted, then update workflow editor
          * workflows, workflowList, firstWorkflowID, currentWorkflowID data.
@@ -352,13 +368,16 @@ export default {
             this.closeWorkflowStepInfo({}, true); //NOTE: maybe not
             this.steps = {};
             this.routes = [];
+            this.workflowCategories = [];
 
             Promise.all([
                 this.getCurrentWorkflow(),
                 this.getCurrentWorkflowRoutes(),
+                this.getCurrentWorkflowCategories(),
             ]).then(results => {
                 this.steps = results[0];
                 this.routes = results[1];
+                this.workflowCategories = results[2];
 
                 this.localSteps[0].posX = this.endStepInitialVector.x
                 this.localSteps[0].posY = this.endStepInitialVector.y
@@ -717,7 +736,7 @@ export default {
             fetch(`${this.APIroot}workflow/${workflowID}/initialStep`, {
                 method: 'POST',
                 body: formData,
-            }).then(res => res.json()).then(data => {
+            }).then(res => res.json()).then(() => {
                 if(typeof callback === 'function') {
                     callback();
                 }
@@ -824,6 +843,7 @@ export default {
             <img src="../images/largespinner.gif" alt="" />
         </div>
         <div v-else>
+        {{ dialogData }}
             <!-- TODO: this should be assoc with nav -->
             <div v-if="siteSettings?.siteType==='national_subordinate'" id="subordinate_site_warning" style="padding: 0.5rem; margin: 0.5rem 0;" >
                 <h3 style="margin: 0 0 0.5rem 0; color: #a00;">This is a Nationally Standardized Subordinate Site</h3>
@@ -864,8 +884,20 @@ export default {
                 </div>
             </section>
 
+            NOTE: TEST mock
             <button type="button" @click="openWorkflowActionDialog(mock_action, false)">MOCK Edit Action</button>
-            <button type="button" @click="openWorkflowActionDialog({}, true)">New Action</button>
+            NOTE: TEST routes
+            <div style="display:flex;gap:2rem">
+            <router-link :to="{ name: 'browser' }" >
+                Browser
+            </router-link>
+            <router-link :to="{ name: 'restore' }" >
+                Restore Fields
+            </router-link>
+            <router-link :to="{ name: 'category', query: { formID: 'form_512fa' }}">
+                Input Formats
+            </router-link>
+            </div>
         </div>
 
         <!-- DIALOGS -->

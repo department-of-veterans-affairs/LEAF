@@ -225,6 +225,14 @@ td a.router-link {
     word-break:break-word;
 }
 
+#basic_confirm_dialog {
+    padding: 1rem;
+    line-height: 1.3;
+    min-width: 300px;
+    max-width: 500px;
+    min-height: 100px;
+}
+
 
 /* custom checkboxes and radio, choicesjs modifications */
 .checkable.leaf_check {

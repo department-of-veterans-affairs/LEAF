@@ -7,7 +7,7 @@ import AdvancedOptionsDialog from "../components/dialog_content/AdvancedOptionsD
 import NewFormDialog from "../components/dialog_content/NewFormDialog.js";
 import StapleFormDialog from "../components/dialog_content/StapleFormDialog.js";
 import EditCollaboratorsDialog from "../components/dialog_content/EditCollaboratorsDialog.js";
-import ConfirmDeleteDialog from "../components/dialog_content/ConfirmDeleteDialog.js";
+import ConfirmDeleteFormDialog from "../components/dialog_content/ConfirmDeleteFormDialog.js";
 import ConditionsEditorDialog from "../components/dialog_content/ConditionsEditorDialog.js";
 
 import FormEditorMenu from "../components/form_editor_view/FormEditorMenu.js";
@@ -45,7 +45,7 @@ export default {
         HistoryDialog,
         StapleFormDialog,
         EditCollaboratorsDialog,
-        ConfirmDeleteDialog,
+        ConfirmDeleteFormDialog,
         ConditionsEditorDialog,
 
         FormEditorMenu,

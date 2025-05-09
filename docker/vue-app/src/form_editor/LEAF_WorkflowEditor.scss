@@ -5,7 +5,7 @@
     gap: 0.375rem;
     padding: 0.75rem 0.25rem !important;
 
-    /* TODO:  move to common, or incremental Form Editor updates */
+    /* TODO:  move to common after incremental Form Editor updates */
     input[type="text"], select {
         height: 2.5rem;
         padding: 0.5rem;
@@ -27,9 +27,30 @@
     }
 }
 
-fieldset {
-    margin: 0;
+#action_input_modal {
+    /* TODO:  move to common, or incremental Form Editor updates */
+    input[type="text"], input[type="number"], select {
+        height: 2.5rem;
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    .helper_text {
+        color: #606064;
+    }
+    .entry_error {
+        border-left: 4px solid #B50909;
+        padding-left: 1rem;
+    }
+    .entry_error input {
+        border: 4px solid #B50909;
+    }
+    .error_message {
+        font-weight: bolder;
+        color: #B50909;
+    }
 }
+
+
 
 #sideBar {
     width: 180px;
@@ -87,16 +108,20 @@ fieldset {
         z-index: 100;
         position: absolute;
         min-width: 350px;
-        max-width: 450px;
+        max-width: 400px;
         border-radius: 3px;
         border: 1px solid black;
         box-shadow: 2px 2px 6px 1px rgba(0,0,25,0.4);
+
+        fieldset {
+            margin: 0;
+            border-radius: 3px;
+        }
 
         button {
             font-size: 1rem;
             font-weight: normal;
             padding: 0.25em;
-            margin-top: 2px;
 
             img {
                 width: 18px;
@@ -105,6 +130,8 @@ fieldset {
         }
 
         button.icon {
+            margin: 0 0 0 2px;
+            padding: 2px 4px;
             border: 0;
             background-color: inherit;
             display: inline;
@@ -148,11 +175,16 @@ fieldset {
             }
             input[type="text"], select {
                 width: 100%;
+                font-size: 1rem;
             }
             #step_requirements {
-                padding: 0.5rem 0;
+                padding: 0.5rem 0 0;
                 list-style-type: disc;
                 padding-left: 1.5rem;
+
+                button:not(.icon) {
+                    margin-top: 0.25rem;
+                }
 
                 ul {
                     list-style-type: circle;
@@ -162,7 +194,19 @@ fieldset {
             }
 
             #outbound_actions_list {
-                padding: 0.25rem 0 0.75rem 0.25rem;
+                padding: 0.5rem 0 0.75rem 0.375rem;
+            }
+            #email_reminder_html {
+                margin: -0.5rem 2px 0 2px;
+                div:first-child {
+                    margin-bottom: 0.5rem;
+                }
+            }
+            #addRequirement_addReminder {
+                display:flex;
+                justify-content:space-between;
+                gap:1rem;
+                margin-top: -0.5rem;
             }
         }
     }
@@ -173,6 +217,7 @@ fieldset {
         cursor: pointer;
     }
 }
+
 .workflowAction {
     background-color: white;
     border: 2px solid black;
@@ -182,7 +227,6 @@ fieldset {
     border-radius: 0.875rem / 50%;
     font-size: 0.875rem;
 }
-
 
 #action_input_modal {
     display: flex;
