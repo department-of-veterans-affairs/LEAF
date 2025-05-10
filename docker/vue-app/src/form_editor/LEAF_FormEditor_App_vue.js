@@ -539,7 +539,7 @@ export default {
         },
         openConfirmDeleteFormDialog() {
             this.setCustomDialogTitle('<h2>Delete this form</h2>');
-            this.setFormDialogComponent('confirm-delete-dialog');
+            this.setFormDialogComponent('confirm-delete-form-dialog');
             this.dialogButtonText = {confirm: 'Yes', cancel: 'No'};
             this.showFormDialog = true;
         },

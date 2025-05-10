@@ -563,9 +563,11 @@ export default {
                 this.jsPlumbInstance.bind(
                     "connection",
                     (jsPlumbParams) => {
-                        const stepID = parseInt(jsPlumbParams.sourceId.substr(5));
-                        const nextStepID = parseInt(jsPlumbParams.targetId.substr(5));
-                        this.createConnection(this.currentWorkflowID, stepID, nextStepID);
+                        if (this.currentWorkflowID > 0) {
+                            const stepID = parseInt(jsPlumbParams.sourceId.substr(5));
+                            const nextStepID = parseInt(jsPlumbParams.targetId.substr(5));
+                            this.createConnection(this.currentWorkflowID, stepID, nextStepID);
+                        }
                     }
                 );
                 this.jsPlumbInstance.setSuspendDrawing(false, true);
@@ -622,6 +624,7 @@ export default {
          * @param {number} stepID
          */
         showStepInfo(stepID = -1) {
+            console.log("show step info")
             this.workflowStepInfoType = 'step';
             this.currentJSPlumbParams = null;
             if (this.currentStepID === stepID) { //close on second click
@@ -860,7 +863,8 @@ export default {
                         aria-label="workflow step: Requestor"
                         aria-controls="stepInfo_-1"
                         :aria-expanded="currentStepID === -1"
-                        @click="showStepInfo(-1)">
+                        @click="showStepInfo(-1)"
+                        @touchend="showStepInfo(-1)">
                         Requestor
                     </button>
 
@@ -869,7 +873,8 @@ export default {
                             :aria-label="'workflow step: ' + s.stepTitle"
                             :aria-controls="'stepInfo_' + s.stepID"
                             :aria-expanded="currentStepID === s.stepID"
-                            @click="showStepInfo(s.stepID)">
+                            @click="showStepInfo(s.stepID)"
+                            @touchend="showStepInfo(s.stepID)">
                                 {{ s.stepTitle }}&nbsp;<span v-if="typeof s?.stepData === 'string'" v-html="emailNotificationIcon(s.stepID)"></span>
                         </button>
                     </template>
@@ -878,7 +883,8 @@ export default {
                         aria-label="Workflow End"
                         aria-controls="stepInfo_0"
                         :aria-expanded="currentStepID === 0"
-                        @click="showStepInfo(0)">
+                        @click="showStepInfo(0)"
+                        @touchend="showStepInfo(0)">
                             End
                     </button>
                 </div>

@@ -12,7 +12,7 @@ export default {
 
             viewStepActions: false,
             stepDependencies: [],
-            indicatorList: [],
+            indicatorListAll: [],
 
             leafWorkflowIndicator: "",
         }
@@ -20,7 +20,7 @@ export default {
     created() {
         if(this.workflowStepInfoType === 'step' && this.stepID !== 0) {
             this.getStepDependencies();
-            this.getFormfieldIndicators();
+            this.getIndicatorList();
             this.checkForStepModules();
         }
     },
@@ -166,10 +166,15 @@ export default {
         smartRequirementIDs() {
             return [-3, -2, -1, 1, 8];
         },
+        formfieldIndicatorList() {
+            return this.indicatorListAll.filter(
+                ind => ind.parentIndicatorID === null || ind.parentStaples !== null
+            );
+        },
         formfieldOptions() {
             let options = [];
             this.workflowCategories.forEach(entry => {
-                this.indicatorList.forEach(ind => {
+                this.formfieldIndicatorList.forEach(ind => {
                     if(
                         entry.categoryID === ind.categoryID ||
                         entry.categoryID === ind.parentCategoryID ||
@@ -180,6 +185,16 @@ export default {
                 });
             });
             return options;
+        },
+        dynamicApproverOptions() {
+            return this.indicatorListAll.filter(
+                ind => ind?.format === 'orgchart_employee' || ind?.format === 'raw_data'
+            )
+        },
+        dynamicGroupApproverOptions() {
+            return this.indicatorListAll.filter(
+                ind => ind?.format === 'orgchart_group' || ind?.format === 'raw_data'
+            )
         },
         emailNotificationHTML() {
             const stepData = this.currentStep?.stepData ?? '';
@@ -263,24 +278,22 @@ export default {
                 this.createConnection(this.currentWorkflowID, this.stepID, +this.selectedNextID);
             }
         },
-        getFormfieldIndicators() {
+        getIndicatorList() {
             let categories = [];
             this.workflowCategories.forEach(c => categories.push(c.categoryID));
             const formList = categories.join(',');
-            const xfilter = 'categoryID,categoryName,parentCategoryID,indicatorID,name,parentIndicatorID,parentStaples';
+            const xfilter = 'categoryID,categoryName,parentCategoryID,indicatorID,name,format,parentIndicatorID,parentStaples';
 
             fetch(`${this.APIroot}form/indicator/list?includeHeadings=1&forms=${formList}&x-filterData=${xfilter}`)
             .then(res => res.json())
             .then(data => {
-                this.indicatorList = data.filter(
-                    d => d.parentIndicatorID === null || d.parentStaples !== null
-                );
-                this.indicatorList.map(ind => {
+                data.map(ind => {
                     ind.name = this.decodeAndStripHTML(ind.name);
                     if(ind.name?.length > 45) {
                         ind.name = ind.name.slice(0, 42) + '...';
                     }
                 });
+                this.indicatorListAll = data;
             }).catch(err => console.log(err));
         },
         postStepModule(stepID = '') {
@@ -324,10 +337,14 @@ export default {
                 }).catch(err => console.log(err));
             }
         },
-        setDynamicGroupApprover() {
-            console.log("apr group")
+
+        setDynamicApprover(stepID) {
+            console.log("set dynamic employee")
         },
-        dependencyGrantAccess() {
+        setDynamicGroupApprover(stepID) {
+            console.log("set dynamic group")
+        },
+        dependencyGrantAccess(dependencyID, stepID) {
 
         },
         //TODO::
@@ -428,7 +445,6 @@ export default {
                                         <li v-else v-for="g in customRequirementGroupMap[d.dependencyID]"
                                             :key="'groups_' + d.dependencyID + '_' + g.groupID">
                                             {{ g.name }}
-
                                         </li>
                                         <button v-if="isEditable" type="button" class="buttonNorm" @click="dependencyGrantAccess(d.dependencyID, stepID)">
                                             <img :src="libsPath + 'dynicons/svg/list-add.svg'" alt=""> Add Group

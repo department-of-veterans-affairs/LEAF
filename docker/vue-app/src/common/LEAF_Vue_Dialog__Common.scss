@@ -221,10 +221,17 @@ td a.router-link {
         }
     }
 }
+
+/* HistoryDialog component modal content */
 #history-slice td {
     word-break:break-word;
+    font-size: 14px !important;
+}
+#history-page-buttons button#next, #history-slice button#prev {
+    width: 135px;
 }
 
+/* BasicConfirm component modal content */
 #basic_confirm_dialog {
     padding: 1rem;
     line-height: 1.3;
