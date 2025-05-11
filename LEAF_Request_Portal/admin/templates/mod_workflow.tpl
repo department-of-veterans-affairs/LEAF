@@ -1613,7 +1613,7 @@
                 dialog.hide();
             });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function setDynamicGroupApprover(stepID) {
@@ -1649,7 +1649,24 @@
                 dialog.hide();
             });
         });
-    dialog.show();
+        dialog.show();
+    }
+
+    function configureAgent(stepID) {
+        $('.workflowStepInfo').css('display', 'none');
+        dialog.setTitle(`Configure Agent for Step ID #${stepID}`);
+        dialog.setContent('<div id="agentConfig">Loading...</div>');
+
+        dialog.setSaveHandler(function() {
+            loadWorkflow(currentWorkflow);
+            dialog.hide();
+        });
+        dialog.show();
+        
+        let form = new LeafForm('agentConfig');
+        form.setRootURL(`https://${window.location.host}/platform/agent/`);
+        form.setRecordID(1);
+        form.getForm(indicatorID, 1);
     }
 
     function signatureRequired(cb, stepID) {
@@ -1980,7 +1997,9 @@
                                     <button type="button" class="buttonNorm" onclick="setDynamicGroupApprover('${res[i].stepID}')">Set Data Field</button>
                                 </li>`;
                             } else if (depID === -4) { // dependencyID -4 : leaf agent
-                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})</li>`;
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})<br />
+                                        <button type="button" class="buttonNorm" onclick="configureAgent(${res[i].stepID})">Configure Agent</button>
+                                    </li>`;
 
                             } else {
                                 if (tDeps[depID] == undefined) {

@@ -77,7 +77,7 @@ services:
         image: golang
         volumes:
             - "../LEAF_Agent/:/app"
-            - "../pkg/formquery/:/pkg/formquery"
+            - "../pkg/:/pkg"
         ports:
             - "8088:8000"
         env_file:

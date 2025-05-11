@@ -2,9 +2,9 @@ package query
 
 type Query struct {
 	Terms       []Term   `json:"terms"`
-	Joins       []string `json:"joins"`
-	Sort        Sort     `json:"sort"`
-	GetData     []int    `json:"getData"`
+	Joins       []string `json:"joins,omitempty"`
+	Sort        Sort     `json:"sort,omitempty"`
+	GetData     []int    `json:"getData,omitempty"`
 	Limit       int      `json:"limit,omitempty"`
 	LimitOffset int      `json:"limitOffset,omitempty"`
 }
