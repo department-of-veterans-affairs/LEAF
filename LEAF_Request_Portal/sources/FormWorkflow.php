@@ -946,6 +946,12 @@ class FormWorkflow
                     }
 
                     break;
+                case -4: // dependencyID -4 : LEAF Agent
+                    if($this->login->getUserID() != getenv('APP_AGENT_USERNAME')) {
+                        http_response_code(403);
+                        return 'Mismatched LEAF Agent account';
+                    }
+                    break;
                 default:
                     http_response_code(400);
                     return 'Invalid Operation';
