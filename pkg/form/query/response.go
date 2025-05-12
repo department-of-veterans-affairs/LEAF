@@ -1,8 +1,42 @@
 package query
 
+import (
+	"encoding/json"
+)
+
 // Response represents the response structure for the "form/query" API endpoint
 // The map's key is the record ID
 type Response map[int]Record
+
+// ResponseCompat provides compatibility with the current response format
+//
+// TODO: if x-filterData= is empty, api/form/query responses should contain empty objects instead of arrays
+type ResponseCompat map[int][]string
+
+// UnmarshallJSON provides compatibility, see ResponseCompat
+func (r *Response) UnmarshalJSON(b []byte) error {
+	var temp map[int]Record
+	err := json.Unmarshal(b, &temp)
+	if err != nil {
+		var rc ResponseCompat
+		err = json.Unmarshal(b, &rc)
+		if err == nil {
+			res := make(Response)
+			for k := range rc {
+				res[k] = Record{}
+			}
+			*r = res
+		} else if string(b) == "[]" {
+			return nil
+		} else {
+			return err
+		}
+	} else {
+		*r = Response(temp)
+	}
+
+	return nil
+}
 
 // Record represents the structure of a single record in the response
 type Record struct {
