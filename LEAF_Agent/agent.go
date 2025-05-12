@@ -22,10 +22,21 @@ type Task struct {
 }
 
 type Instruction struct {
-	Type string `json:"type"`
+	Type    string `json:"type"`
+	Payload any    `json:"payload"`
+}
 
-	ActionType string      `json:"actionType,omitempty"`
+type RouteConditionalDataPayload struct {
+	ActionType string      `json:"actionType"`
 	Query      query.Query `json:"query"`
+}
+
+func ParsePayload[T any](payload any) T {
+	b, _ := json.Marshal(payload)
+
+	var result T
+	json.Unmarshal(b, &result)
+	return result
 }
 
 func ExecuteTask(task Task) {
@@ -35,7 +46,7 @@ loop:
 	for _, ins := range task.Instructions {
 		switch ins.Type {
 		case "route-conditional-data":
-			if err = routeConditionalData(task, ins); err != nil {
+			if err = routeConditionalData(task, ParsePayload[RouteConditionalDataPayload](ins.Payload)); err != nil {
 				log.Println("Error executing route-conditional-data: ", err)
 				break loop
 			}
@@ -51,7 +62,7 @@ loop:
 	}
 }
 
-func routeConditionalData(task Task, ins Instruction) error {
+func routeConditionalData(task Task, payload RouteConditionalDataPayload) error {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -64,7 +75,7 @@ func routeConditionalData(task Task, ins Instruction) error {
 	}
 
 	// Only use allowed terms in the query
-	for _, term := range ins.Query.Terms {
+	for _, term := range payload.Query.Terms {
 		switch term.ID {
 		case "data",
 			"serviceID",
@@ -85,7 +96,7 @@ func routeConditionalData(task Task, ins Instruction) error {
 	}
 
 	for recordID := range records {
-		TakeAction(task.SiteURL, recordID, task.StepID, ins.ActionType, "")
+		TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, "")
 	}
 
 	return nil
@@ -101,10 +112,12 @@ func UpdateTasks() error {
 			},
 		},
 		Joins:   []string{"status"},
-		GetData: []int{2, 3},
+		GetData: []int{2, 3}, // id2 = siteURL, id3 = stepID
 	}
 
 	res, _ := FormQuery(`https://`+HTTP_HOST+`/platform/agent/`, q, "&x-filterData=recordID,stepID,submitted")
+
+	// TODO: Prevent duplicates
 
 	// Get all active tasks
 	activeTasks := make(map[string]query.Record)
