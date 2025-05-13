@@ -40,6 +40,11 @@ func ExecuteTask(task Task) {
 loop:
 	for _, ins := range task.Instructions {
 		switch ins.Type {
+		case "route":
+			if err = route(task, ParsePayload[RoutePayload](ins.Payload)); err != nil {
+				log.Println("Error executing", ins.Type, ": ", err)
+				break loop
+			}
 		case "routeConditionalData":
 			if err = routeConditionalData(task, ParsePayload[RouteConditionalDataPayload](ins.Payload)); err != nil {
 				log.Println("Error executing", ins.Type, ": ", err)
