@@ -26,11 +26,6 @@ type Instruction struct {
 	Payload any    `json:"payload"`
 }
 
-type RouteConditionalDataPayload struct {
-	ActionType string      `json:"actionType"`
-	Query      query.Query `json:"query"`
-}
-
 func ParsePayload[T any](payload any) T {
 	b, _ := json.Marshal(payload)
 
@@ -45,9 +40,9 @@ func ExecuteTask(task Task) {
 loop:
 	for _, ins := range task.Instructions {
 		switch ins.Type {
-		case "route-conditional-data":
+		case "routeConditionalData":
 			if err = routeConditionalData(task, ParsePayload[RouteConditionalDataPayload](ins.Payload)); err != nil {
-				log.Println("Error executing route-conditional-data: ", err)
+				log.Println("Error executing", ins.Type, ": ", err)
 				break loop
 			}
 		default:
@@ -60,46 +55,6 @@ loop:
 	if err == nil {
 		LogSucessfulTask(task.TaskID)
 	}
-}
-
-func routeConditionalData(task Task, payload RouteConditionalDataPayload) error {
-	// Initialize query. At minimum it should only return records that match the stepID
-	query := query.Query{
-		Terms: []query.Term{
-			{
-				ID:       "stepID",
-				Operator: "=",
-				Match:    task.StepID,
-			},
-		},
-	}
-
-	// Only use allowed terms in the query
-	for _, term := range payload.Query.Terms {
-		switch term.ID {
-		case "data",
-			"serviceID",
-			"title",
-			"userID",
-			"dateInitiated",
-			"dateSubmitted",
-			"categoryID",
-			"dependencyID",
-			"stepAction":
-			query.Terms = append(query.Terms, term)
-		}
-	}
-
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
-	if err != nil {
-		return err
-	}
-
-	for recordID := range records {
-		TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, "")
-	}
-
-	return nil
 }
 
 func UpdateTasks() error {

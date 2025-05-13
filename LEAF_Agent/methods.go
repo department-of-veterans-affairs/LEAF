@@ -37,7 +37,7 @@ func TakeAction(siteURL string, recID int, stepID string, actionType string, com
 
 // UpdateRecord updates a record with the provided data.
 // data is a map where the keys are field IDs (indicatorID) and the values are written into the record matching recID
-func UpdateRecord(siteURL string, recID int, data map[int]string) {
+func UpdateRecord(siteURL string, recID int, data map[int]string) error {
 	recordID := strconv.Itoa(recID)
 
 	values := url.Values{}
@@ -46,5 +46,18 @@ func UpdateRecord(siteURL string, recID int, data map[int]string) {
 		values.Add(strconv.Itoa(k), v)
 	}
 
-	HttpPost(siteURL+"api/form/"+recordID, values)
+	res, err := HttpPost(siteURL+"api/form/"+recordID, values)
+	if err != nil {
+		log.Println("Error updating record:", siteURL, recID)
+		return err
+	}
+
+	if res.StatusCode == 200 {
+		log.Println("Record updated:", siteURL, recordID)
+		return nil
+	} else {
+		errMsg, _ := io.ReadAll(res.Body)
+		log.Println("Failed to update record:", siteURL, recordID, res.StatusCode, string(errMsg))
+		return errors.New("Failed to update record: " + string(errMsg))
+	}
 }
