@@ -53,7 +53,7 @@ func UpdateRecord(siteURL string, recID int, data map[int]string) error {
 	}
 
 	if res.StatusCode == 200 {
-		log.Println("Record updated:", siteURL, recordID)
+		log.Println("Record updated:", siteURL+"?a=printview&recordID="+recordID)
 		return nil
 	} else {
 		errMsg, _ := io.ReadAll(res.Body)
