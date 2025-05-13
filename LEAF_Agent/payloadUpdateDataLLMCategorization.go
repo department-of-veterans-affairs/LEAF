@@ -46,7 +46,7 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 	for _, category := range payload.Categories {
 		description := ""
 		if category.Description != "" {
-			description = " (" + category.Description + ")"
+			description = " (e.g. " + category.Description + ")"
 		}
 		categories += "- " + category.Name + description + "\n"
 	}
@@ -55,7 +55,7 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 	for recordID, record := range records {
 		// Get response from LLM
 		prompt := message{
-			Role:    "user",
+			Role:    "system",
 			Content: "Categorize the following text. Only respond with one of these categories:\n" + categories,
 		}
 		input := message{
