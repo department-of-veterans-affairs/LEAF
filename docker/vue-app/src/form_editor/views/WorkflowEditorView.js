@@ -89,7 +89,7 @@ export default {
 
         'showFormDialog',
         'dialogFormContent',
-
+        'openBasicConfirmDialog',
         'openWorkflowActionDialog',
     ],
     beforeRouteEnter(to, from, next) {
@@ -98,7 +98,7 @@ export default {
             vm.setDefaultAjaxResponseMessage();
         });
     },
-    beforeRouteLeave(to, from) {
+    beforeRouteLeave() {
         this.jsPlumbInstance.reset();
     },
     mounted() {
@@ -137,7 +137,11 @@ export default {
             postNewAction: this.postNewAction,
             postEditAction: this.postEditAction,
             loadWorkflow: this.loadWorkflow,
-            updateWorkflowSteps: this.updateWorkflowSteps,
+
+            updateStepTitle: this.updateStepTitle,
+            postStepModule: this.postStepModule,
+            removeAction: this.removeAction,
+            redraw: this.redraw,
             closeWorkflowStepInfo: this.closeWorkflowStepInfo,
         }
     },
@@ -270,7 +274,7 @@ export default {
             return step !== undefined ? {
                 left: Math.max(parseInt(step.posX), 0) + 'px',
                 top: Math.max(parseInt(step.posY), spacerY) + 'px',
-                fontSize: step?.stepTitle?.length > 40 ? '90%' : '100%',
+                fontSize: step?.stepTitle?.length > 40 ? '86%' : '100%',
                 backgroundColor: step.stepBgColor,
                 fontWeight: 'normal',
             } : {};
@@ -315,6 +319,7 @@ export default {
         deleteWorkflow() {
 
         },
+
         /** returns Promise */
         getCurrentWorkflow() {
             return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}`).then(res => res.json());
@@ -326,9 +331,6 @@ export default {
         //** return Promise */
         getCurrentWorkflowCategories() {
             return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/categories`).then(res => res.json());
-        },
-        updateWorkflowSteps() {
-            this.getCurrentWorkflow().then(data => this.steps = data).catch(err => console.log(err));
         },
         /**
          * fetch workflows once view is mounted, then update workflow editor
@@ -576,6 +578,14 @@ export default {
                 endpointEls.forEach(el => el.style.backgroundImage = `url(${this.libsPath}dynicons/svg/network-wired.svg)`);
             });
         },
+        redraw() {
+            this.getCurrentWorkflowRoutes().then(routes => {
+                this.routes = routes;
+                this.jsPlumbInstance.reset();
+                this.jsPlumbConfig();
+                this.drawRoutes();
+            });
+        },
         /**
          * Update local position settings and save settings for non built-in steps
          * Update local position settings for built-in steps 
@@ -691,7 +701,7 @@ export default {
         createConnection(workflowID, stepID, nextStepID) {
             //if stepID/source is requestor, set the initial step
             if(stepID === -1) {
-                //don't loop back on requestor //TODO: look for jsPlumb guards against specific connections
+                //don't loop back on requestor
                 if (nextStepID !== -1) {
                     this.setInitialStep(workflowID, nextStepID, () => {
                         //update the initialStepID value of the local workflow record
@@ -700,17 +710,17 @@ export default {
                                 wf.initialStepID = nextStepID;
                             }
                         });
-                        //if requestor -> end, add this workflow route before reloading
+                        //if requestor -> end, add this workflow route before redrawing
                         if(nextStepID === 0) {
                             this.postActionConnection(
                                 -1,
                                 0,
                                 'submit',
                                 workflowID,
-                                this.loadWorkflow
+                                this.redraw
                             );
-                        } else { //otherwise just reload
-                            this.loadWorkflow();
+                        } else { //otherwise just redraw
+                            this.redraw();
                         }
                     });
                 }
@@ -722,7 +732,7 @@ export default {
                     0,
                     'sendback',
                     workflowID,
-                    this.loadWorkflow
+                    this.redraw
                 );
 
             //open the modal for other routes
@@ -745,6 +755,44 @@ export default {
                 }
             }).catch(err => console.log(err));
         },
+        updateStepTitle(stepID = 0, stepTitle = '') {
+            if (stepID > 0) {
+                let formData = new FormData();
+                formData.append('CSRFToken', this.CSRFToken);
+                formData.append('title', stepTitle);
+
+                fetch(`${this.APIroot}workflow/step/${stepID}`, {
+                    method: 'POST',
+                    body: formData,
+                }).then(res => res.json()).then(data => {
+                    if(+data === 1) {
+                        this.steps[stepID].stepTitle = stepTitle;
+                    } else {
+                        console.log("issue saving step title", data);
+                    }
+                }).catch(err => console.log(err));
+            }
+        },
+        postStepModule(stepID = '', indicatorID = 0) {
+            if(indicatorID > 0) {
+                let formData = new FormData();
+                formData.append('CSRFToken', this.CSRFToken);
+                formData.append('indicatorID', indicatorID);
+
+                fetch(`${this.APIroot}workflow/step/${stepID}/inlineIndicator`, {
+                    method: 'POST',
+                    body: formData
+                }).then(res => res.json()).then(data => {
+                    if(+data === 1) {
+                        this.getCurrentWorkflow()
+                        .then(data => this.steps = data)
+                        .catch(err => console.log(err));
+                    } else {
+                        console.log("issue saving form field", data);
+                    }
+                }).catch(err => console.log(err));
+            }
+        },
         postActionConnection(sourceID = 0, targetID = 0, actionType = '', workflowID = this.currentWorkflowID, callback = {}) {
             let formData = new FormData();
             formData.append('CSRFToken', this.CSRFToken);
@@ -759,6 +807,7 @@ export default {
                 if (+data !== 1) {
                     console.log("issue connecting route action", data);
                 }
+                //callback for actions posted via UI will be redraw, which will first update routes array
                 if(typeof callback === 'function') {
                     callback();
                 }
@@ -787,6 +836,33 @@ export default {
                     callback();
                 }
             }).catch(err => console.log(err));
+        },
+        removeAction(workflowID, stepID, actionType, nextStepID, actionText = '') {
+            if (this.showFormDialog === false) {
+                const fromTitle = this.steps[stepID]?.stepTitle ?? '';
+                const toTitle = actionType === 'sendback' ? 'Requestor' :
+                    nextStepID === 0 ? 'End' : this.steps[nextStepID]?.stepTitle ?? '';
+                this.openBasicConfirmDialog(
+                    `Confirm removal of action <b>${actionText}</b>
+                        <div id="remove_action_confirm">
+                            <div class="workflowStep">${fromTitle}<br>(step#${stepID})</div> → 
+                            <span style="cursor:auto;" class="workflowAction ">${actionText}</span> → 
+                            <div class="workflowStep">${toTitle}<br>(step#${nextStepID})</div>
+                        </div>`,
+                    () => this.removeAction(workflowID, stepID, actionType, nextStepID)
+                );
+            } else {
+                const p = `?CSRFToken=${this.CSRFToken}`
+                fetch(`${this.APIroot}workflow/${workflowID}/step/${stepID}/_${actionType}/${nextStepID}${p}`, {
+                    method: 'DELETE'
+                }).then(res => res.json()).then(data => {
+                    if (+data === 1) {
+                        this.redraw();
+                    } else {
+                        console.log("issue removing action", data);
+                    }
+                }).catch(err => console.log(err));
+            }
         }
     },
     watch: {

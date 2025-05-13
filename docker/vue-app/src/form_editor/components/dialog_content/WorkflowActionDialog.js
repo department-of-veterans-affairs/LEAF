@@ -39,7 +39,7 @@ export default {
         'postActionConnection',
         'postNewAction',
         'postEditAction',
-        'loadWorkflow',
+        'redraw',
         'setDialogSaveFunction',
         'closeFormDialog'
 	],
@@ -113,7 +113,7 @@ export default {
         onSave() {
             const callback = () => {
                 this.closeFormDialog();
-                this.loadWorkflow();
+                this.redraw();
             }
             if (this.isWorkflowConnection && !this.showInputs) {
                 const sourceID = this.stepID < 0 ? 0 : this.stepID;
@@ -156,6 +156,7 @@ export default {
                 <div>
                     <label for="actionType" id="actionType_label">Select an existing action type:</label>
                     <select id="actionType" v-model="selectedExistingActionType">
+                        <option value="">Select an Action</option>
                         <option v-for="a in actions" :key="'select_' + a.actionType" :value="a.actionType">
                             {{ a.actionText }}
                         </option>
@@ -164,7 +165,7 @@ export default {
             </template>
             <template v-if="isWorkflowConnection">
                 <fieldset>
-                    <legend>Action Options</legend>
+                    <legend>Options</legend>
                     <label>
                         <input type="radio" v-model="showInputs" v-bind:value="false">
                         Use an existing Action Type

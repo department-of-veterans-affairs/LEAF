@@ -97,18 +97,6 @@
     overflow-y: auto;
     width: 100%;
 
-    button.workflowStep {
-        position: absolute;
-        width: 172px;
-        height: 50px;
-        background-color: rgb(255, 253, 205);
-        text-wrap: auto;
-        padding: 3px;
-        border: 3px solid #707074;
-        box-shadow: 2px 2px 6px 1px rgba(0,0,25,0.4);
-        cursor: pointer;
-    }
-
     .workflowStepInfo {
         z-index: 100;
         position: absolute;
@@ -215,6 +203,35 @@
         height: 48px;
         width: 48px;
         cursor: pointer;
+    }
+}
+
+button.workflowStep, div.workflowStep {
+    position: absolute;
+    width: 172px;
+    height: 50px;
+    background-color: rgb(255, 253, 205);
+    white-space: normal !important;
+    padding: 3px;
+    border: 3px solid #707074;
+    box-shadow: 2px 2px 6px 1px rgba(0,0,25,0.4);
+    cursor: pointer;
+}
+
+#remove_action_confirm {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 0;
+
+    div.workflowStep {
+        position: relative;
+        text-align: center;
+        height: auto;
+        font-size: 90%;
+        border: 2px solid #000;
+        box-shadow: none;
+        cursor: auto;
     }
 }
 

@@ -44,15 +44,16 @@ export default {
         'routes',
         'workflowCategories',
         'createConnection',
-        'updateWorkflowSteps',
+
+        'updateStepTitle',
+        'postStepModule',
+        'removeAction',
+
         'closeWorkflowStepInfo',
         'openBasicConfirmDialog',
         'showFormDialog',
     ],
     computed: {
-        openConfirm() {
-            return this.showFormDialog === false;
-        },
         isEditable() {
             return this.currentWorkflowID > 0;
         },
@@ -88,8 +89,7 @@ export default {
             let routesArr = [];
             this.routes.map(r => {
                 if(r.stepID === this.stepID) {
-                    const { actionText, actionIcon, actionType, stepID } = r;
-                    routesArr.push( { actionText, actionIcon, actionType, stepID });
+                    routesArr.push({ ... r });
                 }
                 if(r.actionType === "submit") { //copied logic from mod_form - not sure it's ever here
                     hasSubmit = true;
@@ -296,32 +296,14 @@ export default {
                 this.indicatorListAll = data;
             }).catch(err => console.log(err));
         },
-        postStepModule(stepID = '') {
-            let formData = new FormData();
-            formData.append('CSRFToken', this.CSRFToken);
-            formData.append('indicatorID', this.leafWorkflowIndicator);
 
-            fetch(`${this.APIroot}workflow/step/${stepID}/inlineIndicator`, {
-                method: 'POST',
-                body: formData
-            }).then(res => res.json()).then(data => {
-                if(+data !== 1) {
-                    console.log("issue saving form field", data);
-                } else {
-                    this.updateWorkflowSteps();
-                }
-            }).catch(err => console.log(err));
-        },
-        updateStepTitle() {
-            console.log("update title")
-        },
         editRequirement() {
             console.log("edit requirement")
         },
-        unlinkDependency(dependencyID = 0, dependencyDescription) {
-            if (this.openConfirm) {
+        unlinkDependency(dependencyID = 0, dependencyDescription = '') {
+            if (this.showFormDialog === false) {
                 this.openBasicConfirmDialog(
-                    `<b>Remove Requirement:<br>${dependencyDescription}</b> from <b>Step ${this.stepID}</b>?`,
+                    `Confirm removal of requirement:<br><b>${dependencyDescription}</b> from <b>Step ${this.stepID}</b>`,
                     () => this.unlinkDependency(dependencyID)
                 );
             } else {
@@ -377,8 +359,9 @@ export default {
         <div v-if="workflowStepInfoType === 'step' && stepID !== null" id="stepInfo_content">
             <template v-if="isNotEnd">
                 <template v-if="isNotRequestor">
-                    <label for="step_title"> Step Title:
-                        <input id="step_title" type="text" v-model="stepTitleInput" @change="updateStepTitle" :disabled="!isEditable">
+                    <label for="title"> Step Title:
+                        <input id="title" type="text" v-model="stepTitleInput"
+                        maxlength="64" @change="updateStepTitle(stepID, stepTitleInput)" :disabled="!isEditable">
                     </label>
                     <div v-if="!loadingDependencies">
                         <b>Requirements</b>
@@ -460,7 +443,8 @@ export default {
                 <fieldset>
                     <legend>Options</legend>
                     <label v-if="stepID > 0" :for="'workflowIndicator_' + stepID" style="margin:0 0 1.25rem 0;"> Form Field:
-                        <select :id="'workflowIndicator_' + stepID" v-model="leafWorkflowIndicator" @change="postStepModule(stepID)" :disabled="!isEditable">
+                        <select :id="'workflowIndicator_' + stepID" v-model="leafWorkflowIndicator"
+                            @change="postStepModule(stepID, leafWorkflowIndicator)" :disabled="!isEditable">
                             <option value="">None</option>
                             <option v-for="f in formfieldOptions"
                                 :key="f.categoryID + '_' + f.indicatorID" :value="f.indicatorID">
@@ -485,7 +469,7 @@ export default {
                                 <button v-if="isEditable && r.stepID !== -1" type="button" class="icon"
                                     :aria-label="'Remove action: ' + r.actionText + ', step ' + r.stepID"
                                     title="Remove this action"
-                                    aria-label="Remove Action">
+                                    aria-label="Remove Action" @click="removeAction(currentWorkflowID, stepID, r.actionType, r.nextStepID, r.actionText)">
                                     <img :src="libsPath + 'dynicons/svg/dialog-error.svg'" alt="">
                                 </button>
                             </li>
