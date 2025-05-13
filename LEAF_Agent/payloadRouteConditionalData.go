@@ -7,6 +7,7 @@ import (
 type RouteConditionalDataPayload struct {
 	ActionType string      `json:"actionType"`
 	Query      query.Query `json:"query"`
+	Comment    string      `json:"comment"`
 }
 
 func routeConditionalData(task Task, payload RouteConditionalDataPayload) error {
@@ -43,7 +44,7 @@ func routeConditionalData(task Task, payload RouteConditionalDataPayload) error 
 	}
 
 	for recordID := range records {
-		TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, "")
+		TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
 	}
 
 	return nil
