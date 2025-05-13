@@ -50,6 +50,11 @@ loop:
 				log.Println("Error executing", ins.Type, ": ", err)
 				break loop
 			}
+		case "updateDataLLMCategorization":
+			if err := updateDataLLMCategorization(task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload)); err != nil {
+				log.Println("Error executing", ins.Type, ": ", err)
+				break loop
+			}
 		default:
 			err = errors.New("Unsupported instruction type: " + ins.Type + "Task ID# " + strconv.Itoa(task.TaskID))
 			log.Println("Unsupported instruction type: ", ins.Type, "Task ID#", task.TaskID)
