@@ -976,8 +976,9 @@ class FormWorkflow
                 RIGHT JOIN records_workflow_state USING (stepID)
                 LEFT JOIN workflow_steps USING (stepID)
                 LEFT JOIN dependencies USING (dependencyID)
-                WHERE recordID = :recordID
-                AND dependencyID = :dependencyID
+                LEFT JOIN records_dependencies USING (recordID, dependencyID)
+                WHERE records_workflow_state.recordID = :recordID
+                AND step_dependencies.dependencyID = :dependencyID
                 AND stepID = :stepID';
             $res = $this->db->prepared_query($strSQL, $vars);
         }
@@ -985,6 +986,13 @@ class FormWorkflow
         if(count($res) == 0) {
             http_response_code(409);
             return 'This page is out of date. Please refresh for the latest status.';
+        }
+
+        // If stepID was provided, check if the requirement has already been fulfilled
+        if($stepID != null && $res[0]['filled'] == 1) {
+            // If the requirement has already been fulfilled, this prevents duplicate history entries
+            http_response_code(202);
+            return 'Action has already been applied';
         }
 
         $logCache = array();
