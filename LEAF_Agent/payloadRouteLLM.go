@@ -51,6 +51,11 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 	}
 	actions = strings.Trim(actions, "\n")
 
+	indicators, err := GetIndicatorList(task.SiteURL)
+	if err != nil {
+		return err
+	}
+
 	for recordID, record := range records {
 		// Get response from LLM
 		prompt := message{
@@ -59,7 +64,7 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 		}
 		context := ""
 		for _, indicatorID := range payload.ReadIndicatorIDs {
-			context += record.S1["id"+strconv.Itoa(indicatorID)] + "\n\n"
+			context += indicators[indicatorID] + ": " + record.S1["id"+strconv.Itoa(indicatorID)] + "\n\n"
 		}
 		context = strings.Trim(context, "\n")
 
