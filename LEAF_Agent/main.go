@@ -12,6 +12,7 @@ import (
 )
 
 var client *http.Client
+var clientLLM *http.Client
 var AGENT_TOKEN = os.Getenv("AGENT_TOKEN")
 var HTTP_HOST = os.Getenv("APP_HTTP_HOST")
 var AGENT_LLM_TOKEN = os.Getenv("AGENT_LLM_TOKEN")
@@ -29,6 +30,13 @@ func main() {
 		Transport: tr,
 		Timeout:   time.Second * 5,
 		Jar:       cookieJar,
+	}
+
+	var cookieJarLLM, _ = cookiejar.New(nil)
+	clientLLM = &http.Client{
+		Transport: tr,
+		Timeout:   time.Second * 60,
+		Jar:       cookieJarLLM,
 	}
 
 	log.Println("Starting LEAF Agent Coordinator...")

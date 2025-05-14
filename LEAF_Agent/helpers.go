@@ -59,3 +59,39 @@ func FormQuery(siteURL string, q query.Query, params string) (query.Response, er
 
 	return response, nil
 }
+
+func GetIndicatorList(siteURL string) (map[int]string, error) {
+	res, err := HttpGet(siteURL + "api/form/indicator/list?sort=indicatorID&x-filterData=indicatorID,name,description")
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	type ind struct {
+		IndicatorID int    `json:"indicatorID"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	}
+
+	var data []ind
+	err = json.Unmarshal(b, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	indicatorList := make(map[int]string)
+	for _, indicator := range data {
+		indicatorID := indicator.IndicatorID
+
+		indicatorList[indicatorID] = indicator.Name
+		if indicator.Description != "" {
+			indicatorList[indicatorID] = indicator.Description
+		}
+	}
+
+	return indicatorList, nil
+}
