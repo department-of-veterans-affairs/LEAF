@@ -815,9 +815,10 @@ class FormWorkflow
      * @param int $dependencyID
      * @param string $actionType
      * @param string (optional) $comment
+     * @param int (optional) $stepID stepID must be kept optional in order to support multi-workflow records.
      * @return string|array {errors(array), comment(string)} Returns a string on client-side error, containing the error message
      */
-    public function handleAction(int $dependencyID, string $actionType, ?string $comment = ''): string|array
+    public function handleAction(int $dependencyID, string $actionType, ?string $comment = '', ?int $stepID = null): string|array
     {
         if (!is_numeric($dependencyID))
         {
@@ -951,16 +952,34 @@ class FormWorkflow
         }
 
         // get every step associated with dependencyID
-        $vars = array(':recordID' => $this->recordID,
-                      ':dependencyID' => $dependencyID, );
-        $strSQL = 'SELECT * FROM step_dependencies
-            RIGHT JOIN records_workflow_state USING (stepID)
-            LEFT JOIN workflow_steps USING (stepID)
-            LEFT JOIN dependencies USING (dependencyID)
-            WHERE recordID = :recordID
-            AND dependencyID = :dependencyID';
-        $res = $this->db->prepared_query($strSQL, $vars);
-
+        // use stepID if provided
+        $res = [];
+        if($stepID == null)
+        {
+            $vars = array(':recordID' => $this->recordID,
+                        ':dependencyID' => $dependencyID, );
+            $strSQL = 'SELECT * FROM step_dependencies
+                RIGHT JOIN records_workflow_state USING (stepID)
+                LEFT JOIN workflow_steps USING (stepID)
+                LEFT JOIN dependencies USING (dependencyID)
+                WHERE recordID = :recordID
+                AND dependencyID = :dependencyID';
+            $res = $this->db->prepared_query($strSQL, $vars);
+        }
+        else
+        {
+            $vars = array(':recordID' => $this->recordID,
+                        ':dependencyID' => $dependencyID,
+                        ':stepID' => $stepID);
+            $strSQL = 'SELECT * FROM step_dependencies
+                RIGHT JOIN records_workflow_state USING (stepID)
+                LEFT JOIN workflow_steps USING (stepID)
+                LEFT JOIN dependencies USING (dependencyID)
+                WHERE recordID = :recordID
+                AND dependencyID = :dependencyID
+                AND stepID = :stepID';
+            $res = $this->db->prepared_query($strSQL, $vars);
+        }
 
         if(count($res) == 0) {
             http_response_code(409);
