@@ -13,18 +13,17 @@ import (
 	"github.com/department-of-veterans-affairs/LEAF/pkg/form/query"
 )
 
-type UpdateDataLLMCategorizationPayload struct {
-	Categories       []category `json:"categories"`
-	ReadIndicatorIDs []int      `json:"readIndicatorIDs"`
-	WriteIndicatorID int        `json:"writeIndicatorID"`
+type RouteLLMPayload struct {
+	Actions          []action `json:"actions"`
+	ReadIndicatorIDs []int    `json:"readIndicatorID"`
 }
 
-type category struct {
-	Name        string `json:"name"`
+type action struct {
+	ActionType  string `json:"actionType"`
 	Description string `json:"description"`
 }
 
-func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationPayload) error {
+func routeLLM(task Task, payload RouteLLMPayload) error {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -42,36 +41,31 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 		return err
 	}
 
-	var categories string
-	for _, category := range payload.Categories {
+	var actions string
+	for _, action := range payload.Actions {
 		description := ""
-		if category.Description != "" {
-			description = " (e.g. " + category.Description + ")"
+		if action.Description != "" {
+			description = " (e.g. " + action.Description + ")"
 		}
-		categories += "- " + category.Name + description + "\n"
+		actions += "- " + action.ActionType + description + "\n"
 	}
-	categories = strings.Trim(categories, "\n")
-
-	indicators, err := GetIndicatorList(task.SiteURL)
-	if err != nil {
-		return err
-	}
+	actions = strings.Trim(actions, "\n")
 
 	for recordID, record := range records {
 		// Get response from LLM
 		prompt := message{
 			Role:    "system",
-			Content: "Categorize the following text. Only respond with one of these categories:\n" + categories,
+			Content: "Categorize the following text. Only respond with one of these categories:\n" + actions,
 		}
 		context := ""
 		for _, indicatorID := range payload.ReadIndicatorIDs {
-			context += indicators[indicatorID] + ": " + record.S1["id"+strconv.Itoa(indicatorID)] + "\n"
+			context += record.S1["id"+strconv.Itoa(indicatorID)] + "\n\n"
 		}
 		context = strings.Trim(context, "\n")
 
 		input := message{
 			Role:    "user",
-			Content: context,
+			Content: record.S1["id"+context],
 		}
 
 		config := completions{
@@ -113,17 +107,15 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 
 		// Restrict output to predefined list
 		hasApprovedOutput := false
-		for i := range payload.Categories {
-			if payload.Categories[i].Name == cleanResponse {
+		for i := range payload.Actions {
+			if payload.Actions[i].ActionType == cleanResponse {
 				hasApprovedOutput = true
 				break
 			}
 		}
 
 		if hasApprovedOutput {
-			data := map[int]string{}
-			data[payload.WriteIndicatorID] = cleanResponse
-			UpdateRecord(task.SiteURL, recordID, data)
+			TakeAction(task.SiteURL, recordID, task.StepID, cleanResponse, "")
 		} else {
 			log.Println("LLM invalid output: ", "'"+llmResponse.Choices[0].Message.Content+"'", "TaskID:", task.TaskID, "RecordID:", recordID)
 		}

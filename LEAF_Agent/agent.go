@@ -50,6 +50,11 @@ loop:
 				log.Println("Error executing", ins.Type, ": ", err)
 				break loop
 			}
+		case "routeLLM":
+			if err = routeLLM(task, ParsePayload[RouteLLMPayload](ins.Payload)); err != nil {
+				log.Println("Error executing", ins.Type, ": ", err)
+				break loop
+			}
 		case "updateDataLLMCategorization":
 			if err := updateDataLLMCategorization(task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload)); err != nil {
 				log.Println("Error executing", ins.Type, ": ", err)
