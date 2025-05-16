@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - Git
-- Docker:  You'll need to ensure that your hosts file has a line pointing *.docker.internal to localhost (127.0.0.1)
+- Docker: you will need to ensure that your host file contains the line `127.0.0.1 host.docker.internal` 
 
 ## Installation
 

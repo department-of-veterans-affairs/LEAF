@@ -77,11 +77,19 @@
                             </tr>
                             <tr>
                                 <td><b>{{$fullTitle}}</b></td>
-                                <td>The full title of the request. <span style="color:#c00000;">If need to know is on: The type of form.</span></td>
+                                <td>The full title of the request<br /><span style="color:#c00000;">If need to know is on: The type of form</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$fullTitle_insecure}}</b></td>
+                                <td>The full title of the request<br /><span style="color:#c00000;">By using this variable, I certify that record titles related to these emails are not designed to contain PHI/PII.</span></td>
                             </tr>
                             <tr>
                                 <td><b>{{$truncatedTitle}}</b></td>
-                                <td>A truncated version of the request title. <span style="color:#c00000;">If need to know is on: The type of form.</span></td>
+                                <td>The request title, truncated to 45 characters in length<br /><span style="color:#c00000;">If need to know is on: The type of form</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$truncatedTitle_insecure}}</b></td>
+                                <td>The request title, truncated to 45 characters in length<br /><span style="color:#c00000;">By using this variable, I certify that record titles related to these emails are not designed to contain PHI/PII.</span></td>
                             </tr>
                             <tr>
                                 <td><b>{{$formType}}</b></td>
@@ -106,8 +114,7 @@
                             <tr>
                                 <td><b>{{$field.&lt;fieldID&gt;}}</fieldID>
                                 </td>
-                                <td>The value of the field by ID. <span style="color:#c00000;">Sensitive data fields may
-                                        not be included in email templates.</span></td>
+                                <td>The value of the field by ID<br /><span style="color:#c00000;">Sensitive data fields will not work in email templates.</span></td>
                             </tr>
                         </table>
                     </fieldset>

@@ -541,7 +541,7 @@
                 $('#' + data.cellContainerID).css('text-align', 'center');
                 $('#' + data.cellContainerID).html('<button type="button" id="btn_action' + hash + '_' + stepID + '_' +
                                                    data.recordID +
-                                                   '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal">' +
+                                                   '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" disabled>' +
                                                    depDescription + '</button>');
                 $('#btn_action' + hash + '_' + stepID + '_' + data.recordID).on('click', function() {
                     loadWorkflow(data.recordID, formGrid.getPrefixID(), site.url);
@@ -555,7 +555,8 @@
                             });
                         }
                     });
-                })
+                });
+                document.querySelector(`#btn_action${hash}_${stepID}_${data.recordID}`).removeAttribute('disabled');
             }
         }];
         headers = customCols.concat(headers);
@@ -614,10 +615,10 @@
         let allCategoriesMatch = true;
         if(recordIDs.length > 0) {
             recordIDs.forEach(recordID => {
-                if(firstMatch == null) {
+                if(res[recordID]?.categoryIDs?.length > 0 && firstMatch == null) {
                     firstMatch = res[recordID].categoryIDs[0];
                 }
-                if(firstMatch != res[recordID].categoryIDs[0]) {
+                if( res[recordID].categoryIDs !== undefined && firstMatch != res[recordID].categoryIDs[0]) {
                     allCategoriesMatch = false;
                     return;
                 }
@@ -625,7 +626,7 @@
 
             if(allCategoriesMatch) {
                 for(let i in categoryIDs) {
-                    if(categoryIDs[i][0] == firstMatch) {
+                    if(categoryIDs[i] !== undefined  && categoryIDs[i][0] == firstMatch) {
                         enabledCategoryIDs = categoryIDs[i];
                     }
                 }
