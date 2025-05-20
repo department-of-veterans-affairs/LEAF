@@ -467,6 +467,7 @@
     }
 
     function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
+        const urlParams = new URLSearchParams(window.location.search);
         let customColumns = false;
         let categoryID = null;
         let categoryMap = {};
@@ -530,16 +531,16 @@
             let baseColumns = '';
             if(site.columns == null || site.columns == 'UID') { //default inbox if there is no site map card
                 // Add the Form Type to the "Organize by Roles" view. Provides feature parity with the old Inbox.
-                if(categoryIDs == undefined || categoryIDs?.length > 1) {
+                if(urlParams.get('organizeByRole') !== null) {
                     baseColumns = 'UID,type,service,title,status';
                 } else {
                     baseColumns = 'UID,service,title,status';
                 }
-            } else {
+            } else { //portal base (non form-secific config)
                 baseColumns = site.columns;
             }
 
-            //NOTE: not sure if needed - idea is to compare with form count and only show headers if every row has the form
+            //compared with form count to only show headers if every row has the form
             const sectionNumRecords = recordIDs?.length || 0;
             let formColumns = null;
             if (categoryIDs?.length === 1) {
@@ -547,11 +548,12 @@
                 const categoryID = categoryIDs[0];
                 formColumns = site?.formColumns?.[categoryID] || baseColumns;
             } else {
-                //if more than one, or none (role view), use the map to make a set of cols from any custom cols
+                //if more than one, or undefined (role view), use the map to set formColumns
                 let nonIndCols = [];
                 let indCols = [];
                 for (let form in categoryMap) {
-                    if(categoryMap[form].formColumns !== '') {
+                    //remove the 2nd condition to allow custom columns even if there is more than one form
+                    if(categoryMap[form].formColumns !== '' && categoryMap[form].count === sectionNumRecords) {
                         const cols = categoryMap[form].formColumns.split(',');
                         cols.forEach(c => {
                             +c > 0 ? indCols.push(c) : nonIndCols.push(c);
@@ -561,8 +563,7 @@
                 nonIndCols = Array.from(new Set(nonIndCols));
                 indCols = Array.from(new Set(indCols));
                 if(nonIndCols.length > 0) {
-                    const formtype = categoryIDs === undefined || categoryIDs?.length > 1 ? 'type,' : '';
-                    formColumns = formtype + nonIndCols.join(',');
+                    formColumns = nonIndCols.join(',');
                 }
                 if(indCols.length > 0) {
                     formColumns += ',' + indCols.join(',');
@@ -570,12 +571,20 @@
             }
 
             if (formColumns !== null) {
-                const id = !/^UID/i.test(formColumns) ? 'UID,' : '';
-                headerColumns = id + formColumns;
+                headerColumns = formColumns;
             } else {
                 headerColumns = baseColumns;
             }
-            headerColumns = headerColumns.split(",")
+
+            const id = !/^UID/i.test(headerColumns) ? 'UID,' : '';
+            headerColumns = id + headerColumns;
+
+            const needsTypeCol = urlParams.get('organizeByRole') !== null && !/,type,/i.test(headerColumns);
+
+            headerColumns = headerColumns.split(",");
+            if (needsTypeCol === true) { //confirm type exists if role view
+                headerColumns.splice(1, 0, 'type');
+            }
         }
 
         let customCols = [];
