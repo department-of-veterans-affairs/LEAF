@@ -1,5 +1,7 @@
 package main
 
+// Completions is the structure of the response from llama.cpp's Open-AI compatible Completions API
+// API overview: https://github.com/ggml-org/llama.cpp/tree/master/tools/server
 type completions struct {
 	Model               string    `json:"model"`
 	Messages            []message `json:"messages"`

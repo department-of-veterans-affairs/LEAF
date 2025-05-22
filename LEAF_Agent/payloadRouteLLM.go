@@ -96,7 +96,14 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 			log.Println("LLM: ", err)
 		}
 
-		b, _ := io.ReadAll(res.Body)
+		b, err := io.ReadAll(res.Body)
+		if err != nil {
+			log.Println("LLM Read Err: ", err)
+		}
+
+		if res.StatusCode != 200 {
+			return errors.New("LLM Status " + strconv.Itoa(res.StatusCode) + ": " + string(b))
+		}
 
 		var llmResponse response
 		err = json.Unmarshal(b, &llmResponse)

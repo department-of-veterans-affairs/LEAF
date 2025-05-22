@@ -8,6 +8,7 @@ import (
 	"net/http/cookiejar"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -18,6 +19,7 @@ var AGENT_TOKEN = os.Getenv("AGENT_TOKEN")
 var HTTP_HOST = os.Getenv("APP_HTTP_HOST")
 var AGENT_LLM_TOKEN = os.Getenv("AGENT_LLM_TOKEN")
 var APP_AGENT_LLM_URL_CATEGORIZATION = os.Getenv("APP_AGENT_LLM_URL_CATEGORIZATION")
+var wg sync.WaitGroup
 
 func Runner(ctx context.Context, task chan Task) {
 	for {
@@ -83,14 +85,19 @@ func main() {
 		}
 
 		for _, task := range tasks {
+			wg.Add(1)
 			taskChan <- task
 
 			select {
 			case <-ctxExit.Done():
+				log.Println("Waiting for in-progress tasks to complete...")
+				wg.Wait()
 				return
 			default:
 			}
 		}
+
+		wg.Wait()
 
 		// Capture exit signal even if task list is empty
 		select {

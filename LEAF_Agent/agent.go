@@ -35,6 +35,7 @@ func ParsePayload[T any](payload any) T {
 }
 
 func ExecuteTask(task Task) {
+	defer wg.Done()
 	log.Println("Executing Task ID#", task.TaskID)
 	var err error
 loop:
@@ -85,7 +86,10 @@ func UpdateTasks() error {
 		GetData: []int{2, 3}, // id2 = siteURL, id3 = stepID
 	}
 
-	res, _ := FormQuery(`https://`+HTTP_HOST+`/platform/agent/`, q, "&x-filterData=recordID,stepID,submitted")
+	res, err := FormQuery(`https://`+HTTP_HOST+`/platform/agent/`, q, "&x-filterData=recordID,stepID,submitted")
+	if err != nil {
+		return err
+	}
 
 	// TODO: Prevent duplicates
 
