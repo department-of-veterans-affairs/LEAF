@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"log"
 	"net/http"
@@ -17,6 +18,18 @@ var AGENT_TOKEN = os.Getenv("AGENT_TOKEN")
 var HTTP_HOST = os.Getenv("APP_HTTP_HOST")
 var AGENT_LLM_TOKEN = os.Getenv("AGENT_LLM_TOKEN")
 var APP_AGENT_LLM_URL_CATEGORIZATION = os.Getenv("APP_AGENT_LLM_URL_CATEGORIZATION")
+
+func Runner(ctx context.Context, task chan Task) {
+	for {
+		select {
+		case t := <-task:
+			ExecuteTask(t)
+		case <-ctx.Done():
+			return
+		}
+
+	}
+}
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -42,17 +55,19 @@ func main() {
 	log.Println("Starting LEAF Agent Coordinator...")
 
 	// Setup graceful shutdown
+	ctxExit, cancel := context.WithCancel(context.Background())
 	exit := make(chan os.Signal, 1)
-	closeTicker := make(chan bool)
 	signal.Notify(exit, os.Interrupt, syscall.SIGTERM)
 
-	burstLimiter := make(chan time.Time, 10)
+	taskChan := make(chan Task)
+	for range 10 {
+		go Runner(ctxExit, taskChan)
+	}
+
 	go func() {
-		ticker := time.NewTicker(time.Second / 10) // 10 tasks per second
-		defer ticker.Stop()
-		for t := range ticker.C {
-			burstLimiter <- t
-		}
+		<-exit
+		log.Println("Attempting to gracefully shutdown due to termination signal")
+		cancel()
 	}()
 
 	// Main loop
@@ -68,20 +83,23 @@ func main() {
 		}
 
 		for _, task := range tasks {
+			taskChan <- task
+
 			select {
-			case <-burstLimiter:
-				go ExecuteTask(task)
-			case <-exit:
-				log.Println("Exit signal received, shutting down gracefully...")
-				closeTicker <- true
-
-				time.Sleep(5 * time.Second)
-				// TODO: Wait for tasks to complete (graceful shutdown)
-
+			case <-ctxExit.Done():
 				return
+			default:
 			}
 		}
 
+		// Capture exit signal even if task list is empty
+		select {
+		case <-ctxExit.Done():
+			return
+		default:
+		}
+
+		// Arbitrary cooldown
 		time.Sleep(10 * time.Second)
 	}
 }
