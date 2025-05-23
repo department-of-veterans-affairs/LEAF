@@ -74,6 +74,13 @@ func main() {
 
 	// Main loop
 	for {
+		// Capture exit signal
+		select {
+		case <-ctxExit.Done():
+			return
+		default:
+		}
+
 		err := UpdateTasks()
 		if err != nil {
 			log.Println("Error updating tasks:", err)
@@ -98,13 +105,6 @@ func main() {
 		}
 
 		wg.Wait()
-
-		// Capture exit signal even if task list is empty
-		select {
-		case <-ctxExit.Done():
-			return
-		default:
-		}
 
 		// Arbitrary cooldown
 		time.Sleep(10 * time.Second)

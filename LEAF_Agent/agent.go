@@ -91,14 +91,22 @@ func UpdateTasks() error {
 		return err
 	}
 
-	// TODO: Prevent duplicates
-
 	// Get all active tasks
 	activeTasks := make(map[string]query.Record)
 	for _, v := range res {
 		// key: siteURL + stepID
 		if v.StepID == 2 {
-			activeTasks[v.S1["id2"]+v.S1["id3"]] = v
+			// Remove if duplicate
+			key := v.S1["id2"] + v.S1["id3"]
+			_, exists := activeTasks[key]
+			if !exists {
+				activeTasks[key] = v
+			} else {
+				err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, v.RecordID, "2", "Decommission", "")
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
 

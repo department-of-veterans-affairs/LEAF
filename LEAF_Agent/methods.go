@@ -26,7 +26,7 @@ func TakeAction(siteURL string, recID int, stepID string, actionType string, com
 	}
 
 	if res.StatusCode == 200 || res.StatusCode == 202 {
-		log.Println("Action taken successfully:", siteURL, recordID)
+		log.Println("Action taken successfully: " + siteURL + "?a=printview&recordID=" + recordID)
 		return nil
 	} else {
 		errMsg, _ := io.ReadAll(res.Body)
