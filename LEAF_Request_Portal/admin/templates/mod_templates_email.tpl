@@ -36,7 +36,7 @@
                             </div>
                             <div id="to_cc_smarty_vars_notice" style="display:none;color:#c00000;">
                                 Potential Variable errors in To/Cc: <span id="to_cc_field_errors"></span><br>
-                                <span style="color:#000;">{{$variable}}</span>
+                                <span style="color:#000;">Example: {{$variable}}</span>
                             </div>
                         </p>
                         <label for="emailToCode" id="emailTo" class="emailToCc">Email To:</label>
@@ -51,7 +51,7 @@
                 </div>
                 <div id="subject_smarty_vars_notice" style="display:none;">
                     Potential Variable errors in Subject: <span id="subject_field_errors"></span><br>
-                    <span style="color:#000;">{{$variable}}</span>
+                    <span style="color:#000;">Example: {{$variable}}</span>
                 </div>
                 <label for="code_mirror_subject_editor" id="subject">Subject</label>
                 <div id="divSubject">
@@ -64,7 +64,7 @@
                 </div>
                 <div id="body_smarty_vars_notice" style="display:none;">
                     Potential Variable errors in Body: <span id="body_field_errors"></span><br>
-                    <span style="color:#000;">{{$variable}}</span>
+                    <span style="color:#000;">Example: {{$variable}}</span>
                 </div>
                 <label for="code_mirror_template_editor" id="filename" class="email">Body</label>
                 <div id="emailBodyCode">
@@ -1376,6 +1376,78 @@
         }
     }
 
+    function registerVariablesPlugin() {
+        const defaultOptions = {
+            source: [
+                'recordID',
+                'fullTitle',
+                'fullTitle_insecure',
+                'truncatedTitle',
+                'truncatedTitle_insecure',
+                'formType',
+                'lastStatus',
+                'comment',
+                'service',
+                'siteRoot',
+                'field.#',
+            ],
+            formatVariable: formatVariable,
+        };
+
+        $.extend(
+            true, $.trumbowyg,
+            {
+                langs: {
+                    en: { addVariables: 'Variables' }
+                },
+                plugins: {
+                    addVariables: {
+                        init: function(trumbowyg) {
+                            trumbowyg.o.plugins.addVariables = $.extend(
+                                true, {},
+                                defaultOptions,
+                                trumbowyg.o.plugins.addVariables || {}
+                            );
+
+                            const ddDef = {
+                                dropdown: makeDropdown(trumbowyg.o.plugins.addVariables.source, trumbowyg),
+                                title: 'Add variables',
+                                text: 'Variables',
+                                hasIcon: false
+                            }
+                            trumbowyg.addBtnDef('addVariables', ddDef);
+                        }
+                    }
+                }
+            }
+        );
+
+        function formatVariable(srcItem) {
+            return '\{\{$' + srcItem + '}}';
+        }
+
+        function makeDropdown(sourceArray, trumbowyg) {
+            let dd = [];
+            sourceArray.forEach((ele, idx) => {
+                const d = {
+                    fn: function() {
+                        trumbowyg.execCmd(
+                            "insertHTML",
+                            trumbowyg.o.plugins.addVariables.formatVariable(ele)
+                        );
+                        return true;
+                    },
+                    text: ele,
+                    hasIcon: false,
+                };
+
+                trumbowyg.addBtnDef(ele, d);
+                dd.push(ele);
+            });
+            return dd;
+        }
+    }
+
     //jQuery plugins for WYSWYG.
     function useTrumbowygEmailEditor() {
         toggleEditorElements(true);
@@ -1393,7 +1465,7 @@
                     key: 'S', //config setting implies Ctrl+
                     text: 'Save',
                     hasIcon: false,
-                },
+                }
             },
             btns: [
                 'formatting', 'bold', 'italic', 'underline', '|',
@@ -1401,6 +1473,7 @@
                 'link', '|',
                 'foreColor', 'backColor', '|',
                 'justifyLeft', 'justifyCenter', 'justifyRight',
+                'addVariables',
                 'save'
             ],
         }).on('tbwblur', () => checkFieldEntries(null, false));
@@ -1522,6 +1595,8 @@
 
     //loads components when the document loads
     $(document).ready(function() {
+        registerVariablesPlugin();
+
         getIndicators(); //get indicators to make format table
         getForms(); //get forms for quick search and indicator format info
 
