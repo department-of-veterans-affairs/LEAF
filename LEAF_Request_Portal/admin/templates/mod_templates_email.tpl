@@ -1295,6 +1295,11 @@
         });
         subjectEditor.on('blur', (cm) => checkFieldEntries(cm, false));
         addCodeMirrorAria('subjectCode');
+
+        setTimeout(() => {
+            checkFieldEntries(codeEditor, false);
+            checkFieldEntries(subjectEditor, false);
+        });
     }
     // Displays  user's history when creating, merge, and so on
     function viewHistory() {
@@ -1423,7 +1428,7 @@
         );
 
         function formatVariable(srcItem) {
-            return '\{\{$' + srcItem + '}}';
+            return '\{\{$' + srcItem + '}} ';
         }
 
         function makeDropdown(sourceArray, trumbowyg) {
@@ -1556,6 +1561,7 @@
                 }
             }
         });
+        checkFieldEntries(null, false);
         document.getElementById('btn_useCodeMirror').focus();
     }
 
