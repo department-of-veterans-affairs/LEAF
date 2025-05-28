@@ -119,7 +119,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
                             getWorkflow(currRecordID);
                             if (actionSuccessCallback !== undefined) {
-                                actionSuccessCallback();
+                                actionSuccessCallback({
+                                    actionType: data.actionType,
+                                    dependencyID: data.dependencyID,
+                                    comment: data.comment
+                                });
                             }
 
                             let new_note;
@@ -852,6 +856,12 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
     /**
      * @memberOf LeafWorkflow
+     * func accepts 1 argument:
+     *     data - {
+     *                 actionType: the action type that was exectued
+     *                 dependencyID: the dependencyID associated with the action
+     *                 comment: the comment associated with the action
+     *            }
      */
     function setActionSuccessCallback(func) {
         actionSuccessCallback = func;
@@ -859,11 +869,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
     /**
      * @memberOf LeafWorkflow
-     * func should accept 2 arguments:
+     * func accepts 2 arguments:
      *     data - {
      *                 idx: index matching the current action for data.step.dependencyActions[]
      *                 step: data related to the current step
-     *               }
+     *            }
      *     completeAction - to be executed in order to complete the workflow action
      */
     function setActionPreconditionFunc(func) {
