@@ -568,7 +568,11 @@ function addTerms(leafFormQuery) {
 
     if (isJSON) {
         for (let i = 0; i < advSearch.length; i++) {
-            leafFormQuery.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);
+            if (advSearch[i]?.id === 'data') {
+                leafFormQuery.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match);
+            } else {
+                leafFormQuery.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);
+            }
         }
     } else if (typeof extraTerms === "string") {
         leafFormQuery.addTerm('title', 'LIKE', '*' + extraTerms.trim() + '*');
