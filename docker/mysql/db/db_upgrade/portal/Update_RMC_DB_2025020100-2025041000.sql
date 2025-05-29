@@ -14,7 +14,7 @@ COLLATE 'utf8mb4_general_ci';
 ALTER TABLE `route_events` DROP FOREIGN KEY `route_events_actionType`;
 ALTER TABLE `route_events` DROP FOREIGN KEY `route_events_ibfk_1`;
 
-ALTER TABLE `route_events` DROP FOREIGN KEY `route_events_events`;
+ALTER TABLE `route_events` DROP FOREIGN KEY `route_events_event`;
 ALTER TABLE `route_events` DROP FOREIGN KEY `route_events_ibfk_2`;
 
 ALTER TABLE `workflow_routes` DROP FOREIGN KEY `workflow_routes_actionType`;
