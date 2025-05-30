@@ -568,7 +568,7 @@ function addTerms(leafFormQuery) {
 
     if (isJSON) {
         for (let i = 0; i < advSearch.length; i++) {
-            if (advSearch[i]?.id === 'data') {
+            if (advSearch[i]?.id === 'data' || advSearch[i]?.id === 'dependencyID') {
                 leafFormQuery.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match);
             } else {
                 leafFormQuery.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);
