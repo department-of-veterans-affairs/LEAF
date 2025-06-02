@@ -43,6 +43,9 @@
     height:360px;
     display:none;
 }
+.trumbowyg-save-button.trumbowyg-textual-button {
+    display: none; /* trumbowyg custom defined btn only used for key shortcut Ctrl+S save */
+}
 .CodeMirror-code {
     font-size: .7rem;
 }

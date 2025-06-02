@@ -1650,35 +1650,15 @@
                     success: function (customTemplates) { //array of file names in templates/email/custom_override
                         let customClass = '';
                         let selectedAttr = '';
-                        let buffer = '<div class="templates_header">Standard Events</div><ul class="leaf-ul">';
 
+                        let buffer = '';
                         let filesMobile = `<label for="template_file_select">Template Files:</label>
-                            <div class="template_select_container">
-                                <select id="template_file_select" class="templateFiles">
-                                    <optgroup label="Standard Events">`;
+                            <div class="template_select_container"><select id="template_file_select" class="templateFiles">`;
 
                         if (Array.isArray(customTemplates)) {
-                            standardTemplates.forEach(t => {
-                                customClass = customTemplates.includes(t.fileName) ? ' class="custom_file"' : '';
-                                selectedAttr = t.fileName === currentFile ? ' selected' : '';
-
-                                // Construct the li element for non-mobile buffer
-                                buffer += `<li>
-                                    <div class="template_files">
-                                        <a href="#" role="button" data-file="${t.fileName}">${t.displayName}</a> <span${customClass}>(custom)</span>
-                                    </div>
-                                </li>`;
-
-                                // Construct the option element for filesMobile
-                                filesMobile += `<option value="${t.fileName}"${selectedAttr}>
-                                    ${t.displayName + (customClass ? ' (custom)' : '')}</option>`;
-                            });
-
-                            buffer += '</ul>';
-                            filesMobile += '</optgroup>';
-
                             if (userTemplates.length > 0) {
-                                buffer += '<hr><div class="templates_header">Custom Events</div><ul class="leaf-ul">';
+                                buffer += '<div class="templates_header">Custom Events</div><ul class="leaf-ul">';
+
                                 filesMobile += '<optgroup label="Custom Events">';
 
                                 userTemplates.forEach(t => {
@@ -1696,11 +1676,31 @@
                                     filesMobile += `<option value="${t.fileName}">${t.displayName + (customClass ? ' (custom)' : '')}</option>`;
                                 });
 
-                                buffer += '</ul>';
+                                buffer += '</ul><hr>';
                                 filesMobile += '</optgroup>';
                             }
 
-                            filesMobile += '</select></div>'
+                            buffer += '<div class="templates_header">Standard Events</div><ul class="leaf-ul">';
+                            filesMobile += `<optgroup label="Standard Events">`;
+
+                            standardTemplates.forEach(t => {
+                                customClass = customTemplates.includes(t.fileName) ? ' class="custom_file"' : '';
+                                selectedAttr = t.fileName === currentFile ? ' selected' : '';
+
+                                // Construct the li element for non-mobile buffer
+                                buffer += `<li>
+                                    <div class="template_files">
+                                        <a href="#" role="button" data-file="${t.fileName}">${t.displayName}</a> <span${customClass}>(custom)</span>
+                                    </div>
+                                </li>`;
+
+                                // Construct the option element for filesMobile
+                                filesMobile += `<option value="${t.fileName}"${selectedAttr}>
+                                    ${t.displayName + (customClass ? ' (custom)' : '')}</option>`;
+                            });
+
+                            buffer += '</ul>';
+                            filesMobile += '</optgroup></select></div>';
 
                         } else {
                             buffer += '<li>Internal error occurred. If this persists, contact your Primary Admin.</li>';
