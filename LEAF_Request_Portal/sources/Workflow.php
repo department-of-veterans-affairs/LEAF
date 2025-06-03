@@ -160,6 +160,18 @@ class Workflow
         return $res;
     }
 
+    public function getStepActions(int $stepID): array
+    {
+        $vars = array(':stepID' => $stepID);
+        $sql = 'SELECT actionType, actionText FROM `workflow_routes`
+                    LEFT JOIN actions USING (actionType)
+                    WHERE stepID=:stepID';
+
+        $res = $this->db->prepared_query($sql, $vars);
+
+        return $res;
+    }
+
     public function getAllWorkflowSteps()
     {
         $vars = [];
