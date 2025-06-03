@@ -1,12 +1,8 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
-	"io"
+	"fmt"
 	"log"
-	"net/http"
 	"strconv"
 	"strings"
 
@@ -14,16 +10,14 @@ import (
 )
 
 type UpdateDataLLMCategorizationPayload struct {
-	Categories       []category `json:"categories"`
-	ReadIndicatorIDs []int      `json:"readIndicatorIDs"`
-	WriteIndicatorID int        `json:"writeIndicatorID"`
+	ReadIndicatorIDs []int `json:"readIndicatorIDs"`
+	WriteIndicatorID int   `json:"writeIndicatorID"`
 }
 
-type category struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
+// updateDataLLMCategorization updates a record's data field (payload.WriteIndicatorID).
+// The data field's format must support single-select multiple-options.
+// The LLM will categorize content based on available options for the data field using context
+// provided by data fields matching payload.ReadIndicatorIDs.
 func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationPayload) error {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
@@ -42,20 +36,21 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 		return err
 	}
 
-	var categories string
-	for _, category := range payload.Categories {
-		description := ""
-		if category.Description != "" {
-			description = " (e.g. " + category.Description + ")"
-		}
-		categories += "- " + category.Name + description + "\n"
-	}
-	categories = strings.Trim(categories, "\n")
-
-	indicators, err := GetIndicatorList(task.SiteURL)
+	indicators, err := GetIndicatorMap(task.SiteURL)
 	if err != nil {
 		return err
 	}
+
+	if len(indicators[payload.WriteIndicatorID].FormatOptions) == 0 {
+		return fmt.Errorf("Indicator ID %d does not have any options", payload.WriteIndicatorID)
+	}
+
+	// Prep the list of categories for the LLM's prompt
+	var categories string
+	for _, category := range indicators[payload.WriteIndicatorID].FormatOptions {
+		categories += "- " + category + "\n"
+	}
+	categories = strings.Trim(categories, "\n")
 
 	for recordID, record := range records {
 		// Get response from LLM
@@ -65,7 +60,7 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 		}
 		context := ""
 		for _, indicatorID := range payload.ReadIndicatorIDs {
-			context += indicators[indicatorID] + ": " + record.S1["id"+strconv.Itoa(indicatorID)] + "\n"
+			context += indicators[indicatorID].Name + ": " + record.S1["id"+strconv.Itoa(indicatorID)] + "\n"
 		}
 		context = strings.Trim(context, "\n")
 
@@ -82,46 +77,17 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 			MaxCompletionTokens: 50,
 		}
 
-		jsonConfig, _ := json.Marshal(config)
-
-		req, err := http.NewRequest("POST", APP_AGENT_LLM_URL_CATEGORIZATION, bytes.NewBuffer(jsonConfig))
+		llmResponse, err := GetLLMResponse(config)
 		if err != nil {
 			log.Println("LLM: ", err)
-		}
-
-		req.Header.Set("Authorization", "Bearer "+AGENT_LLM_TOKEN)
-		req.Header.Set("Content-Type", "application/json")
-
-		res, err := clientLLM.Do(req)
-		if err != nil {
-			log.Println("LLM: ", err)
-		}
-
-		b, err := io.ReadAll(res.Body)
-		if err != nil {
-			log.Println("LLM Read Err: ", err)
-		}
-
-		if res.StatusCode != 200 {
-			return errors.New("LLM Status " + strconv.Itoa(res.StatusCode) + ": " + string(b))
-		}
-
-		var llmResponse response
-		err = json.Unmarshal(b, &llmResponse)
-		if err != nil {
-			log.Println("LLM: ", err)
-		}
-
-		if len(llmResponse.Choices) == 0 {
-			return errors.New("LLM Output Error: " + string(b))
 		}
 
 		cleanResponse := strings.Trim(llmResponse.Choices[0].Message.Content, " \n")
 
 		// Restrict output to predefined list
 		hasApprovedOutput := false
-		for i := range payload.Categories {
-			if payload.Categories[i].Name == cleanResponse {
+		for i := range indicators[payload.WriteIndicatorID].FormatOptions {
+			if indicators[payload.WriteIndicatorID].FormatOptions[i] == cleanResponse {
 				hasApprovedOutput = true
 				break
 			}

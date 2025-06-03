@@ -1,12 +1,8 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
-	"io"
+	"fmt"
 	"log"
-	"net/http"
 	"strconv"
 	"strings"
 
@@ -14,15 +10,11 @@ import (
 )
 
 type RouteLLMPayload struct {
-	Actions          []action `json:"actions"`
-	ReadIndicatorIDs []int    `json:"readIndicatorID"`
+	ReadIndicatorIDs []int `json:"readIndicatorIDs"`
 }
 
-type action struct {
-	ActionType  string `json:"actionType"`
-	Description string `json:"description"`
-}
-
+// routeLLM executes an action based on the LLM's response, using context from data fields
+// matching payload.ReadIndicatorIDs.
 func routeLLM(task Task, payload RouteLLMPayload) error {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
@@ -41,36 +33,37 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 		return err
 	}
 
-	var actions string
-	for _, action := range payload.Actions {
-		description := ""
-		if action.Description != "" {
-			description = " (e.g. " + action.Description + ")"
-		}
-		actions += "- " + action.ActionType + description + "\n"
+	// Setup LLM prompt
+	actions, err := GetActions(task.SiteURL, task.StepID)
+	if err != nil {
+		return err
 	}
-	actions = strings.Trim(actions, "\n")
 
-	indicators, err := GetIndicatorList(task.SiteURL)
+	var choices string
+	for _, action := range actions {
+		choices += "- " + action.ActionText + "\n"
+	}
+	choices = strings.Trim(choices, "\n")
+
+	indicators, err := GetIndicatorMap(task.SiteURL)
 	if err != nil {
 		return err
 	}
 
 	for recordID, record := range records {
-		// Get response from LLM
 		prompt := message{
 			Role:    "system",
-			Content: "Categorize the following text. Only respond with one of these categories:\n" + actions,
+			Content: "Categorize the following text. Only respond with one of these categories:\n" + choices,
 		}
 		context := ""
 		for _, indicatorID := range payload.ReadIndicatorIDs {
-			context += indicators[indicatorID] + ": " + record.S1["id"+strconv.Itoa(indicatorID)] + "\n\n"
+			context += indicators[indicatorID].Name + ": " + record.S1["id"+strconv.Itoa(indicatorID)] + "\n\n"
 		}
 		context = strings.Trim(context, "\n")
 
 		input := message{
 			Role:    "user",
-			Content: record.S1["id"+context],
+			Content: context,
 		}
 
 		config := completions{
@@ -81,53 +74,24 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 			MaxCompletionTokens: 50,
 		}
 
-		jsonConfig, _ := json.Marshal(config)
-
-		req, err := http.NewRequest("POST", APP_AGENT_LLM_URL_CATEGORIZATION, bytes.NewBuffer(jsonConfig))
+		llmResponse, err := GetLLMResponse(config)
 		if err != nil {
-			log.Println("LLM: ", err)
-		}
-
-		req.Header.Set("Authorization", "Bearer "+AGENT_LLM_TOKEN)
-		req.Header.Set("Content-Type", "application/json")
-
-		res, err := clientLLM.Do(req)
-		if err != nil {
-			log.Println("LLM: ", err)
-		}
-
-		b, err := io.ReadAll(res.Body)
-		if err != nil {
-			log.Println("LLM Read Err: ", err)
-		}
-
-		if res.StatusCode != 200 {
-			return errors.New("LLM Status " + strconv.Itoa(res.StatusCode) + ": " + string(b))
-		}
-
-		var llmResponse response
-		err = json.Unmarshal(b, &llmResponse)
-		if err != nil {
-			log.Println("LLM: ", err)
-		}
-
-		if len(llmResponse.Choices) == 0 {
-			return errors.New("LLM Output Error: " + string(b))
+			return fmt.Errorf("LLM: %w", err)
 		}
 
 		cleanResponse := strings.Trim(llmResponse.Choices[0].Message.Content, " \n")
 
 		// Restrict output to predefined list
-		hasApprovedOutput := false
-		for i := range payload.Actions {
-			if payload.Actions[i].ActionType == cleanResponse {
-				hasApprovedOutput = true
+		approvedActionType := ""
+		for _, v := range actions {
+			if v.ActionText == cleanResponse {
+				approvedActionType = v.ActionType
 				break
 			}
 		}
 
-		if hasApprovedOutput {
-			TakeAction(task.SiteURL, recordID, task.StepID, cleanResponse, "")
+		if approvedActionType != "" {
+			TakeAction(task.SiteURL, recordID, task.StepID, approvedActionType, "")
 		} else {
 			log.Println("LLM invalid output: ", "'"+llmResponse.Choices[0].Message.Content+"'", "TaskID:", task.TaskID, "RecordID:", recordID)
 		}
