@@ -130,7 +130,7 @@ class FormWorkflow
         $vars = array(':groupID' => $groupID);
         $strSQL = 'SELECT * FROM `groups` WHERE groupID = :groupID';
         $tGroup = $this->db->prepared_query($strSQL, $vars);
-        if (count($tGroup) >= 0)
+        if (count($tGroup) > 0)
         {
             $groupName = $tGroup[0]['name'];
         }
