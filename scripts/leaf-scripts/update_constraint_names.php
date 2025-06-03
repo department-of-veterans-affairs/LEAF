@@ -10,9 +10,10 @@ require_once getenv('APP_LIBS_PATH') . '/../Leaf/Db.php';
 
 $log_file = fopen("constraint_update_log.txt", "w") or die("unable to open file");
 
+//NOTE: confirm entries reflect local dev, since that should have initial boiler plus subsequent DB updates
 $constraints_to_update = array(
     "portal" => array(
-        /* 
+        /*
         CONSTRAINT `route_events_ibfk_1` FOREIGN KEY (`actionType`) REFERENCES `actions` (`actionType`),
         CONSTRAINT `route_events_ibfk_2` FOREIGN KEY (`eventID`) REFERENCES `events` (`eventID`) ON DELETE CASCADE ON UPDATE CASCADE
         */
