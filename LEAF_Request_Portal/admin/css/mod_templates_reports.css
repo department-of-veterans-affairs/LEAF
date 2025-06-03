@@ -201,13 +201,14 @@ div.CodeMirror-merge-pane-label-right {
     margin: 1rem 0;
 }
 .templates_header {
+    margin-bottom: 0.5rem;
     font-weight: bold;
     font-size: 0.875rem;
     color: #252f3e;
 }
 .leaf-ul {
     width: 100%;
-    margin: 0.5rem 0 0 0;
+    margin: 0;
     padding: 0 0 0 1rem;
     overflow: auto;
 }
@@ -594,14 +595,27 @@ fieldset {
     color: #c00000;
     visibility: hidden;
 }
-#subject_smarty_vars_notice, #body_smarty_vars_notice {
-    color:#c00000;
-    background-color:#fff;
-    margin: 1rem 0 -1.5rem 0;
-    padding:0.5rem;
-    line-height: 1.2;
+#field_use_notice {
+    color:#b00000;
+    margin-bottom: 0.5rem;
 }
-
+#to_cc_smarty_vars_notice {
+    margin: 0 -0.5rem;
+    padding: 0.5rem;
+}
+#to_cc_smarty_vars_notice, #subject_smarty_vars_notice, #body_smarty_vars_notice {
+    color:#b00000;
+    font-weight: bolder;
+    background-color:#fffbc8;
+    line-height: 1.3;
+}
+#subject_smarty_vars_notice, #body_smarty_vars_notice {
+    margin: 1rem 0 -1.5rem 0;
+    padding: 0.5rem 0.5rem 0.75rem;
+}
+#to_cc_smarty_vars_notice span, #subject_smarty_vars_notice span, #body_smarty_vars_notice span {
+    font-weight: normal;
+}
 
 
 @media only screen and (max-width:1024px) {

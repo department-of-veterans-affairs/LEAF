@@ -31,10 +31,10 @@
                         <p>
                             Enter email addresses, one per line. Users will be
                             emailed each time this template is used in any workflow.&nbsp;
-                            <div id="field_use_notice" style="display: none; color:#c00000;">
+                            <div id="field_use_notice" style="display: none;">
                             Please note that only orgchart employee formats are supported in this section.
                             </div>
-                            <div id="to_cc_smarty_vars_notice" style="display:none;color:#c00000;">
+                            <div id="to_cc_smarty_vars_notice" style="display:none">
                                 Potential Variable errors in To/Cc: <span id="to_cc_field_errors"></span><br>
                                 <span style="color:#000;">Example: {{$variable}}</span>
                             </div>
