@@ -89,6 +89,38 @@ class Workflow
         return $out;
     }
 
+    /**
+     * returns a map by stepIDs for the current worklow.
+     * Each stepID value is an array of dependencies for which each element comntains
+     * dependencyID, indicatorID_for_assigned_empUID and indicatorID_for_assigned_groupID
+     */
+    public function getWorkflowStepDependencies()
+    {
+        $vars = array(':workflowID' => $this->workflowID);
+        $q = 'SELECT workflow_steps.stepID, dependencyID, groupID, indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID
+                FROM workflow_steps
+                LEFT JOIN step_dependencies USING (stepID)
+                LEFT JOIN dependency_privs USING (dependencyID)
+                WHERE workflowID=:workflowID';
+        $res = $this->db->prepared_query($q, $vars);
+
+        $out = array();
+        foreach($res as $rec) {
+            $tmp = array(
+                'dependencyID' => $rec['dependencyID'],
+                'groupID' => $rec['groupID'],
+                'indicatorID_for_assigned_empUID' => $rec['indicatorID_for_assigned_empUID'],
+                'indicatorID_for_assigned_groupID' => $rec['indicatorID_for_assigned_groupID'],
+            );
+            if(!isset($out[$rec['stepID']])) {
+                $out[$rec['stepID']] = array();
+            }
+            $out[$rec['stepID']][] = $tmp;
+
+        }
+        return $out;
+    }
+
     public function deleteStep($stepID)
     {
         if (!$this->login->checkGroup(1))

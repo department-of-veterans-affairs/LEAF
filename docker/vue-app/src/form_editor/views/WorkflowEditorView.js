@@ -53,6 +53,7 @@ export default {
 
             routes: [],
             workflowCategories: [],
+            workflowStepDependencies: {},
 
             jsPlumbInstance: null,
             currentJSPlumbParams: null,
@@ -63,15 +64,6 @@ export default {
                 endpoint: [ "Rectangle", { cssClass: "workflowEndpoint" } ],
                 paintStyle: { width: 48, height: 48 },
                 maxConnections: -1
-            },
-
-            //NOTE: mock data
-            mock_action: {
-                actionText: "mock action test",
-                actionTextPasttense: "mock action tested",
-                actionIcon: 'applications-graphics.svg',
-                sort: 0,
-                fillDependency: 1,
             },
         }
     },
@@ -230,6 +222,39 @@ export default {
             }
             return returnValue
         },
+        configWarnings() {
+            let warnings = {};
+            for(let stepID in this.workflowStepDependencies) {
+                if(typeof warnings[stepID] === 'undefined') {
+                    warnings[stepID] = '';
+                }
+                const stepDepsArray = this.workflowStepDependencies[stepID] ?? [];
+                stepDepsArray.forEach(dep => {
+                    if(dep.dependencyID === null) {
+                        warnings[stepID] = `\nA requirement must be added.`;
+                    } else {
+                        switch(dep.dependencyID) {
+                            case -1:
+                                if(dep.indicatorID_for_assigned_empUID === null) {
+                                    warnings[stepID] += `\nOrgchart Employee data field must be set.`;
+                                }
+                                break;
+                            case -3:
+                                if(dep.indicatorID_for_assigned_groupID === null) {
+                                    warnings[stepID] += `\nOrgchart Group data field must be set.`;
+                                }
+                                break;
+                            default:
+                            if(dep.dependencyID > 8 && dep.groupID === null) {
+                                warnings[stepID] += `\nA requirement group must be added.`;
+                            }
+                            break;
+                        }
+                    }
+                });
+            }
+            return warnings;
+        },
         stepInfoKey() {
             const affix = this.currentStepID !== null ?
                 this.currentStepID :
@@ -332,6 +357,9 @@ export default {
         getCurrentWorkflowCategories() {
             return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/categories`).then(res => res.json());
         },
+        getCurrentWorkflowStepDependencies() {
+            return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/workflowStepDependencies`).then(res => res.json());
+        },
         /**
          * fetch workflows once view is mounted, then update workflow editor
          * workflows, workflowList, firstWorkflowID, currentWorkflowID data.
@@ -367,19 +395,22 @@ export default {
                 this.localSteps[stepID].poxX = null;
                 this.localSteps[stepID].poxY = null;
             }
-            this.closeWorkflowStepInfo({}, true); //NOTE: maybe not
+            this.closeWorkflowStepInfo({}, true);
             this.steps = {};
             this.routes = [];
             this.workflowCategories = [];
+            this.workflowStepDependencies = {};
 
             Promise.all([
                 this.getCurrentWorkflow(),
                 this.getCurrentWorkflowRoutes(),
                 this.getCurrentWorkflowCategories(),
+                this.getCurrentWorkflowStepDependencies(),
             ]).then(results => {
                 this.steps = results[0];
                 this.routes = results[1];
                 this.workflowCategories = results[2];
+                this.workflowStepDependencies = results[3];
 
                 this.localSteps[0].posX = this.endStepInitialVector.x
                 this.localSteps[0].posY = this.endStepInitialVector.y
@@ -952,6 +983,11 @@ export default {
                             @click="showStepInfo(s.stepID)"
                             @touchend="showStepInfo(s.stepID)">
                                 {{ s.stepTitle }}&nbsp;<span v-if="typeof s?.stepData === 'string'" v-html="emailNotificationIcon(s.stepID)"></span>
+                                <div v-if="configWarnings?.[s.stepID]"
+                                    class="missing_requirement"
+                                    :title="'Config missing for Step ' + s.stepID + ': ' + configWarnings?.[s.stepID]"
+                                    :aria-label="'Config missing for Step ' + s.stepID + ': ' + configWarnings?.[s.stepID]">⚠️
+                                </div>
                         </button>
                     </template>
 
@@ -966,8 +1002,6 @@ export default {
                 </div>
             </section>
 
-            NOTE: TEST mock
-            <button type="button" @click="openWorkflowActionDialog(mock_action, false)">MOCK Edit Action</button>
             NOTE: TEST routes
             <div style="display:flex;gap:2rem">
             <router-link :to="{ name: 'browser' }" >
