@@ -695,7 +695,7 @@
             url: '../api/applet',
             success: function (res) {
                 let buffer = '<ul class="leaf-ul reports">';
-                let bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
+                let bufferExamples = '<div class="templates_header">Examples</div><ul class="leaf-ul">';
                 let filesMobile = '<label for="template_file_select">Template Files:</label><select id="template_file_select">';
                 
                 for (let i in res) {
