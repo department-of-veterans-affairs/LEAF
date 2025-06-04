@@ -1,5 +1,6 @@
 <script src="../libs/js/sha1.js"></script>
 <script src="../libs/js/LEAF/intervalQueue.js"></script>
+<script type="text/javascript" src="<!--{$app_js_path}-->/LEAF/sensitiveIndicator.js"></script>
 <script>
     let CSRFToken = '<!--{$CSRFToken}-->';
 
@@ -441,7 +442,7 @@
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
-				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
+				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black;
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
 				<div style="padding:0.5rem;font-weight:bold;font-size:200%;line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
@@ -639,7 +640,7 @@
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
-				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
+				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black;
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
 				<div style="padding:0.5rem;font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
@@ -729,7 +730,7 @@
                 }
             }
         }
-        
+
         if (getData.length > 0) {
             getData.forEach(id => query.getData(id));
             return $.ajax({
@@ -884,7 +885,7 @@
             nonAdmin = false;
             document.querySelector('#btn_adminView').innerText = 'View as non-admin';
         }
-        
+
         if(urlParams.get('organizeByRole') != null) {
             organizeByRole = true;
             document.querySelector('#btn_organize').innerText = 'Organize by Forms';
@@ -899,7 +900,7 @@
                 document.querySelector('#btn_combineIndividuals').style.display = 'inline';
                 document.querySelector('#btn_combineIndividuals').innerText = 'Combine Individuals';
             }
-        
+
         getMapSites.then((value) => {
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
                 'genericDialogloadIndicator', 'genericDialogbutton_save',
@@ -922,14 +923,14 @@
                 if(urlParams.get('organizeByRole') != null) {
                    renderInboxByRole();
             	}
-                else {             
+                else {
                 	renderInbox();
         		}
             });
             queue.setAbortSignal(abortController.signal);
 
             sites.forEach(site => queue.push(site));
-            
+
             // If $sites is empty, load the local inbox
             if(Object.keys(sites).length == 0 || urlParams.get('local') != null) {
                 let localSite = {
@@ -959,7 +960,7 @@
                     $('#inbox_view_selection_status').attr('aria-label', '');
                 });
             });
-            
+
             $('#btn_adminView').on('click', function() {
 				let currLocation = getCurrLocation();
 
@@ -1025,18 +1026,18 @@
     .inbox {
         display: none;
     }
-    
+
     .depInbox {
         padding: 8px;
         position: sticky;
         top: 0px;
     }
-    
+
     .siteFormContainers {
         padding: 8px;
         background-color: white;
     }
-    
+
     .depContainer {
         border: 1px solid black;
         cursor: pointer;
