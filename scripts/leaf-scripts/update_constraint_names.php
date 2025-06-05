@@ -53,21 +53,34 @@ $constraints_to_update = array(
     "orgchart" => array(),
 );
 
-//expects args for site type (portal or orgchart) and table name
+//args for site type (portal or orgchart) and table name are required
+//add --dry-run flag to preview changes
+//eg php script.php portal route_events --dry-run
+
+$dry_run = false;
+$filtered_argv = [];
+foreach ($argv as $arg) {
+    if ($arg === '--dry-run') {
+        $dry_run = true;
+    } else {
+        $filtered_argv[] = $arg;
+    }
+}
+
 if(
-    count($argv) < 3 ||
-    !isset($constraints_to_update[$argv[1]]) ||
-    !isset($constraints_to_update[$argv[1]][$argv[2]])
+    count($filtered_argv) < 3 ||
+    !isset($constraints_to_update[$filtered_argv[1]]) ||
+    !isset($constraints_to_update[$filtered_argv[1]][$filtered_argv[2]])
     ) {
     fwrite(
         $log_file,
-        "Invalid args given: need site type and valid table" . PHP_EOL
+        "Invalid args given: site type and defined table required" . PHP_EOL
     );
     return;
 }
 
-$site_type = $argv[1];
-$tname = $argv[2];
+$site_type = $filtered_argv[1];
+$tname = $filtered_argv[2];
 
 $time_start = date_create();
 
@@ -128,13 +141,29 @@ foreach($table_entries as $entry) {
             $db->query("USE `{$rec_db}`");
 
             $db->query("START TRANSACTION");
-            $db->query("ALTER TABLE `{$tname}` DROP FOREIGN KEY `{$current_name}`");
+
+            if ($dry_run) {
+                fwrite(
+                    $log_file,
+                    "[DRY RUN] Would drop constraint " . $current_name . " from " . $rec_db . PHP_EOL
+                );
+            } else {
+                $db->query("ALTER TABLE `{$tname}` DROP FOREIGN KEY `{$current_name}`");
+            }
 
             if(!isset($hasName[$rec_db])) {
-                $db->query(
-                    "ALTER TABLE `{$tname}` ADD CONSTRAINT `{$correctName}` 
-                    FOREIGN KEY (`{$fk}`) REFERENCES `{$ft}` (`{$fk}`) {$infoConstraint}"
-                );
+                if($dry_run) {
+                    fwrite(
+                        $log_file,
+                        "[DRY RUN] Would add constraint " . $correctName . " to " . $rec_db . " (" . $ft . "," . $fk . ")" . PHP_EOL
+                    );
+
+                } else {
+                    $db->query(
+                        "ALTER TABLE `{$tname}` ADD CONSTRAINT `{$correctName}` 
+                        FOREIGN KEY (`{$fk}`) REFERENCES `{$ft}` (`{$fk}`) {$infoConstraint}"
+                    );
+                }
                 $hasName[$rec_db] = 1;
             }
             $db->query("COMMIT");
@@ -181,10 +210,18 @@ foreach($table_entries as $entry) {
             try {
                 $db->query("USE `{$key}`");
                 $db->query("START TRANSACTION");
-                $db->query(
-                    "ALTER TABLE `{$tname}` ADD CONSTRAINT `{$correctName}` 
-                    FOREIGN KEY (`{$fk}`) REFERENCES `{$ft}` (`{$fk}`) {$infoConstraint}"
-                );
+
+                if ($dry_run) {
+                    fwrite(
+                        $log_file,
+                        "[DRY RUN] Would add missing constraint " . $correctName . " to " . $key . " (" . $ft . "," . $fk . ")" . PHP_EOL
+                    );
+                } else {
+                    $db->query(
+                        "ALTER TABLE `{$tname}` ADD CONSTRAINT `{$correctName}` 
+                        FOREIGN KEY (`{$fk}`) REFERENCES `{$ft}` (`{$fk}`) {$infoConstraint}"
+                    );
+                }
                 $db->query("COMMIT");
 
                 fwrite(
