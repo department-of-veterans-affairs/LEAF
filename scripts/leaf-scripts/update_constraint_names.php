@@ -147,8 +147,14 @@ foreach($table_entries as $entry) {
                     $log_file,
                     "[DRY RUN] Would drop constraint " . $current_name . " from " . $rec_db . PHP_EOL
                 );
+
             } else {
                 $db->query("ALTER TABLE `{$tname}` DROP FOREIGN KEY `{$current_name}`");
+
+                fwrite(
+                    $log_file,
+                    "Dropped constraint " . $current_name . " from " . $rec_db  . PHP_EOL
+                );
             }
 
             if(!isset($hasName[$rec_db])) {
@@ -163,17 +169,17 @@ foreach($table_entries as $entry) {
                         "ALTER TABLE `{$tname}` ADD CONSTRAINT `{$correctName}` 
                         FOREIGN KEY (`{$fk}`) REFERENCES `{$ft}` (`{$fk}`) {$infoConstraint}"
                     );
+
+                    fwrite(
+                        $log_file,
+                        "Added constraint " . $correctName . " to " . $rec_db  . PHP_EOL
+                    );
                 }
                 $hasName[$rec_db] = 1;
             }
             $db->query("COMMIT");
 
             $processed_count += 1;
-
-            fwrite(
-                $log_file,
-                "Modified constraint for " . $rec_db  . " to ". $correctName . PHP_EOL
-            );
 
         } catch (Exception $e) {
             fwrite(
@@ -216,18 +222,19 @@ foreach($table_entries as $entry) {
                         $log_file,
                         "[DRY RUN] Would add missing constraint " . $correctName . " to " . $key . " (" . $ft . "," . $fk . ")" . PHP_EOL
                     );
+
                 } else {
                     $db->query(
                         "ALTER TABLE `{$tname}` ADD CONSTRAINT `{$correctName}` 
                         FOREIGN KEY (`{$fk}`) REFERENCES `{$ft}` (`{$fk}`) {$infoConstraint}"
                     );
+
+                    fwrite(
+                        $log_file,
+                        "Added constraint " . $correctName . " to " . $key . PHP_EOL
+                    );
                 }
                 $db->query("COMMIT");
-
-                fwrite(
-                    $log_file,
-                    "added constraint name, DB " . $key . " " . $correctName . PHP_EOL
-                );
 
             } catch (Exception $e) {
                 fwrite(
