@@ -32,6 +32,7 @@ const commonConfig = {
                         options: {
                           sassOptions: {
                             includePaths: [
+                              "./node_modules/@uswds",
                               "./node_modules/@uswds/uswds/packages",
                               "./node_modules/@fortawesome/fontawesome-free",
                             ],
