@@ -4270,6 +4270,11 @@ class Form
         // check for orphaned indicators
         foreach ($res as $item)
         {
+            // Skip built-in forms unless requested to avoid clutter
+            if(substr($item['categoryID'], 0, 5) == 'leaf_' && !isset($_GET['dev'])) {
+                continue;
+            }
+
             if (!$this->isIndicatorOrphan($item, $isActiveIndicator))
             {
                 // make sure the field's category isn't a member of a deleted category

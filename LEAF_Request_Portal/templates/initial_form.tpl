@@ -67,6 +67,7 @@ $(function() {
             return false;
         }
     });
+    document.querySelector(`button[type="submit"]`).removeAttribute('disabled');
 
     // comment out to allow more than one form to be submitted simultaneously
     $('.ischecked').on('change', function() {
@@ -147,7 +148,7 @@ $(function() {
                         Open the Form Editor, select your form, and click on "Edit Properties" to set a workflow.</span>
                 <!--{/if}-->
 
-                <button class="buttonNorm" type="submit" style="display: block; margin-top: 0.75rem; margin-left:auto">
+                <button class="buttonNorm" type="submit" style="display: block; margin-top: 0.75rem; margin-left:auto" disabled>
                     <img src="dynicons/?img=go-next.svg&amp;w=30" alt="" />Click here to Proceed&nbsp;
                 </button>
             </div>
