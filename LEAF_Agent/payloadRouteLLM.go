@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -14,7 +13,7 @@ type RouteLLMPayload struct {
 }
 
 // routeLLM executes an action based on the LLM's response, using context from data fields
-// matching payload.ReadIndicatorIDs.
+// matching payload.ReadIndicatorIDs. The available actions are automatically retrieved during runtime.
 func routeLLM(task Task, payload RouteLLMPayload) error {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
@@ -91,9 +90,12 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 		}
 
 		if approvedActionType != "" {
-			TakeAction(task.SiteURL, recordID, task.StepID, approvedActionType, "")
+			err = TakeAction(task.SiteURL, recordID, task.StepID, approvedActionType, "")
+			if err != nil {
+				return err
+			}
 		} else {
-			log.Println("LLM invalid output: ", "'"+llmResponse.Choices[0].Message.Content+"'", "TaskID:", task.TaskID, "RecordID:", recordID)
+			return fmt.Errorf("LLM invalid output: '%v' TaskID: %v RecordID: %v", llmResponse.Choices[0].Message.Content, task.TaskID, recordID)
 		}
 	}
 

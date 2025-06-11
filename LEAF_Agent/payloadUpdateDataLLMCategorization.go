@@ -96,9 +96,12 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 		if hasApprovedOutput {
 			data := map[int]string{}
 			data[payload.WriteIndicatorID] = cleanResponse
-			UpdateRecord(task.SiteURL, recordID, data)
+			err = UpdateRecord(task.SiteURL, recordID, data)
+			if err != nil {
+				return err
+			}
 		} else {
-			log.Println("LLM invalid output: ", "'"+llmResponse.Choices[0].Message.Content+"'", "TaskID:", task.TaskID, "RecordID:", recordID)
+			return fmt.Errorf("LLM invalid output: '%v' TaskID: %v RecordID: %v", llmResponse.Choices[0].Message.Content, task.TaskID, recordID)
 		}
 	}
 

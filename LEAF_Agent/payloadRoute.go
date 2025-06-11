@@ -6,9 +6,10 @@ import (
 
 type RoutePayload struct {
 	ActionType string `json:"actionType"`
-	Comment    string `json:"comment"`
+	Comment    string `json:"comment,omitempty"`
 }
 
+// route executes an action, payload.ActionType, for all records matching the task
 func route(task Task, payload RoutePayload) error {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
@@ -27,7 +28,10 @@ func route(task Task, payload RoutePayload) error {
 	}
 
 	for recordID := range records {
-		TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
+		err = TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

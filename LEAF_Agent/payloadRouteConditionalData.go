@@ -7,9 +7,10 @@ import (
 type RouteConditionalDataPayload struct {
 	ActionType string      `json:"actionType"`
 	Query      query.Query `json:"query"`
-	Comment    string      `json:"comment"`
+	Comment    string      `json:"comment,omitempty"`
 }
 
+// routeConditionalData executes an action, payload.ActionType, for all records that match payload.Query AND the task's stepID.
 func routeConditionalData(task Task, payload RouteConditionalDataPayload) error {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
@@ -44,7 +45,10 @@ func routeConditionalData(task Task, payload RouteConditionalDataPayload) error 
 	}
 
 	for recordID := range records {
-		TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
+		err = TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
