@@ -3,6 +3,9 @@ START TRANSACTION;
 INSERT INTO `dependencies` (`dependencyID`, `description`)
 VALUES ('-4', 'LEAF Agent');
 
+ALTER TABLE `indicators`
+ADD `trackChanges` tinyint NOT NULL DEFAULT '1';
+
 UPDATE `settings` SET `data` = '2025042400' WHERE `settings`.`setting` = 'dbversion';
 
 COMMIT;
@@ -12,6 +15,9 @@ START TRANSACTION;
 
 DELETE FROM `dependencies`
 WHERE ((`dependencyID` = '-4'));
+
+ALTER TABLE `indicators`
+DROP `trackChanges`;
 
 UPDATE `settings` SET `data` = '2025020100' WHERE `settings`.`setting` = 'dbversion';
 
