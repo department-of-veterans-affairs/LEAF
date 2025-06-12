@@ -10,8 +10,9 @@ import (
 )
 
 type UpdateDataLLMCategorizationPayload struct {
-	ReadIndicatorIDs []int `json:"readIndicatorIDs"`
-	WriteIndicatorID int   `json:"writeIndicatorID"`
+	ReadIndicatorIDs []int  `json:"readIndicatorIDs"`
+	WriteIndicatorID int    `json:"writeIndicatorID"`
+	Context          string `json:"context"`
 }
 
 // updateDataLLMCategorization updates a record's data field (payload.WriteIndicatorID).
@@ -48,21 +49,31 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 	// Prep the list of categories for the LLM's prompt
 	var categories string
 	for _, category := range indicators[payload.WriteIndicatorID].FormatOptions {
-		categories += "- " + category + "\n"
+		if strings.Trim(category, " ") != "" {
+			categories += "- " + category + "\n"
+		}
 	}
 	categories = strings.Trim(categories, "\n")
+
+	payload.Context = strings.TrimSpace(payload.Context)
+	if payload.Context != "" {
+		payload.Context += "\n"
+	}
 
 	for recordID, record := range records {
 		// Get response from LLM
 		prompt := message{
 			Role:    "system",
-			Content: "Categorize the following text. Only respond with one of these categories:\n" + categories,
+			Content: payload.Context + "Categorize the following text. Only respond with one of these categories:\n" + categories,
 		}
 		context := ""
 		for _, indicatorID := range payload.ReadIndicatorIDs {
-			context += indicators[indicatorID].Name + ": " + record.S1["id"+strconv.Itoa(indicatorID)] + "\n"
+			iiD := strconv.Itoa(indicatorID)
+			if strings.TrimSpace(record.S1["id"+iiD]) != "" {
+				context += indicators[indicatorID].Name + ": " + record.S1["id"+iiD] + "\n\n"
+			}
 		}
-		context = strings.Trim(context, "\n")
+		context = strings.TrimSpace(context)
 
 		input := message{
 			Role:    "user",

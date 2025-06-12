@@ -88,9 +88,9 @@ func GetIndicatorMap(siteURL string) (map[int]form.Indicator, error) {
 
 		// Use the description (short label) if available
 		indicatorMap[indicatorID] = indicator
-		if indicator.Description != "" {
+		if indicator.ShortLabel != "" {
 			tmp := indicator
-			tmp.Name = indicator.Description
+			tmp.Name = indicator.ShortLabel
 			indicatorMap[indicatorID] = tmp
 		}
 

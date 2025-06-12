@@ -9,7 +9,8 @@ import (
 )
 
 type RouteLLMPayload struct {
-	ReadIndicatorIDs []int `json:"readIndicatorIDs"`
+	ReadIndicatorIDs []int  `json:"readIndicatorIDs"`
+	Context          string `json:"context"`
 }
 
 // routeLLM executes an action based on the LLM's response, using context from data fields
@@ -49,16 +50,24 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 		return err
 	}
 
+	payload.Context = strings.TrimSpace(payload.Context)
+	if payload.Context != "" {
+		payload.Context += "\n"
+	}
+
 	for recordID, record := range records {
 		prompt := message{
 			Role:    "system",
-			Content: "Categorize the following text. Only respond with one of these categories:\n" + choices,
+			Content: payload.Context + "Categorize the following text. Only respond with one of these categories:\n" + choices,
 		}
 		context := ""
 		for _, indicatorID := range payload.ReadIndicatorIDs {
-			context += indicators[indicatorID].Name + ": " + record.S1["id"+strconv.Itoa(indicatorID)] + "\n\n"
+			iiD := strconv.Itoa(indicatorID)
+			if strings.TrimSpace(record.S1["id"+iiD]) != "" {
+				context += indicators[indicatorID].Name + ": " + record.S1["id"+iiD] + "\n\n"
+			}
 		}
-		context = strings.Trim(context, "\n")
+		context = strings.TrimSpace(context)
 
 		input := message{
 			Role:    "user",

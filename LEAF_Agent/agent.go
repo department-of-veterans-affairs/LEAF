@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html"
 	"io"
 	"log"
@@ -88,7 +89,7 @@ func UpdateTasks() error {
 
 	res, err := FormQuery(`https://`+HTTP_HOST+`/platform/agent/`, q, "&x-filterData=recordID,stepID,submitted")
 	if err != nil {
-		return err
+		return fmt.Errorf("Error querying active tasks: %w", err)
 	}
 
 	// Get all active tasks
@@ -104,7 +105,7 @@ func UpdateTasks() error {
 			} else {
 				err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, v.RecordID, "2", "Decommission", "")
 				if err != nil {
-					return err
+					return fmt.Errorf("Error decommissioning duplicate task: %w", err)
 				}
 			}
 		}
@@ -118,13 +119,13 @@ func UpdateTasks() error {
 			if hasNewer {
 				err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, activeTasks[key].RecordID, "2", "Decommission", "")
 				if err != nil {
-					return err
+					return fmt.Errorf("Error decommissioning older task: %w", err)
 				}
 			}
 
 			err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, recordID, "1", "Activate", "")
 			if err != nil {
-				return err
+				return fmt.Errorf("Error activating task: %w", err)
 			}
 		}
 	}
