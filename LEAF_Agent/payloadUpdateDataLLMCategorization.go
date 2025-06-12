@@ -37,6 +37,11 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 		return err
 	}
 
+	// Exit early if no records match the query
+	if len(records) == 0 {
+		return nil
+	}
+
 	indicators, err := GetIndicatorMap(task.SiteURL)
 	if err != nil {
 		return err

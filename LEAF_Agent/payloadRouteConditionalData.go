@@ -44,6 +44,11 @@ func routeConditionalData(task Task, payload RouteConditionalDataPayload) error 
 		return err
 	}
 
+	// Exit early if no records match the query
+	if len(records) == 0 {
+		return nil
+	}
+
 	for recordID := range records {
 		err = TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
 		if err != nil {

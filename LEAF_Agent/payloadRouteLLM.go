@@ -33,6 +33,11 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 		return err
 	}
 
+	// Exit early if no records match the query
+	if len(records) == 0 {
+		return nil
+	}
+
 	// Setup LLM prompt
 	actions, err := GetActions(task.SiteURL, task.StepID)
 	if err != nil {

@@ -52,6 +52,11 @@ loop:
 				log.Println("Error executing", ins.Type, ": ", err)
 				break loop
 			}
+		case "routeActionHistoryTally":
+			if err = routeActionHistoryTally(task, ParsePayload[RouteActionHistoryTallyPayload](ins.Payload)); err != nil {
+				log.Println("Error executing", ins.Type, ": ", err)
+				break loop
+			}
 		case "routeLLM":
 			if err = routeLLM(task, ParsePayload[RouteLLMPayload](ins.Payload)); err != nil {
 				log.Println("Error executing", ins.Type, ": ", err)
