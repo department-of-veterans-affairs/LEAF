@@ -468,13 +468,16 @@
     }
 
     function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
+        const urlParams = new URLSearchParams(window.location.search);
         let customColumns = false;
         let categoryID = null;
+        let categoryMap = {};
 
         // categoryIDs is undefined when the user has selected the "Organize by Roles" view
-        if (categoryIDs != undefined) {
-            categoryID = categoryIDs[0];
+        if (categoryIDs != undefined && Array.isArray(categoryIDs)) {
             categoryIDs.forEach(categoryID => {
+                //possibly back compat for older inbox editor settings, so leaving it here
+                //site.columns is not currently an array and custom columns are on formColumns
                 if (site.columns != undefined &&
                     Array.isArray(site.columns) &&
                     site.columns[categoryID] != undefined) {
@@ -498,30 +501,94 @@
             });
         }
 
+        let tGridData = [];
+        let hasServices = false;
+        recordIDs.forEach(recordID => {
+            if (res[recordID].service != null) {
+                hasServices = true;
+            }
+
+            res[recordID].assignedIndividual = false;
+            if(stepID == 'assignedIndividual') {
+                res[recordID].assignedIndividual = true;
+            }
+
+            tGridData.push(res[recordID]);
+            const recCatIDs = Array.isArray(res[recordID].categoryIDs) ? res[recordID].categoryIDs : [];
+            recCatIDs.forEach(catID => {
+                if (categoryMap[catID] === undefined) {
+                    categoryMap[catID] = {
+                        count: 1,
+                        formColumns: site?.formColumns?.[catID] ?? '',
+                    };
+                } else {
+                    categoryMap[catID].count += 1;
+                }
+            });
+        });
+
         let headerColumns = "";
         if (customColumns === false) {
             let baseColumns = '';
-            if(site.columns == null || site.columns == 'UID') {
+            if(site.columns == null || site.columns == 'UID') { //default inbox if there is no site map card
                 // Add the Form Type to the "Organize by Roles" view. Provides feature parity with the old Inbox.
-                if(categoryIDs == undefined) {
+                if(urlParams.get('organizeByRole') !== null) {
                     baseColumns = 'UID,type,service,title,status';
                 } else {
                     baseColumns = 'UID,service,title,status';
                 }
-            } else {
+            } else { //portal base (non form-secific config)
                 baseColumns = site.columns;
             }
 
-            const formColumns = site?.formColumns?.[categoryID] || null;
+            //compared with form count to only show headers if every row has the form
+            const sectionNumRecords = recordIDs?.length || 0;
+            let formColumns = null;
+            if (categoryIDs?.length === 1) {
+                //only one form, use that form's custom cols if avail, otherwise use base columns
+                const categoryID = categoryIDs[0];
+                formColumns = site?.formColumns?.[categoryID] || baseColumns;
+            } else {
+                //if more than one, or undefined (role view), use the map to set formColumns
+                let nonIndCols = [];
+                let indCols = [];
+                for (let form in categoryMap) {
+                    //remove the 2nd condition to allow custom columns even if there is more than one form
+                    if(categoryMap[form].formColumns !== '' && categoryMap[form].count === sectionNumRecords) {
+                        const cols = categoryMap[form].formColumns.split(',');
+                        cols.forEach(c => {
+                            +c > 0 ? indCols.push(c) : nonIndCols.push(c);
+                        });
+                    }
+                }
+                nonIndCols = Array.from(new Set(nonIndCols));
+                indCols = Array.from(new Set(indCols));
+                if(nonIndCols.length > 0) {
+                    formColumns = nonIndCols.join(',');
+                }
+                if(indCols.length > 0) {
+                    formColumns += ',' + indCols.join(',');
+                }
+            }
+
             if (formColumns !== null) {
-                headerColumns = 'UID,' + formColumns;
+                headerColumns = formColumns;
             } else {
                 headerColumns = baseColumns;
             }
-            headerColumns = headerColumns.split(",")
-        }
-        let customCols = [];
 
+            const id = !/^UID/i.test(headerColumns) ? 'UID,' : '';
+            headerColumns = id + headerColumns;
+
+            const needsTypeCol = urlParams.get('organizeByRole') !== null && !/,type,/i.test(headerColumns);
+
+            headerColumns = headerColumns.split(",");
+            if (needsTypeCol === true) { //confirm type exists if role view
+                headerColumns.splice(1, 0, 'type');
+            }
+        }
+
+        let customCols = [];
         headerColumns.forEach(col => {
             if (isNaN(col) && typeof headerDefinitions[col] === 'function') {
                 customCols.push(headerDefinitions[col](site));
@@ -568,20 +635,7 @@
         formGrid.setDataBlob(res);
         formGrid.hideIndex();
         formGrid.setHeaders(headers);
-        let tGridData = [];
-        let hasServices = false;
-        recordIDs.forEach(recordID => {
-            if (res[recordID].service != null) {
-                hasServices = true;
-            }
 
-            res[recordID].assignedIndividual = false;
-            if(stepID == 'assignedIndividual') {
-                res[recordID].assignedIndividual = true;
-            }
-
-            tGridData.push(res[recordID]);
-        });
         // remove service column if there's no services
         if (hasServices == false) {
             let tHeaders = formGrid.headers();
