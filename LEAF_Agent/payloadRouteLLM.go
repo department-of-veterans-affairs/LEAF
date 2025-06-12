@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -15,6 +16,8 @@ type RouteLLMPayload struct {
 
 // routeLLM executes an action based on the LLM's response, using context from data fields
 // matching payload.ReadIndicatorIDs. The available actions are automatically retrieved during runtime.
+// To help enforce human decision-making responsibilities, the LLM is not allowed to apply
+// approve/disapprove/deny actions.
 func routeLLM(task Task, payload RouteLLMPayload) error {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
@@ -47,6 +50,11 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 	var choices string
 	for _, action := range actions {
 		choices += "- " + action.ActionText + "\n"
+
+		// Do not allow approve/disapprove/deny actions
+		if action.ActionType == "approve" || action.ActionType == "disapprove" || action.ActionType == "deny" {
+			return errors.New("LLM routing does not support approve/disapprove/deny actions")
+		}
 	}
 	choices = strings.Trim(choices, "\n")
 
