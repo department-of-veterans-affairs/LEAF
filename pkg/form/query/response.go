@@ -69,6 +69,7 @@ type Record struct {
 	FirstName               string                 `json:"firstName"`
 	LastName                string                 `json:"lastName"`
 	UserName                string                 `json:"userName"`
+	StepFulfillmentOnly     []StepFulfillment      `json:"stepFulfillmentOnly"`
 }
 
 // ActionHistory represents an action history event for a record
@@ -105,4 +106,9 @@ type UnfilledDependency struct {
 	Description  string `json:"description"`
 	ApproverName string `json:"approverName"`
 	ApproverUID  string `json:"approverUID"`
+}
+
+type StepFulfillment struct {
+	StepID int `json:"stepID"`
+	Time   int `json:"time"`
 }
