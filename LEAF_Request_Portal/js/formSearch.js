@@ -194,6 +194,17 @@ var LeafFormSearch = function (containerID) {
         }
     }
 
+    function scrubHTML(input) {
+        if(input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
+    }
+
     /**
      * @memberOf LeafFormSearch
      * prevQuery - optional JSON object
@@ -1077,7 +1088,7 @@ var LeafFormSearch = function (containerID) {
                                 if(preferLabel == '') {
                                     preferLabel = res.name;
                                 }
-                                indicators += `<option value="${res.indicatorID}">${res.name}</option>`;
+                                indicators += `<option value="${res.indicatorID}">${scrubHTML(preferLabel)}</option>`;
                             });
                             indicators += '</optgroup>';
                         });
