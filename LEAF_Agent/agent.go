@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"html"
-	"io"
 	"log"
 	"net/url"
 	"strconv"
@@ -15,16 +14,24 @@ import (
 )
 
 type Task struct {
-	TaskID       int           `json:"taskID"`
-	SiteURL      string        `json:"siteURL"`
-	StepID       string        `json:"stepID"`
-	LastRun      time.Time     `json:"lastRun"`
-	Instructions []Instruction `json:"instructions"`
+	TaskID          int           `json:"taskID"`
+	SiteURL         string        `json:"siteURL"`
+	StepID          string        `json:"stepID"`
+	LastRun         time.Time     `json:"lastRun"`
+	Instructions    []Instruction `json:"instructions"`
+	Log             []TaskLog     `json:"log"`
+	AverageDuration int           `json:"averageDuration"`
 }
 
 type Instruction struct {
 	Type    string `json:"type"`
 	Payload any    `json:"payload"`
+}
+
+type TaskLog struct {
+	Timestamp int64  `json:"timestamp"`
+	Duration  int    `json:"duration"`
+	Error     string `json:"error"`
 }
 
 func ParsePayload[T any](payload any) T {
@@ -37,6 +44,8 @@ func ParsePayload[T any](payload any) T {
 
 func ExecuteTask(task Task) {
 	defer wg.Done()
+
+	startTime := time.Now()
 	log.Println("Executing Task ID#", task.TaskID)
 	var err error
 loop:
@@ -79,9 +88,8 @@ loop:
 		}
 	}
 
-	if err == nil {
-		LogSucessfulTask(task.TaskID)
-	}
+	taskDuration := time.Now().Sub(startTime)
+	LogTask(task, taskDuration, err)
 }
 
 func UpdateTasks() error {
@@ -144,22 +152,25 @@ func UpdateTasks() error {
 }
 
 func FindTasks() ([]Task, error) {
-	res, err := HttpGet(`https://` + HTTP_HOST + `/platform/agent/api/form/query/?q={"terms":[{"id":"stepID","operator":"=","match":"2","gate":"AND"},{"id":"deleted","operator":"=","match":0,"gate":"AND"}],"joins":[],"sort":{},"getData":["2","3","4","6"]}&x-filterData=`)
+	query := query.Query{
+		Terms: []query.Term{
+			{
+				ID:       "stepID",
+				Operator: "=",
+				Match:    "2",
+			},
+		},
+		GetData: []int{2, 3, 4, 6, 8, 9},
+	}
+
+	records, err := FormQuery("https://"+HTTP_HOST+"/platform/agent/", query, "&x-filterData=")
 	if err != nil {
 		return nil, err
 	}
-
-	b, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var r query.Response
-	json.Unmarshal(b, &r)
 
 	var tasks []Task
 
-	for i, v := range r {
+	for i, v := range records {
 		var instructions []Instruction
 		decodedInstruction := html.UnescapeString(v.S1["id4"])
 		err := json.Unmarshal([]byte(decodedInstruction), &instructions)
@@ -169,12 +180,22 @@ func FindTasks() ([]Task, error) {
 		timeStamp, _ := strconv.ParseInt(v.S1["id6"], 10, 64)
 		lastRun := time.Unix(timeStamp, 0)
 
+		var taskLog []TaskLog
+		decodedLog := html.UnescapeString(v.S1["id9"])
+		if decodedLog != "" {
+			err = json.Unmarshal([]byte(decodedLog), &taskLog)
+			if err != nil {
+				log.Println("Error unmarshalling log:", err, "Task ID#", i)
+			}
+		}
+
 		task := Task{
 			TaskID:       i,
 			SiteURL:      v.S1["id2"],
 			StepID:       v.S1["id3"],
 			LastRun:      lastRun,
 			Instructions: instructions,
+			Log:          taskLog,
 		}
 		tasks = append(tasks, task)
 	}
@@ -182,10 +203,38 @@ func FindTasks() ([]Task, error) {
 	return tasks, nil
 }
 
-func LogSucessfulTask(taskID int) {
+func LogTask(task Task, taskDuration time.Duration, taskError error) {
 	currentTime := strconv.FormatInt(time.Now().Unix(), 10)
 
 	values := url.Values{}
-	values.Add("6", currentTime)
-	HttpPost(`https://`+HTTP_HOST+`/platform/agent/api/form/`+strconv.Itoa(taskID), values)
+	if taskError == nil {
+		values.Add("6", currentTime) // timestamp for last successful run
+	}
+
+	// Prep task log, calculate average duration
+	errMsg := ""
+	if taskError != nil {
+		errMsg = taskError.Error()
+	}
+	task.Log = append(task.Log, TaskLog{
+		Timestamp: time.Now().Unix(),
+		Duration:  int(taskDuration.Seconds()),
+		Error:     errMsg,
+	})
+	if len(task.Log) > 30 {
+		task.Log = task.Log[len(task.Log)-30:]
+	}
+
+	// Calculate average duration
+	var totalDuration int
+	for _, log := range task.Log {
+		totalDuration += log.Duration
+	}
+	averageDuration := totalDuration / len(task.Log)
+	values.Add("8", strconv.Itoa(averageDuration))
+
+	taskLog, _ := json.Marshal(task.Log)
+	values.Add("9", string(taskLog))
+
+	HttpPost(`https://`+HTTP_HOST+`/platform/agent/api/form/`+strconv.Itoa(task.TaskID), values)
 }
