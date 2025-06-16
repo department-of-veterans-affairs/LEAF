@@ -14,7 +14,7 @@ Tasks contain instructions such as:
 
 LEAF Agents have the same level of access as normal users, communicate with the same LEAF Application Programming Interface (API) endpoints, and is subject to the same access management rules.
 
-Tasks encompass a series of instructions, which are executed for a specfic Site and StepID. The corresponding workflow Step must have the LEAF Agent as a configured requirement.
+Tasks encompass a series of instructions, which are executed for a specific Site and StepID. The corresponding workflow Step must have the LEAF Agent as a configured requirement.
 
 Instructions within a task operate on a sets of records, rather than individual records. If an error occurs during an instruction, the agent will log the error and will stop processing the rest of the set, as well as cancelling subsequent instructions.
 
