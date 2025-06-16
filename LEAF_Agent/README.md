@@ -12,7 +12,7 @@ Tasks contain instructions such as:
 
 ## Implementation Details
 
-LEAF Agents have the same level of access as normal users, communicate with the same LEAF Application Programming Interface (API) endpoints, and is subject to the same access management rules.
+LEAF Agents have the same level of access as normal users, communicate with the same LEAF Application Programming Interface (API) endpoints, and are subject to the same access management rules.
 
 Tasks encompass a series of instructions, which are executed for a specific Site and StepID. The corresponding workflow Step must have the LEAF Agent as a configured requirement.
 
