@@ -843,6 +843,12 @@ class Email
             ));
 
             $this->processPriorStepsEmailed($this->getPriorStepsEmailed($recordID));
+
+            $authorMetadata = json_decode($recordInfo[0]['userMetadata'], true);
+            $authorEmail = trim($authorMetadata['email'] ?? '');
+            if ($authorEmail != '') {
+                $this->addRecipient($authorEmail);
+            }
             $this->setTemplateByID($emailTemplateID);
             $this->sendMail($recordID);
         } elseif ($emailTemplateID > 1) {
@@ -855,7 +861,7 @@ class Email
     private function getRecord(int $recordID): array
     {
         $vars = array(':recordID' => $recordID);
-        $strSQL =  "SELECT `rec`.`userID`, `rec`.`serviceID`, `ser`.`service`, `rec`.`title`,
+        $strSQL =  "SELECT `rec`.`userID`, `rec`.`serviceID`, `rec`.`userMetadata`, `ser`.`service`, `rec`.`title`,
                         `rec`.`lastStatus`,`needToKnow`,`categoryName`
                     FROM `records` AS `rec`
                     LEFT JOIN category_count USING (recordID)
