@@ -17,7 +17,7 @@ var client *http.Client
 var clientLLM *http.Client
 var AGENT_TOKEN = os.Getenv("AGENT_TOKEN")
 var HTTP_HOST = os.Getenv("APP_HTTP_HOST")
-var AGENT_LLM_TOKEN = os.Getenv("AGENT_LLM_TOKEN")
+var LLM_API_KEY = os.Getenv("LLM_API_KEY")
 var APP_AGENT_LLM_URL_CATEGORIZATION = os.Getenv("APP_AGENT_LLM_URL_CATEGORIZATION")
 var wg sync.WaitGroup
 

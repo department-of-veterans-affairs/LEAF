@@ -47,7 +47,7 @@ func GetLLMResponse(config completions) (response, error) {
 		return response{}, fmt.Errorf("LLM: %w", err)
 	}
 
-	req.Header.Set("Authorization", "Bearer "+AGENT_LLM_TOKEN)
+	req.Header.Set("Authorization", "Bearer "+LLM_API_KEY)
 	req.Header.Set("Content-Type", "application/json")
 
 	res, err := clientLLM.Do(req)
