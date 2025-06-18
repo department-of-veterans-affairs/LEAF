@@ -45,6 +45,14 @@ class Employee extends Data
 
     private $national_db = null;
 
+    private $launchpad_db = null;
+
+    private $disableUserNamePortalTables = array(
+        'records' => 'userID',
+        'service_chiefs' => array('userID', 'backupID'),
+        'users' => array('userID', 'backupID')
+    );
+
     // the first value is the table, the second is the field. If the field is an array
     // the first value needs to be the field used for the where clause.
     public function initialize()
@@ -99,6 +107,8 @@ class Employee extends Data
         if (!isset($national_emp['data'])) {
             $this->disableEmployees(explode(',', $user_name));
 
+            //$this->disablePortalTables();
+
             $return_value = array(
                 'status' => array(
                     'code' => 4,
@@ -125,6 +135,8 @@ class Employee extends Data
                 );
             } else {
                 $this->disableEmployees(explode(',', $user_name));
+
+                //$this->disablePortalTables();
 
                 $return_value = array(
                     'status' => array(
@@ -202,7 +214,83 @@ class Employee extends Data
             $results[] = $this->updateEmployeeDataBatch($employee);
         }
 
+        $this->disableLocalEmployees();
+
         return $results;
+    }
+
+    private function disableLocalEmployees(): void
+    {
+        // disable employees that should already disabled in national orgchart
+        // get all the local employees that should be disabled
+        $local_to_disable = $this->getListToDisable($this->db);
+
+        // loop through the local employees that should be disabled and get their national userName and update the local to the same
+        foreach ($local_to_disable as $userName) {
+            // get the national userName for the employee
+            $national_user = $this->getDisabledNationalEmployee([$userName], $this->national_db);
+
+            // now we have the disabled userName from National, what do we do if there isn't one on National?
+            if (isset($national_user['data'][0]['userName'])) {
+                $this->disableLocalEmployee($national_user, $userName);
+                $this->disablePortals($national_user, $userName)
+                //$this->updateEmployeeByUserName($userName, $national_user['data'][0], $this->db);
+            } else {
+                // if the user is not found in the national orgchart, disable the local employee
+                $this->disableEmployees([$userName]);
+            }
+        }
+
+        // need to push these changes down to the portals for this orgchart
+    }
+
+    private function disablePortals(array $national_user, string $user_name): void
+    {
+        // need to get the portals for this orgchart
+
+        // loop through the portals and disable the user in each portal
+
+
+    }
+
+    private function disableLocalEmployee(array $national_user, string $user_name): void
+    {
+        $vars = array(':userName' => $user_name,
+                        ':deletedUserName' => $national_user['data'][0]['userName'],
+                        ':deleted' => $national_user['data'][0]['deleted']);
+        $sql = "UPDATE `employee`
+                SET `userName` = :deletedUserName,
+                    `deleted` = :deleted
+                WHERE `userName` = :userName";
+
+        $this->db->prepared_query($sql, $vars);
+    }
+
+    private function getDisabledNationalEmployee(array $user_name, Db $national_db): array
+    {
+        $vars = array(':disabledUserName' => 'disabled_%' . $user_name[0]);
+        $sql = "SELECT `userName`, `deleted`
+                FROM `employee`
+                WHERE `userName` LIKE :disabledUserName
+                AND `deleted` > (UNIX_TIMESTAMP(NOW()) - 604800)";
+
+        $return_value = $national_db->prepared_query($sql, $vars);
+
+        return $return_value;
+    }
+
+    private function getListToDisable(Db $local_db): array
+    {
+        $vars = array();
+        $sql = 'SELECT `userName`
+                FROM `employee`
+                WHERE `deleted` = 0
+                AND `lastUpdated` < (UNIX_TIMESTAMP(NOW()) - 108000)
+                AND `lastUpdated` > 0';
+
+        $return_value = $local_db->prepared_query($sql, $vars);
+
+        return $return_value;
     }
 
     /**
@@ -228,11 +316,11 @@ class Employee extends Data
 
             $this->prepareArrays($national_employee_uids, $local_array, $national_employees_list, $local_employee_array);
 
-            $local_deleted_employees = array_diff(array_column($local_employees_uid['data'], 'userName'), array_column($national_employees_list['data'], 'userName'));
+            /*$local_deleted_employees = array_diff(array_column($local_employees_uid['data'], 'userName'), array_column($national_employees_list['data'], 'userName'));
 
             if (!empty($local_deleted_employees)) {
                 $results[] = $this->disableEmployees($local_deleted_employees);
-            }
+            }*/
 
             if (!empty($local_array)) {
                 $results[] = $this->batchEmployeeUpdate($local_array);

@@ -352,7 +352,8 @@ class VAMCActiveDirectory
 
         $vars = array(':deleteTime' => $deleteTime);
         $sql = 'UPDATE `employee`
-                SET `deleted` = :deleteTime
+                SET `deleted` = :deleteTime,
+                    `userName` = CONCAT("disabled_", :deleteTime, "_", `userName`)
                 WHERE `userName` = :userName;';
 
         foreach ($userNames as $user) {
