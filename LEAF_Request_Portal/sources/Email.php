@@ -600,8 +600,12 @@ class Email
 
         // Lookup approvers of current record so we can notify
         $vars = array(':recordID' => $recordID);
-        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus FROM records_workflow_state ".
+        $strSQL = "SELECT users.userID AS approverID, sd.dependencyID, sd.stepID, ".
+            "ser.serviceID, ser.service, ser.groupID AS quadrad, users.groupID, rec.title, rec.lastStatus, ".
+            "needToKnow,categoryName FROM records_workflow_state ".
             "LEFT JOIN records AS rec USING (recordID) ".
+            "LEFT JOIN category_count USING (recordID) ".
+            "LEFT JOIN categories USING (categoryID) ".
             "LEFT JOIN step_dependencies AS sd USING (stepID) ".
             "LEFT JOIN dependency_privs USING (dependencyID) ".
             "LEFT JOIN users USING (groupID) ".
@@ -611,12 +615,26 @@ class Email
 
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
-            $title = strlen($approvers[0]['title']) > 45 ? substr($approvers[0]['title'], 0, 42) . '...' : $approvers[0]['title'];
-            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+            $formType = trim(strip_tags(
+                htmlspecialchars_decode($approvers[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+            ));
+
+            $fullTitle = trim(strip_tags(
+                htmlspecialchars_decode($approvers[0]['title'], ENT_QUOTES | ENT_HTML5)
+            ));
+            $fullTitleInsecure = $fullTitle;
+            if((int)$approvers[0]['needToKnow'] === 1) {
+                $fullTitle = $formType;
+            }
+            $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
-                "fullTitle" => $approvers[0]['title'],
+                "truncatedTitle_insecure" => $truncatedTitleInsecure,
+                "fullTitle" => $fullTitle,
+                "fullTitle_insecure" => $fullTitleInsecure,
+                "formType" => $formType,
                 "recordID" => $recordID,
                 "service" => $approvers[0]['service'],
                 "lastStatus" => $approvers[0]['lastStatus'],
@@ -752,13 +770,26 @@ class Email
         } elseif ($emailTemplateID === -4) {
             // Record has no approver so if it is sent from Mass Action Email Reminder, notify user
             $recordInfo = $this->getRecord($recordID);
+            $formType = trim(strip_tags(
+                htmlspecialchars_decode($recordInfo[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+            ));
 
-            $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
-            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+            $fullTitle = trim(strip_tags(
+                htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
+            ));
+            $fullTitleInsecure = $fullTitle;
+            if((int)$recordInfo[0]['needToKnow'] === 1) {
+                $fullTitle = $formType;
+            }
+            $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
-                "fullTitle" => $recordInfo[0]['title'],
+                "truncatedTitle_insecure" => $truncatedTitleInsecure,
+                "fullTitle" => $fullTitle,
+                "fullTitle_insecure" => $fullTitleInsecure,
+                "formType" => $formType,
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $recordInfo[0]['lastStatus'],
@@ -782,12 +813,27 @@ class Email
 
             $comment = $comments[0]['comment'] === '' ? '' : 'Reason for cancelling: ' . $comments[0]['comment'] . '<br /><br />';
 
-            $title = strlen($recordInfo[0]['title']) > 45 ? substr($recordInfo[0]['title'], 0, 42) . '...' : $recordInfo[0]['title'];
-            $truncatedTitle = trim(strip_tags(htmlspecialchars_decode($title, ENT_QUOTES | ENT_HTML5 )));
+            $formType = trim(strip_tags(
+                htmlspecialchars_decode($recordInfo[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+            ));
+
+            $fullTitle = trim(strip_tags(
+                htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
+            ));
+            $fullTitleInsecure = $fullTitle;
+            if((int)$recordInfo[0]['needToKnow'] === 1) {
+                $fullTitle = $formType;
+            }
+            $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
+
 
             $this->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
-                "fullTitle" => $recordInfo[0]['title'],
+                "truncatedTitle_insecure" => $truncatedTitleInsecure,
+                "fullTitle" => $fullTitle,
+                "fullTitle_insecure" => $fullTitleInsecure,
+                "formType" => $formType,
                 "recordID" => $recordID,
                 "service" => $recordInfo[0]['service'],
                 "lastStatus" => $comments[0]['actionType'],
@@ -810,8 +856,10 @@ class Email
     {
         $vars = array(':recordID' => $recordID);
         $strSQL =  "SELECT `rec`.`userID`, `rec`.`serviceID`, `ser`.`service`, `rec`.`title`,
-                        `rec`.`lastStatus`
+                        `rec`.`lastStatus`,`needToKnow`,`categoryName`
                     FROM `records` AS `rec`
+                    LEFT JOIN category_count USING (recordID)
+                    LEFT JOIN categories USING (categoryID)
                     LEFT JOIN `services` AS `ser` USING (`serviceID`)
                     WHERE `recordID` = :recordID";
 

@@ -91,6 +91,7 @@
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_dialog.tpl"}-->
+<!--{include file="site_elements/generic_OkDialog.tpl"}-->
 
 <div id="orgchartForm"></div>
 
@@ -282,30 +283,40 @@ function addEmployeePosition() {
 }
 
 function confirmRemove() {
-	var warning = '';
-	<!--{if count($tags) > 1}-->
-	   warning = '<br /><br /><span style="color: red">WARNING: This group may be shared by other projects. Check &quot;Tags&quot; to see which projects are using this group.</span>';
-	<!--{/if}-->
-    confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this group?</span>' + warning);
-    confirm_dialog.setTitle('Confirmation');
-    confirm_dialog.setSaveHandler(function() {
-    	$.ajax({
-            type: 'DELETE',
-            url: './api/group/<!--{$groupID}-->?' +
-                $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
-            success: function(response) {
-            	if(response == 1) {
-            		alert('Group has been deleted.');
-                    history.back();
-            	}
-            	else {
-            		alert(response);
-            	}
-            },
-            cache: false
+    if (Object.keys(tags).length > 0) {
+        dialog_ok.setTitle('Warning');
+        dialog_ok.setContent('<span style="color: red; font-size: 125%;">WARNING: There are tags that must be removed before deleting this group.</span>');
+        dialog_ok.setSaveHandler(function() {
+            dialog_ok.clearDialog();
+            dialog_ok.hide();
+            dialog.hide();
         });
-    });
-    confirm_dialog.show();
+        dialog_ok.show();
+    } else {
+        confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this group?</span>');
+        confirm_dialog.setTitle('Confirmation');
+        confirm_dialog.setSaveHandler(function() {
+            $.ajax({
+                type: 'DELETE',
+                url: './api/group/<!--{$groupID}-->?' +
+                    $.param({CSRFToken: '<!--{$CSRFToken}-->'}),
+                success: function(response) {
+                    if(response == 1) {
+                        alert('Group has been deleted.');
+                        history.back();
+                    }
+                    else {
+                        alert(response);
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                },
+                cache: false
+            });
+        });
+        confirm_dialog.show();
+    }
 }
 
 function confirmUnlinkPosition(positionID) {
@@ -343,24 +354,86 @@ function confirmUnlinkEmployee(empUID) {
 }
 
 function confirmDeleteTag(inTag) {
-    var warning = '';
+    let validate = {'groupID': '<!--{$groupID}-->'};
+    let warning = '';
+    let domain = '<!--{$domain}-->';
+    let tag_found = false;
+
     warning = '<br /><br /><span style="color: red">WARNING!! removal of service would potentially impact your org chart structure, if you are trying to grant service chief access go to Request Portal->Admin panel-> Service Chief</span>';
 
     confirm_dialog.setContent('<img src="dynicons/?img=help-browser.svg&amp;w=48" alt="" style="float: left; padding-right: 16px" /> <span style="font-size: 150%">Are you sure you want to delete this tag?</span>'+ warning);
     confirm_dialog.setTitle('Confirmation');
-    confirm_dialog.setSaveHandler(function() {
-        $.ajax({
-        	type: 'DELETE',
-            url: './api/group/<!--{$groupID}-->/tag?' +
-                $.param({tag: inTag,
-                         CSRFToken: '<!--{$CSRFToken}-->'}),
-            success: function(response) {
-                window.location.reload();
-            },
-            cache: false
-        });
+
+    $.ajax({
+        type: 'GET',
+        url: './api/platform/portal',
+        success: function(response) {
+            if (response.constructor === Array) {
+                response.forEach(function (item, index) {
+                    item.orgchartImportTags.forEach(function (tag) {
+                        if (tag === inTag) {
+                            // need to check the portal for this tag in this group
+                            $.ajax({
+                                type: 'GET',
+                                url: domain + item.site_path + '/api/group/list',
+                                success: function (response) {
+                                    if (response.some(group => group.groupID === Number(validate.groupID))) {
+                                        // need to display a message that this can't be done
+                                        tag_found = true;
+                                        dialog_ok.setTitle('Warning');
+                                        dialog_ok.setContent('Corresponding portal tags must be removed prior to taking this action.');
+                                        dialog_ok.setSaveHandler(function() {
+                                            dialog_ok.clearDialog();
+                                            dialog_ok.hide();
+                                            dialog.hide();
+                                        });
+                                        dialog_ok.show();
+                                    }
+                                },
+                                error: function(err) {
+                                    console.log(err);
+                                },
+                                async: false
+                            });
+                        }
+                    })
+                });
+
+                if (!tag_found) {
+                    // tag was not found in any portal need to ask to delete
+                    confirm_dialog.setSaveHandler(function() {
+                        $.ajax({
+                            type: 'DELETE',
+                            url: './api/group/<!--{$groupID}-->/tag?' +
+                                $.param({tag: inTag,
+                                        CSRFToken: '<!--{$CSRFToken}-->'}),
+                            success: function(response) {
+                                window.location.reload();
+                            },
+                            error: function (err) {
+                                console.log(err);
+                            },
+                            cache: false
+                        });
+                    });
+                    confirm_dialog.show();
+                }
+            } else {
+                dialog_ok.setTitle('Warning');
+                dialog_ok.setContent(response);
+                dialog_ok.setSaveHandler(function() {
+                    dialog_ok.clearDialog();
+                    dialog_ok.hide();
+                    dialog.hide();
+                });
+                dialog_ok.show();
+            }
+        },
+        error: function(err) {
+            console.log(err);
+        },
+        cache: false
     });
-    confirm_dialog.show();
 }
 
 function writeTag(input, groupID) {
@@ -511,6 +584,7 @@ $(function() {
     dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save', 'button_cancelchange');
     confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
     dialog_message = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
+    dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');
 });
 
 </script>

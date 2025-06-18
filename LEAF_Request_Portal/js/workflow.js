@@ -119,7 +119,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
                             getWorkflow(currRecordID);
                             if (actionSuccessCallback !== undefined) {
-                                actionSuccessCallback();
+                                actionSuccessCallback({
+                                    actionType: data.actionType,
+                                    dependencyID: data.dependencyID,
+                                    comment: data.comment
+                                });
                             }
 
                             let new_note;
@@ -203,9 +207,12 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
     /**
      * @memberOf LeafWorkflow
+     * Called for each requirement with access. Initializes the step module if one exists for the step ID.
+     * @param {object} step includes both step and depencency information for a specific requirement
+     * @param {number} firstDepID dependencyID associated with first requirement drawn (where fields are loaded)
      */
     var modulesLoaded = {};
-    function drawWorkflow(step) {
+    function drawWorkflow(step, firstDepID = null) {
         // draw frame and header
         let stepDescription =
             step.description == null
@@ -305,7 +312,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 `#form_dep_container${step.dependencyID} .actions_alignment_${alignment}`
             ).append(
                 `<div id="button_container${step.dependencyID}_${step.dependencyActions[i].actionType}">
-          <button type="button" id="button_step${step.dependencyID}_${step.dependencyActions[i].actionType}" class="button">
+          <button type="button" id="button_step${step.dependencyID}_${step.dependencyActions[i].actionType}" class="button" disabled>
             ${icon} ${step.dependencyActions[i].actionText}
           </button>
         </div>`
@@ -400,6 +407,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     completeAction();
                 }
             });
+            document.querySelector(`#button_step${step.dependencyID}_${step.dependencyActions[i].actionType}`).removeAttribute('disabled');
         }
 
         // load workflowStep modules
@@ -417,7 +425,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         rootURL
                     );
                 },
-                fail: function (err) {
+                error: function (err) {
                     console.log("Error: " + err);
                 },
             });
@@ -432,6 +440,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     modulesLoaded[
                         step.stepModules[x].moduleName + "_" + step.stepID
                     ] = 1;
+
                     $(`#form_dep_extension${step.dependencyID}`)
                         .html(`<div style="padding: 8px 24px 8px">
                         <div style="background-color: white; border: 1px solid black; padding: 16px">
@@ -459,10 +468,15 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                                 `#form_dep_container${step.dependencyID} .button`
                             ).attr("disabled", false);
                         },
-                        fail: function (err) {
+                        error: function (err) {
                             console.log("Error: " + err);
                         },
                     });
+                } else {
+                    //the module is already flagged as loaded and the first dependencyID is being drawn here, reinit
+                    if(firstDepID === step.dependencyID && typeof workflowStepModule?.[step.stepID] !== "undefined") {
+                        workflowStepModule[step.stepID][step.stepModules[x].moduleName].init(step, rootURL);
+                    }
                 }
             }
         }
@@ -479,7 +493,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         rootURL
                     );
                 },
-                fail: function (err) {
+                error: function (err) {
                     console.log("Error: " + err);
                 },
             });
@@ -541,7 +555,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         color: step.stepFontColor,
                     });
                 },
-                fail: function (err) {
+                error: function (err) {
                     console.log("Error: " + err);
                 },
             });
@@ -574,7 +588,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                         color: step.stepFontColor,
                     });
                 },
-                fail: function (err) {
+                error: function (err) {
                     console.log("Error: " + err);
                 },
             });
@@ -789,7 +803,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     $("#workflowcontent").append('<br style="clear: both" />');
                 }
             },
-            fail: function (err) {
+            error: function (err) {
                 console.log("Error: " + err);
             },
             cache: false,
@@ -820,9 +834,13 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 masquerade,
             dataType: "json",
             success: function (res) {
+                let firstDepID = null;
                 for (let i in res) {
                     if (res[i].hasAccess == 1) {
-                        drawWorkflow(res[i]);
+                        if(firstDepID === null) {
+                            firstDepID = res[i].dependencyID;
+                        }
+                        drawWorkflow(res[i], firstDepID);
                     } else {
                         drawWorkflowNoAccess(res[i]);
                     }
@@ -830,7 +848,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 getLastAction(recordID, res);
                 $("#" + containerID).show("blind", 250);
             },
-            fail: function (err) {
+            error: function (err) {
                 console.log("Error: " + err);
             },
             cache: false,
@@ -839,6 +857,12 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
     /**
      * @memberOf LeafWorkflow
+     * func accepts 1 argument:
+     *     data - {
+     *                 actionType: the action type that was exectued
+     *                 dependencyID: the dependencyID associated with the action
+     *                 comment: the comment associated with the action
+     *            }
      */
     function setActionSuccessCallback(func) {
         actionSuccessCallback = func;
@@ -846,11 +870,11 @@ var LeafWorkflow = function (containerID, CSRFToken) {
 
     /**
      * @memberOf LeafWorkflow
-     * func should accept 2 arguments:
+     * func accepts 2 arguments:
      *     data - {
      *                 idx: index matching the current action for data.step.dependencyActions[]
      *                 step: data related to the current step
-     *               }
+     *            }
      *     completeAction - to be executed in order to complete the workflow action
      */
     function setActionPreconditionFunc(func) {

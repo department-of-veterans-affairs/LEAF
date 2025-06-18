@@ -40,6 +40,12 @@
                 <!--{$indicator.value|replace:'  ':'&nbsp;&nbsp;'|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
+            <script>
+                if(typeof enableUserContentLinks === 'function') {
+                    const element = document.getElementById("data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->");
+                    enableUserContentLinks(element);
+                }
+            </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'radio'}-->
                 <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
@@ -105,7 +111,7 @@
         <!--{if $indicator.format == 'currency'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
                 <!--{if is_numeric($indicator.value)}-->
-                    $<!--{$indicator.value|number_format:2:".":","}-->
+                    <!--{if $indicator.value < 0}-->-<!--{/if}-->$<!--{$indicator.value|abs|number_format:2:".":","}-->
                 <!--{/if}-->
             </span>
             <!--{$indicator.htmlPrint}-->

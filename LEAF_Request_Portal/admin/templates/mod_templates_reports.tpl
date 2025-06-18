@@ -168,10 +168,29 @@
     * Displays last save time, updates currentFileContent value, and calls saveFileHistory at success.
     */
     function save() {
+        let elSaveBtn = document.getElementById('save_button');
         const data = getCodeEditorValue(codeEditor);
         if (data === currentFileContent) {
             alert('There are no changes to save.');
         } else {
+            elSaveBtn.setAttribute("disabled", "disabled");
+            //if no history exists yet, snapshot the original first
+            const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
+            if(numRecords === 0) {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        CSRFToken: '<!--{$CSRFToken}-->',
+                        file: currentFileContent
+                    },
+                    url: '../api/applet/fileHistory/_' + currentFile,
+                    success: function(res) {},
+                    error: function(err) {
+                        console.log(err);
+                    },
+                });
+            }
+
             $.ajax({
                 type: 'POST',
                 data: {
@@ -188,9 +207,11 @@
                         currentFileContent = data;
                         saveFileHistory();
                     }
+                    elSaveBtn.removeAttribute("disabled");
                 },
-                error: function() {
-                    alert('An error occurred while saving the file.');
+                error: function(err) {
+                    alert('An error occurred while saving the file.', err);
+                    elSaveBtn.removeAttribute("disabled");
                 }
             });
         }
@@ -674,7 +695,7 @@
             url: '../api/applet',
             success: function (res) {
                 let buffer = '<ul class="leaf-ul reports">';
-                let bufferExamples = '<div class="leaf-bold">Examples</div><ul class="leaf-ul">';
+                let bufferExamples = '<div class="templates_header">Examples</div><ul class="leaf-ul">';
                 let filesMobile = '<label for="template_file_select">Template Files:</label><select id="template_file_select">';
                 
                 for (let i in res) {
@@ -682,7 +703,7 @@
                     
                     if (!isExcludedFile(file)) {
                         buffer += '<li><a href="#" role="button" data-file="' + file + '">' + file + '</a></li>';
-                        filesMobile += '<option value="' + file + '"><div class="template_files">' + file + '</div></option>';
+                        filesMobile += '<option value="' + file + '">' + file + '</option>';
                     } else {
                         bufferExamples += '<li><a href="#" role="button" data-file="' + file + '">' + file + '</a></li>';
                     }

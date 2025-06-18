@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - Git
-- Docker:  You'll need to ensure that your hosts file has a line pointing *.docker.internal to localhost (127.0.0.1)
+- Docker: you will need to ensure that your host file contains the line `127.0.0.1 host.docker.internal` 
 
 ## Installation
 
@@ -22,6 +22,26 @@ Open up a terminal and enter these commands:
     docker volume create leaf-php-data
     docker volume create leaf-lib
 ```
+
+## Installation Issues
+Newer versions of Docker Desktop may ask you to "Share your Files".
+
+You will see errors like the following during building.
+``` bash
+error during connect: Post "http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.48/containers/create?name=leaf-php-fpm-1": EOF
+PS C:\Users\******\LEAF\docker> docker compose up --build -d
+Compose now can delegate build to bake for better performances
+Just set COMPOSE_BAKE=true
+2025/03/26 06:56:41 http2: server: error reading preface from client //./pipe/dockerDesktopLinuxEngine: file has already been closed
+```
+
+ - Open Docker Desktop
+ - Settings (Gear Icon near the top) 
+ - Open Resources
+ - Open File Sharing in the sub menu
+ - Click on the browse button and find the root of your LEAF folder
+ - Once selected click on the "+" icon 
+
 
 ## Running
 

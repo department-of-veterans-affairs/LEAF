@@ -30,9 +30,6 @@
                 <b><!--{$indicator.name|sanitizeRichtext}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}--><br />
             </span>
             <!--{/if}-->
-            <!--{if $indicator.format == ''}-->
-                <!--{$indicator.html}-->
-            <!--{/if}-->
             </div>
         <!--{else}-->
         <div class="sublabel blockIndicator_<!--{$indicator.indicatorID|strip_tags}-->">
@@ -42,11 +39,7 @@
             </label>
             <!--{else}-->
             <span id="format_label_<!--{$indicator.indicatorID|strip_tags}-->" <!--{if $indicator.format|in_array:['','fileupload','image'] }-->tabindex="0"<!--{/if}-->>
-                    <!--{if $indicator.format === ''}-->
-                        <br /><b><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--></b><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
-                    <!--{else}-->
-                        <br /><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
-                    <!--{/if}-->
+                    <br><!--{$indicator.name|sanitizeRichtext|indent:$depth:""}--><!--{if $indicator.required == 1}--><span id="<!--{$indicator.indicatorID|strip_tags}-->_required" class="input-required">*&nbsp;Required</span><!--{/if}-->
             </span>
             <!--{/if}-->
         <!--{/if}-->
@@ -56,6 +49,10 @@
             <span class="text">
                 [protected data]
             </span>
+        <!--{/if}-->
+
+        <!--{if $indicator.format == ''}-->
+            <!--{$indicator.html}-->
         <!--{/if}-->
         <!--{if $indicator.format == 'grid' && ($indicator.isMasked == 0 || $indicator.value == '')}-->
             <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="polite" id="tableStatus" role="status"></span>
@@ -238,13 +235,15 @@
                         const elDialog = document.querySelector('div[id^="LeafForm"][id$="_xhrDialog"]');
                         if(ev?.key === 'Tab' && ev?.shiftKey === false && elDialog !== null) {
                             const formInputs = Array.from(elDialog.querySelectorAll('input'));
-                            const lastEl = formInputs[formInputs.length - 1];
-                            const elGroupParent = lastEl.closest('#radio_options_<!--{$indicator.indicatorID|strip_tags}-->');
-                            if (elGroupParent !== null) {
-                                ev.preventDefault();
-                                const elClose = elDialog.parentNode.querySelector('.ui-dialog-titlebar-close');
-                                if(elClose !== null) {
-                                    elClose.focus();
+                            if(formInputs.length > 0) {
+                                const lastEl = formInputs[formInputs.length - 1];
+                                const elGroupParent = lastEl.closest('#radio_options_<!--{$indicator.indicatorID|strip_tags}-->');
+                                if (elGroupParent !== null) {
+                                    ev.preventDefault();
+                                    const elClose = elDialog.parentNode.querySelector('.ui-dialog-titlebar-close');
+                                    if(elClose !== null) {
+                                        elClose.focus();
+                                    }
                                 }
                             }
                         }
@@ -558,7 +557,7 @@
                         isValidValue = true;
                     } else {
                         value = value.replace(/,/ig, '');
-                        if (/^(\d*)(\.\d+)?$/.test(value)) {
+                        if (/^-?(\d*)(\.\d+)?$/.test(value)) {
                             let floatValue = parseFloat(value);
                             let strRoundTwoDecimals = (Math.round(100 * floatValue) / 100).toFixed(2);
                             $('#<!--{$indicator.indicatorID|strip_tags}-->').val(strRoundTwoDecimals);

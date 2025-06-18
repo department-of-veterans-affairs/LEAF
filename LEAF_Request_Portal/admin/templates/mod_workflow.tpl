@@ -54,6 +54,20 @@
 
 <script type="text/javascript">
     var CSRFToken = '<!--{$CSRFToken}-->';
+    const reservedActionTypes = {
+        approve: 1,
+        changeinitiator: 1,
+        concur: 1,
+        defer: 1,
+        deleted: 1,
+        disapprove: 1,
+        move: 1,
+        sendback: 1,
+        sign: 1,
+        submit: 1,
+    }
+    let allWorkflowActionMap = {} //populated when user opens custom or workflow action selection areas
+
 
     function isJSON(input = '') {
         try {
@@ -1141,6 +1155,7 @@
             type: 'GET',
             url: '../api/workflow/userActions',
             success: function(res) {
+                allWorkflowActionMap = {};
                 let buffer = `<table id="actions" class="table" border="1">
                     <caption><h2>List of Actions</h2></caption>
                     <thead>
@@ -1151,6 +1166,7 @@
                     </thead>`;
 
                 for (let i in res) {
+                    allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += `<tr>
                         <td width="300px" id="${res[i].actionType}">${res[i].actionText}</td>
                         <td width="300px" id="${res[i].actionTextPasttense}">${res[i].actionTextPasttense}</td>
@@ -1194,49 +1210,42 @@
     * @returns string template for action editing modal
     */
     function renderActionInputModal(action = {}) {
-        return `
-            <table style="margin-bottom:2rem;">
-                <tr>
-                    <td><label for="actionText" id="action_label">Action <span style="color: #c00000">*Required</span></label></td>
-                    <td>
-                        <input id="actionText" type="text" maxlength="50" style="border: 1px solid red" value="${action?.actionText || ''}" />
-                    </td>
-                    <td>eg: Approve</td>
-                </tr>
-                <tr>
-                    <td><label for="actionTextPasttense" id="action_past_tense_label">
-                        Action Past Tense <span style="color: #c00000">*Required</span>
-                        </label></td>
-                    <td>
-                        <input id="actionTextPasttense" type="text" maxlength="50" style="border: 1px solid red" value="${action?.actionTextPasttense || ''}" />
-                    </td>
-                    <td>eg: Approved</td>
-                </tr>
-                <tr>
-                    <td><label for="actionIcon" id="choose_icon_label">Icon</label></td>
-                    <td>
-                        <input id="actionIcon" type="text" maxlength="50" value="${action?.actionIcon || ''}" />
-                    </td>
-                    <td>eg: go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></td>
-                </tr>
-                <tr>
-                    <td><label for="actionSortNumber" id="action_sort_label">Button Order</label></td>
-                    <td>
-                        <input id="actionSortNumber" type="number" min="-128" max="127" value="${action?.sort || 0}" />
-                    </td>
-                    <td>lower numbers appear first</td>
-                </tr>
-            </table>
-            <label for="fillDependency" style="font-family:'Source Sans Pro Web', sans-serif; font-size: 1rem;">
-                Does this action represent moving forwards or backwards in the process?
-            </label>
-            <select id="fillDependency">
-                <option value="1">Forwards</option>
-                <option value="-1">Backwards</option>
-            </select>
-            <div id="backwards_action_note" style="margin-top:0.5rem; max-width:600px; display: none;">
-                Note: Backwards actions do not save form field data.
-            </div>`
+        return `<div id="action_input_modal">
+            <div>
+                <label for="actionText" id="action_label">Action <span style="color: #c00">*Required</span></label><br>
+                <div class="helper_text">e.g., Approve</div>
+                <div id="actionText_error_message" class="error_message"></div>
+                <input id="actionText" type="text" maxlength="50" value="${action?.actionText || ''}">
+            </div>
+            <div>
+                <label for="actionTextPasttense" id="action_past_tense_label"> Action Past Tense <span style="color: #c00">*Required</span></label><br>
+                <div class="helper_text">e.g., Approved</div>
+                <input id="actionTextPasttense" type="text" maxlength="50" value="${action?.actionTextPasttense || ''}">
+            </div>
+            <div>
+                <label for="actionIcon" id="choose_icon_label">Icon</label><br>
+                <div class="helper_text">e.g., go-next.svg &nbsp;<a href="/libs/dynicons/gallery.php" style="color:#005EA2;" target="_blank">List of available icons</a></div>
+                <input id="actionIcon" type="text" maxlength="50" value="${action?.actionIcon || ''}">
+            </div>
+            <div>
+                <label for="actionSortNumber" id="action_sort_label">Button Order</label><br>
+                <div class="helper_text">Lower numbers appear first</div>
+                <input id="actionSortNumber" type="number"
+                    min="-128" max="127" value="${action?.sort || 0}" style="width:80px;">
+            </div>
+            <div>
+                <label for="fillDependency" style="font-family:'Source Sans Pro Web', sans-serif; font-size: 1rem;">
+                    Does this action represent moving forwards or backwards in the process?
+                </label><br>
+                <div id="backwards_action_note" style="max-width:600px; display: none;" class="helper_text">
+                    Note: Backwards actions do not save form field data.
+                </div>
+                <select id="fillDependency">
+                    <option value="1">Forwards</option>
+                    <option value="-1">Backwards</option>
+                </select>
+            </div>
+        </div>`
     }
 
     //edit action type
@@ -1249,11 +1258,13 @@
         getAction(actionType, function (res) {
             dialog.indicateIdle();
             dialog.setContent(renderActionInputModal(res[0]));
-
+            $("#actionText").on("change", (event) => validateInputFields((event?.target?.id ?? ""), false));
+            $("#actionTextPasttense").on("change", (event) => validateInputFields((event?.target?.id ?? ""), false));
             $('#fillDependency').val(res[0].fillDependency);
             document.getElementById('backwards_action_note').style.display = parseInt(res[0].fillDependency) < 0 ? 'block': 'none';
             document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
 
+            dialog.setCancelHandler(enableSaveButton);
             dialog.setSaveHandler(function() {
                 let sort = parseInt($('#actionSortNumber').val());
                 sort = Number.isInteger(sort) ? sort : 0;
@@ -1349,43 +1360,114 @@
         document.getElementById('backwards_action_note').style.display = parseInt(val) < 0 ? 'block': 'none';
     }
 
+
+    function enableSaveButton() {
+        $("#button_save").removeAttr("disabled");
+        $("#button_save").css("background-color", "#005EA2");
+    }
+
+    /*
+    * Purpose: validate modal input.  Sets of cases apply to different modals.
+    * @param  targetID {string} id of input element changed
+    * @param  newEntry {bool} whether user is creating new or editing existing
+    */
+    function validateInputFields(targetID = "", newEntry = false) {
+        const setError = (elementID = "", isValid = false) => {
+            let wrapperElement = document.getElementById(elementID)?.parentNode || null;
+            if (wrapperElement !== null && isValid === false) {
+                wrapperElement.classList.add("entry_error");
+            }
+        }
+
+        let parentWrapper = document.getElementById(targetID)?.parentElement ?? null;
+        if (parentWrapper !== null) {
+            parentWrapper.classList.remove("entry_error");
+        }
+
+        switch(targetID) {
+            case "actionText":
+            case "actionTextPasttense":
+                let actionErrorEl = $("#actionText_error_message");
+                actionErrorEl.text("")
+
+                const actionTypeInputValue = $("#actionText").val().trim();
+                const actionPastTenseInputValue = $("#actionTextPasttense").val().trim();
+
+                const actionTypeRegex = new RegExp(/[^a-zA-Z0-9_]/, "gi");
+                const actionType = actionTypeInputValue.replaceAll(actionTypeRegex, "").toLowerCase();
+
+                let actionTextValid = true;
+                let actionPastTenseValid = true;
+
+                if (actionType === "") {
+                    actionTextValid = false;
+
+                } else {
+                    //if there is an entry for 'action' and it's a new action, check for reserved or taken actionTypes
+                    if (newEntry === true &&
+                        (reservedActionTypes[actionType] === 1 || allWorkflowActionMap[actionType] === 1)
+                    ) {
+                        actionTextValid = false;
+                        setError("actionText", actionTextValid);
+                        actionErrorEl.text("This action name is not available.  Try another name.");
+                    }
+                }
+
+                if (actionPastTenseInputValue === "") {
+                    actionPastTenseValid = false;
+                }
+
+                if(actionTextValid === true && actionPastTenseValid === true) {
+                    enableSaveButton();
+                } else {
+                    $("#button_save").attr("disabled", true);
+                    $("#button_save").css("background-color", "#58585b");
+                }
+                break;
+            default:
+            break;
+        }
+    }
+
     // create a brand new action
     function newAction() {
         dialog.hide();
         dialog.setTitle('Create New Action Type');
         dialog.show();
-
+        dialog.setCancelHandler(enableSaveButton);
         dialog.setSaveHandler(function() {
-            if ($('#actionText').val() == '' ||
-                $('#actionTextPasttense').val() == '') {
-                alert('Please fill out required fields.');
-            } else {
-                let sort = parseInt($('#actionSortNumber').val());
-                sort = Number.isInteger(sort) ? sort : 0;
-                sort = sort < -128 ? -128
-                        : sort > 127 ? 127
-                        : sort;
-                $.ajax({
-                    type: 'POST',
-                    url: '../api/system/action',
-                    data: {
-                        actionText: $('#actionText').val(),
-                        actionTextPasttense: $('#actionTextPasttense').val(),
-                        actionIcon: $('#actionIcon').val(),
-                        sort: sort,
-                        fillDependency: $('#fillDependency').val(),
-                        CSRFToken: CSRFToken
-                    },
-                    success: function(res) {
+            let sort = parseInt($('#actionSortNumber').val());
+            sort = Number.isInteger(sort) ? sort : 0;
+            sort = sort < -128 ? -128
+                    : sort > 127 ? 127
+                    : sort;
+
+            $.ajax({
+                type: 'POST',
+                url: '../api/system/action',
+                data: {
+                    actionText: $('#actionText').val().trim(),
+                    actionTextPasttense: $('#actionTextPasttense').val().trim(),
+                    actionIcon: $('#actionIcon').val(),
+                    sort: sort,
+                    fillDependency: $('#fillDependency').val(),
+                    CSRFToken: CSRFToken
+                },
+                success: function(res) {
+                    if(res?.status?.code === 2) {
                         loadWorkflow(currentWorkflow);
-                    },
-                    error: (err) => console.log(err),
-                });
-                dialog.hide();
-            }
+                    }
+                },
+                error: (err) => console.log(err),
+            });
+            dialog.hide();
         });
 
         dialog.setContent(renderActionInputModal());
+        $("#input_status_info").css("display", "table-row");
+        validateInputFields('actionText');
+        $("#actionText").on("change", (event) => validateInputFields((event?.target?.id ?? ""), true));
+        $("#actionTextPasttense").on("change", (event) => validateInputFields((event?.target?.id ?? ""), true));
         document.getElementById('fillDependency').addEventListener('change', actionDirectionNote);
     }
 
@@ -1439,6 +1521,7 @@
             type: 'GET',
             url: '../api/workflow/actions',
             success: function(res) {
+                allWorkflowActionMap = {};
                 let buffer = '';
                 buffer = 'Select action for ';
                 buffer += '<b>' + sourceTitle + '</b> to <b>' + targetTitle + '</b>:';
@@ -1446,6 +1529,7 @@
                     '<br /><br /><br />Use an existing action type: <select id="actionType" name="actionType">';
 
                 for (let i in res) {
+                    allWorkflowActionMap[res[i].actionType.toLowerCase()] = 1;
                     buffer += '<option value="' + res[i].actionType + '">' + res[i].actionText + '</option>';
                 }
 
@@ -1532,9 +1616,9 @@
             }
 
             output += '<br /><div>Triggers these events:<ul>';
-            // the sendback action always notifies the requestor
+            // the sendback action always notifies the requestor and uses the Send Back template
             if (params.action == 'sendback') {
-                output += '<li><b>Email - Notify the requestor</b></li>';
+                output += '<li><b>Email - Send Back Notification for Requestor</b></li>';
             }
             for (let i in res) {
                 output += `<li><b>${res[i].eventType} - ${res[i].eventDescription}</b>
@@ -1818,6 +1902,13 @@
     function modalSetup(stepID) {
         const modalEl = document.getElementById('stepInfo_' + stepID);
         if(modalEl !== null) {
+            const rect = modalEl.getBoundingClientRect();
+            if(rect.right > window.innerWidth) {
+                const adjustedLeft = 16 + rect.right - window.innerWidth;
+                const currentLeft = parseInt(modalEl.style.left);
+                modalEl.style.left = currentLeft - adjustedLeft + 'px';
+            }
+
             $('#step_' + stepID).attr('aria-expanded', true);
             const interActiveEls = Array.from(modalEl.querySelectorAll('img, button, input, select'));
             const first = interActiveEls[0] || null
@@ -2079,6 +2170,8 @@
     var endPoints = [];
 
     function drawRoutes(workflowID, stepID = null) {
+        let loc = 0.5;
+        const locIncrement = 0.15;
         $.ajax({
             type: 'GET',
             url: '../api/workflow/' + workflowID + '/route',
@@ -2094,8 +2187,9 @@
                 }
 
                 // draw connector
+                let actionCounts = {};
                 for (let i in res) {
-                    var loc = 0.5;
+                    loc = 0.5;
                     switch (res[i].actionType.toLowerCase()) {
                         case 'sendback':
                             loc = 0.30;
@@ -2111,6 +2205,23 @@
                             loc = 0.75;
                             break;
                         default:
+                            const from = String(res[i].stepID);
+                            const to = String(res[i].nextStepID);
+                            if(from !== to) {
+                                const fromStepToStep = from + "_" + to;
+                                if(actionCounts?.[fromStepToStep] >= 0) {
+                                    actionCounts[fromStepToStep] += 1;
+                                    loc = Math.min(
+                                        +((0.05 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
+                                        0.65
+                                    );
+                                    if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
+                                        loc += locIncrement;
+                                    }
+                                } else {
+                                    actionCounts[fromStepToStep] = 0;
+                                }
+                            }
                             break;
                     }
                     if (res[i].nextStepID == 0 && res[i].actionType == 'sendback') {

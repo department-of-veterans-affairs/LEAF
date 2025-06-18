@@ -43,6 +43,9 @@
     height:360px;
     display:none;
 }
+.trumbowyg-save-button.trumbowyg-textual-button {
+    display: none; /* trumbowyg custom defined btn only used for key shortcut Ctrl+S save */
+}
 .CodeMirror-code {
     font-size: .7rem;
 }
@@ -181,7 +184,7 @@ div.CodeMirror-merge-pane-label-right {
     padding: 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 #fileBrowser > h3 {
     width: 100%;
@@ -194,14 +197,20 @@ div.CodeMirror-merge-pane-label-right {
 #fileList > ul.reports {
     margin-bottom: 1rem;
 }
+#fileList hr {
+    margin: 1rem 0;
+}
+.templates_header {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    font-size: 0.875rem;
+    color: #252f3e;
+}
 .leaf-ul {
     width: 100%;
-    min-height: 300px;
+    margin: 0;
     padding: 0 0 0 1rem;
     overflow: auto;
-}
-.leaf-ul:first-child {
-    margin-top: 0;
 }
 .leaf-ul > li {
     width: 100%;
@@ -586,8 +595,27 @@ fieldset {
     color: #c00000;
     visibility: hidden;
 }
-
-
+#field_use_notice {
+    color:#b00000;
+    margin-bottom: 0.5rem;
+}
+#to_cc_smarty_vars_notice {
+    margin: 0 -0.5rem;
+    padding: 0.5rem;
+}
+#to_cc_smarty_vars_notice, #subject_smarty_vars_notice, #body_smarty_vars_notice {
+    color:#b00000;
+    font-weight: bolder;
+    background-color:#fffbc8;
+    line-height: 1.3;
+}
+#subject_smarty_vars_notice, #body_smarty_vars_notice {
+    margin: 1rem 0 -1.5rem 0;
+    padding: 0.5rem 0.5rem 0.75rem;
+}
+#to_cc_smarty_vars_notice span, #subject_smarty_vars_notice span, #body_smarty_vars_notice span {
+    font-weight: normal;
+}
 
 
 @media only screen and (max-width:1024px) {

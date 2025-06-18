@@ -1015,8 +1015,6 @@ class Employee extends Data
 
     /**
      * Marks employee as deleted
-     * disabling a user requires that all instances of the userName be updated both in
-     * orgchart and portals
      * @param int $empUID
      * @return bool
      */
@@ -1048,8 +1046,6 @@ class Employee extends Data
 
     /**
      * Marks employee as not deleted
-     * Enabling someone requires that all instances of the userName be updated in both
-     * the orgchart and portals
      * @param int $empUID
      * @return bool
      */

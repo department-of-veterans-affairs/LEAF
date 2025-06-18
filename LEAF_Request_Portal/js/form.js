@@ -11,7 +11,8 @@ var LeafForm = function (containerID) {
   var htmlFormID = prefixID + "record";
   var dialog;
   var recordID = 0;
-  var postModifyCallback;
+  var postModifyCallback; // Primary callback for core feature
+  var postModifyCallbacks = []; // Secondary callbacks
   let rootURL = "";
   let errorCount = 0;
 
@@ -55,6 +56,26 @@ var LeafForm = function (containerID) {
 
   function setPostModifyCallback(func) {
     postModifyCallback = func;
+  }
+
+  function addPostModifyCallback(func) {
+    let idx = postModifyCallbacks.findIndex(cb => cb.toString() == func.toString());
+    if(idx == -1) {
+      postModifyCallbacks.push(func);
+    }
+  }
+
+  // removePostModifyCallback removes a registered callback
+  function removePostModifyCallback(func) {
+    if(func.toString() == postModifyCallback.toString()) {
+      postModifyCallback == undefined;
+      return;
+    }
+
+    let idx = postModifyCallbacks.findIndex(cb => cb.toString() == func.toString());
+    if(idx >= 0) {
+      postModifyCallbacks.splice(idx, 1);
+    }
   }
 
   function sanitize(input = "") {
@@ -285,7 +306,8 @@ var LeafForm = function (containerID) {
             //If required validator and dialog exist, reset validator if there is not a hidden ancestor (exclude the one in the process of being assessed)
             const closestHidden = element.closest(`.response-hidden:not(.blockIndicator_${childID})`);
             const shouldSetRequired = closestHidden === null;
-            if (formRequired[`id${id}`]?.setRequired || false && dialog !== null && shouldSetRequired) {
+            const isRequired = typeof formRequired[`id${id}`]?.setRequired === "function";
+            if (isRequired && dialog !== null && shouldSetRequired) {
               dialog.requirements[id] = formRequired[`id${id}`].setRequired;
             }
           }
@@ -862,6 +884,9 @@ var LeafForm = function (containerID) {
         if (postModifyCallback != undefined) {
           postModifyCallback();
         }
+        postModifyCallbacks.forEach(fn => {
+          fn();
+        });
         $("#" + dialog.btnSaveID)
           .empty()
           .html(temp);
@@ -976,6 +1001,8 @@ var LeafForm = function (containerID) {
 
     setRecordID: setRecordID,
     setPostModifyCallback: setPostModifyCallback,
+    addPostModifyCallback: addPostModifyCallback,
+    removePostModifyCallback: removePostModifyCallback,
     doModify: doModify,
     getForm: getForm,
     initCustom: initCustom,

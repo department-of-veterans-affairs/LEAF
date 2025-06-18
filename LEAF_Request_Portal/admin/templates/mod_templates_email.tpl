@@ -31,8 +31,12 @@
                         <p>
                             Enter email addresses, one per line. Users will be
                             emailed each time this template is used in any workflow.&nbsp;
-                            <div id="field_use_notice" style="display: none; color:#c00000;">
+                            <div id="field_use_notice" style="display: none;">
                             Please note that only orgchart employee formats are supported in this section.
+                            </div>
+                            <div id="to_cc_smarty_vars_notice" style="display:none">
+                                Potential Variable errors in To/Cc: <span id="to_cc_field_errors"></span><br>
+                                <span style="color:#000;">Example: {{$variable}}</span>
                             </div>
                         </p>
                         <label for="emailToCode" id="emailTo" class="emailToCc">Email To:</label>
@@ -45,6 +49,10 @@
                         </div>
                     </fieldset>
                 </div>
+                <div id="subject_smarty_vars_notice" style="display:none;">
+                    Potential Variable errors in Subject: <span id="subject_field_errors"></span><br>
+                    <span style="color:#000;">Example: {{$variable}}</span>
+                </div>
                 <label for="code_mirror_subject_editor" id="subject">Subject</label>
                 <div id="divSubject">
                     <div class="compared-label-content">
@@ -53,6 +61,10 @@
                     </div>
                     <textarea id="subjectCode"></textarea>
                     <div id="subjectCompare"></div>
+                </div>
+                <div id="body_smarty_vars_notice" style="display:none;">
+                    Potential Variable errors in Body: <span id="body_field_errors"></span><br>
+                    <span style="color:#000;">Example: {{$variable}}</span>
                 </div>
                 <label for="code_mirror_template_editor" id="filename" class="email">Body</label>
                 <div id="emailBodyCode">
@@ -77,11 +89,23 @@
                             </tr>
                             <tr>
                                 <td><b>{{$fullTitle}}</b></td>
-                                <td>The full title of the request</td>
+                                <td>The full title of the request<br /><span style="color:#c00000;">If need to know is on: The type of form</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$fullTitle_insecure}}</b></td>
+                                <td>The full title of the request<br /><span style="color:#c00000;">By using this variable, I certify that record titles related to these emails are not designed to contain PHI/PII.</span></td>
                             </tr>
                             <tr>
                                 <td><b>{{$truncatedTitle}}</b></td>
-                                <td>A truncated version of the request title</td>
+                                <td>The request title, truncated to 45 characters in length<br /><span style="color:#c00000;">If need to know is on: The type of form</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$truncatedTitle_insecure}}</b></td>
+                                <td>The request title, truncated to 45 characters in length<br /><span style="color:#c00000;">By using this variable, I certify that record titles related to these emails are not designed to contain PHI/PII.</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>{{$formType}}</b></td>
+                                <td>The type of form</td>
                             </tr>
                             <tr>
                                 <td><b>{{$lastStatus}}</b></td>
@@ -102,8 +126,7 @@
                             <tr>
                                 <td><b>{{$field.&lt;fieldID&gt;}}</fieldID>
                                 </td>
-                                <td>The value of the field by ID. <span style="color:#c00000;">Sensitive data fields may
-                                        not be included in email templates.</span></td>
+                                <td>The value of the field by ID<br /><span style="color:#c00000;">Sensitive data fields will not work in email templates.</span></td>
                             </tr>
                         </table>
                     </fieldset>
@@ -236,7 +259,7 @@
     let subjectEditor;
     let dialog_message;
 
-    let currentName;
+    let currentLabel;
     let currentFile;
     let currentSubjectFile;
     let currentEmailToFile;
@@ -306,28 +329,90 @@
     * used on load and as a listener on email To CC fields
     * displays a message if non-orgchart employee format indicators are referenced in these areas
     */
-    function checkFieldEntries() {
-        const elTextareaTo = document.getElementById("emailToCode");
-        const elTextareaCc = document.getElementById("emailCcCode");
-        const elTextInput = (elTextareaTo?.value || "") + "\r\n" + (elTextareaCc?.value || "");
-        if(elTextInput !== "") {
-            const fieldReg = /field\.\d*/g;
-            const fieldMatches = elTextInput.match(fieldReg);
-            let elNotice = document.getElementById("field_use_notice");
-            if (elNotice !== null) {
-                if(fieldMatches?.length > 0) {
-                    const ids = fieldMatches.map(m => +m.slice(m.indexOf(".") + 1));
-                    let includesNonOrgchartEmp = false;
-                    for(let i = 0; i < ids.length; i++) {
-                        const id = ids[i];
-                        if(allowedToCcFormats?.[indicatorFormats[id]] !== 1) {
-                            includesNonOrgchartEmp = true;
-                            break;
-                        }
+    function checkFieldEntries(cm = null, orgEmployeeOnly = true) {
+        const smartyVarReg = /\{.*?\}?\}/g;
+        let smartyErrors = [];
+        let varMatches = [];
+
+        if (orgEmployeeOnly === true) {
+            //to and cc textareas only support orgchart employee format
+            const elTextareaTo = document.getElementById("emailToCode");
+            const elTextareaCc = document.getElementById("emailCcCode");
+            const elTextInput = (elTextareaTo?.value || "") + "\r\n" + (elTextareaCc?.value || "");
+
+            let elFormatNotice = document.getElementById("field_use_notice");
+            let elVariableNotice = document.getElementById("to_cc_smarty_vars_notice");
+            let elErrors = document.getElementById('to_cc_field_errors');
+            varMatches = elTextInput.match(smartyVarReg) ?? [];
+
+            let includesNonOrgchartEmp = false;
+            for(let i = 0; i < varMatches.length; i++) {
+                const m = varMatches[i];
+                if(typeof m === 'string' && m.includes('field.')) {
+                    const id = m.match(/\d{1,}/g)?.[0];
+                    if (!/^\{\{\$\S/.test(m) || !m.endsWith('}}')) {
+                        smartyErrors.push(m);
                     }
-                    elNotice.style.display = includesNonOrgchartEmp ? "block" : "none";
+                    if(allowedToCcFormats?.[indicatorFormats?.[id]] !== 1) {
+                        includesNonOrgchartEmp = true;
+                        break;
+                    }
                 } else {
-                    elNotice.style.display = "none";
+                    includesNonOrgchartEmp = true;
+                    break;
+                }
+            }
+            if(elFormatNotice !== null) {
+                elFormatNotice.style.display = includesNonOrgchartEmp === true ? 'block' : 'none';
+            }
+
+            if (elVariableNotice !== null && elErrors !== null) {
+                if (smartyErrors.length > 0) {
+                    elVariableNotice.style.display = 'block';
+                    elErrors.textContent = smartyErrors.join(',');
+                } else {
+                    elVariableNotice.style.display = 'none';
+                    elErrors.textContent = '';
+                }
+            }
+
+
+        } else {
+            let elVariableNotice = null
+            let elErrors = null
+            let content = '';
+
+            if(cm !== null) { //subject or code editor mode body
+                content = getCodeEditorValue(cm);
+                const textareaID = (cm.getTextArea()?.id ?? '').toLowerCase();
+                if(textareaID === 'subjectcode') {
+                    elVariableNotice = document.getElementById("subject_smarty_vars_notice");
+                    elErrors = document.getElementById('subject_field_errors');
+                } else {
+                    elVariableNotice = document.getElementById("body_smarty_vars_notice");
+                    elErrors = document.getElementById('body_field_errors');
+                }
+
+            } else {
+                content = document.querySelector('#emailBodyCode + div textarea.trumbowyg-textarea')?.value ?? '';
+                elVariableNotice = document.getElementById("body_smarty_vars_notice");
+                elErrors = document.getElementById('body_field_errors');
+            }
+
+            varMatches = content.match(smartyVarReg) ?? [];
+            varMatches.forEach(m => {
+                if (!/^\{\{\$\S/.test(m) || !m.endsWith('}}')) {
+                    smartyErrors.push(m);
+                }
+            });
+
+            if (elVariableNotice !== null && elErrors !== null) {
+                if (smartyErrors.length > 0) {
+                    elVariableNotice.style.display = 'block';
+                    elErrors.textContent = smartyErrors.join(', ');
+                } else {
+                    elVariableNotice.style.display = 'none';
+                    elErrors.textContent = '';
                 }
             }
         }
@@ -355,6 +440,7 @@
     * Displays last save time, updates current*Content values, and calls saveFileHistory at success.
     */
     function save() {
+        let elSaveBtn = document.getElementById('save_button');
         const trumbowValue = document.querySelector(
             '#emailBodyCode + div textarea.trumbowyg-textarea'
         )?.value || null;
@@ -378,6 +464,30 @@
                 $('#editor_trumbowyg_saving').hide();
             }
         } else {
+            elSaveBtn.setAttribute("disabled", "disabled");
+            //if no history exists yet, snapshot the original first
+            const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
+            if(numRecords === 0) {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        CSRFToken: '<!--{$CSRFToken}-->',
+                        file: currentFileContent,
+                        subjectFile: currentSubjectContent,
+                        subjectFileName: currentSubjectFile,
+                        emailToFile: currentEmailToContent,
+                        emailToFileName: currentEmailToFile,
+                        emailCcFile: currentEmailCcContent,
+                        emailCcFileName: currentEmailCcFile
+                    },
+                    url: '../api/emailTemplateFileHistory/_' + currentFile,
+                    success: function(res) {},
+                    error: function(err) {
+                        console.log(err);
+                    },
+                });
+            }
+
             $.ajax({
                 type: 'POST',
                 data: {
@@ -414,12 +524,14 @@
                             currentTrumbowygFileContent = data;
                         }
                     }
+                    elSaveBtn.removeAttribute("disabled");
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     if(trumbowValue !== null) {
                         $('#editor_trumbowyg_saving').hide();
                         useTrumbowygEmailEditor();
                     }
+                    elSaveBtn.removeAttribute("disabled");
                     console.log('Error occurred during the save operation:', errorThrown);
                 }
             });
@@ -663,13 +775,13 @@
         let templateEmailCcFile = urlParams.get('emailCcFile');
 
         if (fileName !== null && parentFile !== null && templateSubjectFile == 'undefined' && templateName == 'undefined') {
-            loadContent(currentName, templateFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
+            loadContent(currentLabel, templateFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
             compareHistoryFile(fileName, parentFile, false);
         } else if (fileName !== null && parentFile !== null && templateSubjectFile !== null) {
             loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
             compareHistoryFile(fileName, parentFile, false);
         } else if (templateSubjectFile == 'undefined') {
-            loadContent(currentName, templateFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
+            loadContent(currentLabel, templateFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
         } else if (templateFile !== null) {
             loadContent(templateName, templateFile, templateSubjectFile, templateEmailToFile, templateEmailCcFile);
         } else {
@@ -818,20 +930,20 @@
         url.searchParams.delete('parentFile');
         window.history.replaceState(null, null, url.toString());
         if(load === true) {
-            loadContent(currentName, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
+            loadContent(currentLabel, currentFile, currentSubjectFile, currentEmailToFile, currentEmailCcFile);
         }
     }
 
     /**
     * Used in editing view to load content and associated history records.
     * Prepares codeEditor. Updates the display area, url, and current content global variables.
-    * @param {string} name - description of event being loaded. eg Send Back
+    * @param {string} label - label of template being loaded. eg Send Back
     * @param {string} file - body template name. eg LEAF_send_back_body.tpl
     * @param {string} subjectFile - subject template name. eg LEAF_send_back_subject.tpl
     * @param {string} emailToFile - eg LEAF_send_back_emailTo.tpl
     * @param {string} emailCcFile - eg LEAF_send_back_emailCc.tpl
     */
-    function loadContent(name, file, subjectFile, emailToFile, emailCcFile) {
+    function loadContent(label, file, subjectFile, emailToFile, emailCcFile) {
         //current T editor val if it exists
         const trumbowValue = document.querySelector(
             '#emailBodyCode + div textarea.trumbowyg-textarea'
@@ -860,7 +972,7 @@
             return;
         }
 
-        if (ignorePrompt) { //true only on page load
+        if (ignorePrompt === true) { //true only on page load
             ignorePrompt = false;
         } else {
             const emailToData = document.getElementById('emailToCode').value;
@@ -881,13 +993,13 @@
         $('.CodeMirror').remove();
 
         initEditor();
-        currentName = name;
+        currentLabel = label;
         currentFile = file;
         currentSubjectFile = subjectFile;
         currentEmailToFile = emailToFile;
         currentEmailCcFile = emailCcFile;
         $('#codeContainer').css('display', 'none');
-        $('#emailTemplateHeader').html(currentName);
+        $('#emailTemplateHeader').html(currentLabel);
         if (typeof subjectFile === 'undefined' || subjectFile === null || subjectFile === '') {
             $('#subject, #emailLists, #emailTo, #emailCc').hide();
             $('#divSubject, #divEmailTo, #divEmailCc').hide().prop('disabled', true);
@@ -953,7 +1065,7 @@
         if(file) {
             let url = new URL(window.location.href);
             url.searchParams.set('file', file);
-            url.searchParams.set('name', name);
+            url.searchParams.set('name', label);
             url.searchParams.set('subjectFile', subjectFile);
             url.searchParams.set('emailToFile', emailToFile);
             url.searchParams.set('emailCcFile', emailCcFile);
@@ -1153,6 +1265,7 @@
                 }
             }
         });
+        codeEditor.on('blur', (cm) => checkFieldEntries(cm, false));
         addCodeMirrorAria('code');
 
         subjectEditor = CodeMirror.fromTextArea(document.getElementById("subjectCode"), {
@@ -1180,7 +1293,13 @@
                 }
             }
         });
+        subjectEditor.on('blur', (cm) => checkFieldEntries(cm, false));
         addCodeMirrorAria('subjectCode');
+
+        setTimeout(() => {
+            checkFieldEntries(codeEditor, false);
+            checkFieldEntries(subjectEditor, false);
+        });
     }
     // Displays  user's history when creating, merge, and so on
     function viewHistory() {
@@ -1210,7 +1329,7 @@
         if(typeof currentFile === 'string') {
             try {
                 fetch(`../api/workflow/customEvents`)
-                .then(res => res.json()
+                .then(res => res.json())
                 .then(data => {
                     const events = Array.isArray(data) ? data : [];
                     const sliceEnd = -('_body.tpl'.length);
@@ -1228,7 +1347,7 @@
                             if (+NotifyGroup > 0) {
                                 try {
                                     fetch('../api/group/list')
-                                    .then(res => res.json()
+                                    .then(res => res.json())
                                     .then(data => {
                                         const groups = data;
                                         const groupName = groups.find(g => +NotifyGroup === g.groupID)?.name || '';
@@ -1238,8 +1357,7 @@
                                         }
                                         elInfo.innerHTML = arrNotices.join('');
                                         elInfo.style.display = arrNotices.length > 0 ? 'flex' : 'none';
-                                    }).catch(err => console.log(err))
-                                    ).catch(err => console.log(err));
+                                    }).catch(err => console.log(err));
                                 } catch (err) {
                                     console.log(err);
                                 }
@@ -1255,12 +1373,83 @@
                         elInfo.innerHTML = '';
                         elInfo.style.display = 'none';
                     }
-                }).catch(err => console.log(err))
-                ).catch(err => console.log(err));
+                }).catch(err => console.log(err));
 
             } catch (err) {
                 console.log(err);
             }
+        }
+    }
+
+    function registerVariablesPlugin() {
+        const defaultOptions = {
+            source: [
+                'recordID',
+                'fullTitle',
+                'fullTitle_insecure',
+                'truncatedTitle',
+                'truncatedTitle_insecure',
+                'formType',
+                'lastStatus',
+                'comment',
+                'service',
+                'siteRoot',
+                'field.#',
+            ],
+            formatVariable: formatVariable,
+        };
+
+        $.extend(
+            true, $.trumbowyg,
+            {
+                langs: {
+                    en: { addVariables: 'Variables' }
+                },
+                plugins: {
+                    addVariables: {
+                        init: function(trumbowyg) {
+                            trumbowyg.o.plugins.addVariables = $.extend(
+                                true, {},
+                                defaultOptions,
+                                trumbowyg.o.plugins.addVariables || {}
+                            );
+
+                            const ddDef = {
+                                dropdown: makeDropdown(trumbowyg.o.plugins.addVariables.source, trumbowyg),
+                                title: 'Add variables',
+                                text: 'Variables',
+                                hasIcon: false
+                            }
+                            trumbowyg.addBtnDef('addVariables', ddDef);
+                        }
+                    }
+                }
+            }
+        );
+
+        function formatVariable(srcItem) {
+            return '\{\{$' + srcItem + '}} ';
+        }
+
+        function makeDropdown(sourceArray, trumbowyg) {
+            let dd = [];
+            sourceArray.forEach((ele, idx) => {
+                const d = {
+                    fn: function() {
+                        trumbowyg.execCmd(
+                            "insertHTML",
+                            trumbowyg.o.plugins.addVariables.formatVariable(ele)
+                        );
+                        return true;
+                    },
+                    text: ele,
+                    hasIcon: false,
+                };
+
+                trumbowyg.addBtnDef(ele, d);
+                dd.push(ele);
+            });
+            return dd;
         }
     }
 
@@ -1270,14 +1459,29 @@
         const data = getCodeEditorValue(codeEditor);
         $('#editor_trumbowyg').val(data);
         $('#editor_trumbowyg').trumbowyg({
+            btnsDef: {
+                save: {
+                    fn: function() {
+                        const saveEl = document.getElementById('save_button');
+                        if(saveEl !== null) {
+                            saveEl.dispatchEvent(new Event('click'));
+                        }
+                    },
+                    key: 'S', //config setting implies Ctrl+
+                    text: 'Save',
+                    hasIcon: false,
+                }
+            },
             btns: [
                 'formatting', 'bold', 'italic', 'underline', '|',
                 'unorderedList', 'orderedList', '|',
                 'link', '|',
-                'foreColor', '|',
-                'justifyLeft', 'justifyCenter', 'justifyRight'
+                'foreColor', 'backColor', '|',
+                'justifyLeft', 'justifyCenter', 'justifyRight',
+                'addVariables',
+                'save'
             ],
-        });
+        }).on('tbwblur', () => checkFieldEntries(null, false));
         $('.trumbowyg-box').css({
             'min-height': '130px',
             'margin': '0.5rem 0'
@@ -1357,6 +1561,7 @@
                 }
             }
         });
+        checkFieldEntries(null, false);
         document.getElementById('btn_useCodeMirror').focus();
     }
 
@@ -1396,6 +1601,8 @@
 
     //loads components when the document loads
     $(document).ready(function() {
+        registerVariablesPlugin();
+
         getIndicators(); //get indicators to make format table
         getForms(); //get forms for quick search and indicator format info
 
@@ -1414,44 +1621,87 @@
             'genericDialogbutton_cancelchange'
         );
 
-        // Get initial email templates for page from database
+        // Get array of email templates records from portal.email_templates table
         $.ajax({
             type: 'GET',
             url: '../api/emailTemplates',
-            success: function (res) {
+            success: function (emailTemplateRecords) {
+                const sortedTemplates = emailTemplateRecords.toSorted((a, b) => {
+                    const labelA = a.displayName.toLowerCase();
+                    const labelB = b.displayName.toLowerCase();
+                    return labelA < labelB ? -1 : labelA > labelB ? 1 : 0;
+                });
+                let standardTemplates = [];
+                let userTemplates = [];
+                let recordFilenameTable = {};
+                sortedTemplates.forEach(rec => {
+                    recordFilenameTable[rec.fileName] = { ...rec };
+                    if(rec.fileName.startsWith("LEAF_")) {
+                        standardTemplates.push(rec);
+                    } else {
+                        userTemplates.push(rec);
+                    }
+                });
+
                 $.ajax({
                     type: 'GET',
                     url: '../api/emailTemplates/custom',
                     dataType: 'json',
-                    success: function (customTemplates) {
-                        let buffer = '<ul class="leaf-ul">';
+                    success: function (customTemplates) { //array of file names in templates/email/custom_override
+                        let customClass = '';
+                        let selectedAttr = '';
+
+                        let buffer = '';
                         let filesMobile = `<label for="template_file_select">Template Files:</label>
                             <div class="template_select_container"><select id="template_file_select" class="templateFiles">`;
 
                         if (Array.isArray(customTemplates)) {
-                            let customClass = '';
-                            for (let i in res) {
-                                customClass = customTemplates.includes(res[i].fileName) ? ' class="custom_file"' : '';
+                            if (userTemplates.length > 0) {
+                                buffer += '<div class="templates_header">Custom Events</div><ul class="leaf-ul">';
 
-                                // Construct the option element with data- attributes for filesMobile
-                                filesMobile += '<option data-template-data=\'' + JSON.stringify({
-                                    displayName: res[i].displayName,
-                                    fileName: res[i].fileName,
-                                    subjectFileName: res[i].subjectFileName || '',
-                                    emailToFileName: res[i].emailToFileName || '',
-                                    emailCcFileName: res[i].emailCcFileName || '',
-                                }) + '\'>' + res[i].displayName + (customClass ? ' (custom)' : '') + '</option>';
+                                filesMobile += '<optgroup label="Custom Events">';
 
-                                // Construct the li element for buffer
-                                buffer += `<li>
-                                    <div class="template_files">
-                                        <a href="#" role="button" data-template-index="${i}" data-file="${res[i].fileName}">${res[i].displayName}</a> <span${customClass}>(custom)</span>
-                                    </div>
-                                </li>`;
+                                userTemplates.forEach(t => {
+                                    customClass = customTemplates.includes(t.fileName) ? ' class="custom_file"' : '';
+                                    selectedAttr = t.fileName === currentFile ? ' selected' : '';
+
+                                    // Construct the li element for non-mobile buffer
+                                    buffer += `<li>
+                                        <div class="template_files">
+                                            <a href="#" role="button" data-file="${t.fileName}">${t.displayName}</a> <span${customClass}>(custom)</span>
+                                        </div>
+                                    </li>`;
+
+                                    // Construct the option element for filesMobile
+                                    filesMobile += `<option value="${t.fileName}">${t.displayName + (customClass ? ' (custom)' : '')}</option>`;
+                                });
+
+                                buffer += '</ul><hr>';
+                                filesMobile += '</optgroup>';
                             }
 
-                            filesMobile += '</select></div>';
+                            buffer += '<div class="templates_header">Standard Events</div><ul class="leaf-ul">';
+                            filesMobile += `<optgroup label="Standard Events">`;
+
+                            standardTemplates.forEach(t => {
+                                customClass = customTemplates.includes(t.fileName) ? ' class="custom_file"' : '';
+                                selectedAttr = t.fileName === currentFile ? ' selected' : '';
+
+                                // Construct the li element for non-mobile buffer
+                                buffer += `<li>
+                                    <div class="template_files">
+                                        <a href="#" role="button" data-file="${t.fileName}">${t.displayName}</a> <span${customClass}>(custom)</span>
+                                    </div>
+                                </li>`;
+
+                                // Construct the option element for filesMobile
+                                filesMobile += `<option value="${t.fileName}"${selectedAttr}>
+                                    ${t.displayName + (customClass ? ' (custom)' : '')}</option>`;
+                            });
+
                             buffer += '</ul>';
+                            filesMobile += '</optgroup></select></div>';
+
                         } else {
                             buffer += '<li>Internal error occurred. If this persists, contact your Primary Admin.</li>';
                             filesMobile += '<div>Internal error occurred. If this persists, contact your Primary Admin.</div>';
@@ -1460,18 +1710,17 @@
                         $('#fileList').html(buffer);
                         $('.filesMobile').html(filesMobile);
 
-                        // Attach onchange event handler to templateFiles select element
-                        $('.template_select_container').on('change', 'select.templateFiles', function () {
-                            let selectedOption = $(this).find(':selected');
-                            let templateData = selectedOption.data('template-data');
-                            if (templateData) {
-                                // Call the loadContent function with the required parameters
+                        // Attach onchange event handler to templateFiles select element (mobile nav)
+                        $('.template_select_container').on('change', function (event) {
+                            let fName = event.target?.value;
+                            let template = recordFilenameTable[fName] ?? null;
+                            if (template !== null) {
                                 loadContent(
-                                    templateData.displayName,
-                                    templateData.fileName,
-                                    templateData.subjectFileName,
-                                    templateData.emailToFileName,
-                                    templateData.emailCcFileName
+                                    template.displayName,
+                                    template.fileName,
+                                    template.subjectFileName,
+                                    template.emailToFileName,
+                                    template.emailCcFileName
                                 );
                             }
                         });
@@ -1479,16 +1728,17 @@
                         // Attach click event handler to template links in the buffer
                         $('.template_files a').on('click', function (e) {
                             e.preventDefault();
-                            let templateIndex = $(this).data('template-index');
-                            let template = res[templateIndex];
-                            // Call the loadContent function with the required parameters
-                            loadContent(
-                                template.displayName,
-                                template.fileName,
-                                template.subjectFileName || '',
-                                template.emailToFileName || '',
-                                template.emailCcFileName || ''
-                            );
+                            let fName = $(this).data('file');
+                            let template = recordFilenameTable[fName] ?? null;
+                            if (template !== null) {
+                                loadContent(
+                                    template.displayName,
+                                    template.fileName,
+                                    template.subjectFileName || '',
+                                    template.emailToFileName || '',
+                                    template.emailCcFileName || ''
+                                );
+                            }
                         });
                     },
                     error: function (error) {

@@ -40,6 +40,17 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
       
     }
 
+    function scrubHTML(input = '') {
+        if(input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
+      }
+
     //fill the dropdown with all employee or group indicators in this form
     function fillIndicatorDropdown() 
     {
@@ -448,8 +459,9 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 data: {CSRFToken: CSRFToken},
                 success: function(res) {
                     //redirect to chart
+                    const indicatorName = scrubHTML(indicatorToSubmit.name).replace(/['"]+/g, "").trim();
                     urlTitle = "Requests have been assigned to these people";
-                    urlIndicatorsJSON = '[{"indicatorID":"title","name":"","sort":0},{"indicatorID":"status","name":"","sort":0},{"indicatorID":"'+ indicatorToSubmit.indicatorID +'","name":"'+ indicatorToSubmit.name +'","sort":0}]';
+                    urlIndicatorsJSON = '[{"indicatorID":"title","name":"","sort":0},{"indicatorID":"status","name":"","sort":0},{"indicatorID":"'+ indicatorToSubmit.indicatorID +'","name":"'+ indicatorName +'","sort":0}]';
                     urlQueryJSON = '{"terms":[{"id":"title","operator":"LIKE","match":"*'+newTitleRand+'*"},{"id":"deleted","operator":"=","match":0}],"joins":["service","status","initiatorName"],"sort":{},"getData":['+ indicatorToSubmit.indicatorID +']}';
 
                     urlTitle = encodeURIComponent(btoa(urlTitle));

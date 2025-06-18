@@ -94,7 +94,12 @@ class Login
       return $url;
     }
 
-    public function loginUser($userID='SYSTEM')
+    /**
+     * requestAuthentication redirects users to an authentication endpoint, which performs authentication
+     * and imports employee contact information from the national employee DB, into the local DB
+     * @param int $userID Only used in command-line contexts
+     */
+    public function requestAuthentication($userID = 'SYSTEM')
     {
         $authType = '/../auth_domain/?r=';
         $nonBrowserAuth = '/../login/?r=';
@@ -104,34 +109,38 @@ class Login
             $nonBrowserAuth = '/../auth_cert/?r=';
         }
 
-        if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
+        if (php_sapi_name() != 'cli')
         {
-            if (php_sapi_name() != 'cli')
+            $protocol = 'https://';
+
+            // try to browser detect, since SSO implementation varies
+            if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
+                || strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0
+                || strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') > 0
+                || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
+                || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
             {
-
-                $protocol = 'https://';
-
-                // try to browser detect, since SSO implementation varies
-                if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'CriOS') > 0
-                    || strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') > 0)
-                {
-                    header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $authType . base64_encode($_SERVER['REQUEST_URI']));
-                    exit();
-                }
-
-                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
+                header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $authType . base64_encode($_SERVER['REQUEST_URI']));
                 exit();
             }
-            // else lets login via user id since this is a cli process that needs specific user (think forms/groups/emails)
-            else{
-                $_SESSION['userID'] = $userID;
-            }
 
+            header('Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $this->parseURL(dirname(__FILE__)) . $nonBrowserAuth . base64_encode($_SERVER['REQUEST_URI']));
+            exit();
+        }
+        // else lets login via user id since this is a cli process that needs specific user (think forms/groups/emails)
+        else{
+            $_SESSION['userID'] = $userID;
+        }
+    }
+
+    public function loginUser($userID = 'SYSTEM')
+    {
+        if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
+        {
+            $this->requestAuthentication($userID);
         }
 
+        // Check local database for employee info
         $var = array(':userID' => $_SESSION['userID']);
         $result = $this->db->prepared_query('SELECT * FROM employee WHERE userName=:userID AND deleted = 0', $var);
 
@@ -147,7 +156,11 @@ class Login
             return true;
         }
 
-        $this->name = "Guest: {$_SESSION['userID']}";
+        // Since the local database doesn't contain employee info, populate the local db by going through
+        // authentication
+        $this->requestAuthentication($userID);
+
+        $this->name = "Account: {$_SESSION['userID']}";
         $this->userID = $_SESSION['userID'];
         $this->isLogin = true;
         $this->isInDB = false;
