@@ -44,7 +44,7 @@ func GetLLMResponse(config completions) (response, error) {
 
 	req, err := http.NewRequest("POST", APP_AGENT_LLM_URL_CATEGORIZATION, bytes.NewBuffer(jsonConfig))
 	if err != nil {
-		return response{}, fmt.Errorf("LLM: %w", err)
+		return response{}, fmt.Errorf("GetLLMResponse: %w", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+LLM_API_KEY)
@@ -52,7 +52,7 @@ func GetLLMResponse(config completions) (response, error) {
 
 	res, err := clientLLM.Do(req)
 	if err != nil {
-		return response{}, fmt.Errorf("LLM: %w", err)
+		return response{}, fmt.Errorf("APP_AGENT_LLM_URL_CATEGORIZATION: HTTP POST failed")
 	}
 
 	b, err := io.ReadAll(res.Body)

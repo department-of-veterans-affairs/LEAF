@@ -77,7 +77,7 @@ loop:
 				break loop
 			}
 		case "updateDataLLMCategorization":
-			if err := updateDataLLMCategorization(task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload)); err != nil {
+			if err = updateDataLLMCategorization(task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload)); err != nil {
 				log.Println("Error executing", ins.Type, ": ", err)
 				break loop
 			}

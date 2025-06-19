@@ -97,7 +97,7 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 
 		llmResponse, err := GetLLMResponse(config)
 		if err != nil {
-			return fmt.Errorf("LLM: %w", err)
+			return fmt.Errorf("GetLLMResponse: %w", err)
 		}
 
 		cleanResponse := strings.Trim(llmResponse.Choices[0].Message.Content, " \n")

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -95,7 +94,7 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 
 		llmResponse, err := GetLLMResponse(config)
 		if err != nil {
-			log.Println("LLM: ", err)
+			return fmt.Errorf("GetLLMResponse: %w", err)
 		}
 
 		cleanResponse := strings.Trim(llmResponse.Choices[0].Message.Content, " \n")
