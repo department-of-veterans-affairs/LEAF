@@ -756,6 +756,7 @@ function executeMassAction() {
             case "cancel":
                 ajaxPath = "./api/form/" + recordID + "/cancel";
                 ajaxData["comment"] = commentValue;
+                ajaxData["suppressNotification"] = true;
                 break;
             case "restore":
                 ajaxPath = "./ajaxIndex.php?a=restore";
