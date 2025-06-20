@@ -212,7 +212,8 @@ var LeafFormQuery = function () {
   }
 
   /**
-   * @param {function} funct - Success callback (see format for jquery ajax success)
+   * @param {function} funct(result, textStatus, jqXHR) - Success callback
+   *                      This implements a subset of jqXHR features.
    * @memberOf LeafFormQuery
    */
   function onSuccess(funct = {}) {
@@ -246,6 +247,16 @@ var LeafFormQuery = function () {
     return url;
   }
 
+  // jqXHRCompat provides backward compatibility for $.ajax().success() patterns
+  // This is only intended to provide compatibility with existing custom scripts.
+  function jqXHRCompat(response) {
+    Response.prototype.getResponseHeader = function(key) {
+      return this.headers.get(key);
+    }
+
+    return response;
+  }
+
   /**
    * Execute search query in chunks
    * @param {number} limitOffset Used in subsequent recursive calls to track current offset
@@ -266,34 +277,32 @@ var LeafFormQuery = function () {
     const queryUrl = el.innerText;
     const dataType = useJSONP ? "jsonp" : "json";
     const urlParamJSONP = useJSONP ? "&format=jsonp" : "";
-    return $.ajax({
-      type: "GET",
-      url: `${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`,
-      dataType: dataType,
-      error: (err) => console.log(err)
-    }).then((res, resStatus, resJqXHR) => {
-      results = Object.assign(results, res);
+    return fetch(`${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`)
+      .then(async function(response) {
+        let res = await response.json();
+        results = Object.assign(results, res);
 
-      if ((Object.keys(res).length == batchSize
-                || resJqXHR.getResponseHeader("leaf-query") == "continue")
-            && !abortSignal?.aborted) {
-        let newOffset = limitOffset + batchSize;
-        if (typeof progressCallback == "function") {
-          progressCallback(newOffset);
+        if ((Object.keys(res).length == batchSize
+                  || response.headers.get("leaf-query") == "continue")
+              && !abortSignal?.aborted) {
+          let newOffset = limitOffset + batchSize;
+          if (typeof progressCallback == "function") {
+            progressCallback(newOffset);
+          }
+          return getBulkData(newOffset);
+        } else {
+          if (typeof successCallback == "function") {
+            successCallback(results, response.statusText, jqXHRCompat(response));
+          }
+          return results;
         }
-        return getBulkData(newOffset);
-      } else {
-        if (typeof successCallback == "function") {
-          successCallback(results, resStatus, resJqXHR);
-        }
-        return results;
-      }
-    });
+      })
+      .catch(err => console.error(err));
   }
 
   /**
    * Execute search query
-   * @returns $.ajax() object
+   * @returns fetch().then(res => res.json()) OR if useJSONP is true, returns fetch().then(res => res.text())
    * @memberOf LeafFormQuery
    */
   function execute() {
@@ -319,13 +328,20 @@ var LeafFormQuery = function () {
     const queryUrl = el.innerText;
     const dataType = useJSONP ? "jsonp" : "json";
     const urlParamJSONP = useJSONP ? "&format=jsonp" : "";
-    return $.ajax({
-      type: "GET",
-      url: `${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`,
-      dataType: dataType,
-      success: successCallback,
-      error: (err) => console.log(err)
-    });
+    return fetch(`${rootURL}api/form/query?q=${encodeReadableURI(queryUrl + extraParams + urlParamJSONP)}`)
+      .then(async function(response) {
+        let results;
+        if(useJSONP) {
+          results = await response.text();
+        } else {
+          results = await response.json();
+        }
+        if (typeof successCallback == "function") {
+          successCallback(results, response.statusText, jqXHRCompat(response));
+        }
+        return results;
+      })
+      .catch(err => console.error(err));
   }
 
   return {
