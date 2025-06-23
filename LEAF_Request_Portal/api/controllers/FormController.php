@@ -255,7 +255,8 @@ class FormController extends RESTfulResponse
         });
 
         $this->index['POST']->register('form/[digit]/cancel', function ($args) use ($form) {
-            return $form->cancelRecord((int)$args[0], $_POST['comment'], $_POST['suppressNotification'] ?? false);
+            $suppressNotification = (int)$_POST['suppressNotification'] === 1 ? true : false;
+            return $form->cancelRecord((int)$args[0], $_POST['comment'], $suppressNotification);
         });
 
         $this->index['POST']->register('form/[digit]/reminder/[digit]', function ($args) use ($form) {
