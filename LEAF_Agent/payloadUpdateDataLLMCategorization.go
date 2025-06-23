@@ -65,6 +65,11 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 	}
 
 	for recordID, record := range records {
+		// Only process records within the current set
+		if _, ok := task.CurrentRecords[recordID]; !ok {
+			continue
+		}
+
 		// Get response from LLM
 		prompt := message{
 			Role:    "system",

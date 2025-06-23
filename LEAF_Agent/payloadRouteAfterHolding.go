@@ -38,6 +38,11 @@ func routeAfterHolding(task Task, payload RouteAfterHoldingPayload) error {
 
 	now := time.Now()
 	for recordID, record := range records {
+		// Only process records within the current set
+		if _, ok := task.CurrentRecords[recordID]; !ok {
+			continue
+		}
+
 		lastActionTimestamp := int64(record.Submitted)
 		if len(record.StepFulfillmentOnly) > 0 {
 			lastActionTimestamp = int64(record.StepFulfillmentOnly[0].Time)

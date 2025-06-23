@@ -50,6 +50,11 @@ func routeConditionalData(task Task, payload RouteConditionalDataPayload) error 
 	}
 
 	for recordID := range records {
+		// Only process records within the current set
+		if _, ok := task.CurrentRecords[recordID]; !ok {
+			continue
+		}
+
 		err = TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
 		if err != nil {
 			return err

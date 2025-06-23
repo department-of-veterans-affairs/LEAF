@@ -69,6 +69,11 @@ func routeLLM(task Task, payload RouteLLMPayload) error {
 	}
 
 	for recordID, record := range records {
+		// Only process records within the current set
+		if _, ok := task.CurrentRecords[recordID]; !ok {
+			continue
+		}
+
 		prompt := message{
 			Role:    "system",
 			Content: payload.Context + "Categorize the following text. Only respond with one of these categories:\n" + choices,

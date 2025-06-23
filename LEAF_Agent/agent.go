@@ -17,6 +17,7 @@ type Task struct {
 	TaskID          int           `json:"taskID"`
 	SiteURL         string        `json:"siteURL"`
 	StepID          string        `json:"stepID"`
+	CurrentRecords  map[int]bool  `json:"currentRecords"`
 	LastRun         time.Time     `json:"lastRun"`
 	Instructions    []Instruction `json:"instructions"`
 	Log             []TaskLog     `json:"log"`
@@ -31,7 +32,7 @@ type Instruction struct {
 type TaskLog struct {
 	Timestamp int64  `json:"timestamp"`
 	Duration  int    `json:"duration"`
-	Error     string `json:"error"`
+	Error     string `json:"error,omitempty"`
 }
 
 func ParsePayload[T any](payload any) T {
@@ -43,42 +44,72 @@ func ParsePayload[T any](payload any) T {
 }
 
 func ExecuteTask(task Task) {
-	defer wg.Done()
-
 	startTime := time.Now()
-	log.Println("Executing Task ID#", task.TaskID)
 	var err error
+
+	defer func() {
+		LogTask(task, time.Since(startTime), err)
+		wg.Done()
+	}()
+
+	log.Println("Executing Task ID#", task.TaskID)
+
+	// Get list of records to process
+	task.CurrentRecords = make(map[int]bool)
+	query := query.Query{
+		Terms: []query.Term{
+			{
+				ID:       "stepID",
+				Operator: "=",
+				Match:    task.StepID,
+			},
+		},
+	}
+	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
+	if err != nil {
+		return
+	}
+	// Exit early if no records match the query
+	if len(records) == 0 {
+		return
+	}
+
+	for recordID := range records {
+		task.CurrentRecords[recordID] = true
+	}
+
+	// Process task's instructions
 loop:
 	for _, ins := range task.Instructions {
 		switch ins.Type {
 		case "route":
 			if err = route(task, ParsePayload[RoutePayload](ins.Payload)); err != nil {
-				log.Println("Error executing", ins.Type, ": ", err)
+				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
 				break loop
 			}
 		case "routeConditionalData":
 			if err = routeConditionalData(task, ParsePayload[RouteConditionalDataPayload](ins.Payload)); err != nil {
-				log.Println("Error executing", ins.Type, ": ", err)
+				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
 				break loop
 			}
 		case "routeActionHistoryTally":
 			if err = routeActionHistoryTally(task, ParsePayload[RouteActionHistoryTallyPayload](ins.Payload)); err != nil {
-				log.Println("Error executing", ins.Type, ": ", err)
+				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
 				break loop
 			}
 		case "routeAfterHolding":
 			if err = routeAfterHolding(task, ParsePayload[RouteAfterHoldingPayload](ins.Payload)); err != nil {
-				log.Println("Error executing", ins.Type, ": ", err)
+				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
 				break loop
 			}
 		case "routeLLM":
 			if err = routeLLM(task, ParsePayload[RouteLLMPayload](ins.Payload)); err != nil {
-				log.Println("Error executing", ins.Type, ": ", err)
+				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
 				break loop
 			}
 		case "updateDataLLMCategorization":
 			if err = updateDataLLMCategorization(task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload)); err != nil {
-				log.Println("Error executing", ins.Type, ": ", err)
+				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
 				break loop
 			}
 		default:
@@ -87,9 +118,6 @@ loop:
 			break loop
 		}
 	}
-
-	taskDuration := time.Now().Sub(startTime)
-	LogTask(task, taskDuration, err)
 }
 
 func UpdateTasks() error {

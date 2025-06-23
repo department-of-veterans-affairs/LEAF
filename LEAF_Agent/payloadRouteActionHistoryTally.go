@@ -38,6 +38,11 @@ func routeActionHistoryTally(task Task, payload RouteActionHistoryTallyPayload) 
 	}
 
 	for recordID, record := range records {
+		// Only process records within the current set
+		if _, ok := task.CurrentRecords[recordID]; !ok {
+			continue
+		}
+
 		actionCount := 0
 		for _, action := range record.ActionHistory {
 			if action.ActionType == payload.ActionTypeTaken && action.StepID == payload.StepID {
