@@ -9,6 +9,8 @@ import (
 type Response map[int]Record
 
 // ResponseCompat provides compatibility with the current response format
+// Associative arrays in PHP encode into JS objects, however PHP's json_encode() converts
+// an empty associative array to a JS array instead of a JS object.
 //
 // TODO: if x-filterData= is empty, api/form/query responses should contain empty objects instead of arrays
 type ResponseCompat map[int][]string
