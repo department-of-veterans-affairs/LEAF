@@ -62,6 +62,7 @@ abstract class RESTfulResponse
                 }
                 else
                 {
+                    http_response_code(401);
                     $this->output('Invalid Token.');
                 }
 
@@ -76,6 +77,7 @@ abstract class RESTfulResponse
                 }
                 else
                 {
+                    http_response_code(401);
                     $this->output('Invalid Token.');
                 }
 

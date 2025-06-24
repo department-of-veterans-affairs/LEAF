@@ -50,6 +50,7 @@ abstract class RESTfulResponse
                 if ($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
                     $return_value = $this->output($this->post($action));
                 } else {
+                    http_response_code(401);
                     $return_value = $this->output('Invalid Token.');
                 }
 
@@ -62,6 +63,7 @@ abstract class RESTfulResponse
                     || $DELETE_vars['CSRFToken'] == $_SESSION['CSRFToken']) {
                     $return_value = $this->output($this->delete($action));
                 } else {
+                    http_response_code(401);
                     $return_value = $this->output('Invalid Token.');
                 }
 
