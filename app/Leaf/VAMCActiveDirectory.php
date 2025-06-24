@@ -310,31 +310,6 @@ class VAMCActiveDirectory
         // someone manually causing this check to be a false positive.
         // But it's pretty safe to say that if 200,000 got updated that
         // the update script worked and we are good to disable anyone else.
-        if (count($result) > 200000) {
-            $return_value = true;
-        } else {
-            $return_value = false;
-        }
-
-        return $return_value;
-    }
-
-    private function checkForUpdates(): bool
-    {
-        // because this runs right after the update I feel confident we can do a 2 hour
-        // check, on staging the update only takes 30-40 minutes.
-        $sql = 'SELECT `userName`
-                FROM `employee`
-                WHERE `deleted` = 0
-                AND `lastUpdated` > (UNIX_TIMESTAMP(NOW()) - 7200)';
-
-        $result = $this->db->prepared_query($sql, array());
-
-        // checking to make sure more than just 1 or 2 were updated
-        // want to do it this way because someone could have updated
-        // someone manually causing this check to be a false positive.
-        // But it's pretty safe to say that if 200,000 got updated that
-        // the update script worked and we are good to disable anyone else.
         $minimum_count = strpos(LEAF_NEXUS_URL, 'host.docker.internal') ? 200 : 200000;
 
         if (count($result) > $minimum_count) {

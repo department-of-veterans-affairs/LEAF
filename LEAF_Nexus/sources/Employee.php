@@ -47,6 +47,8 @@ class Employee extends Data
 
     private $launchpad_db = null;
 
+    private $disableingUser = array();
+
     // the first value is the table, the second is the field. If the field is an array
     // the first value needs to be the field used for the where clause.
     private $disableUserNamePortalTables = array(
@@ -214,9 +216,90 @@ class Employee extends Data
             $results[] = $this->updateEmployeeDataBatch($employee);
         }
 
+        // find local employees that need to be disabled
+        $disable_employees = $this->getEmployeesToDisable();
+        $this->disableLocalEmployees($disable_employees);
+
+
         $this->disablePortalTables();
 
         return $results;
+    }
+
+    private function disableLocalEmployees(array $disable_employees): void
+    {
+        // need to loop through the disable_employees and get their userName from national orgchart
+        // once we have the disabled userName from national orgchart, we can disable them locally
+        foreach ($disable_employees as $user) {
+            $disabledUserName = $this->getDisabledNationalUserName($user);
+
+            if ($disabledUserName !== '') {
+                $this->disableingUser[] = $disabledUserName;
+                $this->disableUser($user, $disabledUserName);
+            } else {
+                // if the userName is not found in national orgchart, need to find out what we are going to do
+                // in this case.
+
+            }
+        }
+    }
+
+    private function disableUser(string $userName, string $disableUserName): void
+    {
+        $extractedTimeStamp = explode('_', $disableUserName);
+
+        // disable the user in the local orgchart
+        $vars = array(':userName' => $userName,
+                        ':disabledUserName' => $disableUserName,
+                        ':deletedTime' => $extractedTimeStamp[1]);
+        $sql = 'UPDATE `employee`
+                SET `userName` = :disabledUserName,
+                    `deleted` = :deletedTime
+                WHERE `userName` = :userName';
+
+        $this->db->prepared_query($sql, $vars);
+    }
+
+    private function getDisabledNationalUserName(string $userName): string
+    {
+        // get the userName from national orgchart
+        $vars = array(':userName' => $userName);
+        $sql = 'SELECT `userName`
+                FROM `employee`
+                WHERE `userName` LIKE "disabled_%_" :userName';
+
+        $res = $this->national_db->prepared_query($sql, $vars);
+
+        if (isset($res[0]['userName'])) {
+            return $res[0]['userName'];
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * Getting all employees that were not updated within the last 24 hours
+     * and are not already disabled. This is being done after everyone was updated
+     *
+     * @return array
+     */
+    private function getEmployeesToDisable(): array
+    {
+        $vars = array();
+        $sql = 'SELECT `userName`
+                FROM `employee`
+                WHERE `lastUpdated` > 60 * 60 * 24
+                AND LEFT(`userName`, 9) <> "disabled_"';
+
+        $res = $this->db->prepared_query($sql, $vars);
+
+        $userNames = array();
+
+        foreach ($res as $user) {
+            $userNames[] = $user['userName'];
+        }
+
+        return $userNames;
     }
 
     /**
@@ -242,11 +325,11 @@ class Employee extends Data
 
             $this->prepareArrays($national_employee_uids, $local_array, $national_employees_list, $local_employee_array);
 
-            $local_deleted_employees = array_diff(array_column($local_employees_uid['data'], 'userName'), array_column($national_employees_list['data'], 'userName'));
+            /*$local_deleted_employees = array_diff(array_column($local_employees_uid['data'], 'userName'), array_column($national_employees_list['data'], 'userName'));
 
             if (!empty($local_deleted_employees)) {
                 $results[] = $this->disableEmployees($local_deleted_employees);
-            }
+            }*/
 
             if (!empty($local_array)) {
                 $results[] = $this->batchEmployeeUpdate($local_array);
@@ -260,40 +343,19 @@ class Employee extends Data
                 $results[] = $this->batchEmployeeDataUpdate($local_data_array);
             }
 
-            $users = $this->updateNationalDisabledEmployees();
+            /*$users = $this->updateNationalDisabledEmployees();
 
             if (!empty($users)) {
                 $results[] = $this->disableEmployees($users);
-            }
+            }*/
         }
 
         return $results;
     }
 
-    private function updateNationalDisabledEmployees(): array
-    {
-        $vars = array();
-        $sql = 'SELECT `userName`
-                FROM `employee`
-                WHERE `deleted` > 0
-                AND LEFT(`userName`, 9) <> "disabled_"';
-
-        $res = $this->db->prepared_query($sql, $vars);
-
-        $userNames = array();
-
-        foreach ($res as $user) {
-            $userNames[] = $user['userName'];
-        }
-
-        return $userNames;
-    }
-
     private function disablePortalTables(): void
     {
-        $disabledUsers = $this->getNewlyDisabledUsers();
-
-        if (!empty($disabledUsers)) {
+        if (!empty($this->disableingUser)) {
             $portal_db = $this->db;
             $portals = $this->getPortals();
 
@@ -319,7 +381,7 @@ class Employee extends Data
 
                 $portal_db->prepared_query($sql2, array());
 
-                foreach ($disabledUsers as $user) {
+                foreach ($this->disableingUser as $user) {
                     // break down the userName to get original userName
                     $userName = explode('_', $user['userName']);
 
@@ -381,6 +443,7 @@ class Employee extends Data
 
     private function enableAllPortalTables(string $userName): void
     {
+        $portal_db = $this->db;
         $portals = $this->getPortals();
 
         $userNameParts = explode('_', $userName);
@@ -406,9 +469,9 @@ class Employee extends Data
 
         foreach ($portals as $portal) {
             $sql2 = 'USE ' . $portal['portal_database'];
-            $this->portal_db->prepared_query($sql2, array());
+            $portal_db->prepared_query($sql2, array());
 
-            $this->portal_db->prepared_query($sql, $vars);
+            $portal_db->prepared_query($sql, $vars);
         }
     }
 
