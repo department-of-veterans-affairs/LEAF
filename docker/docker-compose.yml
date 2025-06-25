@@ -147,6 +147,8 @@ services:
         networks:
             - leaf
             - leaf-sql
+        extra_hosts:
+            - host.docker.internal:host-gateway
 
 volumes:
     leaf-php-data:
