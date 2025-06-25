@@ -42,7 +42,7 @@ type timings struct {
 func GetLLMResponse(config completions) (response, error) {
 	jsonConfig, _ := json.Marshal(config)
 
-	req, err := http.NewRequest("POST", APP_AGENT_LLM_URL_CATEGORIZATION, bytes.NewBuffer(jsonConfig))
+	req, err := http.NewRequest("POST", LLM_CATEGORIZATION_URL, bytes.NewBuffer(jsonConfig))
 	if err != nil {
 		return response{}, fmt.Errorf("GetLLMResponse: %w", err)
 	}
@@ -52,7 +52,7 @@ func GetLLMResponse(config completions) (response, error) {
 
 	res, err := clientLLM.Do(req)
 	if err != nil {
-		return response{}, fmt.Errorf("APP_AGENT_LLM_URL_CATEGORIZATION: HTTP POST failed")
+		return response{}, fmt.Errorf("LLM_CATEGORIZATION_URL: HTTP POST failed")
 	}
 
 	b, err := io.ReadAll(res.Body)
