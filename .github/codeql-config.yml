@@ -5,3 +5,4 @@ paths-ignore:
   - 'servlets/digital-signature/**'
   - 'servlets/digital-signing/**'
   - 'test/**'
+  - 'LEAF_Request_Portal/scripts/custom_js/TEMPLATE_*'
