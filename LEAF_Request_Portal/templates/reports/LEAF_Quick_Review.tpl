@@ -114,13 +114,13 @@ function getDataHeader(colID, fieldData = null, indicator = null, isFinalProposa
 
     let colRemovalBtn = '';
     if (!isFinalProposal) {
-        colRemovalBtn = ` <img src="dynicons/?img=process-stop.svg&w=16" style="cursor: pointer" data-id="${colID}">`;
+        colRemovalBtn = ` <img role="button" aria-label="remove column: ${colID}" src="dynicons/?img=process-stop.svg&w=16" style="cursor: pointer" data-id="${colID}">`;
     }
 
     fieldName = scrubHTML(fieldName);
     let newHeader = {};
     if(colID == 'service') {
-        newHeader = {name: 'Service' + colRemovalBtn, indicatorID: 'service', editable: false, callback: function(data, blob) {
+        newHeader = {name: 'Service' + colRemovalBtn, indicatorID: 'service', sortable: false, editable: false, callback: function(data, blob) {
                     document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].service;
                 }};
     } else {
@@ -193,7 +193,7 @@ async function setupProposals(stepID) {
     let dependencyID = null;
     if(dependencies.length > 1) {
         document.querySelector('#selectDependency').style.display = 'list-item';
-        document.querySelector('#selectDependency').innerHTML = 'Select a role <span style="color: red">*required</span>: <select id="dependencySelect"><option value="">Select...</option></select>';
+        document.querySelector('#selectDependency').innerHTML = '<label>Select a role <span style="color: #c00">*required</span>: <select id="dependencySelect"><option value="">Select...</option></select></label>';
         dependencies.forEach(dep => {
             document.querySelector('#dependencySelect').innerHTML += `<option value="${dep.dependencyID}">${dep.description}</option>`;
         });
@@ -424,7 +424,7 @@ function prepareProposal(stepTitle, actions, dependencyID, fieldData) {
     newUrl += `&inbox=${encodeURIComponent(proposalParam)}`;
 
     let output = `<h1></h1>
-        <p>Quick Review Link:</p><p><textarea id="link" style="width: 95%; height: 5rem"/>${newUrl}</textarea></p>
+        <p>Quick Review Link:</p><p><textarea aria-label="Quick Review Link" id="link" style="width: 95%; height: 5rem"/>${newUrl}</textarea></p>
         <button id="btn_copy" class="buttonNorm">Copy to Clipboard</button><span id="copyStatus"></span>`;
 
     let dialog = new dialogController('genericDialog', 'genericDialogxhr', 'genericDialogloadIndicator', 'genericDialogbutton_save', 'genericDialogbutton_cancelchange');
@@ -513,7 +513,7 @@ async function showProposal(encodedProposal) {
             document.querySelector(`#${data.cellContainerID}`).innerHTML = `<a href="index.php?a=printview&recordID=${data.recordID}" target="_blank">${blob[data.recordID].title}</a>`;
         }},
         {name: 'Action', indicatorID: 'decision', editable: false, callback: function(data, blob) {
-            let htmlActions = `<select class="recordDecision" data-record-id="${data.recordID}" style="text-align: center">`;
+            let htmlActions = `<select aria-label="Action for record # ${data.recordID}" class="recordDecision" data-record-id="${data.recordID}" style="text-align: center">`;
             htmlActions += '<option value=""></option>';
             Object.keys(actionText).forEach(actionType => {
                 htmlActions += `<option value="${actionType}">${actionText[actionType]}</option>`;
@@ -527,7 +527,7 @@ async function showProposal(encodedProposal) {
         }},
         {name: 'Comments', indicatorID: 'comments', editable: false, callback: function(data, blob) {
             document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = '#e0e0e0';
-            let comment = `<textarea class="recordComment" data-record-id="${data.recordID}">${scrubHTML(proposal.comments[data.recordID])}</textarea>`;
+            let comment = `<textarea class="recordComment" aria-label="Comment for record # ${data.recordID}" data-record-id="${data.recordID}">${scrubHTML(proposal.comments[data.recordID])}</textarea>`;
             document.querySelector(`#${data.cellContainerID}`).innerHTML = comment;
         }},
     ];
@@ -634,10 +634,14 @@ document.addEventListener('DOMContentLoaded', main);
 
     <br /><br />
     <div class="card">
-        Select a form type: <select id="forms">Loading...</select>
+        <label>Select a form type:
+            <select id="forms">Loading...</select>
+        </label>
     </div>
     <div id="setupP2" class="card" style="display: none">
-        Select a step: <select id="steps">Loading...</select>
+        <label>Select a step:
+            <select id="steps">Loading...</select>
+        </label>
         <br /><br />
 
         <button id="create" class="buttonNorm">Setup Quick Review</button>
@@ -653,7 +657,9 @@ document.addEventListener('DOMContentLoaded', main);
     <p>Data columns may be added to provide relevant information during final review.</p>
     <ul>
         <li>
-            <select id="fieldNames"></select>
+            <label>Field Name:
+                <select id="fieldNames"></select>
+            </label>
             <button id="btn_addColumn" class="buttonNorm">Add Column</button>
         </li>
     </ul>
