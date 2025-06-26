@@ -1041,7 +1041,7 @@ var LeafFormSearch = function (containerID) {
                 break;
             case "data":
                 let resultFilter =
-                    "?x-filterData=indicatorID,categoryName,name,format,description";
+                    "?x-filterData=indicatorID,categoryName,name,format";
                 let urlParams = new URLSearchParams(window.location.search);
                 if(urlParams.has('dev')) {
                     resultFilter += '&dev';
@@ -1084,11 +1084,7 @@ var LeafFormSearch = function (containerID) {
                             indicators += `<optgroup label="${key}">`;
 
                             indicatorsByForm[key].forEach(res => {
-                                let preferLabel = res.description;
-                                if(preferLabel == '') {
-                                    preferLabel = res.name;
-                                }
-                                indicators += `<option value="${res.indicatorID}">${scrubHTML(preferLabel)}</option>`;
+                                indicators += `<option value="${res.indicatorID}">${scrubHTML(res.name)}</option>`;
                             });
                             indicators += '</optgroup>';
                         });
