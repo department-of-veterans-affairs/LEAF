@@ -1077,10 +1077,18 @@ var LeafFormSearch = function (containerID) {
                             if(indicatorsByForm[res[i].categoryName] == undefined) {
                                 indicatorsByForm[res[i].categoryName] = [];
                             }
+                            res[i].name = scrubHTML(res[i].name);
                             indicatorsByForm[res[i].categoryName].push(res[i]);
                         }
 
-                        Object.keys(indicatorsByForm).forEach(key => {
+                        var collator = new Intl.Collator("en", {
+                            numeric: true,
+                            sensitivity: "base",
+                        });
+                        let formNames = Object.keys(indicatorsByForm);
+                        formNames.sort();
+                        formNames.forEach(key => {
+                            indicatorsByForm[key].sort((a, b) => collator.compare(a.name, b.name));
                             indicators += `<optgroup label="${key}">`;
 
                             indicatorsByForm[key].forEach(res => {
