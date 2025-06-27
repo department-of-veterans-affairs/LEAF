@@ -647,6 +647,9 @@ export default {
                 prefill: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "pre-fill"),
                 crosswalk: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "crosswalk"),
             };
+        },
+        hasDisplayConflict() {
+            return this.conditionTypes.show.length > 0 && this.conditionTypes.hide.length > 0;
         }
     },
     watch: {
@@ -703,6 +706,10 @@ export default {
                 <template v-else>
                     <!-- NOTE: LISTS BY CONDITION TYPE -->
                     <div v-if="savedConditions.length > 0" id="savedConditionsLists">
+                        <div v-if="hasDisplayConflict" class="entry_warning"
+                            style="padding: 0.5rem 0 0.5rem 1rem; margin-bottom:1.5rem;">
+                            Having both 'hide except' and 'show except' conditions can have unpredictable outcomes.
+                        </div>
                         <template v-for="typeVal, typeKey in conditionTypes" :key="typeVal">
                             <template v-if="typeVal.length > 0">
                                 <p><b>{{ listHeaderText(typeKey) }}</b></p>

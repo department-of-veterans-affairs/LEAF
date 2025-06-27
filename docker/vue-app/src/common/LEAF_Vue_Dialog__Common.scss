@@ -11,6 +11,8 @@ $BG_Pearl: #f2f2f6;
 $manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
+$USWDS_warning: #ffbe2e;
+$USWDS_errorDark: #B50909;
 $lt_cyan: #e8f2ff;
 $BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
 $attention: #a00;
@@ -44,6 +46,16 @@ body { /* fixes header not extending entire width */
     padding: 1rem;
     background-color: white;
 }
+.entry_error {
+  border-left: 4px solid $USWDS_errorDark;
+  padding-left: 1rem;
+}
+.entry_warning {
+  border-left: 4px solid $USWDS_warning;
+  padding-left: 1rem;
+}
+
+
 input[type="color"] {
     cursor: pointer;
 }
