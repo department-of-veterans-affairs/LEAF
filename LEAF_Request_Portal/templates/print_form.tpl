@@ -530,7 +530,7 @@ function doSubmit(recordID) {
                 if (conditions.some(c => c.selectedOutcome.toLowerCase() === "hide")) outcomes.push("hide");
                 if (conditions.some(c => c.selectedOutcome.toLowerCase() === "show")) outcomes.push("show");
                 if (outcomes.length > 1) {
-                    console.log("Conflicting display conditions: check setup for", i);
+                    console.log("Conflicting display conditions: check setup for", c);
                 }
                 if (outcomes.length < 1) {
                     continue;

@@ -706,9 +706,9 @@ export default {
                 <template v-else>
                     <!-- NOTE: LISTS BY CONDITION TYPE -->
                     <div v-if="savedConditions.length > 0" id="savedConditionsLists">
-                        <div v-if="hasDisplayConflict" class="entry_warning"
+                        <div v-if="hasDisplayConflict" class="entry_warning bg-yellow-5"
                             style="padding: 0.5rem 0 0.5rem 1rem; margin-bottom:1.5rem;">
-                            Having both 'hide except' and 'show except' conditions can have unpredictable outcomes.
+                            Having both 'hide except' and 'show except' conditions can cause fields to display incorrectly.
                         </div>
                         <template v-for="typeVal, typeKey in conditionTypes" :key="typeVal">
                             <template v-if="typeVal.length > 0">
