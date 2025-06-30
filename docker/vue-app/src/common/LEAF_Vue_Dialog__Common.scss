@@ -46,13 +46,21 @@ body { /* fixes header not extending entire width */
     padding: 1rem;
     background-color: white;
 }
+
+.entry_error, .entry_warning, .entry_info {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
 .entry_error {
   border-left: 4px solid $USWDS_errorDark;
-  padding-left: 1rem;
 }
 .entry_warning {
   border-left: 4px solid $USWDS_warning;
-  padding-left: 1rem;
+}
+.entry_info {
+  border-left: 4px solid $USWDS_Cyan;
 }
 
 

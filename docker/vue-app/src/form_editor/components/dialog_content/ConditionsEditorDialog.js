@@ -87,7 +87,8 @@ export default {
                 name: node.name || "",
                 format: node.format.toLowerCase().trim(),
                 options: options,
-                conditions: node.conditions
+                conditions: node.conditions,
+                hasSubquestions: node.child !== null,
               });
               if(node.child !== null) {
                 for(let c in node.child) {
@@ -446,6 +447,9 @@ export default {
         childIndicator() {
             return this.indicators.find(i => i.indicatorID === this.childIndID);
         },
+        childHasSubquestions() {
+            return this.childIndicator.hasSubquestions;
+        },
         /**
          * @returns {object} current parent selection
          */
@@ -706,9 +710,11 @@ export default {
                 <template v-else>
                     <!-- NOTE: LISTS BY CONDITION TYPE -->
                     <div v-if="savedConditions.length > 0" id="savedConditionsLists">
-                        <div v-if="hasDisplayConflict" class="entry_warning bg-yellow-5"
-                            style="padding: 0.5rem 0 0.5rem 1rem; margin-bottom:1.5rem;">
-                            Having both 'hide except' and 'show except' conditions can cause fields to display incorrectly.
+                        <div v-if="hasDisplayConflict" class="entry_warning bg-yellow-5" style="margin-bottom:1.5rem;">
+                            <span role="img" alt="warning">⚠️</span> Having both 'hide except' and 'show except' conditions can cause fields to display incorrectly.
+                        </div>
+                        <div v-if="childHasSubquestions" class="entry_info bg-blue-5v" style="margin-bottom:1.5rem;">
+                            <span role="img" aria-hidden="true" alt="">ℹ️</span>Subquestions will also be hidden when this question is hidden.
                         </div>
                         <template v-for="typeVal, typeKey in conditionTypes" :key="typeVal">
                             <template v-if="typeVal.length > 0">
