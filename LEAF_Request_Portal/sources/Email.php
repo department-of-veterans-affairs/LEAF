@@ -615,6 +615,43 @@ class Email
 
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
+            $reminderDepArray = array();
+            //if reminder, find out how many requirements the step has
+            if($emailTemplateID === -4 || $emailTemplateID === -5) {
+                foreach ($approvers as $row) {
+                    $dID = $row['dependencyID'];
+                    if(!in_array($dID, $reminderDepArray)) {
+                        $reminderDepArray[] = $dID;
+                    }
+                }
+            }
+            //If there's more than 1 requirement, find out filled status.
+            $numberStepRequirements = count($reminderDepArray);
+            if($numberStepRequirements > 1) {
+                $step = $approvers[0]['stepID'];
+
+                $strSQL_rdeps = "SELECT dependencyID, filled
+                    FROM step_dependencies
+                    LEFT JOIN records_dependencies USING (dependencyID)
+                    WHERE recordID=:recordID AND stepID=:stepID";
+
+                $vars = array(
+                    ':recordID' => $recordID,
+                    ':stepID' => $step,
+                );
+                $recordStepDepStatus = $this->portal_db->prepared_query($strSQL_rdeps, $vars);
+
+                $statusMap = array();
+                foreach($recordStepDepStatus as $depRow) {
+                    $statusMap[$depRow['dependencyID']] = $depRow['filled'];
+                }
+
+                foreach($approvers as $key => $recValues) {
+                    $approverDepID = $recValues['dependencyID'];
+                    $approvers[$key]['filled'] = $statusMap[$approverDepID];
+                }
+            }
+
             $formType = trim(strip_tags(
                 htmlspecialchars_decode($approvers[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
             ));
@@ -648,7 +685,7 @@ class Email
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
-                if (!empty($approver['approverID']) && strlen($approver['approverID']) > 0) {
+                if (!empty($approver['approverID']) && strlen($approver['approverID']) > 0 && empty($approver['filled'])) {
                     $tmp = $dir->lookupLogin($approver['approverID']);
                     if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                         $this->addRecipient($tmp[0]['Email']);
