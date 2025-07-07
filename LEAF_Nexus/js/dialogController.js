@@ -37,6 +37,7 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
     $('button.ui-dialog-titlebar-close').on('click', function() {
         t.hide();
     });
+	
     const preventCloseOnEnter = (e) => {
         if(e?.keyCode === 13 && (e?.target?.nodeName || '').toLowerCase() === "input" && e?.target?.type !== 'color') {
             e.preventDefault();
