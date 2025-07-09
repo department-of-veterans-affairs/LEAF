@@ -18,7 +18,7 @@ type UpdateDataLLMCategorizationPayload struct {
 // The data field's format must support single-select multiple-options.
 // The LLM will categorize content based on available options for the data field using context
 // provided by data fields matching payload.ReadIndicatorIDs.
-func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationPayload) error {
+func updateDataLLMCategorization(task *Task, payload UpdateDataLLMCategorizationPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -33,21 +33,24 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 
 	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
-		return err
+		task.HandleError(0, "updateDataLLMCategorization:", err)
+		return
 	}
 
 	// Exit early if no records match the query
 	if len(records) == 0 {
-		return nil
+		return
 	}
 
 	indicators, err := GetIndicatorMap(task.SiteURL)
 	if err != nil {
-		return err
+		task.HandleError(0, "updateDataLLMCategorization:", err)
+		return
 	}
 
 	if len(indicators[payload.WriteIndicatorID].FormatOptions) == 0 {
-		return fmt.Errorf("Indicator ID %d does not have any options", payload.WriteIndicatorID)
+		task.HandleError(0, "updateDataLLMCategorization:", fmt.Errorf("Indicator ID %d does not have any options", payload.WriteIndicatorID))
+		return
 	}
 
 	// Prep the list of categories for the LLM's prompt
@@ -66,7 +69,7 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 
 	for recordID, record := range records {
 		// Only process records within the current set
-		if _, ok := task.CurrentRecords[recordID]; !ok {
+		if _, exists := task.Records[recordID]; !exists {
 			continue
 		}
 
@@ -99,7 +102,8 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 
 		llmResponse, err := GetLLMResponse(config)
 		if err != nil {
-			return fmt.Errorf("GetLLMResponse: %w", err)
+			task.HandleError(0, "updateDataLLMCategorization:", fmt.Errorf("GetLLMResponse: %w", err))
+			return
 		}
 
 		cleanResponse := strings.Trim(llmResponse.Choices[0].Message.Content, " \n")
@@ -118,12 +122,10 @@ func updateDataLLMCategorization(task Task, payload UpdateDataLLMCategorizationP
 			data[payload.WriteIndicatorID] = cleanResponse
 			err = UpdateRecord(task.SiteURL, recordID, data)
 			if err != nil {
-				return err
+				task.HandleError(0, "updateDataLLMCategorization:", err)
 			}
 		} else {
-			return fmt.Errorf("LLM invalid output: '%v' TaskID: %v RecordID: %v", llmResponse.Choices[0].Message.Content, task.TaskID, recordID)
+			task.HandleError(recordID, "updateDataLLMCategorization:", fmt.Errorf("LLM invalid output: '%v' TaskID: %v RecordID: %v", llmResponse.Choices[0].Message.Content, task.TaskID, recordID))
 		}
 	}
-
-	return nil
 }

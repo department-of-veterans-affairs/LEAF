@@ -6,13 +6,11 @@ type RoutePayload struct {
 }
 
 // route executes an action, payload.ActionType, for all records matching the task
-func route(task Task, payload RoutePayload) error {
-	for recordID := range task.CurrentRecords {
+func route(task *Task, payload RoutePayload) {
+	for recordID := range task.Records {
 		err := TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
 		if err != nil {
-			return err
+			task.HandleError(recordID, "route:", err)
 		}
 	}
-
-	return nil
 }

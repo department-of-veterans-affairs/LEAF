@@ -14,7 +14,7 @@ type RouteActionHistoryTallyPayload struct {
 
 // routeActionHistoryTally executes an action, payload.ActionType, based on a tally of actions taken
 // for records matching payload.StepID and where the count of actions is greater than or equal to payload.MinimumCount
-func routeActionHistoryTally(task Task, payload RouteActionHistoryTallyPayload) error {
+func routeActionHistoryTally(task *Task, payload RouteActionHistoryTallyPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -29,17 +29,17 @@ func routeActionHistoryTally(task Task, payload RouteActionHistoryTallyPayload) 
 
 	records, err := FormQuery(task.SiteURL, query, "&x-filterData=action_history.stepID,action_history.actionType")
 	if err != nil {
-		return err
+		task.HandleError(0, "routeActionHistoryTally:", err)
 	}
 
 	// Exit early if no records match the query
 	if len(records) == 0 {
-		return nil
+		return
 	}
 
 	for recordID, record := range records {
 		// Only process records within the current set
-		if _, ok := task.CurrentRecords[recordID]; !ok {
+		if _, exists := task.Records[recordID]; !exists {
 			continue
 		}
 
@@ -53,10 +53,8 @@ func routeActionHistoryTally(task Task, payload RouteActionHistoryTallyPayload) 
 		if actionCount >= payload.MinimumCount {
 			err = TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
 			if err != nil {
-				return err
+				task.HandleError(recordID, "routeActionHistoryTally:", err)
 			}
 		}
 	}
-
-	return nil
 }

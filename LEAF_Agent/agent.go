@@ -13,28 +13,6 @@ import (
 	"github.com/department-of-veterans-affairs/LEAF/pkg/form/query"
 )
 
-type Task struct {
-	TaskID          int           `json:"taskID"`
-	SiteURL         string        `json:"siteURL"`
-	StepID          string        `json:"stepID"`
-	CurrentRecords  map[int]bool  `json:"currentRecords"`
-	LastRun         time.Time     `json:"lastRun"`
-	Instructions    []Instruction `json:"instructions"`
-	Log             []TaskLog     `json:"log"`
-	AverageDuration int           `json:"averageDuration"`
-}
-
-type Instruction struct {
-	Type    string `json:"type"`
-	Payload any    `json:"payload"`
-}
-
-type TaskLog struct {
-	Timestamp int64  `json:"timestamp"`
-	Duration  int    `json:"duration"`
-	Error     string `json:"error,omitempty"`
-}
-
 func ParsePayload[T any](payload any) T {
 	b, _ := json.Marshal(payload)
 
@@ -45,17 +23,16 @@ func ParsePayload[T any](payload any) T {
 
 func ExecuteTask(task Task) {
 	startTime := time.Now()
-	var err error
 
 	defer func() {
-		LogTask(task, time.Since(startTime), err)
+		LogTask(task, time.Since(startTime))
 		wg.Done()
 	}()
 
 	log.Println("Executing Task ID#", task.TaskID)
 
 	// Get list of records to process
-	task.CurrentRecords = make(map[int]bool)
+	task.Records = make(map[int]bool)
 	query := query.Query{
 		Terms: []query.Term{
 			{
@@ -75,43 +52,35 @@ func ExecuteTask(task Task) {
 	}
 
 	for recordID := range records {
-		task.CurrentRecords[recordID] = true
+		task.Records[recordID] = true
 	}
 
 	// Process task's instructions
 loop:
 	for _, ins := range task.Instructions {
+		if len(task.Records) == 0 {
+			break
+		}
+
 		switch ins.Type {
 		case "route":
-			if err = route(task, ParsePayload[RoutePayload](ins.Payload)); err != nil {
-				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
-				break loop
-			}
+			route(&task, ParsePayload[RoutePayload](ins.Payload))
+
 		case "routeConditionalData":
-			if err = routeConditionalData(task, ParsePayload[RouteConditionalDataPayload](ins.Payload)); err != nil {
-				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
-				break loop
-			}
+			routeConditionalData(&task, ParsePayload[RouteConditionalDataPayload](ins.Payload))
+
 		case "routeActionHistoryTally":
-			if err = routeActionHistoryTally(task, ParsePayload[RouteActionHistoryTallyPayload](ins.Payload)); err != nil {
-				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
-				break loop
-			}
-		case "routeAfterHolding":
-			if err = routeAfterHolding(task, ParsePayload[RouteAfterHoldingPayload](ins.Payload)); err != nil {
-				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
-				break loop
-			}
+			routeActionHistoryTally(&task, ParsePayload[RouteActionHistoryTallyPayload](ins.Payload))
+
+		case "holdForDuration":
+			holdForDuration(&task, ParsePayload[HoldForDurationPayload](ins.Payload))
+
 		case "routeLLM":
-			if err = routeLLM(task, ParsePayload[RouteLLMPayload](ins.Payload)); err != nil {
-				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
-				break loop
-			}
+			routeLLM(&task, ParsePayload[RouteLLMPayload](ins.Payload))
+
 		case "updateDataLLMCategorization":
-			if err = updateDataLLMCategorization(task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload)); err != nil {
-				log.Println("Error TaskID", task.TaskID, ins.Type, ":", err)
-				break loop
-			}
+			updateDataLLMCategorization(&task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload))
+
 		default:
 			err = errors.New("Unsupported instruction type: " + ins.Type + "Task ID# " + strconv.Itoa(task.TaskID))
 			log.Println("Unsupported instruction type: ", ins.Type, "Task ID#", task.TaskID)
@@ -231,23 +200,19 @@ func FindTasks() ([]Task, error) {
 	return tasks, nil
 }
 
-func LogTask(task Task, taskDuration time.Duration, taskError error) {
+func LogTask(task Task, taskDuration time.Duration) {
 	currentTime := strconv.FormatInt(time.Now().Unix(), 10)
 
 	values := url.Values{}
-	if taskError == nil {
+	if len(task.Errors) == 0 {
 		values.Add("6", currentTime) // timestamp for last successful run
 	}
 
 	// Prep task log, calculate average duration
-	errMsg := ""
-	if taskError != nil {
-		errMsg = taskError.Error()
-	}
 	task.Log = append(task.Log, TaskLog{
 		Timestamp: time.Now().Unix(),
-		Duration:  int(taskDuration.Seconds()),
-		Error:     errMsg,
+		Duration:  int(taskDuration.Milliseconds()),
+		Errors:    task.Errors,
 	})
 	if len(task.Log) > 30 {
 		task.Log = task.Log[len(task.Log)-30:]

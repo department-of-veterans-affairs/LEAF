@@ -11,7 +11,7 @@ type RouteConditionalDataPayload struct {
 }
 
 // routeConditionalData executes an action, payload.ActionType, for all records that match payload.Query AND the task's stepID.
-func routeConditionalData(task Task, payload RouteConditionalDataPayload) error {
+func routeConditionalData(task *Task, payload RouteConditionalDataPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -41,25 +41,23 @@ func routeConditionalData(task Task, payload RouteConditionalDataPayload) error 
 
 	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
-		return err
+		task.HandleError(0, "routeConditionalData:", err)
 	}
 
 	// Exit early if no records match the query
 	if len(records) == 0 {
-		return nil
+		return
 	}
 
 	for recordID := range records {
 		// Only process records within the current set
-		if _, ok := task.CurrentRecords[recordID]; !ok {
+		if _, exists := task.Records[recordID]; !exists {
 			continue
 		}
 
 		err = TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
 		if err != nil {
-			return err
+			task.HandleError(recordID, "routeConditionalData:", err)
 		}
 	}
-
-	return nil
 }
