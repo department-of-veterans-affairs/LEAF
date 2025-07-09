@@ -36,6 +36,7 @@ func Runner(ctx context.Context, task chan Task) {
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
+	// TODO: resolve cert config
 	var tr = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}

@@ -10,7 +10,7 @@ type HoldForDurationPayload struct {
 	SecondsToHold int64 `json:"secondsToHold"`
 }
 
-// holdForDuration holds records for
+// holdForDuration holds records for SecondsToHold duration.
 func holdForDuration(task *Task, payload HoldForDurationPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
