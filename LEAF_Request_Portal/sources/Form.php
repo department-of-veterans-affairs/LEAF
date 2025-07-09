@@ -795,7 +795,7 @@ class Form
      *
      * @return int|string Return 1 on success, error string on failure
      */
-    public function cancelRecord(int $recordID, ?string $comment = ''): int|string
+    public function cancelRecord(int $recordID, ?string $comment = '', bool $suppressNotification = false): int|string
     {
         $return_value = 'Please contact your administrator';
 
@@ -856,7 +856,9 @@ class Form
             if($this->db->commitTransaction())
             {
                 // need to send emails to everyone upstream from the currect step.
-                $this->notifyPriorSteps($recordID);
+                if(!$suppressNotification) {
+                    $this->notifyPriorSteps($recordID);
+                }
 
                 $return_value = 1;
             }

@@ -807,44 +807,52 @@ class Email
                 $this->addRecipient($tmp[0]['Email']);
             }
             $return_value = $this->sendMail($recordID);
-        } elseif ($emailTemplateID === -7) {
+        } elseif ($emailTemplateID === -7) { //Cancel Notification
             $recordInfo = $this->getRecord($recordID);
-            $comments = $this->getDeletedComments($recordID);
 
-            $comment = $comments[0]['comment'] === '' ? '' : 'Reason for cancelling: ' . $comments[0]['comment'] . '<br /><br />';
+            if ((int)$recordInfo[0]['submitted'] > 0) {
+                $comments = $this->getDeletedComments($recordID);
 
-            $formType = trim(strip_tags(
-                htmlspecialchars_decode($recordInfo[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
-            ));
+                $comment = $comments[0]['comment'] === '' ? '' : 'Reason for cancelling: ' . $comments[0]['comment'] . '<br /><br />';
 
-            $fullTitle = trim(strip_tags(
-                htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
-            ));
-            $fullTitleInsecure = $fullTitle;
-            if((int)$recordInfo[0]['needToKnow'] === 1) {
-                $fullTitle = $formType;
+                $formType = trim(strip_tags(
+                    htmlspecialchars_decode($recordInfo[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
+                ));
+
+                $fullTitle = trim(strip_tags(
+                    htmlspecialchars_decode($recordInfo[0]['title'], ENT_QUOTES | ENT_HTML5)
+                ));
+                $fullTitleInsecure = $fullTitle;
+                if((int)$recordInfo[0]['needToKnow'] === 1) {
+                    $fullTitle = $formType;
+                }
+                $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+                $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
+
+                $this->addSmartyVariables(array(
+                    "truncatedTitle" => $truncatedTitle,
+                    "truncatedTitle_insecure" => $truncatedTitleInsecure,
+                    "fullTitle" => $fullTitle,
+                    "fullTitle_insecure" => $fullTitleInsecure,
+                    "formType" => $formType,
+                    "recordID" => $recordID,
+                    "service" => $recordInfo[0]['service'],
+                    "lastStatus" => $comments[0]['actionType'],
+                    "siteRoot" => $this->siteRoot,
+                    "field" => null,
+                    "comment" => $comment
+                ));
+
+                $this->processPriorStepsEmailed($this->getPriorStepsEmailed($recordID));
+
+                $authorMetadata = json_decode($recordInfo[0]['userMetadata'], true);
+                $authorEmail = trim($authorMetadata['email'] ?? '');
+                if ($authorEmail != '') {
+                    $this->addRecipient($authorEmail);
+                }
+                $this->setTemplateByID($emailTemplateID);
+                $this->sendMail($recordID);
             }
-            $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
-            $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
-
-
-            $this->addSmartyVariables(array(
-                "truncatedTitle" => $truncatedTitle,
-                "truncatedTitle_insecure" => $truncatedTitleInsecure,
-                "fullTitle" => $fullTitle,
-                "fullTitle_insecure" => $fullTitleInsecure,
-                "formType" => $formType,
-                "recordID" => $recordID,
-                "service" => $recordInfo[0]['service'],
-                "lastStatus" => $comments[0]['actionType'],
-                "siteRoot" => $this->siteRoot,
-                "field" => null,
-                "comment" => $comment
-            ));
-
-            $this->processPriorStepsEmailed($this->getPriorStepsEmailed($recordID));
-            $this->setTemplateByID($emailTemplateID);
-            $this->sendMail($recordID);
         } elseif ($emailTemplateID > 1) {
             $return_value = $this->sendMail($recordID); // Check for custom event to finalize email on Notify Next
         }
@@ -855,7 +863,7 @@ class Email
     private function getRecord(int $recordID): array
     {
         $vars = array(':recordID' => $recordID);
-        $strSQL =  "SELECT `rec`.`userID`, `rec`.`serviceID`, `ser`.`service`, `rec`.`title`,
+        $strSQL =  "SELECT `rec`.`userID`, `rec`.`submitted`, `rec`.`serviceID`, `rec`.`userMetadata`, `ser`.`service`, `rec`.`title`,
                         `rec`.`lastStatus`,`needToKnow`,`categoryName`
                     FROM `records` AS `rec`
                     LEFT JOIN category_count USING (recordID)
