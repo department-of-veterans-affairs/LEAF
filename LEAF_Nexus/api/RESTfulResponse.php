@@ -71,7 +71,7 @@ abstract class RESTfulResponse
                 $DELETE_vars = [];
                 parse_str(file_get_contents('php://input', false, null, 0, 8192), $DELETE_vars); // only parse the first 8192 characters (arbitrary limit)
 
-                if (hash_equals($_SESSION['CSRFToken'], $DELETE_vars['CSRFToken'])) {
+                if (isset($DELETE_vars['CSRFToken']) && hash_equals($_SESSION['CSRFToken'], $DELETE_vars['CSRFToken'])) {
                     $this->output($this->delete($action));
                 }
                 // Workaround: Not sure why using hash_equals() || hash_equals() causes a failed test

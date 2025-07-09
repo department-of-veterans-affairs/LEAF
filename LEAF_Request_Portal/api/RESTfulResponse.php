@@ -59,7 +59,7 @@ abstract class RESTfulResponse
                 $DELETE_vars = [];
                 parse_str(file_get_contents('php://input', false, null, 0, 8192), $DELETE_vars); // only parse the first 8192 characters (arbitrary limit)
 
-                if (hash_equals($_SESSION['CSRFToken'], $DELETE_vars['CSRFToken'])) {
+                if (isset($DELETE_vars['CSRFToken']) && hash_equals($_SESSION['CSRFToken'], $DELETE_vars['CSRFToken'])) {
                     $return_value = $this->output($this->delete($action));
                 }
                 // Deprecation warning: The _GET implementation should be removed in favor of $DELETE_vars
