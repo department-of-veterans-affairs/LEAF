@@ -81,6 +81,9 @@ loop:
 		case "updateDataLLMCategorization":
 			updateDataLLMCategorization(&task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload))
 
+		case "updateDataConditional":
+			updateDataConditional(&task, ParsePayload[UpdateDataConditionalPayload](ins.Payload))
+
 		default:
 			err = errors.New("Unsupported instruction type: " + ins.Type + "Task ID# " + strconv.Itoa(task.TaskID))
 			log.Println("Unsupported instruction type: ", ins.Type, "Task ID#", task.TaskID)
