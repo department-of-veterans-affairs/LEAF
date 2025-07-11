@@ -75,14 +75,15 @@ loop:
 		case "holdForDuration":
 			holdForDuration(&task, ParsePayload[HoldForDurationPayload](ins.Payload))
 
+		case "updateDataConditional":
+			updateDataConditional(&task, ParsePayload[UpdateDataConditionalPayload](ins.Payload))
+
+		// Instructions utilizing a LLM
 		case "routeLLM":
 			routeLLM(&task, ParsePayload[RouteLLMPayload](ins.Payload))
 
 		case "updateDataLLMCategorization":
 			updateDataLLMCategorization(&task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload))
-
-		case "updateDataConditional":
-			updateDataConditional(&task, ParsePayload[UpdateDataConditionalPayload](ins.Payload))
 
 		case "updateDataLLMLabel":
 			updateDataLLMLabel(&task, ParsePayload[UpdateDataLLMLabelPayload](ins.Payload))
