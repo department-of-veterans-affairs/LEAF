@@ -42,7 +42,8 @@ function dialogController(containerID, contentID, loadIndicatorID, btnSaveID, bt
 	if(document.getElementById(this.btnCancelID) !== null) {
 		document.getElementById(this.btnCancelID).removeAttribute('disabled');
 	}
-    $('button.ui-dialog-titlebar-close').on('click', function() {
+	$('[aria-describedby="' + t.containerID + '"]' + ' button.ui-dialog-titlebar-close')
+    .on('click', function() {
         t.hide();
     });
     const preventCloseOnEnter = (e) => {
