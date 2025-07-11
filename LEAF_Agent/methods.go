@@ -61,3 +61,26 @@ func UpdateRecord(siteURL string, recID int, data map[int]string) error {
 		return errors.New("Failed to update record: " + string(errMsg))
 	}
 }
+
+// UpdateTitle updates a record title
+func UpdateTitle(siteURL string, recID int, title string) error {
+	recordID := strconv.Itoa(recID)
+
+	values := url.Values{}
+	values.Add("title", title)
+
+	res, err := HttpPost(siteURL+"api/form/"+recordID+"/title", values)
+	if err != nil {
+		log.Println("Error updating record title:", siteURL, recID)
+		return err
+	}
+
+	if res.StatusCode == 200 {
+		log.Println("Record title updated:", siteURL+"?a=printview&recordID="+recordID)
+		return nil
+	} else {
+		errMsg, _ := io.ReadAll(res.Body)
+		log.Println("Failed to update record title:", siteURL, recordID, res.StatusCode, string(errMsg))
+		return errors.New("Failed to update record title: " + string(errMsg))
+	}
+}

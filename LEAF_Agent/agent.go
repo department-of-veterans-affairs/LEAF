@@ -84,6 +84,15 @@ loop:
 		case "updateDataConditional":
 			updateDataConditional(&task, ParsePayload[UpdateDataConditionalPayload](ins.Payload))
 
+		case "updateDataLLMLabel":
+			updateDataLLMLabel(&task, ParsePayload[UpdateDataLLMLabelPayload](ins.Payload))
+
+		case "updateTitleLLMLabel":
+			updateTitleLLMLabel(&task, ParsePayload[UpdateTitleLLMLabelPayload](ins.Payload))
+
+		case "updateData4BLLM":
+			updateData4BLLM(&task, ParsePayload[UpdateData4BLLMPayload](ins.Payload))
+
 		default:
 			err = errors.New("Unsupported instruction type: " + ins.Type + "Task ID# " + strconv.Itoa(task.TaskID))
 			log.Println("Unsupported instruction type: ", ins.Type, "Task ID#", task.TaskID)

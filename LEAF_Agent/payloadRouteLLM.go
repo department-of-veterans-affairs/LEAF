@@ -78,7 +78,7 @@ func routeLLM(task *Task, payload RouteLLMPayload) {
 		}
 
 		prompt := message{
-			Role:    "system",
+			Role:    "user",
 			Content: payload.Context + "Categorize the following text. Only respond with one of these categories:\n" + choices,
 		}
 		context := ""

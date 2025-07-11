@@ -11,7 +11,7 @@ import (
 type UpdateDataLLMCategorizationPayload struct {
 	ReadIndicatorIDs []int  `json:"readIndicatorIDs"`
 	WriteIndicatorID int    `json:"writeIndicatorID"`
-	Context          string `json:"context"`
+	Context          string `json:"context,omitempty"`
 }
 
 // updateDataLLMCategorization updates a record's data field (payload.WriteIndicatorID).
@@ -75,7 +75,7 @@ func updateDataLLMCategorization(task *Task, payload UpdateDataLLMCategorization
 
 		// Get response from LLM
 		prompt := message{
-			Role:    "system",
+			Role:    "user",
 			Content: payload.Context + "Categorize the following text. Only respond with one of these categories:\n" + categories,
 		}
 		context := ""
