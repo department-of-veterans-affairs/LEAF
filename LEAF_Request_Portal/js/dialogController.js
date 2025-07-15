@@ -42,10 +42,12 @@ function dialogController(containerID, contentID, loadIndicatorID, btnSaveID, bt
 	if(document.getElementById(this.btnCancelID) !== null) {
 		document.getElementById(this.btnCancelID).removeAttribute('disabled');
 	}
-	$('[aria-describedby="' + t.containerID + '"]' + ' button.ui-dialog-titlebar-close')
-    .on('click', function() {
+
+	$('#'+ t.containerID).parent('div').find('div button.ui-dialog-titlebar-close')
+	.on('click', function() {
         t.hide();
     });
+
     const preventCloseOnEnter = (e) => {
         if(e?.keyCode === 13 && (e?.target?.nodeName || '').toLowerCase() === "input" && e?.target?.type !== 'color') {
             e.preventDefault();
