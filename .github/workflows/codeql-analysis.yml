@@ -42,6 +42,9 @@ jobs:
         with:
           languages: ${{matrix.language}}
           build-mode: autobuild
+      - name: Autobuild
+        if: ${{ matrix.language == 'go' }}
+        uses: github/codeql-action/autobuild@v3
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
