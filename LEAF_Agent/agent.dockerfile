@@ -1,6 +1,4 @@
-FROM ubi9/go-toolset AS build
-
-ENV GOPROXY=direct
+FROM quay.vapo.va.gov/2195_leaf/golang:latest AS build
 
 WORKDIR /src
 
