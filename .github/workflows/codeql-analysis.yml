@@ -25,27 +25,17 @@ jobs:
       matrix:
         language:
           - javascript
-          - java
           - go
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
-        if: ${{ matrix.language != 'go' }}
-        with:
-          languages: ${{matrix.language}}
-          build-mode: none
-          config-file: .github/codeql-config.yml
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        if: ${{ matrix.language == 'go' }}
         with:
           languages: ${{matrix.language}}
           build-mode: autobuild
           config-file: .github/codeql-config.yml
       - name: Autobuild
-        if: ${{ matrix.language == 'go' }}
         uses: github/codeql-action/autobuild@v3
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
