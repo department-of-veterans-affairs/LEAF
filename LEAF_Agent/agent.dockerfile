@@ -6,7 +6,8 @@ COPY LEAF_Agent LEAF_Agent
 COPY pkg pkg
 
 WORKDIR /src/LEAF_Agent
-RUN go build -o /app/agent .
+RUN go get leaf-agent && \
+    go build -o /app/agent .
 
 FROM scratch
 WORKDIR /app
