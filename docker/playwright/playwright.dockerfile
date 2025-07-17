@@ -1,7 +1,5 @@
 FROM quay.vapo.va.gov/2195_leaf/node:22-slim
 
-USER root
-
 WORKDIR /usr/app
 RUN npm install -D @playwright/test@latest
 RUN npm install -D mysql2
