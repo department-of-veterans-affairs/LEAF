@@ -1,5 +1,7 @@
 FROM ubi9/go-toolset AS build
 
+ENV GOPROXY=direct
+
 WORKDIR /src
 
 COPY LEAF_Agent LEAF_Agent
