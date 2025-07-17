@@ -14,7 +14,7 @@ name: CodeQL
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: code-scanning
     concurrency: ${{ github.workflow }}-${{ matrix.language }}-${{ github.ref }}
     permissions:
       actions: read
