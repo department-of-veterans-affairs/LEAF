@@ -1,4 +1,4 @@
-FROM golang:1-alpine AS build
+FROM ubi9/go-toolset AS build
 
 WORKDIR /src
 
