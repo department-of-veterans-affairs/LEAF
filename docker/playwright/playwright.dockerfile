@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM quay.vapo.va.gov/mirrors/redhat/ubi9/nodejs-22:latest
 
 WORKDIR /usr/app
 RUN npm install -D @playwright/test@latest
