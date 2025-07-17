@@ -1,4 +1,4 @@
-FROM quay.vapo.va.gov/2195_leaf/golang:latest AS build
+FROM quay.vapo.va.gov/2195_leaf/golang:1-alpine AS build
 
 USER root
 
@@ -14,6 +14,5 @@ FROM scratch
 WORKDIR /app
 COPY --from=build /app/agent .
 
-RUN chown -R 1001:1001 /app /src
-
-CMD ["/app/agent"]
+RUN mkdir /.cache && \
+    chown -R 1001:1001 /app /src /go /.cache
