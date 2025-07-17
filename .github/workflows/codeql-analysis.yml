@@ -15,9 +15,7 @@ jobs:
   analyze:
     name: Analyze
     runs-on: code-scanning
-    concurrency:
-      group: ${{ github.workflow }}-${{ matrix.language }}-${{ github.ref }}
-      cancel-in-progress: true
+    concurrency: ${{ github.workflow }}-${{ matrix.language }}-${{ github.ref }}
     permissions:
       actions: read
       contents: read
