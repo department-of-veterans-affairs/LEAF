@@ -203,9 +203,21 @@
     </a>
 
     <a href="../report.php?a=LEAF_Start_Request" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
-        <i class="leaf-admin-btnicon fas fa-solid fa-forward-fast text-orange-50 leaf-icn-narrow2" title="Combined Inbox Editor"></i>
+        <i class="leaf-admin-btnicon fas fa-solid fa-forward-fast text-orange-50 leaf-icn-narrow2" title=""></i>
         <span class="leaf-admin-btntitle">Setup Quickstart Link</span>
         <span class="leaf-admin-btndesc">Create a URL to start New Requests</span>
+    </a>
+
+    <a href="../report.php?a=LEAF_Quick_Review" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
+        <i class="leaf-admin-btnicon fas fa-solid fa-forward-fast text-orange-50 leaf-icn-narrow2" title=""></i>
+        <span class="leaf-admin-btntitle">Setup Quick Review Link</span>
+        <span class="leaf-admin-btndesc">Create a URL to quickly review and take actions</span>
+    </a>
+
+    <a href="../report.php?a=LEAF_Propose_Actions" role="button" class="leaf-admin-button bg-orange-10 lf-trans-orange">
+        <i class="leaf-admin-btnicon fas fa-solid fa-file-alt text-orange-50 leaf-icn-narrow2" title=""></i>
+        <span class="leaf-admin-btntitle">Create Proposed Actions</span>
+        <span class="leaf-admin-btndesc">Create a URL to quickly review and take actions</span>
     </a>
 
 </div>
