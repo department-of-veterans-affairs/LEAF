@@ -444,7 +444,7 @@ class System
                         ':actionTextPasttense' => strip_tags($_POST['actionTextPasttense']),
                         ':actionIcon' => $_POST['actionIcon'],
                         ':actionAlignment' => $alignment,
-                        ':sort' => 0,
+                        ':sort' => strip_tags($_POST['sort']),
                         ':fillDependency' => $_POST['fillDependency'],
                 );
 

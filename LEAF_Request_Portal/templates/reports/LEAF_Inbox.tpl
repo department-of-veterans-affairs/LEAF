@@ -1,5 +1,6 @@
 <script src="../libs/js/sha1.js"></script>
 <script src="../libs/js/LEAF/intervalQueue.js"></script>
+<script type="text/javascript" src="<!--{$app_js_path}-->/LEAF/sensitiveIndicator.js"></script>
 <script>
     let CSRFToken = '<!--{$CSRFToken}-->';
 
@@ -441,7 +442,7 @@
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
-				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
+				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black;
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
 				<div style="padding:0.5rem;font-weight:bold;font-size:200%;line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
@@ -467,13 +468,16 @@
     }
 
     function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
+        const urlParams = new URLSearchParams(window.location.search);
         let customColumns = false;
         let categoryID = null;
+        let categoryMap = {};
 
         // categoryIDs is undefined when the user has selected the "Organize by Roles" view
-        if (categoryIDs != undefined) {
-            categoryID = categoryIDs[0];
+        if (categoryIDs != undefined && Array.isArray(categoryIDs)) {
             categoryIDs.forEach(categoryID => {
+                //possibly back compat for older inbox editor settings, so leaving it here
+                //site.columns is not currently an array and custom columns are on formColumns
                 if (site.columns != undefined &&
                     Array.isArray(site.columns) &&
                     site.columns[categoryID] != undefined) {
@@ -497,30 +501,94 @@
             });
         }
 
+        let tGridData = [];
+        let hasServices = false;
+        recordIDs.forEach(recordID => {
+            if (res[recordID].service != null) {
+                hasServices = true;
+            }
+
+            res[recordID].assignedIndividual = false;
+            if(stepID == 'assignedIndividual') {
+                res[recordID].assignedIndividual = true;
+            }
+
+            tGridData.push(res[recordID]);
+            const recCatIDs = Array.isArray(res[recordID].categoryIDs) ? res[recordID].categoryIDs : [];
+            recCatIDs.forEach(catID => {
+                if (categoryMap[catID] === undefined) {
+                    categoryMap[catID] = {
+                        count: 1,
+                        formColumns: site?.formColumns?.[catID] ?? '',
+                    };
+                } else {
+                    categoryMap[catID].count += 1;
+                }
+            });
+        });
+
         let headerColumns = "";
         if (customColumns === false) {
             let baseColumns = '';
-            if(site.columns == null || site.columns == 'UID') {
+            if(site.columns == null || site.columns == 'UID') { //default inbox if there is no site map card
                 // Add the Form Type to the "Organize by Roles" view. Provides feature parity with the old Inbox.
-                if(categoryIDs == undefined) {
+                if(urlParams.get('organizeByRole') !== null) {
                     baseColumns = 'UID,type,service,title,status';
                 } else {
                     baseColumns = 'UID,service,title,status';
                 }
-            } else {
+            } else { //portal base (non form-secific config)
                 baseColumns = site.columns;
             }
 
-            const formColumns = site?.formColumns?.[categoryID] || null;
+            //compared with form count to only show headers if every row has the form
+            const sectionNumRecords = recordIDs?.length || 0;
+            let formColumns = null;
+            if (categoryIDs?.length === 1) {
+                //only one form, use that form's custom cols if avail, otherwise use base columns
+                const categoryID = categoryIDs[0];
+                formColumns = site?.formColumns?.[categoryID] || baseColumns;
+            } else {
+                //if more than one, or undefined (role view), use the map to set formColumns
+                let nonIndCols = [];
+                let indCols = [];
+                for (let form in categoryMap) {
+                    //remove the 2nd condition to allow custom columns even if there is more than one form
+                    if(categoryMap[form].formColumns !== '' && categoryMap[form].count === sectionNumRecords) {
+                        const cols = categoryMap[form].formColumns.split(',');
+                        cols.forEach(c => {
+                            +c > 0 ? indCols.push(c) : nonIndCols.push(c);
+                        });
+                    }
+                }
+                nonIndCols = Array.from(new Set(nonIndCols));
+                indCols = Array.from(new Set(indCols));
+                if(nonIndCols.length > 0) {
+                    formColumns = nonIndCols.join(',');
+                }
+                if(indCols.length > 0) {
+                    formColumns += ',' + indCols.join(',');
+                }
+            }
+
             if (formColumns !== null) {
-                headerColumns = 'UID,' + formColumns;
+                headerColumns = formColumns;
             } else {
                 headerColumns = baseColumns;
             }
-            headerColumns = headerColumns.split(",")
-        }
-        let customCols = [];
 
+            const id = !/^UID/i.test(headerColumns) ? 'UID,' : '';
+            headerColumns = id + headerColumns;
+
+            const needsTypeCol = urlParams.get('organizeByRole') !== null && !/,type,/i.test(headerColumns);
+
+            headerColumns = headerColumns.split(",");
+            if (needsTypeCol === true) { //confirm type exists if role view
+                headerColumns.splice(1, 0, 'type');
+            }
+        }
+
+        let customCols = [];
         headerColumns.forEach(col => {
             if (isNaN(col) && typeof headerDefinitions[col] === 'function') {
                 customCols.push(headerDefinitions[col](site));
@@ -541,7 +609,7 @@
                 $('#' + data.cellContainerID).css('text-align', 'center');
                 $('#' + data.cellContainerID).html('<button type="button" id="btn_action' + hash + '_' + stepID + '_' +
                                                    data.recordID +
-                                                   '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal">' +
+                                                   '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" disabled>' +
                                                    depDescription + '</button>');
                 $('#btn_action' + hash + '_' + stepID + '_' + data.recordID).on('click', function() {
                     loadWorkflow(data.recordID, formGrid.getPrefixID(), site.url);
@@ -555,7 +623,8 @@
                             });
                         }
                     });
-                })
+                });
+                document.querySelector(`#btn_action${hash}_${stepID}_${data.recordID}`).removeAttribute('disabled');
             }
         }];
         headers = customCols.concat(headers);
@@ -566,20 +635,7 @@
         formGrid.setDataBlob(res);
         formGrid.hideIndex();
         formGrid.setHeaders(headers);
-        let tGridData = [];
-        let hasServices = false;
-        recordIDs.forEach(recordID => {
-            if (res[recordID].service != null) {
-                hasServices = true;
-            }
 
-            res[recordID].assignedIndividual = false;
-            if(stepID == 'assignedIndividual') {
-                res[recordID].assignedIndividual = true;
-            }
-
-            tGridData.push(res[recordID]);
-        });
         // remove service column if there's no services
         if (hasServices == false) {
             let tHeaders = formGrid.headers();
@@ -614,10 +670,10 @@
         let allCategoriesMatch = true;
         if(recordIDs.length > 0) {
             recordIDs.forEach(recordID => {
-                if(firstMatch == null) {
+                if(res[recordID]?.categoryIDs?.length > 0 && firstMatch == null) {
                     firstMatch = res[recordID].categoryIDs[0];
                 }
-                if(firstMatch != res[recordID].categoryIDs[0]) {
+                if( res[recordID].categoryIDs !== undefined && firstMatch != res[recordID].categoryIDs[0]) {
                     allCategoriesMatch = false;
                     return;
                 }
@@ -625,7 +681,7 @@
 
             if(allCategoriesMatch) {
                 for(let i in categoryIDs) {
-                    if(categoryIDs[i][0] == firstMatch) {
+                    if(categoryIDs[i] !== undefined  && categoryIDs[i][0] == firstMatch) {
                         enabledCategoryIDs = categoryIDs[i];
                     }
                 }
@@ -638,7 +694,7 @@
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
-				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
+				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black;
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
 				<div style="padding:0.5rem;font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
@@ -728,7 +784,7 @@
                 }
             }
         }
-        
+
         if (getData.length > 0) {
             getData.forEach(id => query.getData(id));
             return $.ajax({
@@ -883,7 +939,7 @@
             nonAdmin = false;
             document.querySelector('#btn_adminView').innerText = 'View as non-admin';
         }
-        
+
         if(urlParams.get('organizeByRole') != null) {
             organizeByRole = true;
             document.querySelector('#btn_organize').innerText = 'Organize by Forms';
@@ -898,7 +954,7 @@
                 document.querySelector('#btn_combineIndividuals').style.display = 'inline';
                 document.querySelector('#btn_combineIndividuals').innerText = 'Combine Individuals';
             }
-        
+
         getMapSites.then((value) => {
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
                 'genericDialogloadIndicator', 'genericDialogbutton_save',
@@ -921,14 +977,14 @@
                 if(urlParams.get('organizeByRole') != null) {
                    renderInboxByRole();
             	}
-                else {             
+                else {
                 	renderInbox();
         		}
             });
             queue.setAbortSignal(abortController.signal);
 
             sites.forEach(site => queue.push(site));
-            
+
             // If $sites is empty, load the local inbox
             if(Object.keys(sites).length == 0 || urlParams.get('local') != null) {
                 let localSite = {
@@ -958,7 +1014,7 @@
                     $('#inbox_view_selection_status').attr('aria-label', '');
                 });
             });
-            
+
             $('#btn_adminView').on('click', function() {
 				let currLocation = getCurrLocation();
 
@@ -1024,18 +1080,18 @@
     .inbox {
         display: none;
     }
-    
+
     .depInbox {
         padding: 8px;
         position: sticky;
         top: 0px;
     }
-    
+
     .siteFormContainers {
         padding: 8px;
         background-color: white;
     }
-    
+
     .depContainer {
         border: 1px solid black;
         cursor: pointer;

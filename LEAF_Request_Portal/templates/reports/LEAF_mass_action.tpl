@@ -61,9 +61,14 @@
         <div id="step_container" style="padding: 2px;margin:0.75rem 0;"></div>
         <div id="requirements_container" style="padding: 2px;margin:0.75rem 0;"></div>
         <div id="relevant_action_container" style="padding: 2px;margin:0.75rem 0;"></div>
-        <div id="comment_cancel_container" style="display:none;margin:0.75rem 0;">
-            <label for="comment_cancel">Comment <span id="comment_required">* required</span></label>
-            <textarea id="comment_cancel" rows="4" style="display:block;resize:vertical;width:530px;margin-top:2px"></textarea>
+        <div id="comment_cancel_container" style="display:none;margin:0.75rem 0;display:flex;flex-direction:column;gap:1rem;">
+            <label for="suppress_notification_checkbox" style="display:flex; align-items:center;">
+                <input type="checkbox" id="suppress_notification_checkbox">
+                Suppress Email Notification
+            </label>
+            <label for="comment_cancel">Comment <span id="comment_required">* required</span>
+                <textarea id="comment_cancel" rows="4" style="display:block;resize:vertical;width:530px;margin-top:2px"></textarea>
+            </label>
         </div>
 
     </div>
@@ -179,6 +184,10 @@ function noteRequired() {
 function chooseAction() {
     // If nothing selected and action selected is not 'Email Reminder'
     actionValue = $("#action").val();
+    const elSuppressNotify = document.getElementById("suppress_notification_checkbox");
+    if(elSuppressNotify !== null) {
+        elSuppressNotify.checked = false;
+    }
     $("#comment_cancel").val("");
     $("#comment_cancel_container").hide();
     $("#form_container, #step_container, #relevant_action_container, #requirements_container, #emailSection").hide();
@@ -527,7 +536,9 @@ function addTerms(leafFormQuery) {
             break;
         case "email":
             leafFormQuery.addTerm('stepID', '!=', 'deleted');
-            if (Number(document.getElementById("lastAction").value) > 0) {
+            let lastAction = document.getElementById("lastAction");
+
+            if (Number(lastAction.value) > 0) {
                 leafFormQuery.addTerm('stepID', '!=', 'resolved');
             }
             break;
@@ -566,7 +577,11 @@ function addTerms(leafFormQuery) {
 
     if (isJSON) {
         for (let i = 0; i < advSearch.length; i++) {
-            leafFormQuery.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);
+            if (advSearch[i]?.id === 'data' || advSearch[i]?.id === 'dependencyID') {
+                leafFormQuery.addDataTerm(advSearch[i].id, advSearch[i].indicatorID, advSearch[i].operator, advSearch[i].match);
+            } else {
+                leafFormQuery.addTerm(advSearch[i].id, advSearch[i].operator, advSearch[i].match);
+            }
         }
     } else if (typeof extraTerms === "string") {
         leafFormQuery.addTerm('title', 'LIKE', '*' + extraTerms.trim() + '*');
@@ -585,6 +600,25 @@ function addJoins(leafFormQuery) {
     if (actionValue === "email" && Number(lastAction.value) > 0) {
         leafFormQuery.join("action_history");
     }
+}
+
+function filterEmailData(result) {
+    for (let item in result) {
+        if (result[item].action_history !== undefined) {
+            let numberActions = result[item].action_history.length;
+            let lastActionDate = Number(result[item].action_history[numberActions - 1].time) * 1000;
+            let lastAction = document.getElementById("lastAction");
+            let comparisonDate = Date.now() - (Number(lastAction.value) * 24 * 60 * 60 * 1000);
+
+            if (lastActionDate >= comparisonDate) {
+                delete result[item];
+            }
+        } else {
+            delete result[item];
+        }
+    };
+
+    return result;
 }
 
 /**
@@ -613,7 +647,15 @@ async function listRequests(thisSearchID) {
             if (result instanceof Object && Object.keys(result).length > 0 && result[0] === undefined) {
                 const formGrid = new LeafFormGrid('searchResults', {});
                 formGrid.setRootURL("./");
-                formGrid.setDataBlob(result);
+                let lastAction = document.getElementById("lastAction");
+                let action = document.getElementById("action");
+                let filterData = result;
+
+                if (action.value === 'email' && Number(lastAction.value) > 0) {
+                    filterData = filterEmailData(result);
+                }
+
+                formGrid.setDataBlob(filterData);
                 formGrid.setHeaders([
                     {
                         name: "Type",
@@ -697,7 +739,14 @@ function executeMassAction() {
     }
 
     let selectedRequests = $("input.massActionRequest:checked");
-    let reminderDaysSince = Number($("#lastAction").val());
+    let lastAction = document.getElementById("lastAction").value;
+    let reminderDaysSince = Number(lastAction);
+
+    let suppressNotification = 0;
+    const elSuppressNotify = document.getElementById("suppress_notification_checkbox");
+    if(elSuppressNotify !== null && elSuppressNotify.checked === true) {
+        suppressNotification = 1;
+    }
 
     // Update global variables for execution - used in updateProgress function
     // Setting them to default at beginning of mass execution run
@@ -722,6 +771,7 @@ function executeMassAction() {
             case "cancel":
                 ajaxPath = "./api/form/" + recordID + "/cancel";
                 ajaxData["comment"] = commentValue;
+                ajaxData["suppressNotification"] = suppressNotification;
                 break;
             case "restore":
                 ajaxPath = "./ajaxIndex.php?a=restore";

@@ -991,16 +991,9 @@ function createRequest(catID) {
                     //Type number. Sent back on success (UID column of report builder)
                     if (recordID > 0) {
                         newRecordID = parseInt(recordID);  //global
+                        grid.stop();
                         $('#generateReport').click();
                         dialog.hide();
-                        //styling to hilite row for short / simple queries
-                        setTimeout(function () {
-                            let el_ID = grid.getPrefixID() + "tbody_tr" + recordID;
-                            let newRow = document.getElementById(el_ID);
-                            if (newRow !== null) { //null if query > .75s or if the query does not return the record created
-                                newRow.style.backgroundColor = 'rgb(254, 255, 209)';
-                            }
-                        }, 750);
                     }
                 },
                 function (error) {
@@ -1366,6 +1359,18 @@ $(function() {
             document.querySelector('#btn_abort').style.display = 'none';
             $('#reportStats').html(`${Object.keys(queryResult).length} records${partialLoad}`);
             renderGrid(queryResult);
+            if (+newRecordID > 0) {
+                //styling to hilite row for short / simple queries
+                let el_ID = grid.getPrefixID() + "tbody_tr" + newRecordID;
+                let newRow = document.getElementById(el_ID);
+                if (newRow !== null) { //null if the query does not return the record created or if the row is off page
+                    newRow.style.backgroundColor = 'rgb(254, 255, 209)';
+                }
+                let newRowBtn = document.getElementById('newRequestButton');
+                if(newRowBtn !== null) {
+                    newRowBtn.dataset.newestRowId = newRecordID;
+                }
+            }
             //update Checkpoint Date Step header text if still needed (should be rare)
             if(tStepHeader.some(ele => ele === 0)) {
                 $.ajax({
