@@ -1117,7 +1117,7 @@ class Form
                       ':indicatorID' => $key,
                       ':series' => $series, );
 
-        $sql = "SELECT `format`, `data` FROM `data`
+        $sql = "SELECT `format`, `trackChanges`, `data` FROM `data`
             LEFT JOIN `indicators` USING (`indicatorID`)
             WHERE `recordID`=:recordID AND `indicators`.`indicatorID`=:indicatorID AND `series`=:series";
 
@@ -1125,7 +1125,7 @@ class Form
 
         if(empty($res)) {
             $vf = array(":indicatorID" => $key);
-            $sqlf = "SELECT `format` FROM `indicators` WHERE `indicatorID`=:indicatorID";
+            $sqlf = "SELECT `format`, `trackChanges` FROM `indicators` WHERE `indicatorID`=:indicatorID";
             $res =  $this->db->prepared_query($sqlf, $vf);
         }
 
@@ -1177,7 +1177,7 @@ class Form
                                             VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)
                                             ON DUPLICATE KEY UPDATE data=:data, metadata=:metadata, timestamp=:timestamp, userID=:userID', $vars);
 
-        if (!$duplicate) {
+        if (!$duplicate && $res[0]['trackChanges']) {
             $vars[':userDisplay'] = $this->login->getName();
             $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID, userDisplay)
                                                    VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID, :userDisplay)', $vars);
@@ -2098,6 +2098,12 @@ class Form
                     return true;
                 }
 
+                break;
+            case -4: // dependencyID -4 : LEAF Agent
+                if ($this->login->getUserID() == getenv('APP_AGENT_USERNAME'))
+                {
+                    return true;
+                }
                 break;
             default:
                 if ($this->login->checkGroup($details['groupID']))
