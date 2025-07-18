@@ -1,5 +1,7 @@
 FROM quay.vapo.va.gov/2195_leaf/node:22-slim
 
+USER root
+
 WORKDIR /usr/app
 RUN npm install -D @playwright/test@latest
 RUN npm install -D mysql2
@@ -7,5 +9,6 @@ RUN npm install -D mysql2
 WORKDIR /usr/app/leaf
 COPY /LEAF-Automated-Tests/end2end/ /usr/app/leaf
 RUN npx playwright install --with-deps
+RUN chmod -R 775 /usr/app/leaf
 # Second "playwright install" needed to workaround issue on first run: "Playwright was just installed or updated"
 CMD npx playwright install && node main.js
