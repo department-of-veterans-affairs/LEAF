@@ -6,4 +6,4 @@ WORKDIR /app
 COPY agent .
 
 RUN mkdir /.cache && \
-    chmod -R /app /go /.cache
+    chmod -R 775 /app /go /.cache
