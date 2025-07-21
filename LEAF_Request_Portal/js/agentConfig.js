@@ -9,10 +9,23 @@ var LeafAgentConfig = function (containerID) {
 
     function render() {
         console.log(config);
+
+        let output = '';
+        config.forEach(instruction => {
+            output += `<tr><td>${instruction.type}</td><td>${JSON.stringify(instruction.payload)}</td></tr>`;
+        });
+
+        document.querySelector('#'+containerID).innerHTML = `<table>
+            <thead><tr>
+                <th>Instruction</th>
+                <th>Configuration</th>
+            </tr></thead>
+            ${output}</table>`;
     }
 
     return {
         importConfig,
+        getConfig: () => config,
         render
     };
 }
