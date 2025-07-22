@@ -1769,7 +1769,11 @@ class FormWorkflow
                     $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
                     break;
                 case "orgchart_group":
-                    $data = $this->getOrgchartGroup((int) $data);
+                    if(is_numeric($data)) {
+                        $groupInfo = $this->getGroupInfoForTemplate((int) $data);
+                        $data = $groupInfo["groupName"];
+                        $emailValue = $groupInfo["groupEmails"];
+                    }
                     break;
                 case "orgchart_position":
                     $data = $this->getOrgchartPosition((int) $data);
@@ -1857,14 +1861,21 @@ class FormWorkflow
         return $formattedData;
     }
 
-    // method for building orgchart group, position, employee
-    private function getOrgchartGroup(int $data): string
+    // method for building orgchart group, position, employee template info
+    private function getGroupInfoForTemplate(int $groupID): array
     {
-        // reference the group by id
         $group = new Group($this->db, $this->login);
-        $groupName = $group->getGroupName($data);
+        $groupName = $group->getGroupName($groupID);
+        $groupMembers = $group->getMembers($groupID)['data'] ?? [];
+        $userEmails = array_column($groupMembers, 'email') ?? [];
+        $emailValues = implode("\r\n", $userEmails);
 
-        return $groupName;
+        $returnVal = array(
+            "groupName" => $groupName,
+            "groupEmails" => $emailValues
+        );
+
+        return $returnVal;
     }
 
     private function getOrgchartPosition(int $data): string
