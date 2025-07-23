@@ -73,8 +73,13 @@ func main() {
 		cancel()
 	}()
 
+	var startTime time.Time
+	var loopDuration int
+
 	// Main loop
 	for {
+		startTime = time.Now()
+
 		// Capture exit signal
 		select {
 		case <-ctxExit.Done():
@@ -107,7 +112,18 @@ func main() {
 
 		wg.Wait()
 
-		// Arbitrary cooldown
-		time.Sleep(10 * time.Second)
+		// Each loop should be completed within 5 minutes to ensure acceptable quality of service
+		loopDuration = int(time.Since(startTime).Seconds())
+
+		// Minimum cooldown, provides potential opportunity to undo actions for endusers
+		if loopDuration < 10 {
+			cooldown := 10 - loopDuration
+			time.Sleep(time.Duration(cooldown) * time.Second)
+		}
+
+		log.Println("Tasks completed in", loopDuration, "seconds")
+		if loopDuration > 300 {
+			log.Println("WARNING: Task completion time exceeds limit. Compute resources should be increased to ensure acceptable quality of service.")
+		}
 	}
 }

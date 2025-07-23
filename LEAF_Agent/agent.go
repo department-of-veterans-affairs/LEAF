@@ -22,10 +22,16 @@ func ParsePayload[T any](payload any) T {
 }
 
 func ExecuteTask(task Task) {
+	var records query.Response
+	var err error
+
 	startTime := time.Now()
 
 	defer func() {
-		LogTask(task, time.Since(startTime))
+		// only log if there were records to process
+		if len(records) > 0 {
+			LogTask(task, time.Since(startTime))
+		}
 		wg.Done()
 	}()
 
@@ -42,7 +48,7 @@ func ExecuteTask(task Task) {
 			},
 		},
 	}
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
+	records, err = FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
 		return
 	}
