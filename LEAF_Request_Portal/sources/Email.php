@@ -615,6 +615,43 @@ class Email
 
         // Start adding users to email if we have them
         if (count($approvers) > 0) {
+            $reminderDepArray = array();
+            //if reminder, find out how many requirements the step has
+            if($emailTemplateID === -4 || $emailTemplateID === -5) {
+                foreach ($approvers as $row) {
+                    $dID = $row['dependencyID'];
+                    if(!in_array($dID, $reminderDepArray)) {
+                        $reminderDepArray[] = $dID;
+                    }
+                }
+            }
+            //If there's more than 1 requirement, find out filled status.
+            $numberStepRequirements = count($reminderDepArray);
+            if($numberStepRequirements > 1) {
+                $step = $approvers[0]['stepID'];
+
+                $strSQL_rdeps = "SELECT dependencyID, filled
+                    FROM step_dependencies
+                    LEFT JOIN records_dependencies USING (dependencyID)
+                    WHERE recordID=:recordID AND stepID=:stepID";
+
+                $vars = array(
+                    ':recordID' => $recordID,
+                    ':stepID' => $step,
+                );
+                $recordStepDepStatus = $this->portal_db->prepared_query($strSQL_rdeps, $vars);
+
+                $statusMap = array();
+                foreach($recordStepDepStatus as $depRow) {
+                    $statusMap[$depRow['dependencyID']] = $depRow['filled'];
+                }
+
+                foreach($approvers as $key => $recValues) {
+                    $approverDepID = $recValues['dependencyID'];
+                    $approvers[$key]['filled'] = $statusMap[$approverDepID];
+                }
+            }
+
             $formType = trim(strip_tags(
                 htmlspecialchars_decode($approvers[0]['categoryName'], ENT_QUOTES | ENT_HTML5)
             ));
@@ -648,122 +685,124 @@ class Email
             $dir = new VAMC_Directory;
 
             foreach ($approvers as $approver) {
-                if (!empty($approver['approverID']) && strlen($approver['approverID']) > 0) {
-                    $tmp = $dir->lookupLogin($approver['approverID']);
-                    if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                        $this->addRecipient($tmp[0]['Email']);
-                    }
-                }
-
-                // Special cases depending on dependency of record
-                switch ($approver['dependencyID']) {
-                    // special case for service chiefs
-                    case 1:
-                        $vars = array(':serviceID' => $approver['serviceID']);
-                        $strSQL = "SELECT userID FROM service_chiefs WHERE serviceID=:serviceID AND active=1";
-                        $chief = $this->portal_db->prepared_query($strSQL, $vars);
-
-                        foreach ($chief as $member) {
-                            if (strlen($member['userID']) > 0) {
-                                $tmp = $dir->lookupLogin($member['userID']);
-                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                                    $this->addRecipient($tmp[0]['Email']);
-                                }
-                            }
-                        }
-                        break;
-
-                    // special case for quadrads
-                    case 8:
-                        $vars = array(':groupID' => $approver['quadrad']);
-                        $strSQL = "SELECT userID FROM users WHERE groupID=:groupID AND active=1";
-                        $quadrad = $this->portal_db->prepared_query($strSQL, $vars);
-                        foreach ($quadrad as $member) {
-                            if (strlen($member['userID']) > 0) {
-                                $tmp = $dir->lookupLogin($member['userID']);
-                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                                    $this->addRecipient($tmp[0]['Email']);
-                                }
-                            }
-                        }
-                        break;
-
-                    // special case for a person designated by the requestor
-                    case -1:
-                        $form = new Form($this->portal_db, $loggedInUser);
-
-                        // find the next step
-                        $varsStep = array(':stepID' => $approver['stepID']);
-                        $strSQL = "SELECT indicatorID_for_assigned_empUID FROM workflow_steps WHERE stepID=:stepID";
-                        $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
-
-                        $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
-
-                        // empuid is required to move forward, make sure this exists before continuing.
-                        // This can be a result of user not setting a user in form field
-                        if(is_array($resEmpUID) && !empty($resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']])){
-
-                            $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
-
-                            //check if the requester has any backups
-                            $vars4 = array(':empId' => $empUID);
-                            $strSQL = "SELECT backupEmpUID FROM relation_employee_backup WHERE empUID =:empId";
-                            $backupIds = $this->nexus_db->prepared_query($strSQL, $vars4);
-
-                            if ($empUID > 0) {
-                                $tmp = $dir->lookupEmpUID($empUID);
-                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                                    $this->addRecipient($tmp[0]['Email']);
-                                }
-                            }
-
-                            // add for backups
-                            foreach ($backupIds as $row) {
-                                $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
-                                if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
-                                    $this->addCcBcc($tmp[0]['Email']);
-                                }
-                            }
-                        } else {
-                            trigger_error("Empuid was not set for case -1");
-                        }
-
-                        break;
-
-                    // requestor followup
-                    case -2:
-                        $vars = array(':recordID' => $recordID);
-                        $strSQL = "SELECT userID FROM records WHERE recordID=:recordID";
-                        $resRequestor = $this->portal_db->prepared_query($strSQL, $vars);
-                        $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
+                if(empty($approver['filled'])) {
+                    if (!empty($approver['approverID']) && strlen($approver['approverID']) > 0) {
+                        $tmp = $dir->lookupLogin($approver['approverID']);
                         if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
                             $this->addRecipient($tmp[0]['Email']);
                         }
-                        break;
+                    }
 
-                    // special case for a group designated by the requestor
-                    case -3:
-                        $form = new Form($this->portal_db, $loggedInUser);
+                    // Special cases depending on dependency of record
+                    switch ($approver['dependencyID']) {
+                        // special case for service chiefs
+                        case 1:
+                            $vars = array(':serviceID' => $approver['serviceID']);
+                            $strSQL = "SELECT userID FROM service_chiefs WHERE serviceID=:serviceID AND active=1";
+                            $chief = $this->portal_db->prepared_query($strSQL, $vars);
 
-                        // find the next step
-                        $varsStep = array(':stepID' => $approver['stepID']);
-                        $strSQL = "SELECT indicatorID_for_assigned_groupID FROM workflow_steps WHERE stepID=:stepID";
-                        $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
-
-                        $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
-
-                        // groupid is required to move forward, make sure this exists before continuing.
-                        // This can be a result of user not setting a group in form field
-                        if(is_array($resGroupID) && !empty($resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']])){
-                            $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
-
-                            if ($groupID > 0) {
-                                $this->addGroupRecipient($groupID);
+                            foreach ($chief as $member) {
+                                if (strlen($member['userID']) > 0) {
+                                    $tmp = $dir->lookupLogin($member['userID']);
+                                    if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                        $this->addRecipient($tmp[0]['Email']);
+                                    }
+                                }
                             }
-                        } else {
-                            trigger_error("Groupid was not set for case -3");
-                        }
-                        break;
+                            break;
+
+                        // special case for quadrads
+                        case 8:
+                            $vars = array(':groupID' => $approver['quadrad']);
+                            $strSQL = "SELECT userID FROM users WHERE groupID=:groupID AND active=1";
+                            $quadrad = $this->portal_db->prepared_query($strSQL, $vars);
+                            foreach ($quadrad as $member) {
+                                if (strlen($member['userID']) > 0) {
+                                    $tmp = $dir->lookupLogin($member['userID']);
+                                    if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                        $this->addRecipient($tmp[0]['Email']);
+                                    }
+                                }
+                            }
+                            break;
+
+                        // special case for a person designated by the requestor
+                        case -1:
+                            $form = new Form($this->portal_db, $loggedInUser);
+
+                            // find the next step
+                            $varsStep = array(':stepID' => $approver['stepID']);
+                            $strSQL = "SELECT indicatorID_for_assigned_empUID FROM workflow_steps WHERE stepID=:stepID";
+                            $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
+
+                            $resEmpUID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_empUID'], 1, $recordID);
+
+                            // empuid is required to move forward, make sure this exists before continuing.
+                            // This can be a result of user not setting a user in form field
+                            if(is_array($resEmpUID) && !empty($resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']])){
+
+                                $empUID = $resEmpUID[$resStep[0]['indicatorID_for_assigned_empUID']]['value'];
+
+                                //check if the requester has any backups
+                                $vars4 = array(':empId' => $empUID);
+                                $strSQL = "SELECT backupEmpUID FROM relation_employee_backup WHERE empUID =:empId";
+                                $backupIds = $this->nexus_db->prepared_query($strSQL, $vars4);
+
+                                if ($empUID > 0) {
+                                    $tmp = $dir->lookupEmpUID($empUID);
+                                    if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                        $this->addRecipient($tmp[0]['Email']);
+                                    }
+                                }
+
+                                // add for backups
+                                foreach ($backupIds as $row) {
+                                    $tmp = $dir->lookupEmpUID($row['backupEmpUID']);
+                                    if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                        $this->addCcBcc($tmp[0]['Email']);
+                                    }
+                                }
+                            } else {
+                                trigger_error("Empuid was not set for case -1");
+                            }
+
+                            break;
+
+                        // requestor followup
+                        case -2:
+                            $vars = array(':recordID' => $recordID);
+                            $strSQL = "SELECT userID FROM records WHERE recordID=:recordID";
+                            $resRequestor = $this->portal_db->prepared_query($strSQL, $vars);
+                            $tmp = $dir->lookupLogin($resRequestor[0]['userID']);
+                            if (isset($tmp[0]['Email']) && $tmp[0]['Email'] != '') {
+                                $this->addRecipient($tmp[0]['Email']);
+                            }
+                            break;
+
+                        // special case for a group designated by the requestor
+                        case -3:
+                            $form = new Form($this->portal_db, $loggedInUser);
+
+                            // find the next step
+                            $varsStep = array(':stepID' => $approver['stepID']);
+                            $strSQL = "SELECT indicatorID_for_assigned_groupID FROM workflow_steps WHERE stepID=:stepID";
+                            $resStep = $this->portal_db->prepared_query($strSQL, $varsStep);
+
+                            $resGroupID = $form->getIndicator($resStep[0]['indicatorID_for_assigned_groupID'], 1, $recordID);
+
+                            // groupid is required to move forward, make sure this exists before continuing.
+                            // This can be a result of user not setting a group in form field
+                            if(is_array($resGroupID) && !empty($resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']])){
+                                $groupID = $resGroupID[$resStep[0]['indicatorID_for_assigned_groupID']]['value'];
+
+                                if ($groupID > 0) {
+                                    $this->addGroupRecipient($groupID);
+                                }
+                            } else {
+                                trigger_error("Groupid was not set for case -3");
+                            }
+                            break;
+                    }
                 }
             }
             $return_value = $this->sendMail($recordID);
