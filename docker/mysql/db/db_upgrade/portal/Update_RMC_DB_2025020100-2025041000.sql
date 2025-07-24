@@ -18,7 +18,7 @@ ALTER TABLE `route_events` DROP FOREIGN KEY `route_events_ibfk_2`;
 ALTER TABLE `workflow_routes` DROP FOREIGN KEY `workflow_routes_ibfk_3`;
 
 ALTER TABLE `actions`
-CHANGE `actionType` `actionType` varchar(50) COLLATE 'utf8mb4_general_ci' NOT NULL,
+CHANGE `actionType` `actionType` varchar(50) COLLATE 'utf8mb4_general_ci' NOT NULL FIRST,
 CHANGE `actionText` `actionText` varchar(50) COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `actionType`,
 CHANGE `actionTextPasttense` `actionTextPasttense` varchar(50) COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `actionText`,
 CHANGE `actionIcon` `actionIcon` varchar(50) COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `actionTextPasttense`,
@@ -31,7 +31,7 @@ CHANGE `eventID` `eventID` varchar(40) COLLATE 'utf8mb4_general_ci' NOT NULL AFT
 COLLATE 'utf8mb4_general_ci';
 
 ALTER TABLE `events`
-CHANGE `eventID` `eventID` varchar(40) COLLATE 'utf8mb4_general_ci' NOT NULL,
+CHANGE `eventID` `eventID` varchar(40) COLLATE 'utf8mb4_general_ci' NOT NULL FIRST,
 CHANGE `eventDescription` `eventDescription` varchar(200) COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `eventID`,
 CHANGE `eventType` `eventType` varchar(40) COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `eventDescription`,
 CHANGE `eventData` `eventData` text COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `eventType`,
