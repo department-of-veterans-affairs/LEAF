@@ -795,7 +795,7 @@ class Form
      *
      * @return int|string Return 1 on success, error string on failure
      */
-    public function cancelRecord(int $recordID, ?string $comment = ''): int|string
+    public function cancelRecord(int $recordID, ?string $comment = '', bool $suppressNotification = false): int|string
     {
         $return_value = 'Please contact your administrator';
 
@@ -856,7 +856,9 @@ class Form
             if($this->db->commitTransaction())
             {
                 // need to send emails to everyone upstream from the currect step.
-                $this->notifyPriorSteps($recordID);
+                if(!$suppressNotification) {
+                    $this->notifyPriorSteps($recordID);
+                }
 
                 $return_value = 1;
             }
@@ -1218,17 +1220,19 @@ class Form
     /**
      * Write data from input fields if the current user has access - HTTP POST
      * @param int $recordID
-     * @return int 1 for success, 0 for error
+     * @return int|string 1 for success, error string for error
      */
     public function doModify($recordID)
     {
         if (!is_numeric($recordID))
         {
-            return 0;
+            http_response_code(400);
+            return 'Invalid recordID';
         }
         if ($_POST['CSRFToken'] != $_SESSION['CSRFToken'])
         {
-            return 0;
+            http_response_code(401);
+            return 'CSRF Token mismatch';
         }
 
         $series = isset($_POST['series']) && is_numeric($_POST['series']) ? $_POST['series'] : 1;
@@ -1246,7 +1250,8 @@ class Form
                     // check write access
                     if (!$this->hasWriteAccess($recordID, 0, $indicator))
                     {
-                        return 0;
+                        http_response_code(401);
+                        return 'No write access';
                     }
                     $_FILES[$indicator]['name'] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
                     $_POST[$indicator] = XSSHelpers::scrubFilename($_FILES[$indicator]['name']);
@@ -1267,7 +1272,9 @@ class Form
                     }
                     else
                     {
-                        return 0;
+                        http_response_code(500);
+                        error_log('PHP _FILES error code: ' . $_FILES[$indicator]['error']);
+                        return 'File upload error code: ' . $_FILES[$indicator]['error'];
                     }
                 }
             }
@@ -1286,7 +1293,8 @@ class Form
                     // check write access
                     if (!$this->hasWriteAccess($recordID, $categoryID))
                     {
-                        return 0;
+                        http_response_code(401);
+                        return 'No write access (title)';
                     }
                     $vars = array(':recordID' => (int)$recordID,
                                   ':categoryID' => XSSHelpers::xscrub($categoryID),
@@ -1319,7 +1327,8 @@ class Form
             if (is_numeric($key))
             {
                 if (!$this->writeDataField($recordID, $key, $series)) {
-                    return 0;
+                    http_response_code(401);
+                    return 'No write access (data field)';
                 }
             }
             else // Check for keys
@@ -1328,7 +1337,8 @@ class Form
                 if ($tRecordID == $recordID
                     && is_numeric($tIndicatorID)) {
                     if (!$this->writeDataField($recordID, $tIndicatorID, $series)) {
-                        return 0;
+                        http_response_code(401);
+                        return 'No write access (data field, list)';
                     }
                 }
 
@@ -2243,7 +2253,7 @@ class Form
                         AND approved=1';
         $backupIds = $nexusDB->prepared_query($strSQL, $vars);
 
-        $this->cache['checkIfBackup'] = [];
+        $this->cache['checkIfBackupUserName'] = [];
         foreach ($backupIds as $row)
         {
             $this->cache['checkIfBackupUserName'][strtolower($row['userName'])] = true;
@@ -4109,7 +4119,7 @@ class Form
     {
         $vars = array(':disabled' => (int)$disabled);
         $strSQL = "SELECT indicatorID, name, format, description, categories.categoryName, ".
-                    "indicators.disabled FROM indicators ".
+                    "indicators.parentID AS parentIndicatorID, indicators.disabled FROM indicators ".
                     "LEFT JOIN categories USING (categoryID) ".
                     "WHERE indicators.disabled >= :disabled ".
                     "AND categories.disabled = 0 ".
@@ -4124,6 +4134,7 @@ class Form
             $delDate = $item['disabled'] + 30*24*60*60; //30 days from timestamp
             $delDateFormat = date("m/d/Y",$delDate);
             $temp['indicatorID'] = $item['indicatorID'];
+            $temp['parentIndicatorID'] = $item['parentIndicatorID'];
             $temp['name'] = $item['name'];
             $temp['format'] = $item['format'];
             $temp['description'] = $item['description'];
@@ -4225,6 +4236,11 @@ class Form
         // check for orphaned indicators
         foreach ($res as $item)
         {
+            // Skip built-in forms unless requested to avoid clutter
+            if(substr($item['categoryID'], 0, 5) == 'leaf_' && !isset($_GET['dev'])) {
+                continue;
+            }
+
             if (!$this->isIndicatorOrphan($item, $isActiveIndicator))
             {
                 // make sure the field's category isn't a member of a deleted category

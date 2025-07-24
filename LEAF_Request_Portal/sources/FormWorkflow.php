@@ -130,7 +130,7 @@ class FormWorkflow
         $vars = array(':groupID' => $groupID);
         $strSQL = 'SELECT * FROM `groups` WHERE groupID = :groupID';
         $tGroup = $this->db->prepared_query($strSQL, $vars);
-        if (count($tGroup) >= 0)
+        if (count($tGroup) > 0)
         {
             $groupName = $tGroup[0]['name'];
         }
@@ -494,18 +494,16 @@ class FormWorkflow
                         $personDesignatedIndicators[$res[$i]['indicatorID_for_assigned_empUID']] = 1;
                         break;
                     case -2: // dependencyID -2 is for requestor followup
-                        $dir = $this->getDirectory();
-                        $approver = $dir->lookupLogin($res[$i]['userID']);
-
-                        if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                        $metaData = json_decode($record['userMetadata'], true);
+                        if ($metaData == null || $metaData['firstName'] == '') {
                             $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Inactive User)';
                             $res[$i]['approverName'] = '(Inactive User)';
                             $res[$i]['approverUID'] = $res[$i]['userID'];
                         }
                         else {
-                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                            $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
-                            $res[$i]['approverUID'] = $approver[0]['Email'];
+                            $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $metaData['firstName'] . ' ' . $metaData['lastName'] . ')';
+                            $res[$i]['approverName'] = $metaData['firstName'] . ' ' . $metaData['lastName'];
+                            $res[$i]['approverUID'] = $metaData['email'];
                         }
                         break;
                     case -3: // dependencyID -3 is for a group designated by the requestor
@@ -543,17 +541,16 @@ class FormWorkflow
 
                     $res[$i]['isActionable'] = $isActionable;
 
-                    $dir = $this->getDirectory();
-                    $approver = $dir->lookupLogin($res[$i]['userID']);
-                    if (empty($approver[0]['Fname']) && empty($approver[0]['Lname'])) {
+                    $metaData = json_decode($record['userMetadata'], true);
+                    if ($metaData == null || $metaData['firstName'] == '') {
                         $res[$i]['description'] = $res[$i]['stepTitle'] . ' (Inactive User)';
                         $res[$i]['approverName'] = '(Inactive User)';
                         $res[$i]['approverUID'] = $res[$i]['userID'];
                     }
                     else {
-                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $approver[0]['Fname'] . ' ' . $approver[0]['Lname'] . ')';
-                        $res[$i]['approverName'] = $approver[0]['Fname'] . ' ' . $approver[0]['Lname'];
-                        $res[$i]['approverUID'] = $approver[0]['Email'];
+                        $res[$i]['description'] = $res[$i]['stepTitle'] . ' (' . $metaData['firstName'] . ' ' . $metaData['lastName'] . ')';
+                        $res[$i]['approverName'] = $metaData['firstName'] . ' ' . $metaData['lastName'];
+                        $res[$i]['approverUID'] = $metaData['email'];
                     }
                     break;
 
@@ -818,9 +815,10 @@ class FormWorkflow
      * @param int $dependencyID
      * @param string $actionType
      * @param string (optional) $comment
+     * @param int (optional) $stepID stepID must be kept optional in order to support multi-workflow records.
      * @return string|array {errors(array), comment(string)} Returns a string on client-side error, containing the error message
      */
-    public function handleAction(int $dependencyID, string $actionType, ?string $comment = ''): string|array
+    public function handleAction(int $dependencyID, string $actionType, ?string $comment = '', ?int $stepID = null): string|array
     {
         if (!is_numeric($dependencyID))
         {
@@ -954,20 +952,46 @@ class FormWorkflow
         }
 
         // get every step associated with dependencyID
-        $vars = array(':recordID' => $this->recordID,
-                      ':dependencyID' => $dependencyID, );
-        $strSQL = 'SELECT * FROM step_dependencies
-            RIGHT JOIN records_workflow_state USING (stepID)
-            LEFT JOIN workflow_steps USING (stepID)
-            LEFT JOIN dependencies USING (dependencyID)
-            WHERE recordID = :recordID
-            AND dependencyID = :dependencyID';
-        $res = $this->db->prepared_query($strSQL, $vars);
-
+        // use stepID if provided
+        $res = [];
+        if($stepID == null)
+        {
+            $vars = array(':recordID' => $this->recordID,
+                        ':dependencyID' => $dependencyID, );
+            $strSQL = 'SELECT * FROM step_dependencies
+                RIGHT JOIN records_workflow_state USING (stepID)
+                LEFT JOIN workflow_steps USING (stepID)
+                LEFT JOIN dependencies USING (dependencyID)
+                WHERE recordID = :recordID
+                AND dependencyID = :dependencyID';
+            $res = $this->db->prepared_query($strSQL, $vars);
+        }
+        else
+        {
+            $vars = array(':recordID' => $this->recordID,
+                        ':dependencyID' => $dependencyID,
+                        ':stepID' => $stepID);
+            $strSQL = 'SELECT * FROM step_dependencies
+                RIGHT JOIN records_workflow_state USING (stepID)
+                LEFT JOIN workflow_steps USING (stepID)
+                LEFT JOIN dependencies USING (dependencyID)
+                LEFT JOIN records_dependencies USING (recordID, dependencyID)
+                WHERE records_workflow_state.recordID = :recordID
+                AND step_dependencies.dependencyID = :dependencyID
+                AND stepID = :stepID';
+            $res = $this->db->prepared_query($strSQL, $vars);
+        }
 
         if(count($res) == 0) {
             http_response_code(409);
             return 'This page is out of date. Please refresh for the latest status.';
+        }
+
+        // If stepID was provided, check if the requirement has already been fulfilled
+        if($stepID != null && $res[0]['filled'] == 1) {
+            // If the requirement has already been fulfilled, this prevents duplicate history entries
+            http_response_code(202);
+            return 'Action has already been applied';
         }
 
         $logCache = array();
@@ -1388,14 +1412,18 @@ class FormWorkflow
             $fullTitle = trim(strip_tags(
                 htmlspecialchars_decode($record[0]['title'], ENT_QUOTES | ENT_HTML5)
             ));
+            $fullTitleInsecure = $fullTitle;
             if((int)$record[0]['needToKnow'] === 1) {
                 $fullTitle = $formType;
             }
             $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+            $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
             $email->addSmartyVariables(array(
                 "truncatedTitle" => $truncatedTitle,
+                "truncatedTitle_insecure" => $truncatedTitleInsecure,
                 "fullTitle" => $fullTitle,
+                "fullTitle_insecure" => $fullTitleInsecure,
                 "formType" => $formType,
                 "recordID" => $this->recordID,
                 "service" => $record[0]['service'],
@@ -1499,14 +1527,18 @@ class FormWorkflow
                         $fullTitle = trim(strip_tags(
                             htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
                         ));
+                        $fullTitleInsecure = $fullTitle;
                         if((int)$requestRecords[0]['needToKnow'] === 1) {
                             $fullTitle = $formType;
                         }
                         $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+                        $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
+                            "truncatedTitle_insecure" => $truncatedTitleInsecure,
                             "fullTitle" => $fullTitle,
+                            "fullTitle_insecure" => $fullTitleInsecure,
                             "formType" => $formType,
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],
@@ -1580,14 +1612,18 @@ class FormWorkflow
                         $fullTitle = trim(strip_tags(
                             htmlspecialchars_decode($requestRecords[0]['title'], ENT_QUOTES | ENT_HTML5)
                         ));
+                        $fullTitleInsecure = $fullTitle;
                         if((int)$requestRecords[0]['needToKnow'] === 1) {
                             $fullTitle = $formType;
                         }
                         $truncatedTitle = strlen($fullTitle) > 45 ? substr($fullTitle, 0, 42) . '...' : $fullTitle;
+                        $truncatedTitleInsecure = strlen($fullTitleInsecure) > 45 ? substr($fullTitleInsecure, 0, 42) . '...' : $fullTitleInsecure;
 
                         $email->addSmartyVariables(array(
                             "truncatedTitle" => $truncatedTitle,
+                            "truncatedTitle_insecure" => $truncatedTitleInsecure,
                             "fullTitle" => $fullTitle,
+                            "fullTitle_insecure" => $fullTitleInsecure,
                             "formType" => $formType,
                             "recordID" => $this->recordID,
                             "service" => $requestRecords[0]['service'],

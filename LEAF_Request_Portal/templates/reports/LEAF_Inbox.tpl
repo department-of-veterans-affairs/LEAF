@@ -1,5 +1,6 @@
 <script src="../libs/js/sha1.js"></script>
 <script src="../libs/js/LEAF/intervalQueue.js"></script>
+<script type="text/javascript" src="<!--{$app_js_path}-->/LEAF/sensitiveIndicator.js"></script>
 <script>
     let CSRFToken = '<!--{$CSRFToken}-->';
 
@@ -109,6 +110,15 @@
                     }
                 }
             },
+            'type': function(site) {
+                return {
+                    name: 'Type',
+                    indicatorID: 'type',
+                    editable: false,
+                    callback: function(data, blob) {
+                        document.querySelector(`#${data.cellContainerID}`).innerHTML = blob[data.recordID].categoryNames.join(' | ');
+                }}
+            },
             'status': function(site) {
                 return {
                     name: 'Status',
@@ -128,6 +138,16 @@
                             status = '<span style="font-weight: bold">' + lastStatus + '</span>';
                         } else {
                             status = waitText + listRecord.stepTitle;
+                        }
+
+                        // Show individually assigned name, if present
+                        if(listRecord.assignedIndividual != undefined && listRecord.assignedIndividual == true) {
+                            if(listRecord.unfilledDependencyData[-1] != undefined) {
+                                status += ': ' + listRecord.unfilledDependencyData[-1].approverName;
+                            }
+                            if(listRecord.unfilledDependencyData[-2] != undefined) {
+                                status += ': ' + listRecord.unfilledDependencyData[-2].approverName;
+                            }
                         }
 
                         cellContainer.html(status).attr('tabindex', '0').attr('aria-label', status);
@@ -316,8 +336,15 @@
                 let roleID = Number(depID);
                 let description = uDD.description;
                 if(roleID < 0 && uDD.approverUID != undefined) { // handle "smart requirements"
-                    roleID = Sha1.hash(uDD.approverUID);
-                    description = scrubHTML(uDD.approverName);
+                    // For Admins in the "Organize by Roles" view:
+                    // Organize individually assigned records into a section (e.g. person designated, requestor followup)
+                    if(!nonAdmin && (roleID == -1 || roleID == -2) && combineIndividuals) {
+                        roleID = 'assignedIndividual';
+                        description = '* Assigned to an individual *';
+                    } else {
+                        roleID = Sha1.hash(uDD.approverUID);
+                        description = scrubHTML(uDD.approverName);
+                    }
                 }
 
                 let stepHash = `${description}:;ROLEID${roleID}`;
@@ -341,7 +368,6 @@
             // sort by workflow step
             let siteData = getSiteRoleData(sites, i);
             let depDesc = siteData.depDesc;
-            let categoryIDs = siteData.categoryIDs;
 
             let sortedDepDesc = Object.keys(depDesc).sort();
 
@@ -350,7 +376,7 @@
                 let stepName = hash.substring(0, hash.indexOf(':;ROLEID'));
                 let stepID = hash.substring(hash.indexOf(':;ROLEID') + 8);
                 buildDepInboxByStep(dataInboxes[sites[i].url], stepID, stepName, recordIDs,
-                    sites[i]);
+                    sites[i], siteData.categoryIDs);
             });
         }
 
@@ -359,7 +385,7 @@
 
     // Get site icons and name
     function getIcon(icon, name) {
-        if (icon != '') {
+        if (icon != '' && icon != undefined) {
             if (icon.indexOf('/') != -1) {
                 icon = '<img src="' + icon + '" alt="icon for ' + name +
                     '" style="vertical-align: middle; width: 76px; height:76px;" />';
@@ -367,6 +393,8 @@
                 icon = '<img src="../libs/dynicons/?img=' + icon + '&w=76" alt="icon for ' + name +
                     '" style="vertical-align: middle" />';
             }
+        } else {
+            icon = '';
         }
         return icon;
     }
@@ -409,10 +437,12 @@
         let depID = Sha1.hash(categoryIDs.join(','));
 
         let icon = getIcon(site.icon, site.name);
+        site.backgroundColor = site.backgroundColor == undefined ? 'initial' : site.backgroundColor;
+        site.fontColor = site.fontColor == undefined ? 'initial' : site.fontColor;
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
-				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
+				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black;
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
 				<div style="padding:0.5rem;font-weight:bold;font-size:200%;line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
@@ -438,11 +468,16 @@
     }
 
     function buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, categoryIDs = undefined) {
+        const urlParams = new URLSearchParams(window.location.search);
         let customColumns = false;
         let categoryID = null;
-        if (categoryIDs != undefined) {
-            categoryID = categoryIDs[0];
+        let categoryMap = {};
+
+        // categoryIDs is undefined when the user has selected the "Organize by Roles" view
+        if (categoryIDs != undefined && Array.isArray(categoryIDs)) {
             categoryIDs.forEach(categoryID => {
+                //possibly back compat for older inbox editor settings, so leaving it here
+                //site.columns is not currently an array and custom columns are on formColumns
                 if (site.columns != undefined &&
                     Array.isArray(site.columns) &&
                     site.columns[categoryID] != undefined) {
@@ -466,17 +501,93 @@
             });
         }
 
+        let tGridData = [];
+        let hasServices = false;
+        recordIDs.forEach(recordID => {
+            if (res[recordID].service != null) {
+                hasServices = true;
+            }
+
+            res[recordID].assignedIndividual = false;
+            if(stepID == 'assignedIndividual') {
+                res[recordID].assignedIndividual = true;
+            }
+
+            tGridData.push(res[recordID]);
+            const recCatIDs = Array.isArray(res[recordID].categoryIDs) ? res[recordID].categoryIDs : [];
+            recCatIDs.forEach(catID => {
+                if (categoryMap[catID] === undefined) {
+                    categoryMap[catID] = {
+                        count: 1,
+                        formColumns: site?.formColumns?.[catID] ?? '',
+                    };
+                } else {
+                    categoryMap[catID].count += 1;
+                }
+            });
+        });
+
         let headerColumns = "";
         if (customColumns === false) {
-            const baseColumns = site.columns == null || site.columns == 'UID' ? 'UID,service,title,status' : site.columns;
-            const formColumns = site?.formColumns?.[categoryID] || null;
+            let baseColumns = '';
+            if(site.columns == null || site.columns == 'UID') { //default inbox if there is no site map card
+                // Add the Form Type to the "Organize by Roles" view. Provides feature parity with the old Inbox.
+                if(urlParams.get('organizeByRole') !== null) {
+                    baseColumns = 'UID,type,service,title,status';
+                } else {
+                    baseColumns = 'UID,service,title,status';
+                }
+            } else { //portal base (non form-secific config)
+                baseColumns = site.columns;
+            }
+
+            //compared with form count to only show headers if every row has the form
+            const sectionNumRecords = recordIDs?.length || 0;
+            let formColumns = null;
+            if (categoryIDs?.length === 1) {
+                //only one form, use that form's custom cols if avail, otherwise use base columns
+                const categoryID = categoryIDs[0];
+                formColumns = site?.formColumns?.[categoryID] || baseColumns;
+            } else {
+                //if more than one, or undefined (role view), use the map to set formColumns
+                let nonIndCols = [];
+                let indCols = [];
+                for (let form in categoryMap) {
+                    //remove the 2nd condition to allow custom columns even if there is more than one form
+                    if(categoryMap[form].formColumns !== '' && categoryMap[form].count === sectionNumRecords) {
+                        const cols = categoryMap[form].formColumns.split(',');
+                        cols.forEach(c => {
+                            +c > 0 ? indCols.push(c) : nonIndCols.push(c);
+                        });
+                    }
+                }
+                nonIndCols = Array.from(new Set(nonIndCols));
+                indCols = Array.from(new Set(indCols));
+                if(nonIndCols.length > 0) {
+                    formColumns = nonIndCols.join(',');
+                }
+                if(indCols.length > 0) {
+                    formColumns += ',' + indCols.join(',');
+                }
+            }
+
             if (formColumns !== null) {
-                headerColumns = 'UID,' + formColumns;
+                headerColumns = formColumns;
             } else {
                 headerColumns = baseColumns;
             }
-            headerColumns = headerColumns.split(",")
+
+            const id = !/^UID/i.test(headerColumns) ? 'UID,' : '';
+            headerColumns = id + headerColumns;
+
+            const needsTypeCol = urlParams.get('organizeByRole') !== null && !/,type,/i.test(headerColumns);
+
+            headerColumns = headerColumns.split(",");
+            if (needsTypeCol === true) { //confirm type exists if role view
+                headerColumns.splice(1, 0, 'type');
+            }
         }
+
         let customCols = [];
         headerColumns.forEach(col => {
             if (isNaN(col) && typeof headerDefinitions[col] === 'function') {
@@ -498,7 +609,7 @@
                 $('#' + data.cellContainerID).css('text-align', 'center');
                 $('#' + data.cellContainerID).html('<button type="button" id="btn_action' + hash + '_' + stepID + '_' +
                                                    data.recordID +
-                                                   '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal">' +
+                                                   '" class="buttonNorm" style="text-align: center; font-weight: bold; white-space: normal" disabled>' +
                                                    depDescription + '</button>');
                 $('#btn_action' + hash + '_' + stepID + '_' + data.recordID).on('click', function() {
                     loadWorkflow(data.recordID, formGrid.getPrefixID(), site.url);
@@ -512,7 +623,8 @@
                             });
                         }
                     });
-                })
+                });
+                document.querySelector(`#btn_action${hash}_${stepID}_${data.recordID}`).removeAttribute('disabled');
             }
         }];
         headers = customCols.concat(headers);
@@ -523,14 +635,7 @@
         formGrid.setDataBlob(res);
         formGrid.hideIndex();
         formGrid.setHeaders(headers);
-        let tGridData = [];
-        let hasServices = false;
-        recordIDs.forEach(recordID => {
-            if (res[recordID].service != null) {
-                hasServices = true;
-            }
-            tGridData.push(res[recordID]);
-        });
+
         // remove service column if there's no services
         if (hasServices == false) {
             let tHeaders = formGrid.headers();
@@ -556,20 +661,40 @@
     }
 
     // Build forms and grids for the inbox's requests based on the list of $recordIDs, organized by step
-    function buildDepInboxByStep(res, stepID, stepName, recordIDs, site) {
+    function buildDepInboxByStep(res, stepID, stepName, recordIDs, site, categoryIDs = undefined) {
         let hash = Sha1.hash(site.url);
-		let categoryName = '';
-        let categoryID = '';
-        if(Object.keys(recordIDs).length > 0) {
-            categoryName = `${res[recordIDs[0]].categoryName} - ${res[recordIDs[0]].stepTitle}`;
-            categoryID = res[recordIDs[0]].categoryID;
+
+        // If all records within the step have the same form type (categoryID), then enable custom columns
+        let enabledCategoryIDs = undefined;
+        let firstMatch = null;
+        let allCategoriesMatch = true;
+        if(recordIDs.length > 0) {
+            recordIDs.forEach(recordID => {
+                if(res[recordID]?.categoryIDs?.length > 0 && firstMatch == null) {
+                    firstMatch = res[recordID].categoryIDs[0];
+                }
+                if( res[recordID].categoryIDs !== undefined && firstMatch != res[recordID].categoryIDs[0]) {
+                    allCategoriesMatch = false;
+                    return;
+                }
+            });
+
+            if(allCategoriesMatch) {
+                for(let i in categoryIDs) {
+                    if(categoryIDs[i] !== undefined  && categoryIDs[i][0] == firstMatch) {
+                        enabledCategoryIDs = categoryIDs[i];
+                    }
+                }
+            }
         }
 
         let icon = getIcon(site.icon, site.name);
+        site.backgroundColor = site.backgroundColor == undefined ? 'initial' : site.backgroundColor;
+        site.fontColor = site.fontColor == undefined ? 'initial' : site.fontColor;
         if (document.getElementById('siteContainer' + hash) == null) {
             $('#indexSites').append('<li style="font-size: 130%; line-height: 150%"><a href="#' + hash + '">' + site.name + '</a></li>');
             $('#inbox').append(`<a name="${hash}"></a>
-				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black; 
+				<div id="siteContainer${hash}" style="box-shadow: 0 2px 3px #a7a9aa; border: 1px solid black;
 				background-color: ${site.backgroundColor}; margin: 0px auto 1.5rem">
 				<div style="padding:0.5rem;font-weight: bold; font-size: 200%; line-height: 240%; background-color: ${site.backgroundColor}; color: ${site.fontColor}; ">${icon} ${site.name} </div>
 				<div id="siteFormContainer${hash}" class="siteFormContainers"></div>
@@ -585,7 +710,7 @@
             </button>
 			<div id="depList${hash}_${stepID}" style="width: 90%; margin: auto; display: none"></div></div>`);
         $('#depLabel' + hash + '_' + stepID).on('click', function() {
-            buildInboxGridView(res, stepID, stepName, recordIDs, site, hash);
+            buildInboxGridView(res, stepID, stepName, recordIDs, site, hash, enabledCategoryIDs);
             if ($('#depList' + hash + '_' + stepID).css('display') == 'none') {
                 $('#depList' + hash + '_' + stepID).css('display', 'inline');
                 $('#depLabel' + hash + '_' + stepID).attr('aria-expanded', 'true');
@@ -659,7 +784,7 @@
                 }
             }
         }
-        
+
         if (getData.length > 0) {
             getData.forEach(id => query.getData(id));
             return $.ajax({
@@ -801,6 +926,7 @@
     let dialog_message;
     let nonAdmin = true;
     let organizeByRole = false;
+    let combineIndividuals = false;
     let abortController = new AbortController();
     // Script Start
     $(function() {
@@ -813,12 +939,22 @@
             nonAdmin = false;
             document.querySelector('#btn_adminView').innerText = 'View as non-admin';
         }
-        
+
         if(urlParams.get('organizeByRole') != null) {
             organizeByRole = true;
             document.querySelector('#btn_organize').innerText = 'Organize by Forms';
         }
-        
+
+        if(urlParams.get('combineIndividuals') != null) {
+            combineIndividuals = true;
+            if(organizeByRole && !nonAdmin) {
+                document.querySelector('#btn_combineIndividuals').style.display = 'inline';
+            }
+        } else if(organizeByRole && !nonAdmin) {
+                document.querySelector('#btn_combineIndividuals').style.display = 'inline';
+                document.querySelector('#btn_combineIndividuals').innerText = 'Combine Individuals';
+            }
+
         getMapSites.then((value) => {
             dialog_message = new dialogController('genericDialog', 'genericDialogxhr',
                 'genericDialogloadIndicator', 'genericDialogbutton_save',
@@ -841,14 +977,14 @@
                 if(urlParams.get('organizeByRole') != null) {
                    renderInboxByRole();
             	}
-                else {             
+                else {
                 	renderInbox();
         		}
             });
             queue.setAbortSignal(abortController.signal);
 
             sites.forEach(site => queue.push(site));
-            
+
             // If $sites is empty, load the local inbox
             if(Object.keys(sites).length == 0 || urlParams.get('local') != null) {
                 let localSite = {
@@ -861,8 +997,12 @@
                 };
                 sites.push(localSite);
                 queue.setQueue([localSite]);
+
+                // workaround for jquery animation?
                 document.querySelector('#index').style.visibility = 'hidden';
-                document.querySelector('#inbox').style.width = '70%';
+                document.querySelector('#index').style.width = '0px';
+
+                document.querySelector('#inbox').style.width = '95%';
             }
 
             queue.start();
@@ -874,7 +1014,7 @@
                     $('#inbox_view_selection_status').attr('aria-label', '');
                 });
             });
-            
+
             $('#btn_adminView').on('click', function() {
 				let currLocation = getCurrLocation();
 
@@ -894,6 +1034,17 @@
                 }
                 else {
                     window.location.href = currLocation + '&organizeByRole';
+                }
+            });
+
+            $('#btn_combineIndividuals').on('click', function() {
+				let currLocation = getCurrLocation();
+
+                if(combineIndividuals) {
+                    window.location.href = currLocation.replace('&combineIndividuals', '');
+                }
+                else {
+                    window.location.href = currLocation + '&combineIndividuals';
                 }
             });
 
@@ -929,18 +1080,18 @@
     .inbox {
         display: none;
     }
-    
+
     .depInbox {
         padding: 8px;
         position: sticky;
         top: 0px;
     }
-    
+
     .siteFormContainers {
         padding: 8px;
         background-color: white;
     }
-    
+
     .depContainer {
         border: 1px solid black;
         cursor: pointer;
@@ -977,6 +1128,7 @@
     <span id="inbox_view_selection_status" style="position:absolute;top:-40rem" role="status" aria-live="assertive" aria-label=""></span>
     <button type="button" id="btn_expandAll" class="buttonNorm">Toggle sections</button>
     <button type="button" id="btn_organize" class="buttonNorm">Organize by Roles</button>
+    <button type="button" id="btn_combineIndividuals" class="buttonNorm" style="display: none">Do not combine Individuals</button>
     <button type="button" id="btn_adminView" class="buttonNorm" style="<!--{if !$empMembership['groupID'][1]}-->display: none<!--{/if}-->">View as Admin</button>
 </div>
 <br />

@@ -217,40 +217,6 @@ var serviceID = <!--{$serviceID|strip_tags}-->;
 let CSRFToken = '<!--{$CSRFToken}-->';
 let formPrintConditions = {};
 
-function setPrintViewUserLinkContent(elResBlock) {
-    let htmlContent = (elResBlock?.innerHTML || "").trim();
-    if (htmlContent !== "") {
-        const whitelist = {
-            "dvagov.sharepoint.com": 1,
-            "apps.gov.powerapps.us": 1
-        }
-        //links must have https, they could have tags. only grab the url content here and filter based on whitelist
-        let matchLinks = htmlContent.match(/(?<=https:\/\/).*?(?=\s|$|"|'|&gt;|<)/gi);
-        matchLinks = Array.from(new Set(matchLinks));
-        matchLinks = matchLinks.filter(url => {
-            const baseurl = (url.split("/")[0] || "").toLowerCase();
-            return baseurl.endsWith(".gov") || whitelist[baseurl] === 1;
-        });
-
-        matchLinks.forEach(match => {
-            const linkText = match.length <= 50 ? match : match.slice(0,50) + '...';
-            const oldText = `https://${match}`;
-            const newText =   `<a href="https://${match}" target="_blank">https://${linkText}</a>`;
-            //initial replacement
-            htmlContent = htmlContent.replace(oldText, newText);
-
-            //if user tried to add anchor tags this will replace them. link text was will be replaced by the new link text.
-            const textEscaped = newText.replaceAll(".", "\\.").replaceAll("?", "\\?");
-            const regStr = `(&lt;|<)a\\s+href=['"]${textEscaped}['"](>|&gt;)(.*)?(&lt;|<)/a(>|&gt;)`;
-            const tagReg = new RegExp(regStr, "gi");
-            if(tagReg.test(htmlContent)) {
-                htmlContent = htmlContent.replace(tagReg, newText);
-            }
-        });
-        elResBlock.innerHTML = htmlContent;
-    }
-}
-
 function doSubmit(recordID) {
     $('#submitControl').empty().html('<img alt="" src="./images/indicator.gif" />Submitting...');
     $.ajax({
@@ -557,6 +523,20 @@ function doSubmit(recordID) {
             let comparison = false;
 
             for (let i in conditions) {
+                /* Validate outcome:
+                confirm child, i, has hide/show conditions that need to be processed.
+                Log a message to assist with debugging if it is configured with both directives. */
+                let outcomes = [];
+                if (conditions.some(c => c.selectedOutcome.toLowerCase() === "hide")) outcomes.push("hide");
+                if (conditions.some(c => c.selectedOutcome.toLowerCase() === "show")) outcomes.push("show");
+                if (outcomes.length > 1) {
+                    console.warn("Conflicting display conditions: check setup for", c);
+                }
+                if (outcomes.length < 1) {
+                    continue;
+                }
+                const outcome = outcomes[0];
+
                 const parentFormat = conditions[i].parentFormat.toLowerCase();
                 const elParentInd = document.getElementById('data_' + conditions[i].parentIndID +
                     '_1'); //dropdown, text and radio elements
@@ -566,9 +546,8 @@ function doSubmit(recordID) {
                 selectedParentOptionsLI.forEach(li => arrParVals.push(li.textContent.trim()));
 
                 const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
-                const outcome = conditions[i].selectedOutcome.toLowerCase();
 
-                if (['hide', 'show'].includes(outcome) && childFormatIsEnabled && (elParentInd !== null ||
+                if (childFormatIsEnabled && (elParentInd !== null ||
                         selectedParentOptionsLI !== null)) {
 
                     if (comparison !== true) { //no need to re-assess if it has already become true

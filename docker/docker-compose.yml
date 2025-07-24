@@ -1,20 +1,6 @@
 name: leaf
 services:
-    vue-ui:
-        env_file:
-            - ./env_files/vue_ui_local.env
-        build:
-            context: ./vue-app
-            dockerfile: leaf_vue.dockerfile
-        volumes:
-            - "./vue-app/src:/app/src"
-            - "/app/node_modules"
-            - "../app/libs/js/vue-dest:/app/vue-dest"
-            - "../app/libs/css:/app/css"
-        networks:
-            - leaf-sql
-            - leaf
-
+    # Primary Components
     php-fpm:
         env_file:
             - ./env_files/globals_local.env
@@ -51,46 +37,6 @@ services:
             - REMOTE_USER=${REMOTE_USER}
             - APACHE_RUN_USER=build_user
 
-    nginx:
-        env_file:
-            - ./env_files/nginx_local.env
-        build:
-            context: ../
-            dockerfile: docker/nginx/leaf_nginx.dockerfile
-        volumes:
-            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
-            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
-            - ./nginx/src:/var/www/html
-            - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
-        volumes_from:
-            - php-fpm
-        ports:
-            - 80:${HTTP_PORT}
-            - 443:${HTTPS_PORT}
-        depends_on:
-            - php-fpm
-        networks:
-            - leaf
-
-    smtp4dev:
-        image: rnwood/smtp4dev
-        env_file:
-            - ./env_files/globals_local.env
-            - ./env_files/secrets.env
-        ports:
-            - "5080:80"
-        networks:
-            - leaf
-
-    adminer:
-        image: adminer
-        environment:
-            ADMINER_DEFAULT_SERVER: mysql
-        ports:
-            - "8080:8080"
-        networks:
-            - leaf-sql
-
     mysql:
         image: mysql:8.0
         ports:
@@ -112,6 +58,63 @@ services:
             - ./mysql/db/boilerplate:/leaf-boilerplate
             - ./mysql/dev_db:/leaf-dev_db
 
+    nginx:
+        env_file:
+            - ./env_files/nginx_local.env
+        build:
+            context: ../
+            dockerfile: docker/nginx/leaf_nginx.dockerfile
+        volumes:
+            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
+            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+            - ./nginx/src:/var/www/html
+            - ./nginx/leaf_nginx.conf.template:/etc/nginx/templates/default.conf.template
+        volumes_from:
+            - php-fpm
+        ports:
+            - 80:${HTTP_PORT}
+            - 443:${HTTPS_PORT}
+        depends_on:
+            - php-fpm
+        networks:
+            - leaf
+
+    # Development
+    vue-ui:
+        env_file:
+            - ./env_files/vue_ui_local.env
+        build:
+            context: ./vue-app
+            dockerfile: leaf_vue.dockerfile
+        volumes:
+            - "./vue-app/src:/app/src"
+            - "/app/node_modules"
+            - "../app/libs/js/vue-dest:/app/vue-dest"
+            - "../app/libs/css:/app/css"
+        networks:
+            - leaf-sql
+            - leaf
+
+    smtp4dev:
+        image: rnwood/smtp4dev
+        env_file:
+            - ./env_files/globals_local.env
+            - ./env_files/secrets.env
+        ports:
+            - "5080:80"
+        networks:
+            - leaf
+
+    adminer:
+        image: adminer
+        environment:
+            ADMINER_DEFAULT_SERVER: mysql
+        ports:
+            - "8080:8080"
+        networks:
+            - leaf-sql
+
+    # Automated testing
     api-test-helper:
         image: golang
         volumes:
@@ -147,6 +150,8 @@ services:
         networks:
             - leaf
             - leaf-sql
+        extra_hosts:
+            - host.docker.internal:host-gateway
 
 volumes:
     leaf-php-data:

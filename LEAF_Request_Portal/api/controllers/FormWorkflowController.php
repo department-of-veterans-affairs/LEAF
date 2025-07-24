@@ -74,7 +74,7 @@ class FormWorkflowController extends RESTfulResponse
         $this->index['POST']->register('formWorkflow/[digit]/apply', function ($args) use ($formWorkflow) {
             $formWorkflow->initRecordID($args[0]);
             if(is_numeric($_POST['dependencyID'])) {
-                return $formWorkflow->handleAction($_POST['dependencyID'], XSSHelpers::xscrub($_POST['actionType']), $_POST['comment']);
+                return $formWorkflow->handleAction($_POST['dependencyID'], XSSHelpers::xscrub($_POST['actionType']), $_POST['comment'], $_POST['stepID']);
             } else {
                 http_response_code(400);
                 return 'The configuration for this workflow is incomplete. Please contact the administrator (missing requirement).';
