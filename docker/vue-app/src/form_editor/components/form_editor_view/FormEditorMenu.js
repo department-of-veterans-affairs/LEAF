@@ -110,16 +110,16 @@ export default {
                         <span role="img" aria-hidden="true" alt="">💾&nbsp;</span>Export Form
                     </button>
                 </li>
-                <li>
-                    <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form" aria-label="delete this form">
-                        <span role="img" aria-hidden="true" alt="">❌&nbsp;</span>Delete this form
-                    </button>
-                </li>
             </template>
             <li>
                 <router-link :to="{ name: 'restore' }" class="router-link" >
                     <span role="img" aria-hidden="true" alt="">♻️&nbsp;</span>Restore Fields
                 </router-link>
+            </li>
+            <li v-if="!noForm" style="margin-left: auto;">
+                <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form" aria-label="delete this form">
+                    <span role="img" aria-hidden="true" alt="">❌&nbsp;</span>Delete this form
+                </button>
             </li>
         </ul>
     </nav>

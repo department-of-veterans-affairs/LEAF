@@ -167,6 +167,9 @@ export default {
         showDefaultTextarea() {
             return !['','raw_data','fileupload','image','grid','checkboxes','multiselect'].includes(this.format);
         },
+        showIndSSN_Warn() {
+            return /(SSN|social\s*security|social\s*#)/gmi.test(this.name);
+        },
         shortLabelTriggered() {
             return this.name.trim().split(' ').length > 2 || this.containsRichText(this.name) || hasDevConsoleAccess;
         },
@@ -559,6 +562,11 @@ export default {
                     'link', '|',
                     'foreColor', '|',
                     'justifyLeft', 'justifyCenter', 'justifyRight']
+            }).on('tbwchange', () => {
+                const nameEl = document.getElementById('name');
+                if(nameEl !== null) {
+                    nameEl.dispatchEvent(new Event('input'));
+                }
             });
             $('.trumbowyg-box').css({
                 'min-height': '130px',
@@ -673,6 +681,9 @@ export default {
     template: `<div id="indicator-editing-dialog-content">
         <div>
             <div role="status" aria-live="assertive" :aria-label="ariaTextEditorStatus" style="display:absolute;opacity:0;"></div>
+            <div v-if="showIndSSN_Warn" class="entry_warning bg-yellow-5" style="margin:0.5rem 0 1rem 0;">
+                <span role="img" alt="warning">⚠️</span> Storing Social Security Numbers is not permitted.<br>Please ensure this question does not ask for SSN information.
+            </div>
             <label for="name">{{ nameLabelText }}</label>
             <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
             <button type="button" class="btn-general" id="rawNameEditor"
