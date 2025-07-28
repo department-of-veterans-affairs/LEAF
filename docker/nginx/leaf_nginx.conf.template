@@ -67,9 +67,9 @@ server {
         fastcgi_send_timeout 3000;
 
         # Give this info to php
-        fastcgi_param LEAF_Is_Large_Query "true";
+        fastcgi_param LEAF_Large_Query "true";
         # Give this info to the browser, need to see if this is actually needed or just a nice to have to see
-        add_header LEAF_Is_Large_Query "true" always;
+        add_header LEAF_Large_Query "true" always;
 
         include fastcgi_params;
         gzip on;
@@ -134,9 +134,9 @@ server {
         fastcgi_read_timeout 600;
 
         # Give this info to php
-        fastcgi_param LEAF_Is_Large_Query "false";
+        fastcgi_param LEAF_Large_Query "false";
         # Give this info to the browser, need to see if this is actually needed or just a nice to have to see
-        add_header LEAF_Is_Large_Query "false" always;
+        add_header LEAF_Large_Query "false" always;
 
         include fastcgi_params;
         gzip on;
