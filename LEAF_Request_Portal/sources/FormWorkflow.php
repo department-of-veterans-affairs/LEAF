@@ -1485,6 +1485,9 @@ class FormWorkflow
                         "comment" => $comment,
                         "field" => $fields
                     ));
+                    $email->addSmartyVariables(array(
+                        "field" => $emailAddresses
+                    ), true);
 
                     $dir = $this->getDirectory();
 
