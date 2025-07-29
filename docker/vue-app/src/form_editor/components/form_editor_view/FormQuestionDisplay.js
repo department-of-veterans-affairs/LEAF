@@ -55,9 +55,9 @@ export default {
                 indName = "[ blank ]";
             }
             let indSSN_warn = "";
-            if (/(SSN|social\s*security|social\s*#)/gmi.test(indName)) {
+            if (false && /(SSN|social\s*security\s*number)/gmi.test(indName)) {
                 indSSN_warn = `<div class="entry_warning bg-yellow-5" style="margin-bottom:0.25rem;">
-                    <span role="img" alt="warning">⚠️</span> Storing Social Security Numbers is not permitted.<br>Please ensure this question does not ask for SSN information.
+                    <span role="img" alt="warning">⚠️</span>
                 </div>`
             }
             const name = indSSN_warn + '<span class="name">' + indName + '</span>';
