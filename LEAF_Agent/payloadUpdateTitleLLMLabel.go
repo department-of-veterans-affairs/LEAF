@@ -32,7 +32,7 @@ func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 
 	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
-		task.HandleError(0, "updateTitleLLMShortSummary:", err)
+		task.HandleError(0, "updateTitleLLMLabel:", err)
 		return
 	}
 
@@ -43,7 +43,7 @@ func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 
 	indicators, err := GetIndicatorMap(task.SiteURL)
 	if err != nil {
-		task.HandleError(0, "updateTitleLLMShortSummary:", err)
+		task.HandleError(0, "updateTitleLLMLabel:", err)
 		return
 	}
 
@@ -94,12 +94,13 @@ func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 
 		llmResponse, err := GetLLMResponse(config)
 		if err != nil {
-			task.HandleError(0, "updateTitleLLMShortSummary:", fmt.Errorf("GetLLMResponse: %w", err))
+			task.HandleError(0, "updateTitleLLMLabel:", fmt.Errorf("GetLLMResponse: %w", err))
 			return
 		}
 
 		if len(llmResponse.Choices[0].Message.Content) > 50 {
-			task.HandleError(recordID, "updateTitleLLMShortSummary:", fmt.Errorf("LLM response exceeds 50 character constraint"))
+			task.HandleError(recordID, "updateTitleLLMLabel:", fmt.Errorf("LLM response exceeds 50 character constraint"))
+			return
 		}
 
 		cleanResponse := strings.Trim(llmResponse.Choices[0].Message.Content, " \n.")
@@ -108,7 +109,7 @@ func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 
 		err = UpdateTitle(task.SiteURL, recordID, cleanResponse)
 		if err != nil {
-			task.HandleError(0, "updateTitleLLMShortSummary:", err)
+			task.HandleError(0, "updateTitleLLMLabel:", err)
 		}
 
 	}

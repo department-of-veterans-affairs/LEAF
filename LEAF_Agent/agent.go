@@ -248,5 +248,8 @@ func LogTask(task Task, taskDuration time.Duration) {
 	taskLog, _ := json.Marshal(task.Log)
 	values.Add("9", string(taskLog))
 
-	HttpPost(`https://`+HTTP_HOST+`/platform/agent/api/form/`+strconv.Itoa(task.TaskID), values)
+	_, err := HttpPost(`https://`+HTTP_HOST+`/platform/agent/api/form/`+strconv.Itoa(task.TaskID), values)
+	if err != nil {
+		log.Println("LogTask: Error logging task: ", err)
+	}
 }

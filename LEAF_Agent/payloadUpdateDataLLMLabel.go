@@ -34,7 +34,7 @@ func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
 
 	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
-		task.HandleError(0, "updateDataLLMShortSummary:", err)
+		task.HandleError(0, "updateDataLLMLabel:", err)
 		return
 	}
 
@@ -45,12 +45,12 @@ func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
 
 	indicators, err := GetIndicatorMap(task.SiteURL)
 	if err != nil {
-		task.HandleError(0, "updateDataLLMShortSummary:", err)
+		task.HandleError(0, "updateDataLLMLabel:", err)
 		return
 	}
 
 	if indicators[payload.WriteIndicatorID].Format != "text" && indicators[payload.WriteIndicatorID].Format != "textarea" {
-		task.HandleError(0, "updateDataLLMShortSummary:", fmt.Errorf("Indicator ID %d does not reference a text or textarea field", payload.WriteIndicatorID))
+		task.HandleError(0, "updateDataLLMLabel:", fmt.Errorf("Indicator ID %d does not reference a text or textarea field", payload.WriteIndicatorID))
 		return
 	}
 
@@ -101,12 +101,13 @@ func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
 
 		llmResponse, err := GetLLMResponse(config)
 		if err != nil {
-			task.HandleError(0, "updateDataLLMShortSummary:", fmt.Errorf("GetLLMResponse: %w", err))
+			task.HandleError(0, "updateDataLLMLabel:", fmt.Errorf("GetLLMResponse: %w", err))
 			return
 		}
 
 		if len(llmResponse.Choices[0].Message.Content) > 50 {
-			task.HandleError(recordID, "updateDataLLMShortSummary:", fmt.Errorf("LLM response exceeds 50 character constraint"))
+			task.HandleError(recordID, "updateDataLLMLabel:", fmt.Errorf("LLM response exceeds 50 character constraint"))
+			return
 		}
 
 		cleanResponse := strings.Trim(llmResponse.Choices[0].Message.Content, " \n.")
@@ -117,7 +118,7 @@ func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
 		data[payload.WriteIndicatorID] = cleanResponse
 		err = UpdateRecord(task.SiteURL, recordID, data)
 		if err != nil {
-			task.HandleError(0, "updateDataLLMShortSummary:", err)
+			task.HandleError(0, "updateDataLLMLabel:", err)
 		}
 
 	}
