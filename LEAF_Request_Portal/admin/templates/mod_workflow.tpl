@@ -1042,7 +1042,7 @@
                 buffer += `<div><span id="req_select_status" role="status" aria-live="polite" aria-label="" style="position:absolute"></span>
                     <select id="dependencyID" name="dependencyID" title="Select a requiremement" onchange="updateSelectionStatus(this, 'req_select_status')">`;
 
-                var reservedDependencies = [-3, -2, -1, 1, 8];
+                var reservedDependencies = [-4, -3, -2, -1, 1, 8];
                 var maskedDependencies = [5];
 
                 buffer += '<optgroup label="Custom Requirements" aria-label="Custom Requirements">';
@@ -1697,7 +1697,7 @@
                 dialog.hide();
             });
         });
-    dialog.show();
+        dialog.show();
     }
 
     function setDynamicGroupApprover(stepID) {
@@ -1733,7 +1733,24 @@
                 dialog.hide();
             });
         });
-    dialog.show();
+        dialog.show();
+    }
+
+    function configureAgent(stepID) {
+        $('.workflowStepInfo').css('display', 'none');
+        dialog.setTitle(`Configure Agent for Step ID #${stepID}`);
+        dialog.setContent('<div id="agentConfig">Loading...</div>');
+
+        dialog.setSaveHandler(function() {
+            loadWorkflow(currentWorkflow);
+            dialog.hide();
+        });
+        dialog.show();
+        
+        let form = new LeafForm('agentConfig');
+        form.setRootURL(`https://${window.location.host}/platform/agent/`);
+        form.setRecordID(1);
+        form.getForm(indicatorID, 1);
     }
 
     function signatureRequired(cb, stepID) {
@@ -2063,6 +2080,11 @@
                                     <div>indicatorID: ${res[i].indicatorID_for_assigned_groupID ?? '<b style="color: #c00000;">not set</b>'}</div>
                                     <button type="button" class="buttonNorm" onclick="setDynamicGroupApprover('${res[i].stepID}')">Set Data Field</button>
                                 </li>`;
+                            } else if (depID === -4) { // dependencyID -4 : leaf agent
+                                output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})<br />
+                                        <button type="button" class="buttonNorm" onclick="configureAgent(${res[i].stepID})">Configure Agent</button>
+                                    </li>`;
+
                             } else {
                                 if (tDeps[depID] == undefined) {
                                     tDeps[depID] = 1;
