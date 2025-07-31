@@ -107,7 +107,9 @@ switch ($action) {
                 $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
                 $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
-                $t_form->display('print_subindicators_ajax.tpl');
+                $t_form->assign('printSubindicatorsTemplate', customTemplate('print_subindicators.tpl'));
+                $t_form->assign('printSubindicatorsAjaxTemplate', customTemplate('print_subindicators_ajax.tpl'));
+                $t_form->display(customTemplate('print_subindicators_ajax.tpl'));
             }
         }
 
