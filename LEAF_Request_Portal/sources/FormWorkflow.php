@@ -1865,6 +1865,12 @@ class FormWorkflow
     }
 
     // method for building orgchart group, position, employee template info
+
+    /**
+     * get email body content and email ToCc field content from an orgchart_group field entry
+     * @param int $groupID
+     * @return array
+     */
     private function getGroupInfoForTemplate(int $groupID): array
     {
         $group = new Group($this->db, $this->login);
