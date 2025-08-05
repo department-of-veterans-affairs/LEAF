@@ -36,7 +36,41 @@ services:
         environment:
             - REMOTE_USER=${REMOTE_USER}
             - APACHE_RUN_USER=build_user
-
+    php-fpm-api:
+        env_file:
+            - ./env_files/globals_local.env
+            - ./env_files/secrets.env
+            - ./env_files/globals_leaf20_local.env
+        build:
+            context: ../
+            dockerfile: docker/phpapi/leaf_monlith.dockerfile
+            args:
+                - BUILD_UID=${BUILD_UID}
+                - SMTP_HOST=smtp4dev
+                - MAIL_HUB=smtp4dev
+        volumes:
+            - ./env_files/leaf.key:/etc/ssl/certs/leaf.key
+            - ./env_files/leaf.pem:/etc/ssl/certs/leaf.pem
+            - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/favicon.ico
+            - ../LEAF_Request_Portal/vafavicon.ico:/var/www/html/LEAF_Nexus/vafavicon.ico
+            # - ../launchpad:/var/www/html/launchpad  # Dev should echo prod as exact as possible.  Will be added later
+            - ../LEAF_Nexus:/var/www/html/LEAF_NationalNexus
+            - ../LEAF_Nexus:/var/www/html/LEAF_Nexus
+            - ../LEAF_Nexus:/var/www/html/Test_Nexus
+            - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
+            - ../LEAF_Request_Portal:/var/www/html/Test_Request_Portal
+            - ../scripts:/var/www/scripts
+            - ../health_checks:/var/www/html/health_checks
+            - ../app:/var/www/html/app
+            - ../libs:/var/www/html/libs # temp step.  Will shift to below later
+            - ../docker/mysql/db:/var/www/db
+            - ./php/dev:/var/www/html/dev
+        networks:
+            - leaf-sql
+            - leaf
+        environment:
+            - REMOTE_USER=${REMOTE_USER}
+            - APACHE_RUN_USER=build_user
     mysql:
         image: mysql:8.0
         ports:
@@ -78,6 +112,8 @@ services:
             - php-fpm
         networks:
             - leaf
+    
+            
 
     # Development
     vue-ui:
@@ -120,7 +156,6 @@ services:
         volumes:
             - "../LEAF-Automated-Tests/api-test-helper/:/app"
             - "../LEAF-Automated-Tests/API-tests/:/API-tests"
-            
         ports:
             - "8000:8000"
         env_file:
