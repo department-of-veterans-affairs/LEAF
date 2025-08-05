@@ -111,6 +111,16 @@ if (count($_GET) > 0) {
     }
 }
 
+// Sanitize all $_POST input
+if (count($_POST) > 0) {
+    $keys = array_keys($_POST);
+    foreach ($keys as $key) {
+        if (is_string($_POST[$key])) {
+            $_POST[$key] = htmlentities($_POST[$key], ENT_QUOTES);
+        }
+    }
+}
+
 if (session_id() == '') {
     $session_db = new Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB, true);
 
