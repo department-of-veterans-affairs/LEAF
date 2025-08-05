@@ -34,7 +34,8 @@ function dialogController(containerID, contentID, indicatorID, btnSaveID, btnCan
     $('#' + this.btnCancelID).on('click', function() {
     	t.hide();
     });
-    $('button.ui-dialog-titlebar-close').on('click', function() {
+	$('#'+ t.containerID).parent('div').find('div button.ui-dialog-titlebar-close')
+	.on('click', function() {
         t.hide();
     });
     const preventCloseOnEnter = (e) => {
