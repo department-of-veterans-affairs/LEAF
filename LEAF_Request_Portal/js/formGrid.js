@@ -879,7 +879,9 @@ var LeafFormGrid = function (containerID, options) {
 
   /**
    * Set the working data set
-   * @params object - If setData() is not used, this expects {id: {recordID, ...}}
+   * @params object - If setData() is not used, this expects {id: {recordID, ...}}, but will
+   * generate arbitary sequential recordIDs if they are not provided.
+   * If recordIDs are generated, showIndex will be set to false
    * @memberOf LeafFormGrid
    */
   function setDataBlob(data) {
@@ -894,6 +896,14 @@ var LeafFormGrid = function (containerID, options) {
       else {
         console.error('Invalid setDataBlob format');
         return;
+      }
+
+      let count = 0;
+      for(let i in currentData) {
+        if(currentData[i].recordID == undefined) {
+          showIndex = false;
+          currentData[i].recordID = count++;
+        }
       }
 
       isDataLoaded = true;
