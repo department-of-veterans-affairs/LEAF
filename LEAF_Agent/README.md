@@ -14,6 +14,8 @@ Tasks can contain one or more instructions. The Agent supports the following ins
 8. 🤖 Automatically Label data (Update a data field)
 9. 🤖 Automatically Label data (Update the record's title)
 
+The instructions prefixed by the 🤖 symbol indicate they rely on a Large Language Model.
+
 ## Implementation Details
 
 LEAF Agents have the same level of access as normal users, communicate with the same LEAF Application Programming Interface (API) endpoints, and are subject to the same access management rules.
