@@ -494,6 +494,17 @@ table#tform td {
   font-size: 13px;
 }
 
+.request_icon_edit, .request_icon_history, .form_icon_readonly {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+button:has(.request_icon_edit, .request_icon_history) {
+  padding:0;
+  border:0;
+  background-color: transparent;
+}
+
 .printmainform {
   border: 1px solid black;
 }

@@ -36,18 +36,23 @@
             <!--{else}-->
                 <div id="PHindicator_<!--{$indicator.indicatorID|strip_tags}-->_<!--{$indicator.series|strip_tags}-->" class="printheading">
             <!--{/if}-->
-            <div style="float: right">
+            <div style="float: right;margin:-4px -4px 0 0;">
             <!--{if $date < $indicator.timestamp && $date > 0}-->
-                <img src="dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeydown="if (event.keyCode==13){ getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }"/>&nbsp;
+                <button type="button"
+                    aria-label="View Field History"
+                    title="View Field History"
+                    onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)">
+                    <img class="request_icon_history" src="dynicons/?img=appointment.svg&amp;w=16" alt="">&nbsp;
+                </button>
             <!--{/if}-->
             <!--{if $indicator.isWritable == 0}-->
-                <img src="dynicons/?img=emblem-readonly.svg&amp;w=16" alt="Read-only" title="Read-only" tabindex="0" role="button" />
+                <img class="form_icon_readonly" src="dynicons/?img=emblem-readonly.svg&amp;w=16" alt="Read-only" title="Read-only" tabindex="0" />
             <!--{else}-->
                 <button type="button"
-                    style="width: 16px; height: 16px; padding: 0; border: 0; background-image: url('dynicons/?img=accessories-text-editor.svg&amp;w=16'); cursor: pointer;"
-                    alt="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> field"
-                    title="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> field"
-                    onclick="getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button">
+                    aria-label="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> Section"
+                    title="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> Section"
+                    onclick="getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)">
+                    <img class="request_icon_edit" src="dynicons/?img=accessories-text-editor.svg&amp;w=16" alt="">
                 </button>
             <!--{/if}-->
             </div>
@@ -70,7 +75,12 @@
                 <span class="printsubheading" title="indicatorID: <!--{$indicator.indicatorID|strip_tags}-->"><!--{$indicator.name|sanitizeRichtext|strip_tags|indent:$depth:""}--></span>
             <!--{/if}-->
             <!--{if $date < $indicator.timestamp && $date > 0}-->
-                &nbsp;<img src="dynicons/?img=appointment.svg&amp;w=16" alt="View History" title="View History" style="cursor: pointer" onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)" tabindex="0" role="button" onkeydown="if (event.keyCode==13){ getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->); }"/>
+                &nbsp;<button type="button"
+                    aria-label="View Field History"
+                    title="View Field History"
+                    onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)">
+                    <img class="request_icon_history" src="dynicons/?img=appointment.svg&amp;w=16" alt="">
+                </button>
             <!--{/if}-->
         <!--{/if}-->
             </div>
