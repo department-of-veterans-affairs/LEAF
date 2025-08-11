@@ -303,13 +303,13 @@ export default {
             let text = '';
             switch(type) {
                 case 'show':
-                    text = 'This field will be hidden except:'
+                    text = 'This field is shown IF:'
                     break;
                 case 'hide':
-                    text = 'This field will be shown except:'
+                    text = 'This field is hidden IF:'
                     break;
                 case 'prefill':
-                    text = 'This field will be pre-filled:'
+                    text = 'This field will be pre-filled IF:'
                     break;
                 case 'crosswalk':
                     text = 'This field has loaded dropdown(s)'
@@ -652,8 +652,11 @@ export default {
                 crosswalk: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "crosswalk"),
             };
         },
+        /* true if user has saved both display states, or if they choose a display state that conflicts with current state */
         hasDisplayConflict() {
-            return this.conditionTypes.show.length > 0 && this.conditionTypes.hide.length > 0;
+            return (this.conditionTypes.show.length > 0 && this.conditionTypes.hide.length > 0) || 
+            (this.conditionTypes.show.length > 0 && this.selectedOutcome === 'hide') ||
+            (this.conditionTypes.hide.length > 0 && this.selectedOutcome === 'show')
         }
     },
     watch: {
@@ -711,7 +714,7 @@ export default {
                     <!-- NOTE: LISTS BY CONDITION TYPE -->
                     <div v-if="savedConditions.length > 0" id="savedConditionsLists">
                         <div v-if="hasDisplayConflict" class="entry_warning bg-yellow-5" style="margin-bottom:1.5rem;">
-                            <span role="img" alt="warning">⚠️</span> Having both 'hide except' and 'show except' conditions can cause fields to display incorrectly.
+                            <span role="img" alt="warning">⚠️</span> Having both 'hidden' and 'shown' can cause fields to display incorrectly.
                         </div>
                         <div v-if="childHasSubquestions" class="entry_info bg-blue-5v" style="margin-bottom:1.5rem;">
                             <span role="img" aria-hidden="true" alt="">ℹ️</span>Subquestions will also be hidden when this question is hidden.
@@ -725,9 +728,8 @@ export default {
                                             :class="{selectedConditionEdit: JSON.stringify(c) === selectedConditionJSON, isOrphan: isOrphan(c)}">
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
-                                                    If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                                    {{getOperatorText(c)}} <strong>{{ decodeAndStripHTML(c.selectedParentValue) }}</strong> 
-                                                    then {{c.selectedOutcome}} this question.
+                                                    '{{getIndicatorName(parseInt(c.parentIndID))}}' 
+                                                    {{getOperatorText(c)}} <strong>{{ decodeAndStripHTML(c.selectedParentValue) }}</strong>.
                                                 </div>
                                                 <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
                                                 <div v-if="childFormatChangedSinceSave(c)" class="changesDetected">
@@ -747,11 +749,12 @@ export default {
                     <button type="button" @click="newCondition" class="btn-confirm new" aria-label="New Condition">+ New Condition</button>
                     <!-- NOTE: OUTCOME SELECTION and PREFILL AREAS -->
                     <div v-if="showConditionEditor" id="outcome-editor">
+                        <!-- SELECT TYPE OF LOGIC -->
                         <label class="ifthen_label" for="outcome_select">Select an outcome</label>
                         <select title="select outcome" id="outcome_select" @change="updateSelectedOutcome($event.target.value)">
                             <option v-if="conditions.selectedOutcome === ''" value="" selected>Select an outcome</option>
-                            <option value="show" :selected="conditions.selectedOutcome === 'show'">Hide this question except ...</option>
-                            <option value="hide" :selected="conditions.selectedOutcome === 'hide'">Show this question except ...</option>
+                            <option value="show" :selected="conditions.selectedOutcome === 'show'">Show this question ...</option>
+                            <option value="hide" :selected="conditions.selectedOutcome === 'hide'">Hide this question ...</option>
                             <option v-if="canPrefillChild[childFormat] === 1" 
                                 value="pre-fill" :selected="conditions.selectedOutcome === 'pre-fill'">Pre-fill this Question
                             </option>
@@ -759,6 +762,7 @@ export default {
                                 value="crosswalk" :selected="conditions.selectedOutcome === 'crosswalk'">Load Dropdown or Crosswalk
                             </option>
                         </select>
+                        <!-- PREFILL -->
                         <template v-if="!noOptions && conditions.selectedOutcome === 'pre-fill'">
                             <label class="ifthen_label" id="prefill_value_entry">Enter a pre-fill value</label>
                             <select v-if="childFormat==='dropdown' || childFormat==='radio'"
@@ -792,6 +796,7 @@ export default {
                         </template>
                     </div>
                     <div v-if="showSetup" id="if-then-setup">
+                        <!-- CONDITIONAL DISPLAY (HIDE or SHOW) -->
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
                             <div tabindex="0" style="margin: 0;font-size:1.25rem"><b>IF</b></div>
                             <!-- NOTE: PARENT CONTROLLER SELECTION -->
@@ -859,11 +864,13 @@ export default {
                             </label>
                         </div>
                     </div>
-                    <div v-if="conditionComplete">
-                        <div v-if="conditions.selectedOutcome !== 'crosswalk'" tabindex="0">
+                    <template v-if="conditionComplete">
+                        <div id="condition_preview" v-if="conditions.selectedOutcome !== 'crosswalk'" style="padding:0.5rem;border:2px solid #005EA2;border-radius:3px;">
+                            <b>IF</b> '{{getIndicatorName(parentIndID)}}' {{ selectedOperator }}
+
                             <span style="margin:0;display:inline-block;font-size=1.25rem"><b>THEN</b></span> '{{getIndicatorName(childIndID)}}'
                             <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
-                            <span style="color: #008010; font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
+                                <span style="color: #008010; font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
                             </span>
                             <span v-else>will 
                                 <span style="color: #008010; font-weight: bold;">
@@ -871,10 +878,10 @@ export default {
                                 </span>
                             </span>
                         </div>
-                        <div v-else tabindex="0">
+                        <div v-else id="condition_preview">
                             <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
                         </div>
-                    </div>
+                    </template>
                     <div v-if="noOptions">No options are currently available for this selection</div>
                 </template>
             </div>
