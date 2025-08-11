@@ -276,4 +276,4 @@
             })
         </script>
         <!--{/if}-->
-        <!--{include file="print_subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->
+        <!--{include file=$printSubindicatorsTemplate form=$indicator.child depth=$depth+4 recordID=$recordID}-->
