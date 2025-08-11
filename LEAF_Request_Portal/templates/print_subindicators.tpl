@@ -42,17 +42,17 @@
                     aria-label="View Field History"
                     title="View Field History"
                     onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)">
-                    <img class="request_icon_history" src="dynicons/?img=appointment.svg&amp;w=16" alt="">&nbsp;
+                    <img class="request_icon_history" src="dynicons/?img=appointment.svg&amp;w=24" alt="">&nbsp;
                 </button>
             <!--{/if}-->
             <!--{if $indicator.isWritable == 0}-->
-                <img class="form_icon_readonly" src="dynicons/?img=emblem-readonly.svg&amp;w=16" alt="Read-only" title="Read-only" tabindex="0" />
+                <img class="request_icon_readonly" src="dynicons/?img=emblem-readonly.svg&amp;w=24" alt="Read-only" title="Read-only" tabindex="0" />
             <!--{else}-->
                 <button type="button"
                     aria-label="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> Section"
                     title="Edit <!--{$indicator.name|sanitizeRichtext|strip_tags}--> Section"
                     onclick="getForm(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)">
-                    <img class="request_icon_edit" src="dynicons/?img=accessories-text-editor.svg&amp;w=16" alt="">
+                    <img class="request_icon_edit" src="dynicons/?img=accessories-text-editor.svg&amp;w=24" alt="">
                 </button>
             <!--{/if}-->
             </div>
@@ -79,7 +79,7 @@
                     aria-label="View Field History"
                     title="View Field History"
                     onclick="getIndicatorLog(<!--{$indicator.indicatorID|strip_tags}-->, <!--{$indicator.series|strip_tags}-->)">
-                    <img class="request_icon_history" src="dynicons/?img=appointment.svg&amp;w=16" alt="">
+                    <img class="request_icon_history" src="dynicons/?img=appointment.svg&amp;w=24" alt="">
                 </button>
             <!--{/if}-->
         <!--{/if}-->

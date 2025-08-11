@@ -7,7 +7,7 @@
             aria-label="Edit Title"
             title="Edit Title"
             onclick="changeTitle()">
-            <img class="request_icon_edit" src="dynicons/?img=accessories-text-editor.svg&amp;w=16" alt="">
+            <img class="request_icon_edit" src="dynicons/?img=accessories-text-editor.svg&amp;w=24" alt="">
         </button>
     <!--{/if}-->
 
@@ -24,7 +24,7 @@
                             aria-label="Edit Service"
                             title="Edit Service"
                             onclick="changeService()">
-                            <img class="request_icon_edit" src="dynicons/?img=accessories-text-editor.svg&amp;w=16" alt="">
+                            <img class="request_icon_edit" src="dynicons/?img=accessories-text-editor.svg&amp;w=24" alt="">
                         </button>
                     <!--{/if}-->
                 </td>

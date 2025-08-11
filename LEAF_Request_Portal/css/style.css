@@ -494,7 +494,7 @@ table#tform td {
   font-size: 13px;
 }
 
-.request_icon_edit, .request_icon_history, .form_icon_readonly {
+.request_icon_edit, .request_icon_history, .request_icon_readonly {
   cursor: pointer;
   width: 24px;
   height: 24px;
