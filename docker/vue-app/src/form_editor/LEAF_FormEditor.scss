@@ -838,6 +838,14 @@ table[class$="SelectorTable"] th {
             width: 100%;
             max-width: 700px;
         }
+        &#condition_preview {
+            display: block;
+            letter-spacing: 0.25px;
+            line-height: 1.4;
+            margin: 1rem 0 1.5rem 0;
+            padding:0.75rem;
+            border-radius:3px;
+        }
     }
     #if-then-setup {
         display: flex;
@@ -863,6 +871,7 @@ table[class$="SelectorTable"] th {
             max-width: 300px;
         }
     }
+
     select, input:not(.choices__input) {
         font-size: 1rem;
         padding: 2px;

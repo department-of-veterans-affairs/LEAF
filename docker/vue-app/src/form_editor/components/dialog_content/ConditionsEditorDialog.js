@@ -303,10 +303,10 @@ export default {
             let text = '';
             switch(type) {
                 case 'show':
-                    text = 'This field is shown IF:'
+                    text = 'This field will be shown IF:'
                     break;
                 case 'hide':
-                    text = 'This field is hidden IF:'
+                    text = 'This field will be hidden IF:'
                     break;
                 case 'prefill':
                     text = 'This field will be pre-filled IF:'
@@ -523,6 +523,32 @@ export default {
             }
             return operators;
         },
+        selectedOperatorText() {
+            let text = '';
+            switch(this.selectedOperator) {
+                case '==':
+                    text = this.multiOptionFormats.includes(this.parentFormat) ? 'includes' : 'is';
+                    break;
+                case '!=':
+                    text = this.multiOptionFormats.includes(this.parentFormat) ? 'does not include' : 'is not';
+                    break;
+                case 'gt':
+                    text = 'is greater than';
+                    break;
+                case 'gte':
+                    text = 'is greater or equal to';
+                    break;
+                case 'lt':
+                    text = 'is less than';
+                    break;
+                case 'lte':
+                    text = 'is less or equal to';
+                    break;
+                default:
+                break;
+            }
+            return text;
+        },
         crosswalkLevelTwo() {
             const formPage = this.childIndicator.formPage;
             return this.indicators.filter(i =>
@@ -573,7 +599,7 @@ export default {
             return this.selectedConditionJSON + this.selectedOutcome;
         },
         parentChoicesKey() {//key for choicesJS box for parent value selection.  update on list selection, parID change, op change
-        return this.selectedConditionJSON + String(this.parentIndID) + this.selectedOperator;
+            return this.selectedConditionJSON + String(this.parentIndID) + this.selectedOperator;
         },
         /**
          * @returns {Object} current conditions object, properties to lower and tags removed as needed
@@ -865,20 +891,25 @@ export default {
                         </div>
                     </div>
                     <template v-if="conditionComplete">
-                        <div id="condition_preview" v-if="conditions.selectedOutcome !== 'crosswalk'" style="padding:0.5rem;border:2px solid #005EA2;border-radius:3px;">
-                            <b>IF</b> '{{getIndicatorName(parentIndID)}}' {{ selectedOperator }}
-
-                            <span style="margin:0;display:inline-block;font-size=1.25rem"><b>THEN</b></span> '{{getIndicatorName(childIndID)}}'
+                        <div v-if="conditions.selectedOutcome !== 'crosswalk'" id="condition_preview" class="entry_info bg-blue-5v">
+                            <b>Review Setup</b>
+                            <hr>
+                            <b>IF</b>
+                            '{{getIndicatorName(parentIndID)}}'
+                            {{ selectedOperatorText }}
+                            {{ selectedParentValue }}
+                            <br><b>THEN</b>
+                            '{{getIndicatorName(childIndID)}}'
                             <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
                                 <span style="color: #008010; font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
                             </span>
                             <span v-else>will 
                                 <span style="color: #008010; font-weight: bold;">
-                                be {{conditions.selectedOutcome === "show" ? 'shown' : 'hidden'}}
+                                    be {{conditions.selectedOutcome === "show" ? 'shown' : 'hidden'}}
                                 </span>
                             </span>
                         </div>
-                        <div v-else id="condition_preview">
+                        <div v-else id="condition_preview" class="entry_info bg-blue-5v">
                             <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
                         </div>
                     </template>
