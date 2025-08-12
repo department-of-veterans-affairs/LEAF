@@ -261,6 +261,15 @@ export default {
             indicatorName = this.decodeAndStripHTML(indicatorName);
             return this.truncateText(indicatorName);
         },
+        getConditionCompareValues(selectedParentValues = "") {
+            let decodedValues = this.decodeAndStripHTML(selectedParentValues);
+
+            let comparisons = decodedValues.split('\n');
+            if (comparisons.length > 1) {
+                decodedValues = '<br>' +  decodedValues.replaceAll('\n', '<br>');
+            }
+            return decodedValues;
+        },
         /**
          * @param {Object} condition 
          * @returns {string}
@@ -586,10 +595,13 @@ export default {
          * @returns list of options for prefill outcomes.  Does not combine with file loaded options.
          */
         selectedChildValueOptions() {
-            return this.childIndicator?.options || []
+            return this.childIndicator?.options || [];
         },
         canAddCrosswalk() {
-            return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect')
+            return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect');
+        },
+        parentTriggersDisplay() {
+            return this.decodeAndStripHTML(this.selectedParentValue ?? '').split('\n').join(', ');
         },
         childPrefillDisplay() {
             let returnVal = '';
@@ -774,7 +786,8 @@ export default {
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
                                                     '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                                    {{getOperatorText(c)}} <strong>{{ decodeAndStripHTML(c.selectedParentValue) }}</strong>.
+                                                    {{getOperatorText(c)}}
+                                                    <strong v-html="getConditionCompareValues(c.selectedParentValue)"></strong>
                                                 </div>
                                                 <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
                                                 <div v-if="childFormatChangedSinceSave(c)" class="changesDetected">
@@ -865,16 +878,6 @@ export default {
                             <input v-if="numericOperators.includes(selectedOperator)" id="numeric_comparison" title="enter a numeric value" aria-label="enter a numeric value"
                                 type="number" :value="conditions.selectedParentValue" class="comparison" @change="updateSelectedOptionValue($event.target, 'parent')"
                                 placeholder="enter a number" />
-                            <!--
-                            <select v-else-if="parentFormat === 'dropdown' || parentFormat==='radio'"
-                                id="parent_compValue_entry_single" title="select a value" aria-label="select a value"
-                                @change="updateSelectedOptionValue($event.target, 'parent')">
-                                <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>
-                                <option v-for="val in selectedParentValueOptions"
-                                    :key="'parent_val_' + val" :value="val"
-                                    :selected="decodeAndStripHTML(conditions.selectedParentValue) === val"> {{ val }}
-                                </option>
-                            </select> -->
                             <div v-else-if="choicesJS_parentValueFormats.includes(parentFormat)"
                                 id="parent_choices_wrapper" class="comparison" :key="'comp_' + parentChoicesKey">
                                 <select id="parent_compValue_entry_multi" aria-hidden="true"
@@ -910,6 +913,7 @@ export default {
                             </label>
                         </div>
                     </div>
+                    <!-- SUMMARY / REVIEW CARD -->
                     <template v-if="conditionComplete">
                         <div v-if="conditions.selectedOutcome !== 'crosswalk'" id="condition_preview" class="entry_info bg-blue-5v">
                             <b>Review Setup</b>
@@ -917,7 +921,7 @@ export default {
                             <b>IF</b>
                             '{{getIndicatorName(parentIndID)}}'
                             {{ selectedOperatorText }}
-                            {{ selectedParentValue }}
+                            {{ parentTriggersDisplay }}
                             <br><b>THEN</b>
                             '{{getIndicatorName(childIndID)}}'
                             <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
