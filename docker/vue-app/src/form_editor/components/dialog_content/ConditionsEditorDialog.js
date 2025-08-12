@@ -22,7 +22,12 @@ export default {
                 "number": 1,
                 "currency": 1,
             },
-            multiOptionFormats: ['multiselect', 'checkboxes'],
+            multiOptionFormats: [ //formats where users can select more than one value during data entry
+                'multiselect', 'checkboxes'
+            ],
+            choicesJS_parentValueFormats: [ //formats where choicesJS is used to add more than one comparison to facilitate setup
+                'multiselect', 'checkboxes', 'dropdown', 'radio'
+            ],
             orgchartSelectData: {},
             crosswalkFile: '',
             crosswalkHasHeader: false,
@@ -267,10 +272,10 @@ export default {
             const op = condition.selectedOp;
             switch(op) {
                 case '==':
-                    text = this.multiOptionFormats.includes(parFormat) ? 'includes' : 'is';
+                    text = this.choicesJS_parentValueFormats.includes(parFormat) ? 'includes' : 'is';
                     break;
                 case '!=':
-                    text = this.multiOptionFormats.includes(parFormat) ? 'does not include' : 'is not';
+                    text = this.choicesJS_parentValueFormats.includes(parFormat) ? 'does not include' : 'is not';
                     break;
                 case 'gt':
                 case 'gte':
@@ -342,7 +347,7 @@ export default {
                 const elSelectChild = document.getElementById('child_prefill_entry_multi');
                 const outcome = this.conditions.selectedOutcome;
 
-                if(this.multiOptionFormats.includes(this.parentFormat) &&
+                if(this.choicesJS_parentValueFormats.includes(this.parentFormat) &&
                     elSelectParent !== null &&
                     !(elSelectParent?.choicesjs?.initialised === true)
                 ) {
@@ -364,10 +369,17 @@ export default {
                     });
                     elSelectParent.choicesjs = choices;
 
-                    let elChoicesInput = document.querySelector('.child_prefill_entry_multi input.choices__input');
+                    let elChoicesInput = document.querySelector('#parent_compValue_entry_multi ~ input.choices__input');
                     if(elChoicesInput !== null) {
-                        elChoicesInput.setAttribute('aria-label', 'child prefill value choices');
+                        elChoicesInput.setAttribute('aria-label', 'parent value choices');
                         elChoicesInput.setAttribute('role', 'searchbox');
+                        //remove an incorrect aria attribute from a div wrapping the delete buttons (which already have labels)
+                        let currentSelections = Array.from(
+                            document.querySelectorAll(
+                                '#parent_compValue_entry_multi ~ .choices__list--multiple .choices__item'
+                            )
+                        );
+                        currentSelections.forEach(s => s.removeAttribute("aria-selected"));
                     }
                 }
 
@@ -392,10 +404,17 @@ export default {
                     });
                     elSelectChild.choicesjs = choices;
 
-                    let elChoicesInput = document.querySelector('.parent_compValue_entry_multi input.choices__input');
+                    let elChoicesInput = document.querySelector('#child_prefill_entry_multi ~ input.choices__input');
                     if(elChoicesInput !== null) {
-                        elChoicesInput.setAttribute('aria-label', 'parent value choices');
+                        elChoicesInput.setAttribute('aria-label', 'child prefill value choices');
                         elChoicesInput.setAttribute('role', 'searchbox');
+                        //remove an incorrect aria attribute from a div wrapping the delete buttons (which already have labels)
+                        let currentSelections = Array.from(
+                            document.querySelectorAll(
+                                '#child_prefill_entry_multi ~ .choices__list--multiple .choices__item'
+                            )
+                        );
+                        currentSelections.forEach(s => s.removeAttribute("aria-selected"));
                     }
                 }
             });
@@ -491,7 +510,7 @@ export default {
               case 'checkboxes':
               case 'dropdown':
               case 'radio':
-                operators = this.multiOptionFormats.includes(this.parentFormat) ?
+                operators = this.choicesJS_parentValueFormats.includes(this.parentFormat) ?
                   [
                     {val:"==", text: "includes"},
                     {val:"!=", text: "does not include"}
@@ -527,10 +546,10 @@ export default {
             let text = '';
             switch(this.selectedOperator) {
                 case '==':
-                    text = this.multiOptionFormats.includes(this.parentFormat) ? 'includes' : 'is';
+                    text = this.choicesJS_parentValueFormats.includes(this.parentFormat) ? 'includes' : 'is';
                     break;
                 case '!=':
-                    text = this.multiOptionFormats.includes(this.parentFormat) ? 'does not include' : 'is not';
+                    text = this.choicesJS_parentValueFormats.includes(this.parentFormat) ? 'does not include' : 'is not';
                     break;
                 case 'gt':
                     text = 'is greater than';
@@ -705,7 +724,7 @@ export default {
             }
          },
         parentChoicesKey(newVal, oldVal) {
-            if(this.multiOptionFormats.includes(this.parentFormat)) {
+            if(this.choicesJS_parentValueFormats.includes(this.parentFormat)) {
                 this.updateChoicesJS()
             }
         },
@@ -807,7 +826,7 @@ export default {
                                 <select v-if="childFormat === 'multiselect' || childFormat === 'checkboxes'"
                                     placeholder="select some options"
                                     multiple="true"
-                                    id="child_prefill_entry_multi" aria-labelledby="prefill_value_entry"
+                                    id="child_prefill_entry_multi" aria-hidden="true"
                                     style="display: none;"
                                     @change="updateSelectedOptionValue($event.target, 'child')">
                                 </select>
@@ -846,6 +865,7 @@ export default {
                             <input v-if="numericOperators.includes(selectedOperator)" id="numeric_comparison" title="enter a numeric value" aria-label="enter a numeric value"
                                 type="number" :value="conditions.selectedParentValue" class="comparison" @change="updateSelectedOptionValue($event.target, 'parent')"
                                 placeholder="enter a number" />
+                            <!--
                             <select v-else-if="parentFormat === 'dropdown' || parentFormat==='radio'"
                                 id="parent_compValue_entry_single" title="select a value" aria-label="select a value"
                                 @change="updateSelectedOptionValue($event.target, 'parent')">
@@ -854,10 +874,10 @@ export default {
                                     :key="'parent_val_' + val" :value="val"
                                     :selected="decodeAndStripHTML(conditions.selectedParentValue) === val"> {{ val }}
                                 </option>
-                            </select>
-                            <div v-else-if="parentFormat==='multiselect' || parentFormat==='checkboxes'"
+                            </select> -->
+                            <div v-else-if="choicesJS_parentValueFormats.includes(parentFormat)"
                                 id="parent_choices_wrapper" class="comparison" :key="'comp_' + parentChoicesKey">
-                                <select id="parent_compValue_entry_multi" title="select values" aria-label="select values"
+                                <select id="parent_compValue_entry_multi" aria-hidden="true"
                                     placeholder="select some options" multiple="true"
                                     style="display: none;"
                                     @change="updateSelectedOptionValue($event.target, 'parent')">
