@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -56,7 +57,7 @@ func FormQuery(siteURL string, q query.Query, params string) (query.Response, er
 	var response query.Response
 	err = json.Unmarshal(b, &response)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Unmarshal: %w (%v)", err, string(b))
 	}
 
 	return response, nil
