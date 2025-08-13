@@ -107,9 +107,9 @@ var LeafAgentConfig = function (containerID, siteURL) {
                 });
                 let readText = readIDs.join(', ');
 
-                return `<p>${payload.context}</p>
-                    <p>Writing to field: <code>(${indicator[payload.writeIndicatorID]} #${payload.writeIndicatorID})</code></p>
-                    <p>Reading from: <code>${readText}</code></p>`;
+                return `${payload.context}
+                    <br />Writing to field: <code>(${indicator[payload.writeIndicatorID]} #${payload.writeIndicatorID})</code>
+                    <br />Reading from: <code>${readText}</code>`;
             }
         },
         'updateDataConditional': {
@@ -151,12 +151,10 @@ var LeafAgentConfig = function (containerID, siteURL) {
 
                 let context = '';
                 if(payload.context != '') {
-                    context = `<p>
-                        <details>
+                    context = `<br /><details>
                             <summary>Additional Context</summary>
                             ${payload.context}
-                        </details>
-                        </p>`;
+                        </details>`;
                 }
                 return `Select an option in <code>(${indicator[payload.writeIndicatorID]} #${payload.writeIndicatorID})</code> based on data in <code>${readText}</code>${context}`;
             }
@@ -227,21 +225,48 @@ var LeafAgentConfig = function (containerID, siteURL) {
     function render() {
         console.log(config);
 
-        let output = '';
+        let output = '<ol class="agentConfig">';
         config.forEach(instruction => {
             if(inst[instruction.type] != undefined) {
-                output += `<tr><td>${inst[instruction.type].label}</td><td>${inst[instruction.type].explain(instruction.payload)}</td></tr>`;
+                output += `<li>${inst[instruction.type].explain(instruction.payload)}</li>`;
             } else {
-                output += `<tr><td>${instruction.type}</td><td>${JSON.stringify(instruction.payload)}</td></tr>`;
+                output += `<li>${instruction.type} - ${JSON.stringify(instruction.payload)}</li>`;
             }
         });
+        output += '</ol>';
 
-        document.querySelector('#'+containerID).innerHTML = `<table>
-            <thead><tr>
-                <th>Instruction</th>
-                <th>Details</th>
-            </tr></thead>
-            ${output}</table>`;
+        let styles = `<style>
+            ol.agentConfig {
+                list-style: none;
+                counter-reset: agentConfigCounter;
+                font-size: 1rem;
+            }
+            ol.agentConfig > li {
+                counter-increment: agentConfigCounter;
+                padding-left: 1.5rem;
+                margin-bottom: 1rem;
+                text-indent: -3rem;
+            }
+            ol.agentConfig > li::before {
+                content: counter(agentConfigCounter);
+                background-color: black;
+                color: white;
+                display: inline-block;
+                width: 2rem;
+                height: 2rem;
+                line-height: 2rem;
+                margin-right: 1rem;
+                text-indent: 0rem;
+                text-align: center;
+            }
+            ol.agentConfig > li > details {
+                text-indent: 1rem;
+            }
+            ol.agentConfig > li > ul {
+                text-indent: 0rem;
+            }
+        </style>`;
+        document.querySelector('#'+containerID).innerHTML = styles + output;
     }
 
     return {
