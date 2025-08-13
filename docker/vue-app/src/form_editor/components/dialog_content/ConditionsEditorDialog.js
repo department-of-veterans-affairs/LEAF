@@ -817,7 +817,7 @@ export default {
                                 value="pre-fill" :selected="conditions.selectedOutcome === 'pre-fill'">Pre-fill this Question
                             </option>
                             <option v-if="canAddCrosswalk"
-                                value="crosswalk" :selected="conditions.selectedOutcome === 'crosswalk'">Load Dropdown or Crosswalk
+                                value="crosswalk" :selected="conditions.selectedOutcome === 'crosswalk'">Load Dropdown Options
                             </option>
                         </select>
                         <!-- PREFILL -->
@@ -856,7 +856,7 @@ export default {
                     <div v-if="showSetup" id="if-then-setup">
                         <!-- CONDITIONAL DISPLAY (HIDE or SHOW) -->
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                            <div tabindex="0" style="margin: 0;font-size:1.25rem"><b>IF</b></div>
+                            <div style="font-size:1.25rem;"><b>IF</b></div>
                             <!-- NOTE: PARENT CONTROLLER SELECTION -->
                             <select title="select controller question" aria-label="select controller question" id="controller_select" @change="updateSelectedParentIndicator(parseInt($event.target.value))">
                                 <option v-if="!conditions.parentIndID" :value="0" selected>Select an Indicator</option>
@@ -876,10 +876,10 @@ export default {
                             </select>
                             <!-- NOTE: COMPARED VALUE SELECTIONS -->
                             <input v-if="numericOperators.includes(selectedOperator)" id="numeric_comparison" title="enter a numeric value" aria-label="enter a numeric value"
-                                type="number" :value="conditions.selectedParentValue" class="comparison" @change="updateSelectedOptionValue($event.target, 'parent')"
+                                type="number" :value="conditions.selectedParentValue" @change="updateSelectedOptionValue($event.target, 'parent')"
                                 placeholder="enter a number" />
                             <div v-else-if="choicesJS_parentValueFormats.includes(parentFormat)"
-                                id="parent_choices_wrapper" class="comparison" :key="'comp_' + parentChoicesKey">
+                                id="parent_choices_wrapper" :key="'comp_' + parentChoicesKey">
                                 <select id="parent_compValue_entry_multi" aria-hidden="true"
                                     placeholder="select some options" multiple="true"
                                     style="display: none;"
@@ -901,7 +901,7 @@ export default {
                                     <option :value="true">Yes</option>
                                 </select>
                             </label>
-                            <label for="select-level-two">Controlled Dropdown&nbsp;
+                            <label for="select-level-two">Linked Dropdown&nbsp;
                                 <select v-model.number="level2IndID" id="select-level-two" style="width: 200px;">
                                     <option :value="null">none (single dropdown)</option>
                                     <option v-for="indicator in crosswalkLevelTwo"
@@ -913,10 +913,10 @@ export default {
                             </label>
                         </div>
                     </div>
-                    <!-- SUMMARY / REVIEW CARD -->
-                    <template v-if="conditionComplete">
-                        <div v-if="conditions.selectedOutcome !== 'crosswalk'" id="condition_preview" class="entry_info bg-blue-5v">
-                            <b>Review Setup</b>
+                    <!-- SUMMARY / REVIEW -->
+                    <div v-if="conditionComplete" id="condition_preview">
+                        <template v-if="conditions.selectedOutcome !== 'crosswalk'">
+                            <b>Review Condition Setup</b>
                             <hr>
                             <b>IF</b>
                             '{{getIndicatorName(parentIndID)}}'
@@ -925,18 +925,18 @@ export default {
                             <br><b>THEN</b>
                             '{{getIndicatorName(childIndID)}}'
                             <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
-                                <span style="color: #008010; font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
+                                <span style="font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
                             </span>
                             <span v-else>will 
-                                <span style="color: #008010; font-weight: bold;">
+                                <span style="font-weight: bold;">
                                     be {{conditions.selectedOutcome === "show" ? 'shown' : 'hidden'}}
                                 </span>
                             </span>
-                        </div>
-                        <div v-else id="condition_preview" class="entry_info bg-blue-5v">
+                        </template>
+                        <template v-else>
                             <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
-                        </div>
-                    </template>
+                        </template>
+                    </div>
                     <div v-if="noOptions">No options are currently available for this selection</div>
                 </template>
             </div>

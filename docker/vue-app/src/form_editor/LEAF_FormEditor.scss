@@ -843,8 +843,6 @@ table[class$="SelectorTable"] th {
             letter-spacing: 0.25px;
             line-height: 1.4;
             margin: 1rem 0 1.5rem 0;
-            padding:0.75rem;
-            border-radius:3px;
         }
     }
     #if-then-setup {
@@ -860,6 +858,10 @@ table[class$="SelectorTable"] th {
         }
         #operator_select {
             width: 25%;
+        }
+        > select, > input {
+            height: 2rem;
+            padding: 0.25rem;
         }
         > div.crosswalks {
             display:flex;
@@ -1027,7 +1029,8 @@ table[class$="SelectorTable"] th {
         border: 0;
         div#if-then-setup {
             flex-direction: column;
-            > select, > h3, #parent_choices_wrapper, #operator_select {
+            align-items: flex-start;
+            > select, #operator_select, #numeric_comparison, #parent_choices_wrapper {
                 width: 100%;
             }
             .choices__inner {
