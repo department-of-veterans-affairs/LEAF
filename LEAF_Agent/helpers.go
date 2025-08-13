@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/url"
 	"strings"
@@ -39,25 +40,47 @@ func HttpGet(url string) (res *http.Response, err error) {
 
 // FormQuery uses the api/form/query endpoint to fetch matching records
 func FormQuery(siteURL string, q query.Query, params string) (query.Response, error) {
-	jsonQuery, err := json.Marshal(q)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := HttpGet(siteURL + "api/form/query?q=" + string(jsonQuery) + params)
-	if err != nil {
-		return nil, err
-	}
-
-	b, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var response query.Response
-	err = json.Unmarshal(b, &response)
-	if err != nil {
-		return nil, fmt.Errorf("Unmarshal: %w (%v)", err, string(b))
+	response = make(map[int]query.Record)
+	batchSize := 500 // Number of records per batch. Target < 500ms p90 response time
+	limitOffset := 0
+
+	for {
+		// Split queries into chunks
+		if q.Limit == 0 {
+			q.Limit = batchSize
+		}
+
+		jsonQuery, err := json.Marshal(q)
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := HttpGet(siteURL + "api/form/query?q=" + string(jsonQuery) + params)
+		if err != nil {
+			return nil, err
+		}
+
+		b, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var batch query.Response
+		err = json.Unmarshal(b, &batch)
+		if err != nil {
+			return nil, fmt.Errorf("Unmarshal: %w (%v)", err, string(b))
+		}
+
+		maps.Copy(response, batch)
+
+		limitOffset += batchSize
+		q.LimitOffset = limitOffset
+
+		// the api includes the header leaf-query = "continue" if more results are available
+		if res.Header.Get("leaf-query") == "" {
+			break
+		}
 	}
 
 	return response, nil
