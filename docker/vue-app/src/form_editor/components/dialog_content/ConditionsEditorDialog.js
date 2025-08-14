@@ -213,7 +213,7 @@ export default {
                             if(elClose !== null) {
                                 elClose.focus();
                             }
-                            setTimeout(() => {
+                            this.$nextTick(() => {
                                 this.ariaStatus = 'Updated question conditions';
                             });
 
@@ -350,7 +350,7 @@ export default {
          * called to create choicejs combobox instances for multi option formats
          */
         updateChoicesJS() {
-            setTimeout(() => {
+            this.$nextTick(() => {
                 const elExistingChoicesChild = document.querySelector('#child_choices_wrapper > div.choices');
                 const elSelectParent = document.getElementById('parent_compValue_entry_multi');
                 const elSelectChild = document.getElementById('child_prefill_entry_multi');
@@ -431,7 +431,7 @@ export default {
         addOrgSelector() {
             if (this.selectedOutcome === 'pre-fill' && this.orgchartFormats.includes(this.childFormat)) {
                 const selType = this.childFormat.slice(this.childFormat.indexOf('_') + 1);
-                setTimeout(() => {
+                this.$nextTick(() => {
                     this.initializeOrgSelector(
                         selType, this.childIndID, 'ifthen_child_', this.selectedChildValue, this.setOrgSelChildValue
                     );
@@ -528,7 +528,7 @@ export default {
                     {val:"==", text: "is"},
                     {val:"!=", text: "is not"}
                   ];
-                if (this.selectedParentValueOptions.some(opt => Number.isFinite(+opt))) {
+                if (this.selectedParentValueOptionsHasNumbers) {
                   operators = operators.concat([
                     {val:"gt", text: "is greater than"},
                     {val:"gte", text: "is greater or equal to"},
@@ -590,6 +590,12 @@ export default {
          */
         selectedParentValueOptions() {
             return this.selectedParentIndicator?.options || []
+        },
+        selectedParentValueOptionsHasNumbers() {
+            return this.selectedParentValueOptions.some(opt => Number.isFinite(+opt));
+        },
+        selectedParentValueIsNumber() {
+            return Number.isFinite(+this.selectedParentValue);
         },
         /**
          * @returns list of options for prefill outcomes.  Does not combine with file loaded options.
@@ -741,7 +747,7 @@ export default {
             }
         },
         selectedOperator(newVal, oldVal) {
-            if (oldVal !== "" && this.numericOperators.includes(newVal) && !this.numericOperators.includes(oldVal)) {
+            if (oldVal !== "" && this.numericOperators.includes(newVal) && !this.selectedParentValueIsNumber) {
               this.selectedParentValue = ""
             }
         }
@@ -875,14 +881,14 @@ export default {
                                 </option>
                             </select>
                             <!-- NOTE: COMPARED VALUE SELECTIONS -->
-                            <input v-if="numericOperators.includes(selectedOperator)" id="numeric_comparison" title="enter a numeric value" aria-label="enter a numeric value"
+                            <input v-if="numericOperators.includes(selectedOperator)" id="numeric_comparison" :key="'comp_numeric' + selectedParentValue"
+                                title="enter a numeric value" aria-label="enter a numeric value"
                                 type="number" :value="conditions.selectedParentValue" @change="updateSelectedOptionValue($event.target, 'parent')"
                                 placeholder="enter a number" />
                             <div v-else-if="choicesJS_parentValueFormats.includes(parentFormat)"
                                 id="parent_choices_wrapper" :key="'comp_' + parentChoicesKey">
-                                <select id="parent_compValue_entry_multi" aria-hidden="true"
+                                <select id="parent_compValue_entry_multi" aria-hidden="true" style="display: none;"
                                     placeholder="select some options" multiple="true"
-                                    style="display: none;"
                                     @change="updateSelectedOptionValue($event.target, 'parent')">
                                 </select>
                             </div>
