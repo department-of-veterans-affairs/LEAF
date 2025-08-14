@@ -828,7 +828,7 @@ export default {
                         </select>
                         <!-- PREFILL -->
                         <template v-if="!noOptions && conditions.selectedOutcome === 'pre-fill'">
-                            <label class="ifthen_label" id="prefill_value_entry">Enter a pre-fill value</label>
+                            <label class="ifthen_label" for="child_prefill_entry" id="prefill_value_entry">Enter a pre-fill value</label>
                             <select v-if="childFormat==='dropdown' || childFormat==='radio'"
                                 id="child_prefill_entry" aria-labelledby="prefill_value_entry"
                                 @change="updateSelectedOptionValue($event.target, 'child')">

@@ -829,9 +829,6 @@ table[class$="SelectorTable"] th {
             width: 1.75em;
         }
     }
-    #outcome_select {
-        max-width: 700px;
-    }
     #condition_editor_inputs > div {
         padding: 1rem 0;
         .choices__inner {
@@ -842,6 +839,7 @@ table[class$="SelectorTable"] th {
             display: block;
             letter-spacing: 0.25px;
             line-height: 1.4;
+            max-width: 700px;
             margin: 1rem 0 1.5rem 0;
         }
     }
@@ -859,9 +857,13 @@ table[class$="SelectorTable"] th {
         #operator_select {
             width: 25%;
         }
-        > select, > input {
+        > select, > input, .crosswalks select {
             height: 2rem;
             padding: 0.25rem;
+            border-radius: 2px;
+        }
+        > input {
+            padding: 0.25rem 0.5rem;
         }
         > div.crosswalks {
             display:flex;
@@ -871,6 +873,17 @@ table[class$="SelectorTable"] th {
         }
         .choices__inner {
             max-width: 300px;
+        }
+    }
+    #outcome-editor {
+        max-width: 700px;
+        > select, > input {
+            height: 2rem;
+            padding: 0.25rem;
+            border-radius: 2px;
+        }
+        > input {
+            padding: 0.25rem 0.5rem;
         }
     }
 
