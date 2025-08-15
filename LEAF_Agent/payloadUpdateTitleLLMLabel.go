@@ -98,14 +98,14 @@ func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 			return
 		}
 
-		if len(llmResponse.Choices[0].Message.Content) > 50 {
-			task.HandleError(recordID, "updateTitleLLMLabel:", fmt.Errorf("LLM response exceeds 50 character constraint"))
-			return
-		}
-
 		cleanResponse := strings.Trim(llmResponse.Choices[0].Message.Content, " \n.")
 		scrubber := bluemonday.StrictPolicy()
 		cleanResponse = scrubber.Sanitize(cleanResponse)
+
+		if len(llmResponse.Choices[0].Message.Content) > 50 {
+			task.HandleError(recordID, "updateTitleLLMLabel:", fmt.Errorf("LLM response exceeds 50 character constraint: %v", cleanResponse))
+			return
+		}
 
 		err = UpdateTitle(task.SiteURL, recordID, cleanResponse)
 		if err != nil {
