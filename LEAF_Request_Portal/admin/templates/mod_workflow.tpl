@@ -1,3 +1,6 @@
+<script src="../js/form.js"></script>
+<script src="../js/formQuery.js"></script>
+<script src="../js/agentConfig.js"></script>
 <div id="workflow_editor">
     <div id="sideBar">
         <div>
@@ -48,6 +51,7 @@
 </div>
 
 <!--{include file="site_elements/generic_xhrDialog.tpl"}-->
+<!--{include file="site_elements/generic_edit_dialog.tpl"}-->
 <!--{include file="site_elements/generic_confirm_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <!--{include file="site_elements/generic_OkDialog.tpl"}-->
@@ -1736,21 +1740,57 @@
         dialog.show();
     }
 
-    function configureAgent(stepID) {
-        $('.workflowStepInfo').css('display', 'none');
-        dialog.setTitle(`Configure Agent for Step ID #${stepID}`);
-        dialog.setContent('<div id="agentConfig">Loading...</div>');
+    function decodeHtmlEntities(html) {
+        var txt = document.createElement('textarea');
+        txt.innerHTML = html;
+        return txt.value;
+    }
 
-        dialog.setSaveHandler(function() {
-            loadWorkflow(currentWorkflow);
-            dialog.hide();
+    async function editAgentInstructions(stepID) {
+        alert(stepID);
+    }
+
+    async function viewAgentInstructions(stepID) {
+        document.querySelectorAll('.workflowStepInfo').forEach(el => {
+            el.style.display = 'none';
         });
-        dialog.show();
-        
-        let form = new LeafForm('agentConfig');
-        form.setRootURL(`https://${window.location.host}/platform/agent/`);
-        form.setRecordID(1);
-        form.getForm(indicatorID, 1);
+        dialog_edit.setTitle(`Instructions for Agent (stepID #${stepID})`);
+        dialog_edit.setContent('<div id="agentConfig">Loading...</div>');
+
+        dialog_edit.setSaveHandler(function() {
+            editAgentInstructions(stepID);
+            dialog_edit.hide();
+        });
+        dialog_edit.show();
+        document.querySelector('#edit_button_save').innerHTML = 'Edit';
+
+        let idx = window.location.href.indexOf('admin/?a=workflow');
+        let thisSite = window.location.href.substring(0, idx);
+
+        let query = new LeafFormQuery();
+        query.setRootURL(`https://${window.location.host}/platform/agent/`);
+        query.addDataTerm('data', '2', '=', thisSite);
+        query.addDataTerm('data', '3', '=', stepID);
+        query.addTerm('stepID', '=', 2);
+        query.getData(4);
+        query.setExtraParams('&x-filterData=');
+        let res = await query.execute();
+
+        if(Object.keys(res).length > 0) {
+            let taskID = Object.keys(res)[0];
+            let instructions = {};
+            try {
+                instructions = JSON.parse(decodeHtmlEntities(res[taskID].s1.id4));
+            } catch (err) {
+                console.error(err);
+                return;
+            }
+
+            let agentConfig = new LeafAgentConfig('agentConfig', thisSite);
+            await agentConfig.init();
+            agentConfig.importConfig(instructions);
+            agentConfig.render();
+        }
     }
 
     function signatureRequired(cb, stepID) {
@@ -2082,7 +2122,7 @@
                                 </li>`;
                             } else if (depID === -4) { // dependencyID -4 : leaf agent
                                 output += `<li>${depText} ${control_unlinkDependency} (depID:${depID})<br />
-                                        <button type="button" class="buttonNorm" onclick="configureAgent(${res[i].stepID})">Configure Agent</button>
+                                        <button type="button" class="buttonNorm" onclick="viewAgentInstructions(${res[i].stepID})">View Instructions</button>
                                     </li>`;
 
                             } else {
@@ -3336,7 +3376,7 @@
     }
 
 
-    var dialog, dialog_confirm, dialog_simple, dialog_ok;
+    var dialog, dialog_edit, dialog_confirm, dialog_simple, dialog_ok;
     var workflows = {};
     var steps = {};
     var routes = {};
@@ -3364,6 +3404,7 @@
 
     $(function() {
         dialog = new dialogController('xhrDialog', 'xhr', 'loadIndicator', 'button_save','button_cancelchange');
+        dialog_edit = new dialogController('edit_xhrDialog', 'edit_xhr', 'edit_loadIndicator', 'edit_button_save','edit_button_cancelchange');
         dialog_confirm = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator','confirm_button_save', 'confirm_button_cancelchange');
         dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator','simplebutton_save', 'simplebutton_cancelchange');
         dialog_ok = new dialogController('ok_xhrDialog', 'ok_xhr', 'ok_loadIndicator', 'confirm_button_ok', 'confirm_button_cancelchange');

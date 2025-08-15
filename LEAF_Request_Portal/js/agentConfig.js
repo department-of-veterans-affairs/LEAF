@@ -1,7 +1,7 @@
 // LeafAgentConfig parses and renders the UI for an agent's task
 var LeafAgentConfig = function (containerID, siteURL) {
     let prefixID = 'LeafAgentConfig' + Math.floor(Math.random() * 1000) + '_';
-    let config = {};
+    let config = [];
     let action = {}; // workflow actions
     let requestLabel = 'Request';
     let indicator = {}; // form fields
@@ -29,13 +29,13 @@ var LeafAgentConfig = function (containerID, siteURL) {
                     text = Math.floor(secondsToHold / 31536000) + " years";
                 }
 
-                return `Hold record for ${text}`;
+                return `Hold ${requestLabel} for ${text}`;
             }
         },
         'route': { // untested
             'label': 'Take Action',
             'explain': (payload) => {
-                return `${action[payload.actionType]} ${requestLabel}`;
+                return `Take Action: ${action[payload.actionType]}`;
             }
         },
         'routeActionHistoryTally': {
@@ -65,7 +65,7 @@ var LeafAgentConfig = function (containerID, siteURL) {
 
                 });
                 conditions += '</ul>';
-                return `${action[payload.actionType]} ${requestLabel} when ${conditions}`;
+                return `Take Action: ${action[payload.actionType]} only if: ${conditions}`;
             }
         },
         'routeLLM': {
@@ -83,12 +83,7 @@ var LeafAgentConfig = function (containerID, siteURL) {
 
                 let context = '';
                 if(payload.context != '') {
-                    context = `<p>
-                        <details>
-                            <summary>Additional Context</summary>
-                            ${payload.context}
-                        </details>
-                        </p>`;
+                    context = `<br />${payload.context}`;
                 }
                 return `Select an option in <code>(${indicator[payload.writeIndicatorID]} #${payload.writeIndicatorID})</code> based on data in <code>${readText}</code>${context}`;
             }
@@ -96,7 +91,6 @@ var LeafAgentConfig = function (containerID, siteURL) {
         'updateData4BLLM': {
             'label': 'Generate Text (LLM 4)',
             'explain': (payload) => {
-                console.log(payload);
                 let readIDs = [];
                 payload.readIndicatorIDs.forEach(id => {
                     if(indicator[id] != undefined) {
@@ -133,7 +127,7 @@ var LeafAgentConfig = function (containerID, siteURL) {
 
                 });
                 conditions += '</ul>';
-                return `${action[payload.actionType]} ${requestLabel} when ${conditions}`;
+                return `Take Action: ${action[payload.actionType]} only if: ${conditions}`;
             }
         },
         'updateDataLLMCategorization': {
@@ -151,10 +145,7 @@ var LeafAgentConfig = function (containerID, siteURL) {
 
                 let context = '';
                 if(payload.context != '') {
-                    context = `<br /><details>
-                            <summary>Additional Context</summary>
-                            ${payload.context}
-                        </details>`;
+                    context = `<br />${payload.context}`;
                 }
                 return `Select an option in <code>(${indicator[payload.writeIndicatorID]} #${payload.writeIndicatorID})</code> based on data in <code>${readText}</code>${context}`;
             }
@@ -193,38 +184,46 @@ var LeafAgentConfig = function (containerID, siteURL) {
 
     async function init() {
         // load workflow actions
-        let res = await fetch(`${siteURL}api/workflow/actions?x-filterData=actionType,actionText`)
+        let pActions = fetch(`${siteURL}api/workflow/actions?x-filterData=actionType,actionText`)
             .then(response => response.json());
-        for(let i in res) {
-            action[res[i].actionType] = res[i].actionText;
-        }
 
         // load request label
-        res = await fetch(`${siteURL}api/system/settings`)
+        let pSettings = fetch(`${siteURL}api/system/settings`)
             .then(response => response.json());
-        requestLabel = res.requestLabel;
 
         // load form fields
-        res = await fetch(`${siteURL}api/form/indicator/list?x-filterData=indicatorID,name,description`)
+        let pIndicators = fetch(`${siteURL}api/form/indicator/list?x-filterData=indicatorID,name,description`)
             .then(response => response.json());
-        for(let i in res) {
-            indicator[res[i].indicatorID] = res[i].name;
-            if(res[i].description != '') {
-                indicator[parseInt(res[i].indicatorID)] = res[i].description;
+
+        let res = await Promise.all([pActions, pSettings, pIndicators]);
+        let resActions = res[0];
+        requestLabel = res[1].requestLabel;
+        let resIndicators = res[2];
+
+        for(let i in resActions) {
+            action[resActions[i].actionType] = resActions[i].actionText;
+        }
+
+        for(let i in resIndicators) {
+            indicator[resIndicators[i].indicatorID] = resIndicators[i].name;
+            if(resIndicators[i].description != '') {
+                indicator[parseInt(resIndicators[i].indicatorID)] = resIndicators[i].description;
             }
-            if(indicator[res[i].indicatorID].length > 50) {
-                indicator[res[i].indicatorID] = indicator[res[i].indicatorID].substring(0, 50) + '...';
+            if(indicator[resIndicators[i].indicatorID].length > 50) {
+                indicator[resIndicators[i].indicatorID] = indicator[resIndicators[i].indicatorID].substring(0, 50) + '...';
             }
         }
     }
 
     function importConfig(oldConfig) {
+        if(!Array.isArray(oldConfig)) {
+            alert('Invalid configuration');
+            return;
+        }
         config = oldConfig;
     }
 
     function render() {
-        console.log(config);
-
         let output = '<ol class="agentConfig">';
         config.forEach(instruction => {
             if(inst[instruction.type] != undefined) {
@@ -235,22 +234,30 @@ var LeafAgentConfig = function (containerID, siteURL) {
         });
         output += '</ol>';
 
+        if(config.length == 0) {
+            output = 'No instructions have been given to the Agent.';
+        }
+
         let styles = `<style>
             ol.agentConfig {
                 list-style: none;
                 counter-reset: agentConfigCounter;
                 font-size: 1rem;
+                padding-left: 0;
             }
             ol.agentConfig > li {
                 counter-increment: agentConfigCounter;
-                padding-left: 1.5rem;
+                padding-left: 3rem;
                 margin-bottom: 1rem;
                 text-indent: -3rem;
+                background-color: #f1f1f1ff;
             }
             ol.agentConfig > li::before {
                 content: counter(agentConfigCounter);
                 background-color: black;
                 color: white;
+                font-size: 1.2rem;
+                font-weight: bold;
                 display: inline-block;
                 width: 2rem;
                 height: 2rem;
