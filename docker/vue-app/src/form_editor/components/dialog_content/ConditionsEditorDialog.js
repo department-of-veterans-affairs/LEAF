@@ -802,8 +802,10 @@ export default {
                                             </template>
                                             <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived, deleted or is on another page.</div>
                                         </button>
-                                        <button type="button" class="btn_remove_condition" aria-label="remove this condition"
-                                            @click="removeCondition({confirmDelete: false, condition: c})">X
+                                        <button type="button" class="btn_remove_condition"
+                                            title="remove this condition" aria-label="remove this condition"
+                                            @click="removeCondition({confirmDelete: false, condition: c})">
+                                            <span role="img" aria-hidden="true" alt="">🗑</span>
                                         </button>
                                     </li>
                                 </ul>
@@ -815,7 +817,7 @@ export default {
                     <div v-if="showConditionEditor" id="outcome-editor">
                         <!-- SELECT TYPE OF LOGIC -->
                         <label class="ifthen_label" for="outcome_select">Select an outcome</label>
-                        <select title="select outcome" id="outcome_select" @change="updateSelectedOutcome($event.target.value)">
+                        <select title="select outcome" id="outcome_select" class="usa-input" @change="updateSelectedOutcome($event.target.value)">
                             <option v-if="conditions.selectedOutcome === ''" value="" selected>Select an outcome</option>
                             <option value="show" :selected="conditions.selectedOutcome === 'show'">Show this question ...</option>
                             <option value="hide" :selected="conditions.selectedOutcome === 'hide'">Hide this question ...</option>
@@ -830,7 +832,7 @@ export default {
                         <template v-if="!noOptions && conditions.selectedOutcome === 'pre-fill'">
                             <label class="ifthen_label" for="child_prefill_entry" id="prefill_value_entry">Enter a pre-fill value</label>
                             <select v-if="childFormat==='dropdown' || childFormat==='radio'"
-                                id="child_prefill_entry" aria-labelledby="prefill_value_entry"
+                                id="child_prefill_entry" class="usa-input"
                                 @change="updateSelectedOptionValue($event.target, 'child')">
                                 <option v-if="conditions.selectedChildValue === ''" value="" selected>Select a value</option>
                                 <option v-for="val in selectedChildValueOptions" 
@@ -851,7 +853,7 @@ export default {
                                 </select>
                             </div>
                             <input v-else-if="childFormat==='text' || childFormat==='textarea'" 
-                                id="child_prefill_entry" aria-labelledby="prefill_value_entry"
+                                id="child_prefill_entry" class="usa-input"
                                 @change="updateSelectedOptionValue($event.target, 'child')"
                                 :value="decodeAndStripHTML(conditions.selectedChildValue)" />
                             <div v-if="orgchartFormats.includes(childFormat)" :id="'ifthen_child_orgSel_' + conditions.childIndID"
@@ -864,7 +866,9 @@ export default {
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
                             <div style="font-size:1.25rem;"><b>IF</b></div>
                             <!-- NOTE: PARENT CONTROLLER SELECTION -->
-                            <select title="select controller question" aria-label="select controller question" id="controller_select" @change="updateSelectedParentIndicator(parseInt($event.target.value))">
+                            <select title="select controller question" aria-label="select controller question"
+                                id="controller_select" class="usa-input"
+                                @change="updateSelectedParentIndicator(parseInt($event.target.value))">
                                 <option v-if="!conditions.parentIndID" :value="0" selected>Select an Indicator</option>
                                 <option v-for="i in selectableParents" :key="'parent_' + i.indicatorID"
                                 :title="i.name"
@@ -874,16 +878,20 @@ export default {
                                 </option>
                             </select>
                             <!-- NOTE: OPERATOR SELECTION -->
-                            <select v-model="selectedOperator" id="operator_select" title="select condition" aria-label="select condition">
+                            <select v-model="selectedOperator"
+                                id="operator_select" class="usa-input"
+                                title="select condition" aria-label="select condition">
                                 <option v-if="selectedOperator === ''" value="" selected>Select a condition</option>
                                 <option v-for="o in selectedParentOperators" :key="o.val" :value="o.val" >
                                 {{ o.text }}
                                 </option>
                             </select>
                             <!-- NOTE: COMPARED VALUE SELECTIONS -->
-                            <input v-if="numericOperators.includes(selectedOperator)" id="numeric_comparison" :key="'comp_numeric' + selectedParentValue"
+                            <input v-if="numericOperators.includes(selectedOperator)"
+                                id="numeric_comparison" class="usa-input" :key="'comp_numeric' + selectedParentValue"
                                 title="enter a numeric value" aria-label="enter a numeric value"
-                                type="number" :value="conditions.selectedParentValue" @change="updateSelectedOptionValue($event.target, 'parent')"
+                                type="number" :value="conditions.selectedParentValue"
+                                @change="updateSelectedOptionValue($event.target, 'parent')"
                                 placeholder="enter a number" />
                             <div v-else-if="choicesJS_parentValueFormats.includes(parentFormat)"
                                 id="parent_choices_wrapper" :key="'comp_' + parentChoicesKey">
@@ -893,22 +901,22 @@ export default {
                                 </select>
                             </div>
                         </template>
-                        <!-- NOTE: LOADED DROPDOWNS AND CROSSWALKS -->
+                        <!-- NOTE: LOADED DROPDOWNS -->
                         <div v-else class="crosswalks">
                             <label for="select-crosswalk-file">File&nbsp;
-                                <select v-model="crosswalkFile" id="select-crosswalk-file" style="width: 200px;">
+                                <select v-model="crosswalkFile" id="select-crosswalk-file" class="usa-input" style="width: 200px;">
                                     <option value="">Select a file</option>
                                     <option v-for="f in fileManagerTextFiles" :key="f" :value="f">{{f}}</option>
                                 </select>
                             </label>
                             <label for="select-crosswalk-header">Does file contain headers?&nbsp;
-                                <select v-model="crosswalkHasHeader" style="width:60px;" id="select-crosswalk-header">
+                                <select v-model="crosswalkHasHeader" id="select-crosswalk-header" class="usa-input" style="width:60px;">
                                     <option :value="false">No</option>
                                     <option :value="true">Yes</option>
                                 </select>
                             </label>
                             <label for="select-level-two">Linked Dropdown&nbsp;
-                                <select v-model.number="level2IndID" id="select-level-two" style="width: 200px;">
+                                <select v-model.number="level2IndID" id="select-level-two" class="usa-input" style="width: 200px;">
                                     <option :value="null">none (single dropdown)</option>
                                     <option v-for="indicator in crosswalkLevelTwo"
                                         :key="'level2_' + indicator.indicatorID"
