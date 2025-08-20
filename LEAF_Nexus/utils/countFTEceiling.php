@@ -7,6 +7,7 @@
         @import <?= APP_JS_PATH . "/jquery/css/dcvamc/jquery-ui.custom.min.css" ?>;
         @import <?= APP_JS_PATH . "/jquery/chosen/chosen.min.css" ?>;
         @import "../css/style.css";
+        @import <?= APP_CSS_PATH . "/dark_mode.css" ?>;
         @import "../css/editor.css";
         @import "../css/positionSelector.css";
     </style>

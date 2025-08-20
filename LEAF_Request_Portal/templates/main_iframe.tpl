@@ -13,6 +13,7 @@
         @import "{$stylesheets[i]}";
 {/section}
         @import "css/style.css";
+        @import "{$app_js_path}/../css/dark_mode.css";
         @import "{$app_js_path}/jquery/chosen/chosen.min.css";
         @import "{$app_js_path}/jquery/trumbowyg/ui/trumbowyg.min.css";
         /* backwards compat */

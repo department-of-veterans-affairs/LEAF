@@ -1,0 +1,1052 @@
+/* =============================================================================
+   DARK MODE IMPLEMENTATION
+   Uses prefers-color-scheme to automatically detect OS dark mode setting
+   ============================================================================= */
+
+/* Define CSS custom properties for consistent theming */
+:root {
+  /* Light mode colors (default) */
+  --bg-primary: #f3f3f3;
+  --bg-secondary: white;
+  --bg-tertiary: #e8f2ff;
+  --bg-accent: #caecff;
+  --bg-header: #5a79a5;
+  --bg-alert: #9d0000;
+  --bg-warning: #ee9a9a;
+  --bg-success: #e0e0e0;
+
+  --text-primary: black;
+  --text-secondary: #444;
+  --text-tertiary: #777;
+  --text-muted: #565c65;
+  --text-inverse: white;
+  --text-link: #004b76;
+  --text-link-hover: #f04e0b;
+
+  --border-primary: black;
+  --border-secondary: #ddd;
+  --border-tertiary: #bbb;
+  --border-light: #e0e0e0;
+
+  --shadow-color: rgba(142, 142, 142, 0.6);
+  --hover-bg: #2372b0;
+  --hover-text: white;
+
+  /* Component specific colors */
+  --position-bg: #caecff;
+  --position-title-bg: #a8dfff;
+  --group-bg: #f6cafd;
+  --group-title-bg: #cb9ed7;
+  --employee-bg: #ffe3e3;
+  --employee-title-bg: #f4bcbc;
+  --facility-bg: #808080;
+  --facility-header-bg: black;
+
+  --table-header-bg: #e0e0e0;
+  --table-row-bg: white;
+  --table-border: black;
+
+  --menu-bg: #e8f2ff;
+  --menu-hover-bg: #2372b0;
+  --toolbar-bg: #c0dbff;
+  --comments-bg: #e6e4b9;
+  --comments-item-bg: #fffdcd;
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3d3d3d;
+    --bg-accent: #4a4a4a;
+    --bg-header: #1f2937;
+    --bg-alert: #dc2626;
+    --bg-warning: #ef4444;
+    --bg-success: #374151;
+
+    --text-primary: #e5e5e5;
+    --text-secondary: #d1d5db;
+    --text-tertiary: #9ca3af;
+    --text-muted: #6b7280;
+    --text-inverse: #1a1a1a;
+    --text-link: #60a5fa;
+    --text-link-hover: #fbbf24;
+
+    --border-primary: #4b5563;
+    --border-secondary: #374151;
+    --border-tertiary: #6b7280;
+    --border-light: #4b5563;
+
+    --shadow-color: rgba(0, 0, 0, 0.8);
+    --hover-bg: #1d4ed8;
+    --hover-text: white;
+
+    /* Component specific dark colors */
+    --position-bg: #1e40af;
+    --position-title-bg: #1d4ed8;
+    --group-bg: #7c3aed;
+    --group-title-bg: #8b5cf6;
+    --employee-bg: #dc2626;
+    --employee-title-bg: #ef4444;
+    --facility-bg: #374151;
+    --facility-header-bg: #111827;
+
+    --table-header-bg: #374151;
+    --table-row-bg: #2d2d2d;
+    --table-border: #4b5563;
+
+    --menu-bg: #374151;
+    --menu-hover-bg: #1d4ed8;
+    --toolbar-bg: #1f2937;
+    --comments-bg: #451a03;
+    --comments-item-bg: #78350f;
+  }
+}
+
+/* =============================================================================
+   BASE STYLES
+   ============================================================================= */
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body a:link,
+body a:visited {
+  color: var(--text-link);
+}
+
+body a:hover {
+  color: var(--text-link-hover);
+}
+
+span {
+  color: var(--text-primary);
+}
+
+input {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-tertiary);
+}
+
+@media (prefers-color-scheme: dark) {
+  input {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+  }
+}
+
+textarea {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-tertiary);
+}
+
+@media (prefers-color-scheme: dark) {
+  textarea {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+  }
+}
+
+select {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-tertiary);
+}
+
+@media (prefers-color-scheme: dark) {
+  select {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+  }
+}
+
+/* =============================================================================
+   HEADER STYLES
+   ============================================================================= */
+
+#header {
+  background-color: var(--bg-header);
+}
+
+#headerDescription {
+  color: var(--text-primary);
+}
+
+span#headerLabel {
+  color: var(--text-link);
+}
+
+@media (prefers-color-scheme: dark) {
+  span#headerLabel {
+    color: var(--text-link);
+  }
+}
+
+#headerMenu > a,
+#headerMenu_container > a,
+#headerMenuHelp_container > a {
+  color: var(--text-primary);
+}
+
+#headerMenuNav > ul > li > button,
+#headerMenuNav > ul > li > a {
+  color: var(--text-primary);
+}
+
+#headerMenu_links,
+#headerMenu_help {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-primary);
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+/* =============================================================================
+   CONTENT AREAS
+   ============================================================================= */
+
+#content {
+  background-color: var(--bg-primary);
+}
+
+#maincontent {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-light);
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+/* =============================================================================
+   ALERTS AND NOTIFICATIONS
+   ============================================================================= */
+
+.alert {
+  background-color: var(--bg-alert);
+  border-color: var(--border-primary);
+}
+
+.alert > span {
+  color: var(--text-inverse);
+}
+
+.alert a:link,
+.alert a:visited {
+  color: #bddcfb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert a:link,
+  .alert a:visited {
+    color: #93c5fd;
+  }
+}
+
+/* =============================================================================
+   ORGANIZATIONAL CHART COMPONENTS
+   ============================================================================= */
+
+/* Position Cards */
+.positionSmall {
+  background-color: var(--position-bg);
+  border-color: var(--border-primary);
+}
+
+.positionSmall:hover {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.positionSmall_title {
+  background-color: var(--position-title-bg);
+}
+
+.positionSmall_data {
+  color: var(--text-primary);
+}
+
+/* Group Cards */
+.groupSmall {
+  background-color: var(--group-bg);
+  border-color: var(--border-primary);
+}
+
+.groupSmall_title {
+  background-color: var(--group-title-bg);
+}
+
+/* Employee Cards */
+.employee,
+div.employee {
+  background-color: var(--employee-bg);
+  border-color: var(--border-primary);
+}
+
+.employeeHeader,
+div.employeeHeader {
+  background-color: var(--employee-title-bg);
+}
+
+/* Facility Cards */
+.facility {
+  background-color: var(--facility-bg);
+  border-color: var(--border-primary);
+}
+
+.facilityHeader {
+  background-color: var(--facility-header-bg);
+}
+
+.facilityName {
+  color: var(--text-inverse);
+}
+
+/* =============================================================================
+   TABLES
+   ============================================================================= */
+
+table.table,
+table.leaf_grid,
+table.agenda {
+  background-color: var(--bg-secondary);
+  border-color: var(--table-border);
+}
+
+.table > thead,
+table.leaf_grid th {
+  background-color: var(--table-header-bg);
+  color: var(--text-primary);
+}
+
+.table > tbody,
+table.leaf_grid > tbody {
+  background-color: var(--table-row-bg);
+}
+
+.table td,
+table.leaf_grid td,
+.agenda td {
+  border-color: var(--table-border);
+  background-color: var(--table-row-bg);
+  color: var(--text-primary);
+}
+
+table.leaf_grid th:hover,
+table.leaf_grid th:focus {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.table_editable:hover {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.table_editable:hover a {
+  color: var(--hover-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  .table_priority:hover {
+    background-color: var(--bg-accent);
+  }
+}
+
+/* =============================================================================
+   BUTTONS AND INTERACTIVE ELEMENTS
+   ============================================================================= */
+
+.buttonNorm,
+button.buttonNorm {
+  background-color: var(--menu-bg);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.buttonNorm:hover,
+.buttonNormSelected,
+.buttonNorm:focus,
+button.buttonNorm:hover,
+button.buttonNorm:focus {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.button {
+  background-color: var(--menu-bg);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.button:hover {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+/* Menu Buttons */
+.menuButton,
+.menuButtonSmall {
+  background-color: var(--bg-secondary);
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.menuButton:hover,
+.menuButton:focus,
+.menuButtonSmall:hover,
+.menuButtonSmall:focus {
+  box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+/* Tool Buttons */
+button.tools {
+  background-color: var(--menu-bg);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+button.tools:hover,
+button.tools:focus {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+/* Permission Buttons */
+.buttonPermission {
+  background-color: var(--bg-success);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.buttonPermission:hover,
+.buttonPermission:focus {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+/* =============================================================================
+   TOOLBARS AND NAVIGATION
+   ============================================================================= */
+
+.tools {
+  background-color: var(--toolbar-bg);
+  border-color: var(--border-primary);
+}
+
+.tools > div {
+  background-color: var(--menu-bg);
+  border-color: var(--border-primary);
+}
+
+.tools > div:hover,
+.tools > div:focus {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+#category_list {
+  background-color: var(--bg-accent);
+  border-color: var(--border-primary);
+}
+
+#category_list > div {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-primary);
+}
+
+#category_list > div:hover {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+/* =============================================================================
+   COMMENTS AND MESSAGING
+   ============================================================================= */
+
+#comments {
+  background-color: var(--comments-bg);
+  border-color: var(--border-primary);
+}
+
+#comments > div {
+  background-color: var(--comments-item-bg);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.comments_time {
+  color: var(--text-muted);
+}
+
+/* =============================================================================
+   FORMS AND SELECTORS
+   ============================================================================= */
+
+/* Employee Selector */
+.employeeSelector {
+  background-color: var(--menu-bg);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.employeeSelector:hover {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.employeeSelected {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.employeeSelectorTable {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-primary);
+}
+
+.employeeSelectorTable th {
+  background-color: var(--table-header-bg);
+  color: var(--text-primary);
+}
+
+.employeeSelectorTable td {
+  border-color: var(--border-primary);
+  background-color: var(--table-row-bg);
+  color: var(--text-primary);
+}
+
+/* Group Selector */
+.groupSelector {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.groupSelector:hover {
+  background-color: var(--bg-accent);
+}
+
+.groupSelected {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.groupSelectorTable {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-tertiary);
+}
+
+.groupSelectorTable th {
+  background-color: var(--table-header-bg);
+  color: var(--text-muted);
+}
+
+.groupSelectorTable td {
+  border-color: var(--border-tertiary);
+  background-color: var(--table-row-bg);
+  color: var(--text-primary);
+}
+
+/* Position Selector */
+.positionSelector {
+  background-color: var(--menu-bg);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.positionSelector:hover {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.positionSelected {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.positionSelectorTable {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-primary);
+}
+
+.positionSelectorTable th {
+  background-color: var(--table-header-bg);
+  color: var(--text-muted);
+}
+
+.positionSelectorTable td {
+  border-color: var(--border-primary);
+  background-color: var(--table-row-bg);
+  color: var(--text-primary);
+}
+
+/* =============================================================================
+   SPECIALIZED COMPONENTS
+   ============================================================================= */
+
+/* Tags */
+.tags {
+  background-color: var(--bg-primary);
+  color: var(--text-muted);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tags {
+    background-color: #111827;
+    color: #9ca3af;
+  }
+}
+
+.tags b {
+  color: var(--text-inverse);
+}
+
+.tags a:link,
+.tags a:visited {
+  color: var(--text-muted);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tags a:link,
+  .tags a:visited {
+    color: #9ca3af;
+  }
+}
+
+.tags a:hover {
+  color: var(--text-link-hover);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tags a:hover {
+    color: #fbbf24;
+  }
+}
+
+/* Cards */
+.card {
+  background-color: var(--bg-secondary);
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+/* Archived items */
+div.is-archived {
+  background-color: var(--bg-accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  div.is-archived {
+    background-color: #374151;
+  }
+}
+
+/* Print Response (for sensitive data masking) */
+span.printResponse {
+  color: var(--text-primary);
+}
+
+.sensitiveIndicator-masked,
+.sensitiveIndicatorMaskToggle {
+  color: var(--text-primary);
+}
+
+/* =============================================================================
+   PRINTER-SPECIFIC OVERRIDES
+   ============================================================================= */
+
+@media print {
+  /* Force light colors for printing regardless of dark mode */
+  :root {
+    --bg-primary: white;
+    --bg-secondary: white;
+    --text-primary: black;
+    --border-primary: black;
+  }
+
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  .positionSmall {
+    background-color: #caecff;
+  }
+
+  .groupSmall {
+    background-color: #f6cafd;
+  }
+
+  .employee {
+    background-color: #ffe3e3;
+  }
+}
+
+/* =============================================================================
+   FOOTER
+   ============================================================================= */
+
+#footer a:link,
+#footer a:visited {
+  color: var(--text-muted);
+}
+
+#footer a:hover {
+  color: var(--text-link-hover);
+}
+
+/* =============================================================================
+   SPECIAL DARK MODE ADJUSTMENTS
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  /* Ensure sufficient contrast for borders */
+  .positionSmall,
+  .groupSmall,
+  .employee,
+  .facility {
+    border-color: #6b7280;
+  }
+
+  /* Adjust shadows for dark backgrounds */
+  .menuButton,
+  .menuButtonSmall,
+  #maincontent {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Ensure form elements are visible */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    background-color: #374151;
+    color: #e5e5e5;
+    border-color: #6b7280;
+  }
+
+  /* Loading modal adjustments */
+  .loading-modal {
+    background: rgba(17, 24, 39, 0.9);
+  }
+
+  /* Visual alert box */
+  #visual_alert_box {
+    background-color: #2d2d2d;
+    color: #e5e5e5;
+  }
+
+  /* Ensure link visibility in dark mode */
+  .link {
+    color: #60a5fa;
+  }
+
+  .link:hover {
+    color: #fbbf24;
+  }
+}
+
+/* =============================================================================
+   UTILITY CLASSES FOR REPLACING INLINE STYLES
+   Add these to your existing dark-mode.css file
+   ============================================================================= */
+
+/* Status and notification colors */
+.status-loading {
+    background-color: #fffcae;
+    padding: 4px;
+}
+
+.status-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 4px;
+}
+
+.status-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 4px;
+}
+
+.status-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+    padding: 4px;
+}
+
+/* Progress and completion colors */
+.progress-bg {
+    background-color: #feffd2;
+    padding: 4px;
+    border-bottom: 1px solid black;
+}
+
+.completion-bg {
+    background-color: #b74141;
+    color: white;
+    text-shadow: black 0.1em 0.1em 0.2em;
+    font-weight: bold;
+    text-align: center;
+    font-size: 120%;
+    padding: 8px;
+    margin: 0px;
+}
+
+/* Form field highlighting */
+.field-highlight {
+    background-color: #fffdc2;
+}
+
+.field-required {
+    background-color: #ffaeae;
+    font-weight: bold;
+    font-size: 120%;
+}
+
+/* File upload statuses */
+.file-status {
+    background-color: #fffcae;
+    padding: 4px;
+    font-weight: bolder;
+    margin-top: 0.2rem;
+    line-height: 1.6;
+}
+
+.file-row-even {
+    background-color: #e4f2ff;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.file-row-odd {
+    background-color: #d7e5ff;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+
+/* Loading and processing */
+.loading-indicator {
+    background-color: white;
+    border: 2px solid black;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 16px;
+    width: 95%;
+}
+
+/* Emergency/priority indicators */
+.priority-emergency {
+    background-color: #FF4040;
+    color: black;
+}
+
+.priority-normal {
+    background-color: transparent;
+}
+
+/* Record highlighting */
+.record-own {
+    background-color: #feffd1;
+}
+
+.record-new {
+    background-color: rgb(254, 255, 209);
+}
+
+/* =============================================================================
+   DARK MODE ADAPTATIONS FOR UTILITY CLASSES
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+    .status-loading {
+        background-color: #4a4a00;
+        color: #e5e5e5;
+    }
+
+    .status-success {
+        background-color: #1f4b2b;
+        color: #9ae6b4;
+        border-color: #38a169;
+    }
+
+    .status-error {
+        background-color: #4a1f22;
+        color: #feb2b2;
+        border-color: #e53e3e;
+    }
+
+    .status-warning {
+        background-color: #4a3600;
+        color: #faf089;
+        border-color: #d69e2e;
+    }
+
+    .progress-bg {
+        background-color: #374151;
+        border-bottom-color: #6b7280;
+    }
+
+    .completion-bg {
+        background-color: #7f1d1d;
+        color: #fca5a5;
+    }
+
+    .field-highlight {
+        background-color: #4a5568;
+    }
+
+    .field-required {
+        background-color: #7f1d1d;
+        color: #fca5a5;
+    }
+
+    .file-status {
+        background-color: #4a4a00;
+        color: #e5e5e5;
+    }
+
+    .file-row-even {
+        background-color: #2d3748;
+    }
+
+    .file-row-odd {
+        background-color: #1a202c;
+    }
+
+    .loading-indicator {
+        background-color: #2d2d2d;
+        border-color: #6b7280;
+        color: #e5e5e5;
+    }
+
+    .priority-emergency {
+        background-color: #dc2626;
+        color: white;
+    }
+
+    .record-own {
+        background-color: #4a5568;
+    }
+
+    .record-new {
+        background-color: #4a5568;
+    }
+}
+
+/* =============================================================================
+   CSS ATTRIBUTE SELECTORS FOR AUTOMATIC INLINE STYLE HANDLING
+   These automatically improve inline styles without template changes
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+    /* Handle common inline background colors */
+    [style*="background-color: #fffcae"],
+    [style*="background-color:#fffcae"] {
+        background-color: #4a4a00 !important;
+        color: #e5e5e5 !important;
+    }
+
+    [style*="background-color: #feffd2"],
+    [style*="background-color:#feffd2"] {
+        background-color: #374151 !important;
+    }
+
+    [style*="background-color: #b74141"],
+    [style*="background-color:#b74141"] {
+        background-color: #7f1d1d !important;
+        color: #fca5a5 !important;
+    }
+
+    [style*="background-color: #ffaeae"],
+    [style*="background-color:#ffaeae"] {
+        background-color: #7f1d1d !important;
+        color: #fca5a5 !important;
+    }
+
+    [style*="background-color: #fffdc2"],
+    [style*="background-color:#fffdc2"] {
+        background-color: #4a5568 !important;
+    }
+
+    [style*="background-color: #e4f2ff"],
+    [style*="background-color:#e4f2ff"] {
+        background-color: #2d3748 !important;
+    }
+
+    [style*="background-color: #d7e5ff"],
+    [style*="background-color:#d7e5ff"] {
+        background-color: #1a202c !important;
+    }
+
+    [style*="background-color: #feffd1"],
+    [style*="background-color:#feffd1"] {
+        background-color: #4a5568 !important;
+    }
+
+    [style*="background-color: rgb(254, 255, 209)"],
+    [style*="background-color:rgb(254, 255, 209)"] {
+        background-color: #4a5568 !important;
+    }
+
+    [style*="background-color: white"],
+    [style*="background-color:#fff"],
+    [style*="background-color: #ffffff"] {
+        background-color: #2d2d2d !important;
+        color: #e5e5e5 !important;
+    }
+
+    /* Handle common inline text colors */
+    [style*="color: #c00"],
+    [style*="color:#c00"] {
+        color: #fca5a5 !important;
+    }
+
+    [style*="color: #d00"],
+    [style*="color:#d00"] {
+        color: #fca5a5 !important;
+    }
+
+    [style*="color: red"],
+    [style*="color:#ff0000"] {
+        color: #fca5a5 !important;
+    }
+
+    [style*="color: green"],
+    [style*="color:#008000"] {
+        color: #9ae6b4 !important;
+    }
+
+    [style*="color: #e00000"],
+    [style*="color:#e00000"] {
+        color: #fca5a5 !important;
+    }
+
+    [style*="color: black"],
+    [style*="color:#000"] {
+        color: #e5e5e5 !important;
+    }
+
+    /* Handle border colors */
+    [style*="border: 1px solid black"],
+    [style*="border:1px solid black"] {
+        border-color: #6b7280 !important;
+    }
+
+    [style*="border-bottom: 1px solid black"],
+    [style*="border-bottom:1px solid black"] {
+        border-bottom-color: #6b7280 !important;
+    }
+
+    [style*="border-top: 1px solid black"],
+    [style*="border-top:1px solid black"] {
+        border-top-color: #6b7280 !important;
+    }
+}

@@ -17,6 +17,7 @@
         @import "{$app_js_path}/jquery/chosen/chosen.min.css";
         {/if}
         @import "../css/style.css";
+        @import "{$app_js_path}/../css/dark_mode.css";
 {section name=i loop=$stylesheets}
         @import "{$stylesheets[i]}";
 {/section}
