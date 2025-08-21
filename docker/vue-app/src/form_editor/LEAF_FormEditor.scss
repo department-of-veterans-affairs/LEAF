@@ -845,6 +845,13 @@ table[class$="SelectorTable"] th {
             line-height: 1.4;
             max-width: 700px;
             margin: 0.5rem 0 1.5rem 0;
+            ul#parentTriggerList {
+                list-style-type: disc;
+                padding: 0.5rem 1.5rem;
+                li {
+                    display: list-item;
+                }
+            }
         }
     }
     #if-then-setup {
@@ -876,6 +883,10 @@ table[class$="SelectorTable"] th {
         }
         .choices__inner {
             max-width: 300px;
+        }
+        #parent_choices_wrapper .choices__list--dropdown .choices__item--selectable  {
+            overflow-wrap: normal;
+            word-break: break-word;
         }
     }
     #outcome-editor {
