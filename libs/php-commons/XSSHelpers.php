@@ -358,7 +358,7 @@ class XSSHelpers
      * @param string $relative_path
      * @return bool|string False if not a valid path or a full absolute path string
      */
-    public function absolutePath($relative_path) : bool|string
+    public static function absolutePath($relative_path) : bool|string
     {
 
         // check if this is a real path, if no good then this will return false.
@@ -367,7 +367,7 @@ class XSSHelpers
         // final url should have trailing / all of the urls that would be checked will have this.
         $real_path .= '/';
 
-        // check against the relative path to make sure this is not going off to an invalid location
+        // check against the relative path to make sure this is not going off to an invalid location, ../ is the common url I can see
         if (strstr($real_path, str_replace('../','',$relative_path)) === false) {
              $real_path = false;
         }

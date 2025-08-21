@@ -13,6 +13,7 @@ use App\Leaf\Logger\DataActionLogger;
 use App\Leaf\Logger\Formatters\DataActions;
 use App\Leaf\Logger\Formatters\LoggableTypes;
 use App\Leaf\Logger\LogItem;
+use App\Leaf\XSSHelpers;
 
 class EmailTemplate
 {
@@ -358,11 +359,19 @@ class EmailTemplate
         if (!$this->login->checkGroup(1)) {
             return 'Admin access required';
         }
+
+        # path to be used for the rest of the 
+        $customOverrideABS = XSSHelpers::absolutePath("../templates/email/custom_override/");
+
+        if($customOverrideABS == false){
+            return 'Invalid file directory';
+        }
+
         $list = $this->getEmailAndSubjectTemplateList();
         $validTemplate = $this->isEmailTemplateValid($template, $list);
         if ($validTemplate) {
-            if (file_exists("../templates/email/custom_override/{$template}")) {
-                unlink("../templates/email/custom_override/{$template}");
+            if (file_exists($customOverrideABS."{$template}")) {
+                unlink($customOverrideABS."{$template}");
                 $this->dataActionLogger->logAction(
                     DataActions::RESTORE,
                     LoggableTypes::EMAIL_TEMPLATE_BODY,
@@ -371,16 +380,16 @@ class EmailTemplate
             }
 
             $subjectFileName = htmlentities($_REQUEST['subjectFileName'], ENT_QUOTES);
-            if ($subjectFileName != '' && file_exists("../templates/email/custom_override/{$subjectFileName}")) {
-                unlink("../templates/email/custom_override/{$subjectFileName}");
+            if ($subjectFileName != '' && file_exists($customOverrideABS."{$subjectFileName}")) {
+                unlink($customOverrideABS."{$subjectFileName}");
             }
             $emailToFileName = htmlentities($_REQUEST['emailToFileName'], ENT_QUOTES);
-            if ($emailToFileName != '' && file_exists("../templates/email/custom_override/{$emailToFileName}")) {
-                unlink("../templates/email/custom_override/{$emailToFileName}");
+            if ($emailToFileName != '' && file_exists($customOverrideABS."{$emailToFileName}")) {
+                unlink($customOverrideABS."{$emailToFileName}");
             }
             $emailCcFileName = htmlentities($_REQUEST['emailCcFileName'], ENT_QUOTES);
-            if ($emailCcFileName != '' && file_exists("../templates/email/custom_override/{$emailCcFileName}")) {
-                unlink("../templates/email/custom_override/{$emailCcFileName}");
+            if ($emailCcFileName != '' && file_exists($customOverrideABS."{$emailCcFileName}")) {
+                unlink($customOverrideABS."{$emailCcFileName}");
             }
         }
     }
