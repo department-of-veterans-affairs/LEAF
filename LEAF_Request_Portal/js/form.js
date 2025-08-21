@@ -365,7 +365,7 @@ var LeafForm = function (containerID) {
      * @param {array} conditionTriggerValues array of trigger values to compare against
      * @returns bool
      */
-    const valIncludesMultiselOption = (multiChoiceSelections = [], conditionTriggerValues = []) => {
+    const valIncludesTriggerOption = (multiChoiceSelections = [], conditionTriggerValues = []) => {
       let includesValue = false;
       for (let i = 0; i < multiChoiceSelections.length; i++) {
         if (conditionTriggerValues.includes(multiChoiceSelections[i])) {
@@ -519,7 +519,7 @@ var LeafForm = function (containerID) {
         const parentComparisonValues = cond.selectedParentValue.trim();
         const outcome = cond.selectedOutcome.toLowerCase();
 
-        //multioption formats options will be a string of values separated with \n
+        //parentComparisonValues will be a string of values, separated with \n if there is more than one value set
         const arrCompareValues = parentComparisonValues
           .split("\n")
           .map((option) => option.replaceAll("\r", "").trim());
@@ -550,9 +550,7 @@ var LeafForm = function (containerID) {
           case "==":
           case "!=":
             //define comparison for value equality checking
-            comparison = multiOptionFormats.includes(parentFormat) ?
-              valIncludesMultiselOption(val, arrCompareValues) :
-              val[0] !== undefined && val[0] === arrCompareValues[0];
+            comparison = valIncludesTriggerOption(val, arrCompareValues);
             if(op === "!=") {
               comparison = !comparison;
             }

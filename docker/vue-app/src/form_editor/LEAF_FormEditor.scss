@@ -826,17 +826,32 @@ table[class$="SelectorTable"] th {
             margin-bottom: 1rem;
         }
         button.btn_remove_condition {
-            width: 1.75em;
+            background-color: transparent;
+            color: black;
+            border: 1px solid transparent;
+            padding: 0 0.5rem;
+            font-size: 1.5rem;
         }
-    }
-    #outcome_select {
-        max-width: 700px;
     }
     #condition_editor_inputs > div {
         padding: 1rem 0;
         .choices__inner {
             width: 100%;
             max-width: 700px;
+        }
+        &#condition_preview {
+            display: block;
+            letter-spacing: 0.25px;
+            line-height: 1.4;
+            max-width: 700px;
+            margin: 0.5rem 0 1.5rem 0;
+            ul#parentTriggerList {
+                list-style-type: disc;
+                padding: 0.5rem 1.5rem;
+                li {
+                    display: list-item;
+                }
+            }
         }
     }
     #if-then-setup {
@@ -853,6 +868,13 @@ table[class$="SelectorTable"] th {
         #operator_select {
             width: 25%;
         }
+        > select, > input, .crosswalks select {
+            padding: 0.25rem;
+            border-radius: 2px;
+        }
+        > input {
+            padding: 0.25rem 0.5rem;
+        }
         > div.crosswalks {
             display:flex;
             flex-wrap: wrap;
@@ -862,13 +884,26 @@ table[class$="SelectorTable"] th {
         .choices__inner {
             max-width: 300px;
         }
+        #parent_choices_wrapper .choices__list--dropdown .choices__item--selectable  {
+            overflow-wrap: normal;
+            word-break: break-word;
+        }
     }
+    #outcome-editor {
+        max-width: 700px;
+        > select, > input {
+            padding: 0.25rem;
+            border-radius: 2px;
+        }
+        > input {
+            padding: 0.25rem 0.5rem;
+        }
+    }
+
     select, input:not(.choices__input) {
         font-size: 1rem;
-        padding: 2px;
         text-overflow: ellipsis;
         width: 100%;
-        border: 1px inset gray;
 
         &:not(:last-child) {
             margin-bottom: 1em;
@@ -879,6 +914,7 @@ table[class$="SelectorTable"] th {
         display: flex;
         align-items: center;
         margin-bottom: 0.5rem;
+        gap: 1rem;
     }
     button.btnSavedConditions {
         display: block;
@@ -888,9 +924,8 @@ table[class$="SelectorTable"] th {
         background-color: white;
         padding: 6px;
         border: 1px outset $base-navy;
-        box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.5);
+        box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.25);
         border-radius: 3px;
-        margin-right: 1rem;
         white-space: normal;
         max-width: 700px;
         overflow: hidden;
@@ -908,7 +943,7 @@ table[class$="SelectorTable"] th {
         }
     }
     button.btn-confirm.new {
-        padding: 4px 6px;
+        padding: 0.5rem;
     }
     .changesDetected {
         color: #c80000;
@@ -1018,7 +1053,8 @@ table[class$="SelectorTable"] th {
         border: 0;
         div#if-then-setup {
             flex-direction: column;
-            > select, > h3, #parent_choices_wrapper, #operator_select {
+            align-items: flex-start;
+            > select, #operator_select, #numeric_comparison, #parent_choices_wrapper {
                 width: 100%;
             }
             .choices__inner {

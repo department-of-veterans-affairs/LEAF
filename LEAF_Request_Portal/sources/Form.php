@@ -1558,7 +1558,7 @@ class Form
                 $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency');
                 $conditionMet = false;
                 foreach ($conditions as $c) {
-                    if ($c->childFormat === $format &&
+                    if (!$conditionMet && $c->childFormat === $format &&
                         (strtolower($c->selectedOutcome) === 'hide' || strtolower($c->selectedOutcome) === 'show')) {
 
                         $parentFormat = $c->parentFormat;
@@ -1578,16 +1578,12 @@ class Form
                         switch ($operator) {
                             case '==':
                             case '!=':
-                                if (in_array($parentFormat, $multiChoiceParentFormats)) {
-                                    //true if the current data value includes any of the condition values
-                                    foreach ($currentParentDataValue as $v) {
-                                        if (in_array($v, $conditionParentValue)) {
-                                            $conditionMet = true;
-                                            break;
-                                        }
+                                //true if the current data value includes any of the condition values
+                                foreach ($currentParentDataValue as $v) {
+                                    if (in_array($v, $conditionParentValue)) {
+                                        $conditionMet = true;
+                                        break;
                                     }
-                                } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
-                                    $conditionMet = true;
                                 }
                                 if($operator === "!=") {
                                     $conditionMet = !$conditionMet;
@@ -1631,12 +1627,11 @@ class Form
                             break;
                         }
                     }
-                    //if in hidden state, set parenthidden to true and break out of condition checking.
-                    if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
-                        ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
-                        $parentOrSelfHidden = true;
-                        break;
-                    }
+                }
+                //if in hidden state, set parenthidden to true.
+                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
+                    ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
+                    $parentOrSelfHidden = true;
                 }
                 unset($conditions);
             }
