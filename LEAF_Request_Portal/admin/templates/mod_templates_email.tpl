@@ -572,7 +572,7 @@
     // restores file to default
     function restore() {
         dialog.setTitle('Are you sure?');
-        dialog.setContent('This will restore the template to the original version. ess');
+        dialog.setContent('This will restore the template to the original version.');
         dialog.setSaveHandler(function() {
             $.ajax({
                 type: 'DELETE',
@@ -588,7 +588,6 @@
                         saveFileHistory();
                     }
                     exitExpandScreen();
-                    alert('meow');
                 }
             });
             dialog.hide();
