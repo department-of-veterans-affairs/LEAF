@@ -353,26 +353,4 @@ class XSSHelpers
         return $objectToScrub;
     }
 
-    /**
-     * Turn relative paths to absolute paths
-     * @param string $relative_path
-     * @return bool|string False if not a valid path or a full absolute path string
-     */
-    public static function absolutePath($relative_path) : bool|string
-    {
-
-        // check if this is a real path, if no good then this will return false.
-        $real_path = realpath($relative_path);
-        //var_dump(getcwd(),str_replace('../','',$filepath),$real_path,strstr($real_path.'/', str_replace('../','',$filepath)));
-        // final url should have trailing / all of the urls that would be checked will have this.
-        $real_path .= '/';
-
-        // check against the relative path to make sure this is not going off to an invalid location, ../ is the common url I can see
-        if (strstr($real_path, str_replace('../','',$relative_path)) === false) {
-             $real_path = false;
-        }
-        
-        return $real_path;
-    }
-
 }
