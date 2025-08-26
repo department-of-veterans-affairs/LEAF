@@ -826,11 +826,15 @@ table[class$="SelectorTable"] th {
             margin-bottom: 1rem;
         }
         button.btn_remove_condition {
+            color: $charcoal;
             background-color: transparent;
-            color: black;
-            border: 1px solid transparent;
-            padding: 0 0.5rem;
-            font-size: 1.5rem;
+            outline: 2px solid transparent;
+            border: 1px outset $base-navy;
+            box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.25);
+            padding: 0.5rem;
+            &:active, &:hover, &:focus {
+                outline: 2px solid $LEAF_CSS_outline !important;
+            }
         }
     }
     #condition_editor_inputs > div {
@@ -915,14 +919,16 @@ table[class$="SelectorTable"] th {
         align-items: center;
         margin-bottom: 0.5rem;
         gap: 1rem;
+        max-width: 700px;
     }
     button.btnSavedConditions {
         display: block;
+        position: relative;
         width: 100%;
         text-align: left;
         font-weight: normal;
         background-color: white;
-        padding: 6px;
+        padding: 6px 1.75rem 6px 6px;
         border: 1px outset $base-navy;
         box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.25);
         border-radius: 3px;
@@ -930,6 +936,12 @@ table[class$="SelectorTable"] th {
         max-width: 700px;
         overflow: hidden;
         transition: box-shadow 0.1s ease;
+        > span[role="img"] {
+            position: absolute;
+            top:50%;
+            right: 0.25rem;
+            transform: translate(0, -50%);
+        }
         &.isOrphan {
             background-color: #d8d8d8;
             color: black;

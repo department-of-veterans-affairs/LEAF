@@ -795,8 +795,11 @@ export default {
                                 <p><b>{{ listHeaderText(typeKey) }}</b></p>
                                 <ul>
                                     <li v-for="c in typeVal" :key="c" class="savedConditionsCard">
-                                        <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                        <button type="button" @click="selectConditionFromList(c)"
+                                            title="Edit this Condition"
+                                            class="btnSavedConditions" 
                                             :class="{selectedConditionEdit: JSON.stringify(c) === selectedConditionJSON, isOrphan: isOrphan(c)}">
+                                            <span role="img" aria-hidden="true" alt="">✏️</span>
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
                                                     '{{getIndicatorName(parseInt(c.parentIndID))}}' 
@@ -813,7 +816,7 @@ export default {
                                         <button type="button" class="btn_remove_condition"
                                             title="remove this condition" aria-label="remove this condition"
                                             @click="removeCondition({confirmDelete: false, condition: c})">
-                                            <span role="img" aria-hidden="true" alt="">🗑</span>
+                                            <i class="fa fa-trash" role="img" aria-hidden="true"></i>
                                         </button>
                                     </li>
                                 </ul>
