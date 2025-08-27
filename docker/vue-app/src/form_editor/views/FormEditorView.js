@@ -892,8 +892,7 @@ export default {
             }
         }
     },
-    template:`<FormEditorMenu />
-    <section id="formEditor_content">
+    template:`<section id="formEditor_content">
         <div v-if="appIsLoadingForm || appIsLoadingCategories" class="page_loading">
             Loading... 
             <img src="../images/largespinner.gif" alt="" />
@@ -913,6 +912,7 @@ export default {
                 <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Editor
             </h2>
+            <FormEditorMenu />
             <!-- TOP INFO PANEL -->
             <edit-properties-panel :key="'panel_' + focusedFormID"></edit-properties-panel>
 
