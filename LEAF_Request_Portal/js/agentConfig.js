@@ -225,11 +225,18 @@ var LeafAgentConfig = function (containerID, siteURL) {
 
     function render() {
         let output = '<ol class="agentConfig">';
+        let usesLLM = '';
         config.forEach(instruction => {
+            let showLLM = instruction.type.indexOf('LLM') != -1 ? '🤖 ' : '';
+            if(showLLM != '') {
+                usesLLM = `<p>A robot icon (🤖) indicates use of Large Language Model (LLM) technology, which can make mistakes.
+                            <br />Ensure that your workflow includes steps that verify and correct information when necessary.</p>`;
+            }
+
             if(inst[instruction.type] != undefined) {
-                output += `<li>${inst[instruction.type].explain(instruction.payload)}</li>`;
+                output += `<li>${showLLM}${inst[instruction.type].explain(instruction.payload)}</li>`;
             } else {
-                output += `<li>${instruction.type} - ${JSON.stringify(instruction.payload)}</li>`;
+                output += `<li>${showLLM}${instruction.type} - ${JSON.stringify(instruction.payload)}</li>`;
             }
         });
         output += '</ol>';
@@ -273,7 +280,7 @@ var LeafAgentConfig = function (containerID, siteURL) {
                 text-indent: 0rem;
             }
         </style>`;
-        document.querySelector('#'+containerID).innerHTML = styles + output;
+        document.querySelector('#'+containerID).innerHTML = styles + usesLLM + output;
     }
 
     return {
