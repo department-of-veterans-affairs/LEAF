@@ -50,7 +50,7 @@ func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
 	}
 
 	if indicators[payload.WriteIndicatorID].Format != "text" && indicators[payload.WriteIndicatorID].Format != "textarea" {
-		task.HandleError(0, "updateDataLLMLabel:", fmt.Errorf("Indicator ID %d does not reference a text or textarea field", payload.WriteIndicatorID))
+		task.HandleError(0, "updateDataLLMLabel:", fmt.Errorf("indicator ID %d does not reference a text or textarea field", payload.WriteIndicatorID))
 		return
 	}
 

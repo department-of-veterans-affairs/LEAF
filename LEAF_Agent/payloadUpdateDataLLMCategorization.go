@@ -49,7 +49,7 @@ func updateDataLLMCategorization(task *Task, payload UpdateDataLLMCategorization
 	}
 
 	if len(indicators[payload.WriteIndicatorID].FormatOptions) == 0 {
-		task.HandleError(0, "updateDataLLMCategorization:", fmt.Errorf("Indicator ID %d does not have any options", payload.WriteIndicatorID))
+		task.HandleError(0, "updateDataLLMCategorization:", fmt.Errorf("indicator ID %d does not have any options", payload.WriteIndicatorID))
 		return
 	}
 

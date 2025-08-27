@@ -40,8 +40,7 @@ func HttpGet(url string) (res *http.Response, err error) {
 
 // FormQuery uses the api/form/query endpoint to fetch matching records
 func FormQuery(siteURL string, q query.Query, params string) (query.Response, error) {
-	var response query.Response
-	response = make(map[int]query.Record)
+	response := make(map[int]query.Record)
 	batchSize := 500 // Number of records per batch. Target < 500ms p90 response time
 	limitOffset := 0
 
@@ -69,7 +68,7 @@ func FormQuery(siteURL string, q query.Query, params string) (query.Response, er
 		var batch query.Response
 		err = json.Unmarshal(b, &batch)
 		if err != nil {
-			return nil, fmt.Errorf("Unmarshal: %w (%v)", err, string(b))
+			return nil, fmt.Errorf("unmarshal: %w (%v)", err, string(b))
 		}
 
 		maps.Copy(response, batch)

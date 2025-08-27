@@ -8,6 +8,7 @@ import (
 	"net/http/cookiejar"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -19,17 +20,95 @@ var AGENT_TOKEN = os.Getenv("AGENT_TOKEN")
 var HTTP_HOST = os.Getenv("APP_HTTP_HOST")
 var LLM_API_KEY = os.Getenv("LLM_API_KEY")
 var LLM_CATEGORIZATION_URL = os.Getenv("LLM_CATEGORIZATION_URL")
-var wg sync.WaitGroup
 
-func Runner(ctx context.Context, task chan Task) {
+func Runner(ctxExit context.Context, wg *sync.WaitGroup, task chan Task) {
 	for {
 		select {
 		case t := <-task:
+			wg.Add(1)
 			ExecuteTask(t)
-		case <-ctx.Done():
+			wg.Done()
+		case <-ctxExit.Done():
 			return
 		}
+	}
+}
 
+func taskRequiresLLM(task Task) bool {
+	for _, inst := range task.Instructions {
+		if strings.Contains(inst.Type, "LLM") {
+			return true
+		}
+	}
+	return false
+}
+
+// ProcessTasks handles tasks, only reviewing them when useLLM is true
+func ProcessTasks(ctxExit context.Context, useLLM bool) {
+	wg := &sync.WaitGroup{}
+	var startTime time.Time
+	var loopDuration int
+
+	taskChan := make(chan Task)
+	for range 10 {
+		go Runner(ctxExit, wg, taskChan)
+	}
+
+	for {
+		startTime = time.Now()
+
+		// Capture exit signal
+		select {
+		case <-ctxExit.Done():
+			return
+		default:
+		}
+
+		if !useLLM {
+			err := ReviewTasks()
+			if err != nil {
+				log.Println("Error updating tasks:", err)
+			}
+		}
+
+		tasks, err := FindTasks()
+		if err != nil {
+			log.Println("Error finding tasks:", err)
+		}
+
+		for _, task := range tasks {
+			if (!useLLM && !taskRequiresLLM(task)) || (taskRequiresLLM(task) && useLLM) {
+				taskChan <- task
+
+				select {
+				case <-ctxExit.Done():
+					log.Println("Waiting for in-progress tasks to complete...")
+					wg.Wait()
+					return
+				default:
+				}
+			}
+		}
+
+		wg.Wait()
+
+		// Each loop should be completed within 5 minutes to ensure acceptable quality of service
+		loopDuration = int(time.Since(startTime).Seconds())
+
+		// Minimum cooldown, provides potential opportunity to undo actions for endusers
+		if loopDuration < 10 {
+			cooldown := 10 - loopDuration
+			time.Sleep(time.Duration(cooldown) * time.Second)
+		}
+
+		llmText := ""
+		if useLLM {
+			llmText = "(LLM)"
+		}
+		log.Println("Tasks completed in", loopDuration, "seconds", llmText)
+		if loopDuration > 300 {
+			log.Println("WARNING:", llmText, "Task completion time exceeds limit. Compute resources should be increased to ensure acceptable quality of service.")
+		}
 	}
 }
 
@@ -64,68 +143,23 @@ func main() {
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, os.Interrupt, syscall.SIGTERM)
 
-	taskChan := make(chan Task)
-	for range 10 {
-		go Runner(ctxExit, taskChan)
-	}
-
 	go func() {
 		<-exit
 		log.Println("Attempting to gracefully shutdown due to termination signal")
 		cancel()
 	}()
 
-	var startTime time.Time
-	var loopDuration int
+	var wg sync.WaitGroup
 
-	// Main loop
-	for {
-		startTime = time.Now()
+	// Handle non-LLM tasks
+	wg.Go(func() {
+		ProcessTasks(ctxExit, false)
+	})
 
-		// Capture exit signal
-		select {
-		case <-ctxExit.Done():
-			return
-		default:
-		}
+	// Handle LLM tasks
+	wg.Go(func() {
+		ProcessTasks(ctxExit, true)
+	})
 
-		err := UpdateTasks()
-		if err != nil {
-			log.Println("Error updating tasks:", err)
-		}
-
-		tasks, err := FindTasks()
-		if err != nil {
-			log.Println("Error finding tasks:", err)
-		}
-
-		for _, task := range tasks {
-			wg.Add(1)
-			taskChan <- task
-
-			select {
-			case <-ctxExit.Done():
-				log.Println("Waiting for in-progress tasks to complete...")
-				wg.Wait()
-				return
-			default:
-			}
-		}
-
-		wg.Wait()
-
-		// Each loop should be completed within 5 minutes to ensure acceptable quality of service
-		loopDuration = int(time.Since(startTime).Seconds())
-
-		// Minimum cooldown, provides potential opportunity to undo actions for endusers
-		if loopDuration < 10 {
-			cooldown := 10 - loopDuration
-			time.Sleep(time.Duration(cooldown) * time.Second)
-		}
-
-		log.Println("Tasks completed in", loopDuration, "seconds")
-		if loopDuration > 300 {
-			log.Println("WARNING: Task completion time exceeds limit. Compute resources should be increased to ensure acceptable quality of service.")
-		}
-	}
+	wg.Wait()
 }

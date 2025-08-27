@@ -1,6 +1,6 @@
 module leaf-agent
 
-go 1.24.3
+go 1.25
 
 require github.com/department-of-veterans-affairs/LEAF/pkg/form v0.0.0-00010101000000-000000000000
 

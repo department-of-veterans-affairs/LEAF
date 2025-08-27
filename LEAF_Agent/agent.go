@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html"
 	"log"
@@ -32,7 +31,6 @@ func ExecuteTask(task Task) {
 		if len(records) > 0 {
 			LogTask(task, time.Since(startTime))
 		}
-		wg.Done()
 	}()
 
 	log.Println("Executing Task ID#", task.TaskID)
@@ -101,14 +99,15 @@ loop:
 			updateData4BLLM(&task, ParsePayload[UpdateData4BLLMPayload](ins.Payload))
 
 		default:
-			err = errors.New("Unsupported instruction type: " + ins.Type + "Task ID# " + strconv.Itoa(task.TaskID))
 			log.Println("Unsupported instruction type: ", ins.Type, "Task ID#", task.TaskID)
 			break loop
 		}
 	}
 }
 
-func UpdateTasks() error {
+// ReviewTasks ensures active tasks do not contain duplicates, and promotes pending tasks to an active status
+// This function is not thread safe, and must be run sequentially
+func ReviewTasks() error {
 	q := query.Query{
 		Terms: []query.Term{
 			{
@@ -123,7 +122,7 @@ func UpdateTasks() error {
 
 	res, err := FormQuery(`https://`+HTTP_HOST+`/platform/agent/`, q, "&x-filterData=recordID,stepID,submitted")
 	if err != nil {
-		return fmt.Errorf("Error querying active tasks: %w", err)
+		return fmt.Errorf("error querying active tasks: %w", err)
 	}
 
 	// Get all active tasks
@@ -139,7 +138,7 @@ func UpdateTasks() error {
 			} else {
 				err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, v.RecordID, "2", "Decommission", "")
 				if err != nil {
-					return fmt.Errorf("Error decommissioning duplicate task: %w", err)
+					return fmt.Errorf("error decommissioning duplicate task: %w", err)
 				}
 			}
 		}
@@ -153,13 +152,13 @@ func UpdateTasks() error {
 			if hasNewer {
 				err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, activeTasks[key].RecordID, "2", "Decommission", "")
 				if err != nil {
-					return fmt.Errorf("Error decommissioning older task: %w", err)
+					return fmt.Errorf("error decommissioning older task: %w", err)
 				}
 			}
 
 			err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, recordID, "1", "Activate", "")
 			if err != nil {
-				return fmt.Errorf("Error activating task: %w", err)
+				return fmt.Errorf("error activating task: %w", err)
 			}
 		}
 	}

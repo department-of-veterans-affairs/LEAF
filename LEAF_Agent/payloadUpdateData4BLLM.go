@@ -50,7 +50,7 @@ func updateData4BLLM(task *Task, payload UpdateData4BLLMPayload) {
 	}
 
 	if indicators[payload.WriteIndicatorID].Format != "text" && indicators[payload.WriteIndicatorID].Format != "textarea" {
-		task.HandleError(0, "updateData4BLLM:", fmt.Errorf("Indicator ID %d does not reference a text or textarea field", payload.WriteIndicatorID))
+		task.HandleError(0, "updateData4BLLM:", fmt.Errorf("indicator ID %d does not reference a text or textarea field", payload.WriteIndicatorID))
 		return
 	}
 
