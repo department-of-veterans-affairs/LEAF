@@ -47,9 +47,14 @@ abstract class RESTfulResponse
 
                 break;
             case 'POST':
-                if ($_POST['CSRFToken'] == $_SESSION['CSRFToken']) {
+                if (!isset($_POST['CSRFToken'])) {
+                    $_POST['CSRFToken'] = '';
+                }
+
+                if (hash_equals($_SESSION['CSRFToken'], $_POST['CSRFToken'])) {
                     $return_value = $this->output($this->post($action));
                 } else {
+                    http_response_code(401);
                     $return_value = $this->output('Invalid Token.');
                 }
 
@@ -58,10 +63,19 @@ abstract class RESTfulResponse
                 $DELETE_vars = [];
                 parse_str(file_get_contents('php://input', false, null, 0, 8192), $DELETE_vars); // only parse the first 8192 characters (arbitrary limit)
 
-                if ($_GET['CSRFToken'] == $_SESSION['CSRFToken'] // Deprecation warning: The _GET implementation should be removed in favor of $DELETE_vars
-                    || $DELETE_vars['CSRFToken'] == $_SESSION['CSRFToken']) {
+                if (!isset($DELETE_vars['CSRFToken'])) {
+                    $DELETE_vars['CSRFToken'] = '';
+                }
+                
+                if (hash_equals($_SESSION['CSRFToken'], $DELETE_vars['CSRFToken'])) {
                     $return_value = $this->output($this->delete($action));
-                } else {
+                }
+                // Deprecation warning: The _GET implementation should be removed in favor of $DELETE_vars
+                else if (isset($_GET['CSRFToken']) && hash_equals($_SESSION['CSRFToken'], $_GET['CSRFToken'])) {
+                    $return_value = $this->output($this->delete($action));
+                }
+                else {
+                    http_response_code(401);
                     $return_value = $this->output('Invalid Token.');
                 }
 
