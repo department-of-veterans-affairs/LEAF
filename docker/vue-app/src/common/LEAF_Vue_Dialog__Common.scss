@@ -133,6 +133,9 @@ ul {
     margin: 0;
     padding: 0;
 }
+div[class*="trumbowyg"] ul {
+    list-style-type: disc;
+}
 label {
     padding: 0;
     display: flex;
@@ -193,6 +196,9 @@ td a.router-link {
     li {
         display: flex;
         align-items: center;
+    }
+    div[class*="trumbowyg"] li {
+        display: list-item;
     }
     .leaf-vue-dialog-title {
         color: $charcoal;

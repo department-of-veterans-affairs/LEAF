@@ -368,7 +368,7 @@ export default {
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>
                 <router-link :to="{ name: 'browser' }" class="leaf-crumb-link" title="to Form Browser">Form Browser</router-link>
                 <i class="fas fa-caret-right leaf-crumb-caret"></i>Restore Fields
-            </h2>
+            </h2><br>
             <h3>List of disabled fields available for recovery</h3>
             <div>Deleted fields and associated data will not display in the Report Builder.</div>
             <div v-if="loading === true" class="page_loading">

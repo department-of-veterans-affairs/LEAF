@@ -8,7 +8,8 @@ nav#top-menu-nav {
         justify-content: flex-start;
         color: $charcoal;
         background-color: $lt_cyan;
-        border-bottom: 1px solid $charcoal;
+        box-shadow: 1px 1px 2px 1px rgba(0,0,20,0.4);
+        border-radius: 3px;
         position: relative;
         z-index: 10;
         margin-bottom: 1rem;
@@ -31,7 +32,7 @@ nav#top-menu-nav {
         };
         button, a {
             margin: 0;
-            padding-right: 0.4rem;
+            padding: 2px 0.625rem 2px 0.5rem !important;
             @include flexcenter;
             position: relative;
             background-color: inherit;
@@ -46,9 +47,6 @@ nav#top-menu-nav {
                 background-color: $base_navy;
                 color: white;
             }
-        }
-        span[role="img"] {
-            margin-left: 0.25rem;
         }
     }
 }
@@ -113,6 +111,7 @@ nav#top-menu-nav {
 }
 
 #form_browser_tables {
+    margin-top: 2rem;
     h3 {
         color: black;
     }
