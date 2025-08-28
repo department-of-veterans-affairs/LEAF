@@ -65,7 +65,7 @@ function showFiles() {
                 }},
                 {name: 'Last Modified', indicatorID: 'lastModified', editable: false, callback: function(data, blob) {
                     let modTime = new Date(blob[data.recordID].modifiedTime * 1000);
-                    $('#'+data.cellContainerID).html(modTime.toLocaleDateString());
+                    $('#'+data.cellContainerID).html(modTime.toLocaleDateString() + ' ' + modTime.toLocaleTimeString());
                 }},
                 {name: '', indicatorID: 'delete', editable: false, callback: function(data, blob) {
                     $('#'+data.cellContainerID).html(`<a href="#" onclick="deleteFile('${blob[data.recordID].file}')">Delete</a>`);
