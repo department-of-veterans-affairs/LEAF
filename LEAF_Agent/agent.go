@@ -67,6 +67,8 @@ loop:
 		}
 
 		switch ins.Type {
+		case "annotation":
+			// no-op. for documentation purposes only
 		case "route":
 			route(&task, ParsePayload[RoutePayload](ins.Payload))
 

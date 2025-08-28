@@ -48,9 +48,11 @@ func ProcessTasks(ctxExit context.Context, useLLM bool) {
 	wg := &sync.WaitGroup{}
 	var startTime time.Time
 	var loopDuration int
-
 	taskChan := make(chan Task)
-	for range 10 {
+
+	// Start workers
+	// Try to optimize for parallel requests on the LLM host
+	for range 8 {
 		go Runner(ctxExit, wg, taskChan)
 	}
 

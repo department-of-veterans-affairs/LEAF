@@ -6,6 +6,12 @@ var LeafAgentConfig = function (containerID, siteURL) {
     let requestLabel = 'Request';
     let indicator = {}; // form fields
     let inst = { // Instruction definitions
+        'annotation': {
+            'label': 'Annotation',
+            'explain': (payload) => {
+                return `(${payload.data})`;
+            }
+        },
         'holdForDuration': {
             'label': 'Hold Record',
             'explain': (payload) => {
