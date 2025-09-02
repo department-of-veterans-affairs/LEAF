@@ -352,5 +352,4 @@ class XSSHelpers
 
         return $objectToScrub;
     }
-
 }
