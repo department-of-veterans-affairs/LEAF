@@ -1743,7 +1743,7 @@ class FormWorkflow
             $data = $field["data"];
             $emailValue = "";
 
-            $format = strtolower(explode(PHP_EOL, $field["format"])[0] ?? "");
+            $format = trim(strtolower(explode(PHP_EOL, $field["format"])[0] ?? ""));
             switch($format) {
                 case "grid":
                     if(!empty($data) && is_array(unserialize($data))){
