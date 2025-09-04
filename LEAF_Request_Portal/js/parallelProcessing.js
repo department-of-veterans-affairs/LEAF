@@ -376,7 +376,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 series: series
             },
             success: function(res) {
-                if (res !== 1) {
+                if (+res !== 1) {
                     if (res.type === 2) {
                         alert('Error: ' + fileName + " failed to copy.\nReason: File does not exist or file name format incorrect");
                     } else {
