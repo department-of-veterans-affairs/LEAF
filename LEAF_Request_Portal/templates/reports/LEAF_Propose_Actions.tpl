@@ -25,6 +25,18 @@ table.leaf_grid > tbody > tr > td, table select {
 .buttonNorm {
     border-radius: 8px;
 }
+label {
+    line-height: 1.3rem;
+}
+input, .input textarea, select {
+    max-width: 30rem;
+    width: 100%;
+    padding: .5rem;
+}
+.input ul, .input li {
+    margin-bottom: 1rem;
+    list-style-type: none;
+}
 </style>
 <script>
 function scrubHTML(input) {
@@ -101,8 +113,8 @@ function updateUrlColumnState(customColumns) {
 function getDataHeader(colID, fieldData = null, indicator = null, isFinalProposal = false) {
     let fieldName = '';
     if(fieldData != null && fieldData[colID] != undefined) {
-        fieldName = fieldData[colID][1].description == '' ? fieldData[colID][1].name : fieldData[colID][1].description;
-        indicator = fieldData[colID][1];
+        fieldName = fieldData[colID].description == '' ? fieldData[colID].name : fieldData[colID].description;
+        indicator = fieldData[colID];
     } else if (indicator != null) {
         fieldName = indicator.name;
     } else if (colID == 'service') {
@@ -193,7 +205,7 @@ async function setupProposals(stepID) {
     let dependencyID = null;
     if(dependencies.length > 1) {
         document.querySelector('#selectDependency').style.display = 'list-item';
-        document.querySelector('#selectDependency').innerHTML = '<label>Select a role <span style="color: #c00">*required</span>: <select id="dependencySelect"><option value="">Select...</option></select></label>';
+        document.querySelector('#selectDependency').innerHTML = '<label>Select a role <span style="color: #c00">*required</span><br /><select id="dependencySelect"><option value="">Select...</option></select></label>';
         dependencies.forEach(dep => {
             document.querySelector('#dependencySelect').innerHTML += `<option value="${dep.dependencyID}">${dep.description}</option>`;
         });
@@ -227,6 +239,7 @@ async function setupProposals(stepID) {
     
     let query = new LeafFormQuery();
     query.addTerm('stepID', '=', stepID);
+    query.addTerm('deleted', '=', 0);
     query.join('categoryName');
     query.join('unfilledDependencies');
     query.join('service');
@@ -238,19 +251,14 @@ async function setupProposals(stepID) {
     }
 
     // prep data for column customization
-    let firstRecordCategories = data[Object.keys(data)[0]].categoryIDs;
-    let catID = getPrimaryCategory(activeCategories, firstRecordCategories).categoryID;
+    let resFieldData = await fetch(`./api/form/indicator/list?x-filterData=indicatorID,name,description,format,categoryID,categoryName`).then(res => res.json());
+
+    // add indexes
     let fieldData = {};
-    let fieldPromises = [];
-    firstRecordCategories.forEach(catID => {
-        fieldPromises.push(fetch(`./api/form/_${catID}/flat`).then(res => res.json()));
-    });
-    let promiseResults = await Promise.all(fieldPromises);
-    promiseResults.forEach(result => {
-        for(let i in result) {
-            fieldData = {...fieldData, ...result};
-        }
-    });
+    for(let i in resFieldData) {
+        let indicatorID = resFieldData[i].indicatorID;
+        fieldData[indicatorID] = resFieldData[i];
+    }
     
     let headers = [
         {name: '#', indicatorID: 'uid', editable: false, callback: function(data, blob) {
@@ -293,6 +301,7 @@ async function setupProposals(stepID) {
     if(indicatorIDs) {
         let query = new LeafFormQuery();
         query.addTerm('stepID', '=', stepID);
+        query.addTerm('deleted', '=', 0);
         query.join('categoryName');
         query.join('unfilledDependencies');
         query.join('service');
@@ -320,23 +329,57 @@ async function setupProposals(stepID) {
         grid.renderBody();
     }
     
+    document.querySelector('#' + grid.getPrefixID() + 'header_decision').style.minWidth = '10rem';
 
     // add options for column customization
+    let unabridgedCategories = {}; // categories including internal use and stapled forms
+    for(let i in data) {
+        if(data[i].categoryIDs == undefined) {
+            continue;
+        }
+        data[i].categoryIDs.forEach(category => {
+            unabridgedCategories[category] = true;
+        });
+    }
+
     let fields = [];
+    let fieldsByForm = {};
     for(let i in fieldData) {
         if(fieldData[i].format != '') {
-            fields.push(fieldData[i][1]);
+            if(fieldsByForm[fieldData[i].categoryName] == undefined) {
+                fieldsByForm[fieldData[i].categoryName] = [];
+            }
+            fieldData[i].name = fieldData[i].description == '' ? fieldData[i].name : fieldData[i].description;
+            fieldData[i].name = scrubHTML(fieldData[i].name);
+            fieldsByForm[fieldData[i].categoryName].push(fieldData[i]);
         }
     }
+
+    // sort fields alphabetically
     let collator = new Intl.Collator('en', {numeric: true, sensitivity: 'base'});
-    fields.sort((a, b) => collator.compare(a.name, b.name));
+    for(let i in fieldsByForm) {
+        fieldsByForm[i].sort((a, b) => collator.compare(a.name, b.name));
+    }
+    let sortedForms = Object.keys(fieldsByForm).sort((a, b) => collator.compare(a, b));
 
     let columnsHTML = '<option value="service">Service</option>';
-    fields.forEach(field => {
-        if(field.format != '') {
-            let fieldName = field.description == '' ? field.name : field.description;
-            fieldName = scrubHTML(fieldName);
-            columnsHTML += `<option value="${field.indicatorID}">${field.name}</option>`;
+    sortedForms.forEach(form => {
+        let hasFields = false;
+        let temp = '';
+
+        temp = `<optgroup label="${form}">`;
+        fieldsByForm[form].forEach(field => {
+            // skip non-applicable fields
+            if(unabridgedCategories[field.categoryID] == undefined) {
+                return;
+            }
+            hasFields = true;
+            temp += `<option value="${field.indicatorID}">${field.name}</option>`;
+        });
+        temp += `</optgroup>`;
+
+        if(hasFields) {
+            columnsHTML += temp;
         }
     });
     document.querySelector('#fieldNames').innerHTML = columnsHTML;
@@ -358,6 +401,7 @@ async function setupProposals(stepID) {
 
         var query = new LeafFormQuery();
         query.addTerm('stepID', '=', stepID);
+        query.addTerm('deleted', '=', 0);
         query.join('categoryName');
         query.join('unfilledDependencies');
         query.join('service');
@@ -415,6 +459,11 @@ function prepareProposal(actions, dependencyID, fieldData) {
         return;
     }
 
+    if(document.querySelector('#proposalTitle').value == '') {
+        alert("A title is required");
+        return;
+    }
+
     const url = new URL(location);
 
     let cleanActions = [];
@@ -449,12 +498,12 @@ function prepareProposal(actions, dependencyID, fieldData) {
                 fieldData['service'][1].description = '';
                 fieldData['service'][1].format = 'text';
             }
-            let fieldName = fieldData[id][1].description == '' ? fieldData[id][1].name : fieldData[id][1].description;
+            let fieldName = fieldData[id].description == '' ? fieldData[id].name : fieldData[id].description;
             fieldName = scrubHTML(fieldName);
             proposal.indicatorIDs.push({
                 indicatorID: id,
                 name: fieldName,
-                format: fieldData[id][1].format
+                format: fieldData[id].format
             });
         });
     }
@@ -491,6 +540,7 @@ async function showProposal(encodedProposal) {
 
     let query = new LeafFormQuery();
     query.addTerm('stepID', '=', proposal.stepID);
+    query.addTerm('deleted', '=', 0);
     query.join('categoryName');
     query.join('service');
     proposal.indicatorIDs.forEach(indicator => {
@@ -562,6 +612,8 @@ async function showProposal(encodedProposal) {
 
     grid.setHeaders(headers);
     grid.renderBody();
+
+    document.querySelector('#' + grid.getPrefixID() + 'header_decision').style.minWidth = '10rem';
 
     document.querySelector('#btn_approveProposal').addEventListener('click', async () => {
         let confirm_dialog = new dialogController('confirm_xhrDialog', 'confirm_xhr', 'confirm_loadIndicator', 'confirm_button_save', 'confirm_button_cancelchange');
@@ -664,6 +716,7 @@ async function showOriginalProposal(encodedProposal) {
     }
     query.join('categoryName');
     query.join('service');
+    query.join('action_history');
     proposal.indicatorIDs.forEach(indicator => {
         if(Number.isFinite(+indicator.indicatorID)) {
             query.getData(indicator.indicatorID);
@@ -710,6 +763,21 @@ async function showOriginalProposal(encodedProposal) {
             let comment = `<p>${scrubHTML(proposal.comments[data.recordID])}</p>`;
             document.querySelector(`#${data.cellContainerID}`).innerHTML = comment;
         }},
+        {name: '', indicatorID: 'spacer', editable: false, sortable: false, callback: function(data, blob) {
+            document.querySelector(`#${data.cellContainerID}`).style.backgroundColor = 'black';
+        }},
+        {name: 'Action Taken', indicatorID: 'finalDecision', editable: false, callback: function(data, blob) {
+            let finalAction = '';
+            if(blob[data.recordID].action_history != undefined) {
+                blob[data.recordID].action_history.forEach(action => {
+                    if(action.stepID == proposal.stepID) {
+                        finalAction = action.actionTextPasttense;
+                    }
+                });
+            }
+            
+            document.querySelector(`#${data.cellContainerID}`).innerHTML = finalAction;
+        }},
     ];
 
     proposal.indicatorIDs.forEach(indicator => {
@@ -719,6 +787,7 @@ async function showOriginalProposal(encodedProposal) {
 
     grid.setHeaders(headers);
     grid.renderBody();
+    document.querySelector('#' + grid.getPrefixID() + 'header_spacer').style.backgroundColor = 'black';
 
     let origLink = `<p style="margin-top: 5rem"><a href="report.php?a=LEAF_Propose_Actions&proposal=${encodedProposal}">View actionable records</a></p>`;
     document.querySelector('#proposalStatus').innerHTML = origLink;
@@ -767,10 +836,10 @@ document.addEventListener('DOMContentLoaded', main);
 <div id="setupProposals" style="display: none" class="card">
     <h1>Create Proposal<span id="stepName">Loading...</span></h1>
     <p>Records without a proposed action will not be listed during final review.</p>
-    <ul>
+    <ul class="input">
         <li id="selectDependency" style="display: none"></li>
-        <li><label>Title of proposal: <input type="text" id="proposalTitle" /></label></li>
-        <li><label>Description: <textarea id="proposalDescription"></textarea></label></li>
+        <li><label>Title of proposal <span style="color: #c00">*required</span><br /><input type="text" id="proposalTitle" /></label></li>
+        <li><label>Description<br /><textarea id="proposalDescription"></textarea></label></li>
     </ul>
     <h2>Customize Columns</h2>
     <p>Data columns may be added to provide relevant information during final review.</p>
