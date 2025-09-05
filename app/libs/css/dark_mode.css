@@ -6,101 +6,118 @@
 /* Define CSS custom properties for consistent theming */
 :root {
   /* Light mode colors (default) */
-  --bg-primary: #f3f3f3;
-  --bg-secondary: white;
-  --bg-tertiary: #e8f2ff;
-  --bg-accent: #caecff;
-  --bg-header: #5a79a5;
-  --bg-alert: #9d0000;
-  --bg-warning: #ee9a9a;
-  --bg-success: #e0e0e0;
 
-  --text-primary: black;
-  --text-secondary: #444;
-  --text-tertiary: #777;
-  --text-muted: #565c65;
-  --text-inverse: white;
-  --text-link: #004b76;
-  --text-link-hover: #f04e0b;
+  /* Background Colors */
+  --bg-primary: #6B7280; /* USWDS cool gray 30 */
+  --bg-secondary: #4B5563; /* USWDS cool gray 50 */
+  --bg-tertiary: #6B7280; /* USWDS cool gray 30 */
+  --bg-accent: #6B7280; /* USWDS cool gray 30 */
+  --bg-header: linear-gradient(#ffffff, #ccd9ff);
+  --bg-alert: #F56565; /* VA red 50 */
+  --bg-warning: #FEB2B2; /* VA red 40 */
+  --bg-success: #2F855A; /* USWDS green 60 */
 
-  --border-primary: black;
-  --border-secondary: #ddd;
-  --border-tertiary: #bbb;
-  --border-light: #e0e0e0;
+  /* Text Colors */
+  --text-primary: #FAFAFA; /* USWDS warm gray 0 */
+  --text-secondary: #E2E8F0; /* USWDS gray 30 */
+  --text-tertiary: #CBD5E0; /* USWDS gray 40 */
+  --text-muted: #A0AEC0; /* USWDS cool gray 50 */
+  --text-inverse: #2D3748; /* USWDS cool gray 60 */
+  --text-link: #90CDF4; /* VA blue 30 */
+  --text-link-hover: #FAF089; /* VA yellow 40 */
 
-  --shadow-color: rgba(142, 142, 142, 0.6);
-  --hover-bg: #2372b0;
+  /* Border Colors */
+  --border-primary: #718096; /* USWDS cool gray 50 */
+  --border-secondary: #4A5568; /* USWDS cool gray 60 */
+  --border-tertiary: #A0AEC0; /* USWDS cool gray 50 */
+  --border-light: #CBCBCB; /* USWDS cool gray 20 */
+
+  /* Additional Colors */
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --hover-bg: #3B82F6; /* USWDS blue 40 */
   --hover-text: white;
 
-  /* Component specific colors */
-  --position-bg: #caecff;
-  --position-title-bg: #a8dfff;
-  --group-bg: #f6cafd;
-  --group-title-bg: #cb9ed7;
-  --employee-bg: #ffe3e3;
-  --employee-title-bg: #f4bcbc;
-  --facility-bg: #808080;
-  --facility-header-bg: black;
+  /* Component Specific Colors */
+  --position-bg: #3B82F6; /* USWDS blue 40 */
+  --position-title-bg: #90CDF4; /* VA blue 30 */
+  --group-bg: #B794F4; /* USWDS purple 40 */
+  --group-title-bg: #D6BCFA; /* VA violet 30 */
+  --employee-bg: #F56565; /* VA red 50 */
+  --employee-title-bg: #FEB2B2; /* VA red 40 */
+  --facility-bg: #4A5568; /* USWDS cool gray 60 */
+  --facility-header-bg: #2D3748; /* USWDS cool gray 60 */
 
-  --table-header-bg: #e0e0e0;
-  --table-row-bg: white;
-  --table-border: black;
+  /* Table Specific Colors */
+  --table-header-bg: #6B7280; /* USWDS cool gray 30 */
+  --table-row-bg: #4A5568; /* USWDS cool gray 70 */
+  --table-border: #A0AEC0; /* USWDS cool gray 50 */
 
-  --menu-bg: #e8f2ff;
-  --menu-hover-bg: #2372b0;
-  --toolbar-bg: #c0dbff;
-  --comments-bg: #e6e4b9;
-  --comments-item-bg: #fffdcd;
+  /* Menu, Toolbar, and Comments Colors */
+  --menu-bg: #6B7280; /* USWDS cool gray 40 */
+  --menu-hover-bg: #60A5FA; /* USWDS blue 40 */
+  --toolbar-bg: #4A5568; /* USWDS cool gray 70 */
+  --comments-bg: #A76945; /* USWDS brown 50 */
+  --comments-item-bg: #B35A30; /* USWDS brown 40 */
 }
 
 /* Dark mode colors */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #2d2d2d;
-    --bg-tertiary: #3d3d3d;
-    --bg-accent: #4a4a4a;
-    --bg-header: #1f2937;
-    --bg-alert: #dc2626;
-    --bg-warning: #ef4444;
-    --bg-success: #374151;
+    /* Background Colors */
+    --bg-primary: #e1e2e4; /* USWDS cool gray 40 */
+    --bg-secondary: #1F2937; /* USWDS cool gray 80 */
+    --bg-tertiary: #1F2937; /* USWDS cool gray 80 */
+    --bg-accent: #2D3748; /* USWDS cool gray 60 */
+    --bg-header: #c6cace;
+    --bg-alert: #e52207; /* VA red 90 */
+    --bg-warning: #fee685; /* VA red 80 */
+    --bg-success: #22543D; /* USWDS green 90 */
+    --bg-button-header: #c6cace;
+    --bg-button-primary: #d9e8f6;
 
-    --text-primary: #e5e5e5;
-    --text-secondary: #d1d5db;
-    --text-tertiary: #9ca3af;
-    --text-muted: #6b7280;
-    --text-inverse: #1a1a1a;
-    --text-link: #60a5fa;
-    --text-link-hover: #fbbf24;
+    /* Text Colors */
+    --text-primary: #2e2e2e; /* USWDS gray 10 */
+    --text-secondary: #A0AEC0; /* USWDS cool gray 50 */
+    --text-tertiary: #718096; /* USWDS cool gray 60 */
+    --text-muted: #4A5568; /* USWDS cool gray 70 */
+    --text-inverse: #0C0C0C; /* USWDS cool gray 90 */
+    --text-link: #2378c3; /* VA blue 70 */
+    --text-link-hover: #ECC94B; /* VA yellow 60 */
+    --text-warning: #0c0c0c;
 
-    --border-primary: #4b5563;
-    --border-secondary: #374151;
-    --border-tertiary: #6b7280;
-    --border-light: #4b5563;
+    /* Border Colors */
+    --border-primary: #2D3748; /* USWDS cool gray 70 */
+    --border-secondary: #1A202C; /* USWDS cool gray 80 */
+    --border-tertiary: #4B5563; /* USWDS cool gray 70 */
+    --border-light: #1A202C; /* USWDS cool gray 80 */
 
-    --shadow-color: rgba(0, 0, 0, 0.8);
-    --hover-bg: #1d4ed8;
+    /* Additional Colors */
+    --shadow-color: rgba(0, 0, 0, 1);
+    --hover-bg: #1E40AF; /* USWDS blue 70 */
     --hover-text: white;
 
-    /* Component specific dark colors */
-    --position-bg: #1e40af;
-    --position-title-bg: #1d4ed8;
-    --group-bg: #7c3aed;
-    --group-title-bg: #8b5cf6;
-    --employee-bg: #dc2626;
-    --employee-title-bg: #ef4444;
-    --facility-bg: #374151;
-    --facility-header-bg: #111827;
+    /* Component Specific Dark Colors */
+    --position-bg: #1A202C; /* USWDS cool gray 80 */
+    --position-title-bg: #2C5282; /* VA blue 70 */
+    --group-bg: #553C9A; /* USWDS purple 80 */
+    --group-title-bg: #9F7AEA; /* VA violet 70 */
+    --employee-bg: #9B2C2C; /* VA red 90 */
+    --employee-title-bg: #C53030; /* VA red 80 */
+    --facility-bg: #1F2937; /* USWDS cool gray 80 */
+    --facility-header-bg: #0a0f16; /* Custom dark */
 
-    --table-header-bg: #374151;
-    --table-row-bg: #2d2d2d;
-    --table-border: #4b5563;
+    /* Table Specific Dark Colors */
+    --table-header-bg: #2378c3; /* USWDS cool gray 90 */
+    --table-header-color: #e7f6f8;
+    --table-row-bg: #e1e2e4; /* USWDS cool gray 90 */
+    --table-border: #1A202C; /* USWDS cool gray 70 */
 
-    --menu-bg: #374151;
-    --menu-hover-bg: #1d4ed8;
-    --toolbar-bg: #1f2937;
-    --comments-bg: #451a03;
-    --comments-item-bg: #78350f;
+    /* Menu, Toolbar, and Comments Background Colors */
+    --menu-bg: #c6cace; /* USWDS cool gray 90 */
+    --menu-hover-bg: #1E3A8A; /* USWDS blue 70 */
+    --toolbar-bg: #111827; /* USWDS cool gray 90 */
+    --comments-bg: #321B11; /* USWDS brown 90 */
+    --comments-item-bg: #5D2D13; /* USWDS brown 90 */
   }
 }
 
@@ -124,6 +141,11 @@ body a:hover {
 
 span {
   color: var(--text-primary);
+}
+
+span.browsecounter a:link,
+span.browsecounter a:visited {
+  color: var(--bg-primary);
 }
 
 input {
@@ -223,8 +245,19 @@ span#headerLabel {
    ALERTS AND NOTIFICATIONS
    ============================================================================= */
 
+.warning{
+  background-color: var(--bg-warning);
+  color: var(--text-warning);
+  border: 1px solid;
+  border-color: var(--border-tertiary);
+  font-weight: bold;
+  font-size: 16px;
+  padding: 4px;
+}
+
 .alert {
   background-color: var(--bg-alert);
+  color: var(--text-primary);
   border-color: var(--border-primary);
 }
 
@@ -307,6 +340,10 @@ div.employeeHeader {
    TABLES
    ============================================================================= */
 
+table {
+  background-color: var(--table-row-bg);
+}
+
 table.table,
 table.leaf_grid,
 table.agenda {
@@ -317,7 +354,7 @@ table.agenda {
 .table > thead,
 table.leaf_grid th {
   background-color: var(--table-header-bg);
-  color: var(--text-primary);
+  color: var(--table-header-color);
 }
 
 .table > tbody,
@@ -357,11 +394,26 @@ table.leaf_grid th:focus {
 /* =============================================================================
    BUTTONS AND INTERACTIVE ELEMENTS
    ============================================================================= */
+.headerButton,
+button.headerButton,
+a.headerButton {
+  background-color: var(--menu-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-tertiary);
+}
+
+.headerButton:hover,
+.headerButton,
+.headerButton:focus,
+button.headerButton:hover,
+button.headerButton:focus {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
 
 .buttonNorm,
 button.buttonNorm {
-  background-color: var(--menu-bg);
-  border-color: var(--border-primary);
+  background-color: var(--bg-button-primary);
   color: var(--text-primary);
 }
 
@@ -425,6 +477,16 @@ button.tools:focus {
   color: var(--hover-text);
 }
 
+#searchContainer.buttonNorm {
+  border: 1px solid;
+  background-color: var(--bg-button-primary);
+
+}
+
+span.leaf_check {
+  background-color: var()
+}
+
 /* =============================================================================
    TOOLBARS AND NAVIGATION
    ============================================================================= */
@@ -460,6 +522,10 @@ button.tools:focus {
   color: var(--hover-text);
 }
 
+#headerMenu_links,
+#headerMenu_help {
+  background-color: var(--bg-primary)
+}
 /* =============================================================================
    COMMENTS AND MESSAGING
    ============================================================================= */
@@ -721,7 +787,7 @@ span.printResponse {
   input[type="password"],
   textarea,
   select {
-    background-color: #374151;
+    background-color: var(--bg-primary);
     color: #e5e5e5;
     border-color: #6b7280;
   }
@@ -993,7 +1059,7 @@ span.printResponse {
 
     [style*="background-color: rgb(254, 255, 209)"],
     [style*="background-color:rgb(254, 255, 209)"] {
-        background-color: #4a5568 !important;
+        background-color: #e1e2e4 !important;
     }
 
     [style*="background-color: white"],
@@ -1026,7 +1092,7 @@ span.printResponse {
 
     [style*="color: #e00000"],
     [style*="color:#e00000"] {
-        color: #fca5a5 !important;
+        color: #d32030 !important;
     }
 
     [style*="color: black"],
