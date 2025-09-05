@@ -68,7 +68,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* Background Colors */
-    --bg-primary: #1a1a1a; /* USWDS cool gray 40 */
+    --bg-primary: #2d2d2d; /* USWDS cool gray 40 */
     --bg-secondary: #2d2d2d; /* USWDS cool gray 80 */
     --bg-tertiary: #404040; /* USWDS cool gray 80 */
     --bg-accent: #525252; /* USWDS cool gray 60 */
@@ -87,7 +87,7 @@
     --text-inverse: #1a1a1a; /* USWDS cool gray 90 */
     --text-link: #60a5fa; /* VA blue 70 */
     --text-link-hover: #93c5fd; /* VA yellow 60 */
-    --text-warning: #fcd34d;
+    --text-warning: #dc2626;
 
     /* Border Colors */
     --border-primary: #525252; /* USWDS cool gray 70 */
@@ -113,8 +113,8 @@
     /* Table Specific Dark Colors */
     --table-header-bg: #1e40af;
     --table-header-color: #f3f4f6;
-    --table-row-bg: #2d2d2d;
-    --table-border: #404040;
+    --table-row-bg: #242424;
+    --table-border: #2d2d2d;
 
     /* Menu, Toolbar, and Comments Background Colors */
     --menu-bg: #2d2d2d;
@@ -250,14 +250,17 @@ span#headerLabel {
    ALERTS AND NOTIFICATIONS
    ============================================================================= */
 
-.warning{
+.warning {
   background-color: var(--bg-warning);
-  color: var(--text-warning);
   border: 1px solid;
   border-color: var(--border-tertiary);
   font-weight: bold;
   font-size: 16px;
   padding: 4px;
+}
+
+div.warning span {
+  color: var(--text-warning);
 }
 
 .alert {
@@ -388,6 +391,12 @@ table.leaf_grid th:focus {
 
 .table_editable:hover a {
   color: var(--hover-text);
+}
+
+table.leaf_grid thead tr th, table.leaf_grid tbody tr td, table.leaf_grid tfoot tr td {
+    border-bottom: 1px solid var(--table-border);
+    border-right: 1px solid var(--table-border);
+    transition: filter 0.25s;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1064,7 +1073,7 @@ span.printResponse {
 
     [style*="background-color: rgb(254, 255, 209)"],
     [style*="background-color:rgb(254, 255, 209)"] {
-        background-color: #2d2d2d !important;
+        background-color: #242424 !important;
     }
 
     [style*="background-color: white"],
