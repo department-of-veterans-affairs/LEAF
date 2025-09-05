@@ -53,7 +53,7 @@
     /* Table Specific Dark Colors */
     --table-header-bg: #2378c3; /* USWDS cool gray 90 */
     --table-header-color: #e7f6f8;
-    --table-row-bg: #e1e2e4; /* USWDS cool gray 90 */
+    --table-row-bg: #adadad; /* USWDS cool gray 90 */
     --table-border: #1A202C; /* USWDS cool gray 70 */
 
     /* Menu, Toolbar, and Comments Background Colors */
@@ -68,7 +68,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* Background Colors */
-    --bg-primary: #2d2d2d; /* USWDS cool gray 40 */
+    --bg-primary: #757575; /* USWDS cool gray 40 */
     --bg-secondary: #2d2d2d; /* USWDS cool gray 80 */
     --bg-tertiary: #404040; /* USWDS cool gray 80 */
     --bg-accent: #525252; /* USWDS cool gray 60 */
@@ -85,7 +85,8 @@
     --text-tertiary: #9ca3af; /* USWDS cool gray 60 */
     --text-muted: #6b7280; /* USWDS cool gray 70 */
     --text-inverse: #1a1a1a; /* USWDS cool gray 90 */
-    --text-link: #60a5fa; /* VA blue 70 */
+    --text-link: #1e40af; /* VA blue 70 */
+    --text-header-link: #60a5fa;
     --text-link-hover: #93c5fd; /* VA yellow 60 */
     --text-warning: #dc2626;
 
@@ -113,7 +114,7 @@
     /* Table Specific Dark Colors */
     --table-header-bg: #1e40af;
     --table-header-color: #f3f4f6;
-    --table-row-bg: #242424;
+    --table-row-bg: #a9aeb1;
     --table-border: #2d2d2d;
 
     /* Menu, Toolbar, and Comments Background Colors */
@@ -136,7 +137,7 @@ body {
 
 body a:link,
 body a:visited {
-  color: var(--text-link);
+  color: var(--text-header-link);
 }
 
 body a:hover {
@@ -147,10 +148,20 @@ span {
   color: var(--text-primary);
 }
 
-span.browsecounter a:link,
-span.browsecounter a:visited {
+table.leaf_grid tr td a:link,
+table.leaf_grid tr td a:visited {
+  color: var(--text-link);
+}
+
+table.leaf_grid tr td span.browsecounter a:link,
+table.leaf_grid tr td span.browsecounter a:visited {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+}
+
+span.browsetypes {
+    font-size: 11px;
+    color: var(--text-inverse);
 }
 
 input {
@@ -210,7 +221,7 @@ span#headerLabel {
 
 @media (prefers-color-scheme: dark) {
   span#headerLabel {
-    color: var(--text-link);
+    color: var(--text-header-link);
   }
 }
 
@@ -375,7 +386,7 @@ table.leaf_grid td,
 .agenda td {
   border-color: var(--table-border);
   background-color: var(--table-row-bg);
-  color: var(--text-primary);
+  color: var(--text-inverse);
 }
 
 table.leaf_grid th:hover,
@@ -1073,13 +1084,13 @@ span.printResponse {
 
     [style*="background-color: rgb(254, 255, 209)"],
     [style*="background-color:rgb(254, 255, 209)"] {
-        background-color: #242424 !important;
+        background-color: #a9aeb1 !important;
     }
 
     [style*="background-color: white"],
     [style*="background-color:#fff"],
     [style*="background-color: #ffffff"] {
-        background-color: #2d2d2d !important;
+        background-color: #adadad !important;
         color: #e5e5e5 !important;
     }
 
