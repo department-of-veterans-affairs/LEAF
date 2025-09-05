@@ -244,6 +244,7 @@ var LeafFormQuery = function () {
   function encodeReadableURI(url) {
     url = url.replaceAll('+', '%2b');
     url = url.replaceAll('#', '%23');
+    url = url.replaceAll('//', '%2f%2f');
     return url;
   }
 
