@@ -8,63 +8,7 @@
   /* Light mode colors (default) */
 
   /* Background Colors */
-  --bg-primary: #6B7280; /* USWDS cool gray 30 */
-  --bg-secondary: #4B5563; /* USWDS cool gray 50 */
-  --bg-tertiary: #6B7280; /* USWDS cool gray 30 */
-  --bg-accent: #6B7280; /* USWDS cool gray 30 */
-  --bg-header: linear-gradient(#ffffff, #ccd9ff);
-  --bg-alert: #F56565; /* VA red 50 */
-  --bg-warning: #FEB2B2; /* VA red 40 */
-  --bg-success: #2F855A; /* USWDS green 60 */
-
-  /* Text Colors */
-  --text-primary: #FAFAFA; /* USWDS warm gray 0 */
-  --text-secondary: #E2E8F0; /* USWDS gray 30 */
-  --text-tertiary: #CBD5E0; /* USWDS gray 40 */
-  --text-muted: #A0AEC0; /* USWDS cool gray 50 */
-  --text-inverse: #2D3748; /* USWDS cool gray 60 */
-  --text-link: #90CDF4; /* VA blue 30 */
-  --text-link-hover: #FAF089; /* VA yellow 40 */
-
-  /* Border Colors */
-  --border-primary: #718096; /* USWDS cool gray 50 */
-  --border-secondary: #4A5568; /* USWDS cool gray 60 */
-  --border-tertiary: #A0AEC0; /* USWDS cool gray 50 */
-  --border-light: #CBCBCB; /* USWDS cool gray 20 */
-
-  /* Additional Colors */
-  --shadow-color: rgba(0, 0, 0, 0.3);
-  --hover-bg: #3B82F6; /* USWDS blue 40 */
-  --hover-text: white;
-
-  /* Component Specific Colors */
-  --position-bg: #3B82F6; /* USWDS blue 40 */
-  --position-title-bg: #90CDF4; /* VA blue 30 */
-  --group-bg: #B794F4; /* USWDS purple 40 */
-  --group-title-bg: #D6BCFA; /* VA violet 30 */
-  --employee-bg: #F56565; /* VA red 50 */
-  --employee-title-bg: #FEB2B2; /* VA red 40 */
-  --facility-bg: #4A5568; /* USWDS cool gray 60 */
-  --facility-header-bg: #2D3748; /* USWDS cool gray 60 */
-
-  /* Table Specific Colors */
-  --table-header-bg: #6B7280; /* USWDS cool gray 30 */
-  --table-row-bg: #4A5568; /* USWDS cool gray 70 */
-  --table-border: #A0AEC0; /* USWDS cool gray 50 */
-
-  /* Menu, Toolbar, and Comments Colors */
-  --menu-bg: #6B7280; /* USWDS cool gray 40 */
-  --menu-hover-bg: #60A5FA; /* USWDS blue 40 */
-  --toolbar-bg: #4A5568; /* USWDS cool gray 70 */
-  --comments-bg: #A76945; /* USWDS brown 50 */
-  --comments-item-bg: #B35A30; /* USWDS brown 40 */
-}
-
-/* Dark mode colors */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Background Colors */
-    --bg-primary: #e1e2e4; /* USWDS cool gray 40 */
+  --bg-primary: #f3f3f3; /* USWDS cool gray 40 */
     --bg-secondary: #1F2937; /* USWDS cool gray 80 */
     --bg-tertiary: #1F2937; /* USWDS cool gray 80 */
     --bg-accent: #2D3748; /* USWDS cool gray 60 */
@@ -118,6 +62,66 @@
     --toolbar-bg: #111827; /* USWDS cool gray 90 */
     --comments-bg: #321B11; /* USWDS brown 90 */
     --comments-item-bg: #5D2D13; /* USWDS brown 90 */
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Background Colors */
+    --bg-primary: #1a1a1a; /* USWDS cool gray 40 */
+    --bg-secondary: #2d2d2d; /* USWDS cool gray 80 */
+    --bg-tertiary: #404040; /* USWDS cool gray 80 */
+    --bg-accent: #525252; /* USWDS cool gray 60 */
+    --bg-header: #2d2d2d;
+    --bg-alert: #dc2626; /* VA red 90 */
+    --bg-warning: #fbbf24; /* VA red 80 */
+    --bg-success: #059669; /* USWDS green 90 */
+    --bg-button-header: #404040;
+    --bg-button-primary: #3b82f6;
+
+    /* Text Colors */
+    --text-primary: #f5f5f5; /* USWDS gray 10 */
+    --text-secondary: #d1d5db; /* USWDS cool gray 50 */
+    --text-tertiary: #9ca3af; /* USWDS cool gray 60 */
+    --text-muted: #6b7280; /* USWDS cool gray 70 */
+    --text-inverse: #1a1a1a; /* USWDS cool gray 90 */
+    --text-link: #60a5fa; /* VA blue 70 */
+    --text-link-hover: #93c5fd; /* VA yellow 60 */
+    --text-warning: #fcd34d;
+
+    /* Border Colors */
+    --border-primary: #525252; /* USWDS cool gray 70 */
+    --border-secondary: #404040; /* USWDS cool gray 80 */
+    --border-tertiary: #6b7280; /* USWDS cool gray 70 */
+    --border-light: #374151; /* USWDS cool gray 80 */
+
+    /* Additional Colors */
+    --shadow-color: rgba(0, 0, 0, .5);
+    --hover-bg: #374151; /* USWDS blue 70 */
+    --hover-text: #f5f5f5;
+
+    /* Component Specific Dark Colors */
+    --position-bg: #2d2d2d; /* USWDS cool gray 80 */
+    --position-title-bg: #1e40af; /* VA blue 70 */
+    --group-bg: #4c1d95; /* USWDS purple 80 */
+    --group-title-bg: #7c3aed;
+    --employee-bg: #7f1d1d;
+    --employee-title-bg: #dc2626;
+    --facility-bg: #1a1a1a;
+    --facility-header-bg: #111827;
+
+    /* Table Specific Dark Colors */
+    --table-header-bg: #1e40af;
+    --table-header-color: #f3f4f6;
+    --table-row-bg: #2d2d2d;
+    --table-border: #404040;
+
+    /* Menu, Toolbar, and Comments Background Colors */
+    --menu-bg: #2d2d2d;
+    --menu-hover-bg: #374151;
+    --toolbar-bg: #1f2937;
+    --comments-bg: #451a03;
+    --comments-item-bg: #78350f;
   }
 }
 
@@ -145,7 +149,8 @@ span {
 
 span.browsecounter a:link,
 span.browsecounter a:visited {
-  color: var(--bg-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 input {
@@ -1059,7 +1064,7 @@ span.printResponse {
 
     [style*="background-color: rgb(254, 255, 209)"],
     [style*="background-color:rgb(254, 255, 209)"] {
-        background-color: #e1e2e4 !important;
+        background-color: #2d2d2d !important;
     }
 
     [style*="background-color: white"],

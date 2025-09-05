@@ -23,7 +23,6 @@
         @import "{$app_js_path}/jquery/trumbowyg/ui/trumbowyg.min.css";
         /* backwards compat */
         @import "{$app_js_path}/jquery/icheck/skins/square/blue.css";
-        @import "~@fortawesome/fontawesome-free/scss/fontawesome";
 
     </style>
     <style type="text/css" media="print">
