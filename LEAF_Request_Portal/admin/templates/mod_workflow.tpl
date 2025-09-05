@@ -1,6 +1,6 @@
 <script src="../js/form.js"></script>
 <script src="../js/formQuery.js"></script>
-<script src="../js/agentConfig.js"></script>
+<script src="../js/agentViewer.js"></script>
 <div id="workflow_editor">
     <div id="sideBar">
         <div>
@@ -1776,21 +1776,21 @@
         query.setExtraParams('&x-filterData=');
         let res = await query.execute();
 
+        let instructions = [];
         if(Object.keys(res).length > 0) {
             let taskID = Object.keys(res)[0];
-            let instructions = {};
             try {
                 instructions = JSON.parse(decodeHtmlEntities(res[taskID].s1.id4));
             } catch (err) {
                 console.error(err);
                 return;
             }
-
-            let agentConfig = new LeafAgentConfig('agentConfig', thisSite);
-            await agentConfig.init();
-            agentConfig.importConfig(instructions);
-            agentConfig.render();
         }
+
+        let agentViewer = new LeafAgentViewer('agentConfig', thisSite);
+        await agentViewer.init();
+        agentViewer.importConfig(instructions);
+        agentViewer.render();
     }
 
     function signatureRequired(cb, stepID) {

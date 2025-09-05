@@ -1,6 +1,6 @@
-// LeafAgentConfig parses and renders the UI for an agent's task
-var LeafAgentConfig = function (containerID, siteURL) {
-    let prefixID = 'LeafAgentConfig' + Math.floor(Math.random() * 1000) + '_';
+// LeafAgentViewer parses and renders the UI for an agent's task
+var LeafAgentViewer = function (containerID, siteURL) {
+    let prefixID = 'LeafAgentViewer' + Math.floor(Math.random() * 1000) + '_';
     let config = [];
     let action = {}; // workflow actions
     let requestLabel = 'Request';
