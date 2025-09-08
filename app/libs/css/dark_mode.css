@@ -77,7 +77,7 @@
     --bg-warning: #fbbf24; /* VA red 80 */
     --bg-success: #059669; /* USWDS green 90 */
     --bg-button-header: #404040;
-    --bg-button-primary: #3b82f6;
+    --bg-button-primary: #1e40af;
 
     /* Text Colors */
     --text-primary: #f5f5f5; /* USWDS gray 10 */
@@ -98,7 +98,7 @@
 
     /* Additional Colors */
     --shadow-color: rgba(0, 0, 0, .5);
-    --hover-bg: #374151; /* USWDS blue 70 */
+    --hover-bg: #1e40af; /* USWDS blue 70 */
     --hover-text: #f5f5f5;
 
     /* Component Specific Dark Colors */
@@ -112,7 +112,7 @@
     --facility-header-bg: #111827;
 
     /* Table Specific Dark Colors */
-    --table-header-bg: #1e40af;
+    --table-header-bg: #374151;
     --table-header-color: #f3f4f6;
     --table-row-bg: #a9aeb1;
     --table-border: #2d2d2d;
