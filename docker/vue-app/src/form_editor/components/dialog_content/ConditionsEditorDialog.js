@@ -311,18 +311,22 @@ export default {
         listHeaderText(conditionType = '') {
             const type = conditionType.toLowerCase();
             let text = '';
+            let clarifier = '';
+            if(this.conditionTypes[type]?.length > 1) {
+                clarifier = ' (any of the following)'
+            }
             switch(type) {
                 case 'show':
-                    text = 'This field will be shown IF:'
+                    text = `This field will be shown IF${clarifier}:`
                     break;
                 case 'hide':
-                    text = 'This field will be hidden IF:'
+                    text = `This field will be hidden IF${clarifier}:`
                     break;
                 case 'prefill':
-                    text = 'This field will be pre-filled IF:'
+                    text = `This field will be pre-filled IF${clarifier}:`
                     break;
                 case 'crosswalk':
-                    text = 'This field has loaded dropdown(s)'
+                    text = `This field has loaded dropdown(s)`
                     break;
                 default:
                     break;
@@ -795,11 +799,8 @@ export default {
                                 <p><b>{{ listHeaderText(typeKey) }}</b></p>
                                 <ul>
                                     <li v-for="c in typeVal" :key="c" class="savedConditionsCard">
-                                        <button type="button" @click="selectConditionFromList(c)"
-                                            title="Edit this Condition"
-                                            class="btnSavedConditions" 
+                                        <div class="itemSavedConditions" 
                                             :class="{selectedConditionEdit: JSON.stringify(c) === selectedConditionJSON, isOrphan: isOrphan(c)}">
-                                            <span role="img" aria-hidden="true" alt="">✏️</span>
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
                                                     '{{getIndicatorName(parseInt(c.parentIndID))}}' 
@@ -812,9 +813,14 @@ export default {
                                                 </div>
                                             </template>
                                             <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived, deleted or is on another page.</div>
+                                        </div>
+                                        <button type="button" class="btn_edit_condition"
+                                            title="Edit this Condition" aria-label="Edit this condition"
+                                            @click="selectConditionFromList(c)">
+                                            <span role="img" aria-hidden="true" alt="">✏️</span>
                                         </button>
                                         <button type="button" class="btn_remove_condition"
-                                            title="remove this condition" aria-label="remove this condition"
+                                            title="Delete this condition" aria-label="Delete this condition"
                                             @click="removeCondition({confirmDelete: false, condition: c})">
                                             <i class="fa fa-trash" role="img" aria-hidden="true"></i>
                                         </button>
