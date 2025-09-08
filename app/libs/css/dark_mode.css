@@ -1128,7 +1128,7 @@ span.printResponse {
     /* Handle border colors */
     [style*="border: 1px solid black"],
     [style*="border:1px solid black"] {
-        border-color: #6b7280 !important;
+        border-color: var(--bg-secondary) !important;
     }
 
     [style*="border-bottom: 1px solid black"],
