@@ -155,7 +155,7 @@ table.leaf_grid tr td a:visited {
 
 table.leaf_grid tr td span.browsecounter a:link,
 table.leaf_grid tr td span.browsecounter a:visited {
-  background-color: var(--bg-primary);
+  background-color: var(--bg-header);
   color: var(--text-primary);
 }
 
