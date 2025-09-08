@@ -920,6 +920,7 @@ table[class$="SelectorTable"] th {
         align-items: flex-end;
         margin-top: 0.25rem;
         margin-bottom: 0.625rem;
+        border-bottom: 1px solid $charcoal;
         gap: 1rem;
         max-width: 700px;
     }
@@ -929,7 +930,6 @@ table[class$="SelectorTable"] th {
         text-align: left;
         font-weight: normal;
         padding: 6px;
-        border-bottom: 1px solid $charcoal;
         white-space: normal;
         max-width: 700px;
         overflow: hidden;
