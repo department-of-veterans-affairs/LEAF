@@ -702,10 +702,10 @@
                     let file = res[i].replace('.tpl', '');
                     
                     if (!isExcludedFile(file)) {
-                        buffer += '<li><a href="#" role="button" data-file="' + file + '">' + file + '</a></li>';
+                        buffer += `<li><a href="?a=mod_templates_reports&file=${file}" data-file="${file}">${file}</a></li>`;
                         filesMobile += '<option value="' + file + '">' + file + '</option>';
                     } else {
-                        bufferExamples += '<li><a href="#" role="button" data-file="' + file + '">' + file + '</a></li>';
+                        bufferExamples += `<li><a href="?a=mod_templates_reports&file=${file}" data-file="${file}">${file}</a></li>`;
                     }
                 }
 
@@ -715,14 +715,6 @@
                 
                 $('#fileList').html(buffer + bufferExamples);
                 $('.filesMobile').html(filesMobile);
-
-                // Attach click event handler to template links in the buffer
-                $('#fileList a').on('click', function(e) {
-                    e.preventDefault();
-                    let selectedFile = String($(this).data('file'));
-                    loadContent(selectedFile);
-                    window.scrollTo(0,0);
-                });
 
                 $('#template_file_select').on('change', function () {
                     let selectedFile = event.currentTarget.value
