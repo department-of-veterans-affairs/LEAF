@@ -750,7 +750,7 @@
                                 file = res[i].replace('.tpl', '');
 
                                 buffer += `<li>
-                                    <div class="template_files"><a href="?a=mod_templates&file=${file}.tpl" role="button" data-file="${res[i]}">${file}</a> <span${customClass}>(custom)</span></div>
+                                    <div class="template_files"><a href="?a=mod_templates&file=${file}.tpl" data-file="${res[i]}">${file}</a> <span${customClass}>(custom)</span></div>
                                 </li>`;
 
                                 filesMobile += `<option value="${res[i]}">${file}${customClass ? ' (custom)' : ''}</option>`;
