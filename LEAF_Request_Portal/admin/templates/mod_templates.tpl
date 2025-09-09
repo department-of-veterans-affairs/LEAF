@@ -750,7 +750,7 @@
                                 file = res[i].replace('.tpl', '');
 
                                 buffer += `<li>
-                                    <div class="template_files"><a href="#" role="button" data-file="${res[i]}">${file}</a> <span${customClass}>(custom)</span></div>
+                                    <div class="template_files"><a href="?a=mod_templates&file=${file}.tpl" role="button" data-file="${res[i]}">${file}</a> <span${customClass}>(custom)</span></div>
                                 </li>`;
 
                                 filesMobile += `<option value="${res[i]}">${file}${customClass ? ' (custom)' : ''}</option>`;
@@ -763,14 +763,6 @@
                         filesMobile += '</select></div>';
                         $('#fileList').html(buffer);
                         $('.filesMobile').html(filesMobile);
-
-                        // Attach click event handler to template links in the buffer
-                        $('#fileList a').on('click', function (e) {
-                            e.preventDefault();
-                            let selectedFile = String($(this).data('file'));
-                            loadContent(selectedFile);
-                            window.scrollTo(0,0);
-                        });
 
                         // Attach onchange event handler to templateFiles select element
                         $('#template_file_select').on('change', function() {
