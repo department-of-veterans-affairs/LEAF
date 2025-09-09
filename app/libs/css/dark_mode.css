@@ -68,16 +68,16 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* Background Colors */
-    --bg-primary: #757575; /* USWDS cool gray 40 */
-    --bg-secondary: #2d2d2d; /* USWDS cool gray 80 */
-    --bg-tertiary: #404040; /* USWDS cool gray 80 */
-    --bg-accent: #525252; /* USWDS cool gray 60 */
+    --bg-primary: #757575;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #404040;
+    --bg-accent: #525252;
     --bg-header: #2d2d2d;
-    --bg-alert: #dc2626; /* VA red 90 */
-    --bg-warning: #fbbf24; /* VA red 80 */
-    --bg-success: #059669; /* USWDS green 90 */
+    --bg-alert: #dc2626;
+    --bg-warning: #7f1d1d;
+    --bg-success: #059669;
     --bg-button-header: #404040;
-    --bg-button-primary: #1e40af;
+    --bg-button-primary: #2c608a;
 
     /* Text Colors */
     --text-primary: #f5f5f5; /* USWDS gray 10 */
@@ -88,7 +88,7 @@
     --text-link: #1e40af; /* VA blue 70 */
     --text-header-link: #60a5fa;
     --text-link-hover: #93c5fd; /* VA yellow 60 */
-    --text-warning: #0c0c0c;
+    --text-warning: #d1d5db;
 
     /* Border Colors */
     --border-primary: #525252; /* USWDS cool gray 70 */
