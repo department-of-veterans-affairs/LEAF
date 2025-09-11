@@ -127,7 +127,7 @@ div [id^="LeafFormGrid"] table {
 <div>
     <h2>New Account Updater</h2>
     <p style="max-width: 850px;">
-    This utility will restore access for people who have been asigned a new Active Directory account.
+    This utility will restore access for people who have been assigned a new Active Directory account.
     It can be used to update the initiator of requests created under the old account, update the content of
     orgchart employee format questions to refer to the new account, and update group memberships.
     </p>
