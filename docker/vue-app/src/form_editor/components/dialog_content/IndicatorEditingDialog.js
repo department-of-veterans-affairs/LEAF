@@ -71,7 +71,7 @@ export default {
             sort: this.dialogData?.indicator?.sort !== undefined ? parseInt(this.dialogData?.indicator.sort) : null,
 
             //checkboxes input
-            singleOptionValue: this.dialogData?.indicator?.format === 'checkbox' ? 
+            singleOptionValue: this.dialogData?.indicator?.format === 'checkbox' ?
                 this.dialogData?.indicator.options : '',
             //list of options
             multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.dialogData?.indicator?.format) ?
@@ -81,7 +81,9 @@ export default {
             gridJSON: this.dialogData?.indicator?.format === 'grid' ? JSON.parse(this.dialogData?.indicator?.options[0]) : [],
 
             archived: false,
-            deleted: false
+            deleted: false,
+            inWorkflow: false,
+            stepInWorkflow: false
         }
     },
     inject: [
@@ -105,6 +107,32 @@ export default {
     created() {
         this.setDialogSaveFunction(this.onSave);
         this.checkRequiredData(this.requiredDataProperties);
+        // fetch step modules
+        // if no modules then check if this indicator format is orgchart...
+        // if it is orgchart... then fetch workflow steps
+
+        // if either of these comes back with this indicator then disable archive and delete
+        // add message about the archive and delete check boxes
+        // disable changing the format if orgchart and add message about it
+        this.fetchStepModules().then(indicatorInWorkflow => {
+            const isInStepModules = this.checkIndicatorInData(indicatorInWorkflow, this.indicatorID, 'step');
+
+            if (isInStepModules) {
+                this.inWorkflow = true;
+                this.disableArchiveAndDelete();
+            } else if (this.format && this.format.startsWith('orgchart')) {
+                const isInWorkflowSteps = this.checkIndicatorInData(indicatorInWorkflow, this.indicatorID, 'workflow');
+
+                if (isInWorkflowSteps) {
+                    this.inWorkflow = true;
+                    this.stepInWorkflow = true;
+                    this.disableArchiveAndDelete();
+                    this.disableFormatDropdown();
+                }
+            }
+        }).catch(err => {
+            console.error('Error fetching step modules:', err);
+        });
     },
     provide() {
         return {
@@ -205,7 +233,7 @@ export default {
         },
         /**
          * used to set the default sort value of a new question to last index in current depth
-         * @returns {number} 
+         * @returns {number}
          */
         newQuestionSortValue() {
             const offset = 128;
@@ -273,13 +301,13 @@ export default {
             if(elTrumbow !== undefined && elTrumbow !== null){
                 this.name = elTrumbow.innerHTML;
             }
-            
+
             let indicatorEditingUpdates = [];
             if (this.isEditingModal) { /* CALLS FOR EDITTING AN EXISTING QUESTION */
                 const nameChanged = this.name !== this.dialogData?.indicator.name;
                 const descriptionChanged = this.description !== this.dialogData?.indicator.description;
 
-                const options = this.dialogData?.indicator?.options ? 
+                const options = this.dialogData?.indicator?.options ?
                                 '\n' + this.dialogData?.indicator?.options?.join('\n') : '';
                 const fullFormatChanged = this.fullFormatForPost !== this.dialogData?.indicator.format + options;
 
@@ -659,6 +687,77 @@ export default {
             $('#name').trumbowyg('destroy');
             this.ariaTextEditorStatus = 'Showing formatted code.'
             document.getElementById('advNameEditor').focus();
+        },
+        fetchStepModules() {
+            return fetch(`${this.APIroot}/workflow/${this.focusedFormRecord?.workflowID}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return response.json();
+            })
+            .catch(err => {
+                console.error('Error fetching step modules:', err);
+            });
+        },
+        checkIndicatorInData(data, indicatorID, context) {
+            for (let key in data) {
+                if (data.hasOwnProperty(key)) {
+                    const step = data[key];
+
+                    // Check if this step has stepModules array
+                    if (context === 'step' && step.stepModules && Array.isArray(step.stepModules)) {
+                        for (let module of step.stepModules) {
+                            // Check if moduleConfig exists and parse it
+                            if (module.moduleConfig) {
+                                try {
+                                    const config = JSON.parse(module.moduleConfig);
+                                    // Check if indicatorID matches
+                                    if (config.indicatorID && config.indicatorID.toString() === indicatorID.toString()) {
+                                        return true;
+                                    }
+                                } catch (e) {
+                                    // Skip if JSON parsing fails
+                                    console.log('Error parsing moduleConfig:', e);
+                                }
+                            }
+                        }
+                    } else if (context === 'workflow' && this.format && this.format.startsWith('orgchart')) {
+                        if (step.indicatorID_for_assigned_empUID && step.indicatorID_for_assigned_empUID.toString() === indicatorID.toString()) {
+                            return true;
+                        }
+
+                        if (step.indicatorID_for_assigned_groupID && step.indicatorID_for_assigned_groupID.toString() === indicatorID.toString()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        },
+        disableArchiveAndDelete() {
+            this.$nextTick(() => {
+                const archivedInput = document.getElementById('archived');
+                const deletedInput = document.getElementById('deleted');
+
+                if (archivedInput) {
+                    archivedInput.disabled = true;
+                }
+                if (deletedInput) {
+                    deletedInput.disabled = true;
+                }
+            });
+        },
+        disableFormatDropdown() {
+            this.$nextTick(() => {
+                const formatSelect = document.getElementById('indicatorType');
+                if (formatSelect) {
+                    formatSelect.disabled = true;
+                }
+            });
         }
     },
     watch: {
@@ -703,13 +802,13 @@ export default {
             </label>
             <input type="text" id="description" v-model="description" maxlength="50" />
         </div>
-        <div>
-            <div v-if="showFormatSelect">
+        <div id="input-format">
+            <div v-if="showFormatSelect && !stepInWorkflow">
                 <label for="indicatorType">Input Format</label>
                 <div style="display:flex;">
                     <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
                         <option value="">None</option>
-                        <option v-for="kv in Object.entries(formats)" 
+                        <option v-for="kv in Object.entries(formats)"
                         :value="kv[0]" :selected="kv[0] === format" :key="kv[0]">{{ kv[1] }}</option>
                     </select>
                     <button type="button" id="editing-format-assist" class="btn-general" aria-controls="formatDetails" :aria-expanded="showDetailedFormatInfo"
@@ -722,6 +821,10 @@ export default {
                     <p><b>Format Information</b></p>
                     {{ format !== '' ? formatInfo[format] : 'No format.  Indicators without a format are often used to provide additional information for the user.  They are often used for form section headers.' }}
                 </div>
+
+            </div>
+            <div v-if="stepInWorkflow" class="entry_info bg-blue-5v" style="margin-bottom:1.5rem;">
+                <span role="img" aria-hidden="true" alt="">ℹ️</span>Changing format is not allowed while this indicator is used as a smart requirement.
             </div>
             <div v-show="format === 'checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
                 <label for="indicatorSingleAnswer">Text for checkbox</label>
@@ -733,11 +836,11 @@ export default {
                 </textarea>
             </div>
             <div v-if="format === 'grid'" id="container_indicatorGrid">
-                <span id="tableStatus" style="position: absolute; color: transparent" 
+                <span id="tableStatus" style="position: absolute; color: transparent"
                     aria-atomic="true" aria-live="polite"  role="status"></span>
                 <br/>
                 <div style="display:flex; align-items: center;">
-                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column" 
+                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column"
                         @click="appAddCell">
                         + Add column
                     </button>&nbsp;Columns ({{gridJSON.length}}):
@@ -755,37 +858,41 @@ export default {
                 </div>
                 <textarea v-show="!orgchartFormats.includes(format)" id="defaultValue" v-model="defaultValue"></textarea>
             </div>
+
         </div>
         <div v-show="!(!isEditingModal && format === '')" id="indicator-editing-attributes">
             <b>Attributes</b>
+            <div v-show="inWorkflow" class="entry_info bg-blue-5v" style="margin-top:.5rem;">
+                <span role="img" aria-hidden="true" alt="">ℹ️</span>Archive and Delete are not available while this indicator is set as a workflow form field.
+            </div>
             <div class="attribute-row">
                 <template v-if="format !== ''">
                     <label class="checkable leaf_check" for="required" style="margin-right: 1.5rem;">
-                        <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
+                        <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"
                             @change="preventSelectionIfFormatNone" />
                         <span class="leaf_check"></span>Required
                     </label>
                     <label class="checkable leaf_check" for="sensitive" style="margin-right: 4rem;">
-                        <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
+                        <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"
                             @change="preventSelectionIfFormatNone" />
                         <span class="leaf_check"></span>Sensitive Data (PHI/PII)
                     </label>
                 </template>
-                <template v-if="isEditingModal">
+                <template v-if="isEditingModal && !inWorkflow">
                     <label class="checkable leaf_check" for="archived" style="margin-right: 1.5rem;">
-                        <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
+                        <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"
                             v-model="archived" @change="radioBehavior" />
                         <span class="leaf_check"></span>Archive
                     </label>
                     <label class="checkable leaf_check" for="deleted">
-                        <input type="checkbox" id="deleted" name="disable_or_delete" class="icheck leaf_check"  
+                        <input type="checkbox" id="deleted" name="disable_or_delete" class="icheck leaf_check"
                             v-model="deleted" @change="radioBehavior" />
                         <span class="leaf_check"></span>Delete
                     </label>
                 </template>
             </div>
             <button v-if="isEditingModal" type="button" aria-controls="indicator_advanced_attributes" :aria-expanded="showAdditionalOptions"
-                class="btn-general" 
+                class="btn-general"
                 aria-label="edit additional options"
                 @click="toggleSelection($event, 'showAdditionalOptions')">
                 {{showAdditionalOptions ? 'Hide' : 'Show'}} Advanced Attributes
@@ -795,10 +902,10 @@ export default {
                     <template v-if="isLoadingParentIDs === false">
                         <label for="container_parentID" style="margin-right: 1rem;">Parent Question ID
                             <select v-model.number="parentID" id="container_parentID" style="width:250px; margin-left:3px;">
-                                <option :value="null" :selected="parentID === null">None</option> 
+                                <option :value="null" :selected="parentID === null">None</option>
                                 <template v-for="kv in Object.entries(listForParentIDs)">
-                                    <option v-if="indicatorID !== parseInt(kv[0])" 
-                                        :value="kv[0]" 
+                                    <option v-if="indicatorID !== parseInt(kv[0])"
+                                        :value="kv[0]"
                                         :key="'parent_'+kv[0]">
                                         {{kv[0]}}: {{truncateText(kv[1]['1'].name), 50}}
                                     </option>
@@ -815,6 +922,7 @@ export default {
             <span v-show="deleted" id="deletion-warning">
                 Deleted items can only be re-enabled<br />within 30 days by using Restore Fields.
             </span>
+
         </div>
     </div>`
 };

@@ -125,14 +125,21 @@ class FormEditor
 
     public function setFormat($indicatorID, $format)
     {
+        $workflowCount = $this->getWorkflowUseCount($indicatorID);
+
         if(strlen($format) > 65535) {
             $result = 'size limit exceeded';
 
+        } else if ($workflowCount) {
+            $result = 'indicator used in workflow';
         } else {
             $vars = array(
                 ':indicatorID' => $indicatorID,
                 ':format' => trim($format),
             );
+            $sql = 'UPDATE `indicators`
+                    SET `format` = :format
+                    WHERE `indicatorID` = :indicatorID';
 
             $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::INDICATOR,[
                 new LogItem("indicators", "indicatorID", $indicatorID),
@@ -140,10 +147,9 @@ class FormEditor
                 new LogItem("indicators", "format", $format)
             ]);
 
-            $result = $this->db->prepared_query('UPDATE indicators
-                        SET format=:format
-                        WHERE indicatorID=:indicatorID', $vars);
+            $result = $this->db->prepared_query($sql, $vars);
         }
+
         return $result;
     }
 
@@ -270,34 +276,40 @@ class FormEditor
 
     function setDisabled($indicatorID, $input)
     {
+        $workflowCount = $this->getWorkflowUseCount($indicatorID);
+        $stepModuleCount = $this->getStepModuleUseCount($indicatorID);
 
-    	if($input == 1) {
-            $this->setRequired($indicatorID, 0);
-            $this->disableSubindicators($indicatorID);
-    	    $disabledTime = 1;
-    	}
-    	elseif ($input == 2){
-    		$this->setRequired($indicatorID, 0);
-    		$this->disableSubindicators($indicatorID);
-    		$disabledTime = time();
-    	} else {
-            $disabledTime = 0;
+        if ($workflowCount || $stepModuleCount) {
+            // The indicator is being used in a workflow, don't make the change
+            $return_value = 'indicator used in workflow';
+        } else {
+            if($input == 1) {
+                $this->setRequired($indicatorID, 0);
+                $this->disableSubindicators($indicatorID);
+                $disabledTime = 1;
+            } elseif ($input == 2) {
+                $this->setRequired($indicatorID, 0);
+                $this->disableSubindicators($indicatorID);
+                $disabledTime = time();
+            } else {
+                $disabledTime = 0;
+            }
+
+            $vars = array(':indicatorID' => $indicatorID,
+                        ':input' => $disabledTime);
+
+            $return_value = $this->db->prepared_query('UPDATE indicators
+                            SET disabled=:input
+                            WHERE indicatorID=:indicatorID', $vars);
+
+            $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::INDICATOR,[
+                new LogItem("indicators", "indicatorID", $indicatorID),
+                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+                new LogItem("indicators", "disabled", $input)
+            ]);
         }
 
-    	$vars = array(':indicatorID' => $indicatorID,
-                      ':input' => $disabledTime);
-
-        $result = $this->db->prepared_query('UPDATE indicators
-                        SET disabled=:input
-                        WHERE indicatorID=:indicatorID', $vars);
-
-        $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "disabled", $input)
-        ]);
-
-    	return $result;
+    	return $return_value;
     }
 
     public function setSort($indicatorID, $input)
@@ -932,5 +944,30 @@ class FormEditor
     public function getHistory(?string $filterById): array
     {
         return $this->dataActionLogger->getHistory($filterById, "categoryID", LoggableTypes::FORM);
+    }
+
+    private function getWorkflowUseCount($indicatorID) :bool
+    {
+        $vars = array(':indicatorID' => $indicatorID);
+        $sql = 'SELECT COUNT(*) AS count
+                FROM `workflow_steps`
+                WHERE `indicatorID_for_assigned_empUID` = :indicatorID
+                OR `indicatorID_for_assigned_groupID` = :indicatorID';
+
+        $result = $this->db->prepared_query($sql, $vars);
+
+        return $result[0]['count'] > 0;
+    }
+
+    private function getStepModuleUseCount($indicatorID) :bool
+    {
+        $vars = array(':indicatorID' => $indicatorID);
+        $sql = 'SELECT COUNT(*) AS count
+                FROM `step_modules`
+                WHERE `moduleConfig` -> "$.indicatorID" = :indicatorID';
+
+        $result = $this->db->prepared_query($sql, $vars);
+
+        return $result[0]['count'] > 0;
     }
 }
