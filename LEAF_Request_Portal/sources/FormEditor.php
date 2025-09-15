@@ -123,13 +123,19 @@ class FormEditor
 
     }
 
-    public function setFormat($indicatorID, $format)
+    /**
+     * @param int $indicatorID
+     * @param string $format
+     *
+     * @return string|array
+     *
+     */
+    public function setFormat(int $indicatorID, string $format): string|array
     {
         $workflowCount = $this->getWorkflowUseCount($indicatorID);
 
-        if(strlen($format) > 65535) {
+        if (strlen($format) > 65535) {
             $result = 'size limit exceeded';
-
         } else if ($workflowCount) {
             $result = 'indicator used in workflow';
         } else {
@@ -274,7 +280,14 @@ class FormEditor
         return $result;
     }
 
-    function setDisabled($indicatorID, $input)
+    /**
+     * @param int $indicatorID
+     * @param int $input
+     *
+     * @return string|array
+     *
+     */
+    function setDisabled(int $indicatorID, int $input): string|array
     {
         $workflowCount = $this->getWorkflowUseCount($indicatorID);
         $stepModuleCount = $this->getStepModuleUseCount($indicatorID);
@@ -946,7 +959,13 @@ class FormEditor
         return $this->dataActionLogger->getHistory($filterById, "categoryID", LoggableTypes::FORM);
     }
 
-    private function getWorkflowUseCount($indicatorID) :bool
+    /**
+     * @param int $indicatorID
+     *
+     * @return bool
+     *
+     */
+    private function getWorkflowUseCount(int $indicatorID): bool
     {
         $vars = array(':indicatorID' => $indicatorID);
         $sql = 'SELECT COUNT(*) AS count
@@ -959,7 +978,13 @@ class FormEditor
         return $result[0]['count'] > 0;
     }
 
-    private function getStepModuleUseCount($indicatorID) :bool
+    /**
+     * @param int $indicatorID
+     *
+     * @return bool
+     *
+     */
+    private function getStepModuleUseCount(int $indicatorID) :bool
     {
         $vars = array(':indicatorID' => $indicatorID);
         $sql = 'SELECT COUNT(*) AS count
