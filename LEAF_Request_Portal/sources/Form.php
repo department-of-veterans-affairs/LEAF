@@ -4054,7 +4054,7 @@ class Form
                 foreach ($res2 as $item) {
                     $userMetadata = json_decode($item['userMetadata'], true);
                     $nameResolved =  isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
-                        "{$userMetadata['firstName']} {$userMetadata['lastName']} " : $item['resolvedBy'];
+                        "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $item['resolvedBy'];
                     $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
                 }
             }
