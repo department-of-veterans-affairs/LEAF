@@ -22,7 +22,12 @@ export default {
                 "number": 1,
                 "currency": 1,
             },
-            multiOptionFormats: ['multiselect', 'checkboxes'],
+            multiOptionFormats: [ //formats where users can select more than one value during data entry
+                'multiselect', 'checkboxes'
+            ],
+            choicesJS_parentValueFormats: [ //formats where choicesJS is used to add more than one comparison to facilitate setup
+                'multiselect', 'checkboxes', 'dropdown', 'radio'
+            ],
             orgchartSelectData: {},
             crosswalkFile: '',
             crosswalkHasHeader: false,
@@ -208,7 +213,7 @@ export default {
                             if(elClose !== null) {
                                 elClose.focus();
                             }
-                            setTimeout(() => {
+                            this.$nextTick(() => {
                                 this.ariaStatus = 'Updated question conditions';
                             });
 
@@ -256,6 +261,11 @@ export default {
             indicatorName = this.decodeAndStripHTML(indicatorName);
             return this.truncateText(indicatorName);
         },
+        getConditionCompareValues(selectedParentValues = "") {
+            let decodedValues = this.decodeAndStripHTML(selectedParentValues);
+            let comparisons = decodedValues.split('\n');
+            return comparisons.join(", ");
+        },
         /**
          * @param {Object} condition 
          * @returns {string}
@@ -267,10 +277,10 @@ export default {
             const op = condition.selectedOp;
             switch(op) {
                 case '==':
-                    text = this.multiOptionFormats.includes(parFormat) ? 'includes' : 'is';
+                    text = this.choicesJS_parentValueFormats.includes(parFormat) ? 'includes' : 'is';
                     break;
                 case '!=':
-                    text = this.multiOptionFormats.includes(parFormat) ? 'does not include' : 'is not';
+                    text = this.choicesJS_parentValueFormats.includes(parFormat) ? 'does not include' : 'is not';
                     break;
                 case 'gt':
                 case 'gte':
@@ -301,18 +311,22 @@ export default {
         listHeaderText(conditionType = '') {
             const type = conditionType.toLowerCase();
             let text = '';
+            let clarifier = '';
+            if(this.conditionTypes[type]?.length > 1) {
+                clarifier = ' (any of the following)'
+            }
             switch(type) {
                 case 'show':
-                    text = 'This field will be hidden except:'
+                    text = `This field will be shown IF${clarifier}:`
                     break;
                 case 'hide':
-                    text = 'This field will be shown except:'
+                    text = `This field will be hidden IF${clarifier}:`
                     break;
                 case 'prefill':
-                    text = 'This field will be pre-filled:'
+                    text = `This field will be pre-filled IF${clarifier}:`
                     break;
                 case 'crosswalk':
-                    text = 'This field has loaded dropdown(s)'
+                    text = `This field has loaded dropdown(s)`
                     break;
                 default:
                     break;
@@ -336,13 +350,13 @@ export default {
          * called to create choicejs combobox instances for multi option formats
          */
         updateChoicesJS() {
-            setTimeout(() => {
+            this.$nextTick(() => {
                 const elExistingChoicesChild = document.querySelector('#child_choices_wrapper > div.choices');
                 const elSelectParent = document.getElementById('parent_compValue_entry_multi');
                 const elSelectChild = document.getElementById('child_prefill_entry_multi');
                 const outcome = this.conditions.selectedOutcome;
 
-                if(this.multiOptionFormats.includes(this.parentFormat) &&
+                if(this.choicesJS_parentValueFormats.includes(this.parentFormat) &&
                     elSelectParent !== null &&
                     !(elSelectParent?.choicesjs?.initialised === true)
                 ) {
@@ -364,10 +378,17 @@ export default {
                     });
                     elSelectParent.choicesjs = choices;
 
-                    let elChoicesInput = document.querySelector('.child_prefill_entry_multi input.choices__input');
+                    let elChoicesInput = document.querySelector('#parent_compValue_entry_multi ~ input.choices__input');
                     if(elChoicesInput !== null) {
-                        elChoicesInput.setAttribute('aria-label', 'child prefill value choices');
+                        elChoicesInput.setAttribute('aria-label', 'parent value choices');
                         elChoicesInput.setAttribute('role', 'searchbox');
+                        //remove an incorrect aria attribute from a div wrapping the delete buttons (which already have labels)
+                        let currentSelections = Array.from(
+                            document.querySelectorAll(
+                                '#parent_compValue_entry_multi ~ .choices__list--multiple .choices__item'
+                            )
+                        );
+                        currentSelections.forEach(s => s.removeAttribute("aria-selected"));
                     }
                 }
 
@@ -392,10 +413,17 @@ export default {
                     });
                     elSelectChild.choicesjs = choices;
 
-                    let elChoicesInput = document.querySelector('.parent_compValue_entry_multi input.choices__input');
+                    let elChoicesInput = document.querySelector('#child_prefill_entry_multi ~ input.choices__input');
                     if(elChoicesInput !== null) {
-                        elChoicesInput.setAttribute('aria-label', 'parent value choices');
+                        elChoicesInput.setAttribute('aria-label', 'child prefill value choices');
                         elChoicesInput.setAttribute('role', 'searchbox');
+                        //remove an incorrect aria attribute from a div wrapping the delete buttons (which already have labels)
+                        let currentSelections = Array.from(
+                            document.querySelectorAll(
+                                '#child_prefill_entry_multi ~ .choices__list--multiple .choices__item'
+                            )
+                        );
+                        currentSelections.forEach(s => s.removeAttribute("aria-selected"));
                     }
                 }
             });
@@ -403,7 +431,7 @@ export default {
         addOrgSelector() {
             if (this.selectedOutcome === 'pre-fill' && this.orgchartFormats.includes(this.childFormat)) {
                 const selType = this.childFormat.slice(this.childFormat.indexOf('_') + 1);
-                setTimeout(() => {
+                this.$nextTick(() => {
                     this.initializeOrgSelector(
                         selType, this.childIndID, 'ifthen_child_', this.selectedChildValue, this.setOrgSelChildValue
                     );
@@ -491,7 +519,7 @@ export default {
               case 'checkboxes':
               case 'dropdown':
               case 'radio':
-                operators = this.multiOptionFormats.includes(this.parentFormat) ?
+                operators = this.choicesJS_parentValueFormats.includes(this.parentFormat) ?
                   [
                     {val:"==", text: "includes"},
                     {val:"!=", text: "does not include"}
@@ -500,7 +528,7 @@ export default {
                     {val:"==", text: "is"},
                     {val:"!=", text: "is not"}
                   ];
-                if (this.selectedParentValueOptions.some(opt => Number.isFinite(+opt))) {
+                if (this.selectedParentValueOptionsHasNumbers) {
                   operators = operators.concat([
                     {val:"gt", text: "is greater than"},
                     {val:"gte", text: "is greater or equal to"},
@@ -523,6 +551,32 @@ export default {
             }
             return operators;
         },
+        selectedOperatorText() {
+            let text = '';
+            switch(this.selectedOperator) {
+                case '==':
+                    text = this.choicesJS_parentValueFormats.includes(this.parentFormat) ? 'includes' : 'is';
+                    break;
+                case '!=':
+                    text = this.choicesJS_parentValueFormats.includes(this.parentFormat) ? 'does not include' : 'is not';
+                    break;
+                case 'gt':
+                    text = 'is greater than';
+                    break;
+                case 'gte':
+                    text = 'is greater or equal to';
+                    break;
+                case 'lt':
+                    text = 'is less than';
+                    break;
+                case 'lte':
+                    text = 'is less or equal to';
+                    break;
+                default:
+                break;
+            }
+            return text;
+        },
         crosswalkLevelTwo() {
             const formPage = this.childIndicator.formPage;
             return this.indicators.filter(i =>
@@ -537,14 +591,35 @@ export default {
         selectedParentValueOptions() {
             return this.selectedParentIndicator?.options || []
         },
+        selectedParentValueOptionsHasNumbers() {
+            return this.selectedParentValueOptions.some(opt => Number.isFinite(+opt));
+        },
+        selectedParentValueIsNumber() {
+            return Number.isFinite(+this.selectedParentValue);
+        },
         /**
          * @returns list of options for prefill outcomes.  Does not combine with file loaded options.
          */
         selectedChildValueOptions() {
-            return this.childIndicator?.options || []
+            return this.childIndicator?.options || [];
         },
         canAddCrosswalk() {
-            return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect')
+            return (this.childFormat === 'dropdown' || this.childFormat === 'multiselect');
+        },
+        parentTriggersDisplay() {
+            let display = this.decodeAndStripHTML(this.selectedParentValue ?? '').split('\n');
+
+            let buffer = '';
+            if(display.length > 1) {
+                buffer = '<ul id="parentTriggerList">';
+                display.forEach(item => {
+                    buffer += '<li>' + item + '</li>';
+                }); 
+                buffer += '</ul>'
+            } else {
+                buffer = "<strong>" + display.join() + "</strong><br>";
+            }
+            return buffer;
         },
         childPrefillDisplay() {
             let returnVal = '';
@@ -573,7 +648,7 @@ export default {
             return this.selectedConditionJSON + this.selectedOutcome;
         },
         parentChoicesKey() {//key for choicesJS box for parent value selection.  update on list selection, parID change, op change
-        return this.selectedConditionJSON + String(this.parentIndID) + this.selectedOperator;
+            return this.selectedConditionJSON + String(this.parentIndID) + this.selectedOperator;
         },
         /**
          * @returns {Object} current conditions object, properties to lower and tags removed as needed
@@ -652,8 +727,11 @@ export default {
                 crosswalk: this.savedConditions.filter(i => i.selectedOutcome.toLowerCase() === "crosswalk"),
             };
         },
+        /* true if user has saved both display states, or if they choose a display state that conflicts with current state */
         hasDisplayConflict() {
-            return this.conditionTypes.show.length > 0 && this.conditionTypes.hide.length > 0;
+            return (this.conditionTypes.show.length > 0 && this.conditionTypes.hide.length > 0) || 
+            (this.conditionTypes.show.length > 0 && this.selectedOutcome === 'hide') ||
+            (this.conditionTypes.hide.length > 0 && this.selectedOutcome === 'show')
         }
     },
     watch: {
@@ -676,12 +754,12 @@ export default {
             }
          },
         parentChoicesKey(newVal, oldVal) {
-            if(this.multiOptionFormats.includes(this.parentFormat)) {
+            if(this.choicesJS_parentValueFormats.includes(this.parentFormat)) {
                 this.updateChoicesJS()
             }
         },
         selectedOperator(newVal, oldVal) {
-            if (oldVal !== "" && this.numericOperators.includes(newVal) && !this.numericOperators.includes(oldVal)) {
+            if (oldVal !== "" && this.numericOperators.includes(newVal) && !this.selectedParentValueIsNumber) {
               this.selectedParentValue = ""
             }
         }
@@ -711,7 +789,7 @@ export default {
                     <!-- NOTE: LISTS BY CONDITION TYPE -->
                     <div v-if="savedConditions.length > 0" id="savedConditionsLists">
                         <div v-if="hasDisplayConflict" class="entry_warning bg-yellow-5" style="margin-bottom:1.5rem;">
-                            <span role="img" alt="warning">⚠️</span> Having both 'hide except' and 'show except' conditions can cause fields to display incorrectly.
+                            <span role="img" alt="warning">⚠️</span> Having both 'hidden' and 'shown' can cause fields to display incorrectly.
                         </div>
                         <div v-if="childHasSubquestions" class="entry_info bg-blue-5v" style="margin-bottom:1.5rem;">
                             <span role="img" aria-hidden="true" alt="">ℹ️</span>Subquestions will also be hidden when this question is hidden.
@@ -721,13 +799,13 @@ export default {
                                 <p><b>{{ listHeaderText(typeKey) }}</b></p>
                                 <ul>
                                     <li v-for="c in typeVal" :key="c" class="savedConditionsCard">
-                                        <button type="button" @click="selectConditionFromList(c)" class="btnSavedConditions" 
+                                        <div class="itemSavedConditions" 
                                             :class="{selectedConditionEdit: JSON.stringify(c) === selectedConditionJSON, isOrphan: isOrphan(c)}">
                                             <template v-if="!isOrphan(c)">
                                                 <div v-if="c.selectedOutcome.toLowerCase() !== 'crosswalk'">
-                                                    If '{{getIndicatorName(parseInt(c.parentIndID))}}' 
-                                                    {{getOperatorText(c)}} <strong>{{ decodeAndStripHTML(c.selectedParentValue) }}</strong> 
-                                                    then {{c.selectedOutcome}} this question.
+                                                    '{{getIndicatorName(parseInt(c.parentIndID))}}' 
+                                                    {{getOperatorText(c)}}
+                                                    <strong>{{getConditionCompareValues(c.selectedParentValue)}}</strong>
                                                 </div>
                                                 <div v-else>Options for this question will be loaded from <b>{{ c.crosswalkFile }}</b></div>
                                                 <div v-if="childFormatChangedSinceSave(c)" class="changesDetected">
@@ -735,9 +813,16 @@ export default {
                                                 </div>
                                             </template>
                                             <div v-else>This condition is inactive because indicator {{ c.parentIndID }} has been archived, deleted or is on another page.</div>
+                                        </div>
+                                        <button type="button" class="btn_edit_condition"
+                                            title="Edit this Condition" aria-label="Edit this condition"
+                                            @click="selectConditionFromList(c)">
+                                            <span role="img" aria-hidden="true" alt="">✏️</span>
                                         </button>
-                                        <button type="button" class="btn_remove_condition" aria-label="remove this condition"
-                                            @click="removeCondition({confirmDelete: false, condition: c})">X
+                                        <button type="button" class="btn_remove_condition"
+                                            title="Delete this condition" aria-label="Delete this condition"
+                                            @click="removeCondition({confirmDelete: false, condition: c})">
+                                            <i class="fa fa-trash" role="img" aria-hidden="true"></i>
                                         </button>
                                     </li>
                                 </ul>
@@ -747,22 +832,24 @@ export default {
                     <button type="button" @click="newCondition" class="btn-confirm new" aria-label="New Condition">+ New Condition</button>
                     <!-- NOTE: OUTCOME SELECTION and PREFILL AREAS -->
                     <div v-if="showConditionEditor" id="outcome-editor">
+                        <!-- SELECT TYPE OF LOGIC -->
                         <label class="ifthen_label" for="outcome_select">Select an outcome</label>
-                        <select title="select outcome" id="outcome_select" @change="updateSelectedOutcome($event.target.value)">
+                        <select title="select outcome" id="outcome_select" class="usa-input" @change="updateSelectedOutcome($event.target.value)">
                             <option v-if="conditions.selectedOutcome === ''" value="" selected>Select an outcome</option>
-                            <option value="show" :selected="conditions.selectedOutcome === 'show'">Hide this question except ...</option>
-                            <option value="hide" :selected="conditions.selectedOutcome === 'hide'">Show this question except ...</option>
+                            <option value="show" :selected="conditions.selectedOutcome === 'show'">Show this question ...</option>
+                            <option value="hide" :selected="conditions.selectedOutcome === 'hide'">Hide this question ...</option>
                             <option v-if="canPrefillChild[childFormat] === 1" 
                                 value="pre-fill" :selected="conditions.selectedOutcome === 'pre-fill'">Pre-fill this Question
                             </option>
                             <option v-if="canAddCrosswalk"
-                                value="crosswalk" :selected="conditions.selectedOutcome === 'crosswalk'">Load Dropdown or Crosswalk
+                                value="crosswalk" :selected="conditions.selectedOutcome === 'crosswalk'">Load Dropdown Options
                             </option>
                         </select>
+                        <!-- PREFILL -->
                         <template v-if="!noOptions && conditions.selectedOutcome === 'pre-fill'">
-                            <label class="ifthen_label" id="prefill_value_entry">Enter a pre-fill value</label>
+                            <label class="ifthen_label" for="child_prefill_entry" id="prefill_value_entry">Enter a pre-fill value</label>
                             <select v-if="childFormat==='dropdown' || childFormat==='radio'"
-                                id="child_prefill_entry" aria-labelledby="prefill_value_entry"
+                                id="child_prefill_entry" class="usa-input"
                                 @change="updateSelectedOptionValue($event.target, 'child')">
                                 <option v-if="conditions.selectedChildValue === ''" value="" selected>Select a value</option>
                                 <option v-for="val in selectedChildValueOptions" 
@@ -777,13 +864,13 @@ export default {
                                 <select v-if="childFormat === 'multiselect' || childFormat === 'checkboxes'"
                                     placeholder="select some options"
                                     multiple="true"
-                                    id="child_prefill_entry_multi" aria-labelledby="prefill_value_entry"
+                                    id="child_prefill_entry_multi" aria-hidden="true"
                                     style="display: none;"
                                     @change="updateSelectedOptionValue($event.target, 'child')">
                                 </select>
                             </div>
                             <input v-else-if="childFormat==='text' || childFormat==='textarea'" 
-                                id="child_prefill_entry" aria-labelledby="prefill_value_entry"
+                                id="child_prefill_entry" class="usa-input"
                                 @change="updateSelectedOptionValue($event.target, 'child')"
                                 :value="decodeAndStripHTML(conditions.selectedChildValue)" />
                             <div v-if="orgchartFormats.includes(childFormat)" :id="'ifthen_child_orgSel_' + conditions.childIndID"
@@ -792,10 +879,13 @@ export default {
                         </template>
                     </div>
                     <div v-if="showSetup" id="if-then-setup">
+                        <!-- CONDITIONAL DISPLAY (HIDE or SHOW) -->
                         <template v-if="conditions.selectedOutcome !== 'crosswalk'">
-                            <div tabindex="0" style="margin: 0;font-size:1.25rem"><b>IF</b></div>
+                            <div style="font-size:1.25rem;"><b>IF</b></div>
                             <!-- NOTE: PARENT CONTROLLER SELECTION -->
-                            <select title="select controller question" aria-label="select controller question" id="controller_select" @change="updateSelectedParentIndicator(parseInt($event.target.value))">
+                            <select title="select controller question" aria-label="select controller question"
+                                id="controller_select" class="usa-input"
+                                @change="updateSelectedParentIndicator(parseInt($event.target.value))">
                                 <option v-if="!conditions.parentIndID" :value="0" selected>Select an Indicator</option>
                                 <option v-for="i in selectableParents" :key="'parent_' + i.indicatorID"
                                 :title="i.name"
@@ -805,50 +895,45 @@ export default {
                                 </option>
                             </select>
                             <!-- NOTE: OPERATOR SELECTION -->
-                            <select v-model="selectedOperator" id="operator_select" title="select condition" aria-label="select condition">
+                            <select v-model="selectedOperator"
+                                id="operator_select" class="usa-input"
+                                title="select condition" aria-label="select condition">
                                 <option v-if="selectedOperator === ''" value="" selected>Select a condition</option>
                                 <option v-for="o in selectedParentOperators" :key="o.val" :value="o.val" >
                                 {{ o.text }}
                                 </option>
                             </select>
                             <!-- NOTE: COMPARED VALUE SELECTIONS -->
-                            <input v-if="numericOperators.includes(selectedOperator)" id="numeric_comparison" title="enter a numeric value" aria-label="enter a numeric value"
-                                type="number" :value="conditions.selectedParentValue" class="comparison" @change="updateSelectedOptionValue($event.target, 'parent')"
+                            <input v-if="numericOperators.includes(selectedOperator)"
+                                id="numeric_comparison" class="usa-input" :key="'comp_numeric' + selectedParentValue"
+                                title="enter a numeric value" aria-label="enter a numeric value"
+                                type="number" :value="conditions.selectedParentValue"
+                                @change="updateSelectedOptionValue($event.target, 'parent')"
                                 placeholder="enter a number" />
-                            <select v-else-if="parentFormat === 'dropdown' || parentFormat==='radio'"
-                                id="parent_compValue_entry_single" title="select a value" aria-label="select a value"
-                                @change="updateSelectedOptionValue($event.target, 'parent')">
-                                <option v-if="conditions.selectedParentValue === ''" value="" selected>Select a value</option>
-                                <option v-for="val in selectedParentValueOptions"
-                                    :key="'parent_val_' + val" :value="val"
-                                    :selected="decodeAndStripHTML(conditions.selectedParentValue) === val"> {{ val }}
-                                </option>
-                            </select>
-                            <div v-else-if="parentFormat==='multiselect' || parentFormat==='checkboxes'"
-                                id="parent_choices_wrapper" class="comparison" :key="'comp_' + parentChoicesKey">
-                                <select id="parent_compValue_entry_multi" title="select values" aria-label="select values"
+                            <div v-else-if="choicesJS_parentValueFormats.includes(parentFormat)"
+                                id="parent_choices_wrapper" :key="'comp_' + parentChoicesKey">
+                                <select id="parent_compValue_entry_multi" aria-hidden="true" style="display: none;"
                                     placeholder="select some options" multiple="true"
-                                    style="display: none;"
                                     @change="updateSelectedOptionValue($event.target, 'parent')">
                                 </select>
                             </div>
                         </template>
-                        <!-- NOTE: LOADED DROPDOWNS AND CROSSWALKS -->
+                        <!-- NOTE: LOADED DROPDOWNS -->
                         <div v-else class="crosswalks">
                             <label for="select-crosswalk-file">File&nbsp;
-                                <select v-model="crosswalkFile" id="select-crosswalk-file" style="width: 200px;">
+                                <select v-model="crosswalkFile" id="select-crosswalk-file" class="usa-input" style="width: 200px;">
                                     <option value="">Select a file</option>
                                     <option v-for="f in fileManagerTextFiles" :key="f" :value="f">{{f}}</option>
                                 </select>
                             </label>
                             <label for="select-crosswalk-header">Does file contain headers?&nbsp;
-                                <select v-model="crosswalkHasHeader" style="width:60px;" id="select-crosswalk-header">
+                                <select v-model="crosswalkHasHeader" id="select-crosswalk-header" class="usa-input" style="width:60px;">
                                     <option :value="false">No</option>
                                     <option :value="true">Yes</option>
                                 </select>
                             </label>
-                            <label for="select-level-two">Controlled Dropdown&nbsp;
-                                <select v-model.number="level2IndID" id="select-level-two" style="width: 200px;">
+                            <label for="select-level-two">Linked Dropdown&nbsp;
+                                <select v-model.number="level2IndID" id="select-level-two" class="usa-input" style="width: 200px;">
                                     <option :value="null">none (single dropdown)</option>
                                     <option v-for="indicator in crosswalkLevelTwo"
                                         :key="'level2_' + indicator.indicatorID"
@@ -859,21 +944,29 @@ export default {
                             </label>
                         </div>
                     </div>
-                    <div v-if="conditionComplete">
-                        <div v-if="conditions.selectedOutcome !== 'crosswalk'" tabindex="0">
-                            <span style="margin:0;display:inline-block;font-size=1.25rem"><b>THEN</b></span> '{{getIndicatorName(childIndID)}}'
+                    <!-- SUMMARY / REVIEW -->
+                    <div v-if="conditionComplete" id="condition_preview">
+                        <template v-if="conditions.selectedOutcome !== 'crosswalk'">
+                            <b>Review Condition Setup</b>
+                            <hr>
+                            <b>IF</b>
+                            '{{getIndicatorName(parentIndID)}}' 
+                            {{selectedOperatorText}}
+                            <span v-html="parentTriggersDisplay"></span>
+                            <b>THEN</b>
+                            '{{getIndicatorName(childIndID)}}'
                             <span v-if="conditions.selectedOutcome === 'pre-fill'">will 
-                            <span style="color: #008010; font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
+                                <span style="font-weight: bold;"> have the value{{childPrefillDisplay}}</span>
                             </span>
                             <span v-else>will 
-                                <span style="color: #008010; font-weight: bold;">
-                                be {{conditions.selectedOutcome === "show" ? 'shown' : 'hidden'}}
+                                <span style="font-weight: bold;">
+                                    be {{conditions.selectedOutcome === "show" ? 'shown' : 'hidden'}}
                                 </span>
                             </span>
-                        </div>
-                        <div v-else tabindex="0">
+                        </template>
+                        <template v-else>
                             <p>Selection options will be loaded from <b>{{ conditions.crosswalkFile }}</b></p>
-                        </div>
+                        </template>
                     </div>
                     <div v-if="noOptions">No options are currently available for this selection</div>
                 </template>
