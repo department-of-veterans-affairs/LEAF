@@ -352,10 +352,7 @@ abstract class RESTfulResponse
     {
         $return_value = false;
         
-        if( $_SERVER['HTTP_USER_AGENT'] == 'Go-http-client/1.1' ){
-            $return_value = false;
-        }
-        else if (!isset($_SERVER['HTTP_REFERER'])) {
+        if (!isset($_SERVER['HTTP_REFERER'])) {
             $return_value = 'Error: Invalid request. Missing Referer.';
         } else {
             $tIdx = strpos($_SERVER['HTTP_REFERER'], '://');
