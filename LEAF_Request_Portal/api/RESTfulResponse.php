@@ -351,7 +351,7 @@ abstract class RESTfulResponse
     public function verifyAdminReferrer(): false|string
     {
         $return_value = false;
-        
+
         if (!isset($_SERVER['HTTP_REFERER'])) {
             $return_value = 'Error: Invalid request. Missing Referer.';
         } else {
