@@ -15,6 +15,7 @@ use App\Leaf\Logger\DataActionLogger;
 use App\Leaf\Logger\Formatters\DataActions;
 use App\Leaf\Logger\Formatters\LoggableTypes;
 use App\Leaf\Logger\LogItem;
+use App\Leaf\XSSHelpers;
 
 class Workflow
 {
@@ -546,6 +547,9 @@ class Workflow
         if ($this->isSystemEventName($name)) {
             return 'System Events Cannot Be Modified.';
         }
+
+        $newName = XSSHelpers::scrubFilename($newName);
+        $name = XSSHelpers::scrubFilename($name);
 
         if ($name === null || $newName === null || $type === null) {
             return 'Event not found, please try again.';

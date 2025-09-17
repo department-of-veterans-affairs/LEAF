@@ -1117,7 +1117,7 @@ class Form
                       ':indicatorID' => $key,
                       ':series' => $series, );
 
-        $sql = "SELECT `format`, `data` FROM `data`
+        $sql = "SELECT `format`, `trackChanges`, `data` FROM `data`
             LEFT JOIN `indicators` USING (`indicatorID`)
             WHERE `recordID`=:recordID AND `indicators`.`indicatorID`=:indicatorID AND `series`=:series";
 
@@ -1125,7 +1125,7 @@ class Form
 
         if(empty($res)) {
             $vf = array(":indicatorID" => $key);
-            $sqlf = "SELECT `format` FROM `indicators` WHERE `indicatorID`=:indicatorID";
+            $sqlf = "SELECT `format`, `trackChanges` FROM `indicators` WHERE `indicatorID`=:indicatorID";
             $res =  $this->db->prepared_query($sqlf, $vf);
         }
 
@@ -1177,7 +1177,7 @@ class Form
                                             VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)
                                             ON DUPLICATE KEY UPDATE data=:data, metadata=:metadata, timestamp=:timestamp, userID=:userID', $vars);
 
-        if (!$duplicate) {
+        if (!$duplicate && $res[0]['trackChanges']) {
             $vars[':userDisplay'] = $this->login->getName();
             $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID, userDisplay)
                                                    VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID, :userDisplay)', $vars);
@@ -1267,7 +1267,8 @@ class Form
                             mkdir($uploadDir, 0755, true);
                         }
 
-                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, XSSHelpers::sanitizeHTML($_FILES[$indicator]['name']));
+                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, XSSHelpers::scrubFilename(XSSHelpers::sanitizeHTML($_FILES[$indicator]['name'])));
+
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     }
                     else
@@ -1558,7 +1559,7 @@ class Form
                 $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency');
                 $conditionMet = false;
                 foreach ($conditions as $c) {
-                    if ($c->childFormat === $format &&
+                    if (!$conditionMet && $c->childFormat === $format &&
                         (strtolower($c->selectedOutcome) === 'hide' || strtolower($c->selectedOutcome) === 'show')) {
 
                         $parentFormat = $c->parentFormat;
@@ -1578,16 +1579,12 @@ class Form
                         switch ($operator) {
                             case '==':
                             case '!=':
-                                if (in_array($parentFormat, $multiChoiceParentFormats)) {
-                                    //true if the current data value includes any of the condition values
-                                    foreach ($currentParentDataValue as $v) {
-                                        if (in_array($v, $conditionParentValue)) {
-                                            $conditionMet = true;
-                                            break;
-                                        }
+                                //true if the current data value includes any of the condition values
+                                foreach ($currentParentDataValue as $v) {
+                                    if (in_array($v, $conditionParentValue)) {
+                                        $conditionMet = true;
+                                        break;
                                     }
-                                } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
-                                    $conditionMet = true;
                                 }
                                 if($operator === "!=") {
                                     $conditionMet = !$conditionMet;
@@ -1631,12 +1628,11 @@ class Form
                             break;
                         }
                     }
-                    //if in hidden state, set parenthidden to true and break out of condition checking.
-                    if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
-                        ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
-                        $parentOrSelfHidden = true;
-                        break;
-                    }
+                }
+                //if in hidden state, set parenthidden to true.
+                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
+                    ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
+                    $parentOrSelfHidden = true;
                 }
                 unset($conditions);
             }
