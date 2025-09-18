@@ -118,7 +118,7 @@ export default {
             </li>
             <li v-if="!noForm" style="margin-left: auto;">
                 <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form" aria-label="delete this form">
-                    <span role="img" aria-hidden="true" alt="">❌&nbsp;</span>Delete this form
+                    <i class="fa fa-trash" role="img" aria-hidden="true"></i>&nbsp;&nbsp;Delete this form
                 </button>
             </li>
         </ul>

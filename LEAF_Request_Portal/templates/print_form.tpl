@@ -558,24 +558,16 @@ function doSubmit(recordID) {
                             ];
                         val = val.filter(v => v !== '');
 
-                        let compVal = [];
-                        if (multiChoiceFormats.includes(parentFormat)) {
-                            compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
-                            compVal = compVal.map(v => v.trim());
-                        } else {
-                            compVal = [
-                                $('<div/>').html(conditions[i].selectedParentValue).text().trim()
-                            ];
-                        }
+                        let compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
+                        compVal = compVal.map(v => v.trim());
+
                         const op = conditions[i].selectedOp;
                         switch (op) {
                             case '==':
-                                comparison = multiChoiceFormats.includes(parentFormat) ?
-                                    valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] === compVal[0];
+                                comparison = valIncludesMultiselOption(val, compVal);
                                 break;
                             case '!=':
-                                comparison = multiChoiceFormats.includes(parentFormat) ?
-                                    !valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] !== compVal[0];
+                                comparison = !valIncludesMultiselOption(val, compVal);
                                 break;
                             case 'lt':
                             case 'lte':
