@@ -1,3 +1,4 @@
+START TRANSACTION;
 UPDATE `indicators` SET
 `indicatorID` = '-2',
 `name` = 'Justification for collection of sensitive data',
@@ -16,3 +17,29 @@ UPDATE `indicators` SET
 `disabled` = '0',
 `is_sensitive` = '0'
 WHERE `indicatorID` = '-2';
+
+COMMIT;
+
+/**** Revert DB *****
+START TRANSACTION;
+UPDATE `indicators` SET
+`indicatorID` = '-2',
+`name` = 'Justification for collection of sensitive data',
+`format` = 'textarea',
+`description` = '',
+`default` = '',
+`parentID` = NULL,
+`categoryID` = 'leaf_secure',
+`html` = '<div id=\"leafSecureDialogContentPrint\"></div>\n\n<script src=\"js/LeafSecureReviewDialog.js\"></script>\n<script>\n$(function() {\n\n    LeafSecureReviewDialog(\'leafSecureDialogContentPrint\');\n\n\n\n});\n</script>',
+`htmlPrint` = '<div id=\"leafSecureDialogContentPrint\"></div>\n\n<script src=\"js/LeafSecureReviewDialog.js\"></script>\n<script>\n$(function() {\n\n    LeafSecureReviewDialog(\'leafSecureDialogContentPrint\');\n\n\n\n});\n</script>',
+`conditions` = NULL,
+`jsSort` = NULL,
+`required` = '1',
+`sort` = '2',
+`timeAdded` = '2019-07-30 20:25:06',
+`disabled` = '0',
+`is_sensitive` = '0'
+WHERE `indicatorID` = '-2';
+
+COMMIT;
+*/
