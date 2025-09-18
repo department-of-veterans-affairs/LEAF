@@ -342,7 +342,7 @@
                         roleID = 'assignedIndividual';
                         description = '* Assigned to an individual *';
                     } else {
-                        roleID = Sha1.hash(uDD.approverUID);
+                        roleID = Sha1.hash(uDD.approverUID + uDD.approverName);
                         description = scrubHTML(uDD.approverName);
                     }
                 }
