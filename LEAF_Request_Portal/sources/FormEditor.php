@@ -124,13 +124,16 @@ class FormEditor
     }
 
     /**
+     *
      * @param int $indicatorID
      * @param string $format
      *
-     * @return string|array
+     * @return string
+     * A string is expected, on success the string should be empty
+     *
      *
      */
-    public function setFormat(int $indicatorID, string $format): string|array
+    public function setFormat(int $indicatorID, string $format): string
     {
         $workflowCount = $this->getWorkflowUseCount($indicatorID);
 
@@ -153,7 +156,8 @@ class FormEditor
                 new LogItem("indicators", "format", $format)
             ]);
 
-            $result = $this->db->prepared_query($sql, $vars);
+            $this->db->prepared_query($sql, $vars);
+            $result = '';
         }
 
         return $result;
@@ -284,10 +288,11 @@ class FormEditor
      * @param int $indicatorID
      * @param int $input
      *
-     * @return string|array
+     * @return string
+     * A string is expected, on success the string should be empty
      *
      */
-    function setDisabled(int $indicatorID, int $input): string|array
+    function setDisabled(int $indicatorID, int $input): string
     {
         $workflowCount = $this->getWorkflowUseCount($indicatorID);
         $stepModuleCount = $this->getStepModuleUseCount($indicatorID);
@@ -310,10 +315,14 @@ class FormEditor
 
             $vars = array(':indicatorID' => $indicatorID,
                         ':input' => $disabledTime);
+            $sql = 'UPDATE `indicators`
+                    SET `disabled` = :input
+                    WHERE `indicatorID` = :indicatorID';
 
-            $return_value = $this->db->prepared_query('UPDATE indicators
-                            SET disabled=:input
-                            WHERE indicatorID=:indicatorID', $vars);
+            $this->db->prepared_query($sql, $vars);
+
+            $return_value = '';
+
 
             $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::INDICATOR,[
                 new LogItem("indicators", "indicatorID", $indicatorID),
