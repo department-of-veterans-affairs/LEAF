@@ -449,7 +449,7 @@ employeeSelector.prototype.search = function () {
                 'tip">\
 		                			<td class="employeeSelectorName" colspan="' +
                 resultColSpan +
-                '" style="background-color: white; text-align: center; font-weight: normal">&#x1f4a1; Can&apos;t find someone? Trying searching their Email address</td>\
+                '" style="background-color: white; text-align: center; font-weight: normal">&#x1f4a1; Can&apos;t find someone? Try searching their Email address</td>\
 		                			</tr>'
             );
           }
