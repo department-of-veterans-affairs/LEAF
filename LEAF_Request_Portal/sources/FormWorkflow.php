@@ -1756,7 +1756,7 @@ class FormWorkflow
             $data = $field["data"];
             $emailValue = "";
 
-            $format = strtolower(explode(PHP_EOL, $field["format"])[0] ?? "");
+            $format = trim(strtolower(explode(PHP_EOL, $field["format"])[0] ?? ""));
             switch($format) {
                 case "grid":
                     if(!empty($data) && is_array(unserialize($data))){
@@ -1822,11 +1822,11 @@ class FormWorkflow
         $headers = $data['names'];
 
         // build the grid
-        $grid = "<table><tr>";
+        $grid = "<table style=\"border-collapse: collapse; margin: 2px;\"><tr>";
 
         foreach($headers as $header) {
             if ($header !== " ") {
-                $grid .= "<th>{$header}</th>";
+                $grid .= "<th style=\"border: 1px solid #000; background: #e0e0e0; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; width: 100px; \">{$header}</th>";
             }
         }
         $grid .= "</tr>";
@@ -1834,7 +1834,7 @@ class FormWorkflow
         foreach($cells as $row) {
             $grid .= "<tr>";
             foreach($row as $column) {
-                $grid .= "<td>{$column}</td>";
+                $grid .= "<td  style=\"border: 1px solid #000; background: #fff; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; \">{$column}</td>";
             }
             $grid .= "</tr>";
         }

@@ -531,7 +531,7 @@ export default {
                 indicatorID,
             }
             this.dialogButtonText = {confirm: 'Save', cancel: 'Close'};
-            this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #a00;">${name} (${indicatorID})</span></h2>`);
+            this.setCustomDialogTitle(`<h2>Conditions For <span style="color: #005EA2;">${name} (${indicatorID})</span></h2>`);
             this.setFormDialogComponent('conditions-editor-dialog');
             this.showFormDialog = true;
         },
