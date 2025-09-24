@@ -7,6 +7,7 @@ export default {
         'siteSettings',
         'noForm',
         'mainFormID',
+        'indicatorsInWorkflow',
 
         'openFormHistoryDialog',
         'openConfirmDeleteFormDialog',
@@ -24,7 +25,16 @@ export default {
                 }
             }
             return internalFormRecords;
-        }
+        },
+        /**
+         * @returns {boolean} true if any indicators are in workflow
+         */
+        hasIndicatorsInWorkflow() {
+            const workflowData = this.indicatorsInWorkflow || {};
+            return Object.values(workflowData).some(indicator =>
+                indicator.inWorkflow === true || indicator.stepInWorkflow === true
+            );
+        },
     },
     methods: {
         /**
@@ -117,7 +127,10 @@ export default {
                 </router-link>
             </li>
             <li v-if="!noForm" style="margin-left: auto;">
-                <button type="button" @click="openConfirmDeleteFormDialog" title="delete this form" aria-label="delete this form">
+                <div v-if="hasIndicatorsInWorkflow" class="entry_info bg-blue-5v" style="padding: 0.25rem 1rem;">
+                    <span role="img" aria-hidden="true" alt="">ℹ️</span>Cannot delete: Form has workflow dependencies
+                </div>
+                <button v-else type="button" @click="openConfirmDeleteFormDialog" title="delete this form" aria-label="delete this form">
                     <i class="fa fa-trash" role="img" aria-hidden="true"></i>&nbsp;&nbsp;Delete this form
                 </button>
             </li>
