@@ -171,27 +171,15 @@ export default {
             return this.parentID === null ? 'Section Heading' : 'Field Name';
         },
         showFormatSelect() {
-            console.log('showFormatSelect debug:', {
-                indicatorID: this.indicatorID,
-                workflowData: this.indicatorsInWorkflow[this.indicatorID],
-                parentID: this.parentID,
-                advancedMode: this.advancedMode,
-                format: this.format,
-                hasDevConsoleAccess: typeof hasDevConsoleAccess !== 'undefined' ? hasDevConsoleAccess : 'undefined'
-            });
-
             // Hide format select ONLY when inWorkflow is true (not stepInWorkflow)
             if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
                 const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
                 if (workflowStatus.inWorkflow === true) {
-                    console.log('Hiding format select due to inWorkflow');
                     return false;
                 }
             }
 
-            const shouldShow = this.parentID !== null || this.advancedMode === true || this.format !== '' || (typeof hasDevConsoleAccess !== 'undefined' && hasDevConsoleAccess);
-            console.log('Format select should show:', shouldShow);
-            return shouldShow;
+            return this.parentID !== null || this.advancedMode === true || this.format !== '' || (typeof hasDevConsoleAccess !== 'undefined' && hasDevConsoleAccess);
         },
         showDefaultTextarea() {
             return !['','raw_data','fileupload','image','grid','checkboxes','multiselect'].includes(this.format);
