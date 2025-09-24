@@ -10,6 +10,10 @@ require github.com/department-of-veterans-affairs/LEAF/pkg/form/query v0.0.0-000
 
 replace github.com/department-of-veterans-affairs/LEAF/pkg/form/query => ../pkg/form/query
 
+require github.com/department-of-veterans-affairs/LEAF/pkg/portal/group v0.0.0-00010101000000-000000000000
+
+replace github.com/department-of-veterans-affairs/LEAF/pkg/portal/group => ../pkg/portal/group
+
 require (
 	github.com/department-of-veterans-affairs/LEAF/pkg/workflow v0.0.0-00010101000000-000000000000
 	github.com/microcosm-cc/bluemonday v1.0.27

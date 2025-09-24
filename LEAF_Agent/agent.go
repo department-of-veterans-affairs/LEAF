@@ -84,6 +84,9 @@ loop:
 		case "updateDataConditional":
 			updateDataConditional(&task, ParsePayload[UpdateDataConditionalPayload](ins.Payload))
 
+		case "validateInitiatorIsLocalAdmin":
+			validateInitiatorIsLocalAdmin(&task, ParsePayload[ValidateInitiatorIsLocalAdmin](ins.Payload))
+
 		// Instructions utilizing a LLM
 		case "routeLLM":
 			routeLLM(&task, ParsePayload[RouteLLMPayload](ins.Payload))
@@ -108,7 +111,7 @@ loop:
 }
 
 // ReviewTasks ensures active tasks do not contain duplicates, and promotes pending tasks to an active status
-// This function is not thread safe, and must be run sequentially
+// This function is not thread safe and must be run sequentially
 func ReviewTasks() error {
 	q := query.Query{
 		Terms: []query.Term{
@@ -118,20 +121,20 @@ func ReviewTasks() error {
 				Match:    "resolved",
 			},
 		},
-		Joins:   []string{"status"},
+		Joins:   []string{"status", "initiator"},
 		GetData: []int{2, 3}, // id2 = siteURL, id3 = stepID
 	}
 
-	res, err := FormQuery(`https://`+HTTP_HOST+`/platform/agent/`, q, "&x-filterData=recordID,stepID,submitted")
+	res, err := FormQuery(`https://`+HTTP_HOST+`/platform/agent/`, q, "&x-filterData=recordID,stepID,submitted,userName")
 	if err != nil {
 		return fmt.Errorf("error querying active tasks: %w", err)
 	}
 
-	// Get all active tasks
+	// Check active tasks for duplicates
 	activeTasks := make(map[string]query.Record)
 	for _, v := range res {
 		// key: siteURL + stepID
-		if v.StepID == 2 {
+		if v.StepID == 2 { // StepID 2 = Active Tasks
 			// Remove if duplicate
 			key := v.S1["id2"] + v.S1["id3"]
 			_, exists := activeTasks[key]
@@ -146,9 +149,25 @@ func ReviewTasks() error {
 		}
 	}
 
-	// Replace tasks with newer ones, if present
+	// Check tasks in staging area
 	for recordID, v := range res {
-		if v.StepID == 1 {
+		if v.StepID == 1 { // StepID 1 = Tasks in staging area
+
+			// Check if the task's initiator is a local admin of the site associated with the task
+			isAdmin, err := IsSiteAdmin(v.S1["id2"], v.UserName)
+			if err != nil {
+				return fmt.Errorf("error checking site admin: %w", err)
+			}
+
+			if !isAdmin {
+				err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, recordID, "1", "Decommission", "Initiator must be an admin of the site associated with the task")
+				if err != nil {
+					return fmt.Errorf("error removing unauthorized task: %w", err)
+				}
+				continue
+			}
+
+			// Replace tasks with newer ones, if present
 			key := v.S1["id2"] + v.S1["id3"]
 			_, hasNewer := activeTasks[key]
 			if hasNewer {
@@ -158,7 +177,7 @@ func ReviewTasks() error {
 				}
 			}
 
-			err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, recordID, "1", "Activate", "")
+			err = TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, recordID, "1", "Activate", "")
 			if err != nil {
 				return fmt.Errorf("error activating task: %w", err)
 			}

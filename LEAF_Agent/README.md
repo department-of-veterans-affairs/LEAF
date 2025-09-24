@@ -22,6 +22,8 @@ LEAF Agents have the same level of access as normal users, communicate with the 
 
 Tasks encompass a series of instructions, which are executed for a specific Site and StepID. The corresponding workflow Step must have the LEAF Agent as a configured requirement.
 
+Tasks for a particular portal may only be configured by a local site admin.
+
 If an error occurs during an instruction for a record, the agent will log the error and cancel subsequent instructions for that record.
 
 Instructions that use LLMs do not have the ability to apply approval/disapproval/deny actions.

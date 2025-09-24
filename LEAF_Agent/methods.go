@@ -8,6 +8,8 @@ import (
 	"strconv"
 )
 
+// All siteURLs must include a trailing slash
+
 func TakeAction(siteURL string, recID int, stepID string, actionType string, comment string) error {
 	recordID := strconv.Itoa(recID)
 

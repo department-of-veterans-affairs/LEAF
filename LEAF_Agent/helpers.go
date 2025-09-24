@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"maps"
 	"net/http"
 	"net/url"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/department-of-veterans-affairs/LEAF/pkg/form"
 	"github.com/department-of-veterans-affairs/LEAF/pkg/form/query"
+	"github.com/department-of-veterans-affairs/LEAF/pkg/portal/group"
 	"github.com/department-of-veterans-affairs/LEAF/pkg/workflow"
 )
 
@@ -145,4 +147,44 @@ func GetActions(siteURL string, stepID string) ([]workflow.Action, error) {
 	json.Unmarshal(b, &actions)
 
 	return actions, nil
+}
+
+// GetAdmins retrieves the list of admins for the specified siteURL
+func GetAdmins(siteURL string) ([]group.Member, error) {
+	res, err := HttpGet(siteURL + "api/group/1/members")
+	if err != nil {
+		log.Println("Error retrieving admins:", siteURL)
+		return nil, err
+	}
+
+	// marshal JSON response into []group.Members
+	var admins []group.Member
+
+	b, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(b, &admins)
+	if err != nil {
+		log.Println("Error unmarshaling admins:", err)
+		return nil, err
+	}
+
+	return admins, nil
+}
+
+func IsSiteAdmin(siteURL string, userName string) (bool, error) {
+	admins, err := GetAdmins(siteURL)
+	if err != nil {
+		log.Println("Error retrieving admins:", err)
+		return false, err
+	}
+
+	for _, admin := range admins {
+		if admin.Username == userName {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

@@ -222,6 +222,10 @@ var LeafAgentViewer = function (containerID, siteURL) {
     }
 
     function importConfig(oldConfig) {
+        if(oldConfig == undefined) {
+            console.error('Configuration is undefined');
+            return;
+        }
         if(!Array.isArray(oldConfig)) {
             alert('Invalid configuration');
             return;

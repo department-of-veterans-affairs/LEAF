@@ -10,8 +10,12 @@ type Task struct {
 	SiteURL      string        `json:"siteURL"`
 	StepID       string        `json:"stepID"`
 	Instructions []Instruction `json:"instructions"`
-	Records      map[int]bool
-	Errors       []TaskError
+
+	// Map of records in the current working set. Indexed by recordID (int)
+	// The record is in the set if it exists in the map
+	Records map[int]bool
+
+	Errors []TaskError
 
 	Log             []TaskLog `json:"log"`
 	LastRun         time.Time `json:"lastRun"`
@@ -19,8 +23,7 @@ type Task struct {
 }
 
 /*
-HandleError logs the error for the given recordID, and removes the record from the current working set.
-
+HandleError logs the error for the given recordID and removes the record from the current working set.
 For non-recoverable errors, recordID should be set to 0 to empty the current working set.
 */
 func (t *Task) HandleError(recordID int, functionName string, err error) {
