@@ -8,7 +8,8 @@ export default {
         'focusedFormRecord',
         'getFormByCategoryID',
         'removeCategory',
-        'closeFormDialog'
+        'closeFormDialog',
+        'indicatorsInWorkflow',
     ],
     created() {
         this.setDialogSaveFunction(this.onSave);
@@ -27,9 +28,37 @@ export default {
         currentStapleIDs() {
             return this.focusedFormRecord?.stapledFormIDs || [];
         },
+        hasIndicatorsInWorkflow() {
+            const workflowData = this.indicatorsInWorkflow || {};
+            return Object.values(workflowData).some(indicator =>
+                indicator.inWorkflow === true || indicator.stepInWorkflow === true
+            );
+        },
+        canDelete() {
+            return !this.hasIndicatorsInWorkflow && this.currentStapleIDs.length === 0;
+        }
+    },
+    mounted() {
+        // Hide the save button if there are workflow dependencies
+        if (this.hasIndicatorsInWorkflow) {
+            const saveButton = document.getElementById('button_save');
+            if (saveButton) {
+                saveButton.style.display = 'none';
+            }
+
+            // Change cancel button text to "Close"
+            const cancelButton = document.getElementById('button_cancelchange');
+            if (cancelButton) {
+                cancelButton.textContent = 'Close';
+            }
+        }
     },
     methods:{
         onSave() {
+            if (this.hasIndicatorsInWorkflow) {
+                return; // Prevent deletion if indicators are in workflow
+            }
+
             if(this.currentStapleIDs.length === 0) {
                 const delID = this.focusedFormRecord.categoryID;
                 const parID = this.focusedFormRecord.parentID;
@@ -55,7 +84,7 @@ export default {
                 });
 
             } else {
-                //prevents some issues, as deleting a form with staples attached makes the stapled forms ineligible for workflow assignment 
+                //prevents some issues, as deleting a form with staples attached makes the stapled forms ineligible for workflow assignment
                 alert('Please remove all stapled forms before deleting.')
             }
         }
@@ -65,5 +94,9 @@ export default {
         <div style="margin: 1em 0;"><b>{{formName}}</b></div>
         <div style="min-width:300px; max-width: 500px; min-height: 50px; margin-bottom: 1rem;">{{formDescription}}</div>
         <div v-if="currentStapleIDs.length > 0">⚠️ This form still has stapled forms attached</div>
+        <span v-if="hasIndicatorsInWorkflow" class="entry_info bg-blue-5v" style="margin-top:1.5rem;">
+            <span role="img" aria-hidden="true" alt="">ℹ️</span>
+            Indicators are used in the workflow, remove those dependencies before deleting this form
+        </span>
     </div>`
 }

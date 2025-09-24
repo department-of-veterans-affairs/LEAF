@@ -102,37 +102,19 @@ export default {
         'getFormByCategoryID',
         'truncateText',
         'decodeAndStripHTML',
-        'orgchartFormats'
+        'orgchartFormats',
+        'indicatorsInWorkflow',
     ],
     created() {
         this.setDialogSaveFunction(this.onSave);
         this.checkRequiredData(this.requiredDataProperties);
-        // fetch step modules
-        // if no modules then check if this indicator format is orgchart...
-        // if it is orgchart... then fetch workflow steps
 
-        // if either of these comes back with this indicator then disable archive and delete
-        // add message about the archive and delete check boxes
-        // disable changing the format if orgchart and add message about it
-        this.fetchStepModules().then(indicatorInWorkflow => {
-            const isInStepModules = this.checkIndicatorInData(indicatorInWorkflow, this.indicatorID, 'step');
-
-            if (isInStepModules) {
-                this.inWorkflow = true;
-                this.disableArchiveAndDelete();
-            } else if (this.format && this.format.startsWith('orgchart')) {
-                const isInWorkflowSteps = this.checkIndicatorInData(indicatorInWorkflow, this.indicatorID, 'workflow');
-
-                if (isInWorkflowSteps) {
-                    this.inWorkflow = true;
-                    this.stepInWorkflow = true;
-                    this.disableArchiveAndDelete();
-                    this.disableFormatDropdown();
-                }
-            }
-        }).catch(err => {
-            console.error('Error fetching step modules:', err);
-        });
+        // Use the existing indicatorsInWorkflow data instead of fetching
+        if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
+            const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
+            this.inWorkflow = workflowStatus.inWorkflow === true;
+            this.stepInWorkflow = workflowStatus.stepInWorkflow === true;
+        }
     },
     provide() {
         return {
@@ -189,8 +171,27 @@ export default {
             return this.parentID === null ? 'Section Heading' : 'Field Name';
         },
         showFormatSelect() {
-            //not a header, or in advanced mode, or the format of the header is already a format other than none
-            return this.parentID !== null || this.advancedMode === true || this.format !== '' || hasDevConsoleAccess;
+            console.log('showFormatSelect debug:', {
+                indicatorID: this.indicatorID,
+                workflowData: this.indicatorsInWorkflow[this.indicatorID],
+                parentID: this.parentID,
+                advancedMode: this.advancedMode,
+                format: this.format,
+                hasDevConsoleAccess: typeof hasDevConsoleAccess !== 'undefined' ? hasDevConsoleAccess : 'undefined'
+            });
+
+            // Hide format select ONLY when inWorkflow is true (not stepInWorkflow)
+            if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
+                const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
+                if (workflowStatus.inWorkflow === true) {
+                    console.log('Hiding format select due to inWorkflow');
+                    return false;
+                }
+            }
+
+            const shouldShow = this.parentID !== null || this.advancedMode === true || this.format !== '' || (typeof hasDevConsoleAccess !== 'undefined' && hasDevConsoleAccess);
+            console.log('Format select should show:', shouldShow);
+            return shouldShow;
         },
         showDefaultTextarea() {
             return !['','raw_data','fileupload','image','grid','checkboxes','multiselect'].includes(this.format);
@@ -242,7 +243,20 @@ export default {
                 this.focusedFormTree.length - offset:                                       //new form sections/pages
                 Array.from(document.querySelectorAll(nonSectionSelector)).length - offset   //new questions in existing sections
             return sortVal;
-        }
+        },
+        isInAnyWorkflow() {
+            if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
+                const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
+                return workflowStatus.inWorkflow === true || workflowStatus.stepInWorkflow === true;
+            }
+            return false;
+        },
+        isInStepWorkflow() {
+            if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
+                return this.indicatorsInWorkflow[this.indicatorID].stepInWorkflow === true;
+            }
+            return false;
+        },
     },
     methods: {
         containsRichText(txt) {
@@ -687,77 +701,6 @@ export default {
             $('#name').trumbowyg('destroy');
             this.ariaTextEditorStatus = 'Showing formatted code.'
             document.getElementById('advNameEditor').focus();
-        },
-        fetchStepModules() {
-            return fetch(`${this.APIroot}/workflow/${this.focusedFormRecord?.workflowID}`, {
-                method: 'GET'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                return response.json();
-            })
-            .catch(err => {
-                console.error('Error fetching step modules:', err);
-            });
-        },
-        checkIndicatorInData(data, indicatorID, context) {
-            for (let key in data) {
-                if (data.hasOwnProperty(key)) {
-                    const step = data[key];
-
-                    // Check if this step has stepModules array
-                    if (context === 'step' && step.stepModules && Array.isArray(step.stepModules)) {
-                        for (let module of step.stepModules) {
-                            // Check if moduleConfig exists and parse it
-                            if (module.moduleConfig) {
-                                try {
-                                    const config = JSON.parse(module.moduleConfig);
-                                    // Check if indicatorID matches
-                                    if (config.indicatorID && config.indicatorID.toString() === indicatorID.toString()) {
-                                        return true;
-                                    }
-                                } catch (e) {
-                                    // Skip if JSON parsing fails
-                                    console.log('Error parsing moduleConfig:', e);
-                                }
-                            }
-                        }
-                    } else if (context === 'workflow' && this.format && this.format.startsWith('orgchart')) {
-                        if (step.indicatorID_for_assigned_empUID && step.indicatorID_for_assigned_empUID.toString() === indicatorID.toString()) {
-                            return true;
-                        }
-
-                        if (step.indicatorID_for_assigned_groupID && step.indicatorID_for_assigned_groupID.toString() === indicatorID.toString()) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        },
-        disableArchiveAndDelete() {
-            this.$nextTick(() => {
-                const archivedInput = document.getElementById('archived');
-                const deletedInput = document.getElementById('deleted');
-
-                if (archivedInput) {
-                    archivedInput.disabled = true;
-                }
-                if (deletedInput) {
-                    deletedInput.disabled = true;
-                }
-            });
-        },
-        disableFormatDropdown() {
-            this.$nextTick(() => {
-                const formatSelect = document.getElementById('indicatorType');
-                if (formatSelect) {
-                    formatSelect.disabled = true;
-                }
-            });
         }
     },
     watch: {
@@ -803,7 +746,7 @@ export default {
             <input type="text" id="description" v-model="description" maxlength="50" />
         </div>
         <div id="input-format">
-            <div v-if="showFormatSelect && !stepInWorkflow">
+            <div v-if="showFormatSelect">
                 <label for="indicatorType">Input Format</label>
                 <div style="display:flex;">
                     <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
@@ -823,7 +766,7 @@ export default {
                 </div>
 
             </div>
-            <div v-if="stepInWorkflow" class="entry_info bg-blue-5v" style="margin-bottom:1.5rem;">
+            <div v-if="!showFormatSelect && indicatorID" class="entry_info bg-blue-5v" style="margin-bottom:1.5rem;">
                 <span role="img" aria-hidden="true" alt="">ℹ️</span>Changing format is not allowed while this indicator is used as a smart requirement.
             </div>
             <div v-show="format === 'checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
@@ -862,7 +805,7 @@ export default {
         </div>
         <div v-show="!(!isEditingModal && format === '')" id="indicator-editing-attributes">
             <b>Attributes</b>
-            <div v-show="inWorkflow" class="entry_info bg-blue-5v" style="margin-top:.5rem;">
+            <div v-show="isInAnyWorkflow" class="entry_info bg-blue-5v" style="margin-top:.5rem;">
                 <span role="img" aria-hidden="true" alt="">ℹ️</span>Archive and Delete are not available while this indicator is set as a workflow form field.
             </div>
             <div class="attribute-row">
@@ -878,7 +821,7 @@ export default {
                         <span class="leaf_check"></span>Sensitive Data (PHI/PII)
                     </label>
                 </template>
-                <template v-if="isEditingModal && !inWorkflow">
+                <template v-if="isEditingModal && !isInAnyWorkflow">
                     <label class="checkable leaf_check" for="archived" style="margin-right: 1.5rem;">
                         <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"
                             v-model="archived" @change="radioBehavior" />

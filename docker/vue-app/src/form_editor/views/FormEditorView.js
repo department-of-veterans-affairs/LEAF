@@ -35,6 +35,7 @@ export default {
             fileManagerTextFiles: [],
             ariaStatusFormDisplay: '',
             focusAfterFormUpdateSelector: null,
+            indicatorsInWorkflow: {},
         }
     },
     components: {
@@ -103,6 +104,7 @@ export default {
             focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             noForm: computed(() => this.noForm),
             mainFormID: computed(() => this.mainFormID),
+            indicatorsInWorkflow: computed(() => this.indicatorsInWorkflow),
 
             getFormByCategoryID: this.getFormByCategoryID,
             editAdvancedOptions: this.editAdvancedOptions,
@@ -120,6 +122,7 @@ export default {
             clickToMoveListItem: this.clickToMoveListItem,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey,
+            getIndicatorsWorkflowStatus: this.getIndicatorsWorkflowStatus,
         }
     },
     computed: {
@@ -368,6 +371,11 @@ export default {
                         this.focusedFormTree = res || [];
                         this.appIsLoadingForm = false;
 
+                        this.appIsLoadingForm = false;
+                        // Get workflow status after form loads
+                        this.getIndicatorsWorkflowStatus(); // Add this line
+                        console.log(this.indicatorsInWorkflow);
+
                         setTimeout(() => {
                             //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
                             if(this.internalID !== null && this.focusedFormID !== this.internalID) {
@@ -458,7 +466,7 @@ export default {
             }
         },
         /**
-         * @param {number} indicatorID 
+         * @param {number} indicatorID
          * @returns {Object} with property information about the specific indicator
          */
         getIndicatorByID(indicatorID = 0) {
@@ -507,7 +515,7 @@ export default {
         },
         /**
          * get information about the indicator and open indicator editing modal
-         * @param {number} indicatorID 
+         * @param {number} indicatorID
          */
         editQuestion(indicatorID = 0) {
             this.focusAfterFormUpdateSelector = '#' + document?.activeElement?.id || null;
@@ -563,7 +571,7 @@ export default {
         },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
-         * @param {Object} event 
+         * @param {Object} event
          * @param {number} indID of the list item to move
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
@@ -662,7 +670,7 @@ export default {
         },
         /**
          * updates the listIndex and newParentID values for a specific indicator in listtracker when moved via the Form Index
-         * @param {number} indID 
+         * @param {number} indID
          * @param {number|null} newParIndID null for form Sections
          * @param {number} listIndex
          */
@@ -843,8 +851,8 @@ export default {
             }
         },
         /**
-         * @param {string} categoryID 
-         * @param {number} len 
+         * @param {string} categoryID
+         * @param {number} len
          * @returns shortened form name
          */
         shortFormNameStripped(catID = '', len = 21) {
@@ -862,6 +870,130 @@ export default {
          */
         makePreviewKey(node) {
             return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
+        },
+        /**
+         * Get workflow status for all indicators in the current form
+         * Updates the indicatorsInWorkflow object
+         */
+        getIndicatorsWorkflowStatus() {
+            if (!this.focusedFormID || !this.focusedFormTree.length) return;
+
+            // Extract all indicator IDs from the current form tree
+            const indicatorIDs = this.getAllIndicatorIDs(this.focusedFormTree);
+
+            // Initialize indicatorsInWorkflow with all indicators set to false
+            this.indicatorsInWorkflow = {};
+            indicatorIDs.forEach(id => {
+                this.indicatorsInWorkflow[id] = {
+                    inWorkflow: false,
+                    stepInWorkflow: false
+                };
+            });
+
+            // First, get the workflow metadata for this form
+            fetch(`${this.APIroot}form/_${this.focusedFormID}/workflow`)
+                .then(res => res.json())
+                .then(workflowData => {
+                    if (workflowData && workflowData.length > 0) {
+                        const workflowID = workflowData[0].workflowID;
+
+                        // Store workflow info for potential use elsewhere
+                        if (this.categories[this.focusedFormID]) {
+                            this.categories[this.focusedFormID].workflowID = workflowID;
+                        }
+
+                        // Now get the workflow steps to check indicator participation
+                        return fetch(`${this.APIroot}workflow/${workflowID}`);
+                    } else {
+                        return null;
+                    }
+                })
+                .then(res => {
+                    if (res) {
+                        return res.json();
+                    }
+                    return null;
+                })
+                .then(workflowSteps => {
+                    if (workflowSteps) {
+                        // Process workflow steps to determine indicator participation
+                        Object.values(workflowSteps).forEach(step => {
+                            // Check if any indicators are assigned to this step
+                            if (step.indicatorID_for_assigned_empUID) {
+                                const indicatorID = step.indicatorID_for_assigned_empUID;
+                                if (this.indicatorsInWorkflow[indicatorID]) {
+                                    this.indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                                }
+                            }
+
+                            if (step.indicatorID_for_assigned_groupID) {
+                                const indicatorID = step.indicatorID_for_assigned_groupID;
+                                if (this.indicatorsInWorkflow[indicatorID]) {
+                                    this.indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                                }
+                            }
+
+                            // Check stepModules for LEAF_workflow_indicator
+                            if (step.stepModules && Array.isArray(step.stepModules)) {
+                                step.stepModules.forEach(module => {
+                                    if (module.moduleName === 'LEAF_workflow_indicator' && module.moduleConfig) {
+                                        try {
+                                            const config = JSON.parse(module.moduleConfig);
+                                            const indicatorID = config.indicatorID;
+                                            if (this.indicatorsInWorkflow[indicatorID]) {
+                                                // stepInWorkflow takes precedence over inWorkflow
+                                                this.indicatorsInWorkflow[indicatorID].inWorkflow = false;
+                                                this.indicatorsInWorkflow[indicatorID].stepInWorkflow = true;
+                                            }
+                                        } catch (e) {
+                                            console.log('Error parsing module config:', e);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.log('Error fetching workflow status:', err);
+                });
+        },
+        /**
+         * Recursively extract all indicator IDs from form tree
+         * @param {Array} tree - form tree structure
+         * @returns {Array} array of indicator IDs
+         */
+        getAllIndicatorIDs(tree) {
+            let indicatorIDs = [];
+
+            tree.forEach(node => {
+                if (node.indicatorID) {
+                    indicatorIDs.push(node.indicatorID);
+                }
+
+                // Recursively check children
+                if (node.child && Array.isArray(node.child)) {
+                    indicatorIDs = indicatorIDs.concat(this.getAllIndicatorIDs(node.child));
+                } else if (node.child && typeof node.child === 'object') {
+                    // Handle object-style children
+                    const childArray = Object.values(node.child);
+                    indicatorIDs = indicatorIDs.concat(this.getAllIndicatorIDs(childArray));
+                }
+            });
+
+            return indicatorIDs;
+        },
+
+        /**
+         * Check if a specific indicator is in workflow
+         * @param {number} indicatorID
+         * @returns {Object} workflow status object or default values
+         */
+        getIndicatorWorkflowStatus(indicatorID) {
+            return this.indicatorsInWorkflow[indicatorID] || {
+                inWorkflow: false,
+                stepInWorkflow: false
+            };
         },
     },
     watch: {
@@ -894,7 +1026,7 @@ export default {
     },
     template:`<section id="formEditor_content">
         <div v-if="appIsLoadingForm || appIsLoadingCategories" class="page_loading">
-            Loading... 
+            Loading...
             <img src="../images/largespinner.gif" alt="" />
         </div>
         <div v-else-if="noForm">
