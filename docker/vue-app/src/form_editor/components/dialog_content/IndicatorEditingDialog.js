@@ -82,8 +82,6 @@ export default {
 
             archived: false,
             deleted: false,
-            inWorkflow: false,
-            stepInWorkflow: false
         }
     },
     inject: [
@@ -108,13 +106,6 @@ export default {
     created() {
         this.setDialogSaveFunction(this.onSave);
         this.checkRequiredData(this.requiredDataProperties);
-
-        // Use the existing indicatorsInWorkflow data instead of fetching
-        if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
-            const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
-            this.inWorkflow = workflowStatus.inWorkflow === true;
-            this.stepInWorkflow = workflowStatus.stepInWorkflow === true;
-        }
     },
     provide() {
         return {
