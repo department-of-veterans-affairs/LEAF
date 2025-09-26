@@ -660,6 +660,80 @@ function doSubmit(recordID) {
         });
     }
 
+    function openContentForPrint(){
+        $('#formcontent').empty().html('');
+        $.ajax({
+            type: 'GET',
+            url: 'ajaxIndex.php?a=printview&recordID=<!--{$recordID|strip_tags}-->',
+            dataType: 'text', // IE9 issue
+            success: function(res) {
+                $('#formcontent').append(res);
+                // make box size more predictable
+                $('.printmainblock').each(function() {
+                    let boxSizer = {};
+                    $(this).find('.printsubheading').each(function() {
+                        layer = $(this).position().top;
+                        if (boxSizer[layer] == undefined) {
+                            boxSizer[layer] = $(this).height();
+                        }
+                        if ($(this).height() > boxSizer[layer]) {
+                            boxSizer[layer] = $(this).height();
+                        }
+                    });
+                    $(this).find('.printsubheading').each(function() {
+                        layer = $(this).position().top;
+                        if (boxSizer[layer] != undefined) {
+                            $(this).height(boxSizer[layer]);
+                        }
+                    });
+                });
+                handlePrintConditionalIndicators(formPrintConditions);
+            },
+            error: function(res) {
+                $('#formcontent').empty().html(res);
+            },
+            cache: false,
+            async: false,
+        });
+      
+        <!--{section name=i loop=$childforms}-->
+            $.ajax({
+                type: 'GET',
+                url: 'ajaxIndex.php?a=internalonlyview&recordID=<!--{$recordID|strip_tags}-->&childCategoryID=<!--{$childforms[i].childCategoryID|strip_tags}-->',
+                dataType: 'text', // IE9 issue
+                success: function(res) {
+                    $('#formcontent').append(res);
+                    // make box size more predictable
+                    $('.printmainblock').each(function() {
+                        let boxSizer = {};
+                        $(this).find('.printsubheading').each(function() {
+                            layer = $(this).position().top;
+                            if (boxSizer[layer] == undefined) {
+                                boxSizer[layer] = $(this).height();
+                            }
+                            if ($(this).height() > boxSizer[layer]) {
+                                boxSizer[layer] = $(this).height();
+                            }
+                        });
+                        $(this).find('.printsubheading').each(function() {
+                            layer = $(this).position().top;
+                            if (boxSizer[layer] != undefined) {
+                                $(this).height(boxSizer[layer]);
+                            }
+                        });
+                    });
+                    handlePrintConditionalIndicators(formPrintConditions);
+                },
+                error: function(res) {
+                    //$('#formcontent').empty().html(res);
+                },
+                cache: false,
+                async: false,
+            });
+        <!--{/section}-->
+
+    }
+
     function viewAccessLogsRead() {
         // presents logs as bullet points in a message window
         let viewAccessLogsRead = '<!--{foreach from=$accessLogs["read"] item=log}--> <li><!--{$log}--></li> <!--{/foreach}-->';
@@ -1385,7 +1459,10 @@ function doSubmit(recordID) {
         print = new printer();
 
         $('#btn_printForm').on('click', function() {
+            openContentForPrint();
             print.printForm(recordID);
+            //openContent('ajaxIndex.php?a=printview&recordID=<!--{$recordID|strip_tags}-->');
+
         });
         form.setRecordID(<!--{$recordID|strip_tags|escape}-->);
 
