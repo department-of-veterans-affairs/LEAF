@@ -11,7 +11,7 @@ export default {
             formID: this.focusedFormRecord?.categoryID || '',
             formParentID: this.focusedFormRecord?.parentID || '',
             destructionAgeYears: this.focusedFormRecord?.destructionAge > 0 ?  this.focusedFormRecord?.destructionAge / 365 : null,
-            
+
             workflowsLoading: true,
             workflowRecords: []
         }
@@ -37,6 +37,7 @@ export default {
         'showLastUpdate',
         'truncateText',
         'decodeAndStripHTML',
+        'getWorkflowIndicators',
 	],
     computed: {
         loading() {
@@ -129,6 +130,7 @@ export default {
                         this.updateCategoriesProperty(this.formID, 'workflowID', this.workflowID);
                         this.updateCategoriesProperty(this.formID, 'workflowDescription', this.workflowDescription);
                         this.showLastUpdate('form_properties_last_update');
+                        this.getWorkflowIndicators();
                     }
                 },
                 error: err => console.log('workflow post err', err)
@@ -216,7 +218,7 @@ export default {
                 <span :aria-label="'max length 50 characters, ' + formNameCharsRemaining + ' remaining'">({{formNameCharsRemaining}})</span>
             </label>
             <input id="categoryName" type="text" maxlength="50" v-model="categoryName" @change="updateName"/>
-            
+
             <label for="categoryDescription">Form description
                 <span :aria-label="'max length 255 characters, ' + formDescrCharsRemaining + ' remaining'">({{formDescrCharsRemaining}})</span>
             </label>
@@ -231,7 +233,7 @@ export default {
             <template v-if="!isSubForm">
                 <div class="panel-properties">
                     <div id="workflow_info" v-if="!isStaple && workflowRecords.length > 0">
-                        <label for="workflowID">Workflow: 
+                        <label for="workflowID">Workflow:
                             <select id="workflowID" name="select-workflow" @change="updateWorkflow"
                                 title="select workflow"
                                 v-model.number="workflowID"
@@ -256,7 +258,7 @@ export default {
                     </div>
                     <div v-if="!workflowsLoading && workflowRecords.length === 0" style="color: #a00; width: 100%; margin-bottom: 0.5rem;">A workflow must be set up first</div>
 
-                    <label for="availability" title="When hidden, users will not be able to select this form">Status: 
+                    <label for="availability" title="When hidden, users will not be able to select this form">Status:
                         <select id="availability" title="Select Availability" v-model.number="visible" @change="updateAvailability">
                             <option value="1" :selected="visible === 1">Available</option>
                             <option value="0" :selected="visible === 0">Hidden</option>
@@ -268,13 +270,13 @@ export default {
                         <div style="display:flex; align-items: center;">Forced On because sensitive fields are present</div>
                     </div>
                     <label v-else for="needToKnow"
-                        title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know: 
+                        title="When turned on, the people associated with the workflow are the only ones who have access to view the form. \nForced on if the form contains sensitive information.">Need to know:
                         <select id="needToKnow" v-model.number="needToKnow" :style="{color: isNeedToKnow ? '#a00' : 'black'}" @change="updateNeedToKnow">
                             <option value="0" :selected="!isNeedToKnow">Off</option>
                             <option value="1" style="color: #a00;" :selected="isNeedToKnow">On</option>
                         </select>
                     </label>
-                    <label for="formType">Form Type: 
+                    <label for="formType">Form Type:
                         <select id="formType" title="Change type of form" v-model="type" @change="updateType">
                             <option value="" :selected="type === ''">Standard</option>
                             <option value="parallel_processing" :selected="type === 'parallel_processing'">Parallel Processing</option>
@@ -283,7 +285,7 @@ export default {
                     <div v-if="false" style="display:flex; align-items: center; column-gap: 1rem;">
                         <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age
                             <select id="destructionAgeYears" v-model="destructionAgeYears"
-                                title="resolved request destruction age in years" 
+                                title="resolved request destruction age in years"
                                 @change="updateDestructionAge">
                                 <option :value="null" :selected="destructionAgeYears===null">never</option>
                                 <option v-for="i in 30" :value="i">{{i}} year{{ i === 1 ? "" : "s"}}</option>

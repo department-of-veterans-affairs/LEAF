@@ -123,6 +123,7 @@ export default {
             clickToMoveListItem: this.clickToMoveListItem,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey,
+            getWorkflowIndicators: this.getWorkflowIndicators,
         }
     },
     computed: {

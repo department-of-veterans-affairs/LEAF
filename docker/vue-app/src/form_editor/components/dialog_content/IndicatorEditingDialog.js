@@ -785,7 +785,7 @@ export default {
         <div v-show="!(!isEditingModal && format === '')" id="indicator-editing-attributes">
             <b>Attributes</b>
             <div v-show="isInAnyWorkflow" class="entry_info bg-blue-5v" style="margin-top:.5rem;">
-                <span role="img" aria-hidden="true" alt="">ℹ️</span>Archive and Delete are not available while this indicator is set as a workflow form field.
+                <span role="img" aria-hidden="true" alt="">ℹ️</span>Archive and Delete are not available while this indicator is used in a workflow.
             </div>
             <div class="attribute-row">
                 <template v-if="format !== ''">
