@@ -78,6 +78,7 @@ export default {
             vm.getSiteSettings();
             vm.setDefaultAjaxResponseMessage();
             vm.getFileManagerTextFiles();
+            vm.getWorkflowIndicators();
             if(!vm.appIsLoadingCategories && vm.queryID) {
                 vm.getFormFromQueryParam();
             }
@@ -122,7 +123,6 @@ export default {
             clickToMoveListItem: this.clickToMoveListItem,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey,
-            getIndicatorsWorkflowStatus: this.getIndicatorsWorkflowStatus,
         }
     },
     computed: {
@@ -372,9 +372,6 @@ export default {
                         this.appIsLoadingForm = false;
 
                         this.appIsLoadingForm = false;
-                        // Get workflow status after form loads
-                        this.getIndicatorsWorkflowStatus(); // Add this line
-                        console.log(this.indicatorsInWorkflow);
 
                         setTimeout(() => {
                             //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
@@ -872,93 +869,6 @@ export default {
             return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
         },
         /**
-         * Get workflow status for all indicators in the current form
-         * Updates the indicatorsInWorkflow object
-         */
-        getIndicatorsWorkflowStatus() {
-            if (!this.focusedFormID || !this.focusedFormTree.length) return;
-
-            // Extract all indicator IDs from the current form tree
-            const indicatorIDs = this.getAllIndicatorIDs(this.focusedFormTree);
-
-            // Initialize indicatorsInWorkflow with all indicators set to false
-            this.indicatorsInWorkflow = {};
-            indicatorIDs.forEach(id => {
-                this.indicatorsInWorkflow[id] = {
-                    inWorkflow: false,
-                    stepInWorkflow: false
-                };
-            });
-
-            // First, get the workflow metadata for this form
-            fetch(`${this.APIroot}form/_${this.focusedFormID}/workflow`)
-                .then(res => res.json())
-                .then(workflowData => {
-                    if (workflowData && workflowData.length > 0) {
-                        const workflowID = workflowData[0].workflowID;
-
-                        // Store workflow info for potential use elsewhere
-                        if (this.categories[this.focusedFormID]) {
-                            this.categories[this.focusedFormID].workflowID = workflowID;
-                        }
-
-                        // Now get the workflow steps to check indicator participation
-                        return fetch(`${this.APIroot}workflow/${workflowID}`);
-                    } else {
-                        return null;
-                    }
-                })
-                .then(res => {
-                    if (res) {
-                        return res.json();
-                    }
-                    return null;
-                })
-                .then(workflowSteps => {
-                    if (workflowSteps) {
-                        // Process workflow steps to determine indicator participation
-                        Object.values(workflowSteps).forEach(step => {
-                            // Check if any indicators are assigned to this step
-                            if (step.indicatorID_for_assigned_empUID) {
-                                const indicatorID = step.indicatorID_for_assigned_empUID;
-                                if (this.indicatorsInWorkflow[indicatorID]) {
-                                    this.indicatorsInWorkflow[indicatorID].inWorkflow = true;
-                                }
-                            }
-
-                            if (step.indicatorID_for_assigned_groupID) {
-                                const indicatorID = step.indicatorID_for_assigned_groupID;
-                                if (this.indicatorsInWorkflow[indicatorID]) {
-                                    this.indicatorsInWorkflow[indicatorID].inWorkflow = true;
-                                }
-                            }
-
-                            // Check stepModules for LEAF_workflow_indicator
-                            if (step.stepModules && Array.isArray(step.stepModules)) {
-                                step.stepModules.forEach(module => {
-                                    if (module.moduleName === 'LEAF_workflow_indicator' && module.moduleConfig) {
-                                        try {
-                                            const config = JSON.parse(module.moduleConfig);
-                                            const indicatorID = config.indicatorID;
-                                            if (this.indicatorsInWorkflow[indicatorID]) {
-                                                // stepInWorkflow takes precedence over inWorkflow
-                                                this.indicatorsInWorkflow[indicatorID].inWorkflow = false;
-                                                this.indicatorsInWorkflow[indicatorID].stepInWorkflow = true;
-                                            }
-                                        } catch (e) {
-                                            console.log('Error parsing module config:', e);
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.log('Error fetching workflow status:', err);
-                });
-        },
-        /**
          * Recursively extract all indicator IDs from form tree
          * @param {Array} tree - form tree structure
          * @returns {Array} array of indicator IDs
@@ -994,6 +904,104 @@ export default {
                 inWorkflow: false,
                 stepInWorkflow: false
             };
+        },
+        /**
+         * Fetch workflow steps and build indicatorsInWorkflow object
+         */
+        async getWorkflowIndicators() {
+            try {
+                const response = await fetch(`${this.APIroot}workflow/workflowSteps`);
+                const result = await response.json();
+
+                if (result.status && result.status.code === 2 && result.data) {
+                    await this.processWorkflowSteps(result.data);
+                }
+            } catch (error) {
+                console.error('Error fetching workflow steps:', error);
+            }
+        },
+
+        /**
+         * Process workflow steps data to extract indicators and build indicatorsInWorkflow object
+         * @param {Array} workflowSteps - Array of workflow step objects
+         */
+        async processWorkflowSteps(workflowSteps) {
+            const indicatorsInWorkflow = {};
+
+            // Process each step sequentially to get dependencies
+            for (const step of workflowSteps) {
+                try {
+                    // Fetch step dependencies for this specific step
+                    const response = await fetch(`${this.APIroot}workflow/${step.stepID}/stepDependencies`);
+                    const result = await response.json();
+
+                    let stepDependencies = [];
+                    if (result.status && result.status.code === 2 && result.data) {
+                        stepDependencies = result.data;
+                    }
+
+                    // Check if this step has dependency -1 or -3
+                    const hasDependencyMinus1 = stepDependencies.some(dep => dep.dependencyID === -1);
+                    const hasDependencyMinus3 = stepDependencies.some(dep => dep.dependencyID === -3);
+
+                    // Check indicatorID_for_assigned_empUID (only if dependency -1 exists)
+                    if (step.indicatorID_for_assigned_empUID !== null &&
+                        step.indicatorID_for_assigned_empUID > 0 &&
+                        hasDependencyMinus1) {
+
+                        const indicatorID = step.indicatorID_for_assigned_empUID;
+                        if (!indicatorsInWorkflow[indicatorID]) {
+                            indicatorsInWorkflow[indicatorID] = {
+                                inWorkflow: false,
+                                stepInWorkflow: false
+                            };
+                        }
+                        indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                    }
+
+                    // Check indicatorID_for_assigned_groupID (only if dependency -3 exists)
+                    if (step.indicatorID_for_assigned_groupID !== null &&
+                        step.indicatorID_for_assigned_groupID > 0 &&
+                        hasDependencyMinus3) {
+
+                        const indicatorID = step.indicatorID_for_assigned_groupID;
+                        if (!indicatorsInWorkflow[indicatorID]) {
+                            indicatorsInWorkflow[indicatorID] = {
+                                inWorkflow: false,
+                                stepInWorkflow: false
+                            };
+                        }
+                        indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                    }
+
+                    // Check moduleConfig for indicatorID (this logic remains the same)
+                    if (step.moduleConfig !== null) {
+                        try {
+                            const moduleConfig = JSON.parse(step.moduleConfig);
+
+                            if (moduleConfig.indicatorID) {
+                                const indicatorID = moduleConfig.indicatorID;
+                                if (!indicatorsInWorkflow[indicatorID]) {
+                                    indicatorsInWorkflow[indicatorID] = {
+                                        inWorkflow: false,
+                                        stepInWorkflow: false
+                                    };
+                                }
+                                indicatorsInWorkflow[indicatorID].stepInWorkflow = true;
+                            }
+                        } catch (parseError) {
+                            console.warn('Error parsing moduleConfig:', step.moduleConfig, parseError);
+                        }
+                    }
+
+                } catch (error) {
+                    console.error(`Error fetching step dependencies for step ${step.stepID}:`, error);
+                }
+            }
+
+            console.log('Indicators in Workflow:', Object.keys(this.listTracker));
+
+            this.indicatorsInWorkflow = indicatorsInWorkflow;
         },
     },
     watch: {

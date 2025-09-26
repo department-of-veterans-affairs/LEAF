@@ -178,6 +178,7 @@ class Workflow
         $vars = [];
         $query = 'SELECT * FROM `workflow_steps`
                   LEFT JOIN `workflows` USING (`workflowID`)
+                  LEFT JOIN `step_modules` USING (`stepID`)
                   ORDER BY `description`, `stepTitle`';
         $res = $this->db->pdo_select_query($query, $vars); // The response from Db.php is properly formatted using pdo_select_query.
         return $res;

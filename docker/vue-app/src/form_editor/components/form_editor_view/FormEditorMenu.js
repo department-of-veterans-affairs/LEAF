@@ -8,6 +8,7 @@ export default {
         'noForm',
         'mainFormID',
         'indicatorsInWorkflow',
+        'listTracker',
 
         'openFormHistoryDialog',
         'openConfirmDeleteFormDialog',
@@ -31,9 +32,12 @@ export default {
          */
         hasIndicatorsInWorkflow() {
             const workflowData = this.indicatorsInWorkflow || {};
-            return Object.values(workflowData).some(indicator =>
-                indicator.inWorkflow === true || indicator.stepInWorkflow === true
-            );
+            const currentFormIndicators = Object.keys(this.listTracker || {});
+
+            return currentFormIndicators.some(indicatorID => {
+                const indicator = workflowData[indicatorID];
+                return indicator && (indicator?.inWorkflow === true || indicator?.stepInWorkflow === true);
+            });
         },
     },
     methods: {
