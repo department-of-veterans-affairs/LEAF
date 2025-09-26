@@ -999,8 +999,6 @@ export default {
                 }
             }
 
-            console.log('Indicators in Workflow:', Object.keys(this.listTracker));
-
             this.indicatorsInWorkflow = indicatorsInWorkflow;
         },
     },
