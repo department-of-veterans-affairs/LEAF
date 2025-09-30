@@ -954,10 +954,19 @@ export default {
                         if (!indicatorsInWorkflow[indicatorID]) {
                             indicatorsInWorkflow[indicatorID] = {
                                 inWorkflow: false,
-                                stepInWorkflow: false
+                                stepInWorkflow: false,
+                                workflowName: '',
+                                stepName: '',
                             };
                         }
                         indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                        if (indicatorsInWorkflow[indicatorID].workflowName === '') {
+                            indicatorsInWorkflow[indicatorID].workflowName = step.description + ` (${step.workflowID})`;
+                            indicatorsInWorkflow[indicatorID].stepName = step.stepTitle + ` (${step.stepID})`;
+                        } else {
+                            indicatorsInWorkflow[indicatorID].workflowName = indicatorsInWorkflow[indicatorID].workflowName + ', ' + step.description + ` (${step.workflowID})`;
+                            indicatorsInWorkflow[indicatorID].stepName = indicatorsInWorkflow[indicatorID].stepName + ', ' + step.stepTitle + ` (${step.stepID})`;
+                        }
                     }
 
                     // Check indicatorID_for_assigned_groupID (only if dependency -3 exists)
@@ -969,10 +978,19 @@ export default {
                         if (!indicatorsInWorkflow[indicatorID]) {
                             indicatorsInWorkflow[indicatorID] = {
                                 inWorkflow: false,
-                                stepInWorkflow: false
+                                stepInWorkflow: false,
+                                workflowName: '',
+                                stepName: '',
                             };
                         }
                         indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                        if (indicatorsInWorkflow[indicatorID].workflowName === '') {
+                            indicatorsInWorkflow[indicatorID].workflowName = step.description + ` (${step.workflowID})`;
+                            indicatorsInWorkflow[indicatorID].stepName = step.stepTitle + ` (${step.stepID})`;
+                        } else {
+                            indicatorsInWorkflow[indicatorID].workflowName = indicatorsInWorkflow[indicatorID].workflowName + ', ' + step.description + ` (${step.workflowID})`;
+                            indicatorsInWorkflow[indicatorID].stepName = indicatorsInWorkflow[indicatorID].stepName + ', ' + step.stepTitle + ` (${step.stepID})`;
+                        }
                     }
 
                     // Check moduleConfig for indicatorID (this logic remains the same)
@@ -985,10 +1003,19 @@ export default {
                                 if (!indicatorsInWorkflow[indicatorID]) {
                                     indicatorsInWorkflow[indicatorID] = {
                                         inWorkflow: false,
-                                        stepInWorkflow: false
+                                        stepInWorkflow: false,
+                                        workflowName: '',
+                                        stepName: '',
                                     };
                                 }
                                 indicatorsInWorkflow[indicatorID].stepInWorkflow = true;
+                                if (indicatorsInWorkflow[indicatorID].workflowName === '') {
+                                    indicatorsInWorkflow[indicatorID].workflowName = step.description + ` (${step.workflowID})`;
+                                    indicatorsInWorkflow[indicatorID].stepName = step.stepTitle + ` (${step.stepID})`;
+                                } else {
+                                    indicatorsInWorkflow[indicatorID].workflowName = indicatorsInWorkflow[indicatorID].workflowName + ', ' + step.description + ` (${step.workflowID})`;
+                                    indicatorsInWorkflow[indicatorID].stepName = indicatorsInWorkflow[indicatorID].stepName + ', ' + step.stepTitle + ` (${step.stepID})`;
+                                }
                             }
                         } catch (parseError) {
                             console.warn('Error parsing moduleConfig:', step.moduleConfig, parseError);
@@ -1000,6 +1027,7 @@ export default {
                 }
             }
 
+            console.log('Indicators in Workflow:', indicatorsInWorkflow);
             this.indicatorsInWorkflow = indicatorsInWorkflow;
         },
     },

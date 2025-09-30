@@ -166,11 +166,13 @@ export default {
             if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
                 const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
                 if (workflowStatus.inWorkflow === true) {
+                    console.log('format select hidden due to inWorkflow');
                     return false;
                 }
             }
-
-            return this.parentID !== null || this.advancedMode === true || this.format !== '' || (typeof hasDevConsoleAccess !== 'undefined' && hasDevConsoleAccess);
+            const return_value = this.parentID !== null || this.advancedMode === true || this.format !== '' || (typeof hasDevConsoleAccess !== 'undefined' && hasDevConsoleAccess);
+            console.log('showFormatSelect', return_value);
+            return return_value;
         },
         showDefaultTextarea() {
             return !['','raw_data','fileupload','image','grid','checkboxes','multiselect'].includes(this.format);
@@ -235,6 +237,74 @@ export default {
                 return this.indicatorsInWorkflow[this.indicatorID].stepInWorkflow === true;
             }
             return false;
+        },
+        archiveDeleteWorkflowMessage() {
+            if (!this.indicatorID || !this.indicatorsInWorkflow[this.indicatorID]) {
+                return '';
+            }
+
+            const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
+            if (!workflowStatus.stepInWorkflow && !workflowStatus.inWorkflow) {
+                return '';
+            }
+
+            // Parse workflow names and step names (they're comma-separated)
+            const workflowNames = workflowStatus.workflowName.split('), ').map((name, idx, arr) => {
+                return idx < arr.length -1 ? name + ')' : name;
+            });
+            const stepNames = workflowStatus.stepName.split('), ').map((name, idx, arr) => {
+                return idx < arr.length -1 ? name + ')' : name;
+            });
+
+            // Build the message parts
+            let messageParts = [];
+            for (let i = 0; i < workflowNames.length; i++) {
+                const workflow = workflowNames[i] || '';
+                const step = stepNames[i] || '';
+                if (workflow && step) {
+                    messageParts.push(`Workflow: ${workflow} - Step: ${step}`);
+                }
+            }
+
+            if (messageParts.length === 0) {
+                return '';
+            }
+
+            return `This field is used in a workflow and must be removed from there before you can Archive or Delete it.<br /><br />${messageParts.join('<br />')}`;
+        },
+        formatWorkflowMessage() {
+            if (!this.indicatorID || !this.indicatorsInWorkflow[this.indicatorID]) {
+                return '';
+            }
+
+            const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
+            if (!workflowStatus.inWorkflow) {
+                return '';
+            }
+
+            // Split by '), ' to handle commas within workflow/step names
+            const workflowNames = workflowStatus.workflowName.split('), ').map((name, idx, arr) => {
+                return idx < arr.length - 1 ? name + ')' : name;
+            });
+
+            const stepNames = workflowStatus.stepName.split('), ').map((name, idx, arr) => {
+                return idx < arr.length - 1 ? name + ')' : name;
+            });
+
+            let messageParts = [];
+            for (let i = 0; i < workflowNames.length; i++) {
+                const workflow = workflowNames[i] || '';
+                const step = stepNames[i] || '';
+                if (workflow && step) {
+                    messageParts.push(`Workflow: ${workflow} - Step: ${step}`);
+                }
+            }
+
+            if (messageParts.length === 0) {
+                return '';
+            }
+
+            return `This field is used in and must be removed from there before you can change its format.<br /><br />${messageParts.join('<br />')}`;
         },
     },
     methods: {
@@ -746,7 +816,7 @@ export default {
 
             </div>
             <div v-if="!showFormatSelect && indicatorID" class="entry_info bg-blue-5v" style="margin-bottom:1.5rem;">
-                <span role="img" aria-hidden="true" alt="">ℹ️</span>Changing format is not allowed while this indicator is used as a smart requirement.
+                <span role="img" aria-hidden="true" alt="">ℹ️</span><span v-html="formatWorkflowMessage"></span>
             </div>
             <div v-show="format === 'checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
                 <label for="indicatorSingleAnswer">Text for checkbox</label>
@@ -785,7 +855,7 @@ export default {
         <div v-show="!(!isEditingModal && format === '')" id="indicator-editing-attributes">
             <b>Attributes</b>
             <div v-show="isInAnyWorkflow" class="entry_info bg-blue-5v" style="margin-top:.5rem;">
-                <span role="img" aria-hidden="true" alt="">ℹ️</span>Archive and Delete are not available while this indicator is used in a workflow.
+                <span role="img" aria-hidden="true" alt="">ℹ️</span><span v-html="archiveDeleteWorkflowMessage"></span>
             </div>
             <div class="attribute-row">
                 <template v-if="format !== ''">
