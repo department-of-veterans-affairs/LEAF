@@ -6,7 +6,7 @@ require github.com/department-of-veterans-affairs/LEAF/pkg/form v0.0.0-000101010
 
 replace github.com/department-of-veterans-affairs/LEAF/pkg/form => ../pkg/form
 
-require github.com/department-of-veterans-affairs/LEAF/pkg/form/query v0.0.0-00010101000000-000000000000
+require github.com/department-of-veterans-affairs/LEAF/pkg/form/query v0.0.0-20250930151516-28db1e3cc383
 
 replace github.com/department-of-veterans-affairs/LEAF/pkg/form/query => ../pkg/form/query
 
@@ -22,7 +22,7 @@ require (
 require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
-	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
 )
 
 replace github.com/department-of-veterans-affairs/LEAF/pkg/workflow => ../pkg/workflow
