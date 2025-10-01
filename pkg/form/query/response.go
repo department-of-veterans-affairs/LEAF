@@ -4,20 +4,21 @@ import (
 	"encoding/json"
 )
 
+type RecordID = int
+
 // Response represents the response structure for the "form/query" API endpoint
-// The map's key is the record ID
-type Response map[int]Record
+type Response map[RecordID]Record
 
 // ResponseCompat provides compatibility with the current response format
 // Associative arrays in PHP encode into JS objects, however PHP's json_encode() converts
 // an empty associative array to a JS array instead of a JS object.
 //
 // TODO: if x-filterData= is empty, api/form/query responses should contain empty objects instead of arrays
-type ResponseCompat map[int][]string
+type ResponseCompat map[RecordID][]string
 
 // UnmarshallJSON provides compatibility, see ResponseCompat
 func (r *Response) UnmarshalJSON(b []byte) error {
-	var temp map[int]Record
+	var temp map[RecordID]Record
 	err := json.Unmarshal(b, &temp)
 	if err != nil {
 		var rc ResponseCompat
@@ -42,7 +43,7 @@ func (r *Response) UnmarshalJSON(b []byte) error {
 
 // Record represents the structure of a single record in the response
 type Record struct {
-	RecordID                int                    `json:"recordID"`
+	RecordID                RecordID               `json:"recordID"`
 	ServiceID               int                    `json:"serviceID"`
 	Date                    int                    `json:"date"`
 	UserID                  string                 `json:"userID"`
@@ -76,7 +77,7 @@ type Record struct {
 
 // ActionHistory represents an action history event for a record
 type ActionHistory struct {
-	RecordID            int              `json:"recordID"`
+	RecordID            RecordID         `json:"recordID"`
 	StepID              int              `json:"stepID"`
 	UserID              string           `json:"userID"`
 	Time                int              `json:"time"`

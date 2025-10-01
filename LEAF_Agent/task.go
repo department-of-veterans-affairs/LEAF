@@ -13,7 +13,8 @@ type Task struct {
 
 	// Map of records in the current working set. Indexed by recordID (int)
 	// The record is in the set if it exists in the map
-	Records map[int]bool
+	// Values aren't needed, so a zero-sized struct{} is used as its "value"
+	Records map[int]struct{}
 
 	Errors []TaskError
 

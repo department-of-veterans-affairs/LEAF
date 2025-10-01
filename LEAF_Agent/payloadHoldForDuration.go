@@ -11,6 +11,7 @@ type HoldForDurationPayload struct {
 }
 
 // holdForDuration holds records for SecondsToHold duration.
+// Records that do not exceed the duration are removed from task.Records
 func holdForDuration(task *Task, payload HoldForDurationPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{

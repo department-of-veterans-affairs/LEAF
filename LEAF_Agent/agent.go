@@ -36,7 +36,7 @@ func ExecuteTask(task Task) {
 	log.Println("Executing Task ID#", task.TaskID)
 
 	// Get list of records to process
-	task.Records = make(map[int]bool)
+	task.Records = make(map[int]struct{})
 	query := query.Query{
 		Terms: []query.Term{
 			{
@@ -56,7 +56,7 @@ func ExecuteTask(task Task) {
 	}
 
 	for recordID := range records {
-		task.Records[recordID] = true
+		task.Records[recordID] = struct{}{}
 	}
 
 	// Process task's instructions
