@@ -91,7 +91,7 @@ export default {
                 return '';
             }
 
-            return `Sorry, you are not allowed to delete this form at this time. Indicator(s) on this form are currently being used in a workflow. Here is a list of Indicators, the workflow they are present in and the step.<br /><br />${messageParts.join('<br />')}`;
+            return `This form cannot be deleted because it has questions used within a workflow as noted below.<br /><br />${messageParts.join('<br />')}`;
         },
     },
     mounted() {

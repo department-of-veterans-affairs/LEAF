@@ -372,8 +372,6 @@ export default {
                         this.focusedFormTree = res || [];
                         this.appIsLoadingForm = false;
 
-                        this.appIsLoadingForm = false;
-
                         setTimeout(() => {
                             //if an internalID query exists and it is an internal for the current form, dispatch internal btn click event
                             if(this.internalID !== null && this.focusedFormID !== this.internalID) {

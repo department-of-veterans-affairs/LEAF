@@ -166,7 +166,6 @@ export default {
             if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
                 const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
                 if (workflowStatus.inWorkflow === true) {
-                    console.log('format select hidden due to inWorkflow');
                     return false;
                 }
             }
@@ -304,7 +303,7 @@ export default {
                 return '';
             }
 
-            return `This field is used in and must be removed from there before you can change its format.<br /><br />${messageParts.join('<br />')}`;
+            return `This field is used in a workflow and must be removed from there before you can change its format.<br /><br />${messageParts.join('<br />')}`;
         },
     },
     methods: {
