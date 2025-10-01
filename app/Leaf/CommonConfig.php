@@ -22,7 +22,7 @@ class CommonConfig
                                         'pub',
                                         'msg', 'ics',
                                         'mht', 'msg', 'xml',
-                                        'zip', '7z',
+                                        'zip', '7z', 'gz',
                                         'dwg'
                                     );
 
@@ -38,13 +38,14 @@ class CommonConfig
                                             'vsd',
                                             'rtf',
                                             'json', 'sql', 'rdl',
-                                            'js',
+                                            'js', 'mjs',
                                             'css',
                                             '3mf', 'gcode', 'stl',
                                             'pub',
                                             'msg', 'ics',
                                             'mht', 'msg', 'xml',
-                                            'zip', '7z',
+                                            'zip', '7z', 'gz',
                                             'dwg'
                                         );
 }
+
