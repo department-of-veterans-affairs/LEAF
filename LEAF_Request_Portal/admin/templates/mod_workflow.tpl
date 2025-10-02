@@ -1043,7 +1043,7 @@
                     <select id="dependencyID" name="dependencyID" title="Select a requiremement" onchange="updateSelectionStatus(this, 'req_select_status')">`;
 
                 var reservedDependencies = [-3, -2, -1, 1, 8];
-                var maskedDependencies = [5];
+                var maskedDependencies = [5, -4];
 
                 buffer += '<optgroup label="Custom Requirements" aria-label="Custom Requirements">';
                 for (let i in res) {

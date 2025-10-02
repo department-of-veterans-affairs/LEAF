@@ -931,11 +931,18 @@ class Workflow
         return true;
     }
 
+    // updateDependency updates the description associated with $dependencyID
     public function updateDependency($dependencyID, $description)
     {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
+        }
+
+        // Don't allow changes to standardized dependencies
+        if($dependencyID < 0) {
+            http_response_code(400);
+            return 'description may not be updated for this requirement';
         }
 
         $vars = array(':dependencyID' => $dependencyID,
@@ -980,6 +987,15 @@ class Workflow
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
+        }
+
+        $reservedDependencyIDs = [
+            1, // Service Chief
+            8 // Quadrad
+        ];
+        if($dependencyID < 0 || in_array($dependencyID, $reservedDependencyIDs)) {
+            http_response_code(400);
+            return 'groups may not be added to this requirement';
         }
 
         $vars = array(':dependencyID' => $dependencyID,
