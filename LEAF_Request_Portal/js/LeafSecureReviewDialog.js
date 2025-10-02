@@ -83,4 +83,77 @@ var LeafSecureReviewDialog = function(domId) {
         gridNonSensitive.renderBody();
         $('#'+ prefixID +'nonSensitiveFields').prepend('<br /><h2 style="color:#c00;">Please verify the remaining fields are not sensitive.</h2>');
     }
+
+    const validateInput = () => {
+        let inputEl = document.getElementById('-2');
+        
+let buttons = Array.from(document.querySelectorAll('button'));
+let elLeafFormButtonSave = buttons.find(button => button.textContent.trim() === "Save Change")
+        console.log(elLeafFormButtonSave);
+        if(inputEl !== null) {
+            console.log("input changed");
+            const val = inputEl?.value ?? '';
+            if(val.length < 25) {
+                console.log("less than 25 - show message and disable save");
+                elLeafFormButtonSave.disabled = true;
+            } else {
+                console.log("has more than 25");
+                elLeafFormButtonSave.disabled = false;
+            }
+        }
+    }    
+    const elJustifyInput = document.getElementById('-2');
+    
+    if(elJustifyInput !== null) {
+        
+        validateInput();
+        elJustifyInput.removeEventListener('input', validateInput);
+        elJustifyInput.addEventListener('input', validateInput);
+    }
+
+    function validateForm() {
+
+      let validresponse = false;
+      if (textArea.value.length < minLength) {
+        // Display error message
+        errorMessage.textContent = `Please provide a more detailed justification. Minimum ${minLength} characters required. `;
+        $('.nextQuestion').off('click');
+        $('.nextQuestion').on('click',function() {
+            $('#-2_required').addClass('input-required-error');
+        });
+
+        validresponse = false;
+
+      } else {
+        errorMessage.textContent = ""; //Clear the error message if valid.
+        $('#-2_required').removeClass('input-required-error');
+
+        $('.nextQuestion').off('click');
+        $('.nextQuestion').on('click',function() {
+            form.dialog().indicateBusy();
+            form.setPostModifyCallback(function() {
+                getNext();
+                updateProgress(true);
+            });
+            form.dialog().clickSave();
+        });
+        validresponse = true;
+
+      }
+
+      return validresponse;
+    }
+
+    $('.nextQuestion').off('click');
+    
+    // Optional: Real-time character count and feedback (improves user experience)
+    const textArea = document.getElementById('-2');
+    const errorMessage = document.getElementById('-2_required'); //Element to display character count
+    const minLength = 25;
+    validateForm();
+
+    textArea.addEventListener('input', function() {
+      validateForm();
+    });
+
 };
