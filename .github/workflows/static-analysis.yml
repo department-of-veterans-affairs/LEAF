@@ -323,13 +323,17 @@ jobs:
     name: Semgrep Security Scan
     runs-on: ubuntu-latest
     continue-on-error: true
+    permissions:
+      contents: read
+      security-events: write
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
+      - name: Run Semgrep and Generate SARIF
+        id: semgrep
+        uses: semgrep/semgrep-action@v1
         with:
           config: >-
             p/security-audit
@@ -337,20 +341,32 @@ jobs:
             p/javascript
             p/typescript
             p/golang
-          generateSarif: true
+        env:
+          SEMGREP_RULES: p/security-audit p/php p/javascript p/typescript p/golang
         continue-on-error: true
 
-      - name: Upload Semgrep SARIF
+      - name: Save Semgrep JSON Results
+        if: always()
+        run: |
+          mkdir -p reports
+          # Semgrep outputs to semgrep.sarif by default when run in GitHub Actions
+          if [ -f semgrep.sarif ]; then
+            cp semgrep.sarif reports/semgrep.sarif
+          else
+            echo "No SARIF file generated" > reports/semgrep-info.txt
+          fi
+
+      - name: Upload Semgrep Reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: semgrep-sarif
-          path: semgrep.sarif
+          name: semgrep-reports
+          path: reports/
           retention-days: 30
 
-      - name: Upload SARIF to GitHub Security
+      - name: Upload SARIF to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && hashFiles('semgrep.sarif') != ''
         with:
           sarif_file: semgrep.sarif
         continue-on-error: true
