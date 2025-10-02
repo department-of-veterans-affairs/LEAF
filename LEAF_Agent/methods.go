@@ -11,6 +11,10 @@ import (
 // All siteURLs must include a trailing slash
 
 func TakeAction(siteURL string, recID int, stepID string, actionType string, comment string) error {
+	if siteURL[len(siteURL)-1] != '/' {
+		siteURL += "/"
+	}
+
 	recordID := strconv.Itoa(recID)
 
 	values := url.Values{}
@@ -40,6 +44,10 @@ func TakeAction(siteURL string, recID int, stepID string, actionType string, com
 // UpdateRecord updates a record with the provided data.
 // data is a map where the keys are field IDs (indicatorID) and the values are written into the record matching recID
 func UpdateRecord(siteURL string, recID int, data map[int]string) error {
+	if siteURL[len(siteURL)-1] != '/' {
+		siteURL += "/"
+	}
+
 	recordID := strconv.Itoa(recID)
 
 	values := url.Values{}
@@ -66,6 +74,10 @@ func UpdateRecord(siteURL string, recID int, data map[int]string) error {
 
 // UpdateTitle updates a record title
 func UpdateTitle(siteURL string, recID int, title string) error {
+	if siteURL[len(siteURL)-1] != '/' {
+		siteURL += "/"
+	}
+
 	recordID := strconv.Itoa(recID)
 
 	values := url.Values{}

@@ -13,4 +13,6 @@ func TestMain(m *testing.M) {
 		Timeout: time.Second * 5,
 		Jar:     cookieJar,
 	}
+
+	m.Run()
 }

@@ -42,6 +42,10 @@ func HttpGet(url string) (res *http.Response, err error) {
 
 // FormQuery uses the api/form/query endpoint to fetch matching records
 func FormQuery(siteURL string, q query.Query, params string) (query.Response, error) {
+	if siteURL[len(siteURL)-1] != '/' {
+		siteURL += "/"
+	}
+
 	response := make(map[int]query.Record)
 	batchSize := 500 // Number of records per batch. Target < 500ms p90 response time
 	limitOffset := 0
@@ -91,6 +95,10 @@ func FormQuery(siteURL string, q query.Query, params string) (query.Response, er
 // 1. Name is replaced by Description (short label), if available
 // 2. Format is parsed into FormatOptions. If options exist, Format will only contain the format type.
 func GetIndicatorMap(siteURL string) (map[int]form.Indicator, error) {
+	if siteURL[len(siteURL)-1] != '/' {
+		siteURL += "/"
+	}
+
 	res, err := HttpGet(siteURL + "api/form/indicator/list?sort=indicatorID&x-filterData=indicatorID,name,description,format")
 	if err != nil {
 		return nil, err
@@ -133,6 +141,10 @@ func GetIndicatorMap(siteURL string) (map[int]form.Indicator, error) {
 }
 
 func GetActions(siteURL string, stepID string) ([]workflow.Action, error) {
+	if siteURL[len(siteURL)-1] != '/' {
+		siteURL += "/"
+	}
+
 	res, err := HttpGet(siteURL + "api/workflow/step/" + stepID + "/actions")
 	if err != nil {
 		return nil, err
@@ -151,6 +163,10 @@ func GetActions(siteURL string, stepID string) ([]workflow.Action, error) {
 
 // GetAdmins retrieves the list of admins for the specified siteURL
 func GetAdmins(siteURL string) ([]group.Member, error) {
+	if siteURL[len(siteURL)-1] != '/' {
+		siteURL += "/"
+	}
+
 	res, err := HttpGet(siteURL + "api/group/1/members")
 	if err != nil {
 		log.Println("Error retrieving admins:", siteURL)
