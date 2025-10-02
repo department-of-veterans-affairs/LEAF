@@ -998,7 +998,7 @@ class FormEditor
         $vars = array(':indicatorID' => $indicatorID);
         $sql = 'SELECT COUNT(*) AS count
                 FROM `step_modules`
-                WHERE `moduleConfig` -> "$.indicatorID" = :indicatorID';
+                WHERE `moduleConfig` ->> "$.indicatorID" = :indicatorID';
 
         $result = $this->db->prepared_query($sql, $vars);
 
