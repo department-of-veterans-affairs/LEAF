@@ -656,7 +656,7 @@ function doSubmit(recordID) {
             error: function(res) {
                 $('#formcontent').empty().html(res);
             },
-            cache: false
+            cache: false,
         });
     }
 
@@ -1461,8 +1461,6 @@ function doSubmit(recordID) {
         $('#btn_printForm').on('click', function() {
             openContentForPrint();
             print.printForm(recordID);
-            //openContent('ajaxIndex.php?a=printview&recordID=<!--{$recordID|strip_tags}-->');
-
         });
         form.setRecordID(<!--{$recordID|strip_tags|escape}-->);
 
