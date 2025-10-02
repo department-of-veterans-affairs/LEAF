@@ -39,26 +39,65 @@ jobs:
           php-version: '8.2'
           tools: phpstan, psalm
 
+      - name: Create PHPStan Config
+        run: |
+          cat > phpstan.neon << 'EOF'
+          parameters:
+              level: 5
+              phpVersion: 80200  # PHP 8.2
+              paths:
+                  - LEAF_Nexus
+                  - LEAF_Request_Portal
+                  - app
+                  - libs
+              excludePaths:
+                  - */TEMPLATE_*
+                  - */vendor/*
+                  - */node_modules/*
+                  - */.git/*
+              reportUnmatchedIgnoredErrors: false
+          EOF
+
       - name: Run PHPStan
         continue-on-error: true
         run: |
           mkdir -p reports
           phpstan analyse \
-            LEAF_Nexus \
-            LEAF_Request_Portal \
-            app \
-            libs \
+            --configuration=phpstan.neon \
             --error-format=json \
             --no-progress \
             > reports/phpstan-report.json || true
 
+      - name: Create Psalm Config
+        run: |
+          cat > psalm.xml << 'EOF'
+          <?xml version="1.0"?>
+          <psalm
+              errorLevel="5"
+              resolveFromConfigFile="true"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="https://getpsalm.org/schema/config"
+              xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+              findUnusedBaselineEntry="false"
+              findUnusedCode="false"
+          >
+              <projectFiles>
+                  <directory name="LEAF_Nexus" />
+                  <directory name="LEAF_Request_Portal" />
+                  <directory name="app" />
+                  <directory name="libs" />
+                  <ignoreFiles>
+                      <file name="**/TEMPLATE_*" />
+                      <directory name="vendor" />
+                      <directory name="node_modules" />
+                  </ignoreFiles>
+              </projectFiles>
+          </psalm>
+          EOF
+
       - name: Run Psalm
         continue-on-error: true
         run: |
-          # Initialize psalm if config doesn't exist
-          if [ ! -f psalm.xml ]; then
-            psalm --init
-          fi
           psalm \
             --report=reports/psalm-report.json \
             --output-format=json \
