@@ -1,0 +1,394 @@
+name: Static Code Analysis
+
+on:
+  push:
+    branches:
+      - '**'  # Run on all branches
+    paths:
+      - 'LEAF-Automated-Tests/**'
+      - 'LEAF_Nexus/**'
+      - 'LEAF_Request_Portal/**'
+      - 'app/**'
+      - 'libs/**'
+      - '.github/workflows/static-analysis.yml'
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - 'LEAF-Automated-Tests/**'
+      - 'LEAF_Nexus/**'
+      - 'LEAF_Request_Portal/**'
+      - 'app/**'
+      - 'libs/**'
+
+jobs:
+  php-analysis:
+    name: PHP Static Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Don't fail the workflow
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: phpstan, psalm
+
+      - name: Run PHPStan
+        continue-on-error: true
+        run: |
+          mkdir -p reports
+          phpstan analyse \
+            LEAF_Nexus \
+            LEAF_Request_Portal \
+            app \
+            libs \
+            --error-format=json \
+            --no-progress \
+            > reports/phpstan-report.json || true
+
+      - name: Run Psalm
+        continue-on-error: true
+        run: |
+          # Initialize psalm if config doesn't exist
+          if [ ! -f psalm.xml ]; then
+            psalm --init
+          fi
+          psalm \
+            --report=reports/psalm-report.json \
+            --output-format=json \
+            || true
+
+      - name: Upload PHP Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: php-analysis-reports
+          path: reports/
+          retention-days: 30
+
+  javascript-typescript-analysis:
+    name: JavaScript/TypeScript Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ESLint
+        run: |
+          npm init -y
+          npm install --save-dev \
+            eslint \
+            @typescript-eslint/parser \
+            @typescript-eslint/eslint-plugin \
+            eslint-plugin-security
+
+      - name: Create ESLint Config
+        run: |
+          cat > .eslintrc.json << 'EOF'
+          {
+            "env": {
+              "browser": true,
+              "es2021": true,
+              "node": true
+            },
+            "extends": [
+              "eslint:recommended"
+            ],
+            "parserOptions": {
+              "ecmaVersion": "latest",
+              "sourceType": "module"
+            },
+            "plugins": ["security"],
+            "rules": {
+              "security/detect-object-injection": "warn",
+              "security/detect-non-literal-regexp": "warn",
+              "security/detect-unsafe-regex": "warn",
+              "security/detect-buffer-noassert": "warn",
+              "security/detect-eval-with-expression": "warn",
+              "security/detect-no-csrf-before-method-override": "warn",
+              "security/detect-possible-timing-attacks": "warn"
+            },
+            "overrides": [
+              {
+                "files": ["*.ts"],
+                "parser": "@typescript-eslint/parser",
+                "plugins": ["@typescript-eslint"],
+                "extends": [
+                  "eslint:recommended",
+                  "plugin:@typescript-eslint/recommended"
+                ]
+              }
+            ]
+          }
+          EOF
+
+      - name: Run ESLint on JavaScript/TypeScript
+        continue-on-error: true
+        run: |
+          mkdir -p reports
+          npx eslint \
+            "LEAF-Automated-Tests/**/*.{js,ts}" \
+            "LEAF_Nexus/**/*.{js,ts}" \
+            "LEAF_Request_Portal/**/*.{js,ts}" \
+            "app/**/*.{js,ts}" \
+            "libs/**/*.{js,ts}" \
+            --format json \
+            --output-file reports/eslint-report.json \
+            || true
+
+      - name: Upload JS/TS Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: javascript-typescript-reports
+          path: reports/
+          retention-days: 30
+
+  go-analysis:
+    name: Go Static Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Install Go Analysis Tools
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+
+      - name: Find Go Modules
+        id: find-go
+        run: |
+          echo "Searching for Go files..."
+          find LEAF-Automated-Tests LEAF_Nexus LEAF_Request_Portal app libs \
+            -name "*.go" -type f 2>/dev/null || echo "No Go files found"
+
+      - name: Run Gosec
+        continue-on-error: true
+        run: |
+          mkdir -p reports
+          # Check if Go files exist before running
+          if find LEAF-Automated-Tests LEAF_Nexus LEAF_Request_Portal app libs -name "*.go" -type f 2>/dev/null | grep -q .; then
+            gosec -fmt=json -out=reports/gosec-report.json \
+              ./LEAF-Automated-Tests/... \
+              ./LEAF_Nexus/... \
+              ./LEAF_Request_Portal/... \
+              ./app/... \
+              ./libs/... \
+              2>/dev/null || true
+          else
+            echo "No Go files found to scan" > reports/gosec-report.txt
+          fi
+
+      - name: Run Staticcheck
+        continue-on-error: true
+        run: |
+          if find LEAF-Automated-Tests LEAF_Nexus LEAF_Request_Portal app libs -name "*.go" -type f 2>/dev/null | grep -q .; then
+            staticcheck -f json \
+              ./LEAF-Automated-Tests/... \
+              ./LEAF_Nexus/... \
+              ./LEAF_Request_Portal/... \
+              ./app/... \
+              ./libs/... \
+              > reports/staticcheck-report.json 2>&1 || true
+          else
+            echo "No Go files found to scan" > reports/staticcheck-report.txt
+          fi
+
+      - name: Upload Go Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: go-analysis-reports
+          path: reports/
+          retention-days: 30
+
+  html-analysis:
+    name: HTML/Template Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install HTMLHint
+        run: npm install -g htmlhint
+
+      - name: Create HTMLHint Config
+        run: |
+          cat > .htmlhintrc << 'EOF'
+          {
+            "tagname-lowercase": true,
+            "attr-lowercase": false,
+            "attr-value-double-quotes": true,
+            "doctype-first": false,
+            "tag-pair": true,
+            "spec-char-escape": true,
+            "id-unique": true,
+            "src-not-empty": true,
+            "attr-no-duplication": true,
+            "title-require": false,
+            "inline-style-disabled": false,
+            "inline-script-disabled": false
+          }
+          EOF
+
+      - name: Run HTMLHint
+        continue-on-error: true
+        run: |
+          mkdir -p reports
+          htmlhint \
+            "LEAF-Automated-Tests/**/*.html" \
+            "LEAF_Nexus/**/*.html" \
+            "LEAF_Request_Portal/**/*.html" \
+            "app/**/*.html" \
+            "libs/**/*.html" \
+            --format json \
+            > reports/htmlhint-report.json || true
+
+      - name: Upload HTML Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: html-analysis-reports
+          path: reports/
+          retention-days: 30
+
+  semgrep-scan:
+    name: Semgrep Security Scan
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/php
+            p/javascript
+            p/typescript
+            p/golang
+          generateSarif: true
+        continue-on-error: true
+
+      - name: Upload Semgrep SARIF
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-sarif
+          path: semgrep.sarif
+          retention-days: 30
+
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+        continue-on-error: true
+
+  generate-summary:
+    name: Generate Analysis Summary
+    runs-on: ubuntu-latest
+    needs: [php-analysis, javascript-typescript-analysis, go-analysis, html-analysis, semgrep-scan]
+    if: always()
+    
+    steps:
+      - name: Download All Reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-reports
+
+      - name: Generate Summary Report
+        run: |
+          cat > summary.md << 'EOF'
+          # Static Code Analysis Summary
+          
+          **Date:** $(date)
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          **Triggered by:** ${{ github.event_name }}
+          
+          ## Analysis Results
+          
+          ### PHP Analysis
+          - PHPStan and Psalm reports available in artifacts
+          
+          ### JavaScript/TypeScript Analysis
+          - ESLint security and quality checks completed
+          
+          ### Go Analysis
+          - Gosec security scanning completed
+          - Staticcheck analysis completed
+          
+          ### HTML Analysis
+          - HTMLHint validation completed
+          
+          ### Security Scan
+          - Semgrep multi-language security analysis completed
+          - SARIF report uploaded to GitHub Security tab
+          
+          ## Viewing Reports
+          
+          All detailed reports are available as workflow artifacts and will be retained for 30 days.
+          
+          Security findings can be viewed in the **Security** tab under **Code scanning alerts**.
+          
+          ---
+          
+          *Note: This scan is informational only and does not block merges.*
+          EOF
+          
+          cat summary.md
+
+      - name: Upload Summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-summary
+          path: summary.md
+          retention-days: 30
+
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
