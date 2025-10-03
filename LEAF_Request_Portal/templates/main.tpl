@@ -64,7 +64,7 @@
     <script type="text/javascript">
         window.onload = function() {
             new QRCode(document.getElementById("qrcode-js"), {
-                text: window.location.href,
+                text: "{$qrcodeURL}",
                 width: 72,
                 height: 72,
                 colorDark: "#000000",
