@@ -4,7 +4,7 @@ name: Static Code Analysis
 on:
   push:
     branches:
-      - '**'  # Run on all branches
+      - '**'
     paths:
       - 'LEAF-Automated-Tests/**'
       - 'LEAF_Nexus/**'
@@ -26,7 +26,7 @@ jobs:
   php-analysis:
     name: PHP Static Analysis
     runs-on: ubuntu-latest
-    continue-on-error: true  # Don't fail the workflow
+    continue-on-error: true
     
     steps:
       - name: Checkout code
@@ -45,7 +45,7 @@ jobs:
           cat > phpstan.neon << 'EOF'
           parameters:
               level: 5
-              phpVersion: 80200  # PHP 8.2
+              phpVersion: 80200
               paths:
                   - LEAF_Nexus
                   - LEAF_Request_Portal
@@ -227,7 +227,6 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p reports
-          # Check if Go files exist before running
           if find LEAF-Automated-Tests LEAF_Nexus LEAF_Request_Portal app libs -name "*.go" -type f 2>/dev/null | grep -q .; then
             gosec -fmt=json -out=reports/gosec-report.json \
               ./LEAF-Automated-Tests/... \
@@ -350,7 +349,6 @@ jobs:
         if: always()
         run: |
           mkdir -p reports
-          # Semgrep outputs to semgrep.sarif by default when run in GitHub Actions
           if [ -f semgrep.sarif ]; then
             cp semgrep.sarif reports/semgrep.sarif
           else
@@ -469,7 +467,7 @@ jobs:
 
       - name: Generate HTML Report
         run: |
-          node << 'SCRIPT'
+          node << 'ENDSCRIPT'
           const fs = require('fs');
           
           const readJSON = (filePath) => {
@@ -546,226 +544,6 @@ jobs:
           const totalIssues = Object.values(allData).reduce((sum, d) => sum + d.total, 0);
           console.log(`Total issues across all tools: ${totalIssues}`);
 
-          // Generate HTML
-          const html = `<!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Static Code Analysis Report - LEAF</title>
-            <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                background: #f5f5f5;
-                padding: 20px;
-                color: #333;
-              }
-              .container {
-                max-width: 1400px;
-                margin: 0 auto;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                overflow: hidden;
-              }
-              .header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 30px;
-              }
-              .header h1 {
-                font-size: 28px;
-                margin-bottom: 10px;
-              }
-              .header .meta {
-                opacity: 0.9;
-                font-size: 14px;
-              }
-              .summary {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px;
-                padding: 30px;
-                background: #f8f9fa;
-                border-bottom: 1px solid #e0e0e0;
-              }
-              .summary-card {
-                background: white;
-                padding: 20px;
-                border-radius: 6px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-              }
-              .summary-card h3 {
-                font-size: 14px;
-                color: #666;
-                margin-bottom: 8px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-              }
-              .summary-card .number {
-                font-size: 32px;
-                font-weight: bold;
-                color: #333;
-              }
-              .summary-card.total .number { color: #667eea; }
-              .summary-card.error .number { color: #ef4444; }
-              .summary-card.warning .number { color: #f59e0b; }
-              .summary-card.success .number { color: #10b981; }
-              .section {
-                padding: 30px;
-                border-bottom: 1px solid #e0e0e0;
-              }
-              .section:last-child {
-                border-bottom: none;
-              }
-              .section h2 {
-                font-size: 20px;
-                margin-bottom: 20px;
-                color: #333;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-              }
-              .badge {
-                display: inline-block;
-                padding: 4px 12px;
-                border-radius: 12px;
-                font-size: 12px;
-                font-weight: 600;
-              }
-              .badge.error { background: #fee2e2; color: #991b1b; }
-              .badge.warning { background: #fef3c7; color: #92400e; }
-              .badge.info { background: #dbeafe; color: #1e40af; }
-              .badge.success { background: #d1fae5; color: #065f46; }
-              .issues-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 14px;
-                margin-top: 15px;
-              }
-              .issues-table th {
-                background: #f8f9fa;
-                padding: 12px;
-                text-align: left;
-                font-weight: 600;
-                color: #666;
-                border-bottom: 2px solid #e0e0e0;
-              }
-              .issues-table td {
-                padding: 12px;
-                border-bottom: 1px solid #f0f0f0;
-              }
-              .issues-table tr:hover {
-                background: #f8f9fa;
-              }
-              .file-path {
-                font-family: 'Monaco', 'Courier New', monospace;
-                font-size: 13px;
-                color: #667eea;
-              }
-              .line-number {
-                font-family: 'Monaco', 'Courier New', monospace;
-                color: #999;
-                font-size: 13px;
-              }
-              .message {
-                color: #555;
-                line-height: 1.5;
-              }
-              .no-issues {
-                text-align: center;
-                padding: 40px;
-                color: #10b981;
-                font-size: 16px;
-              }
-              .footer {
-                padding: 20px 30px;
-                background: #f8f9fa;
-                text-align: center;
-                color: #666;
-                font-size: 13px;
-              }
-              .collapsible {
-                cursor: pointer;
-                user-select: none;
-              }
-              .collapsible::before {
-                content: '▼ ';
-                display: inline-block;
-                transition: transform 0.2s;
-              }
-              .collapsible.collapsed::before {
-                transform: rotate(-90deg);
-              }
-              .collapsible-content {
-                max-height: 1000px;
-                overflow: hidden;
-                transition: max-height 0.3s ease-out;
-              }
-              .collapsible-content.collapsed {
-                max-height: 0;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1>📊 Static Code Analysis Report</h1>
-                <div class="meta">
-                  <div><strong>Branch:</strong> ${process.env.GITHUB_REF_NAME || 'N/A'}</div>
-                  <div><strong>Commit:</strong> ${process.env.GITHUB_SHA?.substring(0, 7) || 'N/A'}</div>
-                  <div><strong>Date:</strong> ${new Date().toLocaleString()}</div>
-                  <div><strong>Triggered by:</strong> ${process.env.GITHUB_EVENT_NAME || 'N/A'}</div>
-                </div>
-              </div>
-
-              <div class="summary">
-                <div class="summary-card total">
-                  <h3>Total Issues</h3>
-                  <div class="number">${totalIssues}</div>
-                </div>
-                <div class="summary-card">
-                  <h3>PHP (PHPStan)</h3>
-                  <div class="number">${allData.phpstan.total}</div>
-                </div>
-                <div class="summary-card">
-                  <h3>PHP (Psalm)</h3>
-                  <div class="number">${allData.psalm.total}</div>
-                </div>
-                <div class="summary-card">
-                  <h3>JavaScript/TypeScript</h3>
-                  <div class="number">${allData.eslint.total}</div>
-                </div>
-                <div class="summary-card">
-                  <h3>Go</h3>
-                  <div class="number">${allData.gosec.total}</div>
-                </div>
-                <div class="summary-card">
-                  <h3>HTML</h3>
-                  <div class="number">${allData.htmlhint.total}</div>
-                </div>
-              </div>
-
-              ${sections}
-
-              <div class="footer">
-                Generated by LEAF Static Code Analysis Pipeline • Reports retained for 30 days • 
-                This scan is informational only and does not block merges
-              </div>
-            </div>
-
-            <script>
-              document.querySelectorAll('.collapsible').forEach(el => {
-                el.addEventListener('click', () => {
-                  el.classList.toggle('collapsed');
-                  el.nextElementSibling.classList.toggle('collapsed');
-                });
-              });
-            </script>
-          </body>
-          </html>`;
-
           const escapeHtml = (text) => text.replace(/[&<>"']/g, m => 
             ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])
           );
@@ -801,7 +579,7 @@ jobs:
           ].map(s => generateSection(...s)).join('');
           
           const env = process.env;
-          const html = `<!DOCTYPE html>
+          const htmlContent = `<!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="UTF-8">
@@ -863,9 +641,6 @@ jobs:
                 color: #333;
               }
               .summary-card.total .number { color: #667eea; }
-              .summary-card.error .number { color: #ef4444; }
-              .summary-card.warning .number { color: #f59e0b; }
-              .summary-card.success .number { color: #10b981; }
               .section {
                 padding: 30px;
                 border-bottom: 1px solid #e0e0e0;
@@ -890,7 +665,6 @@ jobs:
               }
               .badge.error { background: #fee2e2; color: #991b1b; }
               .badge.warning { background: #fef3c7; color: #92400e; }
-              .badge.info { background: #dbeafe; color: #1e40af; }
               .badge.success { background: #d1fae5; color: #065f46; }
               .issues-table {
                 width: 100%;
@@ -974,11 +748,62 @@ jobs:
                 </div>
               </div>
 
-          // Write the HTML file
-          fs.writeFileSync('analysis-report.html', html);
-          console.log('HTML report generated successfully!');
-          console.log(`Total issues found: ${totalIssues}`);
-          SCRIPT
+              <div class="summary">
+                <div class="summary-card total">
+                  <h3>Total Issues</h3>
+                  <div class="number">${totalIssues}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>PHP (PHPStan)</h3>
+                  <div class="number">${allData.phpstan.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>PHP (Psalm)</h3>
+                  <div class="number">${allData.psalm.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>JavaScript/TypeScript</h3>
+                  <div class="number">${allData.eslint.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>Go</h3>
+                  <div class="number">${allData.gosec.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>HTML</h3>
+                  <div class="number">${allData.htmlhint.total}</div>
+                </div>
+              </div>
+
+              ${sections}
+
+              <div class="footer">
+                Generated by LEAF Static Code Analysis Pipeline • Reports retained for 30 days • 
+                This scan is informational only and does not block merges
+              </div>
+            </div>
+
+            <script>
+              document.querySelectorAll('.collapsible').forEach(el => {
+                el.addEventListener('click', () => {
+                  el.classList.toggle('collapsed');
+                  el.nextElementSibling.classList.toggle('collapsed');
+                });
+              });
+            </script>
+          </body>
+          </html>`;
+
+          try {
+            fs.writeFileSync('analysis-report.html', htmlContent);
+            console.log('HTML report generated successfully!');
+            console.log('Total issues found:', totalIssues);
+            console.log('File size:', fs.statSync('analysis-report.html').size, 'bytes');
+          } catch (err) {
+            console.error('Failed to write HTML file:', err);
+            process.exit(1);
+          }
+          ENDSCRIPT
 
       - name: Upload HTML Report
         uses: actions/upload-artifact@v4
