@@ -1,0 +1,19 @@
+{
+  "threshold": 0,
+  "reporters": ["console"],
+  "ignore": [
+    "**/.github/workflows/*.yml",
+    "**/.github/workflows/*.yaml",
+    "**/node_modules/**",
+    "**/vendor/**",
+    "**/.git/**"
+  ],
+  "format": [
+    "yaml",
+    "yml"
+  ],
+  "minLines": 10,
+  "minTokens": 100,
+  "blame": false,
+  "silent": false
+}
