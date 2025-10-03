@@ -50,4 +50,11 @@ Major branches:
 
 ### HotFixes are put through a sped-up version of this flow.
 
-* This is a work-in-evolution
+### Automated Static Code Analysis
+* Every push or PR triggers the SCA
+* Go to the Actions tab and wait for completion.
+  * Click on the run once it's finsihed.
+  * Scroll down and you can download the various reports.  Start with "html-report.zip" to find what areas have issues.
+* Currently, a "fail" will not stop progression. Majority of errors are due to the scope the script can view.
+
+
