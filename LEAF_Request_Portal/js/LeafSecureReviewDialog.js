@@ -87,8 +87,8 @@ var LeafSecureReviewDialog = function(domId) {
     const validateInput = () => {
         let inputEl = document.getElementById('-2');
         
-let buttons = Array.from(document.querySelectorAll('button'));
-let elLeafFormButtonSave = buttons.find(button => button.textContent.trim() === "Save Change")
+        let buttons = Array.from(document.querySelectorAll('button'));
+        let elLeafFormButtonSave = buttons.find(button => button.textContent.trim() === "Save Change")
         console.log(elLeafFormButtonSave);
         if(inputEl !== null) {
             console.log("input changed");
@@ -103,7 +103,9 @@ let elLeafFormButtonSave = buttons.find(button => button.textContent.trim() === 
         }
     }    
     const elJustifyInput = document.getElementById('-2');
-    
+    // for now we will remove the wysiwyg editor as a variable.
+    $('#-2').trumbowyg('destroy');
+    $('#textarea_format_button_-2').hide();
     if(elJustifyInput !== null) {
         
         validateInput();
