@@ -52,7 +52,7 @@ func GetLLMResponse(config completions) (response, error) {
 
 	res, err := clientLLM.Do(req)
 	if err != nil {
-		return response{}, fmt.Errorf("LLM_CATEGORIZATION_URL: HTTP POST failed")
+		return response{}, fmt.Errorf("LLM_CATEGORIZATION_URL: %w", err)
 	}
 
 	b, err := io.ReadAll(res.Body)

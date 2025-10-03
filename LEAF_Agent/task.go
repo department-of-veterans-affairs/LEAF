@@ -24,7 +24,7 @@ type Task struct {
 }
 
 /*
-HandleError logs the error for the given recordID and removes the record from the current working set.
+HandleError logs the error for the given recordID and removes the record from the current working record set in t.Records.
 For non-recoverable errors, recordID should be set to 0 to empty the current working set.
 */
 func (t *Task) HandleError(recordID int, functionName string, err error) {
