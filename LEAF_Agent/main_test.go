@@ -14,5 +14,10 @@ func TestMain(m *testing.M) {
 		Jar:     cookieJar,
 	}
 
+	clientLLM = &http.Client{
+		Timeout: time.Second * 5,
+		Jar:     cookieJar,
+	}
+
 	m.Run()
 }
