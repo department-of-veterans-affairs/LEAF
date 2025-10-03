@@ -44,6 +44,21 @@
     {section name=i loop=$javascripts}
         <script type="text/javascript" src="{$javascripts[i]}"></script>
     {/section}
+    {if $qrcodeURL != ''}
+    <script type="text/javascript" src="{$app_js_path}/qrcode.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            new QRCode(document.getElementById("qrcode-js"), {
+                text: "{$qrcodeURL}",
+                width: 72,
+                height: 72,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        });
+    </script>
+    {/if}
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 
@@ -75,7 +90,7 @@
                     </a>
                 </em>
                 {if $qrcodeURL != ''}
-                    <div><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+                    <div id="qrcode-js" class="print nodisplay" style="width: 72px"></div>
                 {/if}
             </div>
             <div style="position:absolute;right:0;top:0;padding:0 0.75rem;font-size:14px;">
