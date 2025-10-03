@@ -448,3 +448,432 @@ jobs:
               repo: context.repo.repo,
               body: summary
             });
+
+  generate-html-report:
+    name: Generate HTML Report
+    runs-on: ubuntu-latest
+    needs: [php-analysis, javascript-typescript-analysis, go-analysis, html-analysis, semgrep-scan]
+    if: always()
+    
+    steps:
+      - name: Download All Reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-reports
+
+      - name: Generate HTML Report
+        run: |
+          node << 'SCRIPT'
+          const fs = require('fs');
+          const path = require('path');
+
+          // Helper to safely read JSON files
+          function readJSON(filePath) {
+            try {
+              if (fs.existsSync(filePath)) {
+                const content = fs.readFileSync(filePath, 'utf8');
+                return JSON.parse(content);
+              }
+            } catch (e) {
+              console.error(`Error reading ${filePath}:`, e.message);
+            }
+            return null;
+          }
+
+          // Helper to count issues by severity
+          function countBySeverity(issues, getSeverity) {
+            const counts = { error: 0, warning: 0, info: 0 };
+            issues.forEach(issue => {
+              const severity = getSeverity(issue);
+              if (severity in counts) counts[severity]++;
+            });
+            return counts;
+          }
+
+          // Parse PHPStan report
+          let phpstanData = { issues: [], total: 0 };
+          const phpstanFile = 'all-reports/php-analysis-reports/phpstan-report.json';
+          const phpstan = readJSON(phpstanFile);
+          if (phpstan && phpstan.files) {
+            Object.entries(phpstan.files).forEach(([file, data]) => {
+              if (data.messages) {
+                data.messages.forEach(msg => {
+                  phpstanData.issues.push({
+                    file: file.replace('/home/runner/work/LEAF/LEAF/', ''),
+                    line: msg.line || 0,
+                    message: msg.message,
+                    severity: 'error'
+                  });
+                });
+              }
+            });
+            phpstanData.total = phpstanData.issues.length;
+          }
+
+          // Parse Psalm report
+          let psalmData = { issues: [], total: 0 };
+          const psalmFile = 'all-reports/php-analysis-reports/psalm-report.json';
+          const psalm = readJSON(psalmFile);
+          if (psalm && Array.isArray(psalm)) {
+            psalm.forEach(issue => {
+              psalmData.issues.push({
+                file: (issue.file_path || '').replace('/home/runner/work/LEAF/LEAF/', ''),
+                line: issue.line_from || 0,
+                message: issue.message || '',
+                severity: issue.severity || 'error'
+              });
+            });
+            psalmData.total = psalmData.issues.length;
+          }
+
+          // Parse ESLint report
+          let eslintData = { issues: [], total: 0 };
+          const eslintFile = 'all-reports/javascript-typescript-reports/eslint-report.json';
+          const eslint = readJSON(eslintFile);
+          if (eslint && Array.isArray(eslint)) {
+            eslint.forEach(file => {
+              if (file.messages) {
+                file.messages.forEach(msg => {
+                  eslintData.issues.push({
+                    file: (file.filePath || '').replace('/home/runner/work/LEAF/LEAF/', ''),
+                    line: msg.line || 0,
+                    message: msg.message,
+                    severity: msg.severity === 2 ? 'error' : 'warning'
+                  });
+                });
+              }
+            });
+            eslintData.total = eslintData.issues.length;
+          }
+
+          // Parse Gosec report
+          let gosecData = { issues: [], total: 0 };
+          const gosecFile = 'all-reports/go-analysis-reports/gosec-report.json';
+          const gosec = readJSON(gosecFile);
+          if (gosec && gosec.Issues) {
+            gosec.Issues.forEach(issue => {
+              gosecData.issues.push({
+                file: (issue.file || '').replace('/home/runner/work/LEAF/LEAF/', ''),
+                line: parseInt(issue.line) || 0,
+                message: issue.details || '',
+                severity: issue.severity === 'HIGH' ? 'error' : 'warning'
+              });
+            });
+            gosecData.total = gosecData.issues.length;
+          }
+
+          // Parse HTMLHint report
+          let htmlhintData = { issues: [], total: 0 };
+          const htmlhintFile = 'all-reports/html-analysis-reports/htmlhint-report.json';
+          const htmlhint = readJSON(htmlhintFile);
+          if (htmlhint && Array.isArray(htmlhint)) {
+            htmlhint.forEach(file => {
+              if (file.messages) {
+                file.messages.forEach(msg => {
+                  htmlhintData.issues.push({
+                    file: (file.file || '').replace('/home/runner/work/LEAF/LEAF/', ''),
+                    line: msg.line || 0,
+                    message: msg.message,
+                    severity: msg.type === 'error' ? 'error' : 'warning'
+                  });
+                });
+              }
+            });
+            htmlhintData.total = htmlhintData.issues.length;
+          }
+
+          // Calculate totals
+          const totalIssues = phpstanData.total + psalmData.total + eslintData.total + 
+                             gosecData.total + htmlhintData.total;
+
+          // Generate HTML
+          const html = `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Static Code Analysis Report - LEAF</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                background: #f5f5f5;
+                padding: 20px;
+                color: #333;
+              }
+              .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                overflow: hidden;
+              }
+              .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+              }
+              .header h1 {
+                font-size: 28px;
+                margin-bottom: 10px;
+              }
+              .header .meta {
+                opacity: 0.9;
+                font-size: 14px;
+              }
+              .summary {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                padding: 30px;
+                background: #f8f9fa;
+                border-bottom: 1px solid #e0e0e0;
+              }
+              .summary-card {
+                background: white;
+                padding: 20px;
+                border-radius: 6px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+              }
+              .summary-card h3 {
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              }
+              .summary-card .number {
+                font-size: 32px;
+                font-weight: bold;
+                color: #333;
+              }
+              .summary-card.total .number { color: #667eea; }
+              .summary-card.error .number { color: #ef4444; }
+              .summary-card.warning .number { color: #f59e0b; }
+              .summary-card.success .number { color: #10b981; }
+              .section {
+                padding: 30px;
+                border-bottom: 1px solid #e0e0e0;
+              }
+              .section:last-child {
+                border-bottom: none;
+              }
+              .section h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+                color: #333;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+              }
+              .badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 600;
+              }
+              .badge.error { background: #fee2e2; color: #991b1b; }
+              .badge.warning { background: #fef3c7; color: #92400e; }
+              .badge.info { background: #dbeafe; color: #1e40af; }
+              .badge.success { background: #d1fae5; color: #065f46; }
+              .issues-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+                margin-top: 15px;
+              }
+              .issues-table th {
+                background: #f8f9fa;
+                padding: 12px;
+                text-align: left;
+                font-weight: 600;
+                color: #666;
+                border-bottom: 2px solid #e0e0e0;
+              }
+              .issues-table td {
+                padding: 12px;
+                border-bottom: 1px solid #f0f0f0;
+              }
+              .issues-table tr:hover {
+                background: #f8f9fa;
+              }
+              .file-path {
+                font-family: 'Monaco', 'Courier New', monospace;
+                font-size: 13px;
+                color: #667eea;
+              }
+              .line-number {
+                font-family: 'Monaco', 'Courier New', monospace;
+                color: #999;
+                font-size: 13px;
+              }
+              .message {
+                color: #555;
+                line-height: 1.5;
+              }
+              .no-issues {
+                text-align: center;
+                padding: 40px;
+                color: #10b981;
+                font-size: 16px;
+              }
+              .footer {
+                padding: 20px 30px;
+                background: #f8f9fa;
+                text-align: center;
+                color: #666;
+                font-size: 13px;
+              }
+              .collapsible {
+                cursor: pointer;
+                user-select: none;
+              }
+              .collapsible::before {
+                content: '▼ ';
+                display: inline-block;
+                transition: transform 0.2s;
+              }
+              .collapsible.collapsed::before {
+                transform: rotate(-90deg);
+              }
+              .collapsible-content {
+                max-height: 1000px;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+              }
+              .collapsible-content.collapsed {
+                max-height: 0;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>📊 Static Code Analysis Report</h1>
+                <div class="meta">
+                  <div><strong>Branch:</strong> ${process.env.GITHUB_REF_NAME || 'N/A'}</div>
+                  <div><strong>Commit:</strong> ${process.env.GITHUB_SHA?.substring(0, 7) || 'N/A'}</div>
+                  <div><strong>Date:</strong> ${new Date().toLocaleString()}</div>
+                  <div><strong>Triggered by:</strong> ${process.env.GITHUB_EVENT_NAME || 'N/A'}</div>
+                </div>
+              </div>
+
+              <div class="summary">
+                <div class="summary-card total">
+                  <h3>Total Issues</h3>
+                  <div class="number">${totalIssues}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>PHP (PHPStan)</h3>
+                  <div class="number">${phpstanData.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>PHP (Psalm)</h3>
+                  <div class="number">${psalmData.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>JavaScript/TypeScript</h3>
+                  <div class="number">${eslintData.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>Go</h3>
+                  <div class="number">${gosecData.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>HTML</h3>
+                  <div class="number">${htmlhintData.total}</div>
+                </div>
+              </div>
+
+              ${generateSection('PHPStan Analysis', phpstanData, 'phpstan')}
+              ${generateSection('Psalm Analysis', psalmData, 'psalm')}
+              ${generateSection('ESLint (JavaScript/TypeScript)', eslintData, 'eslint')}
+              ${generateSection('Gosec (Go Security)', gosecData, 'gosec')}
+              ${generateSection('HTMLHint', htmlhintData, 'htmlhint')}
+
+              <div class="footer">
+                Generated by LEAF Static Code Analysis Pipeline • Reports retained for 30 days • 
+                This scan is informational only and does not block merges
+              </div>
+            </div>
+
+            <script>
+              document.querySelectorAll('.collapsible').forEach(el => {
+                el.addEventListener('click', () => {
+                  el.classList.toggle('collapsed');
+                  el.nextElementSibling.classList.toggle('collapsed');
+                });
+              });
+            </script>
+          </body>
+          </html>`;
+
+          function generateSection(title, data, id) {
+            if (data.total === 0) {
+              return `
+                <div class="section">
+                  <h2>${title} <span class="badge success">${data.total} issues</span></h2>
+                  <div class="no-issues">✓ No issues found</div>
+                </div>
+              `;
+            }
+
+            const limitedIssues = data.issues.slice(0, 100);
+            const hasMore = data.issues.length > 100;
+
+            return `
+              <div class="section">
+                <h2 class="collapsible" data-target="${id}">${title} <span class="badge ${data.total > 0 ? 'error' : 'success'}">${data.total} issues</span></h2>
+                <div class="collapsible-content" id="${id}">
+                  ${hasMore ? `<p style="color: #f59e0b; margin-bottom: 10px;">⚠️ Showing first 100 of ${data.total} issues. Download JSON reports for complete results.</p>` : ''}
+                  <table class="issues-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 40%">File</th>
+                        <th style="width: 80px">Line</th>
+                        <th style="width: 100px">Severity</th>
+                        <th>Message</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${limitedIssues.map(issue => `
+                        <tr>
+                          <td><span class="file-path">${issue.file || 'N/A'}</span></td>
+                          <td><span class="line-number">${issue.line || 'N/A'}</span></td>
+                          <td><span class="badge ${issue.severity}">${issue.severity}</span></td>
+                          <td><span class="message">${escapeHtml(issue.message)}</span></td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            `;
+          }
+
+          function escapeHtml(text) {
+            const map = {
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+          }
+
+          // Write the HTML file
+          fs.writeFileSync('analysis-report.html', html);
+          console.log('HTML report generated successfully!');
+          console.log(`Total issues found: ${totalIssues}`);
+          SCRIPT
+
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: html-report
+          path: analysis-report.html
+          retention-days: 30
