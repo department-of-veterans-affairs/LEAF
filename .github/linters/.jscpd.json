@@ -4,6 +4,7 @@
   "ignore": [
     "**/.github/workflows/*.yml",
     "**/.github/workflows/*.yaml",
+    "**/*.md",
     "**/node_modules/**",
     "**/vendor/**",
     "**/.git/**"
