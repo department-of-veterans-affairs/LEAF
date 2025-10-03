@@ -465,74 +465,126 @@ jobs:
         run: |
           node << 'SCRIPT'
           const fs = require('fs');
-          
-          const readJSON = (filePath) => {
+          const path = require('path');
+
+          // Helper to safely read JSON files
+          function readJSON(filePath) {
             try {
-              return fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf8')) : null;
+              if (fs.existsSync(filePath)) {
+                const content = fs.readFileSync(filePath, 'utf8');
+                return JSON.parse(content);
+              }
             } catch (e) {
               console.error(`Error reading ${filePath}:`, e.message);
-              return null;
             }
-          };
+            return null;
+          }
 
-          const cleanPath = (p) => (p || '').replace('/home/runner/work/LEAF/LEAF/', '');
-          
-          const createIssue = (file, line, message, severity) => ({
-            file: cleanPath(file), line: line || 0, message: message || '', severity: severity || 'error'
-          });
+          // Helper to count issues by severity
+          function countBySeverity(issues, getSeverity) {
+            const counts = { error: 0, warning: 0, info: 0 };
+            issues.forEach(issue => {
+              const severity = getSeverity(issue);
+              if (severity in counts) counts[severity]++;
+            });
+            return counts;
+          }
 
-          const parsers = {
-            phpstan: (data) => {
-              const issues = [];
-              if (data?.files) {
-                Object.entries(data.files).forEach(([file, d]) => {
-                  d.messages?.forEach(m => issues.push(createIssue(file, m.line, m.message, 'error')));
+          // Parse PHPStan report
+          let phpstanData = { issues: [], total: 0 };
+          const phpstanFile = 'all-reports/php-analysis-reports/phpstan-report.json';
+          const phpstan = readJSON(phpstanFile);
+          if (phpstan && phpstan.files) {
+            Object.entries(phpstan.files).forEach(([file, data]) => {
+              if (data.messages) {
+                data.messages.forEach(msg => {
+                  phpstanData.issues.push({
+                    file: file.replace('/home/runner/work/LEAF/LEAF/', ''),
+                    line: msg.line || 0,
+                    message: msg.message,
+                    severity: 'error'
+                  });
                 });
               }
-              return issues;
-            },
-            psalm: (data) => Array.isArray(data) ? data.map(i => 
-              createIssue(i.file_path, i.line_from, i.message, i.severity)
-            ) : [],
-            eslint: (data) => {
-              const issues = [];
-              if (Array.isArray(data)) {
-                data.forEach(f => f.messages?.forEach(m => 
-                  issues.push(createIssue(f.filePath, m.line, m.message, m.severity === 2 ? 'error' : 'warning'))
-                ));
+            });
+            phpstanData.total = phpstanData.issues.length;
+          }
+
+          // Parse Psalm report
+          let psalmData = { issues: [], total: 0 };
+          const psalmFile = 'all-reports/php-analysis-reports/psalm-report.json';
+          const psalm = readJSON(psalmFile);
+          if (psalm && Array.isArray(psalm)) {
+            psalm.forEach(issue => {
+              psalmData.issues.push({
+                file: (issue.file_path || '').replace('/home/runner/work/LEAF/LEAF/', ''),
+                line: issue.line_from || 0,
+                message: issue.message || '',
+                severity: issue.severity || 'error'
+              });
+            });
+            psalmData.total = psalmData.issues.length;
+          }
+
+          // Parse ESLint report
+          let eslintData = { issues: [], total: 0 };
+          const eslintFile = 'all-reports/javascript-typescript-reports/eslint-report.json';
+          const eslint = readJSON(eslintFile);
+          if (eslint && Array.isArray(eslint)) {
+            eslint.forEach(file => {
+              if (file.messages) {
+                file.messages.forEach(msg => {
+                  eslintData.issues.push({
+                    file: (file.filePath || '').replace('/home/runner/work/LEAF/LEAF/', ''),
+                    line: msg.line || 0,
+                    message: msg.message,
+                    severity: msg.severity === 2 ? 'error' : 'warning'
+                  });
+                });
               }
-              return issues;
-            },
-            gosec: (data) => data?.Issues ? data.Issues.map(i => 
-              createIssue(i.file, parseInt(i.line), i.details, i.severity === 'HIGH' ? 'error' : 'warning')
-            ) : [],
-            htmlhint: (data) => {
-              const issues = [];
-              if (Array.isArray(data)) {
-                data.forEach(f => f.messages?.forEach(m => 
-                  issues.push(createIssue(f.file, m.line, m.message, m.type === 'error' ? 'error' : 'warning'))
-                ));
+            });
+            eslintData.total = eslintData.issues.length;
+          }
+
+          // Parse Gosec report
+          let gosecData = { issues: [], total: 0 };
+          const gosecFile = 'all-reports/go-analysis-reports/gosec-report.json';
+          const gosec = readJSON(gosecFile);
+          if (gosec && gosec.Issues) {
+            gosec.Issues.forEach(issue => {
+              gosecData.issues.push({
+                file: (issue.file || '').replace('/home/runner/work/LEAF/LEAF/', ''),
+                line: parseInt(issue.line) || 0,
+                message: issue.details || '',
+                severity: issue.severity === 'HIGH' ? 'error' : 'warning'
+              });
+            });
+            gosecData.total = gosecData.issues.length;
+          }
+
+          // Parse HTMLHint report
+          let htmlhintData = { issues: [], total: 0 };
+          const htmlhintFile = 'all-reports/html-analysis-reports/htmlhint-report.json';
+          const htmlhint = readJSON(htmlhintFile);
+          if (htmlhint && Array.isArray(htmlhint)) {
+            htmlhint.forEach(file => {
+              if (file.messages) {
+                file.messages.forEach(msg => {
+                  htmlhintData.issues.push({
+                    file: (file.file || '').replace('/home/runner/work/LEAF/LEAF/', ''),
+                    line: msg.line || 0,
+                    message: msg.message,
+                    severity: msg.type === 'error' ? 'error' : 'warning'
+                  });
+                });
               }
-              return issues;
-            }
-          };
+            });
+            htmlhintData.total = htmlhintData.issues.length;
+          }
 
-          const reports = [
-            { name: 'phpstan', path: 'all-reports/php-analysis-reports/phpstan-report.json', parser: 'phpstan' },
-            { name: 'psalm', path: 'all-reports/php-analysis-reports/psalm-report.json', parser: 'psalm' },
-            { name: 'eslint', path: 'all-reports/javascript-typescript-reports/eslint-report.json', parser: 'eslint' },
-            { name: 'gosec', path: 'all-reports/go-analysis-reports/gosec-report.json', parser: 'gosec' },
-            { name: 'htmlhint', path: 'all-reports/html-analysis-reports/htmlhint-report.json', parser: 'htmlhint' }
-          ];
-
-          const allData = {};
-          reports.forEach(r => {
-            const data = readJSON(r.path);
-            const issues = parsers[r.parser](data);
-            allData[r.name] = { issues, total: issues.length };
-          });
-
-          const totalIssues = Object.values(allData).reduce((sum, d) => sum + d.total, 0);
+          // Calculate totals
+          const totalIssues = phpstanData.total + psalmData.total + eslintData.total + 
+                             gosecData.total + htmlhintData.total;
 
           // Generate HTML
           const html = `<!DOCTYPE html>
@@ -715,27 +767,31 @@ jobs:
                 </div>
                 <div class="summary-card">
                   <h3>PHP (PHPStan)</h3>
-                  <div class="number">${allData.phpstan.total}</div>
+                  <div class="number">${phpstanData.total}</div>
                 </div>
                 <div class="summary-card">
                   <h3>PHP (Psalm)</h3>
-                  <div class="number">${allData.psalm.total}</div>
+                  <div class="number">${psalmData.total}</div>
                 </div>
                 <div class="summary-card">
                   <h3>JavaScript/TypeScript</h3>
-                  <div class="number">${allData.eslint.total}</div>
+                  <div class="number">${eslintData.total}</div>
                 </div>
                 <div class="summary-card">
                   <h3>Go</h3>
-                  <div class="number">${allData.gosec.total}</div>
+                  <div class="number">${gosecData.total}</div>
                 </div>
                 <div class="summary-card">
                   <h3>HTML</h3>
-                  <div class="number">${allData.htmlhint.total}</div>
+                  <div class="number">${htmlhintData.total}</div>
                 </div>
               </div>
 
-              ${sections}
+              ${generateSection('PHPStan Analysis', phpstanData, 'phpstan')}
+              ${generateSection('Psalm Analysis', psalmData, 'psalm')}
+              ${generateSection('ESLint (JavaScript/TypeScript)', eslintData, 'eslint')}
+              ${generateSection('Gosec (Go Security)', gosecData, 'gosec')}
+              ${generateSection('HTMLHint', htmlhintData, 'htmlhint')}
 
               <div class="footer">
                 Generated by LEAF Static Code Analysis Pipeline • Reports retained for 30 days • 
@@ -754,39 +810,59 @@ jobs:
           </body>
           </html>`;
 
-          const escapeHtml = (text) => text.replace(/[&<>"']/g, m => 
-            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])
-          );
-
-          const generateSection = (title, data, id) => {
+          function generateSection(title, data, id) {
             if (data.total === 0) {
-              return `<div class="section"><h2>${title} <span class="badge success">0 issues</span></h2>
-                <div class="no-issues">✓ No issues found</div></div>`;
+              return `
+                <div class="section">
+                  <h2>${title} <span class="badge success">${data.total} issues</span></h2>
+                  <div class="no-issues">✓ No issues found</div>
+                </div>
+              `;
             }
-            const limited = data.issues.slice(0, 100);
-            const hasMore = data.issues.length > 100;
-            const rows = limited.map(i => `<tr>
-              <td><span class="file-path">${i.file || 'N/A'}</span></td>
-              <td><span class="line-number">${i.line || 'N/A'}</span></td>
-              <td><span class="badge ${i.severity}">${i.severity}</span></td>
-              <td><span class="message">${escapeHtml(i.message)}</span></td></tr>`).join('');
-            return `<div class="section">
-              <h2 class="collapsible">${title} <span class="badge error">${data.total} issues</span></h2>
-              <div class="collapsible-content">
-                ${hasMore ? `<p style="color: #f59e0b; margin-bottom: 10px;">⚠️ Showing first 100 of ${data.total} issues</p>` : ''}
-                <table class="issues-table"><thead><tr>
-                  <th style="width: 40%">File</th><th style="width: 80px">Line</th>
-                  <th style="width: 100px">Severity</th><th>Message</th>
-                </tr></thead><tbody>${rows}</tbody></table></div></div>`;
-          };
 
-          const sections = [
-            ['PHPStan Analysis', allData.phpstan, 'phpstan'],
-            ['Psalm Analysis', allData.psalm, 'psalm'],
-            ['ESLint (JavaScript/TypeScript)', allData.eslint, 'eslint'],
-            ['Gosec (Go Security)', allData.gosec, 'gosec'],
-            ['HTMLHint', allData.htmlhint, 'htmlhint']
-          ].map(s => generateSection(...s)).join('');
+            const limitedIssues = data.issues.slice(0, 100);
+            const hasMore = data.issues.length > 100;
+
+            return `
+              <div class="section">
+                <h2 class="collapsible" data-target="${id}">${title} <span class="badge ${data.total > 0 ? 'error' : 'success'}">${data.total} issues</span></h2>
+                <div class="collapsible-content" id="${id}">
+                  ${hasMore ? `<p style="color: #f59e0b; margin-bottom: 10px;">⚠️ Showing first 100 of ${data.total} issues. Download JSON reports for complete results.</p>` : ''}
+                  <table class="issues-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 40%">File</th>
+                        <th style="width: 80px">Line</th>
+                        <th style="width: 100px">Severity</th>
+                        <th>Message</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${limitedIssues.map(issue => `
+                        <tr>
+                          <td><span class="file-path">${issue.file || 'N/A'}</span></td>
+                          <td><span class="line-number">${issue.line || 'N/A'}</span></td>
+                          <td><span class="badge ${issue.severity}">${issue.severity}</span></td>
+                          <td><span class="message">${escapeHtml(issue.message)}</span></td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            `;
+          }
+
+          function escapeHtml(text) {
+            const map = {
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+          }
 
           // Write the HTML file
           fs.writeFileSync('analysis-report.html', html);
