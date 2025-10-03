@@ -89,15 +89,11 @@ var LeafSecureReviewDialog = function(domId) {
         
         let buttons = Array.from(document.querySelectorAll('button'));
         let elLeafFormButtonSave = buttons.find(button => button.textContent.trim() === "Save Change")
-        console.log(elLeafFormButtonSave);
         if(inputEl !== null) {
-            console.log("input changed");
             const val = inputEl?.value ?? '';
             if(val.length < 25) {
-                console.log("less than 25 - show message and disable save");
                 elLeafFormButtonSave.disabled = true;
             } else {
-                console.log("has more than 25");
                 elLeafFormButtonSave.disabled = false;
             }
         }
