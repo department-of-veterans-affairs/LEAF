@@ -24,6 +24,14 @@
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
+        #qrcode-js {
+            display: block !important;
+        }
+        #qrcode-js * {
+            display: block !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
     </style>
     <script type="text/javascript" src="{$app_js_path}/jquery/jquery.min.js"></script>
     {if $useUI == true}
@@ -89,9 +97,7 @@
                         <span id="headerDescription" class="leaf-header-description">{$title}</span>
                     </a>
                 </em>
-                {if $qrcodeURL != ''}
-                    <div id="qrcode-js" class="print nodisplay" style="width: 72px"></div>
-                {/if}
+                <div style="float: left;"><div id="qrcode-js" style="width: 72px; display: none;" ></div></div>
             </div>
             <div style="position:absolute;right:0;top:0;padding:0 0.75rem;font-size:14px;">
                 Welcome, <b>{$display_name|sanitize}</b>! | <a href="../?a=logout" style="color:#00bde3">Sign out</a>
