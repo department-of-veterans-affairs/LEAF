@@ -24,6 +24,7 @@ services:
             - ../LEAF_Nexus:/var/www/html/Test_Nexus
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
             - ../LEAF_Request_Portal:/var/www/html/Test_Request_Portal
+            - ../LEAF_Request_Portal:/var/www/html/platform/agent
             - ../scripts:/var/www/scripts
             - ../health_checks:/var/www/html/health_checks
             - ../app:/var/www/html/app
@@ -59,6 +60,7 @@ services:
             - ../LEAF_Nexus:/var/www/html/Test_Nexus
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
             - ../LEAF_Request_Portal:/var/www/html/Test_Request_Portal
+            - ../LEAF_Request_Portal:/var/www/html/platform/agent
             - ../scripts:/var/www/scripts
             - ../health_checks:/var/www/html/health_checks
             - ../app:/var/www/html/app
@@ -114,6 +116,24 @@ services:
             - leaf
     
             
+
+    leaf-agent:
+        image: golang:1
+        volumes:
+            - "../LEAF_Agent/:/app"
+            - "../pkg/:/pkg"
+        ports:
+            - "8088:8000"
+        env_file:
+            - ./env_files/globals_local.env
+            - ./env_files/secrets.env
+        networks:
+            - leaf
+            - leaf-sql
+        working_dir: /app
+        entrypoint: go run .
+        extra_hosts:
+            - host.docker.internal:host-gateway
 
     # Development
     vue-ui:
