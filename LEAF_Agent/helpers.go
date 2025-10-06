@@ -196,11 +196,13 @@ func IsSiteAdmin(siteURL string, userName string) (bool, error) {
 		return false, err
 	}
 
+	isAdmin := false
 	for _, admin := range admins {
 		if admin.Username == userName {
-			return true, nil
+			isAdmin = true
+			break
 		}
 	}
 
-	return false, nil
+	return isAdmin, nil
 }
