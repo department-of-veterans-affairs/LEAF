@@ -52,10 +52,16 @@ func validateInitiatorIsLocalAdmin(task *Task, payload ValidateInitiatorIsLocalA
 			continue
 		}
 
+		isAdmin := false
 		for _, admin := range admins {
-			if admin.Username != records[recordID].UserName {
-				task.HandleError(recordID, "validateInitiatorIsLocalAdmin:", fmt.Errorf("initiator is not a local site admin"))
+			if admin.Username == records[recordID].UserName {
+				isAdmin = true
+				break
 			}
+		}
+
+		if !isAdmin {
+			task.HandleError(recordID, "validateInitiatorIsLocalAdmin:", fmt.Errorf("initiator is not a local site admin"))
 		}
 	}
 }
