@@ -926,6 +926,7 @@ export default {
          */
         async processWorkflowSteps(workflowSteps) {
             const indicatorsInWorkflow = {};
+            const indicatorNames = await this.getIndicatorNameList() || {};
 
             // Process each step sequentially to get dependencies
             for (const step of workflowSteps) {
@@ -951,13 +952,19 @@ export default {
                         const indicatorID = step.indicatorID_for_assigned_empUID;
                         if (!indicatorsInWorkflow[indicatorID]) {
                             indicatorsInWorkflow[indicatorID] = {
+                                indicatorTitle: '',
                                 inWorkflow: false,
                                 stepInWorkflow: false,
                                 workflowName: '',
                                 stepName: '',
                             };
                         }
+
+                        const name = this.getIndicatorName(indicatorID, Object.values(indicatorNames));
+
                         indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                        indicatorsInWorkflow[indicatorID].indicatorTitle = name || '';
+
                         if (indicatorsInWorkflow[indicatorID].workflowName === '') {
                             indicatorsInWorkflow[indicatorID].workflowName = step.description + ` (${step.workflowID})`;
                             indicatorsInWorkflow[indicatorID].stepName = step.stepTitle + ` (${step.stepID})`;
@@ -975,13 +982,19 @@ export default {
                         const indicatorID = step.indicatorID_for_assigned_groupID;
                         if (!indicatorsInWorkflow[indicatorID]) {
                             indicatorsInWorkflow[indicatorID] = {
+                                indicatorTitle: '',
                                 inWorkflow: false,
                                 stepInWorkflow: false,
                                 workflowName: '',
                                 stepName: '',
                             };
                         }
+
+                        const name = this.getIndicatorName(indicatorID, Object.values(indicatorNames));
+
                         indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                        indicatorsInWorkflow[indicatorID].indicatorTitle = name || '';
+
                         if (indicatorsInWorkflow[indicatorID].workflowName === '') {
                             indicatorsInWorkflow[indicatorID].workflowName = step.description + ` (${step.workflowID})`;
                             indicatorsInWorkflow[indicatorID].stepName = step.stepTitle + ` (${step.stepID})`;
@@ -1000,13 +1013,19 @@ export default {
                                 const indicatorID = moduleConfig.indicatorID;
                                 if (!indicatorsInWorkflow[indicatorID]) {
                                     indicatorsInWorkflow[indicatorID] = {
+                                        indicatorTitle: '',
                                         inWorkflow: false,
                                         stepInWorkflow: false,
                                         workflowName: '',
                                         stepName: '',
                                     };
                                 }
+
+                                const name = this.getIndicatorName(indicatorID, Object.values(indicatorNames));
+
                                 indicatorsInWorkflow[indicatorID].stepInWorkflow = true;
+                                indicatorsInWorkflow[indicatorID].indicatorTitle = name || '';
+
                                 if (indicatorsInWorkflow[indicatorID].workflowName === '') {
                                     indicatorsInWorkflow[indicatorID].workflowName = step.description + ` (${step.workflowID})`;
                                     indicatorsInWorkflow[indicatorID].stepName = step.stepTitle + ` (${step.stepID})`;
@@ -1025,9 +1044,18 @@ export default {
                 }
             }
 
-            console.log('Indicators in Workflow:', indicatorsInWorkflow);
             this.indicatorsInWorkflow = indicatorsInWorkflow;
         },
+        async getIndicatorNameList() {
+            const response = await fetch(`${this.APIroot}form/indicator/list`);
+            const result = await response.json();
+
+            return result;
+        },
+        getIndicatorName(indicatorID, list) {
+            const indicator = list.find(item => item.indicatorID === indicatorID);
+            return indicator ? indicator.name : null;
+        }
     },
     watch: {
         appIsLoadingCategories(newVal, oldVal) {

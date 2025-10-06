@@ -42,10 +42,8 @@ export default {
             if (!this.listTracker || !this.indicatorsInWorkflow) {
                 return false;
             }
-            console.log('ConfirmDeleteDialog created', Object.keys(this.listTracker));
 
             const indicatorIDs = Object.keys(this.listTracker);
-            console.log('ConfirmDeleteDialog created', indicatorIDs);
 
             return indicatorIDs.some(indicatorID =>
                 this.indicatorsInWorkflow.hasOwnProperty(indicatorID)
@@ -76,12 +74,14 @@ export default {
                         return idx < arr.length - 1 ? name + ')' : name;
                     });
 
+                    const name = workflowStatus.indicatorTitle || '';
+
                     // Build message for each workflow/step combination
                     for (let i = 0; i < workflowNames.length; i++) {
                         const workflow = workflowNames[i] || '';
                         const step = stepNames[i] || '';
                         if (workflow && step) {
-                            messageParts.push(`Indicator ID ${indicatorID} - Workflow: ${workflow} - Step: ${step}`);
+                            messageParts.push(`${name} (${indicatorID}) - Workflow: ${workflow} - Step: ${step}`);
                         }
                     }
                 }
