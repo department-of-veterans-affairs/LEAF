@@ -72,15 +72,15 @@
     --bg-secondary: #2d2d2d;
     --bg-tertiary: #404040;
     --bg-accent: #525252;
-    --bg-header: #2d2d2d;
+    --bg-header: linear-gradient(#131314, #29354F);
     --bg-alert: #dc2626;
-    --bg-warning: #7f1d1d;
+    --bg-warning: #9A0603;
     --bg-success: #059669;
     --bg-button-header: #404040;
     --bg-button-primary: #2c608a;
 
     /* Text Colors */
-    --text-primary: #f5f5f5; /* USWDS gray 10 */
+    --text-primary: #dfdfdf; /* USWDS gray 10 */
     --text-secondary: #d1d5db; /* USWDS cool gray 50 */
     --text-tertiary: #9ca3af; /* USWDS cool gray 60 */
     --text-muted: #6b7280; /* USWDS cool gray 70 */
@@ -88,13 +88,14 @@
     --text-link: #1e40af; /* VA blue 70 */
     --text-header-link: #60a5fa;
     --text-link-hover: #93c5fd; /* VA yellow 60 */
-    --text-warning: #d1d5db;
+    --text-warning: #ffffff;
 
     /* Border Colors */
     --border-primary: #525252; /* USWDS cool gray 70 */
     --border-secondary: #404040; /* USWDS cool gray 80 */
     --border-tertiary: #6b7280; /* USWDS cool gray 70 */
     --border-light: #374151; /* USWDS cool gray 80 */
+    --border-warning: #000000;
 
     /* Additional Colors */
     --shadow-color: rgba(0, 0, 0, .5);
@@ -215,6 +216,10 @@ select {
   color: var(--text-primary);
 }
 
+#headerHelp #divider {
+  color: var(--text-warning);
+}
+
 span#headerLabel {
   color: var(--text-link);
 }
@@ -264,7 +269,7 @@ span#headerLabel {
 .warning {
   background-color: var(--bg-warning);
   border: 1px solid;
-  border-color: var(--border-tertiary);
+  border-color: var(--border-warning);
   font-weight: bold;
   font-size: 16px;
   padding: 4px;
