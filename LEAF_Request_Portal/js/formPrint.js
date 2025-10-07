@@ -16,13 +16,23 @@ var printer = function () {
 
     var requestInfo = new Object();
     var internalInfo = new Array();
-    var homeQR = document.createElement("img");
-    const homeURL = encodeURIComponent(portal_path + '/');
-    //get QR code of record
-    homeQR.setAttribute("class", "print nodisplay");
-    homeQR.setAttribute("style", "width: 72px");
-    homeQR.setAttribute("src", portal_path + "/qrcode/?encode=" + homeURL);
+    var homeQRContainer = document.createElement("div");
+    homeQRContainer.setAttribute("id", "temp-qrcode-home");
+    homeQRContainer.style.display = "none";
+    document.body.appendChild(homeQRContainer);
 
+    const homeURL = portal_path + '/';
+    var homeQRCode = new QRCode(homeQRContainer, {
+        text: homeURL,
+        width: 72,
+        height: 72,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+    // Get the generated image element (will be used later)
+    var homeQR = null;
     //Image entries
     function getBase64Image(img) {
       // Create an empty canvas element
@@ -389,7 +399,7 @@ var printer = function () {
           doc.setTextColor(0);
           doc.setDrawColor(0);
         }
-        
+
         if (depth > 0) {
           if (subShift) {
             verticalShift += 4;
@@ -1202,6 +1212,11 @@ var printer = function () {
           "Request #" + recordID + " - " + requestInfo["title"] + ".pdf"
         );
       }
+
+      // Clean up temporary QR code container
+      if (homeQRContainer && homeQRContainer.parentNode) {
+        homeQRContainer.parentNode.removeChild(homeQRContainer);
+      }
     }
 
     var indicatorCount = 0;
@@ -1344,14 +1359,18 @@ var printer = function () {
             verticalShift += 8;
           }
         }
-        doc.addImage(
-          getBase64Image($('img[alt="QR code"]')[0]),
-          "PNG",
-          8.5,
-          8,
-          25,
-          25
-        );
+        // Wait a moment for QR code to render, then use it
+        var qrImg = homeQRContainer.querySelector("img");
+        if (qrImg && qrImg.complete) {
+          doc.addImage(
+            getBase64Image(qrImg),
+            "PNG",
+            8.5,
+            8,
+            25,
+            25
+          );
+        }
       } else {
         doc.setFontSize(8);
         doc.text("Name:", 150, verticalShift);
@@ -1368,7 +1387,10 @@ var printer = function () {
         doc.text($("#headerLabel").text(), 35, verticalShift);
         doc.setTextColor(0, 0, 0);
         doc.setFontType("normal");
-        doc.addImage(getBase64Image(homeQR), "PNG", 8.5, 8, 25, 25);
+        homeQR = homeQRContainer.querySelector("img");
+        if (homeQR && homeQR.complete) {
+          doc.addImage(getBase64Image(homeQR), "PNG", 8.5, 8, 25, 25);
+        }
       }
     }
 
