@@ -93,7 +93,7 @@
                 <em class="usa-logo__text">
                     <a tabindex="0" onclick="window.location='./'" title="Admin Home" class="leaf-cursor-pointer">
                         <span class="leaf-logo">{$logo}</span>
-                        <span class="leaf-site-title">{$city}</span>
+                        <span id="headerLabel" class="leaf-site-title">{$city}</span>
                         <span id="headerDescription" class="leaf-header-description">{$title}</span>
                     </a>
                 </em>

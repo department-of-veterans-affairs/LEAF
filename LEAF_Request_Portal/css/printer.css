@@ -390,13 +390,3 @@ table.table {
 #nav-skip-link{
   display: none;
 }
-
-span.leaf-header-description
-{
-  margin: 0;
-  position: absolute;
-  font-size: 24px;
-  color: black;
-  left: 85px;
-  top: 16px;
-}
