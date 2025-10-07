@@ -32,7 +32,7 @@
                             Enter email addresses, one per line. Users will be
                             emailed each time this template is used in any workflow.&nbsp;
                             <div id="field_use_notice" style="display: none;">
-                            Please note that only orgchart employee formats are supported in this section.
+                            Please note that only orgchart employee and orgchart group formats are supported in this section.
                             </div>
                             <div id="to_cc_smarty_vars_notice" style="display:none">
                                 Potential Variable errors in To/Cc: <span id="to_cc_field_errors"></span><br>
@@ -276,6 +276,7 @@
     let indicatorFormats = {};
     const allowedToCcFormats = {
         "orgchart_employee": 1,
+        "orgchart_group": 1,
     }
 
     $(function(){
@@ -345,7 +346,7 @@
             let elErrors = document.getElementById('to_cc_field_errors');
             varMatches = elTextInput.match(smartyVarReg) ?? [];
 
-            let includesNonOrgchartEmp = false;
+            let fieldFormatNotAllowed = false;
             for(let i = 0; i < varMatches.length; i++) {
                 const m = varMatches[i];
                 if(typeof m === 'string' && m.includes('field.')) {
@@ -354,16 +355,16 @@
                         smartyErrors.push(m);
                     }
                     if(allowedToCcFormats?.[indicatorFormats?.[id]] !== 1) {
-                        includesNonOrgchartEmp = true;
+                        fieldFormatNotAllowed = true;
                         break;
                     }
                 } else {
-                    includesNonOrgchartEmp = true;
+                    fieldFormatNotAllowed = true;
                     break;
                 }
             }
             if(elFormatNotice !== null) {
-                elFormatNotice.style.display = includesNonOrgchartEmp === true ? 'block' : 'none';
+                elFormatNotice.style.display = fieldFormatNotAllowed === true ? 'block' : 'none';
             }
 
             if (elVariableNotice !== null && elErrors !== null) {

@@ -1485,6 +1485,9 @@ class FormWorkflow
                         "comment" => $comment,
                         "field" => $fields
                     ));
+                    $email->addSmartyVariables(array(
+                        "field" => $emailAddresses
+                    ), true);
 
                     $dir = $this->getDirectory();
 
@@ -1743,7 +1746,7 @@ class FormWorkflow
             $data = $field["data"];
             $emailValue = "";
 
-            $format = strtolower(explode(PHP_EOL, $field["format"])[0] ?? "");
+            $format = trim(strtolower(explode(PHP_EOL, $field["format"])[0] ?? ""));
             switch($format) {
                 case "grid":
                     if(!empty($data) && is_array(unserialize($data))){
@@ -1769,7 +1772,11 @@ class FormWorkflow
                     $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
                     break;
                 case "orgchart_group":
-                    $data = $this->getOrgchartGroup((int) $data);
+                    if(is_numeric($data)) {
+                        $groupInfo = $this->getGroupInfoForTemplate((int) $data);
+                        $data = $groupInfo["groupName"];
+                        $emailValue = $groupInfo["groupEmails"];
+                    }
                     break;
                 case "orgchart_position":
                     $data = $this->getOrgchartPosition((int) $data);
@@ -1805,11 +1812,11 @@ class FormWorkflow
         $headers = $data['names'];
 
         // build the grid
-        $grid = "<table><tr>";
+        $grid = "<table style=\"border-collapse: collapse; margin: 2px;\"><tr>";
 
         foreach($headers as $header) {
             if ($header !== " ") {
-                $grid .= "<th>{$header}</th>";
+                $grid .= "<th style=\"border: 1px solid #000; background: #e0e0e0; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; width: 100px; \">{$header}</th>";
             }
         }
         $grid .= "</tr>";
@@ -1817,7 +1824,7 @@ class FormWorkflow
         foreach($cells as $row) {
             $grid .= "<tr>";
             foreach($row as $column) {
-                $grid .= "<td>{$column}</td>";
+                $grid .= "<td  style=\"border: 1px solid #000; background: #fff; padding: 6px;font-size: 11px; font-family: verdana; text-align: center; \">{$column}</td>";
             }
             $grid .= "</tr>";
         }
@@ -1857,14 +1864,27 @@ class FormWorkflow
         return $formattedData;
     }
 
-    // method for building orgchart group, position, employee
-    private function getOrgchartGroup(int $data): string
-    {
-        // reference the group by id
-        $group = new Group($this->db, $this->login);
-        $groupName = $group->getGroupName($data);
+    // method for building orgchart group, position, employee template info
 
-        return $groupName;
+    /**
+     * get email body content and email ToCc field content from an orgchart_group field entry
+     * @param int $groupID
+     * @return array
+     */
+    private function getGroupInfoForTemplate(int $groupID): array
+    {
+        $group = new Group($this->db, $this->login);
+        $groupName = $group->getGroupName($groupID);
+        $groupMembers = $group->getMembers($groupID)['data'] ?? [];
+        $userEmails = array_column($groupMembers, 'email') ?? [];
+        $emailValues = implode("\r\n", $userEmails);
+
+        $returnVal = array(
+            "groupName" => $groupName,
+            "groupEmails" => $emailValues
+        );
+
+        return $returnVal;
     }
 
     private function getOrgchartPosition(int $data): string

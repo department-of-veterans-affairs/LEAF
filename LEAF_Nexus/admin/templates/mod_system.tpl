@@ -100,7 +100,7 @@
                     CSRFToken: CSRFToken},
                     success: function(res) {
                         if(res['success'] !== true) {
-                            alert('Primary Admin must be a System Administrator');
+                            alert('Primary Admin field cannot be left blank');
                         } else {
                             location.reload();
                             alert('Settings Saved.');

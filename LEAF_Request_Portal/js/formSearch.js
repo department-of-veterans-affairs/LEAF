@@ -194,6 +194,17 @@ var LeafFormSearch = function (containerID) {
         }
     }
 
+    function scrubHTML(input) {
+        if(input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
+    }
+
     /**
      * @memberOf LeafFormSearch
      * prevQuery - optional JSON object
@@ -1030,7 +1041,7 @@ var LeafFormSearch = function (containerID) {
                 break;
             case "data":
                 let resultFilter =
-                    "?x-filterData=indicatorID,categoryName,name,format,description";
+                    "?x-filterData=indicatorID,categoryName,name,format";
                 let urlParams = new URLSearchParams(window.location.search);
                 if(urlParams.has('dev')) {
                     resultFilter += '&dev';
@@ -1066,18 +1077,22 @@ var LeafFormSearch = function (containerID) {
                             if(indicatorsByForm[res[i].categoryName] == undefined) {
                                 indicatorsByForm[res[i].categoryName] = [];
                             }
+                            res[i].name = scrubHTML(res[i].name);
                             indicatorsByForm[res[i].categoryName].push(res[i]);
                         }
 
-                        Object.keys(indicatorsByForm).forEach(key => {
+                        var collator = new Intl.Collator("en", {
+                            numeric: true,
+                            sensitivity: "base",
+                        });
+                        let formNames = Object.keys(indicatorsByForm);
+                        formNames.sort();
+                        formNames.forEach(key => {
+                            indicatorsByForm[key].sort((a, b) => collator.compare(a.name, b.name));
                             indicators += `<optgroup label="${key}">`;
 
                             indicatorsByForm[key].forEach(res => {
-                                let preferLabel = res.description;
-                                if(preferLabel == '') {
-                                    preferLabel = res.name;
-                                }
-                                indicators += `<option value="${res.indicatorID}">${res.name}</option>`;
+                                indicators += `<option value="${res.indicatorID}">${scrubHTML(res.name)}</option>`;
                             });
                             indicators += '</optgroup>';
                         });
