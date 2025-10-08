@@ -126,7 +126,7 @@ nav#top-menu-nav {
         td,th {
             padding: 0.25rem 0.5rem;
             border: 1px solid $charcoal;
-            
+
             a {
                 padding: 0.25rem 0.5rem;
                 display: flex;
@@ -152,7 +152,7 @@ nav#top-menu-nav {
             color: black;
             border-bottom: 1px solid $charcoal;
         }
-        tr.sub-row { 
+        tr.sub-row {
             color: #333;
             background-color: #f6f6ff;
             font-size: 85%;
@@ -245,7 +245,7 @@ table[class$="SelectorTable"] th {
             justify-content: flex-start;
             margin: 1rem 0;
         }
-        #archived-warning, #deletion-warning {
+        #archived-warning, #deletion-warning, #inWorkflow-warning {
             position: absolute;
             right: 0;
             top: 0;
@@ -255,8 +255,21 @@ table[class$="SelectorTable"] th {
         #indicatorPrivileges {
             line-height: 1.4;
         }
+        label:has(input:disabled) {
+            color: #999 !important;
+            cursor: not-allowed;
+        }
     }
-    
+    #input-format {
+        #format-inWorkflow-warning {
+            position: absolute;
+            left: 110px;
+            top: 290px;
+            color: $attention;
+            font-size: 90%;
+        }
+    }
+
     div.cell {
         width: 200px;
         min-width: 200px;
@@ -294,7 +307,7 @@ table[class$="SelectorTable"] th {
     > div {
         min-width: 400px;
         padding: 0.75rem;
-        display: flex; 
+        display: flex;
         flex-direction:column;
         width: 50%;
     }
@@ -335,7 +348,7 @@ table[class$="SelectorTable"] th {
         }
     }
     .form-id {
-        position: absolute; 
+        position: absolute;
         right: 0.75rem;
         bottom: 1px;
         font-size: 0.75rem;
@@ -456,7 +469,7 @@ table[class$="SelectorTable"] th {
     ul[id^="internalFormRecords_"] {
         border-left: 4px solid $BG_Pearl;
         padding-top: 0.75rem;
-        
+
         > li  {
             &:not(:last-child) {
                 margin-bottom: 0.5rem;
@@ -692,7 +705,7 @@ table[class$="SelectorTable"] th {
         width: 100%;
         border: 2px dashed color.scale($BG_Pearl, $lightness: -15%);
     }
-    
+
     /* wraps each form question. */
     .form_editing_area {
         display: flex;
@@ -744,7 +757,7 @@ table[class$="SelectorTable"] th {
             font-size: 90%;
             gap: 3px 2px;
             > div {
-                display: flex; 
+                display: flex;
                 align-items: center;
                 gap: 4px 5px;
                 min-width: 260px;
@@ -765,16 +778,16 @@ table[class$="SelectorTable"] th {
             .text_input_preview {
                 display: inline-block;
                 width: 75%;
-                font-size: 1.3em; 
+                font-size: 1.3em;
                 font-family: monospace;
                 background-color: white;
                 border: 1px solid gray;
                 padding: 0.25em;
             }
             .textarea_input_preview {
-                width: 75%; 
-                padding: 0.5em; 
-                font-size: 1.3em; 
+                width: 75%;
+                padding: 0.5em;
+                font-size: 1.3em;
                 font-family: monospace;
             }
             div[id*="textarea_format_button_"], .trumbowyg-box, .choices, fieldset {
@@ -948,8 +961,8 @@ table[class$="SelectorTable"] th {
         color: #c80000;
     }
     .selectedConditionEdit .changesDetected,
-    button.itemSavedConditions:hover .changesDetected, 
-    button.itemSavedConditions:focus .changesDetected, 
+    button.itemSavedConditions:hover .changesDetected,
+    button.itemSavedConditions:focus .changesDetected,
     button.itemSavedConditions:active .changesDetected {
         color: white;
     }

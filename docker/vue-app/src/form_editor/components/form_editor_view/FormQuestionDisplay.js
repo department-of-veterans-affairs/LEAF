@@ -38,7 +38,7 @@ export default {
             return (this.formNode?.html || '').trim() !== '' || (this.formNode?.htmlPrint || '').trim() !== '';
         },
         conditionalQuestion() {
-            return !this.isHeader && 
+            return !this.isHeader &&
                 this.formNode.conditions !== null && this.formNode.conditions !== '' & this.formNode.conditions !== 'null';
         },
         conditionsAllowed() {
@@ -99,7 +99,8 @@ export default {
                             @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())">
                             Modify Logic
                         </button>
-                        <button v-if="!isHeader" type="button" class="btn-general"
+                        <button v-if="!isHeader" type="button" :id="'add_question_to_' + indicatorID"
+                            class="btn-general"
                             title="add sub-question"
                             aria-label="add sub-question"
                             @click="newQuestion(indicatorID)">
