@@ -135,12 +135,14 @@ function getBackupInfo() {
         url: "./api/employee/" + <!--{$empUID}--> + "/backup",
         success: function(response) {
             if(response != '') {
-                for(var key in response) {
+                for(let key in response) {
                     $('#backupBody').append('<div id="backup_'+ response[key].backupEmpUID +'">'+response[key].backupEmpUID+'</div>');
                     $.ajax({
                         url: "./api/employee/" + response[key].backupEmpUID,
                         success: function(response) {
-                            $('#backup_'+response.employee.empUID).html(response.employee.firstName + ' ' + response.employee.lastName + ' [ <a href="#" onclick="removeBackup('+ response.employee.empUID +');">Remove</a> ]');
+                            const displayName = response.employee.firstName + ' ' + response.employee.lastName;
+                            const link = `<a href="?a=view_employee&empUID=${response.employee.empUID}" target=_blank" style="margin-right:1rem;">${displayName}</a>`;
+                            $('#backup_'+response.employee.empUID).html(link + '[ <a href="#" onclick="removeBackup('+ response.employee.empUID +');">Remove</a> ]');
                         },
                         cache: false
                     });
@@ -161,12 +163,14 @@ function getBackupForInfo() {
         url: "./api/employee/" + <!--{$empUID}--> + "/backupFor",
         success: function(response) {
             if(response != '') {
-                for(var key in response) {
+                for(let key in response) {
                     $('#backupForBody').append('<div id="backupFor_'+ response[key].empUID +'">'+response[key].empUID+'</div>');
                     $.ajax({
                         url: "./api/employee/" + response[key].empUID,
                         success: function(response) {
-                            $('#backupFor_'+response.employee.empUID).html(response.employee.firstName + ' ' + response.employee.lastName);
+                            const displayName = response.employee.firstName + ' ' + response.employee.lastName;
+                            const link = `<a href="?a=view_employee&empUID=${response.employee.empUID}" target=_blank">${displayName}</a>`;
+                            $('#backupFor_'+response.employee.empUID).html(link);
                         },
                         cache: false
                     });
