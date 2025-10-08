@@ -468,14 +468,11 @@ class FormEditor
             new LogItem("categories", "formLibraryID", $formLibraryID)
         ]);
 
-        // need to know enabled by default if leaf secure is active
-        $res = $this->db->query('SELECT * FROM settings WHERE setting="leafSecure" AND data>=1');
-        if(count($res) > 0) {
-            $vars = array(':categoryID' => $categoryID);
-            $this->db->prepared_query('UPDATE categories
-                                        SET needToKnow=1
-                                        WHERE categoryID=:categoryID', $vars);
-        }
+        // need to know enabled by default
+        $vars = array(':categoryID' => $categoryID);
+        $this->db->prepared_query('UPDATE categories
+                                    SET needToKnow=1
+                                    WHERE categoryID=:categoryID', $vars);
 
         return $categoryID;
     }
