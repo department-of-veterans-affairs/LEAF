@@ -142,13 +142,13 @@ class FormWorkflow
     /**
      * includePersonDesignatedData efficiently merges approver data to $srcRecords, for a
      * given list of $pdRecordList and $pdIndicators.
-     * 
+     *
      * When $skipNames is false, $srcRecords is expected to contain dependencyIDs
-     * 
+     *
      * WARNING: This function should only be used to support getRecordsDependencyData() and getActionable().
      *          Usage in other areas must be carefully reviewed as this retrieves data without
      *          checking for valid access. The $pdIndicators variable must only contain indicator IDs
-     *          that are related to a "person designated" field AND workflow that utilizes the "person 
+     *          that are related to a "person designated" field AND workflow that utilizes the "person
      *          designated" feature.
      * @param array $srcRecords list of records
      * @param array $pdRecordsMap map of record IDs => indicatorID that utilize "person designated"
@@ -173,7 +173,7 @@ class FormWorkflow
 
         $query = "SELECT recordID, `data`, `name`, indicatorID, metadata FROM `data`
                     LEFT JOIN indicators USING (indicatorID)
-                    WHERE indicatorID IN ({$pdIndicators}) 
+                    WHERE indicatorID IN ({$pdIndicators})
                         AND recordID IN ({$pdRecordIDs})
                         AND series=1
                         AND `disabled`=0";
@@ -229,13 +229,13 @@ class FormWorkflow
     /**
      * includeGroupDesignatedData efficiently merges approver data to $srcRecords, for a
      * given list of $gdRecordList and $gdIndicators.
-     * 
+     *
      * When $skipNames is false, $srcRecords is expected to contain dependencyIDs
-     * 
+     *
      * WARNING: This function should only be used to support getRecordsDependencyData() and getActionable().
      *          Usage in other areas must be carefully reviewed as this retrieves data without
      *          checking for valid access. The $gdIndicators variable must only contain indicator IDs
-     *          that are related to a "group designated" field AND workflow that utilizes the "group 
+     *          that are related to a "group designated" field AND workflow that utilizes the "group
      *          designated" feature.
      * @param array $srcRecords list of records
      * @param array $gdRecordsMap map of record IDs => indicatorID that utilize "group designated"
@@ -260,7 +260,7 @@ class FormWorkflow
 
         $query = "SELECT recordID, `data`, `name`, indicatorID FROM `data`
                     LEFT JOIN indicators USING (indicatorID)
-                    WHERE indicatorID IN ({$gdIndicators}) 
+                    WHERE indicatorID IN ({$gdIndicators})
                         AND recordID IN ({$gdRecordIDs})
                         AND series=1
                         AND `disabled`=0";
@@ -283,7 +283,7 @@ class FormWorkflow
             $groupIDs = array_map(function($x) {
                             return (int)$x;
                         }, $groupIDs);
-    
+
             $groupIDs = implode(',', $groupIDs);
             if($groupIDs != "") {
                 $res = $this->db->prepared_query("SELECT groupID, name FROM `groups`
@@ -309,7 +309,7 @@ class FormWorkflow
                 // Only amend group name for group designated records
                 if($v['dependencyID'] == -3) {
                     $groupName = isset($groupNames[$dRecords[$v['recordID']]['data']]) ?
-                        $groupNames[$dRecords[$v['recordID']]['data']] : 'Warning: Group has not been imported into the User Access Group';
+                        $groupNames[$dRecords[$v['recordID']]['data']] : 'A User Group has not been selected for this action.';
                     $srcRecords[$i]['description'] = $srcRecords[$i]['stepTitle'] . ' (' . $groupName . ')';
                     $srcRecords[$i]['approverName'] = $groupName;
                     $srcRecords[$i]['approverUID'] = 'groupID:' . $dRecords[$v['recordID']]['data'];
@@ -347,7 +347,7 @@ class FormWorkflow
             LEFT JOIN records_dependencies USING (recordID, dependencyID)
             WHERE recordID IN ({$recordIDs})
                 AND filled=0";
-        
+
         $cacheHash = 'unfilledRecordsDependencyData' . sha1($recordIDs); // the data columns must be a superset of the query above
         if(isset($this->cache[$cacheHash])) {
             $res = $this->cache[$cacheHash];
