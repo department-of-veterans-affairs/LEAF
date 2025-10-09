@@ -48,7 +48,63 @@ $constraints_to_update = array(
                 "foreignKey" => "actionType",
                 "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
             ),
-        )
+        ),
+
+        //additional config 10 09 2025
+        "action_history" => array(
+            "action_history_ibfk_2" => array(
+                "correctName" => "action_history_ibfk_2",
+                "foreignTable" => "action_types",
+                "foreignKey" => "actionTypeID",
+                "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
+            ),
+        ),
+        "category_privs" => array(
+            "category_privs_ibfk_2" => array(
+                "correctName" => "category_privs_ibfk_2",
+                "foreignTable" => "categories",
+                "foreignKey" => "categoryID",
+                "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
+            ),
+        ),
+        "category_staples" => array(
+            "category_staples_ibfk_1" => array(
+                "correctName" => "category_staples_ibfk_1",
+                "foreignTable" => "categories",
+                "foreignKey" => "categoryID",
+                "constraint" => "ON DELETE CASCADE ON UPDATE CASCADE",
+            ),
+        ),
+        "dependency_privs" => array(
+            "fk_privs_dependencyID" => array(
+                "correctName" => "fk_privs_dependencyID",
+                "foreignTable" => "dependencies",
+                "foreignKey" => "dependencyID",
+                "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
+            ),
+        ),
+        "step_dependencies" => array(
+            "fk_step_dependencyID" => array(
+                "correctName" => "fk_step_dependencyID",
+                "foreignTable" => "dependencies",
+                "foreignKey" => "dependencyID",
+                "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
+            ),
+            "step_dependencies_ibfk_3" => array(
+                "correctName" => "step_dependencies_ibfk_3",
+                "foreignTable" => "workflow_steps",
+                "foreignKey" => "stepID",
+                "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
+            ),
+        ),
+        "workflow_steps" => array(
+            "workflow_steps_ibfk_1" => array(
+                "correctName" => "workflow_steps_ibfk_1",
+                "foreignTable" => "workflows",
+                "foreignKey" => "workflowID",
+                "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
+            ),
+        ),
     ),
     "orgchart" => array(),
 );
