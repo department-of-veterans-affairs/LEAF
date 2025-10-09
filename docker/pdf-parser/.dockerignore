@@ -1,0 +1,29 @@
+# Ignore development files
+*.md
+README.md
+
+# Ignore git
+.git
+.gitignore
+
+# Ignore test files
+*_test.go
+testdata/
+
+# Ignore build artifacts
+pdf-parser
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

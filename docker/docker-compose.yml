@@ -188,6 +188,27 @@ services:
         extra_hosts:
             - host.docker.internal:host-gateway
 
+    pdf-parser:
+        env_file:
+            - ./env_files/globals_local.env
+            - ./env_files/secrets.env
+        build:
+            context: ../
+            dockerfile: docker/pdf-parser/Dockerfile
+            args:
+                - BUILD_UID=${BUILD_UID}
+        volumes:
+            - ../uploads:/uploads  # Where PDFs to be parsed are stored
+            - ../parsed_output:/parsed_output  # Where parsed results go
+        ports:
+            - "9000:9000"  # Expose API endpoint
+        networks:
+            - leaf
+            - leaf-sql
+        environment:
+            - SERVICE_PORT=9000
+            - MAX_FILE_SIZE=52428800  # 50MB in bytes
+
 volumes:
     leaf-php-data:
         external: true
