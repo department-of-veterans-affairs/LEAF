@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"os/exec"
@@ -19,9 +22,34 @@ import (
 )
 
 const (
-	maxUploadSize = 50 * 1024 * 1024 // 50 MB
-	uploadPath    = "/uploads"
-	outputPath    = "/parsed_output"
+	maxUploadSize      = 50 * 1024 * 1024 // 50 MB
+	uploadPath         = "/uploads"
+	outputPath         = "/parsed_output"
+	pdfExtension       = ".pdf"
+	contentTypeJSON    = "application/json"
+	contentTypePDF     = "application/pdf"
+	pdftotextTimeout   = 30 * time.Second
+	hexUTF16ChunkSize  = 4
+	contextBufferSize  = 50
+	defaultServicePort = "9000"
+)
+
+var (
+	// SSN patterns
+	ssnPatterns = []*regexp.Regexp{
+		regexp.MustCompile(`\b\d{3}-\d{2}-\d{4}\b`),     // 123-45-6789
+		regexp.MustCompile(`\b\d{3}\s+\d{2}\s+\d{4}\b`), // 123 45 6789
+		regexp.MustCompile(`\b\d{9}\b`),                 // 123456789
+	}
+
+	// Error messages
+	errFileTooLarge     = errors.New("file too large or invalid form data")
+	errNoFile           = errors.New("no file provided")
+	errInvalidFileType  = errors.New("file must be a PDF")
+	errTempFileCreation = errors.New("failed to create temp file")
+	errFileSave         = errors.New("failed to save file")
+	errNoTerms          = errors.New("no terms provided")
+	errNoValidTerms     = errors.New("no valid terms provided")
 )
 
 type Response struct {
@@ -55,6 +83,21 @@ type FormFieldsResult struct {
 	ParsedAt   time.Time   `json:"parsed_at"`
 }
 
+type SSNMatch struct {
+	Match   string `json:"match"`
+	Pattern string `json:"pattern"`
+	Context string `json:"context"`
+}
+
+type TermSearchResult struct {
+	Filename        string         `json:"filename"`
+	TotalTerms      int            `json:"total_terms"`
+	TermsFound      int            `json:"terms_found"`
+	TermsNotFound   int            `json:"terms_not_found"`
+	MatchPercentage string         `json:"match_percentage"`
+	TermBreakdown   map[string]int `json:"term_breakdown"`
+}
+
 func main() {
 	mux := http.NewServeMux()
 
@@ -69,7 +112,7 @@ func main() {
 	mux.HandleFunc("/api/scan-for-ssn", scanForSSN)
 	mux.HandleFunc("/api/search-terms", searchTerms)
 
-	port := getEnv("SERVICE_PORT", "9000")
+	port := getEnv("SERVICE_PORT", defaultServicePort)
 
 	log.Printf("PDF Parser Service starting on port %s", port)
 	log.Printf("Max upload size: %d bytes", maxUploadSize)
@@ -92,37 +135,13 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 func parsePDF(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		respondError(w, http.StatusBadRequest, "File too large or invalid form data")
-		return
-	}
-
-	file, header, err := r.FormFile("file")
+	tempFile, header, cleanup, err := handleFileUpload(w, r)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "No file provided")
-		return
+		return // Error already sent to client
 	}
-	defer file.Close()
+	defer cleanup()
 
-	if filepath.Ext(header.Filename) != ".pdf" {
-		respondError(w, http.StatusBadRequest, "File must be a PDF")
-		return
-	}
-
-	tempFile, err := os.CreateTemp("", "pdf-*.pdf")
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to create temp file")
-		return
-	}
-	defer os.Remove(tempFile.Name())
-	defer tempFile.Close()
-
-	if _, err := io.Copy(tempFile, file); err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to save file")
-		return
-	}
-
-	pageCount, err := api.PageCountFile(tempFile.Name())
+	pageCount, err := api.PageCountFile(tempFile)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to parse PDF: %v", err))
 		return
@@ -143,32 +162,13 @@ func parsePDF(w http.ResponseWriter, r *http.Request) {
 }
 
 func getPDFInfo(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid form data")
-		return
-	}
-
-	file, header, err := r.FormFile("file")
+	tempFile, header, cleanup, err := handleFileUpload(w, r)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "No file provided")
-		return
+		return // Error already sent to client
 	}
-	defer file.Close()
+	defer cleanup()
 
-	tempFile, err := os.CreateTemp("", "pdf-*.pdf")
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to create temp file")
-		return
-	}
-	defer os.Remove(tempFile.Name())
-	defer tempFile.Close()
-
-	if _, err := io.Copy(tempFile, file); err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to save file")
-		return
-	}
-
-	pageCount, err := api.PageCountFile(tempFile.Name())
+	pageCount, err := api.PageCountFile(tempFile)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to read PDF")
 		return
@@ -184,33 +184,13 @@ func getPDFInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func extractText(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid form data")
-		return
-	}
-
-	file, header, err := r.FormFile("file")
+	tempFile, header, cleanup, err := handleFileUpload(w, r)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "No file provided")
-		return
+		return // Error already sent to client
 	}
-	defer file.Close()
+	defer cleanup()
 
-	tempFile, err := os.CreateTemp("", "pdf-*.pdf")
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to create temp file")
-		return
-	}
-	defer os.Remove(tempFile.Name())
-	defer tempFile.Close()
-
-	if _, err := io.Copy(tempFile, file); err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to save file")
-		return
-	}
-
-	// Extract text from PDF
-	text, err := extractTextFromPDF(tempFile.Name())
+	text, err := extractTextFromPDF(tempFile)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to extract text: %v", err))
 		return
@@ -226,39 +206,18 @@ func extractText(w http.ResponseWriter, r *http.Request) {
 }
 
 func extractFormFields(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid form data")
-		return
-	}
-
-	file, header, err := r.FormFile("file")
+	tempFile, header, cleanup, err := handleFileUpload(w, r)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "No file provided")
-		return
+		return // Error already sent to client
 	}
-	defer file.Close()
+	defer cleanup()
 
-	tempFile, err := os.CreateTemp("", "pdf-*.pdf")
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to create temp file")
-		return
-	}
-	defer os.Remove(tempFile.Name())
-	defer tempFile.Close()
-
-	if _, err := io.Copy(tempFile, file); err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to save file")
-		return
-	}
-
-	// Read the PDF context
-	ctx, err := api.ReadContextFile(tempFile.Name())
+	ctx, err := api.ReadContextFile(tempFile)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to read PDF: %v", err))
 		return
 	}
 
-	// Extract form fields with debug info
 	fields, debugInfo, err := extractFields(ctx)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to extract form fields: %v", err))
@@ -273,7 +232,6 @@ func extractFormFields(w http.ResponseWriter, r *http.Request) {
 		ParsedAt:   time.Now(),
 	}
 
-	// Include debug info in response
 	responseData := map[string]interface{}{
 		"result": result,
 		"debug":  debugInfo,
@@ -286,321 +244,19 @@ func extractFormFields(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func extractFields(ctx *model.Context) ([]FormField, map[string]interface{}, error) {
-	var fields []FormField
-	debugInfo := make(map[string]interface{})
-
-	// Check if PDF has forms
-	if ctx == nil {
-		debugInfo["error"] = "context is nil"
-		return fields, debugInfo, nil
-	}
-
-	if ctx.XRefTable == nil {
-		debugInfo["error"] = "XRefTable is nil"
-		return fields, debugInfo, nil
-	}
-
-	// Try to access the AcroForm
-	rootDict, err := ctx.Catalog()
-	if err != nil {
-		debugInfo["catalog_error"] = err.Error()
-		log.Printf("Warning: Could not get catalog: %v", err)
-		return fields, debugInfo, nil
-	}
-	debugInfo["has_catalog"] = true
-
-	// List all keys in the catalog for debugging
-	catalogKeys := []string{}
-	for key := range rootDict {
-		catalogKeys = append(catalogKeys, key)
-	}
-	debugInfo["catalog_keys"] = catalogKeys
-
-	acroFormObj, found := rootDict.Find("AcroForm")
-	if !found {
-		debugInfo["acroform_found"] = false
-
-		// Check for XFA forms
-		if xfaObj, xfaFound := rootDict.Find("XFA"); xfaFound {
-			debugInfo["has_xfa"] = true
-			debugInfo["xfa_type"] = fmt.Sprintf("%T", xfaObj)
-			debugInfo["note"] = "This PDF uses XFA forms, not AcroForms. XFA extraction not yet supported."
-		}
-
-		// Check if there are annotations on pages that might be form fields
-		if pagesObj, pagesFound := rootDict.Find("Pages"); pagesFound {
-			debugInfo["has_pages"] = true
-			if pagesDict, err := ctx.DereferenceDict(pagesObj); err == nil {
-				if kidsObj, kidsFound := pagesDict.Find("Kids"); kidsFound {
-					debugInfo["has_kids"] = true
-					if kidsArray, err := ctx.DereferenceArray(kidsObj); err == nil {
-						debugInfo["page_count"] = len(kidsArray)
-
-						// Check first page for annotations
-						if len(kidsArray) > 0 {
-							if pageDict, err := ctx.DereferenceDict(kidsArray[0]); err == nil {
-								if annotsObj, annotsFound := pageDict.Find("Annots"); annotsFound {
-									debugInfo["first_page_has_annots"] = true
-									if annotsArray, err := ctx.DereferenceArray(annotsObj); err == nil {
-										debugInfo["first_page_annot_count"] = len(annotsArray)
-									}
-								} else {
-									debugInfo["first_page_has_annots"] = false
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return fields, debugInfo, nil
-	}
-	if acroFormObj == nil {
-		debugInfo["acroform_obj"] = "nil"
-		return fields, debugInfo, nil
-	}
-	debugInfo["acroform_found"] = true
-	debugInfo["acroform_type"] = fmt.Sprintf("%T", acroFormObj)
-
-	// Dereference if it's an indirect reference
-	acroForm, err := ctx.DereferenceDict(acroFormObj)
-	if err != nil {
-		debugInfo["dereference_error"] = err.Error()
-		log.Printf("Warning: Could not dereference AcroForm: %v", err)
-		return fields, debugInfo, nil
-	}
-	debugInfo["acroform_dereferenced"] = true
-
-	// List keys in AcroForm
-	acroFormKeys := []string{}
-	for key := range acroForm {
-		acroFormKeys = append(acroFormKeys, key)
-	}
-	debugInfo["acroform_keys"] = acroFormKeys
-
-	// Get the Fields array
-	fieldsObj, found := acroForm.Find("Fields")
-	if !found {
-		debugInfo["fields_array_found"] = false
-		return fields, debugInfo, nil
-	}
-	if fieldsObj == nil {
-		debugInfo["fields_obj"] = "nil"
-		return fields, debugInfo, nil
-	}
-	debugInfo["fields_array_found"] = true
-	debugInfo["fields_obj_type"] = fmt.Sprintf("%T", fieldsObj)
-
-	fieldsArray, err := ctx.DereferenceArray(fieldsObj)
-	if err != nil {
-		debugInfo["fields_array_deref_error"] = err.Error()
-		log.Printf("Warning: Could not dereference Fields array: %v", err)
-		return fields, debugInfo, nil
-	}
-	debugInfo["fields_array_length"] = len(fieldsArray)
-
-	// Process each field recursively
-	for _, fieldRef := range fieldsArray {
-		processField(ctx, fieldRef, "", &fields, debugInfo, 0)
-	}
-
-	debugInfo["fields_processed"] = len(fields)
-	return fields, debugInfo, nil
-}
-
-func processField(ctx *model.Context, fieldRef types.Object, parentName string, fields *[]FormField, debugInfo map[string]interface{}, depth int) {
-	fieldDict, err := ctx.DereferenceDict(fieldRef)
-	if err != nil {
-		log.Printf("Warning: Could not dereference field at depth %d: %v", depth, err)
-		return
-	}
-
-	field := FormField{}
-
-	// Get field name - convert to string
-	if nameObj, found := fieldDict.Find("T"); found && nameObj != nil {
-		rawName := fmt.Sprintf("%v", nameObj)
-		// Clean up common formatting
-		field.Name = cleanFieldName(rawName)
-
-		// Build full name with parent path
-		if parentName != "" {
-			field.Name = parentName + "." + field.Name
-		}
-	}
-
-	// Get field type - convert to string
-	hasFieldType := false
-	if ftObj, found := fieldDict.Find("FT"); found && ftObj != nil {
-		field.Type = fmt.Sprintf("%v", ftObj)
-		field.Type = strings.TrimPrefix(field.Type, "/")
-		hasFieldType = true
-	}
-
-	// Get field value
-	if vObj, found := fieldDict.Find("V"); found && vObj != nil {
-		field.Value = fmt.Sprintf("%v", vObj)
-		field.Value = strings.Trim(field.Value, "()")
-	}
-
-	// Get default value
-	if dvObj, found := fieldDict.Find("DV"); found && dvObj != nil {
-		field.DefaultValue = fmt.Sprintf("%v", dvObj)
-		field.DefaultValue = strings.Trim(field.DefaultValue, "()")
-	}
-
-	// Get field flags
-	if ffObj, found := fieldDict.Find("Ff"); found && ffObj != nil {
-		// Try to parse as int
-		if ffStr := fmt.Sprintf("%v", ffObj); ffStr != "" {
-			fmt.Sscanf(ffStr, "%d", &field.Flags)
-		}
-	}
-
-	// Get options for choice fields
-	if optObj, found := fieldDict.Find("Opt"); found && optObj != nil {
-		if optArray, err := ctx.DereferenceArray(optObj); err == nil {
-			for _, opt := range optArray {
-				optStr := fmt.Sprintf("%v", opt)
-				optStr = strings.Trim(optStr, "()")
-				field.Options = append(field.Options, optStr)
-			}
-		}
-	}
-
-	// Check for child fields (Kids array)
-	if kidsObj, found := fieldDict.Find("Kids"); found && kidsObj != nil {
-		if kidsArray, err := ctx.DereferenceArray(kidsObj); err == nil {
-			// This field has children - process them recursively
-			currentName := field.Name
-			if currentName == "" {
-				currentName = parentName
-			}
-
-			for _, kidRef := range kidsArray {
-				processField(ctx, kidRef, currentName, fields, debugInfo, depth+1)
-			}
-
-			// Don't add parent fields that only contain kids and no field type
-			if !hasFieldType {
-				return
-			}
-		}
-	}
-
-	// Only add fields with names
-	if field.Name != "" {
-		*fields = append(*fields, field)
-	}
-}
-
-func cleanFieldName(rawName string) string {
-	// Remove parentheses
-	rawName = strings.Trim(rawName, "()")
-
-	// Check if it's hex-encoded UTF-16 (starts with <FEFF)
-	if strings.HasPrefix(rawName, "<FEFF") || strings.HasPrefix(rawName, "<feff") {
-		// Remove angle brackets
-		rawName = strings.Trim(rawName, "<>")
-
-		// Try to decode hex UTF-16
-		if decoded := decodeHexUTF16(rawName); decoded != "" {
-			return decoded
-		}
-	}
-
-	return rawName
-}
-
-func decodeHexUTF16(hexStr string) string {
-	// Remove FEFF BOM if present
-	hexStr = strings.TrimPrefix(hexStr, "FEFF")
-	hexStr = strings.TrimPrefix(hexStr, "feff")
-
-	// Decode hex pairs into UTF-16 code units
-	var result strings.Builder
-	for i := 0; i < len(hexStr); i += 4 {
-		if i+4 > len(hexStr) {
-			break
-		}
-
-		hexPair := hexStr[i : i+4]
-		var codeUnit uint16
-		fmt.Sscanf(hexPair, "%04x", &codeUnit)
-
-		if codeUnit > 0 {
-			result.WriteRune(rune(codeUnit))
-		}
-	}
-
-	return result.String()
-}
-
-func extractTextFromPDF(filepath string) (string, error) {
-	// Create temp file for output
-	outputFile, err := os.CreateTemp("", "pdftext-*.txt")
-	if err != nil {
-		return "", fmt.Errorf("failed to create temp file: %w", err)
-	}
-	defer os.Remove(outputFile.Name())
-	outputFile.Close()
-
-	// Run pdftotext command: pdftotext input.pdf output.txt
-	cmd := exec.Command("pdftotext", filepath, outputFile.Name())
-
-	// Capture any errors
-	var stderr strings.Builder
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("pdftotext failed: %w, stderr: %s", err, stderr.String())
-	}
-
-	// Read the extracted text
-	textBytes, err := os.ReadFile(outputFile.Name())
-	if err != nil {
-		return "", fmt.Errorf("failed to read extracted text: %w", err)
-	}
-
-	return string(textBytes), nil
-}
-
 func scanForSSN(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid form data")
-		return
-	}
-
-	file, header, err := r.FormFile("file")
+	tempFile, header, cleanup, err := handleFileUpload(w, r)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "No file provided")
-		return
+		return // Error already sent to client
 	}
-	defer file.Close()
+	defer cleanup()
 
-	tempFile, err := os.CreateTemp("", "pdf-*.pdf")
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to create temp file")
-		return
-	}
-	defer os.Remove(tempFile.Name())
-	defer tempFile.Close()
-
-	if _, err := io.Copy(tempFile, file); err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to save file")
-		return
-	}
-
-	// Extract text from PDF
-	text, err := extractTextFromPDF(tempFile.Name())
+	text, err := extractTextFromPDF(tempFile)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to extract text: %v", err))
 		return
 	}
 
-	// Scan for SSN patterns
 	ssns := findSSNs(text)
 
 	respondJSON(w, http.StatusOK, Response{
@@ -614,33 +270,372 @@ func scanForSSN(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func findSSNs(text string) []map[string]interface{} {
-	var results []map[string]interface{}
+func searchTerms(w http.ResponseWriter, r *http.Request) {
+	tempFile, header, cleanup, err := handleFileUpload(w, r)
+	if err != nil {
+		return // Error already sent to client
+	}
+	defer cleanup()
 
-	// SSN patterns to match:
-	// 123-45-6789
-	// 123 45 6789
-	// 123456789
-	patterns := []*regexp.Regexp{
-		regexp.MustCompile(`\b\d{3}-\d{2}-\d{4}\b`),     // 123-45-6789
-		regexp.MustCompile(`\b\d{3}\s+\d{2}\s+\d{4}\b`), // 123 45 6789
-		regexp.MustCompile(`\b\d{9}\b`),                 // 123456789 (9 consecutive digits)
+	termsParam := r.FormValue("terms")
+	if termsParam == "" {
+		respondError(w, http.StatusBadRequest, errNoTerms.Error())
+		return
 	}
 
-	for _, pattern := range patterns {
+	text, err := extractTextFromPDF(tempFile)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to extract text: %v", err))
+		return
+	}
+
+	terms := parseTerms(termsParam)
+	if len(terms) == 0 {
+		respondError(w, http.StatusBadRequest, errNoValidTerms.Error())
+		return
+	}
+
+	result := performTermSearch(text, terms, header.Filename)
+
+	respondJSON(w, http.StatusOK, Response{
+		Success: true,
+		Data:    result,
+	})
+}
+
+// handleFileUpload consolidates file upload handling
+// Returns: tempFilePath, header, cleanup function, error
+func handleFileUpload(w http.ResponseWriter, r *http.Request) (string, *multipart.FileHeader, func(), error) {
+	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+		respondError(w, http.StatusBadRequest, errFileTooLarge.Error())
+		return "", nil, nil, errFileTooLarge
+	}
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		respondError(w, http.StatusBadRequest, errNoFile.Error())
+		return "", nil, nil, errNoFile
+	}
+
+	if filepath.Ext(header.Filename) != pdfExtension {
+		file.Close()
+		respondError(w, http.StatusBadRequest, errInvalidFileType.Error())
+		return "", nil, nil, errInvalidFileType
+	}
+
+	tempFile, err := os.CreateTemp("", "pdf-*.pdf")
+	if err != nil {
+		file.Close()
+		respondError(w, http.StatusInternalServerError, errTempFileCreation.Error())
+		return "", nil, nil, errTempFileCreation
+	}
+
+	tempPath := tempFile.Name()
+
+	// Copy file content
+	if _, err := io.Copy(tempFile, file); err != nil {
+		file.Close()
+		tempFile.Close()
+		os.Remove(tempPath)
+		respondError(w, http.StatusInternalServerError, errFileSave.Error())
+		return "", nil, nil, errFileSave
+	}
+
+	file.Close()
+	tempFile.Close()
+
+	// Cleanup function
+	cleanup := func() {
+		os.Remove(tempPath)
+	}
+
+	return tempPath, header, cleanup, nil
+}
+
+func extractFields(ctx *model.Context) ([]FormField, map[string]interface{}, error) {
+	var fields []FormField
+	debugInfo := make(map[string]interface{})
+
+	if ctx == nil {
+		debugInfo["error"] = "context is nil"
+		return fields, debugInfo, nil
+	}
+
+	if ctx.XRefTable == nil {
+		debugInfo["error"] = "XRefTable is nil"
+		return fields, debugInfo, nil
+	}
+
+	rootDict, err := ctx.Catalog()
+	if err != nil {
+		debugInfo["catalog_error"] = err.Error()
+		log.Printf("Warning: Could not get catalog: %v", err)
+		return fields, debugInfo, nil
+	}
+	debugInfo["has_catalog"] = true
+
+	catalogKeys := make([]string, 0, len(rootDict))
+	for key := range rootDict {
+		catalogKeys = append(catalogKeys, key)
+	}
+	debugInfo["catalog_keys"] = catalogKeys
+
+	acroFormObj, found := rootDict.Find("AcroForm")
+	if !found {
+		debugInfo["acroform_found"] = false
+		checkAlternativeFormStructures(rootDict, ctx, debugInfo)
+		return fields, debugInfo, nil
+	}
+
+	if acroFormObj == nil {
+		debugInfo["acroform_obj"] = "nil"
+		return fields, debugInfo, nil
+	}
+
+	debugInfo["acroform_found"] = true
+	debugInfo["acroform_type"] = fmt.Sprintf("%T", acroFormObj)
+
+	acroForm, err := ctx.DereferenceDict(acroFormObj)
+	if err != nil {
+		debugInfo["dereference_error"] = err.Error()
+		log.Printf("Warning: Could not dereference AcroForm: %v", err)
+		return fields, debugInfo, nil
+	}
+	debugInfo["acroform_dereferenced"] = true
+
+	acroFormKeys := make([]string, 0, len(acroForm))
+	for key := range acroForm {
+		acroFormKeys = append(acroFormKeys, key)
+	}
+	debugInfo["acroform_keys"] = acroFormKeys
+
+	fieldsObj, found := acroForm.Find("Fields")
+	if !found || fieldsObj == nil {
+		debugInfo["fields_array_found"] = false
+		return fields, debugInfo, nil
+	}
+
+	debugInfo["fields_array_found"] = true
+	debugInfo["fields_obj_type"] = fmt.Sprintf("%T", fieldsObj)
+
+	fieldsArray, err := ctx.DereferenceArray(fieldsObj)
+	if err != nil {
+		debugInfo["fields_array_deref_error"] = err.Error()
+		log.Printf("Warning: Could not dereference Fields array: %v", err)
+		return fields, debugInfo, nil
+	}
+	debugInfo["fields_array_length"] = len(fieldsArray)
+
+	for _, fieldRef := range fieldsArray {
+		processField(ctx, fieldRef, "", &fields, debugInfo, 0)
+	}
+
+	debugInfo["fields_processed"] = len(fields)
+	return fields, debugInfo, nil
+}
+
+func checkAlternativeFormStructures(rootDict types.Dict, ctx *model.Context, debugInfo map[string]interface{}) {
+	// Check for XFA forms
+	if xfaObj, xfaFound := rootDict.Find("XFA"); xfaFound {
+		debugInfo["has_xfa"] = true
+		debugInfo["xfa_type"] = fmt.Sprintf("%T", xfaObj)
+		debugInfo["note"] = "This PDF uses XFA forms, not AcroForms. XFA extraction not yet supported."
+	}
+
+	// Check for page annotations
+	if pagesObj, pagesFound := rootDict.Find("Pages"); pagesFound {
+		debugInfo["has_pages"] = true
+		if pagesDict, err := ctx.DereferenceDict(pagesObj); err == nil {
+			if kidsObj, kidsFound := pagesDict.Find("Kids"); kidsFound {
+				debugInfo["has_kids"] = true
+				if kidsArray, err := ctx.DereferenceArray(kidsObj); err == nil {
+					debugInfo["page_count"] = len(kidsArray)
+
+					if len(kidsArray) > 0 {
+						if pageDict, err := ctx.DereferenceDict(kidsArray[0]); err == nil {
+							if annotsObj, annotsFound := pageDict.Find("Annots"); annotsFound {
+								debugInfo["first_page_has_annots"] = true
+								if annotsArray, err := ctx.DereferenceArray(annotsObj); err == nil {
+									debugInfo["first_page_annot_count"] = len(annotsArray)
+								}
+							} else {
+								debugInfo["first_page_has_annots"] = false
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func processField(ctx *model.Context, fieldRef types.Object, parentName string, fields *[]FormField, debugInfo map[string]interface{}, depth int) {
+	fieldDict, err := ctx.DereferenceDict(fieldRef)
+	if err != nil {
+		log.Printf("Warning: Could not dereference field at depth %d: %v", depth, err)
+		return
+	}
+
+	field := FormField{}
+
+	if nameObj, found := fieldDict.Find("T"); found && nameObj != nil {
+		rawName := fmt.Sprintf("%v", nameObj)
+		field.Name = cleanFieldName(rawName)
+
+		if parentName != "" {
+			field.Name = parentName + "." + field.Name
+		}
+	}
+
+	hasFieldType := false
+	if ftObj, found := fieldDict.Find("FT"); found && ftObj != nil {
+		field.Type = fmt.Sprintf("%v", ftObj)
+		field.Type = strings.TrimPrefix(field.Type, "/")
+		hasFieldType = true
+	}
+
+	if vObj, found := fieldDict.Find("V"); found && vObj != nil {
+		field.Value = strings.Trim(fmt.Sprintf("%v", vObj), "()")
+	}
+
+	if dvObj, found := fieldDict.Find("DV"); found && dvObj != nil {
+		field.DefaultValue = strings.Trim(fmt.Sprintf("%v", dvObj), "()")
+	}
+
+	if ffObj, found := fieldDict.Find("Ff"); found && ffObj != nil {
+		fmt.Sscanf(fmt.Sprintf("%v", ffObj), "%d", &field.Flags)
+	}
+
+	if optObj, found := fieldDict.Find("Opt"); found && optObj != nil {
+		if optArray, err := ctx.DereferenceArray(optObj); err == nil {
+			field.Options = make([]string, 0, len(optArray))
+			for _, opt := range optArray {
+				optStr := strings.Trim(fmt.Sprintf("%v", opt), "()")
+				field.Options = append(field.Options, optStr)
+			}
+		}
+	}
+
+	if kidsObj, found := fieldDict.Find("Kids"); found && kidsObj != nil {
+		if kidsArray, err := ctx.DereferenceArray(kidsObj); err == nil {
+			currentName := field.Name
+			if currentName == "" {
+				currentName = parentName
+			}
+
+			for _, kidRef := range kidsArray {
+				processField(ctx, kidRef, currentName, fields, debugInfo, depth+1)
+			}
+
+			if !hasFieldType {
+				return
+			}
+		}
+	}
+
+	if field.Name != "" {
+		*fields = append(*fields, field)
+	}
+}
+
+func cleanFieldName(rawName string) string {
+	rawName = strings.Trim(rawName, "()")
+
+	if strings.HasPrefix(rawName, "<FEFF") || strings.HasPrefix(rawName, "<feff") {
+		rawName = strings.Trim(rawName, "<>")
+		if decoded := decodeHexUTF16(rawName); decoded != "" {
+			return decoded
+		}
+	}
+
+	return rawName
+}
+
+func decodeHexUTF16(hexStr string) string {
+	hexStr = strings.TrimPrefix(hexStr, "FEFF")
+	hexStr = strings.TrimPrefix(hexStr, "feff")
+
+	if len(hexStr)%hexUTF16ChunkSize != 0 {
+		return ""
+	}
+
+	var result strings.Builder
+	result.Grow(len(hexStr) / hexUTF16ChunkSize)
+
+	for i := 0; i < len(hexStr); i += hexUTF16ChunkSize {
+		if i+hexUTF16ChunkSize > len(hexStr) {
+			break
+		}
+
+		hexPair := hexStr[i : i+hexUTF16ChunkSize]
+		var codeUnit uint16
+		if n, err := fmt.Sscanf(hexPair, "%04x", &codeUnit); err != nil || n != 1 {
+			continue
+		}
+
+		if codeUnit > 0 {
+			result.WriteRune(rune(codeUnit))
+		}
+	}
+
+	return result.String()
+}
+
+func extractTextFromPDF(filepath string) (string, error) {
+	outputFile, err := os.CreateTemp("", "pdftext-*.txt")
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp file: %w", err)
+	}
+	outputPath := outputFile.Name()
+	outputFile.Close()
+	defer os.Remove(outputPath)
+
+	ctx, cancel := context.WithTimeout(context.Background(), pdftotextTimeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "pdftotext", filepath, outputPath)
+
+	var stderr strings.Builder
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return "", fmt.Errorf("pdftotext timed out after %v", pdftotextTimeout)
+		}
+		return "", fmt.Errorf("pdftotext failed: %w, stderr: %s", err, stderr.String())
+	}
+
+	textBytes, err := os.ReadFile(outputPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read extracted text: %w", err)
+	}
+
+	return string(textBytes), nil
+}
+
+func findSSNs(text string) []SSNMatch {
+	results := make([]SSNMatch, 0)
+	seen := make(map[string]bool)
+
+	for _, pattern := range ssnPatterns {
 		matches := pattern.FindAllString(text, -1)
 		for _, match := range matches {
-			// Find context around the match (50 chars before and after)
+			// Avoid duplicate matches
+			if seen[match] {
+				continue
+			}
+			seen[match] = true
+
 			index := strings.Index(text, match)
 			if index == -1 {
 				continue
 			}
 
-			start := index - 50
+			start := index - contextBufferSize
 			if start < 0 {
 				start = 0
 			}
-			end := index + len(match) + 50
+			end := index + len(match) + contextBufferSize
 			if end > len(text) {
 				end = len(text)
 			}
@@ -649,10 +644,10 @@ func findSSNs(text string) []map[string]interface{} {
 			context = strings.ReplaceAll(context, "\n", " ")
 			context = strings.TrimSpace(context)
 
-			results = append(results, map[string]interface{}{
-				"match":   match,
-				"pattern": pattern.String(),
-				"context": context,
+			results = append(results, SSNMatch{
+				Match:   match,
+				Pattern: pattern.String(),
+				Context: context,
 			})
 		}
 	}
@@ -660,49 +655,10 @@ func findSSNs(text string) []map[string]interface{} {
 	return results
 }
 
-func searchTerms(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid form data")
-		return
-	}
-
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		respondError(w, http.StatusBadRequest, "No file provided")
-		return
-	}
-	defer file.Close()
-
-	// Get the comma-separated terms
-	termsParam := r.FormValue("terms")
-	if termsParam == "" {
-		respondError(w, http.StatusBadRequest, "No terms provided")
-		return
-	}
-
-	tempFile, err := os.CreateTemp("", "pdf-*.pdf")
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to create temp file")
-		return
-	}
-	defer os.Remove(tempFile.Name())
-	defer tempFile.Close()
-
-	if _, err := io.Copy(tempFile, file); err != nil {
-		respondError(w, http.StatusInternalServerError, "Failed to save file")
-		return
-	}
-
-	// Extract text from PDF
-	text, err := extractTextFromPDF(tempFile.Name())
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to extract text: %v", err))
-		return
-	}
-
-	// Parse terms (split by comma and trim whitespace)
+func parseTerms(termsParam string) []string {
 	rawTerms := strings.Split(termsParam, ",")
 	terms := make([]string, 0, len(rawTerms))
+
 	for _, term := range rawTerms {
 		trimmed := strings.TrimSpace(term)
 		if trimmed != "" {
@@ -710,63 +666,45 @@ func searchTerms(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if len(terms) == 0 {
-		respondError(w, http.StatusBadRequest, "No valid terms provided")
-		return
-	}
+	return terms
+}
 
-	// Search for each term (case-insensitive, spacing matters)
-	results := searchForTerms(text, terms)
-
-	// Calculate statistics
+func performTermSearch(text string, terms []string, filename string) TermSearchResult {
+	lowerText := strings.ToLower(text)
+	termBreakdown := make(map[string]int, len(terms))
 	termsFound := 0
-	termBreakdown := make(map[string]int)
 
 	for _, term := range terms {
-		count := results[term]
+		lowerTerm := strings.ToLower(term)
+		count := strings.Count(lowerText, lowerTerm)
 		termBreakdown[term] = count
+
 		if count > 0 {
 			termsFound++
 		}
 	}
 
-	percentage := (float64(termsFound) / float64(len(terms))) * 100
-
-	respondJSON(w, http.StatusOK, Response{
-		Success: true,
-		Data: map[string]interface{}{
-			"filename":         header.Filename,
-			"total_terms":      len(terms),
-			"terms_found":      termsFound,
-			"terms_not_found":  len(terms) - termsFound,
-			"match_percentage": fmt.Sprintf("%.2f%%", percentage),
-			"term_breakdown":   termBreakdown,
-		},
-	})
-}
-
-func searchForTerms(text string, terms []string) map[string]int {
-	results := make(map[string]int)
-
-	// Convert text to lowercase for case-insensitive search
-	lowerText := strings.ToLower(text)
-
-	for _, term := range terms {
-		// Convert term to lowercase for comparison
-		lowerTerm := strings.ToLower(term)
-
-		// Count occurrences (spacing matters, so we search for exact term)
-		count := strings.Count(lowerText, lowerTerm)
-		results[term] = count
+	percentage := 0.0
+	if len(terms) > 0 {
+		percentage = (float64(termsFound) / float64(len(terms))) * 100
 	}
 
-	return results
+	return TermSearchResult{
+		Filename:        filename,
+		TotalTerms:      len(terms),
+		TermsFound:      termsFound,
+		TermsNotFound:   len(terms) - termsFound,
+		MatchPercentage: fmt.Sprintf("%.2f%%", percentage),
+		TermBreakdown:   termBreakdown,
+	}
 }
 
 func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", contentTypeJSON)
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(payload)
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		log.Printf("Error encoding JSON response: %v", err)
+	}
 }
 
 func respondError(w http.ResponseWriter, status int, message string) {
