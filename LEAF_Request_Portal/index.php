@@ -55,7 +55,8 @@ if (isset($settings['timeZone'])) {
 switch ($action) {
     case 'newform':
         $main->assign('useLiteUI', true);
-        $main->assign('javascripts', array('js/titleValidator.js'));
+        $main->assign('javascripts', array('js/titleValidator.js', 
+            'js/formQuery.js',));
 
         $form = new Portal\Form($db, $login);
         $stack = new Portal\FormStack($db, $login);
@@ -104,6 +105,7 @@ switch ($action) {
                 APP_JS_PATH . '/choicesjs/choices.min.css'));
         $main->assign('javascripts',
             array('js/form.js',
+                'js/formQuery.js',
                 'js/gridInput.js',
                 'js/formGrid.js',
                 APP_JS_PATH  . '/LEAF/XSSHelpers.js',

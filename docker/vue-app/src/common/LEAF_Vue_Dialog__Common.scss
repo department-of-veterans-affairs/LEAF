@@ -11,6 +11,8 @@ $BG_Pearl: #f2f2f6;
 $manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
+$USWDS_warning: #ffbe2e;
+$USWDS_errorDark: #B50909;
 $lt_cyan: #e8f2ff;
 $BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
 $attention: #a00;
@@ -44,6 +46,24 @@ body { /* fixes header not extending entire width */
     padding: 1rem;
     background-color: white;
 }
+
+.entry_error, .entry_warning, .entry_info {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.entry_error {
+  border-left: 4px solid $USWDS_errorDark;
+}
+.entry_warning {
+  border-left: 4px solid $USWDS_warning;
+}
+.entry_info {
+  border-left: 4px solid $USWDS_Cyan;
+}
+
+
 input[type="color"] {
     cursor: pointer;
 }
@@ -113,6 +133,9 @@ ul {
     margin: 0;
     padding: 0;
 }
+div[class*="trumbowyg"] ul {
+    list-style-type: disc;
+}
 label {
     padding: 0;
     display: flex;
@@ -173,6 +196,9 @@ td a.router-link {
     li {
         display: flex;
         align-items: center;
+    }
+    div[class*="trumbowyg"] li {
+        display: list-item;
     }
     .leaf-vue-dialog-title {
         color: $charcoal;

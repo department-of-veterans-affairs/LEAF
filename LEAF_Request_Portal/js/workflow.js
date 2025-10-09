@@ -312,7 +312,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                 `#form_dep_container${step.dependencyID} .actions_alignment_${alignment}`
             ).append(
                 `<div id="button_container${step.dependencyID}_${step.dependencyActions[i].actionType}">
-          <button type="button" id="button_step${step.dependencyID}_${step.dependencyActions[i].actionType}" class="button">
+          <button type="button" id="button_step${step.dependencyID}_${step.dependencyActions[i].actionType}" class="button" disabled>
             ${icon} ${step.dependencyActions[i].actionText}
           </button>
         </div>`
@@ -407,6 +407,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     completeAction();
                 }
             });
+            document.querySelector(`#button_step${step.dependencyID}_${step.dependencyActions[i].actionType}`)?.removeAttribute?.('disabled');
         }
 
         // load workflowStep modules

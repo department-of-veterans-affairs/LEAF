@@ -79,6 +79,12 @@
                 <!--{$indicator.value|sanitize}-->
             </span>
             <!--{$indicator.htmlPrint}-->
+            <script>
+                if(typeof enableUserContentLinks === 'function') {
+                    const element = document.getElementById("data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->");
+                    enableUserContentLinks(element);
+                }
+            </script>
         <!--{/if}-->
         <!--{if $indicator.format == 'number'}-->
             <span class="printResponse" id="data_<!--{$indicator.indicatorID}-->_<!--{$indicator.series}-->">
@@ -276,4 +282,4 @@
             })
         </script>
         <!--{/if}-->
-        <!--{include file="print_subindicators.tpl" form=$indicator.child depth=$depth+4 recordID=$recordID}-->
+        <!--{include file=$printSubindicatorsTemplate form=$indicator.child depth=$depth+4 recordID=$recordID}-->

@@ -795,7 +795,7 @@ class Form
      *
      * @return int|string Return 1 on success, error string on failure
      */
-    public function cancelRecord(int $recordID, ?string $comment = ''): int|string
+    public function cancelRecord(int $recordID, ?string $comment = '', bool $suppressNotification = false): int|string
     {
         $return_value = 'Please contact your administrator';
 
@@ -856,7 +856,9 @@ class Form
             if($this->db->commitTransaction())
             {
                 // need to send emails to everyone upstream from the currect step.
-                $this->notifyPriorSteps($recordID);
+                if(!$suppressNotification) {
+                    $this->notifyPriorSteps($recordID);
+                }
 
                 $return_value = 1;
             }
@@ -1115,7 +1117,7 @@ class Form
                       ':indicatorID' => $key,
                       ':series' => $series, );
 
-        $sql = "SELECT `format`, `data` FROM `data`
+        $sql = "SELECT `format`, `trackChanges`, `data` FROM `data`
             LEFT JOIN `indicators` USING (`indicatorID`)
             WHERE `recordID`=:recordID AND `indicators`.`indicatorID`=:indicatorID AND `series`=:series";
 
@@ -1123,7 +1125,7 @@ class Form
 
         if(empty($res)) {
             $vf = array(":indicatorID" => $key);
-            $sqlf = "SELECT `format` FROM `indicators` WHERE `indicatorID`=:indicatorID";
+            $sqlf = "SELECT `format`, `trackChanges` FROM `indicators` WHERE `indicatorID`=:indicatorID";
             $res =  $this->db->prepared_query($sqlf, $vf);
         }
 
@@ -1175,7 +1177,7 @@ class Form
                                             VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID)
                                             ON DUPLICATE KEY UPDATE data=:data, metadata=:metadata, timestamp=:timestamp, userID=:userID', $vars);
 
-        if (!$duplicate) {
+        if (!$duplicate && $res[0]['trackChanges']) {
             $vars[':userDisplay'] = $this->login->getName();
             $this->db->prepared_query('INSERT INTO data_history (recordID, indicatorID, series, data, metadata, timestamp, userID, userDisplay)
                                                    VALUES (:recordID, :indicatorID, :series, :data, :metadata, :timestamp, :userID, :userDisplay)', $vars);
@@ -1265,7 +1267,8 @@ class Form
                             mkdir($uploadDir, 0755, true);
                         }
 
-                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, XSSHelpers::sanitizeHTML($_FILES[$indicator]['name']));
+                        $sanitizedFileName = $this->getFileHash($recordID, $indicator, $series, XSSHelpers::scrubFilename(XSSHelpers::sanitizeHTML($_FILES[$indicator]['name'])));
+
                         move_uploaded_file($_FILES[$indicator]['tmp_name'], $uploadDir . $sanitizedFileName);
                     }
                     else
@@ -1556,7 +1559,7 @@ class Form
                 $singleChoiceParentFormats = array('radio', 'dropdown', 'number', 'currency');
                 $conditionMet = false;
                 foreach ($conditions as $c) {
-                    if ($c->childFormat === $format &&
+                    if (!$conditionMet && $c->childFormat === $format &&
                         (strtolower($c->selectedOutcome) === 'hide' || strtolower($c->selectedOutcome) === 'show')) {
 
                         $parentFormat = $c->parentFormat;
@@ -1576,16 +1579,12 @@ class Form
                         switch ($operator) {
                             case '==':
                             case '!=':
-                                if (in_array($parentFormat, $multiChoiceParentFormats)) {
-                                    //true if the current data value includes any of the condition values
-                                    foreach ($currentParentDataValue as $v) {
-                                        if (in_array($v, $conditionParentValue)) {
-                                            $conditionMet = true;
-                                            break;
-                                        }
+                                //true if the current data value includes any of the condition values
+                                foreach ($currentParentDataValue as $v) {
+                                    if (in_array($v, $conditionParentValue)) {
+                                        $conditionMet = true;
+                                        break;
                                     }
-                                } else if (in_array($parentFormat, $singleChoiceParentFormats) && $currentParentDataValue[0] === $conditionParentValue[0]) {
-                                    $conditionMet = true;
                                 }
                                 if($operator === "!=") {
                                     $conditionMet = !$conditionMet;
@@ -1629,12 +1628,11 @@ class Form
                             break;
                         }
                     }
-                    //if in hidden state, set parenthidden to true and break out of condition checking.
-                    if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
-                        ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
-                        $parentOrSelfHidden = true;
-                        break;
-                    }
+                }
+                //if in hidden state, set parenthidden to true.
+                if (($conditionMet === false && strtolower($c->selectedOutcome) === 'show') ||
+                    ($conditionMet === true && strtolower($c->selectedOutcome) === 'hide')) {
+                    $parentOrSelfHidden = true;
                 }
                 unset($conditions);
             }
@@ -3146,6 +3144,34 @@ class Form
     }
 
     /**
+     * @param array $query - this is the decoded string used for query
+     * @return bool
+     */
+    private function isLargeQuery(array $query): bool
+    {
+        
+        $externalProcessQuery = false;
+        // No limit parameter set
+        if (isset($query['limit']) && is_numeric($query['limit'])) {
+
+            // Limit is > 10,000 records
+            if ($query['limit'] > 10000) {
+               
+                $externalProcessQuery = true;
+
+            // Limit is > 1000 and <= 10,000 records AND more than 10 indicators are requested
+            } else if ($query['limit'] > 1000 && !empty($query['getData']) && count($query['getData']) >= 10) {
+                $externalProcessQuery = true;
+            }
+        } else {
+            // no limit parameter set
+            $externalProcessQuery = true;
+        }
+    
+        return $externalProcessQuery;
+    }
+
+    /**
      * query parses a JSON formatted user query defined in formQuery.js.
      *
      * Returns an array on success, and string/int for malformed queries
@@ -3159,6 +3185,14 @@ class Form
         if ($query == null)
         {
             return 'Invalid query';
+        }
+
+        $externalProcessQuery = $this->isLargeQuery($query);
+        // is this a processes worthy of the external process and that we are on not wanting to actually run this query here.
+        if ($externalProcessQuery === true && !empty($_SERVER['LEAF_Large_Query']) && $_SERVER['LEAF_Large_Query'] == 'false') {
+            ob_end_clean();
+            http_response_code(306);
+            exit();
         }
 
         $joinSearchAllData = false;
@@ -4014,7 +4048,7 @@ class Form
                 foreach ($res2 as $item) {
                     $userMetadata = json_decode($item['userMetadata'], true);
                     $nameResolved =  isset($userMetadata) && trim("{$userMetadata['firstName']} {$userMetadata['lastName']}") !== "" ?
-                        "{$userMetadata['firstName']} {$userMetadata['lastName']} " : $item['resolvedBy'];
+                        "{$userMetadata['firstName']} {$userMetadata['lastName']}" : $item['resolvedBy'];
                     $data[$item['recordID']]['recordResolutionBy']['resolvedBy'] = $nameResolved;
                 }
             }
@@ -4234,6 +4268,11 @@ class Form
         // check for orphaned indicators
         foreach ($res as $item)
         {
+            // Skip built-in forms unless requested to avoid clutter
+            if(substr($item['categoryID'], 0, 5) == 'leaf_' && !isset($_GET['dev'])) {
+                continue;
+            }
+
             if (!$this->isIndicatorOrphan($item, $isActiveIndicator))
             {
                 // make sure the field's category isn't a member of a deleted category

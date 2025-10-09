@@ -523,6 +523,20 @@ function doSubmit(recordID) {
             let comparison = false;
 
             for (let i in conditions) {
+                /* Validate outcome:
+                confirm child, i, has hide/show conditions that need to be processed.
+                Log a message to assist with debugging if it is configured with both directives. */
+                let outcomes = [];
+                if (conditions.some(c => c.selectedOutcome.toLowerCase() === "hide")) outcomes.push("hide");
+                if (conditions.some(c => c.selectedOutcome.toLowerCase() === "show")) outcomes.push("show");
+                if (outcomes.length > 1) {
+                    console.warn("Conflicting display conditions: check setup for", c);
+                }
+                if (outcomes.length < 1) {
+                    continue;
+                }
+                const outcome = outcomes[0];
+
                 const parentFormat = conditions[i].parentFormat.toLowerCase();
                 const elParentInd = document.getElementById('data_' + conditions[i].parentIndID +
                     '_1'); //dropdown, text and radio elements
@@ -532,9 +546,8 @@ function doSubmit(recordID) {
                 selectedParentOptionsLI.forEach(li => arrParVals.push(li.textContent.trim()));
 
                 const elChildInd = document.getElementById('subIndicator_' + conditions[i].childIndID + '_1');
-                const outcome = conditions[i].selectedOutcome.toLowerCase();
 
-                if (['hide', 'show'].includes(outcome) && childFormatIsEnabled && (elParentInd !== null ||
+                if (childFormatIsEnabled && (elParentInd !== null ||
                         selectedParentOptionsLI !== null)) {
 
                     if (comparison !== true) { //no need to re-assess if it has already become true
@@ -545,24 +558,16 @@ function doSubmit(recordID) {
                             ];
                         val = val.filter(v => v !== '');
 
-                        let compVal = [];
-                        if (multiChoiceFormats.includes(parentFormat)) {
-                            compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
-                            compVal = compVal.map(v => v.trim());
-                        } else {
-                            compVal = [
-                                $('<div/>').html(conditions[i].selectedParentValue).text().trim()
-                            ];
-                        }
+                        let compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
+                        compVal = compVal.map(v => v.trim());
+
                         const op = conditions[i].selectedOp;
                         switch (op) {
                             case '==':
-                                comparison = multiChoiceFormats.includes(parentFormat) ?
-                                    valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] === compVal[0];
+                                comparison = valIncludesMultiselOption(val, compVal);
                                 break;
                             case '!=':
-                                comparison = multiChoiceFormats.includes(parentFormat) ?
-                                    !valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] !== compVal[0];
+                                comparison = !valIncludesMultiselOption(val, compVal);
                                 break;
                             case 'lt':
                             case 'lte':

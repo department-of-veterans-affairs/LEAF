@@ -38,7 +38,7 @@ export default {
             return (this.formNode?.html || '').trim() !== '' || (this.formNode?.htmlPrint || '').trim() !== '';
         },
         conditionalQuestion() {
-            return !this.isHeader && 
+            return !this.isHeader &&
                 this.formNode.conditions !== null && this.formNode.conditions !== '' & this.formNode.conditions !== 'null';
         },
         conditionsAllowed() {
@@ -49,9 +49,19 @@ export default {
             const contentRequired = this.required ? `<span class="required-sensitive">*&nbsp;Required</span>` : '';
             const shortLabel = (this.formNode?.description || '') !== '' && !this.previewMode ? `<span style="font-weight:normal"> (${this.formNode.description})</span>` : '';
             const staple = this.depth === 0 && this.formNode.categoryID !== this.focusedFormID ? `<span role="img" aria-hidden="true" alt="">📌&nbsp;</span>` : '';
-            const name = this.formNode.name.trim() !== '' ? 
-                '<span class="name">' + this.formNode.name.trim() + '</span>':
-                '<span class="name">[ blank ]</span>';
+
+            let indName = this.formNode.name.trim();
+            if (indName === "") {
+                indName = "[ blank ]";
+            }
+            let indSSN_warn = "";
+            if (false && /(SSN|social\s*security\s*number)/gmi.test(indName)) {
+                indSSN_warn = `<div class="entry_warning bg-yellow-5" style="margin-bottom:0.25rem;">
+                    <span role="img" alt="warning">⚠️</span>
+                </div>`
+            }
+            const name = indSSN_warn + '<span class="name">' + indName + '</span>';
+
             return `${page}${staple}${name}${shortLabel}${contentRequired}`;
         },
         hasSpecialAccessRestrictions() {
@@ -89,7 +99,8 @@ export default {
                             @click="openIfThenDialog(parseInt(indicatorID), formNode.name.trim())">
                             Modify Logic
                         </button>
-                        <button v-if="!isHeader" type="button" class="btn-general"
+                        <button v-if="!isHeader" type="button" :id="'add_question_to_' + indicatorID"
+                            class="btn-general"
                             title="add sub-question"
                             aria-label="add sub-question"
                             @click="newQuestion(indicatorID)">

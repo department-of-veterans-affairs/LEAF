@@ -15,6 +15,7 @@ use App\Leaf\Logger\DataActionLogger;
 use App\Leaf\Logger\Formatters\DataActions;
 use App\Leaf\Logger\Formatters\LoggableTypes;
 use App\Leaf\Logger\LogItem;
+use App\Leaf\XSSHelpers;
 
 class Workflow
 {
@@ -160,11 +161,24 @@ class Workflow
         return $res;
     }
 
+    public function getStepActions(int $stepID): array
+    {
+        $vars = array(':stepID' => $stepID);
+        $sql = 'SELECT actionType, actionText FROM `workflow_routes`
+                    LEFT JOIN actions USING (actionType)
+                    WHERE stepID=:stepID';
+
+        $res = $this->db->prepared_query($sql, $vars);
+
+        return $res;
+    }
+
     public function getAllWorkflowSteps()
     {
         $vars = [];
         $query = 'SELECT * FROM `workflow_steps`
                   LEFT JOIN `workflows` USING (`workflowID`)
+                  LEFT JOIN `step_modules` USING (`stepID`)
                   ORDER BY `description`, `stepTitle`';
         $res = $this->db->pdo_select_query($query, $vars); // The response from Db.php is properly formatted using pdo_select_query.
         return $res;
@@ -535,6 +549,9 @@ class Workflow
             return 'System Events Cannot Be Modified.';
         }
 
+        $newName = XSSHelpers::scrubFilename($newName);
+        $name = XSSHelpers::scrubFilename($name);
+
         if ($name === null || $newName === null || $type === null) {
             return 'Event not found, please try again.';
         }
@@ -566,8 +583,8 @@ class Workflow
                 )
             )
         );
-        $strSQL = "UPDATE events 
-            SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData 
+        $strSQL = "UPDATE events
+            SET eventID=:newEventID, eventDescription=:eventDescription, eventType=:eventType, eventData=:eventData
             WHERE eventID=:eventID";
         $this->db->prepared_query($strSQL, $vars);
 
@@ -873,53 +890,51 @@ class Workflow
         return true;
     }
 
-    public function unlinkDependency($stepID, $dependencyID)
+    /**
+     * @param mixed $stepID
+     * @param mixed $dependencyID
+     *
+     * @return bool|string
+     *
+     */
+    public function unlinkDependency($stepID, $dependencyID): bool|string
     {
-        if (!$this->login->checkGroup(1))
-        {
-            return 'Admin access required.';
+        $return_value = true;
+
+        if (!$this->login->checkGroup(1)) {
+            $return_value = 'Admin access required.';
+        } else if ($stepID < 0) {
+            $return_value = 'Restricted command.';
+        } else {
+            $this->deleteStepDependency($stepID, $dependencyID);
+            $this->cleanUpDbAfterDependencyDelete($stepID, $dependencyID);
+
+            $depVars = array(':dependencyID' => $dependencyID);
+            $dep = $this->db->prepared_query("SELECT `description` FROM dependencies WHERE dependencyID=:dependencyID", $depVars)[0];
+            $depDescr = $dep["description"];
+
+            $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::STEP_DEPENDENCY, [
+                new LogItem("workflows", "workflowID", $this->workflowID),
+                new LogItem("step_dependencies", "stepID",  $stepID),
+                new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr." (#".$dependencyID.")")
+            ]);
         }
 
-        // Don't allow changes to standardized components
-        if($stepID < 0) {
-            return 'Restricted command.';
-        }
-
-        $vars = array(':stepID' => $stepID,
-            ':dependencyID' => $dependencyID,
-        );
-        $res = $this->db->prepared_query('DELETE FROM step_dependencies
-    										WHERE stepID=:stepID
-    											AND dependencyID=:dependencyID', $vars);
-
-        // clean up database
-        $this->db->prepared_query('DELETE records_dependencies FROM records_dependencies
-    								INNER JOIN category_count USING (recordID)
-    								INNER JOIN categories USING (categoryID)
-    								INNER JOIN workflow_steps USING (workflowID)
-    								WHERE stepID=:stepID
-    									AND dependencyID=:dependencyID
-    									AND filled=0
-                                        AND records_dependencies.time IS NULL', $vars);
-
-        $depVars = array(':dependencyID' => $dependencyID);
-        $dep = $this->db->prepared_query("SELECT `description` FROM dependencies WHERE dependencyID=:dependencyID", $depVars)[0];
-        $depDescr = $dep["description"];
-
-        $this->dataActionLogger->logAction(DataActions::DELETE, LoggableTypes::STEP_DEPENDENCY, [
-            new LogItem("workflows", "workflowID", $this->workflowID),
-            new LogItem("step_dependencies", "stepID",  $stepID),
-            new LogItem("step_dependencies", "dependencyID",  $dependencyID, $depDescr." (#".$dependencyID.")")
-        ]);
-
-        return true;
+        return $return_value;
     }
 
+    // updateDependency updates the description associated with $dependencyID
     public function updateDependency($dependencyID, $description)
     {
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
+        }
+
+        // Don't allow changes to standardized dependencies
+        if($dependencyID < 0) {
+            http_response_code(400);
+            return 'description may not be updated for this requirement';
         }
 
         $vars = array(':dependencyID' => $dependencyID,
@@ -964,6 +979,15 @@ class Workflow
         if (!$this->login->checkGroup(1))
         {
             return 'Admin access required.';
+        }
+
+        $reservedDependencyIDs = [
+            1, // Service Chief
+            8 // Quadrad
+        ];
+        if($dependencyID < 0 || in_array($dependencyID, $reservedDependencyIDs)) {
+            http_response_code(400);
+            return 'groups may not be added to this requirement';
         }
 
         $vars = array(':dependencyID' => $dependencyID,
@@ -1706,4 +1730,64 @@ class Workflow
         return 1;
     }
 
+    /**
+     * @param int $stepID
+     * @param int $dependencyID
+     *
+     * @return void
+     *
+     */
+    private function cleanUpDbAfterDependencyDelete(int $stepID, int $dependencyID): void
+    {
+        $vars = array(':stepID' => $stepID,
+            ':dependencyID' => $dependencyID,
+        );
+        $sql = 'DELETE `records_dependencies`
+                FROM `records_dependencies`
+                INNER JOIN `category_count` USING (`recordID`)
+                INNER JOIN `categories` USING (`categoryID`)
+                INNER JOIN `workflow_steps` USING (`workflowID`)
+                WHERE `stepID` = :stepID
+                AND `dependencyID` = :dependencyID
+                AND `filled` = 0
+                AND `records_dependencies`.`time` IS NULL';
+
+        $this->db->prepared_query($sql, $vars);
+
+        // if deleting person designated or group designated then the indicator
+        // needs to be cleared in the workflow_steps table as well
+        if ($dependencyID === -1) {
+            unset($vars[':dependencyID']);
+            $sql2 = 'UPDATE `workflow_steps`
+                    SET `indicatorID_for_assigned_empUID` = NULL
+                    WHERE `stepID` = :stepID';
+        } else if ($dependencyID === -3) {
+            unset($vars[':dependencyID']);
+            $sql2 = 'UPDATE `workflow_steps`
+                    SET `indicatorID_for_assigned_groupID` = NULL
+                    WHERE `stepID` = :stepID';
+        }
+
+        $this->db->prepared_query($sql2, $vars);
+    }
+
+    /**
+     * @param int $stepID
+     * @param int $dependencyID
+     *
+     * @return void
+     *
+     */
+    private function deleteStepDependency(int $stepID, int $dependencyID): void
+    {
+        $vars = array(':stepID' => $stepID,
+            ':dependencyID' => $dependencyID,
+        );
+        $sql = 'DELETE
+                FROM `step_dependencies`
+                WHERE `stepID` = :stepID
+                AND `dependencyID` = :dependencyID';
+
+        $this->db->prepared_query($sql, $vars);
+    }
 }

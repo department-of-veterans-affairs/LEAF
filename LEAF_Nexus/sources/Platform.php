@@ -35,7 +35,7 @@ class Platform
 
     public function getLaunchpadSites(): array
     {
-        $orgchart_path = strpos(LEAF_NEXUS_URL, 'host.docker.internal') ? str_replace('/orgchart', '', trim(PORTAL_PATH, '/')) : trim(PORTAL_PATH, '/');
+        $orgchart_path = strpos(LEAF_NEXUS_URL, HTTP_HOST) ? str_replace('/orgchart', '', trim(PORTAL_PATH, '/')) : trim(PORTAL_PATH, '/');
         $vars = array(':orgchart_path' => '/' . $orgchart_path);
         $sql = 'SELECT `launchpadID`, `site_path`, `portal_database`
                 FROM `sites`
@@ -56,6 +56,6 @@ class Platform
 
         $tags = $portal_db->prepared_query($sql, $vars);
 
-        return json_decode($tags[0]['data'], true);
+        return json_decode($tags[0]['data'], true) ?? array();
     }
 }

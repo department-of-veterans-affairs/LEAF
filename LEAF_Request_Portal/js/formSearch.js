@@ -194,6 +194,17 @@ var LeafFormSearch = function (containerID) {
         }
     }
 
+    function scrubHTML(input) {
+        if(input == undefined) {
+            return '';
+        }
+        let t = new DOMParser().parseFromString(input, 'text/html').body;
+        while(input != t.textContent) {
+            return scrubHTML(t.textContent);
+        }
+        return t.textContent;
+    }
+
     /**
      * @memberOf LeafFormSearch
      * prevQuery - optional JSON object
@@ -1031,6 +1042,11 @@ var LeafFormSearch = function (containerID) {
             case "data":
                 let resultFilter =
                     "?x-filterData=indicatorID,categoryName,name,format";
+                let urlParams = new URLSearchParams(window.location.search);
+                if(urlParams.has('dev')) {
+                    resultFilter += '&dev';
+                }
+                
                 url =
                     rootURL === ""
                         ? `./api/form/indicator/list${resultFilter}`
@@ -1053,17 +1069,34 @@ var LeafFormSearch = function (containerID) {
                         indicators +=
                             '<option value="' +
                             ALL_OC_EMPLOYEE_DATA_FIELDS +
-                            '">Any Org. Chart employee field</option>';
+                            '">Any Employee field</option>';
+
+                        // Organize by form type
+                        let indicatorsByForm = {};
                         for (var i in res) {
-                            indicators +=
-                                '<option value="' +
-                                res[i].indicatorID +
-                                '">' +
-                                res[i].categoryName +
-                                ": " +
-                                res[i].name +
-                                "</option>";
+                            if(indicatorsByForm[res[i].categoryName] == undefined) {
+                                indicatorsByForm[res[i].categoryName] = [];
+                            }
+                            res[i].name = scrubHTML(res[i].name);
+                            indicatorsByForm[res[i].categoryName].push(res[i]);
                         }
+
+                        var collator = new Intl.Collator("en", {
+                            numeric: true,
+                            sensitivity: "base",
+                        });
+                        let formNames = Object.keys(indicatorsByForm);
+                        formNames.sort();
+                        formNames.forEach(key => {
+                            indicatorsByForm[key].sort((a, b) => collator.compare(a.name, b.name));
+                            indicators += `<optgroup label="${key}">`;
+
+                            indicatorsByForm[key].forEach(res => {
+                                indicators += `<option value="${res.indicatorID}">${scrubHTML(res.name)}</option>`;
+                            });
+                            indicators += '</optgroup>';
+                        });
+
                         indicators += "</select><br />";
                         $("#" + prefixID + "widgetTerm_" + widgetID).after(
                             indicators
@@ -1130,7 +1163,7 @@ var LeafFormSearch = function (containerID) {
                                             prefixID +
                                             "widgetCod_" +
                                             widgetID +
-                                            '" value="=" /> IS'
+                                            '" value="=" /> CONTAINS'
                                     );
                                     $(
                                         "#" +
@@ -1749,7 +1782,7 @@ var LeafFormSearch = function (containerID) {
                 .children[0].children[2].setAttribute("colspan", "2"); // Resize col
             document.getElementById(
                 prefixID + "searchTerms"
-            ).children[0].children[2].style.width = "175px";
+            ).children[0].children[2].style.width = "225px";
             document.getElementById(
                 prefixID + "searchTerms"
             ).children[0].children[3].style.width = "130px";
