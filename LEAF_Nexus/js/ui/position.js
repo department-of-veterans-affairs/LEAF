@@ -86,7 +86,7 @@ position.prototype.initialize = function (parentContainerID) {
     const elContainer = elem.parentNode;
     const containerBounding = elContainer.getBoundingClientRect();
 
-    const mouseX = mouse.pageX;
+    const mouseX = mouse.pageX - window.scrollX;
     const mouseY = mouse.pageY - window.scrollY;
     const roundFix = 2;
     return (
