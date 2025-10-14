@@ -59,6 +59,14 @@ $constraints_to_update = array(
                 "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
             ),
         ),
+        "category_count" => array(
+            "category_count_ibfk_1" => array(
+                "correctName" => "category_count_ibfk_1",
+                "foreignTable" => "categories",
+                "foreignKey" => "categoryID",
+                "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",  
+            ),
+        ),
         "category_privs" => array(
             "category_privs_ibfk_2" => array(
                 "correctName" => "category_privs_ibfk_2",
@@ -78,6 +86,22 @@ $constraints_to_update = array(
         "dependency_privs" => array(
             "fk_privs_dependencyID" => array(
                 "correctName" => "fk_privs_dependencyID",
+                "foreignTable" => "dependencies",
+                "foreignKey" => "dependencyID",
+                "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
+            ),
+        ),
+        "indicators" => array(
+            "indicators_ibfk_1" => array(
+                "correctName" => "indicators_ibfk_1",
+                "foreignTable" => "categories",
+                "foreignKey" => "categoryID",
+                "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
+            ),
+        ),
+        "records_dependencies" => array(
+            "fk_records_dependencyID" => array(
+                "correctName" => "fk_records_dependencyID",
                 "foreignTable" => "dependencies",
                 "foreignKey" => "dependencyID",
                 "constraint" => "ON DELETE RESTRICT ON UPDATE RESTRICT",
