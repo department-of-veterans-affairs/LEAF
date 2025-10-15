@@ -20,6 +20,11 @@ class WorkflowFormatter
             "message"=>"removed <strong>workflow step:</strong> %s",
             "variables"=>"stepTitle"
         ],
+        DataActions::MODIFY.'-'.LoggableTypes::STEP_MODULE => [
+            "message"=>"changed form field to %s in <strong>workflow step:</strong> %s",
+            "variables"=>"moduleConfig,stepID",
+            "loggableColumns"=>"moduleConfig"
+        ],
         DataActions::MODIFY.'-'.LoggableTypes::WORKFLOW_STEP => [
             "message"=>"<strong>workflow step:</strong> %s",
             "variables"=>"stepID,".FormatOptions::READ_COLUMN_NAMES,
