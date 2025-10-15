@@ -67,20 +67,52 @@
 /* Dark mode colors */
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Header */
+    --bg-header: linear-gradient(#131314, #29354F);
+    --bg-warning: #9A0603;
+    --text-warning: #ffffff;
+    --border-warning: #000000;
+    --text-header-link: #3C93FC;
+    --menu-bg: #162E51;
+    --menu-hover-bg: #4A77B4;
+
+    /* Side menu */
+    --bg-card-1: #2372B0;
+    --bg-card-2: #216E1F;
+    --bg-card-3: #2E8367;
+    --bg-card-4: #000000;
+    --text-cards: #FFFFFF;
+
+    /* Homepage Table */
+    --bg-homepage-table-header-primary: #162E51;
+    --bg-homepage-table-header-secondary: #1A4480;
+    --bg-homepage-table-header-hover-select: #4A77B4;
+    --bg-homepage-table-row-primary: #DFE1E2;
+    --bg-homepage-table-row-secondary: #A9AEB1;
+    --text-homepage-table-header: #FFFFFF;
+    --text-homepage-table-row: #1A1A1A;
+    --border-primary: #CACACA;
+    --border-secondary: #797979;
+
+    /* Primary dark mode colors */
+    --bg-primary: #71767A;
+    --bg-secondary: #A9AEB1;
+    --bg-tertiary: #C7CACE;
+    --bg-quaternary: #DFE1E2;
+
+    --text-primary: #DFDFDF;
+
+
+
     /* Background Colors */
     --bg-primary: #757575;
-    --bg-secondary: #2d2d2d;
-    --bg-tertiary: #404040;
     --bg-accent: #525252;
-    --bg-header: linear-gradient(#131314, #29354F);
     --bg-alert: #dc2626;
-    --bg-warning: #9A0603;
     --bg-success: #059669;
     --bg-button-header: #404040;
     --bg-button-primary: #2c608a;
 
     /* Text Colors */
-    --text-primary: #dfdfdf; /* USWDS gray 10 */
     --text-secondary: #d1d5db; /* USWDS cool gray 50 */
     --text-tertiary: #9ca3af; /* USWDS cool gray 60 */
     --text-muted: #6b7280; /* USWDS cool gray 70 */
@@ -119,8 +151,6 @@
     --table-border: #2d2d2d;
 
     /* Menu, Toolbar, and Comments Background Colors */
-    --menu-bg: #2d2d2d;
-    --menu-hover-bg: #374151;
     --toolbar-bg: #1f2937;
     --comments-bg: #451a03;
     --comments-item-bg: #78350f;
@@ -226,7 +256,7 @@ span#headerLabel {
 
 @media (prefers-color-scheme: dark) {
   span#headerLabel {
-    color: var(--text-header-link);
+    color: var(--text-primary);
   }
 }
 
@@ -251,6 +281,28 @@ span#headerLabel {
 /* =============================================================================
    CONTENT AREAS
    ============================================================================= */
+
+#card1, #card2, #card3, #card4 {
+  color: var(--text-cards);
+  border-color: var(--border-primary);
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+#card1 {
+  background-color: var(--bg-card-1);
+}
+
+#card2 {
+  background-color: var(--bg-card-2);
+}
+
+#card3 {
+  background-color: var(--bg-card-3);
+}
+
+#card4 {
+  background-color: var(--bg-card-4);
+}
 
 #content {
   background-color: var(--bg-primary);
@@ -371,13 +423,13 @@ table {
 table.table,
 table.leaf_grid,
 table.agenda {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-homepage-table-row-primary);
   border-color: var(--table-border);
 }
 
 .table > thead,
 table.leaf_grid th {
-  background-color: var(--table-header-bg);
+  background-color: var(--bg-homepage-table-header-primary);
   color: var(--table-header-color);
 }
 
@@ -396,7 +448,7 @@ table.leaf_grid td,
 
 table.leaf_grid th:hover,
 table.leaf_grid th:focus {
-  background-color: var(--hover-bg);
+  background-color: var(--bg-homepage-table-header-secondary);
   color: var(--hover-text);
 }
 
@@ -1089,7 +1141,7 @@ span.printResponse {
 
     [style*="background-color: rgb(254, 255, 209)"],
     [style*="background-color:rgb(254, 255, 209)"] {
-        background-color: #a9aeb1 !important;
+        background-color: var(--bg-homepage-table-row-secondary) !important;
     }
 
     [style*="background-color: white"],
