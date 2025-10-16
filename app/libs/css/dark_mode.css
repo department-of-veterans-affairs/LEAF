@@ -8,60 +8,49 @@
   /* Light mode colors (default) */
 
   /* Background Colors */
-  --bg-primary: #f3f3f3; /* USWDS cool gray 40 */
-    --bg-secondary: #1F2937; /* USWDS cool gray 80 */
-    --bg-tertiary: #1F2937; /* USWDS cool gray 80 */
-    --bg-accent: #2D3748; /* USWDS cool gray 60 */
-    --bg-header: #c6cace;
-    --bg-alert: #e52207; /* VA red 90 */
-    --bg-warning: #fee685; /* VA red 80 */
-    --bg-success: #22543D; /* USWDS green 90 */
-    --bg-button-header: #c6cace;
-    --bg-button-primary: #d9e8f6;
+  --bg-header: linear-gradient(#F3F3F3, #BBCAE4);
+  --bg-warning: #9D0000;
+  --text-warning: #ffffff;
+  --border-warning: #000000;
+  --text-header-link: #004B76;
+  --menu-bg: #E8F2FF;
+  --menu-hover-bg: #2372B0;
 
-    /* Text Colors */
-    --text-primary: #2e2e2e; /* USWDS gray 10 */
-    --text-secondary: #A0AEC0; /* USWDS cool gray 50 */
-    --text-tertiary: #718096; /* USWDS cool gray 60 */
-    --text-muted: #4A5568; /* USWDS cool gray 70 */
-    --text-inverse: #0C0C0C; /* USWDS cool gray 90 */
-    --text-link: #2378c3; /* VA blue 70 */
-    --text-link-hover: #ECC94B; /* VA yellow 60 */
-    --text-warning: #0c0c0c;
+  /* Side menu */
+  --bg-card-1: #2372B0;
+  --bg-card-2: #B6EF6D;
+  --bg-card-3: #7EB2B3;
+  --bg-card-4: #000000;
+  --text-cards-light: #FFFFFF;
+  --text-cards-dark: #000000;
 
-    /* Border Colors */
-    --border-primary: #2D3748; /* USWDS cool gray 70 */
-    --border-secondary: #1A202C; /* USWDS cool gray 80 */
-    --border-tertiary: #4B5563; /* USWDS cool gray 70 */
-    --border-light: #1A202C; /* USWDS cool gray 80 */
+  /* Homepage Table */
+  --bg-homepage-table-header-primary: #D1DFFF;
+  --bg-homepage-table-header-secondary: #79A2FF;
+  --bg-homepage-table-header-hover-select: #79A2FF;
+  --bg-homepage-table-row-primary: #FFFFFF;
+  --bg-homepage-table-row-secondary: #FEFFD1;
+  --text-homepage-table-header: #000000;
+  --text-homepage-table-row: #000000;
+  --border-table-primary: #000000;
+  --border-table-secondary: #000000;
 
-    /* Additional Colors */
-    --shadow-color: rgba(0, 0, 0, 1);
-    --hover-bg: #1E40AF; /* USWDS blue 70 */
-    --hover-text: white;
+  /* Primary light mode colors */
+  --bg-primary: #F3F3F3;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #C7CACE;
+  --bg-quaternary: #DFE1E2;
 
-    /* Component Specific Dark Colors */
-    --position-bg: #1A202C; /* USWDS cool gray 80 */
-    --position-title-bg: #2C5282; /* VA blue 70 */
-    --group-bg: #553C9A; /* USWDS purple 80 */
-    --group-title-bg: #9F7AEA; /* VA violet 70 */
-    --employee-bg: #9B2C2C; /* VA red 90 */
-    --employee-title-bg: #C53030; /* VA red 80 */
-    --facility-bg: #1F2937; /* USWDS cool gray 80 */
-    --facility-header-bg: #0a0f16; /* Custom dark */
+  --text-primary: #000000;
 
-    /* Table Specific Dark Colors */
-    --table-header-bg: #2378c3; /* USWDS cool gray 90 */
-    --table-header-color: #e7f6f8;
-    --table-row-bg: #adadad; /* USWDS cool gray 90 */
-    --table-border: #1A202C; /* USWDS cool gray 70 */
+  --bg-button-primary: #E8F2FF;
+  --bg-button-primary-hover: #2372B0;
+  --text-button-primary-hover: #FFFFFF;
 
-    /* Menu, Toolbar, and Comments Background Colors */
-    --menu-bg: #c6cace; /* USWDS cool gray 90 */
-    --menu-hover-bg: #1E3A8A; /* USWDS blue 70 */
-    --toolbar-bg: #111827; /* USWDS cool gray 90 */
-    --comments-bg: #321B11; /* USWDS brown 90 */
-    --comments-item-bg: #5D2D13; /* USWDS brown 90 */
+  --bg-input-box-primary: #F3F3F3;
+
+  --bg-counter: #000000;
+  --text-counter: #FFFFFF;
 }
 
 /* Dark mode colors */
@@ -81,7 +70,8 @@
     --bg-card-2: #216E1F;
     --bg-card-3: #2E8367;
     --bg-card-4: #000000;
-    --text-cards: #FFFFFF;
+    --text-cards-light: #FFFFFF;
+    --text-cards-dark: #FFFFFF; /* backwards compat */
 
     /* Homepage Table */
     --bg-homepage-table-header-primary: #162E51;
@@ -108,57 +98,8 @@
 
     --bg-input-box-primary: #F3F3F3;
 
-
-    /* Background Colors */
-    --bg-primary: #757575;
-    --bg-accent: #525252;
-    --bg-alert: #dc2626;
-    --bg-success: #059669;
-    --bg-button-header: #404040;
-
-
-    /* Text Colors */
-    --text-secondary: #d1d5db; /* USWDS cool gray 50 */
-    --text-tertiary: #9ca3af; /* USWDS cool gray 60 */
-    --text-muted: #6b7280; /* USWDS cool gray 70 */
-    --text-inverse: #1a1a1a; /* USWDS cool gray 90 */
-    --text-link: #1e40af; /* VA blue 70 */
-    --text-header-link: #60a5fa;
-    --text-link-hover: #93c5fd; /* VA yellow 60 */
-    --text-warning: #ffffff;
-
-    /* Border Colors */
-    --border-primary: #525252; /* USWDS cool gray 70 */
-    --border-secondary: #404040; /* USWDS cool gray 80 */
-    --border-tertiary: #6b7280; /* USWDS cool gray 70 */
-    --border-light: #374151; /* USWDS cool gray 80 */
-    --border-warning: #000000;
-
-    /* Additional Colors */
-    --shadow-color: rgba(0, 0, 0, .5);
-    --hover-bg: #1e40af; /* USWDS blue 70 */
-    --hover-text: #f5f5f5;
-
-    /* Component Specific Dark Colors */
-    --position-bg: #2d2d2d; /* USWDS cool gray 80 */
-    --position-title-bg: #1e40af; /* VA blue 70 */
-    --group-bg: #4c1d95; /* USWDS purple 80 */
-    --group-title-bg: #7c3aed;
-    --employee-bg: #7f1d1d;
-    --employee-title-bg: #dc2626;
-    --facility-bg: #1a1a1a;
-    --facility-header-bg: #111827;
-
-    /* Table Specific Dark Colors */
-    --table-header-bg: #374151;
-    --table-header-color: #f3f4f6;
-    --table-row-bg: #a9aeb1;
-    --table-border: #2d2d2d;
-
-    /* Menu, Toolbar, and Comments Background Colors */
-    --toolbar-bg: #1f2937;
-    --comments-bg: #451a03;
-    --comments-item-bg: #78350f;
+    --bg-counter: #1A1A1A;
+    --text-counter: #F3F3F3;
   }
 }
 
@@ -176,14 +117,6 @@ body a:visited {
   color: var(--text-header-link);
 }
 
-body a:hover {
-  color: var(--text-link-hover);
-}
-
-span {
-  color: var(--text-primary);
-}
-
 table.leaf_grid tr td a:link,
 table.leaf_grid tr td a:visited {
   color: var(--text-link);
@@ -191,8 +124,8 @@ table.leaf_grid tr td a:visited {
 
 table.leaf_grid tr td span.browsecounter a:link,
 table.leaf_grid tr td span.browsecounter a:visited {
-  background-color: var(--bg-header);
-  color: var(--text-homepage-table-row);
+  background-color: var(--bg-counter);
+  color: var(--text-counter);
 }
 
 .table_editable:hover > .browsetypes {
@@ -203,19 +136,26 @@ table.leaf_grid tr td span.browsecounter a:visited {
 table.leaf_grid tr td:hover span.browsecounter,
 table.leaf_grid tr td:hover span.browsecounter a {
   color: var(--text-homepage-table-header) !important;
+  background-color: var(--bg-homepage-table-header-hover-select) !important;
 }
 
 table.leaf_grid tr td:hover > a {
   color: var(--text-homepage-table-header) !important;
+  background-color: var(--bg-homepage-table-header-hover-select) !important;
 }
 
 table.leaf_grid tr td:hover span.browsetypes {
   color: var(--text-homepage-table-header);
+  background-color: var(--bg-homepage-table-header-hover-select) !important;
 }
 
 span.browsetypes {
     font-size: 11px;
     color: var(--text-homepage-table-row);
+}
+
+span#headerHelp {
+  color: var(--text-primary);
 }
 
 input {
@@ -279,7 +219,7 @@ select {
 }
 
 span#headerLabel {
-  color: var(--text-link);
+  color: var(--text-header-link);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -312,24 +252,27 @@ span#headerLabel {
    ============================================================================= */
 
 #card1, #card2, #card3, #card4 {
-  color: var(--text-cards);
   border-color: var(--border-primary);
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
 #card1 {
+  color: var(--text-cards-light);
   background-color: var(--bg-card-1);
 }
 
 #card2 {
+  color: var(--text-cards-dark);
   background-color: var(--bg-card-2);
 }
 
 #card3 {
+  color: var(--text-cards-dark);
   background-color: var(--bg-card-3);
 }
 
 #card4 {
+  color: var(--text-cards-light);
   background-color: var(--bg-card-4);
 }
 
@@ -349,7 +292,7 @@ span#headerLabel {
 
 .warning {
   background-color: var(--bg-warning);
-  border: 1px solid;
+  border: 2px solid;
   border-color: var(--border-warning);
   font-weight: bold;
   font-size: 16px;
@@ -459,7 +402,7 @@ table.agenda {
 .table > thead,
 table.leaf_grid th {
   background-color: var(--bg-homepage-table-header-primary);
-  color: var(--table-header-color);
+  color: var(--text-homepage-table-header);
 }
 
 .table > tbody,
@@ -478,19 +421,21 @@ table.leaf_grid td,
 table.leaf_grid th:hover,
 table.leaf_grid th:focus {
   background-color: var(--bg-homepage-table-header-secondary);
-  color: var(--hover-text);
+  color: var(--text-homepage-table-header);
 }
 
 .table_editable:hover {
   background-color: var(--bg-homepage-table-header-hover-select);
-  color: var(--hover-text);
+  color: var(--text-homepage-table-header);
 }
 table.leaf_grid tr td span.browsecounter a:hover {
   color: var(--text-homepage-table-header);
+  background-color: var(--bg-homepage-table-header-hover-select);
 }
 
 .table_editable:hover a {
-  color: var(--hover-text);
+  color: var(--text-homepage-table-header);
+  background-color: var(--bg-homepage-table-header-hover-select);
 }
 
 table.leaf_grid thead tr th, table.leaf_grid tbody tr td, table.leaf_grid tfoot tr td {
