@@ -168,9 +168,7 @@ img {
 #header {
   font-family: Verdana, sans-serif;
   font-weight: bold;
-  background: var(--bg-header);
-  background-size: 100% 100%;
-  width: 100%;
+  background-image: linear-gradient(#F3F3F3, #BBCAE4);
   height: 80px;
   border-bottom: 2px solid #5a79a5;
   margin-bottom: 4px;

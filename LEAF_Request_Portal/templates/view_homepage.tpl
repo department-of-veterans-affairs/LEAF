@@ -3,6 +3,9 @@
         $('#body').html('<h1>Please use Microsoft Edge or Google Chrome to access this site.</h1>');
     }
 </script>
+<style type="text/css" media="screen">
+    @import "<!--{$app_js_path}-->/../css/dark_mode.css";
+</style>
 <div class="menu2" style="width: 315px; float: left">
 
 <a href="?a=newform" role="button">

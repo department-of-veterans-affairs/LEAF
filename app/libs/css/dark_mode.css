@@ -91,8 +91,8 @@
     --bg-homepage-table-row-secondary: #A9AEB1;
     --text-homepage-table-header: #FFFFFF;
     --text-homepage-table-row: #1A1A1A;
-    --border-primary: #CACACA;
-    --border-secondary: #797979;
+    --border-table-primary: #CACACA;
+    --border-table-secondary: #797979;
 
     /* Primary dark mode colors */
     --bg-primary: #71767A;
@@ -102,6 +102,11 @@
 
     --text-primary: #DFDFDF;
 
+    --bg-button-primary: #4A77B4;
+    --bg-button-primary-hover: #BBCAE4;
+    --text-button-primary-hover: #000000;
+
+    --bg-input-box-primary: #F3F3F3;
 
 
     /* Background Colors */
@@ -110,7 +115,7 @@
     --bg-alert: #dc2626;
     --bg-success: #059669;
     --bg-button-header: #404040;
-    --bg-button-primary: #2c608a;
+
 
     /* Text Colors */
     --text-secondary: #d1d5db; /* USWDS cool gray 50 */
@@ -187,18 +192,41 @@ table.leaf_grid tr td a:visited {
 table.leaf_grid tr td span.browsecounter a:link,
 table.leaf_grid tr td span.browsecounter a:visited {
   background-color: var(--bg-header);
-  color: var(--text-primary);
+  color: var(--text-homepage-table-row);
+}
+
+.table_editable:hover > .browsetypes {
+  color: var(--text-homepage-table-header);
+}
+
+/* Hover state for table cells - make all text elements match browsetypes color */
+table.leaf_grid tr td:hover span.browsecounter,
+table.leaf_grid tr td:hover span.browsecounter a {
+  color: var(--text-homepage-table-header) !important;
+}
+
+table.leaf_grid tr td:hover > a {
+  color: var(--text-homepage-table-header) !important;
+}
+
+table.leaf_grid tr td:hover span.browsetypes {
+  color: var(--text-homepage-table-header);
 }
 
 span.browsetypes {
     font-size: 11px;
-    color: var(--text-inverse);
+    color: var(--text-homepage-table-row);
 }
 
 input {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   border-color: var(--border-tertiary);
+}
+
+#headerMenu_container .menuDescSmall,
+#headerMenu_container .menuTextSmall {
+  color: var(--text-homepage-table-row);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -239,7 +267,7 @@ select {
    ============================================================================= */
 
 #header {
-  background-color: var(--bg-header);
+  background-image: var(--bg-header);
 }
 
 #headerDescription {
@@ -247,7 +275,7 @@ select {
 }
 
 #headerHelp #divider {
-  color: var(--text-warning);
+  color: var(--text-primary);
 }
 
 span#headerLabel {
@@ -276,6 +304,7 @@ span#headerLabel {
   background-color: var(--bg-secondary);
   border-color: var(--border-primary);
   box-shadow: 0 2px 6px var(--shadow-color);
+  color: var(--text-homepage-table-row);
 }
 
 /* =============================================================================
@@ -441,9 +470,9 @@ table.leaf_grid > tbody {
 .table td,
 table.leaf_grid td,
 .agenda td {
-  border-color: var(--table-border);
-  background-color: var(--table-row-bg);
-  color: var(--text-inverse);
+  border-color: var(--border-table-primary);
+  background-color: var(--bg-homepage-table-row-primary);
+  color: var(--text-homepage-table-row);
 }
 
 table.leaf_grid th:hover,
@@ -453,8 +482,11 @@ table.leaf_grid th:focus {
 }
 
 .table_editable:hover {
-  background-color: var(--hover-bg);
+  background-color: var(--bg-homepage-table-header-hover-select);
   color: var(--hover-text);
+}
+table.leaf_grid tr td span.browsecounter a:hover {
+  color: var(--text-homepage-table-header);
 }
 
 .table_editable:hover a {
@@ -462,8 +494,8 @@ table.leaf_grid th:focus {
 }
 
 table.leaf_grid thead tr th, table.leaf_grid tbody tr td, table.leaf_grid tfoot tr td {
-    border-bottom: 1px solid var(--table-border);
-    border-right: 1px solid var(--table-border);
+    border-bottom: 1px solid var(--border-table-primary);
+    border-right: 1px solid var(--border-table-primary);
     transition: filter 0.25s;
 }
 
@@ -489,14 +521,15 @@ a.headerButton {
 .headerButton:focus,
 button.headerButton:hover,
 button.headerButton:focus {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
+  background-color: var(--bg-homepage-table-header-hover-select);
+  color: var(--text-homepage-table-header);
 }
 
 .buttonNorm,
 button.buttonNorm {
   background-color: var(--bg-button-primary);
   color: var(--text-primary);
+  border-color: var(--border-table-primary);
 }
 
 .buttonNorm:hover,
@@ -504,8 +537,9 @@ button.buttonNorm {
 .buttonNorm:focus,
 button.buttonNorm:hover,
 button.buttonNorm:focus {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
+  background-color: var(--bg-button-primary-hover);
+  color: var(--text-button-primary-hover);
+  border-color: var(--border-warning);
 }
 
 .button {
@@ -602,11 +636,6 @@ span.leaf_check {
 #category_list > div:hover {
   background-color: var(--hover-bg);
   color: var(--hover-text);
-}
-
-#headerMenu_links,
-#headerMenu_help {
-  background-color: var(--bg-primary)
 }
 /* =============================================================================
    COMMENTS AND MESSAGING
@@ -869,8 +898,8 @@ span.printResponse {
   input[type="password"],
   textarea,
   select {
-    background-color: var(--bg-primary);
-    color: #e5e5e5;
+    background-color: var(--bg-input-box-primary);
+    color: var(--border-warning);
     border-color: #6b7280;
   }
 

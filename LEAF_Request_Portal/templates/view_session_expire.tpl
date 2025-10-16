@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css" media="screen">
         @import "css/style.css";
-        @import "{$app_js_path}/../css/dark_mode.css";
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
