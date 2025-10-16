@@ -37,7 +37,6 @@ $authCertURL = $protocol . AUTH_CERT_URL . '/auth_token/index.php?r=' . base64_e
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css" media="screen">
         @import "../css/style.css";
-        @import <?= APP_CSS_PATH . "/dark_mode.css" ?>;
     </style>
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
