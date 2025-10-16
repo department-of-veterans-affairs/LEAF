@@ -8,7 +8,7 @@ export default {
         'noForm',
         'mainFormID',
 
-        'openFormHistoryDialog',
+        'openHistoryDialog',
         'openConfirmDeleteFormDialog',
         'openEditCollaboratorsDialog',
     ],
@@ -96,7 +96,7 @@ export default {
         <ul>
             <template v-if="!noForm">
                 <li>
-                    <button type="button" @click="openFormHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history" aria-label="view form history">
+                    <button type="button" @click="openHistoryDialog(this.focusedFormRecord.categoryID)" title="view form history" aria-label="view form history">
                         <span role="img" aria-hidden="true" alt="">🕗&nbsp;</span>View History
                     </button>
                 </li>

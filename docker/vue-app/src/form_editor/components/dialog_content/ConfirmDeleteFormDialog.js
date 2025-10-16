@@ -1,5 +1,5 @@
 export default {
-    name: 'confirm-delete-dialog',
+    name: 'confirm-delete-form-dialog',
     inject: [
         'APIroot',
         'CSRFToken',

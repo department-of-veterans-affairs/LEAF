@@ -389,13 +389,7 @@ table[class$="SelectorTable"] th {
     border: 2px solid transparent;
 }
 
-/* Form History modal */
-#history-slice td {
-    font-size: 14px !important;
-}
-#history-page-buttons button#next, #history-slice button#prev {
-    width: 135px;
-}
+
 
 
 
@@ -500,8 +494,8 @@ table[class$="SelectorTable"] th {
         }
     }
     button#indicator_toolbar_toggle,
-    button[id^="addInternalUse_"],
-    button[id^="addStaple_"] {
+    button[id^="addInternalUse_"].btn-general,
+    button[id^="addStaple_"].btn-general {
         margin-bottom: 1rem;
         height: 2.25rem;
         width: 100%;

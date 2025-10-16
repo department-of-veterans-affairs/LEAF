@@ -235,14 +235,34 @@ td a.router-link {
         margin-top: 1em;
         #button_save {
             margin-right:auto;
+            &:disabled {
+                cursor:not-allowed;
+                background-color: #d8d8db;
+                color: $charcoal;
+                border: 2px solid $charcoal;
+            }
         }
         #button_cancelchange {
             margin-left: auto;
         }
     }
 }
+
+/* HistoryDialog component modal content */
 #history-slice td {
     word-break:break-word;
+    font-size: 14px !important;
+}
+#history-page-buttons button#next, #history-slice button#prev {
+    width: 135px;
+}
+
+/* BasicConfirm component modal content */
+#basic_confirm_dialog {
+    line-height: 1.3;
+    min-width: 300px;
+    max-width: 600px;
+    min-height: 150px;
 }
 
 

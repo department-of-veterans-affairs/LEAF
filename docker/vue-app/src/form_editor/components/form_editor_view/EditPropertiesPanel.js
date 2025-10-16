@@ -33,7 +33,7 @@ export default {
         'focusedFormIsSensitive',
         'updateCategoriesProperty',
         'openEditCollaboratorsDialog',
-        'openFormHistoryDialog',
+        'openHistoryDialog',
         'showLastUpdate',
         'truncateText',
         'decodeAndStripHTML',
@@ -226,7 +226,7 @@ export default {
         </div>
         <div v-if="!loading" id="edit-properties-other-properties">
             <div style="display:flex; justify-content: space-between;">
-                <button type="button" id="form_properties_last_update" @click.prevent="openFormHistoryDialog(focusedFormRecord.categoryID)"
+                <button type="button" id="form_properties_last_update" @click.prevent="openHistoryDialog(focusedFormRecord.categoryID)"
                     style="display: none;">
                 </button>
             </div>

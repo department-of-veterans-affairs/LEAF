@@ -195,6 +195,7 @@ switch ($action) {
                                             APP_JS_PATH . '/codemirror/addon/display/fullscreen.js',
                                             APP_JS_PATH . '/LEAF/XSSHelpers.js',
                                             APP_JS_PATH . '/choicesjs/choices.min.js',
+                                            APP_JS_PATH . '/jsPlumb/dom.jsPlumb-min.js',
                                             '../js/formQuery.js',
                                             '../js/formGrid.js',
                                             $site_paths['orgchart_path'] . '/js/employeeSelector.js',

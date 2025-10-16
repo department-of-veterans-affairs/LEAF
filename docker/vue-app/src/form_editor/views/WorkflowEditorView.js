@@ -1,0 +1,1025 @@
+import LeafFormDialog from "@/common/components/LeafFormDialog.js";
+import HistoryDialog from "@/common/components/HistoryDialog.js";
+import BasicConfirmDialog from "@/common/components/BasicConfirmDialog";
+import WorkflowActionDialog from "../components/dialog_content/WorkflowActionDialog";
+
+import WorkflowMenu from "../components/workflow_editor_view/WorkflowMenu";
+import WorkflowStepInfo from "../components/workflow_editor_view/WorkflowStepInfo";
+
+import { nextTick, computed } from 'vue';
+
+import '../LEAF_WorkflowEditor.scss';
+
+export default {
+    name: 'workflow-editor-view',
+    components: {
+        WorkflowMenu,
+        WorkflowStepInfo,
+
+        LeafFormDialog,
+        HistoryDialog,
+        WorkflowActionDialog,
+        BasicConfirmDialog,
+    },
+    data() {
+        return {
+            loading: true,
+
+            workflowMinHeight: 300,
+            spacerVector: { x:180, y:80 },
+            endStepDiffY: 160,
+
+            currentWorkflowID: null,
+            currentStepID: null,
+
+            workflowStepInfoType: '',
+
+            firstWorkflowID: 1,
+            allWorkflows: [],
+
+            steps: {},
+            localSteps: {
+                "-1": {
+                    stepID: -1,
+                    posX: null,
+                    posY: null
+                },
+                "0": {
+                    stepID: 0,
+                    posX: null,
+                    posY: null
+                }
+            },
+
+            routes: [],
+            workflowCategories: [],
+            workflowStepDependencies: {},
+
+            jsPlumbInstance: null,
+            currentJSPlumbParams: null,
+            endPoints: {},
+            endpointOptions: {
+                isSource: true,
+                isTarget: true,
+                endpoint: [ "Rectangle", { cssClass: "workflowEndpoint" } ],
+                paintStyle: { width: 48, height: 48 },
+                maxConnections: -1
+            },
+        }
+    },
+    inject: [
+        'APIroot',
+        'libsPath',
+        'CSRFToken',
+        'dialogData',
+        'getSiteSettings',
+        'isJSON',
+        'siteSettings',
+
+        'setDefaultAjaxResponseMessage',
+        'updateChosenAttributes',
+
+        'showFormDialog',
+        'dialogFormContent',
+        'openBasicConfirmDialog',
+        'openWorkflowActionDialog',
+    ],
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            vm.getSiteSettings();
+            vm.setDefaultAjaxResponseMessage();
+        });
+    },
+    beforeRouteLeave() {
+        this.jsPlumbInstance.reset();
+    },
+    mounted() {
+        this.loadWorkflowList(); //here instead of in created hook for better chosen plugin handling
+        this.setupJSPlumb();
+        console.log("mounted workflow editor view", Date.now())
+        document.addEventListener('mousedown', this.closeWorkflowStepInfo);
+    },
+    beforeUnmount() {
+        document.removeEventListener('mousedown', this.closeWorkflowStepInfo);
+    },
+    provide() {
+        return {
+            currentWorkflowID: computed(() => this.currentWorkflowID),
+            currentStep: computed(() => this.currentStep),
+
+            workflows: computed(() => this.workflows),
+            workflowsList: computed(() => this.workflowsList),
+            steps: computed(() => this.steps),
+            routes: computed(() => this.routes),
+            workflowCategories: computed(() => this.workflowCategories),
+
+            workflowStepInfoType: computed(() => this.workflowStepInfoType),
+            currentJSPlumbParams: computed(() => this.currentJSPlumbParams),
+
+            newWorkflow: this.newWorkflow,
+            createStep: this.createStep,
+            renameWorkflow: this.renameWorkflow,
+            duplicateWorkflow: this.duplicateWorkflow,
+            listActions: this.listActions,
+            listEvents: this.listEvents,
+            deleteWorkflow:this.deleteWorkflow,
+
+            createConnection: this.createConnection,
+            postActionConnection: this.postActionConnection,
+            postNewAction: this.postNewAction,
+            postEditAction: this.postEditAction,
+            loadWorkflow: this.loadWorkflow,
+
+            updateStepTitle: this.updateStepTitle,
+            postStepModule: this.postStepModule,
+            removeAction: this.removeAction,
+            redraw: this.redraw,
+            closeWorkflowStepInfo: this.closeWorkflowStepInfo,
+        }
+    },
+    computed: {
+        /**
+         * @returns current url workflowID value as int
+         */
+        routeQueryWorkflowID() {
+            return +this.$route.query?.workflowID;
+        },
+        /**
+         * @returns boolean, true if dev exists as a route param
+         */
+        hasRouteQueryDev() {
+            return this.$route.query.dev !== undefined;
+        },
+        workflowIDToLoad() {
+            let wfID = this.routeQueryWorkflowID;
+            if(
+                wfID === 0 ||
+                this.workflows[wfID] === undefined ||
+                (this.hasRouteQueryDev === false && wfID < 0)
+            ) {
+                wfID = this.firstWorkflowID;
+            }
+            return wfID;
+        },
+        workflowsList() {
+            return this.hasRouteQueryDev ? this.allWorkflows : this.allWorkflows.filter(wf => wf.workflowID > 0);
+        },
+        workflows() {
+            let map = {};
+            this.workflowsList.forEach(ele => { map[ele.workflowID] = ele });
+            return map;
+        },
+        hasWorkflows() {
+            return Object.keys(this.workflows)?.length > 0;
+        },
+        workflowMaxStepY() {
+            let max = this.spacerVector.y;
+            let stepY = null;
+            for (let stepID in this.steps) {
+                stepY = parseInt(this.steps[stepID].posY ?? 0);
+                if (stepY > max) {
+                    max = stepY;
+                }
+            }
+            return max;
+        },
+        workflowHeight() {
+            return { height: this.workflowMinHeight + this.workflowMaxStepY + 'px' };
+        },
+        requestorStepInitialVector() {
+            return { x: this.spacerVector.x + 40, y: this.spacerVector.y + 40 }
+        },
+        endStepInitialVector() {
+            return { x: this.spacerVector.x + 400, y: this.workflowMaxStepY + this.endStepDiffY };
+        },
+        requestorStepStyle() {
+            return {
+                left: this.localSteps[-1].posX + 'px',
+                top: this.localSteps[-1].posY  + 'px',
+                backgroundColor: '#e0e0e0',
+                fontWeight: 'normal',
+            }
+        },
+        lastStepStyle() {
+            return {
+                left: this.localSteps[0].posX  + 'px',
+                top: this.localSteps[0].posY + 'px',
+                backgroundColor: '#ff8181',
+                fontWeight: 'normal',
+            }
+        },
+        currentStep() {
+            let returnValue = null;
+            if (this.currentStepID !== 0 && this.currentStepID !== -1) {
+                returnValue = this.steps?.[this.currentStepID] ?? null;
+            } else {
+                //0 and -1 are not in steps object
+                if (this.currentStepID !== null) {
+                    returnValue = {
+                        stepID: this.currentStepID
+                    }
+                }
+            }
+            return returnValue
+        },
+        configWarnings() {
+            let warnings = {};
+            for(let stepID in this.workflowStepDependencies) {
+                if(typeof warnings[stepID] === 'undefined') {
+                    warnings[stepID] = '';
+                }
+                const stepDepsArray = this.workflowStepDependencies[stepID] ?? [];
+                stepDepsArray.forEach(dep => {
+                    if(dep.dependencyID === null) {
+                        warnings[stepID] = `\nA requirement must be added.`;
+                    } else {
+                        switch(dep.dependencyID) {
+                            case -1:
+                                if(dep.indicatorID_for_assigned_empUID === null) {
+                                    warnings[stepID] += `\nOrgchart Employee data field must be set.`;
+                                }
+                                break;
+                            case -3:
+                                if(dep.indicatorID_for_assigned_groupID === null) {
+                                    warnings[stepID] += `\nOrgchart Group data field must be set.`;
+                                }
+                                break;
+                            default:
+                            if(dep.dependencyID > 8 && dep.groupID === null) {
+                                warnings[stepID] += `\nA requirement group must be added.`;
+                            }
+                            break;
+                        }
+                    }
+                });
+            }
+            return warnings;
+        },
+        stepInfoKey() {
+            const affix = this.currentStepID !== null ?
+                this.currentStepID :
+                `${this.currentJSPlumbParams?.stepID || ""}_${this.currentJSPlumbParams?.action || ""}`;
+
+            return `step_info_${this.workflowStepInfoType}_${affix}`;
+        }
+    },
+    methods: {
+        setupJSPlumb() {
+            jsPlumb.ready(() => {
+                this.jsPlumbInstance = jsPlumb.getInstance();
+                this.jsPlumbInstance.Defaults.Container = "workflow";
+                this.jsPlumbInstance.Defaults.ConnectionOverlays = [
+                    [ "PlainArrow", { location:0.9, width:16, length:14 }],
+                ];
+                this.jsPlumbInstance.Defaults.PaintStyle = { stroke: 'lime', lineWidth: 1 };
+                this.jsPlumbInstance.Defaults.Connector = ["StateMachine", {curviness: 10}];
+                this.jsPlumbInstance.Defaults.Anchor = "Continuous";
+                this.jsPlumbInstance.Defaults.Endpoint = "Blank";
+                console.log(this.jsPlumbInstance);
+            });
+        },
+        updateChosen(selectID = '', selectLabelID = '', title = 'Select an Option', callback) {
+            if(selectID !== '') {
+                nextTick(() => {
+                    $('#' + selectID).chosen('destroy');
+                    $('#' + selectID).chosen({
+                        disable_search_threshold: 5,
+                        allow_single_deselect: true,
+                    }).change(event => callback(event));
+
+                    this.updateChosenAttributes(selectID, selectLabelID, title);
+                });
+            }
+        },
+        getStepStyle(stepID = 0) {
+            const step = this.localSteps[stepID] || this.steps[stepID];
+            const spacerY = this.steps[stepID]?.hasUpdate === true || this.localSteps[stepID]?.hasUpdate === true ?
+                0 : this.spacerVector.y;
+
+            return step !== undefined ? {
+                left: Math.max(parseInt(step.posX), 0) + 'px',
+                top: Math.max(parseInt(step.posY), spacerY) + 'px',
+                fontSize: step?.stepTitle?.length > 40 ? '86%' : '100%',
+                backgroundColor: step.stepBgColor,
+                fontWeight: 'normal',
+            } : {};
+        },
+        /**
+         * 
+         * @param {number} scopedStepID 
+         * @returns function that has the given stepID within its scope
+         */
+        makeStopHandler(scopedStepID) {
+            const handler = () => {
+                const stepEl = document.getElementById(`step_${scopedStepID}`);
+                if (stepEl !== null) {
+                    const left = stepEl.offsetLeft;
+                    const top = stepEl.offsetTop;
+                    this.updateStepPosition(scopedStepID, left, top);
+                }
+            }
+            return handler;
+        },
+
+
+        //submenu methods tracked/provided here
+        newWorkflow() {
+            console.log("newWorkflow")
+        },
+        createStep() {
+            console.log("createStep")
+        },
+        renameWorkflow() {
+
+        },
+        duplicateWorkflow() {
+
+        },
+        listActions() {
+
+        },
+        listEvents() {
+
+        },
+        deleteWorkflow() {
+
+        },
+
+        /** returns Promise */
+        getCurrentWorkflow() {
+            return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}`).then(res => res.json());
+        },
+        /** returns Promise */
+        getCurrentWorkflowRoutes() {
+            return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/route`).then(res => res.json());
+        },
+        //** return Promise */
+        getCurrentWorkflowCategories() {
+            return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/categories`).then(res => res.json());
+        },
+        getCurrentWorkflowStepDependencies() {
+            return fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/workflowStepDependencies`).then(res => res.json());
+        },
+        /**
+         * fetch workflows once view is mounted, then update workflow editor
+         * workflows, workflowList, firstWorkflowID, currentWorkflowID data.
+         * Set loading to false once finished (initial mount only).
+         */
+        loadWorkflowList() {
+            fetch(
+                `${this.APIroot}workflow`
+            ).then(res => res.json()).then(workflowArray => {
+                this.allWorkflows = workflowArray;
+
+                this.firstWorkflowID = this.workflowsList?.[0]?.workflowID || 0;
+                this.currentWorkflowID = this.workflowIDToLoad;
+                this.loading = false;
+            }).catch(err => console.log(err))
+        },
+        /**
+         * update url query with current workflow being loaded
+         * fetch workflow editor app steps and routes data, then update jsPlumb config and draw routes 
+         */
+        loadWorkflow() {
+            if(this.routeQueryWorkflowID !== this.currentWorkflowID) {
+                let query = { workflowID: this.currentWorkflowID };
+                if(this.hasRouteQueryDev) {
+                    query.dev = this.$route.query.dev;
+                }
+                this.$router.push({ path: 'workflows', query, });
+            }
+            this.jsPlumbInstance.reset();
+            this.jsPlumbInstance.setSuspendDrawing(true);
+            //reset local positions of requestor and end steps, close submenu
+            for(let stepID in this.localSteps) {
+                this.localSteps[stepID].poxX = null;
+                this.localSteps[stepID].poxY = null;
+            }
+            this.closeWorkflowStepInfo({}, true);
+            this.steps = {};
+            this.routes = [];
+            this.workflowCategories = [];
+            this.workflowStepDependencies = {};
+
+            Promise.all([
+                this.getCurrentWorkflow(),
+                this.getCurrentWorkflowRoutes(),
+                this.getCurrentWorkflowCategories(),
+                this.getCurrentWorkflowStepDependencies(),
+            ]).then(results => {
+                this.steps = results[0];
+                this.routes = results[1];
+                this.workflowCategories = results[2];
+                this.workflowStepDependencies = results[3];
+
+                this.localSteps[0].posX = this.endStepInitialVector.x
+                this.localSteps[0].posY = this.endStepInitialVector.y
+                this.localSteps[-1].posX = this.requestorStepInitialVector.x
+                this.localSteps[-1].posY = this.requestorStepInitialVector.y
+
+                this.jsPlumbConfig();
+                this.drawRoutes();
+            }).catch(err => console.log(err));
+        },
+        jsPlumbConfig() {
+            nextTick(() => {
+                this.endPoints = {};
+                for (let stepID in this.steps) {
+                    if (this.endPoints[stepID] == undefined) {
+                        this.endPoints[stepID] = this.jsPlumbInstance.addEndpoint('step_' + stepID, {anchor: 'Continuous'}, this.endpointOptions);
+
+                        this.jsPlumbInstance.draggable('step_' + stepID, {
+                            allowNegative: false,
+                            stop: this.makeStopHandler(+stepID)
+                        });
+                    }
+                }
+                if (this.endPoints[-1] == undefined) {
+                    this.endPoints[-1] = this.jsPlumbInstance.addEndpoint('step_-1', {anchor: 'Continuous'}, this.endpointOptions);
+                    this.jsPlumbInstance.draggable('step_-1', {
+                        allowNegative: false,
+                        stop: this.makeStopHandler(-1)
+                    });
+                }
+                if (this.endPoints[0] == undefined) {
+                    this.endPoints[0] = this.jsPlumbInstance.addEndpoint('step_0', {anchor: 'Continuous'}, { ...this.endpointOptions, isSource: false });
+                    this.jsPlumbInstance.draggable('step_0', {
+                        allowNegative: false,
+                        stop: this.makeStopHandler(0)
+                    });
+                }
+            });
+        },
+        drawRoutes() {
+            nextTick(() => {
+                const locIncrement = 0.15;
+                let loc = 0.5;
+                let actionCounts = {};
+                this.routes.forEach(r => {
+                    loc = 0.5;
+                    switch (r.actionType.toLowerCase()) {
+                        case 'sendback':
+                            loc = 0.30;
+                            break;
+                        case 'approve':
+                        case 'concur':
+                            loc = 0.5;
+                            break;
+                        case 'defer':
+                            loc = 0.25;
+                            break;
+                        case 'disapprove':
+                            loc = 0.75;
+                            break;
+                        default:
+                            const from = String(r.stepID);
+                            const to = String(r.nextStepID);
+                            if(from !== to) {
+                                const fromStepToStep = from + "_" + to;
+                                if(actionCounts?.[fromStepToStep] >= 0) {
+                                    actionCounts[fromStepToStep] += 1;
+                                    loc = Math.min(
+                                        +((0.05 + locIncrement * actionCounts[fromStepToStep]).toFixed(2)),
+                                        0.65
+                                    );
+                                    if(loc >= 0.5) { //reserve 0.5 for 0 - keeps centered if only one route
+                                        loc += locIncrement;
+                                    }
+                                } else {
+                                    actionCounts[fromStepToStep] = 0;
+                                }
+                            }
+                        break;
+                    }
+
+                    if (r.nextStepID === 0 && r.actionType == 'sendback') {
+                        this.jsPlumbInstance.connect({
+                            source: 'step_' + r.stepID,
+                            target: 'step_-1',
+                            paintStyle: {stroke: 'red'},
+                            overlays: [
+                                [
+                                    "Label",
+                                    {
+                                        id: `stepLabel_${r.stepID}_0_${r.actionType}`,
+                                        cssClass: `workflowAction action-${r.stepID}-sendback--1`,
+                                        label: r.actionText,
+                                        location: loc,
+                                        parameters: {
+                                            'stepID': r.stepID,
+                                            'nextStepID': 0,
+                                            'action': r.actionType,
+                                        },
+                                        events: {
+                                            click: (overlay, evt) => {
+                                                const params = overlay.getParameters();
+                                                this.showActionInfo(params, evt);
+                                            }
+                                        }
+                                    }
+                                ],
+                            ]
+                        });
+
+                    } else {
+                        let lineOptions = {
+                            source: 'step_' + r.stepID,
+                            target: 'step_' + r.nextStepID,
+                            connector: ["StateMachine", {curviness: 10}],
+                            anchor: "Continuous",
+                            overlays: [
+                                [
+                                    "Label",
+                                    {
+                                        id: 'stepLabel_' + r.stepID + '_' + r.nextStepID + '_' + r.actionType,
+                                        cssClass: `workflowAction action-${r.stepID}-${r.actionType}-${r.nextStepID}`,
+                                        label: r.actionText,
+                                        location: loc,
+                                        parameters: {
+                                            'stepID': r.stepID,
+                                            'nextStepID': r.nextStepID,
+                                            'action': r.actionType,
+                                        },
+                                        events: {
+                                            click: (overlay, evt) => {
+                                                const params = overlay.getParameters();
+                                                this.showActionInfo(params, evt);
+                                            }
+                                        }
+                                    }
+                                ]
+                            ]
+                        };
+                        if (r.actionType == 'sendback') {
+                            lineOptions.paintStyle = {stroke: 'red'};
+                        }
+                        this.jsPlumbInstance.connect(lineOptions);
+                    }
+                });
+
+                // connect the initial step if it exists
+                if (
+                    this.workflows[this.currentWorkflowID]?.initialStepID !== 0
+                ) {
+                    const initialStepID = this.workflows[this.currentWorkflowID].initialStepID;
+                    this.jsPlumbInstance.connect({
+                        source: this.endPoints[-1],
+                        target: this.endPoints[initialStepID],
+                        connector: ["StateMachine", {curviness: 10}],
+                        anchor: "Continuous",
+                        overlays: [
+                            [
+                                "Label",
+                                {
+                                    id: 'stepLabel_0_' + initialStepID + '_submit',
+                                    cssClass: `workflowAction action--1-submit-${initialStepID}`,
+                                    label: 'Submit',
+                                    location: loc,
+                                    parameters: {
+                                        'stepID': -1,
+                                        'nextStepID': initialStepID,
+                                        'action': 'submit',
+                                    },
+                                    events: {
+                                        click: (overlay, evt) => {
+                                            const params = overlay.getParameters();
+                                            this.showActionInfo(params, evt);
+                                        }
+                                    }
+                                }
+                            ]
+                        ]
+                    });
+                }
+
+                // bind connection events
+                this.jsPlumbInstance.bind(
+                    "connection",
+                    (jsPlumbParams) => {
+                        if (this.currentWorkflowID > 0) {
+                            const stepID = parseInt(jsPlumbParams.sourceId.substr(5));
+                            const nextStepID = parseInt(jsPlumbParams.targetId.substr(5));
+                            this.createConnection(this.currentWorkflowID, stepID, nextStepID);
+                        }
+                    }
+                );
+                this.jsPlumbInstance.setSuspendDrawing(false, true);
+
+                let endpointEls = Array.from(document.querySelectorAll('.workflowEndpoint'));
+                endpointEls.forEach(el => el.style.backgroundImage = `url(${this.libsPath}dynicons/svg/network-wired.svg)`);
+            });
+        },
+        redraw() {
+            this.getCurrentWorkflowRoutes().then(routes => {
+                this.routes = routes;
+                this.jsPlumbInstance.reset();
+                this.jsPlumbConfig();
+                this.drawRoutes();
+            });
+        },
+        /**
+         * Update local position settings and save settings for non built-in steps
+         * Update local position settings for built-in steps 
+         * @param {number} stepID 
+         * @param {number} left 
+         * @param {number} top 
+         */
+        updateStepPosition(stepID, left, top) {
+            if(stepID > 0) {
+                let formData = new FormData();
+                formData.append('CSRFToken', this.CSRFToken);
+                formData.append('stepID', stepID);
+                formData.append('x', left);
+                formData.append('y', top);
+
+                const intitialX = this.steps[stepID].posX;
+                const intitialY = this.steps[stepID].posY;
+                this.steps[stepID].posX = left;
+                this.steps[stepID].posY = top;
+                this.steps[stepID].hasUpdate = true; //workaround for the initial Y guard.  look into jsPlumb drop constraints
+
+                fetch(`${this.APIroot}workflow/${this.currentWorkflowID}/editorPosition`, {
+                    method: 'POST',
+                    body: formData
+                }).catch(err => {
+                    console.log("error saving step position", err)
+                    this.steps[stepID].posX = intitialX;
+                    this.steps[stepID].posY = intitialY;
+                });
+
+            //Requestor, End, and built-in step positions are not saved, but can be moved locally
+            } else {
+                if (Number.isInteger(stepID) && this.localSteps?.[stepID] === undefined) {
+                    const { stepID:newLocalID, posX, posY, stepBgColor, stepTitle } = this.steps[stepID];
+                    this.localSteps[newLocalID] = { stepID:newLocalID, posX, posY, stepBgColor, stepTitle };
+                    this.steps[newLocalID].hasUpdate = true; //here only
+                }
+                if(this.localSteps[stepID] !== undefined) {
+                    this.localSteps[stepID].posX = left;
+                    this.localSteps[stepID].posY = top;
+                }
+            }
+        },
+        /**
+         * Update workflow editor workflowStepInfoType, currentJSPlumbParams, currentStepID data when a step is clicked
+         * @param {number} stepID
+         */
+        showStepInfo(stepID = -1) {
+            console.log("show step info")
+            this.workflowStepInfoType = 'step';
+            this.currentJSPlumbParams = null;
+            if (this.currentStepID === stepID) { //close on second click
+                this.currentStepID = null;
+            } else {
+                this.currentStepID = +stepID;
+                let inputEl = document.getElementById('workflow_steps');
+                if (inputEl !== null && +inputEl.value !== stepID) {
+                    inputEl.value = stepID;
+                    $("#workflow_steps").trigger('chosen:updated');
+                }
+            }
+        },
+        /**
+         * Update workflow editor workflowStepInfoType, currentJSPlumbParams, currentStepID data when an action bubble is clicked.
+         * @param {object} jsPlumbParams sent through jsPlumb click event
+         * @param {object} event associated event
+         */
+        showActionInfo(jsPlumbParams, event) {
+            this.workflowStepInfoType = 'action';
+            this.currentStepID = null;
+            this.currentJSPlumbParams = {
+                ...jsPlumbParams,
+                pageX: event?.pageX ?? 200,
+                pageY: event?.pageY ?? 300,
+                mediatingStep: event?.detail?.mediatingStep ?? null,
+            };
+        },
+        /**
+         * Closes submenu that displays step and action info.
+         * Close is either explicit or determined by whether click occurred outside an open submenu.
+         * @param {object} event document mousedown, modal keydown.escape, modal close button click
+         * @param {boolean} closeMenu true if explicitly closed (close button, escape)
+         */
+        closeWorkflowStepInfo(event, closeMenu = false) {
+            if (closeMenu === false && this.showFormDialog === false) {
+                console.log("close submenu target was ", event.target?.id)
+                const stepInfoEl = document.querySelector('.workflowStepInfo');
+                const closestInfo = event.target.closest('.workflowStepInfo');
+                closeMenu = closestInfo !== stepInfoEl;
+            }
+            if (closeMenu === true) {
+                this.currentStepID = null;
+                this.currentJSPlumbParams = null;
+                this.workflowStepInfoType = '';
+            }
+        },
+        emailNotificationIcon(stepID = 0) {
+            let html = '';
+            const step = this.steps?.[stepID];
+            if (typeof step?.stepData === 'string' && this.isJSON(step.stepData)) {
+                const stepParse = JSON.parse(step.stepData);
+                if (stepParse.AutomatedEmailReminders?.AutomateEmailGroup?.toLowerCase() === 'true') {
+                    const dayCount = stepParse.AutomatedEmailReminders.DaysSelected;
+                    const dayText = ((dayCount > 1) ? 'Days' : 'Day');
+                    html = `<img src="${this.libsPath}dynicons/svg/appointment.svg"
+                        style="height:18px;width:18px;margin-bottom:-3px;"
+                        alt="Email reminders will be sent after ${dayCount} ${dayText} of inactivity"
+                        title="Email reminders will be sent after ${dayCount} ${dayText} of inactivity">`;
+                }
+            }
+            return html
+        },
+        createConnection(workflowID, stepID, nextStepID) {
+            //if stepID/source is requestor, set the initial step
+            if(stepID === -1) {
+                //don't loop back on requestor
+                if (nextStepID !== -1) {
+                    this.setInitialStep(workflowID, nextStepID, () => {
+                        //update the initialStepID value of the local workflow record
+                        this.allWorkflows.map(wf => {
+                            if(wf.workflowID === workflowID) {
+                                wf.initialStepID = nextStepID;
+                            }
+                        });
+                        //if requestor -> end, add this workflow route before redrawing
+                        if(nextStepID === 0) {
+                            this.postActionConnection(
+                                -1,
+                                0,
+                                'submit',
+                                workflowID,
+                                this.redraw
+                            );
+                        } else { //otherwise just redraw
+                            this.redraw();
+                        }
+                    });
+                }
+
+            //if the next stepID is -1, just connect a send back route to requestor.  arg for nextStep should be 0
+            } else if(nextStepID === -1) {
+                this.postActionConnection(
+                    stepID,
+                    0,
+                    'sendback',
+                    workflowID,
+                    this.redraw
+                );
+
+            //open the modal for other routes
+            } else {
+                const data = { stepID, nextStepID }
+                this.openWorkflowActionDialog(data, true, true);
+            }
+        },
+        setInitialStep(workflowID = this.currentWorkflowID, targetID = 0, callback = null) {
+            let formData = new FormData();
+            formData.append('CSRFToken', this.CSRFToken);
+            formData.append('stepID', targetID);
+
+            fetch(`${this.APIroot}workflow/${workflowID}/initialStep`, {
+                method: 'POST',
+                body: formData,
+            }).then(res => res.json()).then(() => {
+                if(typeof callback === 'function') {
+                    callback();
+                }
+            }).catch(err => console.log(err));
+        },
+        updateStepTitle(stepID = 0, stepTitle = '') {
+            if (stepID > 0) {
+                let formData = new FormData();
+                formData.append('CSRFToken', this.CSRFToken);
+                formData.append('title', stepTitle);
+
+                fetch(`${this.APIroot}workflow/step/${stepID}`, {
+                    method: 'POST',
+                    body: formData,
+                }).then(res => res.json()).then(data => {
+                    if(+data === 1) {
+                        this.steps[stepID].stepTitle = stepTitle;
+                    } else {
+                        console.log("issue saving step title", data);
+                    }
+                }).catch(err => console.log(err));
+            }
+        },
+        postStepModule(stepID = '', indicatorID = 0) {
+            if(indicatorID > 0) {
+                let formData = new FormData();
+                formData.append('CSRFToken', this.CSRFToken);
+                formData.append('indicatorID', indicatorID);
+
+                fetch(`${this.APIroot}workflow/step/${stepID}/inlineIndicator`, {
+                    method: 'POST',
+                    body: formData
+                }).then(res => res.json()).then(data => {
+                    if(+data === 1) {
+                        this.getCurrentWorkflow()
+                        .then(data => this.steps = data)
+                        .catch(err => console.log(err));
+                    } else {
+                        console.log("issue saving form field", data);
+                    }
+                }).catch(err => console.log(err));
+            }
+        },
+        postActionConnection(sourceID = 0, targetID = 0, actionType = '', workflowID = this.currentWorkflowID, callback = {}) {
+            let formData = new FormData();
+            formData.append('CSRFToken', this.CSRFToken);
+            formData.append('stepID', sourceID);
+            formData.append('nextStepID', targetID);
+            formData.append('action', actionType);
+
+            fetch(`${this.APIroot}workflow/${workflowID}/action`, {
+                method: 'POST',
+                body: formData,
+            }).then(res => res.json()).then(data => {
+                if (+data !== 1) {
+                    console.log("issue connecting route action", data);
+                }
+                //callback for actions posted via UI will be redraw, which will first update routes array
+                if(typeof callback === 'function') {
+                    callback();
+                }
+            }).catch(err => console.log(err))
+        },
+        postNewAction(formData = {}, callback = null) {
+            fetch(`${this.APIroot}system/action`, {
+                method: 'POST',
+                body: formData,
+            }).then(res => res.json()).then(data => {
+                if (data?.status?.code !== 2) {
+                    console.log(data);
+                }
+                if(typeof callback === 'function') {
+                    callback();
+                }
+            }).catch(err => console.log(err));
+        },
+        postEditAction(formData = {}, actionType, callback = null) {
+            fetch(`${this.APIroot}workflow/editAction/_${actionType}`, {
+                method: 'POST',
+                body: formData,
+            }).then(res => res.json()).then(data => {
+                console.log("edit action res", data)
+                if(typeof callback === 'function') {
+                    callback();
+                }
+            }).catch(err => console.log(err));
+        },
+        removeAction(workflowID, stepID, actionType, nextStepID, actionText = '') {
+            if (this.showFormDialog === false) {
+                const fromTitle = this.steps[stepID]?.stepTitle ?? '';
+                const toTitle = actionType === 'sendback' ? 'Requestor' :
+                    nextStepID === 0 ? 'End' : this.steps[nextStepID]?.stepTitle ?? '';
+                this.openBasicConfirmDialog(
+                    `Confirm removal of action <b>${actionText}</b>
+                        <div id="remove_action_confirm">
+                            <div class="workflowStep">${fromTitle}<br>(step#${stepID})</div> → 
+                            <span style="cursor:auto;" class="workflowAction ">${actionText}</span> → 
+                            <div class="workflowStep">${toTitle}<br>(step#${nextStepID})</div>
+                        </div>`,
+                    () => this.removeAction(workflowID, stepID, actionType, nextStepID)
+                );
+            } else {
+                const p = `?CSRFToken=${this.CSRFToken}`
+                fetch(`${this.APIroot}workflow/${workflowID}/step/${stepID}/_${actionType}/${nextStepID}${p}`, {
+                    method: 'DELETE'
+                }).then(res => res.json()).then(data => {
+                    if (+data === 1) {
+                        this.redraw();
+                    } else {
+                        console.log("issue removing action", data);
+                    }
+                }).catch(err => console.log(err));
+            }
+        }
+    },
+    watch: {
+        routeQueryWorkflowID(newVal, oldVal) {
+            console.log("watch route wfID changed", newVal, oldVal)
+            let inputEl = document.getElementById('workflows');
+            if (inputEl !== null && +inputEl.value !== newVal) {
+                console.log("updating select value and dispatching change event");
+                inputEl.value = newVal;
+                inputEl.dispatchEvent(new Event('change'));
+                $("#workflows").trigger('chosen:updated');
+            }
+        },
+        hasRouteQueryDev() {
+            console.log("dev param changed, confirming wf to load set")
+            this.currentWorkflowID = this.workflowIDToLoad;
+        },
+        currentWorkflowID() {
+            console.log(`wf id changed to`, this.currentWorkflowID, `reset local step positions`)
+            if(this.workflows[this.currentWorkflowID] !== undefined) {
+                this.loadWorkflow();
+            } else {
+                this.currentWorkflowID = this.firstWorkflowID;
+            }
+        },
+        workflows(newVal, oldVal) {
+            console.log("wfs changed, update chosen options", newVal, oldVal, Date.now())
+            this.updateChosen(
+                "workflows",
+                "workflows_label",
+                "Select a Workflow",
+                event => {
+                    console.log('wf selection triggered wfID update')
+                    this.currentWorkflowID = +event.target.value;
+                }
+            );
+        },
+        steps(newVal, oldVal) {
+            console.log("steps changed, update chosen options", newVal, oldVal)
+            this.updateChosen(
+                "workflow_steps",
+                "steps_label",
+                "Select a Step",
+                event => {
+                    console.log('step dropdown selection triggered stepID and info type update')
+                    if (+event.target.value !== 0) {
+                        this.workflowStepInfoType = 'step';
+                        this.currentStepID = +event.target.value
+                    }
+
+                }
+            );
+        }
+    },
+    template: `<div v-if="loading" class="page_loading">
+            Loading...
+            <img src="../images/largespinner.gif" alt="" />
+        </div>
+        <div v-else>
+        {{ dialogData }}
+            <!-- TODO: this should be assoc with nav -->
+            <div v-if="siteSettings?.siteType==='national_subordinate'" id="subordinate_site_warning" style="padding: 0.5rem; margin: 0.5rem 0;" >
+                <h3 style="margin: 0 0 0.5rem 0; color: #a00;">This is a Nationally Standardized Subordinate Site</h3>
+                <span><b>Do not make modifications!</b> &nbsp;Synchronization problems will occur. &nbsp;Please contact your process POC if modifications need to be made.</span>
+            </div>
+            <section id="workflow_editor" v-if="hasWorkflows">
+                <WorkflowMenu />
+
+                <div id="workflow" :style="workflowHeight">
+                    <template v-if="currentStepID !== null || currentJSPlumbParams !== null">
+                        <WorkflowStepInfo :key="stepInfoKey" />
+                    </template>
+                    <button type="button" class="workflowStep" id="step_-1" :style="requestorStepStyle"
+                        aria-label="workflow step: Requestor"
+                        aria-controls="stepInfo_-1"
+                        :aria-expanded="currentStepID === -1"
+                        @click="showStepInfo(-1)"
+                        @touchend="showStepInfo(-1)">
+                        Requestor
+                    </button>
+
+                    <template v-for="s in steps" :key="'wf_step_' + s.stepID">
+                        <button type="button" class="workflowStep" :id="'step_' + s.stepID" :style="getStepStyle(s.stepID)"
+                            :aria-label="'workflow step: ' + s.stepTitle"
+                            :aria-controls="'stepInfo_' + s.stepID"
+                            :aria-expanded="currentStepID === s.stepID"
+                            @click="showStepInfo(s.stepID)"
+                            @touchend="showStepInfo(s.stepID)">
+                                {{ s.stepTitle }}&nbsp;<span v-if="typeof s?.stepData === 'string'" v-html="emailNotificationIcon(s.stepID)"></span>
+                                <div v-if="configWarnings?.[s.stepID]"
+                                    class="missing_requirement"
+                                    :title="'Config missing for Step ' + s.stepID + ': ' + configWarnings?.[s.stepID]"
+                                    :aria-label="'Config missing for Step ' + s.stepID + ': ' + configWarnings?.[s.stepID]">⚠️
+                                </div>
+                        </button>
+                    </template>
+
+                    <button type="button" class="workflowStep" id="step_0" :style="lastStepStyle"
+                        aria-label="Workflow End"
+                        aria-controls="stepInfo_0"
+                        :aria-expanded="currentStepID === 0"
+                        @click="showStepInfo(0)"
+                        @touchend="showStepInfo(0)">
+                            End
+                    </button>
+                </div>
+            </section>
+
+            NOTE: TEST routes
+            <div style="display:flex;gap:2rem">
+            <router-link :to="{ name: 'browser' }" >
+                Browser
+            </router-link>
+            <router-link :to="{ name: 'restore' }" >
+                Restore Fields
+            </router-link>
+            <router-link :to="{ name: 'category', query: { formID: 'form_512fa' }}">
+                Input Formats
+            </router-link>
+            </div>
+        </div>
+
+        <!-- DIALOGS -->
+        <leaf-form-dialog v-if="showFormDialog">
+            <template #dialog-content-slot>
+                <component :is="dialogFormContent"></component>
+            </template>
+        </leaf-form-dialog>`
+}
