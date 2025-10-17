@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
 
 function checkForSSN($baseUrl, $filePath) {
     $ch = curl_init($baseUrl . '/scan-for-ssn');
+    //echo "base: $baseUrl";die;
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => [
