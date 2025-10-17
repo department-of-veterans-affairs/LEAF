@@ -66,6 +66,9 @@ export default {
         formDescrCharsRemaining() {
             return 255 - this.categoryDescription.length;
         },
+        showNeedToKnowWarning() {
+            return this.needToKnow === 0;
+        },
     },
     methods: {
         /**
@@ -276,6 +279,10 @@ export default {
                             <option value="1" style="color: #a00;" :selected="isNeedToKnow">On</option>
                         </select>
                     </label>
+                    <div v-if="showNeedToKnowWarning" class="entry_info bg-blue-5v" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                        <span role="img" aria-hidden="true" alt="">ℹ️</span>
+                        <span><b>Alert:</b> Turning off 'Need to Know' allows all users with site access to view submitted data. Enable Need to Know to restrict visibility to identified workflow participants and submitters.</span>
+                    </div>
                     <label for="formType">Form Type:
                         <select id="formType" title="Change type of form" v-model="type" @change="updateType">
                             <option value="" :selected="type === ''">Standard</option>
