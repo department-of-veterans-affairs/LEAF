@@ -256,34 +256,36 @@ span#headerLabel {
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
-#card1 {
+#card1,
+#card1 span.menuTextSmall,
+#card1 span.menuDescSmall {
   color: var(--text-cards-light);
   background-color: var(--bg-card-1);
 }
 
-#card2 {
+#card2,
+#card2 span.menuTextSmall,
+#card2 span.menuDescSmall {
   color: var(--text-cards-dark);
   background-color: var(--bg-card-2);
 }
 
-#card3 {
+#card3,
+#card3 span.menuTextSmall,
+#card3 span.menuDescSmall {
   color: var(--text-cards-dark);
   background-color: var(--bg-card-3);
 }
 
-#card4 {
+#card4,
+#card4 span.menuTextSmall,
+#card4 span.menuDescSmall {
   color: var(--text-cards-light);
   background-color: var(--bg-card-4);
 }
 
 #content {
   background-color: var(--bg-primary);
-}
-
-#maincontent {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-light);
-  box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 /* =============================================================================
@@ -326,88 +328,13 @@ div.warning span {
 }
 
 /* =============================================================================
-   ORGANIZATIONAL CHART COMPONENTS
-   ============================================================================= */
-
-/* Position Cards */
-.positionSmall {
-  background-color: var(--position-bg);
-  border-color: var(--border-primary);
-}
-
-.positionSmall:hover {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
-.positionSmall_title {
-  background-color: var(--position-title-bg);
-}
-
-.positionSmall_data {
-  color: var(--text-primary);
-}
-
-/* Group Cards */
-.groupSmall {
-  background-color: var(--group-bg);
-  border-color: var(--border-primary);
-}
-
-.groupSmall_title {
-  background-color: var(--group-title-bg);
-}
-
-/* Employee Cards */
-.employee,
-div.employee {
-  background-color: var(--employee-bg);
-  border-color: var(--border-primary);
-}
-
-.employeeHeader,
-div.employeeHeader {
-  background-color: var(--employee-title-bg);
-}
-
-/* Facility Cards */
-.facility {
-  background-color: var(--facility-bg);
-  border-color: var(--border-primary);
-}
-
-.facilityHeader {
-  background-color: var(--facility-header-bg);
-}
-
-.facilityName {
-  color: var(--text-inverse);
-}
-
-/* =============================================================================
    TABLES
    ============================================================================= */
-
-table {
-  background-color: var(--table-row-bg);
-}
-
-table.table,
-table.leaf_grid,
-table.agenda {
-  background-color: var(--bg-homepage-table-row-primary);
-  border-color: var(--table-border);
-}
 
 .table > thead,
 table.leaf_grid th {
   background-color: var(--bg-homepage-table-header-primary);
   color: var(--text-homepage-table-header);
-}
-
-.table > tbody,
-table.leaf_grid > tbody {
-  background-color: var(--table-row-bg);
 }
 
 .table td,
@@ -428,27 +355,7 @@ table.leaf_grid th:focus {
   background-color: var(--bg-homepage-table-header-hover-select);
   color: var(--text-homepage-table-header);
 }
-table.leaf_grid tr td span.browsecounter a:hover {
-  color: var(--text-homepage-table-header);
-  background-color: var(--bg-homepage-table-header-hover-select);
-}
 
-.table_editable:hover a {
-  color: var(--text-homepage-table-header);
-  background-color: var(--bg-homepage-table-header-hover-select);
-}
-
-table.leaf_grid thead tr th, table.leaf_grid tbody tr td, table.leaf_grid tfoot tr td {
-    border-bottom: 1px solid var(--border-table-primary);
-    border-right: 1px solid var(--border-table-primary);
-    transition: filter 0.25s;
-}
-
-@media (prefers-color-scheme: dark) {
-  .table_priority:hover {
-    background-color: var(--bg-accent);
-  }
-}
 
 /* =============================================================================
    BUTTONS AND INTERACTIVE ELEMENTS
@@ -487,290 +394,15 @@ button.buttonNorm:focus {
   border-color: var(--border-warning);
 }
 
-.button {
-  background-color: var(--menu-bg);
-  border-color: var(--border-primary);
-  color: var(--text-primary);
-}
-
-.button:hover {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
 /* Menu Buttons */
-.menuButton,
 .menuButtonSmall {
   background-color: var(--bg-secondary);
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
-.menuButton:hover,
-.menuButton:focus,
 .menuButtonSmall:hover,
 .menuButtonSmall:focus {
   box-shadow: 0 4px 6px var(--shadow-color);
-}
-
-/* Tool Buttons */
-button.tools {
-  background-color: var(--menu-bg);
-  border-color: var(--border-primary);
-  color: var(--text-primary);
-}
-
-button.tools:hover,
-button.tools:focus {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
-/* Permission Buttons */
-.buttonPermission {
-  background-color: var(--bg-success);
-  border-color: var(--border-primary);
-  color: var(--text-primary);
-}
-
-.buttonPermission:hover,
-.buttonPermission:focus {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
-#searchContainer.buttonNorm {
-  border: 1px solid;
-  background-color: var(--bg-button-primary);
-
-}
-
-span.leaf_check {
-  background-color: var()
-}
-
-/* =============================================================================
-   TOOLBARS AND NAVIGATION
-   ============================================================================= */
-
-.tools {
-  background-color: var(--toolbar-bg);
-  border-color: var(--border-primary);
-}
-
-.tools > div {
-  background-color: var(--menu-bg);
-  border-color: var(--border-primary);
-}
-
-.tools > div:hover,
-.tools > div:focus {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
-#category_list {
-  background-color: var(--bg-accent);
-  border-color: var(--border-primary);
-}
-
-#category_list > div {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-primary);
-}
-
-#category_list > div:hover {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-/* =============================================================================
-   COMMENTS AND MESSAGING
-   ============================================================================= */
-
-#comments {
-  background-color: var(--comments-bg);
-  border-color: var(--border-primary);
-}
-
-#comments > div {
-  background-color: var(--comments-item-bg);
-  border-color: var(--border-primary);
-  color: var(--text-primary);
-}
-
-.comments_time {
-  color: var(--text-muted);
-}
-
-/* =============================================================================
-   FORMS AND SELECTORS
-   ============================================================================= */
-
-/* Employee Selector */
-.employeeSelector {
-  background-color: var(--menu-bg);
-  border-color: var(--border-primary);
-  color: var(--text-primary);
-}
-
-.employeeSelector:hover {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
-.employeeSelected {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
-.employeeSelectorTable {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-primary);
-}
-
-.employeeSelectorTable th {
-  background-color: var(--table-header-bg);
-  color: var(--text-primary);
-}
-
-.employeeSelectorTable td {
-  border-color: var(--border-primary);
-  background-color: var(--table-row-bg);
-  color: var(--text-primary);
-}
-
-/* Group Selector */
-.groupSelector {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-primary);
-  color: var(--text-primary);
-}
-
-.groupSelector:hover {
-  background-color: var(--bg-accent);
-}
-
-.groupSelected {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
-.groupSelectorTable {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-tertiary);
-}
-
-.groupSelectorTable th {
-  background-color: var(--table-header-bg);
-  color: var(--text-muted);
-}
-
-.groupSelectorTable td {
-  border-color: var(--border-tertiary);
-  background-color: var(--table-row-bg);
-  color: var(--text-primary);
-}
-
-/* Position Selector */
-.positionSelector {
-  background-color: var(--menu-bg);
-  border-color: var(--border-primary);
-  color: var(--text-primary);
-}
-
-.positionSelector:hover {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
-.positionSelected {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-}
-
-.positionSelectorTable {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-primary);
-}
-
-.positionSelectorTable th {
-  background-color: var(--table-header-bg);
-  color: var(--text-muted);
-}
-
-.positionSelectorTable td {
-  border-color: var(--border-primary);
-  background-color: var(--table-row-bg);
-  color: var(--text-primary);
-}
-
-/* =============================================================================
-   SPECIALIZED COMPONENTS
-   ============================================================================= */
-
-/* Tags */
-.tags {
-  background-color: var(--bg-primary);
-  color: var(--text-muted);
-}
-
-@media (prefers-color-scheme: dark) {
-  .tags {
-    background-color: #111827;
-    color: #9ca3af;
-  }
-}
-
-.tags b {
-  color: var(--text-inverse);
-}
-
-.tags a:link,
-.tags a:visited {
-  color: var(--text-muted);
-}
-
-@media (prefers-color-scheme: dark) {
-  .tags a:link,
-  .tags a:visited {
-    color: #9ca3af;
-  }
-}
-
-.tags a:hover {
-  color: var(--text-link-hover);
-}
-
-@media (prefers-color-scheme: dark) {
-  .tags a:hover {
-    color: #fbbf24;
-  }
-}
-
-/* Cards */
-.card {
-  background-color: var(--bg-secondary);
-  box-shadow: 0 2px 6px var(--shadow-color);
-}
-
-/* Archived items */
-div.is-archived {
-  background-color: var(--bg-accent);
-}
-
-@media (prefers-color-scheme: dark) {
-  div.is-archived {
-    background-color: #374151;
-  }
-}
-
-/* Print Response (for sensitive data masking) */
-span.printResponse {
-  color: var(--text-primary);
-}
-
-.sensitiveIndicator-masked,
-.sensitiveIndicatorMaskToggle {
-  color: var(--text-primary);
 }
 
 /* =============================================================================
@@ -790,18 +422,6 @@ span.printResponse {
     background-color: white;
     color: black;
   }
-
-  .positionSmall {
-    background-color: #caecff;
-  }
-
-  .groupSmall {
-    background-color: #f6cafd;
-  }
-
-  .employee {
-    background-color: #ffe3e3;
-  }
 }
 
 /* =============================================================================
@@ -810,257 +430,11 @@ span.printResponse {
 
 #footer a:link,
 #footer a:visited {
-  color: var(--text-muted);
+  color: var(--border-table-primary);
 }
 
 #footer a:hover {
-  color: var(--text-link-hover);
-}
-
-/* =============================================================================
-   SPECIAL DARK MODE ADJUSTMENTS
-   ============================================================================= */
-
-@media (prefers-color-scheme: dark) {
-  /* Ensure sufficient contrast for borders */
-  .positionSmall,
-  .groupSmall,
-  .employee,
-  .facility {
-    border-color: #6b7280;
-  }
-
-  /* Adjust shadows for dark backgrounds */
-  .menuButton,
-  .menuButtonSmall,
-  #maincontent {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
-  }
-
-  /* Ensure form elements are visible */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  textarea,
-  select {
-    background-color: var(--bg-input-box-primary);
-    color: var(--border-warning);
-    border-color: #6b7280;
-  }
-
-  /* Loading modal adjustments */
-  .loading-modal {
-    background: rgba(17, 24, 39, 0.9);
-  }
-
-  /* Visual alert box */
-  #visual_alert_box {
-    background-color: #2d2d2d;
-    color: #e5e5e5;
-  }
-
-  /* Ensure link visibility in dark mode */
-  .link {
-    color: #60a5fa;
-  }
-
-  .link:hover {
-    color: #fbbf24;
-  }
-}
-
-/* =============================================================================
-   UTILITY CLASSES FOR REPLACING INLINE STYLES
-   Add these to your existing dark-mode.css file
-   ============================================================================= */
-
-/* Status and notification colors */
-.status-loading {
-    background-color: #fffcae;
-    padding: 4px;
-}
-
-.status-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-    padding: 4px;
-}
-
-.status-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-    padding: 4px;
-}
-
-.status-warning {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeaa7;
-    padding: 4px;
-}
-
-/* Progress and completion colors */
-.progress-bg {
-    background-color: #feffd2;
-    padding: 4px;
-    border-bottom: 1px solid black;
-}
-
-.completion-bg {
-    background-color: #b74141;
-    color: white;
-    text-shadow: black 0.1em 0.1em 0.2em;
-    font-weight: bold;
-    text-align: center;
-    font-size: 120%;
-    padding: 8px;
-    margin: 0px;
-}
-
-/* Form field highlighting */
-.field-highlight {
-    background-color: #fffdc2;
-}
-
-.field-required {
-    background-color: #ffaeae;
-    font-weight: bold;
-    font-size: 120%;
-}
-
-/* File upload statuses */
-.file-status {
-    background-color: #fffcae;
-    padding: 4px;
-    font-weight: bolder;
-    margin-top: 0.2rem;
-    line-height: 1.6;
-}
-
-.file-row-even {
-    background-color: #e4f2ff;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-}
-
-.file-row-odd {
-    background-color: #d7e5ff;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-}
-
-/* Loading and processing */
-.loading-indicator {
-    background-color: white;
-    border: 2px solid black;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    padding: 16px;
-    width: 95%;
-}
-
-/* Emergency/priority indicators */
-.priority-emergency {
-    background-color: #FF4040;
-    color: black;
-}
-
-.priority-normal {
-    background-color: transparent;
-}
-
-/* Record highlighting */
-.record-own {
-    background-color: #feffd1;
-}
-
-.record-new {
-    background-color: rgb(254, 255, 209);
-}
-
-/* =============================================================================
-   DARK MODE ADAPTATIONS FOR UTILITY CLASSES
-   ============================================================================= */
-
-@media (prefers-color-scheme: dark) {
-    .status-loading {
-        background-color: #4a4a00;
-        color: #e5e5e5;
-    }
-
-    .status-success {
-        background-color: #1f4b2b;
-        color: #9ae6b4;
-        border-color: #38a169;
-    }
-
-    .status-error {
-        background-color: #4a1f22;
-        color: #feb2b2;
-        border-color: #e53e3e;
-    }
-
-    .status-warning {
-        background-color: #4a3600;
-        color: #faf089;
-        border-color: #d69e2e;
-    }
-
-    .progress-bg {
-        background-color: #374151;
-        border-bottom-color: #6b7280;
-    }
-
-    .completion-bg {
-        background-color: #7f1d1d;
-        color: #fca5a5;
-    }
-
-    .field-highlight {
-        background-color: #4a5568;
-    }
-
-    .field-required {
-        background-color: #7f1d1d;
-        color: #fca5a5;
-    }
-
-    .file-status {
-        background-color: #4a4a00;
-        color: #e5e5e5;
-    }
-
-    .file-row-even {
-        background-color: #2d3748;
-    }
-
-    .file-row-odd {
-        background-color: #1a202c;
-    }
-
-    .loading-indicator {
-        background-color: #2d2d2d;
-        border-color: #6b7280;
-        color: #e5e5e5;
-    }
-
-    .priority-emergency {
-        background-color: #dc2626;
-        color: white;
-    }
-
-    .record-own {
-        background-color: #4a5568;
-    }
-
-    .record-new {
-        background-color: #4a5568;
-    }
+  color: var(--bg-button-primary-hover);
 }
 
 /* =============================================================================
@@ -1069,106 +443,8 @@ span.printResponse {
    ============================================================================= */
 
 @media (prefers-color-scheme: dark) {
-    /* Handle common inline background colors */
-    [style*="background-color: #fffcae"],
-    [style*="background-color:#fffcae"] {
-        background-color: #4a4a00 !important;
-        color: #e5e5e5 !important;
-    }
-
-    [style*="background-color: #feffd2"],
-    [style*="background-color:#feffd2"] {
-        background-color: #374151 !important;
-    }
-
-    [style*="background-color: #b74141"],
-    [style*="background-color:#b74141"] {
-        background-color: #7f1d1d !important;
-        color: #fca5a5 !important;
-    }
-
-    [style*="background-color: #ffaeae"],
-    [style*="background-color:#ffaeae"] {
-        background-color: #7f1d1d !important;
-        color: #fca5a5 !important;
-    }
-
-    [style*="background-color: #fffdc2"],
-    [style*="background-color:#fffdc2"] {
-        background-color: #4a5568 !important;
-    }
-
-    [style*="background-color: #e4f2ff"],
-    [style*="background-color:#e4f2ff"] {
-        background-color: #2d3748 !important;
-    }
-
-    [style*="background-color: #d7e5ff"],
-    [style*="background-color:#d7e5ff"] {
-        background-color: #1a202c !important;
-    }
-
-    [style*="background-color: #feffd1"],
-    [style*="background-color:#feffd1"] {
-        background-color: #4a5568 !important;
-    }
-
     [style*="background-color: rgb(254, 255, 209)"],
     [style*="background-color:rgb(254, 255, 209)"] {
         background-color: var(--bg-homepage-table-row-secondary) !important;
-    }
-
-    [style*="background-color: white"],
-    [style*="background-color:#fff"],
-    [style*="background-color: #ffffff"] {
-        background-color: #adadad !important;
-        color: #e5e5e5 !important;
-    }
-
-    /* Handle common inline text colors */
-    [style*="color: #c00"],
-    [style*="color:#c00"] {
-        color: #fca5a5 !important;
-    }
-
-    [style*="color: #d00"],
-    [style*="color:#d00"] {
-        color: #fca5a5 !important;
-    }
-
-    [style*="color: red"],
-    [style*="color:#ff0000"] {
-        color: #fca5a5 !important;
-    }
-
-    [style*="color: green"],
-    [style*="color:#008000"] {
-        color: #9ae6b4 !important;
-    }
-
-    [style*="color: #e00000"],
-    [style*="color:#e00000"] {
-        color: #d32030 !important;
-    }
-
-    [style*="color: black"],
-    [style*="color:#000"] {
-        color: #e5e5e5 !important;
-    }
-
-    /* Handle border colors */
-    [style*="border: 1px solid black"],
-    [style*="border:1px solid black"] {
-        border-color: var(--bg-secondary) !important;
-    }
-
-    [style*="border-bottom: 1px solid black"],
-    [style*="border-bottom:1px solid black"] {
-        border-bottom-color: #6b7280 !important;
-    }
-
-    [style*="border-top: 1px solid black"],
-    [style*="border-top:1px solid black"] {
-        border-top-color: #6b7280 !important;
     }
 }
