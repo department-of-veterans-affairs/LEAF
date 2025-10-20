@@ -405,6 +405,10 @@ button.buttonNorm:focus {
   box-shadow: 0 4px 6px var(--shadow-color);
 }
 
+#headerMenuNav > ul > li > button span {
+  color: var(--text-primary);
+}
+
 /* =============================================================================
    PRINTER-SPECIFIC OVERRIDES
    ============================================================================= */
