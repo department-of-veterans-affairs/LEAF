@@ -144,7 +144,7 @@ $(function() {
                         <hr />
                     <!--{/foreach}-->
                 <!--{else}-->
-                    <span tabindex="0" style="color: #d00;">There are currently no forms available. To make a form available, open the Form Editor, select your form, ensure the workflow is assigned, and update the Form Status to <b>Available</b>.</span>
+                    <span tabindex="0" style="color: #d00;">There are currently no forms available.<br><br>To make a form available, open the Form Editor, select your form, ensure the workflow is assigned, and update the Form Status to <b>Available</b>.</span>
                 <!--{/if}-->
 
                 <button class="buttonNorm" type="submit" style="display: block; margin-top: 0.75rem; margin-left:auto" disabled>
