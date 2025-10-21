@@ -144,7 +144,13 @@ $(function() {
                         <hr />
                     <!--{/foreach}-->
                 <!--{else}-->
-                    <span tabindex="0" style="color: #d00;">There are currently no forms available.<br><br>To make a form available, open the Form Editor, select your form, ensure the workflow is assigned, and update the Form Status to <b>Available</b>.</span>
+                    <span class="entry_info bg-blue-5v" tabindex="0">
+                    <!--{if $is_admin == true}-->
+                            <span>There are no forms available.<br><br>Please contact <b class="system-admin-name"></b> for assistance.<br><br>To make a form available, open the Form Editor, select your form, ensure the workflow is assigned, and update the Form Status to <b>Available</b>.</span>
+                    <!--{else}-->
+                        <span>There are no forms available.<br><br>To make a form available, open the Form Editor, select your form, ensure the workflow is assigned, and update the Form Status to <b>Available</b>.</span>
+                    <!--{/if}-->
+                    </span>
                 <!--{/if}-->
 
                 <button class="buttonNorm" type="submit" style="display: block; margin-top: 0.75rem; margin-left:auto" disabled>
@@ -158,3 +164,26 @@ $(function() {
 
     </form>
 </div>
+
+<script type="text/javascript">
+<!--{if $is_admin == true}-->
+    fetch("api/system/primaryadmin")
+    .then(response => response.json())
+    .then(data => {
+        const fullName = ((data['Fname'] || '') + ' ' + (data['Lname'] || '')).trim();
+        const userName = data["userName"] || '';
+        const nameDisplay = fullName || userName;
+        const email = data['Email'] || '';
+
+        const adminInfo = email !== '' ?
+            nameDisplay + ' - <a href="mailto:' + email+ '">' + email + '</a>' :
+            'your site Admin';
+
+        // Update the system admin name in the "no forms available" message
+        $('.system-admin-name').html(adminInfo);
+    })
+    .catch(error => {
+        console.error('Error fetching primary admin:', error);
+    });
+<!--{/if}-->
+</script>

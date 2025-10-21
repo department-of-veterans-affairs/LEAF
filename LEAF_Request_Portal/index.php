@@ -3,7 +3,7 @@
  * As a work of the United States government, this project is in the public domain within the United States.
  */
 /*
- * test comment for 4583 
+ * test comment for 4583
  */
 
 use App\Leaf\XSSHelpers;
@@ -55,7 +55,7 @@ if (isset($settings['timeZone'])) {
 switch ($action) {
     case 'newform':
         $main->assign('useLiteUI', true);
-        $main->assign('javascripts', array('js/titleValidator.js', 
+        $main->assign('javascripts', array('js/titleValidator.js',
             'js/formQuery.js',));
 
         $form = new Portal\Form($db, $login);
@@ -91,6 +91,8 @@ switch ($action) {
         $t_form->assign('empUID', (int)$login->getEmpUID());
         $t_form->assign('empMembership', $login->getMembership());
         $t_form->assign('CSRFToken', XSSHelpers::xscrub($_SESSION['CSRFToken']));
+        $t_form->assign('is_admin', $login->checkGroup(1));
+
 
         $main->assign('body', $t_form->fetch(customTemplate('initial_form.tpl')));
 
