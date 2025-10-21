@@ -9,7 +9,7 @@ var LeafAgentViewer = function (containerID, siteURL) {
         'annotation': {
             'label': 'Annotation',
             'explain': (payload) => {
-                return `(${payload.data})`;
+                return payload.data;
             }
         },
         'holdForDuration': {
@@ -265,6 +265,7 @@ var LeafAgentViewer = function (containerID, siteURL) {
             ol.agentConfig > li {
                 counter-increment: agentConfigCounter;
                 padding-left: 3rem;
+                padding-right: 1rem;
                 margin-bottom: 1rem;
                 text-indent: -3rem;
                 background-color: #f1f1f1ff;
