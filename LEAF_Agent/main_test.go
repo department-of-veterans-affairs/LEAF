@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io"
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"testing"
@@ -8,6 +10,8 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	log.SetOutput(io.Discard) // avoid spamming test output?
+
 	var cookieJar, _ = cookiejar.New(nil)
 	client = &http.Client{
 		Timeout: time.Second * 5,
