@@ -407,7 +407,8 @@ span#headerTab {
   text-align: left;
 }
 
-.alert {
+.alert,
+.warning {
   font-weight: bold;
   font-size: 16px;
   background-color: #9d0000;
@@ -415,12 +416,15 @@ span#headerTab {
   padding: 4px;
 }
 
-.alert > span {
+.alert > span,
+.warning > span {
   color: white;
 }
 
 .alert a:link,
-.alert a:visited {
+.alert a:visited,
+.warning a:link,
+.warning a:visited {
   color: #bddcfb;
 }
 
@@ -1273,7 +1277,7 @@ span.browsetypes {
   vertical-align: middle;
 }
 
-.buttonNorm {
+.buttonNorm, .headerButton {
   background-color: #e8f2ff;
   padding: 4px;
   border: 1px solid black;
@@ -1283,21 +1287,27 @@ span.browsetypes {
 
 .buttonNorm:hover,
 .buttonNormSelected,
-.buttonNorm:hover > span .buttonNorm:focus {
+.buttonNorm:hover > span .buttonNorm:focus,
+.headerButton:hover,
+.headerButtonSelected,
+.headerButton:hover > span .headerButton:focus{
   background-color: #2372b0;
   color: white;
 }
 
-.buttonNorm:focus {
+.buttonNorm:focus,
+.headerButton:focus {
   background-color: #2372b0;
   color: white;
 }
 
-.buttonNorm > img {
+.buttonNorm > img,
+.headerButton > img {
   vertical-align: middle;
 }
 
-button.buttonNorm {
+button.buttonNorm,
+button.headerButton {
   background-color: #e8f2ff;
   border: 1px solid black;
   margin: 2px;
