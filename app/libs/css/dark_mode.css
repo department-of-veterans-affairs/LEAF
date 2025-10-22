@@ -43,6 +43,8 @@
 
   --text-primary: #000000;
 
+  --border-tertiary: #000000;
+
   --bg-button-primary: #E8F2FF;
   --bg-button-primary-hover: #2372B0;
   --text-button-primary-hover: #FFFFFF;
@@ -92,6 +94,8 @@
 
     --text-primary: #DFDFDF;
 
+    --border-tertiary: #CACACA;
+
     --bg-button-primary: #4A77B4;
     --bg-button-primary-hover: #BBCAE4;
     --text-button-primary-hover: #000000;
@@ -120,6 +124,14 @@ body a:visited {
 table.leaf_grid tr td a:link,
 table.leaf_grid tr td a:visited {
   color: var(--text-link);
+}
+
+table.leaf_grid thead tr th, table.leaf_grid tbody tr td, table.leaf_grid tfoot tr td {
+  border-color: var(--border-table-primary);
+}
+
+table.leaf_grid th:first-child, table.leaf_grid td:first-child {
+  border-left-color: var(--border-table-primary);
 }
 
 table.leaf_grid tr td span.browsecounter a:link,
@@ -251,37 +263,37 @@ span#headerLabel {
    CONTENT AREAS
    ============================================================================= */
 
-#card1, #card2, #card3, #card4 {
+.NRBlue, .inboxGreen, .BMGreen, .RBBlack {
   border-color: var(--border-primary);
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
-#card1,
-#card1 span.menuTextSmall,
-#card1 span.menuDescSmall {
+.NRBlue,
+.NRBlue span.menuTextSmall,
+.NRBlue span.menuDescSmall {
   color: var(--text-cards-light);
-  background-color: var(--bg-card-1);
+  background-color: var(--bg-card-1) !important;
 }
 
-#card2,
-#card2 span.menuTextSmall,
-#card2 span.menuDescSmall {
+.inboxGreen,
+.inboxGreen span.menuTextSmall,
+.inboxGreen span.menuDescSmall {
   color: var(--text-cards-dark);
-  background-color: var(--bg-card-2);
+  background-color: var(--bg-card-2) !important;
 }
 
-#card3,
-#card3 span.menuTextSmall,
-#card3 span.menuDescSmall {
+.BMGreen,
+.BMGreen span.menuTextSmall,
+.BMGreen span.menuDescSmall {
   color: var(--text-cards-dark);
-  background-color: var(--bg-card-3);
+  background-color: var(--bg-card-3) !important;
 }
 
-#card4,
-#card4 span.menuTextSmall,
-#card4 span.menuDescSmall {
+.RBBlack,
+.RBBlack span.menuTextSmall,
+.RBBlack span.menuDescSmall {
   color: var(--text-cards-light);
-  background-color: var(--bg-card-4);
+  background-color: var(--bg-card-4) !important;
 }
 
 #content {
