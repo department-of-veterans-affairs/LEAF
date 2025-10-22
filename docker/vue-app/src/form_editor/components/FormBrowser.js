@@ -65,7 +65,7 @@ export default {
             <span id="secureStatus" style="font-size: 120%; padding: 4px; color: white; font-weight: bold;">{{secureStatusText}}</span>
             <a id="secureBtn" :href="secureBtnLink" target="_blank" class="buttonNorm">{{secureBtnText}}</a>
         </div>
-        
+
         <!-- form browser tables -->
         <div id="form_browser_tables">
             <h3>Active Forms:</h3>
@@ -87,7 +87,11 @@ export default {
                     </category-item>
                 </tbody>
             </table>
-            <p v-else style="margin-bottom: 2rem;">No Active Forms</p>
+            <p v-else style="margin-bottom: 2rem;">
+                <div class="entry_info bg-blue-5v" tabindex="0">
+                    <span>No forms are currently set to <b>Available</b>. Users cannot submit requests at this time.</span>
+                </div>
+            </p>
 
             <h3>Inactive Forms:</h3>
             <table v-if="inactiveForms.length > 0" id="inactive_forms">

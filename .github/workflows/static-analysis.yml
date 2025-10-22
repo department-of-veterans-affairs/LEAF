@@ -1,0 +1,814 @@
+---
+name: Static Code Analysis
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'LEAF-Automated-Tests/**'
+      - 'LEAF_Nexus/**'
+      - 'LEAF_Request_Portal/**'
+      - 'app/**'
+      - 'libs/**'
+      - '.github/workflows/static-analysis.yml'
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - 'LEAF-Automated-Tests/**'
+      - 'LEAF_Nexus/**'
+      - 'LEAF_Request_Portal/**'
+      - 'app/**'
+      - 'libs/**'
+
+jobs:
+  php-analysis:
+    name: PHP Static Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: phpstan, psalm
+
+      - name: Create PHPStan Config
+        run: |
+          cat > phpstan.neon << 'EOF'
+          parameters:
+              level: 5
+              phpVersion: 80200
+              paths:
+                  - LEAF_Nexus
+                  - LEAF_Request_Portal
+                  - app
+                  - libs
+              excludePaths:
+                  - */TEMPLATE_*
+                  - */vendor/*
+                  - */node_modules/*
+                  - */.git/*
+              reportUnmatchedIgnoredErrors: false
+          EOF
+
+      - name: Run PHPStan
+        continue-on-error: true
+        run: |
+          mkdir -p reports
+          phpstan analyse \
+            --configuration=phpstan.neon \
+            --error-format=json \
+            --no-progress \
+            > reports/phpstan-report.json || true
+
+      - name: Create Psalm Config
+        run: |
+          cat > psalm.xml << 'EOF'
+          <?xml version="1.0"?>
+          <psalm
+              errorLevel="5"
+              resolveFromConfigFile="true"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="https://getpsalm.org/schema/config"
+              xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+              findUnusedBaselineEntry="false"
+              findUnusedCode="false"
+          >
+              <projectFiles>
+                  <directory name="LEAF_Nexus" />
+                  <directory name="LEAF_Request_Portal" />
+                  <directory name="app" />
+                  <directory name="libs" />
+                  <ignoreFiles>
+                      <file name="**/TEMPLATE_*" />
+                      <directory name="vendor" />
+                      <directory name="node_modules" />
+                  </ignoreFiles>
+              </projectFiles>
+          </psalm>
+          EOF
+
+      - name: Run Psalm
+        continue-on-error: true
+        run: |
+          psalm \
+            --report=reports/psalm-report.json \
+            --output-format=json \
+            || true
+
+      - name: Upload PHP Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: php-analysis-reports
+          path: reports/
+          retention-days: 30
+
+  javascript-typescript-analysis:
+    name: JavaScript/TypeScript Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ESLint
+        run: |
+          npm init -y
+          npm install --save-dev \
+            eslint \
+            @typescript-eslint/parser \
+            @typescript-eslint/eslint-plugin \
+            eslint-plugin-security
+
+      - name: Create ESLint Config
+        run: |
+          cat > .eslintrc.json << 'EOF'
+          {
+            "env": {
+              "browser": true,
+              "es2021": true,
+              "node": true
+            },
+            "extends": [
+              "eslint:recommended"
+            ],
+            "parserOptions": {
+              "ecmaVersion": "latest",
+              "sourceType": "module"
+            },
+            "plugins": ["security"],
+            "rules": {
+              "security/detect-object-injection": "warn",
+              "security/detect-non-literal-regexp": "warn",
+              "security/detect-unsafe-regex": "warn",
+              "security/detect-buffer-noassert": "warn",
+              "security/detect-eval-with-expression": "warn",
+              "security/detect-no-csrf-before-method-override": "warn",
+              "security/detect-possible-timing-attacks": "warn"
+            },
+            "overrides": [
+              {
+                "files": ["*.ts"],
+                "parser": "@typescript-eslint/parser",
+                "plugins": ["@typescript-eslint"],
+                "extends": [
+                  "eslint:recommended",
+                  "plugin:@typescript-eslint/recommended"
+                ]
+              }
+            ]
+          }
+          EOF
+
+      - name: Run ESLint on JavaScript/TypeScript
+        continue-on-error: true
+        run: |
+          mkdir -p reports
+          npx eslint \
+            "LEAF-Automated-Tests/**/*.{js,ts}" \
+            "LEAF_Nexus/**/*.{js,ts}" \
+            "LEAF_Request_Portal/**/*.{js,ts}" \
+            "app/**/*.{js,ts}" \
+            "libs/**/*.{js,ts}" \
+            --format json \
+            --output-file reports/eslint-report.json \
+            || true
+
+      - name: Upload JS/TS Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: javascript-typescript-reports
+          path: reports/
+          retention-days: 30
+
+  go-analysis:
+    name: Go Static Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Install Go Analysis Tools
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+
+      - name: Find Go Modules
+        id: find-go
+        run: |
+          echo "Searching for Go files..."
+          find LEAF-Automated-Tests LEAF_Nexus LEAF_Request_Portal app libs \
+            -name "*.go" -type f 2>/dev/null || echo "No Go files found"
+
+      - name: Run Gosec
+        continue-on-error: true
+        run: |
+          mkdir -p reports
+          if find LEAF-Automated-Tests LEAF_Nexus LEAF_Request_Portal app libs -name "*.go" -type f 2>/dev/null | grep -q .; then
+            gosec -fmt=json -out=reports/gosec-report.json \
+              ./LEAF-Automated-Tests/... \
+              ./LEAF_Nexus/... \
+              ./LEAF_Request_Portal/... \
+              ./app/... \
+              ./libs/... \
+              2>/dev/null || true
+          else
+            echo "No Go files found to scan" > reports/gosec-report.txt
+          fi
+
+      - name: Run Staticcheck
+        continue-on-error: true
+        run: |
+          if find LEAF-Automated-Tests LEAF_Nexus LEAF_Request_Portal app libs -name "*.go" -type f 2>/dev/null | grep -q .; then
+            staticcheck -f json \
+              ./LEAF-Automated-Tests/... \
+              ./LEAF_Nexus/... \
+              ./LEAF_Request_Portal/... \
+              ./app/... \
+              ./libs/... \
+              > reports/staticcheck-report.json 2>&1 || true
+          else
+            echo "No Go files found to scan" > reports/staticcheck-report.txt
+          fi
+
+      - name: Upload Go Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: go-analysis-reports
+          path: reports/
+          retention-days: 30
+
+  html-analysis:
+    name: HTML/Template Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install HTMLHint
+        run: npm install -g htmlhint
+
+      - name: Create HTMLHint Config
+        run: |
+          cat > .htmlhintrc << 'EOF'
+          {
+            "tagname-lowercase": true,
+            "attr-lowercase": false,
+            "attr-value-double-quotes": true,
+            "doctype-first": false,
+            "tag-pair": true,
+            "spec-char-escape": true,
+            "id-unique": true,
+            "src-not-empty": true,
+            "attr-no-duplication": true,
+            "title-require": false,
+            "inline-style-disabled": false,
+            "inline-script-disabled": false
+          }
+          EOF
+
+      - name: Run HTMLHint
+        continue-on-error: true
+        run: |
+          mkdir -p reports
+          htmlhint \
+            "LEAF-Automated-Tests/**/*.html" \
+            "LEAF_Nexus/**/*.html" \
+            "LEAF_Request_Portal/**/*.html" \
+            "app/**/*.html" \
+            "libs/**/*.html" \
+            --format json \
+            > reports/htmlhint-report.json || true
+
+      - name: Upload HTML Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: html-analysis-reports
+          path: reports/
+          retention-days: 30
+
+  semgrep-scan:
+    name: Semgrep Security Scan
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+      security-events: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep and Generate SARIF
+        id: semgrep
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/php
+            p/javascript
+            p/typescript
+            p/golang
+        env:
+          SEMGREP_RULES: p/security-audit p/php p/javascript p/typescript p/golang
+        continue-on-error: true
+
+      - name: Save Semgrep JSON Results
+        if: always()
+        run: |
+          mkdir -p reports
+          if [ -f semgrep.sarif ]; then
+            cp semgrep.sarif reports/semgrep.sarif
+          else
+            echo "No SARIF file generated" > reports/semgrep-info.txt
+          fi
+
+      - name: Upload Semgrep Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-reports
+          path: reports/
+          retention-days: 30
+
+      - name: Upload SARIF to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('semgrep.sarif') != ''
+        with:
+          sarif_file: semgrep.sarif
+        continue-on-error: true
+
+  generate-summary:
+    name: Generate Analysis Summary
+    runs-on: ubuntu-latest
+    needs: [php-analysis, javascript-typescript-analysis, go-analysis, html-analysis, semgrep-scan]
+    if: always()
+    
+    steps:
+      - name: Download All Reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-reports
+
+      - name: Generate Summary Report
+        run: |
+          cat > summary.md << 'EOF'
+          # Static Code Analysis Summary
+          
+          **Date:** $(date)
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          **Triggered by:** ${{ github.event_name }}
+          
+          ## Analysis Results
+          
+          ### PHP Analysis
+          - PHPStan and Psalm reports available in artifacts
+          
+          ### JavaScript/TypeScript Analysis
+          - ESLint security and quality checks completed
+          
+          ### Go Analysis
+          - Gosec security scanning completed
+          - Staticcheck analysis completed
+          
+          ### HTML Analysis
+          - HTMLHint validation completed
+          
+          ### Security Scan
+          - Semgrep multi-language security analysis completed
+          - SARIF report uploaded to GitHub Security tab
+          
+          ## Viewing Reports
+          
+          All detailed reports are available as workflow artifacts and will be retained for 30 days.
+          
+          Security findings can be viewed in the **Security** tab under **Code scanning alerts**.
+          
+          ---
+          
+          *Note: This scan is informational only and does not block merges.*
+          EOF
+          
+          cat summary.md
+
+      - name: Upload Summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-summary
+          path: summary.md
+          retention-days: 30
+
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+  generate-html-report:
+    name: Generate HTML Report
+    runs-on: ubuntu-latest
+    needs: [php-analysis, javascript-typescript-analysis, go-analysis, html-analysis, semgrep-scan]
+    if: always()
+    
+    steps:
+      - name: Download All Reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-reports
+        continue-on-error: true
+
+      - name: List Downloaded Files
+        run: |
+          echo "Listing all downloaded report files:"
+          ls -laR all-reports/ || echo "No reports directory found"
+
+      - name: Generate HTML Report
+        run: |
+          node << 'ENDSCRIPT'
+          const fs = require('fs');
+          
+          const readJSON = (filePath) => {
+            try {
+              return fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf8')) : null;
+            } catch (e) {
+              console.error(`Error reading ${filePath}:`, e.message);
+              return null;
+            }
+          };
+
+          const cleanPath = (p) => (p || '').replace('/home/runner/work/LEAF/LEAF/', '');
+          
+          const createIssue = (file, line, message, severity) => ({
+            file: cleanPath(file), line: line || 0, message: message || '', severity: severity || 'error'
+          });
+
+          const parsers = {
+            phpstan: (data) => {
+              const issues = [];
+              if (data?.files) {
+                Object.entries(data.files).forEach(([file, d]) => {
+                  d.messages?.forEach(m => issues.push(createIssue(file, m.line, m.message, 'error')));
+                });
+              }
+              return issues;
+            },
+            psalm: (data) => Array.isArray(data) ? data.map(i => 
+              createIssue(i.file_path, i.line_from, i.message, i.severity)
+            ) : [],
+            eslint: (data) => {
+              const issues = [];
+              if (Array.isArray(data)) {
+                data.forEach(f => f.messages?.forEach(m => 
+                  issues.push(createIssue(f.filePath, m.line, m.message, m.severity === 2 ? 'error' : 'warning'))
+                ));
+              }
+              return issues;
+            },
+            gosec: (data) => data?.Issues ? data.Issues.map(i => 
+              createIssue(i.file, parseInt(i.line), i.details, i.severity === 'HIGH' ? 'error' : 'warning')
+            ) : [],
+            htmlhint: (data) => {
+              const issues = [];
+              if (Array.isArray(data)) {
+                data.forEach(f => f.messages?.forEach(m => 
+                  issues.push(createIssue(f.file, m.line, m.message, m.type === 'error' ? 'error' : 'warning'))
+                ));
+              }
+              return issues;
+            }
+          };
+
+          const reports = [
+            { name: 'phpstan', path: 'all-reports/php-analysis-reports/phpstan-report.json', parser: 'phpstan' },
+            { name: 'psalm', path: 'all-reports/php-analysis-reports/psalm-report.json', parser: 'psalm' },
+            { name: 'eslint', path: 'all-reports/javascript-typescript-reports/eslint-report.json', parser: 'eslint' },
+            { name: 'gosec', path: 'all-reports/go-analysis-reports/gosec-report.json', parser: 'gosec' },
+            { name: 'htmlhint', path: 'all-reports/html-analysis-reports/htmlhint-report.json', parser: 'htmlhint' }
+          ];
+
+          const allData = {};
+          reports.forEach(r => {
+            console.log(`Processing ${r.name} from ${r.path}`);
+            const data = readJSON(r.path);
+            if (!data) {
+              console.log(`  Warning: No data found for ${r.name}`);
+            }
+            const issues = parsers[r.parser](data);
+            allData[r.name] = { issues, total: issues.length };
+            console.log(`  Found ${issues.length} issues`);
+          });
+
+          const totalIssues = Object.values(allData).reduce((sum, d) => sum + d.total, 0);
+          console.log(`Total issues across all tools: ${totalIssues}`);
+
+          const escapeHtml = (text) => text.replace(/[&<>"']/g, m => 
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])
+          );
+
+          const generateSection = (title, data, id) => {
+            if (data.total === 0) {
+              return `<div class="section"><h2>${title} <span class="badge success">0 issues</span></h2>
+                <div class="no-issues">✓ No issues found</div></div>`;
+            }
+            const limited = data.issues.slice(0, 100);
+            const hasMore = data.issues.length > 100;
+            const rows = limited.map(i => `<tr>
+              <td><span class="file-path">${i.file || 'N/A'}</span></td>
+              <td><span class="line-number">${i.line || 'N/A'}</span></td>
+              <td><span class="badge ${i.severity}">${i.severity}</span></td>
+              <td><span class="message">${escapeHtml(i.message)}</span></td></tr>`).join('');
+            return `<div class="section">
+              <h2 class="collapsible">${title} <span class="badge error">${data.total} issues</span></h2>
+              <div class="collapsible-content">
+                ${hasMore ? `<p style="color: #f59e0b; margin-bottom: 10px;">⚠️ Showing first 100 of ${data.total} issues</p>` : ''}
+                <table class="issues-table"><thead><tr>
+                  <th style="width: 40%">File</th><th style="width: 80px">Line</th>
+                  <th style="width: 100px">Severity</th><th>Message</th>
+                </tr></thead><tbody>${rows}</tbody></table></div></div>`;
+          };
+
+          const sections = [
+            ['PHPStan Analysis', allData.phpstan, 'phpstan'],
+            ['Psalm Analysis', allData.psalm, 'psalm'],
+            ['ESLint (JavaScript/TypeScript)', allData.eslint, 'eslint'],
+            ['Gosec (Go Security)', allData.gosec, 'gosec'],
+            ['HTMLHint', allData.htmlhint, 'htmlhint']
+          ].map(s => generateSection(...s)).join('');
+          
+          const env = process.env;
+          const htmlContent = `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Static Code Analysis Report - LEAF and tests</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                background: #f5f5f5;
+                padding: 20px;
+                color: #333;
+              }
+              .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                overflow: hidden;
+              }
+              .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+              }
+              .header h1 {
+                font-size: 28px;
+                margin-bottom: 10px;
+              }
+              .header .meta {
+                opacity: 0.9;
+                font-size: 14px;
+              }
+              .summary {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                padding: 30px;
+                background: #f8f9fa;
+                border-bottom: 1px solid #e0e0e0;
+              }
+              .summary-card {
+                background: white;
+                padding: 20px;
+                border-radius: 6px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+              }
+              .summary-card h3 {
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              }
+              .summary-card .number {
+                font-size: 32px;
+                font-weight: bold;
+                color: #333;
+              }
+              .summary-card.total .number { color: #667eea; }
+              .section {
+                padding: 30px;
+                border-bottom: 1px solid #e0e0e0;
+              }
+              .section:last-child {
+                border-bottom: none;
+              }
+              .section h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+                color: #333;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+              }
+              .badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 600;
+              }
+              .badge.error { background: #fee2e2; color: #991b1b; }
+              .badge.warning { background: #fef3c7; color: #92400e; }
+              .badge.success { background: #d1fae5; color: #065f46; }
+              .issues-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+                margin-top: 15px;
+              }
+              .issues-table th {
+                background: #f8f9fa;
+                padding: 12px;
+                text-align: left;
+                font-weight: 600;
+                color: #666;
+                border-bottom: 2px solid #e0e0e0;
+              }
+              .issues-table td {
+                padding: 12px;
+                border-bottom: 1px solid #f0f0f0;
+              }
+              .issues-table tr:hover {
+                background: #f8f9fa;
+              }
+              .file-path {
+                font-family: 'Monaco', 'Courier New', monospace;
+                font-size: 13px;
+                color: #667eea;
+              }
+              .line-number {
+                font-family: 'Monaco', 'Courier New', monospace;
+                color: #999;
+                font-size: 13px;
+              }
+              .message {
+                color: #555;
+                line-height: 1.5;
+              }
+              .no-issues {
+                text-align: center;
+                padding: 40px;
+                color: #10b981;
+                font-size: 16px;
+              }
+              .footer {
+                padding: 20px 30px;
+                background: #f8f9fa;
+                text-align: center;
+                color: #666;
+                font-size: 13px;
+              }
+              .collapsible {
+                cursor: pointer;
+                user-select: none;
+              }
+              .collapsible::before {
+                content: '▼ ';
+                display: inline-block;
+                transition: transform 0.2s;
+              }
+              .collapsible.collapsed::before {
+                transform: rotate(-90deg);
+              }
+              .collapsible-content {
+                max-height: 10000px;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+              }
+              .collapsible-content.collapsed {
+                max-height: 0;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>📊 Static Code Analysis Report</h1>
+                <div class="meta">
+                  <div><strong>Branch:</strong> ${env.GITHUB_REF_NAME || 'N/A'}</div>
+                  <div><strong>Commit:</strong> ${(env.GITHUB_SHA || 'N/A').substring(0, 7)}</div>
+                  <div><strong>Date:</strong> ${new Date().toLocaleString()}</div>
+                  <div><strong>Triggered by:</strong> ${env.GITHUB_EVENT_NAME || 'N/A'}</div>
+                </div>
+              </div>
+
+              <div class="summary">
+                <div class="summary-card total">
+                  <h3>Total Issues</h3>
+                  <div class="number">${totalIssues}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>PHP (PHPStan)</h3>
+                  <div class="number">${allData.phpstan.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>PHP (Psalm)</h3>
+                  <div class="number">${allData.psalm.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>JavaScript/TypeScript</h3>
+                  <div class="number">${allData.eslint.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>Go</h3>
+                  <div class="number">${allData.gosec.total}</div>
+                </div>
+                <div class="summary-card">
+                  <h3>HTML</h3>
+                  <div class="number">${allData.htmlhint.total}</div>
+                </div>
+              </div>
+
+              ${sections}
+
+              <div class="footer">
+                Generated by LEAF Static Code Analysis Pipeline • Reports retained for 30 days • 
+                This scan is informational only and does not block merges
+              </div>
+            </div>
+
+            <script>
+              document.querySelectorAll('.collapsible').forEach(el => {
+                el.addEventListener('click', () => {
+                  el.classList.toggle('collapsed');
+                  el.nextElementSibling.classList.toggle('collapsed');
+                });
+              });
+            </script>
+          </body>
+          </html>`;
+
+          try {
+            fs.writeFileSync('analysis-report.html', htmlContent);
+            console.log('HTML report generated successfully!');
+            console.log('Total issues found:', totalIssues);
+            console.log('File size:', fs.statSync('analysis-report.html').size, 'bytes');
+          } catch (err) {
+            console.error('Failed to write HTML file:', err);
+            process.exit(1);
+          }
+          ENDSCRIPT
+
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: html-report
+          path: analysis-report.html
+          retention-days: 30

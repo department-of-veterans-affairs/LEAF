@@ -98,7 +98,7 @@ export default {
                 :currentListLength="currentListLength"
                 :formNode="formNode">
             </form-question-display>
-            
+
             <!-- NOTE: ul for drop zones always needs to be here in edit mode even if there are no current children -->
             <ul v-if="formNode.child !== null || !previewMode"
                 class="form-index-listing-ul" :id="'drop_area_parent_'+ indicatorID"
@@ -127,7 +127,8 @@ export default {
                 </form-index-listing>
             </ul>
             <div v-if="depth === 0 && !previewMode" style="padding:0.5rem;">
-                <button type="button" class="btn-general new_section_question"
+                <button type="button" :id="'add_question_to_' + formNode.indicatorID"
+                    class="btn-general new_section_question"
                     aria-label="Add Question to Section"
                     @click="newQuestion(formNode.indicatorID)">
                     + Add Question to Section
