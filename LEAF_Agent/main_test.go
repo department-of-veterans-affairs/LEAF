@@ -10,7 +10,7 @@ import (
 	"github.com/department-of-veterans-affairs/LEAF/pkg/agent"
 )
 
-func TestLLMResponse(t *testing.T) {
+func TestLLMAPIResponse(t *testing.T) {
 	var cookieJar, _ = cookiejar.New(nil)
 	client := &http.Client{
 		Timeout: time.Second * 5,
