@@ -2,11 +2,11 @@
     <ul>
         {if $action != ''}
         <li>
-            <a href="./" class="buttonNorm" title="nav to homepage"><img src="dynicons/?img=go-home.svg&amp;w=16" alt="" />Home</a>
+            <a href="./" class="headerButton" title="nav to homepage"><img src="dynicons/?img=go-home.svg&amp;w=16" alt="" />Home</a>
         </li>
         {/if}
         <li id="headerMenu_container" style="display: inline-block">
-            <button type="button" id="button_showLinks" class="buttonNorm" title="links"
+            <button type="button" id="button_showLinks" class="headerButton" title="links"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_links">
                 Links<span aria-hidden="true">▼</span>
             </button>
@@ -15,7 +15,7 @@
             </div>
         </li>
         <li id="headerMenuHelp_container" style="display: inline-block">
-            <button type="button" id="button_showHelp" class="buttonNorm" title="primary admin contact information"
+            <button type="button" id="button_showHelp" class="headerButton" title="primary admin contact information"
                 onclick="toggleMenuPopup(event)" aria-expanded="false" aria-controls="headerMenu_help">
                 <img style="vertical-align: sub;" src="dynicons/?img=help-browser.svg&amp;w=16" alt="" />
                 Help<span aria-hidden="true">▼</span>
@@ -25,7 +25,7 @@
             </div>
         </li>
         {if $is_admin == true}
-        <li><a href="./admin/" class="buttonNorm"><img src="dynicons/?img=applications-system.svg&amp;w=16" alt=""/>Admin Panel</a></li>
+        <li><a href="./admin/" class="headerButton"><img src="dynicons/?img=applications-system.svg&amp;w=16" alt=""/>Admin Panel</a></li>
         {/if}
     </ul>
 </nav>
