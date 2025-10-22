@@ -172,7 +172,7 @@ services:
 
     # Automated testing
     api-test-helper:
-        image: golang
+        image: golang:1
         volumes:
             - "../LEAF-Automated-Tests/api-test-helper/:/app"
             - "../LEAF-Automated-Tests/API-tests/:/API-tests"
