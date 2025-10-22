@@ -77,7 +77,7 @@ func (a Agent) routeLLM(task *Task, payload RouteLLMPayload) {
 			continue
 		}
 
-		prompt := message{
+		prompt := Message{
 			Role:    "user",
 			Content: payload.Context + "Categorize the following text. Only respond with one of these categories:\n" + choices,
 		}
@@ -90,14 +90,14 @@ func (a Agent) routeLLM(task *Task, payload RouteLLMPayload) {
 		}
 		context = strings.TrimSpace(context)
 
-		input := message{
+		input := Message{
 			Role:    "user",
 			Content: context,
 		}
 
-		config := completions{
+		config := Completions{
 			Model: "gemma-3-4b-it-qat-q4_0",
-			Messages: []message{
+			Messages: []Message{
 				prompt, input,
 			},
 			MaxCompletionTokens: 50,

@@ -66,7 +66,7 @@ func (a Agent) updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload)
 		}
 
 		// Get response from LLM
-		prompt := message{
+		prompt := Message{
 			Role:    "user",
 			Content: payload.Context + "Label the following text. The label must be less than 50 characters.",
 		}
@@ -86,14 +86,14 @@ func (a Agent) updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload)
 			continue
 		}
 
-		input := message{
+		input := Message{
 			Role:    "user",
 			Content: context,
 		}
 
-		config := completions{
+		config := Completions{
 			Model: "gemma-3-4b-it-qat-q4_0",
-			Messages: []message{
+			Messages: []Message{
 				prompt, input,
 			},
 			MaxCompletionTokens: 50,

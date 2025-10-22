@@ -74,7 +74,7 @@ func (a Agent) updateDataLLMCategorization(task *Task, payload UpdateDataLLMCate
 		}
 
 		// Get response from LLM
-		prompt := message{
+		prompt := Message{
 			Role:    "user",
 			Content: payload.Context + "Categorize the following text. Only respond with one of these categories:\n" + categories,
 		}
@@ -87,14 +87,14 @@ func (a Agent) updateDataLLMCategorization(task *Task, payload UpdateDataLLMCate
 		}
 		context = strings.TrimSpace(context)
 
-		input := message{
+		input := Message{
 			Role:    "user",
 			Content: context,
 		}
 
-		config := completions{
+		config := Completions{
 			Model: "gemma-3-4b-it-qat-q4_0",
-			Messages: []message{
+			Messages: []Message{
 				prompt, input,
 			},
 			MaxCompletionTokens: 50,

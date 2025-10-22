@@ -72,7 +72,7 @@ func Test_UpdateDataLLMCategorization_Success(t *testing.T) {
 		llmResponse := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Technical",
 					},
 				},
@@ -400,7 +400,7 @@ func Test_UpdateDataLLMCategorization_InvalidLLMResponse(t *testing.T) {
 		llmResponse := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Invalid Category", // Not in the allowed list
 					},
 				},
@@ -483,7 +483,7 @@ func Test_UpdateDataLLMCategorization_UpdateRecordError(t *testing.T) {
 		llmResponse := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Technical",
 					},
 				},
@@ -569,7 +569,7 @@ func Test_UpdateDataLLMCategorization_RecordNotInSet(t *testing.T) {
 		llmResponse := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Technical",
 					},
 				},
@@ -650,7 +650,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyContext(t *testing.T) {
 		// Verify the prompt structure
 		body := make([]byte, 1024)
 		n, _ := r.Body.Read(body)
-		var config completions
+		var config Completions
 		json.Unmarshal(body[:n], &config)
 
 		// Check that the prompt is correctly formatted
@@ -661,7 +661,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyContext(t *testing.T) {
 		llmResponse := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Technical",
 					},
 				},
@@ -751,7 +751,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyDataFields(t *testing.T) {
 		// Verify that empty context is handled
 		body := make([]byte, 1024)
 		n, _ := r.Body.Read(body)
-		var config completions
+		var config Completions
 		json.Unmarshal(body[:n], &config)
 
 		// The second message should have empty content since all fields are empty
@@ -762,7 +762,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyDataFields(t *testing.T) {
 		llmResponse := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Other", // Default category when no context
 					},
 				},

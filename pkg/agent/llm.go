@@ -12,13 +12,13 @@ import (
 
 // Completions is the structure of the response from llama.cpp's Open-AI compatible Completions API
 // API overview: https://github.com/ggml-org/llama.cpp/tree/master/tools/server
-type completions struct {
+type Completions struct {
 	Model               string    `json:"model"`
-	Messages            []message `json:"messages"`
+	Messages            []Message `json:"messages"`
 	MaxCompletionTokens int       `json:"max_completion_tokens"`
 }
 
-type message struct {
+type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
@@ -31,7 +31,7 @@ type response struct {
 type choice struct {
 	FinishReason string  `json:"finish_reason"`
 	Index        int     `json:"index"`
-	Message      message `json:"message"`
+	Message      Message `json:"message"`
 }
 
 type timings struct {
@@ -39,7 +39,7 @@ type timings struct {
 	PredictedPerSecond float64 `json:"predicted_per_second"`
 }
 
-func (a Agent) GetLLMResponse(config completions) (response, error) {
+func (a Agent) GetLLMResponse(config Completions) (response, error) {
 	jsonConfig, _ := json.Marshal(config)
 
 	req, err := http.NewRequest("POST", a.llmCategorizationURL, bytes.NewBuffer(jsonConfig))

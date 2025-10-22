@@ -66,7 +66,7 @@ func (a Agent) updateData4BLLM(task *Task, payload UpdateData4BLLMPayload) {
 		}
 
 		// Get response from LLM
-		prompt := message{
+		prompt := Message{
 			Role:    "user",
 			Content: payload.Context,
 		}
@@ -79,14 +79,14 @@ func (a Agent) updateData4BLLM(task *Task, payload UpdateData4BLLMPayload) {
 		}
 		context = strings.TrimSpace(context)
 
-		input := message{
+		input := Message{
 			Role:    "user",
 			Content: context,
 		}
 
-		config := completions{
+		config := Completions{
 			Model: "gemma-3-4b-it-qat-q4_0",
-			Messages: []message{
+			Messages: []Message{
 				prompt, input,
 			},
 		}

@@ -63,7 +63,7 @@ func TestUpdateDataLLMLabel_Success(t *testing.T) {
 		response := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Test Label",
 					},
 				},
@@ -254,7 +254,7 @@ func TestUpdateDataLLMLabel_EmptyInputData(t *testing.T) {
 		response := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Test Label",
 					},
 				},
@@ -400,7 +400,7 @@ func TestUpdateDataLLMLabel_ResponseTooLong(t *testing.T) {
 		response := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "This is a very long response that exceeds the 50 character limit",
 					},
 				},
@@ -481,17 +481,17 @@ func TestUpdateDataLLMLabel_WithContext(t *testing.T) {
 	defer queryServer.Close()
 
 	// Capture the LLM request to verify context is included
-	var capturedConfig completions
+	var capturedConfig Completions
 	llmServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Decode the request to capture the config
-		var config completions
+		var config Completions
 		json.NewDecoder(r.Body).Decode(&config)
 		capturedConfig = config
 
 		response := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Test Label",
 					},
 				},
@@ -596,7 +596,7 @@ func TestUpdateDataLLMLabel_RecordNotInSet(t *testing.T) {
 		response := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Test Label",
 					},
 				},

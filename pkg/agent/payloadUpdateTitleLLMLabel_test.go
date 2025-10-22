@@ -65,7 +65,7 @@ func Test_UpdateTitleLLMLabel_Success(t *testing.T) {
 		response := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Test Label",
 					},
 				},
@@ -551,7 +551,7 @@ func Test_UpdateTitleLLMLabel_LLMResponseTooLong(t *testing.T) {
 		response := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "This is a very long label that exceeds the 50 character limit",
 					},
 				},
@@ -629,7 +629,7 @@ func Test_UpdateTitleLLMLabel_UpdateTitleError(t *testing.T) {
 		response := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "Test Label",
 					},
 				},
@@ -711,7 +711,7 @@ func Test_UpdateTitleLLMLabel_HTMLSanitization(t *testing.T) {
 		response := response{
 			Choices: []choice{
 				{
-					Message: message{
+					Message: Message{
 						Content: "<script>alert('xss')</script>Clean Label",
 					},
 				},
