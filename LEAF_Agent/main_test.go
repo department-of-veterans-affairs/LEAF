@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"strings"
@@ -47,10 +48,15 @@ func TestLLMAPIResponse(t *testing.T) {
 		MaxCompletionTokens: 50,
 	}
 
+	start := time.Now()
+
 	llmResponse, err := leafAgent.GetLLMResponse(config)
 	if err != nil {
 		t.Error(err)
 	}
+
+	elapsed := time.Since(start)
+	log.Println("LLM response time: ", elapsed)
 
 	if !strings.Contains(llmResponse.Choices[0].Message.Content, "Idea") {
 		t.Errorf(`LLM response want = "Idea", got = %v`, llmResponse.Choices[0].Message.Content)
