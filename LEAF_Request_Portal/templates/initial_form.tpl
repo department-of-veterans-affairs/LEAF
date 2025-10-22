@@ -166,7 +166,7 @@ $(function() {
 </div>
 
 <script type="text/javascript">
-<!--{if $is_admin == true}-->
+<!--{if $is_admin !== true}-->
     fetch("api/system/primaryadmin")
     .then(response => response.json())
     .then(data => {
