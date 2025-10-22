@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"fmt"
@@ -10,16 +10,16 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 )
 
-type UpdateDataLLMLabelPayload struct {
+type UpdateData4BLLMPayload struct {
+	Context          string `json:"context"`
 	ReadIndicatorIDs []int  `json:"readIndicatorIDs"`
 	WriteIndicatorID int    `json:"writeIndicatorID"`
-	Context          string `json:"context,omitempty"`
 }
 
-// updateDataLLMLabel updates a record's data field (payload.WriteIndicatorID) with
-// a short < 50 character label for the data within ReadIndicatorIDs.
+// updateData4bLLM updates a record's data field (payload.WriteIndicatorID) based on Context and content
+// from ReadIndicatorIDs using a ~4B parameter LLM.
 // WriteIndicatorID must reference a text or textarea field
-func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
+func (a Agent) updateData4BLLM(task *Task, payload UpdateData4BLLMPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -32,9 +32,9 @@ func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
 		GetData: payload.ReadIndicatorIDs,
 	}
 
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
+	records, err := a.FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
-		task.HandleError(0, "updateDataLLMLabel:", err)
+		task.HandleError(0, "updateData4BLLM:", err)
 		return
 	}
 
@@ -43,14 +43,14 @@ func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
 		return
 	}
 
-	indicators, err := GetIndicatorMap(task.SiteURL)
+	indicators, err := a.GetIndicatorMap(task.SiteURL)
 	if err != nil {
-		task.HandleError(0, "updateDataLLMLabel:", err)
+		task.HandleError(0, "updateData4BLLM:", err)
 		return
 	}
 
 	if indicators[payload.WriteIndicatorID].Format != "text" && indicators[payload.WriteIndicatorID].Format != "textarea" {
-		task.HandleError(0, "updateDataLLMLabel:", fmt.Errorf("indicator ID %d does not reference a text or textarea field", payload.WriteIndicatorID))
+		task.HandleError(0, "updateData4BLLM:", fmt.Errorf("indicator ID %d does not reference a text or textarea field", payload.WriteIndicatorID))
 		return
 	}
 
@@ -68,23 +68,16 @@ func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
 		// Get response from LLM
 		prompt := message{
 			Role:    "user",
-			Content: payload.Context + "Label the following text. The label must be less than 50 characters.",
+			Content: payload.Context,
 		}
 		context := ""
-		inputLength := 0
 		for _, indicatorID := range payload.ReadIndicatorIDs {
 			iiD := strconv.Itoa(indicatorID)
 			if strings.TrimSpace(record.S1["id"+iiD]) != "" {
 				context += indicators[indicatorID].Name + ": " + record.S1["id"+iiD] + "\n\n"
-				inputLength += len(record.S1["id"+iiD])
 			}
 		}
 		context = strings.TrimSpace(context)
-
-		// Skip record if input is empty
-		if inputLength == 0 {
-			continue
-		}
 
 		input := message{
 			Role:    "user",
@@ -96,29 +89,22 @@ func updateDataLLMLabel(task *Task, payload UpdateDataLLMLabelPayload) {
 			Messages: []message{
 				prompt, input,
 			},
-			MaxCompletionTokens: 50,
 		}
 
-		llmResponse, err := GetLLMResponse(config)
+		llmResponse, err := a.GetLLMResponse(config)
 		if err != nil {
-			task.HandleError(0, "updateDataLLMLabel:", fmt.Errorf("GetLLMResponse: %w", err))
+			task.HandleError(0, "updateData4BLLM:", fmt.Errorf("GetLLMResponse: %w", err))
 			return
 		}
 
-		cleanResponse := strings.Trim(llmResponse.Choices[0].Message.Content, " \n.")
 		scrubber := bluemonday.StrictPolicy()
-		cleanResponse = scrubber.Sanitize(cleanResponse)
-
-		if len(llmResponse.Choices[0].Message.Content) > 50 {
-			task.HandleError(recordID, "updateDataLLMLabel:", fmt.Errorf("LLM response exceeds 50 character constraint: %v", cleanResponse))
-			return
-		}
+		cleanResponse := scrubber.Sanitize(llmResponse.Choices[0].Message.Content)
 
 		data := map[int]string{}
 		data[payload.WriteIndicatorID] = cleanResponse
-		err = UpdateRecord(task.SiteURL, recordID, data)
+		err = a.UpdateRecord(task.SiteURL, recordID, data)
 		if err != nil {
-			task.HandleError(0, "updateDataLLMLabel:", err)
+			task.HandleError(0, "updateData4BLLM:", err)
 		}
 
 	}

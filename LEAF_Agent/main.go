@@ -12,21 +12,22 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/department-of-veterans-affairs/LEAF/pkg/agent"
 )
 
-var client *http.Client
-var clientLLM *http.Client
+var leafAgent *agent.Agent
 var AGENT_TOKEN = os.Getenv("AGENT_TOKEN")
 var HTTP_HOST = os.Getenv("APP_HTTP_HOST")
 var LLM_API_KEY = os.Getenv("LLM_API_KEY")
 var LLM_CATEGORIZATION_URL = os.Getenv("LLM_CATEGORIZATION_URL")
 
-func Runner(ctxExit context.Context, wg *sync.WaitGroup, task chan Task) {
+func Runner(ctxExit context.Context, wg *sync.WaitGroup, task chan agent.Task) {
 	for {
 		select {
 		case t := <-task:
 			wg.Add(1)
-			ExecuteTask(t)
+			leafAgent.ExecuteTask(t)
 			wg.Done()
 		case <-ctxExit.Done():
 			return
@@ -34,7 +35,7 @@ func Runner(ctxExit context.Context, wg *sync.WaitGroup, task chan Task) {
 	}
 }
 
-func taskRequiresLLM(task Task) bool {
+func taskRequiresLLM(task agent.Task) bool {
 	for _, inst := range task.Instructions {
 		if strings.Contains(inst.Type, "LLM") {
 			return true
@@ -48,7 +49,7 @@ func ProcessTasks(ctxExit context.Context, useLLM bool) {
 	wg := &sync.WaitGroup{}
 	var startTime time.Time
 	var loopDuration int
-	taskChan := make(chan Task)
+	taskChan := make(chan agent.Task)
 
 	// Start workers
 	// Try to optimize for parallel requests on the LLM host
@@ -67,13 +68,13 @@ func ProcessTasks(ctxExit context.Context, useLLM bool) {
 		}
 
 		if !useLLM {
-			err := ReviewTasks()
+			err := leafAgent.ReviewTasks()
 			if err != nil {
 				log.Println("Error updating tasks:", err)
 			}
 		}
 
-		tasks, err := FindTasks()
+		tasks, err := leafAgent.FindTasks()
 		if err != nil {
 			log.Println("Error finding tasks:", err)
 		}
@@ -125,18 +126,20 @@ func main() {
 	}
 
 	var cookieJar, _ = cookiejar.New(nil)
-	client = &http.Client{
+	client := &http.Client{
 		Transport: tr,
 		Timeout:   time.Second * 5,
 		Jar:       cookieJar,
 	}
 
 	var cookieJarLLM, _ = cookiejar.New(nil)
-	clientLLM = &http.Client{
+	clientLLM := &http.Client{
 		Transport: tr,
 		Timeout:   time.Second * 60,
 		Jar:       cookieJarLLM,
 	}
+
+	leafAgent = agent.New(client, clientLLM)
 
 	log.Println("Starting LEAF Agent Coordinator...")
 

@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -16,32 +16,32 @@ import (
 	"github.com/department-of-veterans-affairs/LEAF/pkg/workflow"
 )
 
-func HttpPost(url string, values url.Values) (res *http.Response, err error) {
+func (a Agent) HttpPost(url string, values url.Values) (res *http.Response, err error) {
 	req, err := http.NewRequest("POST", url, strings.NewReader(values.Encode()))
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", AGENT_TOKEN)
+	req.Header.Set("Authorization", a.authToken)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	return client.Do(req)
+	return a.httpClient.Do(req)
 }
 
-func HttpGet(url string) (res *http.Response, err error) {
+func (a Agent) HttpGet(url string) (res *http.Response, err error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", AGENT_TOKEN)
+	req.Header.Set("Authorization", a.authToken)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	return client.Do(req)
+	return a.httpClient.Do(req)
 }
 
 // FormQuery uses the api/form/query endpoint to fetch matching records
-func FormQuery(siteURL string, q query.Query, params string) (query.Response, error) {
+func (a Agent) FormQuery(siteURL string, q query.Query, params string) (query.Response, error) {
 	if siteURL[len(siteURL)-1] != '/' {
 		siteURL += "/"
 	}
@@ -61,7 +61,7 @@ func FormQuery(siteURL string, q query.Query, params string) (query.Response, er
 			return nil, err
 		}
 
-		res, err := HttpGet(siteURL + "api/form/query?q=" + string(jsonQuery) + params)
+		res, err := a.HttpGet(siteURL + "api/form/query?q=" + string(jsonQuery) + params)
 		if err != nil {
 			return nil, err
 		}
@@ -94,12 +94,12 @@ func FormQuery(siteURL string, q query.Query, params string) (query.Response, er
 // GetIndicatorMap returns a map of indicators, indexed by indicatorID, and performs two replacements:
 // 1. Name is replaced by Description (short label), if available
 // 2. Format is parsed into FormatOptions. If options exist, Format will only contain the format type.
-func GetIndicatorMap(siteURL string) (map[int]form.Indicator, error) {
+func (a Agent) GetIndicatorMap(siteURL string) (map[int]form.Indicator, error) {
 	if siteURL[len(siteURL)-1] != '/' {
 		siteURL += "/"
 	}
 
-	res, err := HttpGet(siteURL + "api/form/indicator/list?sort=indicatorID&x-filterData=indicatorID,name,description,format")
+	res, err := a.HttpGet(siteURL + "api/form/indicator/list?sort=indicatorID&x-filterData=indicatorID,name,description,format")
 	if err != nil {
 		return nil, err
 	}
@@ -140,12 +140,12 @@ func GetIndicatorMap(siteURL string) (map[int]form.Indicator, error) {
 	return indicatorMap, nil
 }
 
-func GetActions(siteURL string, stepID string) ([]workflow.Action, error) {
+func (a Agent) GetActions(siteURL string, stepID string) ([]workflow.Action, error) {
 	if siteURL[len(siteURL)-1] != '/' {
 		siteURL += "/"
 	}
 
-	res, err := HttpGet(siteURL + "api/workflow/step/" + stepID + "/actions")
+	res, err := a.HttpGet(siteURL + "api/workflow/step/" + stepID + "/actions")
 	if err != nil {
 		return nil, err
 	}
@@ -162,12 +162,12 @@ func GetActions(siteURL string, stepID string) ([]workflow.Action, error) {
 }
 
 // GetAdmins retrieves the list of admins for the specified siteURL
-func GetAdmins(siteURL string) ([]group.Member, error) {
+func (a Agent) GetAdmins(siteURL string) ([]group.Member, error) {
 	if siteURL[len(siteURL)-1] != '/' {
 		siteURL += "/"
 	}
 
-	res, err := HttpGet(siteURL + "api/group/1/members")
+	res, err := a.HttpGet(siteURL + "api/group/1/members")
 	if err != nil {
 		log.Println("Error retrieving admins:", siteURL)
 		return nil, err
@@ -189,8 +189,8 @@ func GetAdmins(siteURL string) ([]group.Member, error) {
 	return admins, nil
 }
 
-func IsSiteAdmin(siteURL string, userName string) (bool, error) {
-	admins, err := GetAdmins(siteURL)
+func (a Agent) IsSiteAdmin(siteURL string, userName string) (bool, error) {
+	admins, err := a.GetAdmins(siteURL)
 	if err != nil {
 		log.Println("Error retrieving admins:", err)
 		return false, err

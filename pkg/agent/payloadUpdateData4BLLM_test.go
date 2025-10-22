@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -148,7 +148,7 @@ func TestUpdateData4BLLM(t *testing.T) {
 	// 3. Build a minimal Task value.
 	// -------------------------------------------------------------------------
 	// Set environment for LLM calls to point to our mock server
-	LLM_CATEGORIZATION_URL = ts.URL + "/api/llm"
+	agent.llmCategorizationURL = ts.URL + "/api/llm"
 
 	task := &Task{
 		SiteURL: ts.URL + "/", // the code adds a trailing slash if missing
@@ -167,7 +167,7 @@ func TestUpdateData4BLLM(t *testing.T) {
 		ReadIndicatorIDs: []int{1, 2},
 		WriteIndicatorID: writeIndicatorID,
 	}
-	updateData4BLLM(task, payload)
+	agent.updateData4BLLM(task, payload)
 
 	// -------------------------------------------------------------------------
 	// 5. Verify that the LLM answer was written to each record that
@@ -309,7 +309,7 @@ func TestUpdateData4BLLM_HTMLStripping(t *testing.T) {
 	// 3. Build a minimal Task value.
 	// -------------------------------------------------------------------------
 	// Set environment for LLM calls to point to our mock server
-	LLM_CATEGORIZATION_URL = ts.URL + "/api/llm"
+	agent.llmCategorizationURL = ts.URL + "/api/llm"
 
 	task := &Task{
 		SiteURL: ts.URL + "/", // the code adds a trailing slash if missing
@@ -327,7 +327,7 @@ func TestUpdateData4BLLM_HTMLStripping(t *testing.T) {
 		ReadIndicatorIDs: []int{1},
 		WriteIndicatorID: writeIndicatorID,
 	}
-	updateData4BLLM(task, payload)
+	agent.updateData4BLLM(task, payload)
 
 	// -------------------------------------------------------------------------
 	// 5. Verify that HTML tags were stripped from the LLM answer and only
@@ -378,7 +378,7 @@ func TestUpdateData4BLLM_NoRecords(t *testing.T) {
 		ReadIndicatorIDs: []int{1},
 		WriteIndicatorID: 99,
 	}
-	updateData4BLLM(task, payload)
+	agent.updateData4BLLM(task, payload)
 
 	if updateCalled {
 		t.Errorf("UpdateRecord was called when no records were returned")

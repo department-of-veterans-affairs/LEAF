@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 
 // All siteURLs must include a trailing slash
 
-func TakeAction(siteURL string, recID int, stepID string, actionType string, comment string) error {
+func (a Agent) TakeAction(siteURL string, recID int, stepID string, actionType string, comment string) error {
 	if siteURL[len(siteURL)-1] != '/' {
 		siteURL += "/"
 	}
@@ -25,7 +25,7 @@ func TakeAction(siteURL string, recID int, stepID string, actionType string, com
 
 	endpoint := siteURL + "api/formWorkflow/" + recordID + "/apply"
 
-	res, err := HttpPost(endpoint, values)
+	res, err := a.HttpPost(endpoint, values)
 	if err != nil {
 		log.Println("Error taking action:", endpoint, err)
 		return err
@@ -43,7 +43,7 @@ func TakeAction(siteURL string, recID int, stepID string, actionType string, com
 
 // UpdateRecord updates a record with the provided data.
 // data is a map where the keys are field IDs (indicatorID) and the values are written into the record matching recID
-func UpdateRecord(siteURL string, recID int, data map[int]string) error {
+func (a Agent) UpdateRecord(siteURL string, recID int, data map[int]string) error {
 	if siteURL[len(siteURL)-1] != '/' {
 		siteURL += "/"
 	}
@@ -56,7 +56,7 @@ func UpdateRecord(siteURL string, recID int, data map[int]string) error {
 		values.Add(strconv.Itoa(k), v)
 	}
 
-	res, err := HttpPost(siteURL+"api/form/"+recordID, values)
+	res, err := a.HttpPost(siteURL+"api/form/"+recordID, values)
 	if err != nil {
 		log.Println("Error updating record:", siteURL, recID)
 		return err
@@ -73,7 +73,7 @@ func UpdateRecord(siteURL string, recID int, data map[int]string) error {
 }
 
 // UpdateTitle updates a record title
-func UpdateTitle(siteURL string, recID int, title string) error {
+func (a Agent) UpdateTitle(siteURL string, recID int, title string) error {
 	if siteURL[len(siteURL)-1] != '/' {
 		siteURL += "/"
 	}
@@ -83,7 +83,7 @@ func UpdateTitle(siteURL string, recID int, title string) error {
 	values := url.Values{}
 	values.Add("title", title)
 
-	res, err := HttpPost(siteURL+"api/form/"+recordID+"/title", values)
+	res, err := a.HttpPost(siteURL+"api/form/"+recordID+"/title", values)
 	if err != nil {
 		log.Println("Error updating record title:", siteURL, recID)
 		return err

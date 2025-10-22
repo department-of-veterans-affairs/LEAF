@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -77,8 +77,8 @@ func Test_UpdateTitleLLMLabel_Success(t *testing.T) {
 	defer llmTs.Close()
 
 	// Set LLM URL for testing
-	LLM_CATEGORIZATION_URL = llmTs.URL
-	LLM_API_KEY = "test-key"
+	agent.llmCategorizationURL = llmTs.URL
+	agent.llmApiKey = "test-key"
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -94,7 +94,7 @@ func Test_UpdateTitleLLMLabel_Success(t *testing.T) {
 		Context:          "Test context",
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Check that no errors occurred
 	if len(task.Errors) > 0 {
@@ -145,7 +145,7 @@ func Test_UpdateTitleLLMLabel_EmptyRecords(t *testing.T) {
 		ReadIndicatorIDs: []int{1, 2},
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Verify that query was called but no title updates were made
 	if !queryCalled {
@@ -222,8 +222,8 @@ func Test_UpdateTitleLLMLabel_RecordNotInSet(t *testing.T) {
 	defer llmTs.Close()
 
 	// Set LLM URL for testing
-	LLM_CATEGORIZATION_URL = llmTs.URL
-	LLM_API_KEY = "test-key"
+	agent.llmCategorizationURL = llmTs.URL
+	agent.llmApiKey = "test-key"
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -237,7 +237,7 @@ func Test_UpdateTitleLLMLabel_RecordNotInSet(t *testing.T) {
 		ReadIndicatorIDs: []int{1},
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Verify that query and indicator list were called (initial setup)
 	if !queryCalled {
@@ -325,8 +325,8 @@ func Test_UpdateTitleLLMLabel_EmptyInput(t *testing.T) {
 	defer llmTs.Close()
 
 	// Set LLM URL for testing
-	LLM_CATEGORIZATION_URL = llmTs.URL
-	LLM_API_KEY = "test-key"
+	agent.llmCategorizationURL = llmTs.URL
+	agent.llmApiKey = "test-key"
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -340,7 +340,7 @@ func Test_UpdateTitleLLMLabel_EmptyInput(t *testing.T) {
 		ReadIndicatorIDs: []int{1, 2},
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Verify that query and indicator list were called (initial setup)
 	if !queryCalled {
@@ -392,7 +392,7 @@ func Test_UpdateTitleLLMLabel_FormQueryError(t *testing.T) {
 		ReadIndicatorIDs: []int{1},
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Should have an error
 	if len(task.Errors) == 0 {
@@ -442,7 +442,7 @@ func Test_UpdateTitleLLMLabel_IndicatorMapError(t *testing.T) {
 		ReadIndicatorIDs: []int{1},
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Should have an error
 	if len(task.Errors) == 0 {
@@ -490,8 +490,8 @@ func Test_UpdateTitleLLMLabel_LLMError(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
-	LLM_API_KEY = "test-key"
+	agent.llmCategorizationURL = llmTs.URL
+	agent.llmApiKey = "test-key"
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -505,7 +505,7 @@ func Test_UpdateTitleLLMLabel_LLMError(t *testing.T) {
 		ReadIndicatorIDs: []int{1},
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Should have an error
 	if len(task.Errors) == 0 {
@@ -562,8 +562,8 @@ func Test_UpdateTitleLLMLabel_LLMResponseTooLong(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
-	LLM_API_KEY = "test-key"
+	agent.llmCategorizationURL = llmTs.URL
+	agent.llmApiKey = "test-key"
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -577,7 +577,7 @@ func Test_UpdateTitleLLMLabel_LLMResponseTooLong(t *testing.T) {
 		ReadIndicatorIDs: []int{1},
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Should have an error about response length
 	if len(task.Errors) == 0 {
@@ -640,8 +640,8 @@ func Test_UpdateTitleLLMLabel_UpdateTitleError(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
-	LLM_API_KEY = "test-key"
+	agent.llmCategorizationURL = llmTs.URL
+	agent.llmApiKey = "test-key"
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -655,7 +655,7 @@ func Test_UpdateTitleLLMLabel_UpdateTitleError(t *testing.T) {
 		ReadIndicatorIDs: []int{1},
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Should have an error
 	if len(task.Errors) == 0 {
@@ -722,8 +722,8 @@ func Test_UpdateTitleLLMLabel_HTMLSanitization(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
-	LLM_API_KEY = "test-key"
+	agent.llmCategorizationURL = llmTs.URL
+	agent.llmApiKey = "test-key"
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -737,7 +737,7 @@ func Test_UpdateTitleLLMLabel_HTMLSanitization(t *testing.T) {
 		ReadIndicatorIDs: []int{1},
 	}
 
-	updateTitleLLMLabel(&task, payload)
+	agent.updateTitleLLMLabel(&task, payload)
 
 	// Should complete successfully with sanitized content
 	if len(task.Errors) > 0 {

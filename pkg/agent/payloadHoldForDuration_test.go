@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -53,7 +53,7 @@ func Test_HoldForDuration(t *testing.T) {
 		},
 	}
 
-	holdForDuration(&task, HoldForDurationPayload{SecondsToHold: 20})
+	agent.holdForDuration(&task, HoldForDurationPayload{SecondsToHold: 20})
 
 	if _, exists := task.Records[1]; exists {
 		t.Errorf("Record 1 exists got = %v, want %v", exists, false)

@@ -1,17 +1,17 @@
-package main
+package agent
 
 import (
 	"github.com/department-of-veterans-affairs/LEAF/pkg/form/query"
 )
 
-type UpdateDataConditionalPayload struct {
-	Query            query.Query `json:"query"`
-	WriteIndicatorID int         `json:"writeIndicatorID"`
-	Content          string      `json:"content"`
+type RouteConditionalDataPayload struct {
+	ActionType string      `json:"actionType"`
+	Query      query.Query `json:"query"`
+	Comment    string      `json:"comment,omitempty"`
 }
 
-// updateDataConditional updates data matching WriteIndicatorID for all records that match payload.Query AND the task's stepID.
-func updateDataConditional(task *Task, payload UpdateDataConditionalPayload) {
+// routeConditionalData executes an action, payload.ActionType, for all records that match payload.Query AND the task's stepID.
+func (a Agent) routeConditionalData(task *Task, payload RouteConditionalDataPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -39,9 +39,9 @@ func updateDataConditional(task *Task, payload UpdateDataConditionalPayload) {
 		}
 	}
 
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
+	records, err := a.FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
-		task.HandleError(0, "updateDataConditional:", err)
+		task.HandleError(0, "routeConditionalData:", err)
 	}
 
 	// Exit early if no records match the query
@@ -55,11 +55,9 @@ func updateDataConditional(task *Task, payload UpdateDataConditionalPayload) {
 			continue
 		}
 
-		data := map[int]string{}
-		data[payload.WriteIndicatorID] = payload.Content
-		err = UpdateRecord(task.SiteURL, recordID, data)
+		err = a.TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
 		if err != nil {
-			task.HandleError(recordID, "updateDataConditional:", err)
+			task.HandleError(recordID, "routeConditionalData:", err)
 		}
 	}
 }

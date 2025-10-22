@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ type ValidateInitiatorIsLocalAdmin struct {
 
 // validateInitiatorIsLocalAdmin checks if the record's initiator is a local admin for a given SiteURL
 // provided by ReadIndicatorID
-func validateInitiatorIsLocalAdmin(task *Task, payload ValidateInitiatorIsLocalAdmin) {
+func (a Agent) validateInitiatorIsLocalAdmin(task *Task, payload ValidateInitiatorIsLocalAdmin) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -28,7 +28,7 @@ func validateInitiatorIsLocalAdmin(task *Task, payload ValidateInitiatorIsLocalA
 		GetData: []int{payload.ReadIndicatorID},
 	}
 
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=userName")
+	records, err := a.FormQuery(task.SiteURL, query, "&x-filterData=userName")
 	if err != nil {
 		task.HandleError(0, "validateInitiatorIsLocalAdmin:", err)
 	}
@@ -46,7 +46,7 @@ func validateInitiatorIsLocalAdmin(task *Task, payload ValidateInitiatorIsLocalA
 
 		// Get the list of admins for the provided SiteURL
 		iID := strconv.Itoa(payload.ReadIndicatorID)
-		admins, err := GetAdmins(record.S1["id"+iID])
+		admins, err := a.GetAdmins(record.S1["id"+iID])
 		if err != nil {
 			task.HandleError(recordID, "validateInitiatorIsLocalAdmin:", err)
 			continue

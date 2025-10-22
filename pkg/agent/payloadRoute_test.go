@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"net/http"
@@ -26,7 +26,7 @@ func TestRoute_WithRecords(t *testing.T) {
 		},
 	}
 
-	route(&task, RoutePayload{ActionType: "test"})
+	agent.route(&task, RoutePayload{ActionType: "test"})
 
 	expectedCalls := len(task.Records)
 	if callCount != expectedCalls {

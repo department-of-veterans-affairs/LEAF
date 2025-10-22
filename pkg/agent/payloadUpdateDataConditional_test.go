@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -85,7 +85,7 @@ func TestUpdateDataConditional_Success(t *testing.T) {
 		Content:          "updated content",
 	}
 
-	updateDataConditional(&task, payload)
+	agent.updateDataConditional(&task, payload)
 
 	// Verify that records 1 and 2 were updated (they match stepID)
 	if len(updatedRecords) != 2 {
@@ -151,7 +151,7 @@ func TestUpdateDataConditional_NoMatchingRecords(t *testing.T) {
 		Content:          "updated content",
 	}
 
-	updateDataConditional(&task, payload)
+	agent.updateDataConditional(&task, payload)
 
 	// No errors should occur and no updates should be made
 	if len(task.Errors) > 0 {
@@ -196,7 +196,7 @@ func TestUpdateDataConditional_QueryError(t *testing.T) {
 		Content:          "updated content",
 	}
 
-	updateDataConditional(&task, payload)
+	agent.updateDataConditional(&task, payload)
 
 	// Should have an error logged
 	if len(task.Errors) == 0 {
@@ -253,7 +253,7 @@ func TestUpdateDataConditional_UpdateError(t *testing.T) {
 		Content:          "updated content",
 	}
 
-	updateDataConditional(&task, payload)
+	agent.updateDataConditional(&task, payload)
 
 	// Should have an error logged
 	if len(task.Errors) == 0 {
@@ -318,7 +318,7 @@ func TestUpdateDataConditional_AllowedTerms(t *testing.T) {
 		Content:          "updated content",
 	}
 
-	updateDataConditional(&task, payload)
+	agent.updateDataConditional(&task, payload)
 
 	// Parse the received query to verify it contains only allowed terms
 	var parsedQuery query.Query
@@ -411,7 +411,7 @@ func TestUpdateDataConditional_RecordNotInWorkingSet(t *testing.T) {
 		Content:          "updated content",
 	}
 
-	updateDataConditional(&task, payload)
+	agent.updateDataConditional(&task, payload)
 
 	// Only record 1 should be updated
 	if len(updatedRecords) != 1 {
@@ -463,7 +463,7 @@ func TestUpdateDataConditional_EmptyWorkingSet(t *testing.T) {
 		Content:          "updated content",
 	}
 
-	updateDataConditional(&task, payload)
+	agent.updateDataConditional(&task, payload)
 
 	// No errors should occur
 	if len(task.Errors) > 0 {

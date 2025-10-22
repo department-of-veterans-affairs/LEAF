@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -67,7 +67,7 @@ func Test_validateInitiatorIsLocalAdmin_Success(t *testing.T) {
 		ReadIndicatorID: 123,
 	}
 
-	validateInitiatorIsLocalAdmin(&task, payload)
+	agent.validateInitiatorIsLocalAdmin(&task, payload)
 
 	if _, exists := task.Records[1]; !exists {
 		t.Errorf("Record 1 should exist (admin_user is admin), got = %v, want %v", exists, false)
@@ -99,7 +99,7 @@ func Test_validateInitiatorIsLocalAdmin_FormQueryError(t *testing.T) {
 		ReadIndicatorID: 123,
 	}
 
-	validateInitiatorIsLocalAdmin(&task, payload)
+	agent.validateInitiatorIsLocalAdmin(&task, payload)
 
 	// All records should be cleared due to error
 	if len(task.Records) != 0 {
@@ -154,7 +154,7 @@ func Test_validateInitiatorIsLocalAdmin_GetAdminsError(t *testing.T) {
 		ReadIndicatorID: 123,
 	}
 
-	validateInitiatorIsLocalAdmin(&task, payload)
+	agent.validateInitiatorIsLocalAdmin(&task, payload)
 
 	// Record should be removed due to GetAdmins error
 	if _, exists := task.Records[1]; exists {
@@ -248,7 +248,7 @@ func Test_validateInitiatorIsLocalAdmin_MultipleAdmins(t *testing.T) {
 		ReadIndicatorID: 123,
 	}
 
-	validateInitiatorIsLocalAdmin(&task, payload)
+	agent.validateInitiatorIsLocalAdmin(&task, payload)
 
 	// Verify that admin records (1, 2, 4) still exist
 	if _, exists := task.Records[1]; !exists {
@@ -329,7 +329,7 @@ func Test_validateInitiatorIsLocalAdmin_EmptyAdminsList(t *testing.T) {
 		ReadIndicatorID: 123,
 	}
 
-	validateInitiatorIsLocalAdmin(&task, payload)
+	agent.validateInitiatorIsLocalAdmin(&task, payload)
 
 	// Verify that both records were removed since there are no admins
 	if _, exists := task.Records[1]; exists {

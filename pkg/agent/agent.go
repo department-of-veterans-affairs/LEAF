@@ -1,16 +1,39 @@
-package main
+package agent
 
 import (
 	"encoding/json"
 	"fmt"
 	"html"
 	"log"
+	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/department-of-veterans-affairs/LEAF/pkg/form/query"
 )
+
+type Agent struct {
+	authToken            string
+	httpHost             string
+	httpClient           *http.Client
+	llmHttpClient        *http.Client
+	llmCategorizationURL string
+	llmApiKey            string
+}
+
+func New(client *http.Client, clientLLM *http.Client) *Agent {
+	return &Agent{
+		authToken:            os.Getenv("AGENT_TOKEN"),
+		httpHost:             os.Getenv("APP_HTTP_HOST"),
+		httpClient:           client,
+		llmHttpClient:        clientLLM,
+		llmCategorizationURL: os.Getenv("LLM_CATEGORIZATION_URL"),
+		llmApiKey:            os.Getenv("LLM_API_KEY"),
+	}
+
+}
 
 func ParsePayload[T any](payload any) T {
 	b, _ := json.Marshal(payload)
@@ -20,7 +43,7 @@ func ParsePayload[T any](payload any) T {
 	return result
 }
 
-func ExecuteTask(task Task) {
+func (a Agent) ExecuteTask(task Task) {
 	var records query.Response
 	var err error
 
@@ -29,7 +52,7 @@ func ExecuteTask(task Task) {
 	defer func() {
 		// only log if there were records to process
 		if len(records) > 0 {
-			LogTask(task, time.Since(startTime))
+			a.LogTask(task, time.Since(startTime))
 		}
 	}()
 
@@ -46,7 +69,7 @@ func ExecuteTask(task Task) {
 			},
 		},
 	}
-	records, err = FormQuery(task.SiteURL, query, "&x-filterData=")
+	records, err = a.FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
 		return
 	}
@@ -70,38 +93,38 @@ loop:
 		case "annotation":
 			// no-op. for documentation purposes only
 		case "route":
-			route(&task, ParsePayload[RoutePayload](ins.Payload))
+			a.route(&task, ParsePayload[RoutePayload](ins.Payload))
 
 		case "routeConditionalData":
-			routeConditionalData(&task, ParsePayload[RouteConditionalDataPayload](ins.Payload))
+			a.routeConditionalData(&task, ParsePayload[RouteConditionalDataPayload](ins.Payload))
 
 		case "routeActionHistoryTally":
-			routeActionHistoryTally(&task, ParsePayload[RouteActionHistoryTallyPayload](ins.Payload))
+			a.routeActionHistoryTally(&task, ParsePayload[RouteActionHistoryTallyPayload](ins.Payload))
 
 		case "holdForDuration":
-			holdForDuration(&task, ParsePayload[HoldForDurationPayload](ins.Payload))
+			a.holdForDuration(&task, ParsePayload[HoldForDurationPayload](ins.Payload))
 
 		case "updateDataConditional":
-			updateDataConditional(&task, ParsePayload[UpdateDataConditionalPayload](ins.Payload))
+			a.updateDataConditional(&task, ParsePayload[UpdateDataConditionalPayload](ins.Payload))
 
 		case "validateInitiatorIsLocalAdmin":
-			validateInitiatorIsLocalAdmin(&task, ParsePayload[ValidateInitiatorIsLocalAdmin](ins.Payload))
+			a.validateInitiatorIsLocalAdmin(&task, ParsePayload[ValidateInitiatorIsLocalAdmin](ins.Payload))
 
 		// Instructions utilizing a LLM
 		case "routeLLM":
-			routeLLM(&task, ParsePayload[RouteLLMPayload](ins.Payload))
+			a.routeLLM(&task, ParsePayload[RouteLLMPayload](ins.Payload))
 
 		case "updateDataLLMCategorization":
-			updateDataLLMCategorization(&task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload))
+			a.updateDataLLMCategorization(&task, ParsePayload[UpdateDataLLMCategorizationPayload](ins.Payload))
 
 		case "updateDataLLMLabel":
-			updateDataLLMLabel(&task, ParsePayload[UpdateDataLLMLabelPayload](ins.Payload))
+			a.updateDataLLMLabel(&task, ParsePayload[UpdateDataLLMLabelPayload](ins.Payload))
 
 		case "updateTitleLLMLabel":
-			updateTitleLLMLabel(&task, ParsePayload[UpdateTitleLLMLabelPayload](ins.Payload))
+			a.updateTitleLLMLabel(&task, ParsePayload[UpdateTitleLLMLabelPayload](ins.Payload))
 
 		case "updateData4BLLM":
-			updateData4BLLM(&task, ParsePayload[UpdateData4BLLMPayload](ins.Payload))
+			a.updateData4BLLM(&task, ParsePayload[UpdateData4BLLMPayload](ins.Payload))
 
 		default:
 			log.Println("Unsupported instruction type: ", ins.Type, "Task ID#", task.TaskID)
@@ -112,7 +135,7 @@ loop:
 
 // ReviewTasks ensures active tasks do not contain duplicates, and promotes pending tasks to an active status
 // This function is not thread safe and must be run sequentially
-func ReviewTasks() error {
+func (a Agent) ReviewTasks() error {
 	q := query.Query{
 		Terms: []query.Term{
 			{
@@ -125,7 +148,7 @@ func ReviewTasks() error {
 		GetData: []int{2, 3}, // id2 = siteURL, id3 = stepID
 	}
 
-	res, err := FormQuery(`https://`+HTTP_HOST+`/platform/agent/`, q, "&x-filterData=recordID,stepID,submitted,userName")
+	res, err := a.FormQuery(`https://`+a.httpHost+`/platform/agent/`, q, "&x-filterData=recordID,stepID,submitted,userName")
 	if err != nil {
 		return fmt.Errorf("error querying active tasks: %w", err)
 	}
@@ -141,7 +164,7 @@ func ReviewTasks() error {
 			if !exists {
 				activeTasks[key] = v
 			} else {
-				err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, v.RecordID, "2", "Decommission", "")
+				err := a.TakeAction(`https://`+a.httpHost+`/platform/agent/`, v.RecordID, "2", "Decommission", "")
 				if err != nil {
 					return fmt.Errorf("error decommissioning duplicate task: %w", err)
 				}
@@ -154,13 +177,13 @@ func ReviewTasks() error {
 		if v.StepID == 1 { // StepID 1 = Tasks in staging area
 
 			// Check if the task's initiator is a local admin of the site associated with the task
-			isAdmin, err := IsSiteAdmin(v.S1["id2"], v.UserName)
+			isAdmin, err := a.IsSiteAdmin(v.S1["id2"], v.UserName)
 			if err != nil {
 				return fmt.Errorf("error checking site admin: %w", err)
 			}
 
 			if !isAdmin {
-				err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, recordID, "1", "Decommission", "Initiator must be an admin of the site associated with the task")
+				err := a.TakeAction(`https://`+a.httpHost+`/platform/agent/`, recordID, "1", "Decommission", "Initiator must be an admin of the site associated with the task")
 				if err != nil {
 					return fmt.Errorf("error removing unauthorized task: %w", err)
 				}
@@ -171,13 +194,13 @@ func ReviewTasks() error {
 			key := v.S1["id2"] + v.S1["id3"]
 			_, hasNewer := activeTasks[key]
 			if hasNewer {
-				err := TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, activeTasks[key].RecordID, "2", "Decommission", "")
+				err := a.TakeAction(`https://`+a.httpHost+`/platform/agent/`, activeTasks[key].RecordID, "2", "Decommission", "")
 				if err != nil {
 					return fmt.Errorf("error decommissioning older task: %w", err)
 				}
 			}
 
-			err = TakeAction(`https://`+HTTP_HOST+`/platform/agent/`, recordID, "1", "Activate", "")
+			err = a.TakeAction(`https://`+a.httpHost+`/platform/agent/`, recordID, "1", "Activate", "")
 			if err != nil {
 				return fmt.Errorf("error activating task: %w", err)
 			}
@@ -187,7 +210,7 @@ func ReviewTasks() error {
 	return nil
 }
 
-func FindTasks() ([]Task, error) {
+func (a Agent) FindTasks() ([]Task, error) {
 	query := query.Query{
 		Terms: []query.Term{
 			{
@@ -199,7 +222,7 @@ func FindTasks() ([]Task, error) {
 		GetData: []int{2, 3, 4, 6, 8, 9},
 	}
 
-	records, err := FormQuery("https://"+HTTP_HOST+"/platform/agent/", query, "&x-filterData=")
+	records, err := a.FormQuery("https://"+a.httpHost+"/platform/agent/", query, "&x-filterData=")
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +262,7 @@ func FindTasks() ([]Task, error) {
 	return tasks, nil
 }
 
-func LogTask(task Task, taskDuration time.Duration) {
+func (a Agent) LogTask(task Task, taskDuration time.Duration) {
 	currentTime := strconv.FormatInt(time.Now().Unix(), 10)
 
 	values := url.Values{}
@@ -268,7 +291,7 @@ func LogTask(task Task, taskDuration time.Duration) {
 	taskLog, _ := json.Marshal(task.Log)
 	values.Add("9", string(taskLog))
 
-	_, err := HttpPost(`https://`+HTTP_HOST+`/platform/agent/api/form/`+strconv.Itoa(task.TaskID), values)
+	_, err := a.HttpPost(`https://`+a.httpHost+`/platform/agent/api/form/`+strconv.Itoa(task.TaskID), values)
 	if err != nil {
 		log.Println("LogTask: Error logging task: ", err)
 	}

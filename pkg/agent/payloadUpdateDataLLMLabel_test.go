@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -85,13 +85,13 @@ func TestUpdateDataLLMLabel_Success(t *testing.T) {
 	}
 
 	// Override global variables for testing
-	originalLLMURL := LLM_CATEGORIZATION_URL
-	originalLLMKey := LLM_API_KEY
-	LLM_CATEGORIZATION_URL = llmServer.URL
-	LLM_API_KEY = "test-key"
+	originalLLMURL := agent.llmCategorizationURL
+	originalLLMKey := agent.llmApiKey
+	agent.llmCategorizationURL = llmServer.URL
+	agent.llmApiKey = "test-key"
 	defer func() {
-		LLM_CATEGORIZATION_URL = originalLLMURL
-		LLM_API_KEY = originalLLMKey
+		agent.llmCategorizationURL = originalLLMURL
+		agent.llmApiKey = originalLLMKey
 	}()
 
 	payload := UpdateDataLLMLabelPayload{
@@ -100,7 +100,7 @@ func TestUpdateDataLLMLabel_Success(t *testing.T) {
 		Context:          "Test context",
 	}
 
-	updateDataLLMLabel(&task, payload)
+	agent.updateDataLLMLabel(&task, payload)
 
 	// Check that no errors occurred
 	if len(task.Errors) > 0 {
@@ -141,7 +141,7 @@ func TestUpdateDataLLMLabel_EmptyRecords(t *testing.T) {
 		WriteIndicatorID: 3,
 	}
 
-	updateDataLLMLabel(&task, payload)
+	agent.updateDataLLMLabel(&task, payload)
 
 	// Should have no errors and no records processed
 	if len(task.Errors) > 0 {
@@ -190,7 +190,7 @@ func TestUpdateDataLLMLabel_InvalidWriteIndicator(t *testing.T) {
 		WriteIndicatorID: 3, // This has invalid format
 	}
 
-	updateDataLLMLabel(&task, payload)
+	agent.updateDataLLMLabel(&task, payload)
 
 	// Should have an error about invalid format
 	if len(task.Errors) == 0 {
@@ -275,13 +275,13 @@ func TestUpdateDataLLMLabel_EmptyInputData(t *testing.T) {
 	}
 
 	// Override global variables for testing
-	originalLLMURL := LLM_CATEGORIZATION_URL
-	originalLLMKey := LLM_API_KEY
-	LLM_CATEGORIZATION_URL = llmServer.URL
-	LLM_API_KEY = "test-key"
+	originalLLMURL := agent.llmCategorizationURL
+	originalLLMKey := agent.llmApiKey
+	agent.llmCategorizationURL = llmServer.URL
+	agent.llmApiKey = "test-key"
 	defer func() {
-		LLM_CATEGORIZATION_URL = originalLLMURL
-		LLM_API_KEY = originalLLMKey
+		agent.llmCategorizationURL = originalLLMURL
+		agent.llmApiKey = originalLLMKey
 	}()
 
 	payload := UpdateDataLLMLabelPayload{
@@ -289,7 +289,7 @@ func TestUpdateDataLLMLabel_EmptyInputData(t *testing.T) {
 		WriteIndicatorID: 3,
 	}
 
-	updateDataLLMLabel(&task, payload)
+	agent.updateDataLLMLabel(&task, payload)
 
 	// LLM should only be called once for record 2 (record 1 should be skipped)
 	if llmCallCount != 1 {
@@ -341,13 +341,13 @@ func TestUpdateDataLLMLabel_LLMError(t *testing.T) {
 	}
 
 	// Override global variables for testing
-	originalLLMURL := LLM_CATEGORIZATION_URL
-	originalLLMKey := LLM_API_KEY
-	LLM_CATEGORIZATION_URL = llmServer.URL
-	LLM_API_KEY = "test-key"
+	originalLLMURL := agent.llmCategorizationURL
+	originalLLMKey := agent.llmApiKey
+	agent.llmCategorizationURL = llmServer.URL
+	agent.llmApiKey = "test-key"
 	defer func() {
-		LLM_CATEGORIZATION_URL = originalLLMURL
-		LLM_API_KEY = originalLLMKey
+		agent.llmCategorizationURL = originalLLMURL
+		agent.llmApiKey = originalLLMKey
 	}()
 
 	payload := UpdateDataLLMLabelPayload{
@@ -355,7 +355,7 @@ func TestUpdateDataLLMLabel_LLMError(t *testing.T) {
 		WriteIndicatorID: 3,
 	}
 
-	updateDataLLMLabel(&task, payload)
+	agent.updateDataLLMLabel(&task, payload)
 
 	// Should have an error from the LLM call
 	if len(task.Errors) == 0 {
@@ -420,13 +420,13 @@ func TestUpdateDataLLMLabel_ResponseTooLong(t *testing.T) {
 	}
 
 	// Override global variables for testing
-	originalLLMURL := LLM_CATEGORIZATION_URL
-	originalLLMKey := LLM_API_KEY
-	LLM_CATEGORIZATION_URL = llmServer.URL
-	LLM_API_KEY = "test-key"
+	originalLLMURL := agent.llmCategorizationURL
+	originalLLMKey := agent.llmApiKey
+	agent.llmCategorizationURL = llmServer.URL
+	agent.llmApiKey = "test-key"
 	defer func() {
-		LLM_CATEGORIZATION_URL = originalLLMURL
-		LLM_API_KEY = originalLLMKey
+		agent.llmCategorizationURL = originalLLMURL
+		agent.llmApiKey = originalLLMKey
 	}()
 
 	payload := UpdateDataLLMLabelPayload{
@@ -434,7 +434,7 @@ func TestUpdateDataLLMLabel_ResponseTooLong(t *testing.T) {
 		WriteIndicatorID: 3,
 	}
 
-	updateDataLLMLabel(&task, payload)
+	agent.updateDataLLMLabel(&task, payload)
 
 	// Should have an error about response being too long
 	if len(task.Errors) == 0 {
@@ -511,13 +511,13 @@ func TestUpdateDataLLMLabel_WithContext(t *testing.T) {
 	}
 
 	// Override global variables for testing
-	originalLLMURL := LLM_CATEGORIZATION_URL
-	originalLLMKey := LLM_API_KEY
-	LLM_CATEGORIZATION_URL = llmServer.URL
-	LLM_API_KEY = "test-key"
+	originalLLMURL := agent.llmCategorizationURL
+	originalLLMKey := agent.llmApiKey
+	agent.llmCategorizationURL = llmServer.URL
+	agent.llmApiKey = "test-key"
 	defer func() {
-		LLM_CATEGORIZATION_URL = originalLLMURL
-		LLM_API_KEY = originalLLMKey
+		agent.llmCategorizationURL = originalLLMURL
+		agent.llmApiKey = originalLLMKey
 	}()
 
 	payload := UpdateDataLLMLabelPayload{
@@ -526,7 +526,7 @@ func TestUpdateDataLLMLabel_WithContext(t *testing.T) {
 		Context:          "This is custom context",
 	}
 
-	updateDataLLMLabel(&task, payload)
+	agent.updateDataLLMLabel(&task, payload)
 
 	// Verify that context was included in the first message
 	if len(capturedConfig.Messages) < 2 {
@@ -617,13 +617,13 @@ func TestUpdateDataLLMLabel_RecordNotInSet(t *testing.T) {
 	}
 
 	// Override global variables for testing
-	originalLLMURL := LLM_CATEGORIZATION_URL
-	originalLLMKey := LLM_API_KEY
-	LLM_CATEGORIZATION_URL = llmServer.URL
-	LLM_API_KEY = "test-key"
+	originalLLMURL := agent.llmCategorizationURL
+	originalLLMKey := agent.llmApiKey
+	agent.llmCategorizationURL = llmServer.URL
+	agent.llmApiKey = "test-key"
 	defer func() {
-		LLM_CATEGORIZATION_URL = originalLLMURL
-		LLM_API_KEY = originalLLMKey
+		agent.llmCategorizationURL = originalLLMURL
+		agent.llmApiKey = originalLLMKey
 	}()
 
 	payload := UpdateDataLLMLabelPayload{
@@ -631,7 +631,7 @@ func TestUpdateDataLLMLabel_RecordNotInSet(t *testing.T) {
 		WriteIndicatorID: 3,
 	}
 
-	updateDataLLMLabel(&task, payload)
+	agent.updateDataLLMLabel(&task, payload)
 
 	// LLM should only be called once for record 1 (record 2 should be skipped)
 	if llmCallCount != 1 {

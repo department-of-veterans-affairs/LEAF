@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -100,7 +100,7 @@ func TestRouteLLM_WithRecords(t *testing.T) {
 	// Configure LLM endpoint to point to mock server
 	os.Setenv("LLM_CATEGORIZATION_URL", ts.URL+"/llm")
 
-	routeLLM(&task, payload)
+	agent.routeLLM(&task, payload)
 
 	expectedCalls := len(task.Records)
 	if callCount != expectedCalls {
@@ -149,7 +149,7 @@ func TestRouteLLM_NoRecords(t *testing.T) {
 		Context:          "",
 	}
 
-	routeLLM(&task, payload)
+	agent.routeLLM(&task, payload)
 
 	if callCount != 0 {
 		t.Errorf("expected 0 calls to TakeAction, got %d", callCount)
@@ -218,7 +218,7 @@ func TestRouteLLM_InvalidAction(t *testing.T) {
 	// Configure LLM endpoint to point to mock server
 	os.Setenv("LLM_CATEGORIZATION_URL", ts.URL+"/llm")
 
-	routeLLM(&task, payload)
+	agent.routeLLM(&task, payload)
 
 	// Verify that the invalid LLM response caused the record to be removed from task.Records
 	if _, exists := task.Records[1]; exists {
@@ -282,7 +282,7 @@ func TestRouteLLM_DisallowedActions(t *testing.T) {
 	// Configure LLM endpoint to point to mock server
 	os.Setenv("LLM_CATEGORIZATION_URL", ts.URL+"/llm")
 
-	routeLLM(&task, payload)
+	agent.routeLLM(&task, payload)
 
 	// Verify that the disallowed action caused the record to be removed from task.Records
 	if _, exists := task.Records[1]; exists {

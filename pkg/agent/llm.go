@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"bytes"
@@ -39,18 +39,18 @@ type timings struct {
 	PredictedPerSecond float64 `json:"predicted_per_second"`
 }
 
-func GetLLMResponse(config completions) (response, error) {
+func (a Agent) GetLLMResponse(config completions) (response, error) {
 	jsonConfig, _ := json.Marshal(config)
 
-	req, err := http.NewRequest("POST", LLM_CATEGORIZATION_URL, bytes.NewBuffer(jsonConfig))
+	req, err := http.NewRequest("POST", a.llmCategorizationURL, bytes.NewBuffer(jsonConfig))
 	if err != nil {
 		return response{}, fmt.Errorf("GetLLMResponse: %w", err)
 	}
 
-	req.Header.Set("Authorization", "Bearer "+LLM_API_KEY)
+	req.Header.Set("Authorization", "Bearer "+a.llmApiKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	res, err := clientLLM.Do(req)
+	res, err := a.llmHttpClient.Do(req)
 	if err != nil {
 		return response{}, fmt.Errorf("LLM_CATEGORIZATION_URL: %w", err)
 	}

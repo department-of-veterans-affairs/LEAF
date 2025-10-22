@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"github.com/department-of-veterans-affairs/LEAF/pkg/form/query"
@@ -14,7 +14,7 @@ type RouteActionHistoryTallyPayload struct {
 
 // routeActionHistoryTally executes an action, payload.ActionType, based on a tally of actions taken
 // for records matching payload.StepID and where the count of actions is greater than or equal to payload.MinimumCount
-func routeActionHistoryTally(task *Task, payload RouteActionHistoryTallyPayload) {
+func (a Agent) routeActionHistoryTally(task *Task, payload RouteActionHistoryTallyPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -27,7 +27,7 @@ func routeActionHistoryTally(task *Task, payload RouteActionHistoryTallyPayload)
 		Joins: []string{"action_history"},
 	}
 
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=action_history.stepID,action_history.actionType")
+	records, err := a.FormQuery(task.SiteURL, query, "&x-filterData=action_history.stepID,action_history.actionType")
 	if err != nil {
 		task.HandleError(0, "routeActionHistoryTally:", err)
 	}
@@ -51,7 +51,7 @@ func routeActionHistoryTally(task *Task, payload RouteActionHistoryTallyPayload)
 		}
 
 		if actionCount >= payload.MinimumCount {
-			err = TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
+			err = a.TakeAction(task.SiteURL, recordID, task.StepID, payload.ActionType, payload.Comment)
 			if err != nil {
 				task.HandleError(recordID, "routeActionHistoryTally:", err)
 			}

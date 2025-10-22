@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -84,7 +84,7 @@ func Test_UpdateDataLLMCategorization_Success(t *testing.T) {
 	defer llmTs.Close()
 
 	// Set LLM URL for testing
-	LLM_CATEGORIZATION_URL = llmTs.URL
+	agent.llmCategorizationURL = llmTs.URL
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -101,7 +101,7 @@ func Test_UpdateDataLLMCategorization_Success(t *testing.T) {
 		Context:          "Please categorize the following support requests:",
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Verify no errors occurred
 	if len(task.Errors) != 0 {
@@ -138,7 +138,7 @@ func Test_UpdateDataLLMCategorization_NoRecords(t *testing.T) {
 		WriteIndicatorID: 200,
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should exit early with no errors
 	if len(task.Errors) != 0 {
@@ -168,7 +168,7 @@ func Test_UpdateDataLLMCategorization_FormQueryError(t *testing.T) {
 		WriteIndicatorID: 200,
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should have an error
 	if len(task.Errors) == 0 {
@@ -213,7 +213,7 @@ func Test_UpdateDataLLMCategorization_GetIndicatorMapError(t *testing.T) {
 		WriteIndicatorID: 200,
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should have an error
 	if len(task.Errors) == 0 {
@@ -275,7 +275,7 @@ func Test_UpdateDataLLMCategorization_NoFormatOptions(t *testing.T) {
 		WriteIndicatorID: 200,
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should have an error about no format options
 	if len(task.Errors) == 0 {
@@ -330,7 +330,7 @@ func Test_UpdateDataLLMCategorization_LLMError(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
+	agent.llmCategorizationURL = llmTs.URL
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -345,7 +345,7 @@ func Test_UpdateDataLLMCategorization_LLMError(t *testing.T) {
 		WriteIndicatorID: 200,
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should have an error from LLM
 	if len(task.Errors) == 0 {
@@ -411,7 +411,7 @@ func Test_UpdateDataLLMCategorization_InvalidLLMResponse(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
+	agent.llmCategorizationURL = llmTs.URL
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -426,7 +426,7 @@ func Test_UpdateDataLLMCategorization_InvalidLLMResponse(t *testing.T) {
 		WriteIndicatorID: 200,
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should have an error about invalid LLM output
 	if len(task.Errors) == 0 {
@@ -494,7 +494,7 @@ func Test_UpdateDataLLMCategorization_UpdateRecordError(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
+	agent.llmCategorizationURL = llmTs.URL
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -509,7 +509,7 @@ func Test_UpdateDataLLMCategorization_UpdateRecordError(t *testing.T) {
 		WriteIndicatorID: 200,
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should have an error from UpdateRecord
 	if len(task.Errors) == 0 {
@@ -580,7 +580,7 @@ func Test_UpdateDataLLMCategorization_RecordNotInSet(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
+	agent.llmCategorizationURL = llmTs.URL
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -595,7 +595,7 @@ func Test_UpdateDataLLMCategorization_RecordNotInSet(t *testing.T) {
 		WriteIndicatorID: 200,
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should have no errors and only process record 1
 	if len(task.Errors) != 0 {
@@ -672,7 +672,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyContext(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
+	agent.llmCategorizationURL = llmTs.URL
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -688,7 +688,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyContext(t *testing.T) {
 		Context:          "", // Empty context
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should have no errors
 	if len(task.Errors) != 0 {
@@ -773,7 +773,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyDataFields(t *testing.T) {
 	}))
 	defer llmTs.Close()
 
-	LLM_CATEGORIZATION_URL = llmTs.URL
+	agent.llmCategorizationURL = llmTs.URL
 
 	task := Task{
 		SiteURL: ts.URL,
@@ -789,7 +789,7 @@ func Test_UpdateDataLLMCategorization_WithEmptyDataFields(t *testing.T) {
 		Context:          "Categorize the request:",
 	}
 
-	updateDataLLMCategorization(&task, payload)
+	agent.updateDataLLMCategorization(&task, payload)
 
 	// Should have no errors
 	if len(task.Errors) != 0 {

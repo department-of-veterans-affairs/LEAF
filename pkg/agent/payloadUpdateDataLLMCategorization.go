@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ type UpdateDataLLMCategorizationPayload struct {
 // The data field's format must support single-select multiple-options.
 // The LLM will categorize content based on available options for the data field using context
 // provided by data fields matching payload.ReadIndicatorIDs.
-func updateDataLLMCategorization(task *Task, payload UpdateDataLLMCategorizationPayload) {
+func (a Agent) updateDataLLMCategorization(task *Task, payload UpdateDataLLMCategorizationPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -31,7 +31,7 @@ func updateDataLLMCategorization(task *Task, payload UpdateDataLLMCategorization
 		GetData: payload.ReadIndicatorIDs,
 	}
 
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
+	records, err := a.FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
 		task.HandleError(0, "updateDataLLMCategorization:", err)
 		return
@@ -42,7 +42,7 @@ func updateDataLLMCategorization(task *Task, payload UpdateDataLLMCategorization
 		return
 	}
 
-	indicators, err := GetIndicatorMap(task.SiteURL)
+	indicators, err := a.GetIndicatorMap(task.SiteURL)
 	if err != nil {
 		task.HandleError(0, "updateDataLLMCategorization:", err)
 		return
@@ -100,7 +100,7 @@ func updateDataLLMCategorization(task *Task, payload UpdateDataLLMCategorization
 			MaxCompletionTokens: 50,
 		}
 
-		llmResponse, err := GetLLMResponse(config)
+		llmResponse, err := a.GetLLMResponse(config)
 		if err != nil {
 			task.HandleError(0, "updateDataLLMCategorization:", fmt.Errorf("GetLLMResponse: %w", err))
 			return
@@ -120,7 +120,7 @@ func updateDataLLMCategorization(task *Task, payload UpdateDataLLMCategorization
 		if hasApprovedOutput {
 			data := map[int]string{}
 			data[payload.WriteIndicatorID] = cleanResponse
-			err = UpdateRecord(task.SiteURL, recordID, data)
+			err = a.UpdateRecord(task.SiteURL, recordID, data)
 			if err != nil {
 				task.HandleError(0, "updateDataLLMCategorization:", err)
 			}

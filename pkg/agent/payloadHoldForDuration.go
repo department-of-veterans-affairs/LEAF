@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"time"
@@ -12,7 +12,7 @@ type HoldForDurationPayload struct {
 
 // holdForDuration holds records for SecondsToHold duration.
 // Records that do not exceed the duration are removed from task.Records
-func holdForDuration(task *Task, payload HoldForDurationPayload) {
+func (a Agent) holdForDuration(task *Task, payload HoldForDurationPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -25,7 +25,7 @@ func holdForDuration(task *Task, payload HoldForDurationPayload) {
 		Joins: []string{"stepFulfillmentOnly"},
 	}
 
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=submitted,stepFulfillmentOnly")
+	records, err := a.FormQuery(task.SiteURL, query, "&x-filterData=submitted,stepFulfillmentOnly")
 	if err != nil {
 		task.HandleError(0, "routeAfterHolding:", err)
 	}

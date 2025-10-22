@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"net/http"
@@ -116,8 +116,8 @@ func TestTakeAction(t *testing.T) {
 				}
 
 				// Verify Authorization header
-				if r.Header.Get("Authorization") != AGENT_TOKEN {
-					t.Errorf("Expected Authorization header %s, got %s", AGENT_TOKEN, r.Header.Get("Authorization"))
+				if r.Header.Get("Authorization") != agent.authToken {
+					t.Errorf("Expected Authorization header %s, got %s", agent.authToken, r.Header.Get("Authorization"))
 				}
 
 				w.WriteHeader(tt.mockStatus)
@@ -128,7 +128,7 @@ func TestTakeAction(t *testing.T) {
 			// Replace the siteURL with the test server URL
 			testSiteURL := strings.Replace(tt.siteURL, "https://example.com", ts.URL, 1)
 
-			err := TakeAction(testSiteURL, tt.recID, tt.stepID, tt.actionType, tt.comment)
+			err := agent.TakeAction(testSiteURL, tt.recID, tt.stepID, tt.actionType, tt.comment)
 
 			if tt.expectedError {
 				if err == nil {
@@ -233,8 +233,8 @@ func TestUpdateRecord(t *testing.T) {
 				}
 
 				// Verify Authorization header
-				if r.Header.Get("Authorization") != AGENT_TOKEN {
-					t.Errorf("Expected Authorization header %s, got %s", AGENT_TOKEN, r.Header.Get("Authorization"))
+				if r.Header.Get("Authorization") != agent.authToken {
+					t.Errorf("Expected Authorization header %s, got %s", agent.authToken, r.Header.Get("Authorization"))
 				}
 
 				w.WriteHeader(tt.mockStatus)
@@ -245,7 +245,7 @@ func TestUpdateRecord(t *testing.T) {
 			// Replace the siteURL with the test server URL
 			testSiteURL := strings.Replace(tt.siteURL, "https://example.com", ts.URL, 1)
 
-			err := UpdateRecord(testSiteURL, tt.recID, tt.data)
+			err := agent.UpdateRecord(testSiteURL, tt.recID, tt.data)
 
 			if tt.expectedError {
 				if err == nil {
@@ -355,8 +355,8 @@ func TestUpdateTitle(t *testing.T) {
 				}
 
 				// Verify Authorization header
-				if r.Header.Get("Authorization") != AGENT_TOKEN {
-					t.Errorf("Expected Authorization header %s, got %s", AGENT_TOKEN, r.Header.Get("Authorization"))
+				if r.Header.Get("Authorization") != agent.authToken {
+					t.Errorf("Expected Authorization header %s, got %s", agent.authToken, r.Header.Get("Authorization"))
 				}
 
 				w.WriteHeader(tt.mockStatus)
@@ -367,7 +367,7 @@ func TestUpdateTitle(t *testing.T) {
 			// Replace the siteURL with the test server URL
 			testSiteURL := strings.Replace(tt.siteURL, "https://example.com", ts.URL, 1)
 
-			err := UpdateTitle(testSiteURL, tt.recID, tt.title)
+			err := agent.UpdateTitle(testSiteURL, tt.recID, tt.title)
 
 			if tt.expectedError {
 				if err == nil {
@@ -433,7 +433,7 @@ func TestURLHandling(t *testing.T) {
 			defer ts.Close()
 
 			testURL := strings.Replace(tt.inputURL, "https://example.com", ts.URL, 1)
-			err := TakeAction(testURL, 123, "step1", "approve", "test")
+			err := agent.TakeAction(testURL, 123, "step1", "approve", "test")
 			if err != nil {
 				t.Errorf("Unexpected error: %v", err)
 			}

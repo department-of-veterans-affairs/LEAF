@@ -14,6 +14,10 @@ require github.com/department-of-veterans-affairs/LEAF/pkg/portal/group v0.0.0-0
 
 replace github.com/department-of-veterans-affairs/LEAF/pkg/portal/group => ../pkg/portal/group
 
+require github.com/department-of-veterans-affairs/LEAF/pkg/agent v0.0.0-00010101000000-000000000000
+
+replace github.com/department-of-veterans-affairs/LEAF/pkg/agent => ../pkg/agent
+
 require (
 	github.com/department-of-veterans-affairs/LEAF/pkg/workflow v0.0.0-00010101000000-000000000000
 	github.com/microcosm-cc/bluemonday v1.0.27

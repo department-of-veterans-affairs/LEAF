@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"encoding/json"
@@ -81,7 +81,7 @@ func Test_RouteActionHistoryTally(t *testing.T) {
 		StepID:          1,
 	}
 
-	routeActionHistoryTally(&task, payload)
+	agent.routeActionHistoryTally(&task, payload)
 
 	// Expect exactly one TakeAction call (for record 1)
 	expectedCalls := 1
@@ -122,7 +122,7 @@ func Test_RouteActionHistoryTally_EmptyRecords_NoError(t *testing.T) {
 		StepID:          1,
 	}
 
-	routeActionHistoryTally(&task, payload)
+	agent.routeActionHistoryTally(&task, payload)
 
 	// No TakeAction should have been invoked
 	expectedCalls := 0
@@ -179,7 +179,7 @@ func Test_RouteActionHistoryTally_SkipNonSetRecords(t *testing.T) {
 		StepID:          1,
 	}
 
-	routeActionHistoryTally(&task, payload)
+	agent.routeActionHistoryTally(&task, payload)
 
 	// No TakeAction should have been invoked because the record is not in the set
 	expectedCalls := 0

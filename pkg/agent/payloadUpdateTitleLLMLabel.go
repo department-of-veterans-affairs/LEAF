@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ type UpdateTitleLLMLabelPayload struct {
 
 // updateTitleLLMLabel updates a record's title with a short < 50 character
 // label for the data within ReadIndicatorIDs.
-func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
+func (a Agent) updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -30,7 +30,7 @@ func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 		GetData: payload.ReadIndicatorIDs,
 	}
 
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
+	records, err := a.FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
 		task.HandleError(0, "updateTitleLLMLabel:", err)
 		return
@@ -41,7 +41,7 @@ func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 		return
 	}
 
-	indicators, err := GetIndicatorMap(task.SiteURL)
+	indicators, err := a.GetIndicatorMap(task.SiteURL)
 	if err != nil {
 		task.HandleError(0, "updateTitleLLMLabel:", err)
 		return
@@ -92,7 +92,7 @@ func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 			MaxCompletionTokens: 50,
 		}
 
-		llmResponse, err := GetLLMResponse(config)
+		llmResponse, err := a.GetLLMResponse(config)
 		if err != nil {
 			task.HandleError(0, "updateTitleLLMLabel:", fmt.Errorf("GetLLMResponse: %w", err))
 			return
@@ -107,7 +107,7 @@ func updateTitleLLMLabel(task *Task, payload UpdateTitleLLMLabelPayload) {
 			return
 		}
 
-		err = UpdateTitle(task.SiteURL, recordID, cleanResponse)
+		err = a.UpdateTitle(task.SiteURL, recordID, cleanResponse)
 		if err != nil {
 			task.HandleError(0, "updateTitleLLMLabel:", err)
 		}

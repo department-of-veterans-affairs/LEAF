@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"fmt"
@@ -57,7 +57,7 @@ func TestRouteConditionalData(t *testing.T) {
 	}
 
 	// Execute the function under test.
-	routeConditionalData(&task, payload)
+	agent.routeConditionalData(&task, payload)
 
 	// Verify that TakeAction was invoked exactly for the intersecting records (1 and 3).
 	if len(called) != 2 {
@@ -116,7 +116,7 @@ func TestRouteConditionalDataNoMatches(t *testing.T) {
 	}
 
 	// Execute the function under test.
-	routeConditionalData(&task, payload)
+	agent.routeConditionalData(&task, payload)
 
 	// Verify that TakeAction was not invoked since no records matched the query
 	if len(called) != 0 {

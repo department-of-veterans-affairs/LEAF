@@ -1,4 +1,4 @@
-package main
+package agent
 
 import (
 	"errors"
@@ -18,7 +18,7 @@ type RouteLLMPayload struct {
 // matching payload.ReadIndicatorIDs. The available actions are automatically retrieved during runtime.
 // To help enforce human decision-making responsibilities, the LLM is not allowed to apply
 // approve/disapprove/deny actions.
-func routeLLM(task *Task, payload RouteLLMPayload) {
+func (a Agent) routeLLM(task *Task, payload RouteLLMPayload) {
 	// Initialize query. At minimum it should only return records that match the stepID
 	query := query.Query{
 		Terms: []query.Term{
@@ -31,7 +31,7 @@ func routeLLM(task *Task, payload RouteLLMPayload) {
 		GetData: payload.ReadIndicatorIDs,
 	}
 
-	records, err := FormQuery(task.SiteURL, query, "&x-filterData=")
+	records, err := a.FormQuery(task.SiteURL, query, "&x-filterData=")
 	if err != nil {
 		task.HandleError(0, "routeLLM:", err)
 	}
@@ -42,7 +42,7 @@ func routeLLM(task *Task, payload RouteLLMPayload) {
 	}
 
 	// Setup LLM prompt
-	actions, err := GetActions(task.SiteURL, task.StepID)
+	actions, err := a.GetActions(task.SiteURL, task.StepID)
 	if err != nil {
 		task.HandleError(0, "routeLLM:", err)
 		return
@@ -60,7 +60,7 @@ func routeLLM(task *Task, payload RouteLLMPayload) {
 	}
 	choices = strings.Trim(choices, "\n")
 
-	indicators, err := GetIndicatorMap(task.SiteURL)
+	indicators, err := a.GetIndicatorMap(task.SiteURL)
 	if err != nil {
 		task.HandleError(0, "routeLLM:", err)
 		return
@@ -103,7 +103,7 @@ func routeLLM(task *Task, payload RouteLLMPayload) {
 			MaxCompletionTokens: 50,
 		}
 
-		llmResponse, err := GetLLMResponse(config)
+		llmResponse, err := a.GetLLMResponse(config)
 		if err != nil {
 			task.HandleError(0, "routeLLM:", err)
 			return
@@ -121,7 +121,7 @@ func routeLLM(task *Task, payload RouteLLMPayload) {
 		}
 
 		if approvedActionType != "" {
-			err = TakeAction(task.SiteURL, recordID, task.StepID, approvedActionType, "")
+			err = a.TakeAction(task.SiteURL, recordID, task.StepID, approvedActionType, "")
 			if err != nil {
 				task.HandleError(recordID, "routeLLM:", err)
 			}
