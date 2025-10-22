@@ -174,9 +174,9 @@
             alert('There are no changes to save.');
         } else {
             elSaveBtn.setAttribute("disabled", "disabled");
-            //if no history exists yet, snapshot the original first
+            //if no history exists yet, snapshot the original first if it has content
             const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
-            if(numRecords === 0) {
+            if(numRecords === 0 && currentFileContent !== '') {
                 $.ajax({
                     type: 'POST',
                     data: {
