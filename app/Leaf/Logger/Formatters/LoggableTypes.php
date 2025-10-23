@@ -15,6 +15,7 @@ class LoggableTypes
     const WORKFLOW = "workflow";
     const WORKFLOW_NAME = "workflow_name";
     const WORKFLOW_STEP = "workflow_step";
+    const STEP_MODULE = "step_module";
     const WORKFLOW_ROUTE = "workflow_route";
     const STEP_DEPENDENCY = "step_dependency";
     const DEPENDENCY = "dependency";

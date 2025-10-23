@@ -3173,6 +3173,19 @@
             data: {
                 indicatorID: indicatorID,
                 CSRFToken: CSRFToken
+            },
+            success(res) {
+                if (+res === 1) {
+                    if(typeof steps[stepID].stepModules === 'undefined') {
+                        steps[stepID].stepModules = [{
+                            moduleName: 'LEAF_workflow_indicator',
+                            moduleConfig: JSON.stringify({ indicatorID, }),
+                        }];
+                    }
+                }
+            },
+            error(err) {
+                console.log(err);
             }
         });
     }

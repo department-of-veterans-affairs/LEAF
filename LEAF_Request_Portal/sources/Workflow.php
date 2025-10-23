@@ -816,7 +816,11 @@ class Workflow
                     ON DUPLICATE KEY UPDATE moduleConfig=:config',
                 $vars);
         }
-
+        $this->dataActionLogger->logAction(DataActions::MODIFY, LoggableTypes::STEP_MODULE, [
+            new LogItem("workflows", "stepID", $stepID),
+            new LogItem("workflow_steps", "workflowID", $this->getWorkflowIDFromStep($stepID)),
+            new LogItem("step_modules", "moduleConfig", $indicatorID)
+        ]);
         return 1;
     }
 
