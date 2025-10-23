@@ -942,6 +942,7 @@
 
                     grpSel.setSelectHandler(function() {
                         $('#<!--{$indicator.indicatorID}-->').val(grpSel.selection);
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->').trigger('change');
                         $('#grpSel_<!--{$indicator.indicatorID}--> input.groupSelectorInput').val('group#'+grpSel.selection);
                     });
                     grpSel.setResultHandler(function() {
@@ -1038,6 +1039,7 @@
 
                     posSel.setSelectHandler(function() {
                         $('#<!--{$indicator.indicatorID}-->').val(posSel.selection)
+                        $('#<!--{$indicator.indicatorID|strip_tags}-->').trigger('change');
                         $('#posSel_<!--{$indicator.indicatorID}--> input.positionSelectorInput').val('#'+posSel.selection);
                     });
                     posSel.setResultHandler(function() {
