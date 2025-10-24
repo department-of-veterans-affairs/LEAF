@@ -30,3 +30,4 @@ require (
 )
 
 replace github.com/department-of-veterans-affairs/LEAF/pkg/workflow => ../pkg/workflow
+replace golang.org/x/net => github.com/golang/net v0.44.0
