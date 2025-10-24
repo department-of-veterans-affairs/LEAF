@@ -176,7 +176,8 @@ services:
         volumes:
             - "../LEAF-Automated-Tests/api-test-helper/:/app"
             - "../LEAF-Automated-Tests/API-tests/:/API-tests"
-            - "../:/LEAF"
+            - "../LEAF_Agent/:/LEAF_Agent"
+            - "../pkg/:/pkg"
         ports:
             - "8000:8000"
         env_file:
