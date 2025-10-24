@@ -57,7 +57,7 @@ export default {
                     temp.parentID = this.newFormParentID;
                     //default values
                     temp.workflowID = 0;
-                    temp.needToKnow = 0;
+                    temp.needToKnow = 1;
                     temp.visible = -1;
                     temp.sort = 0;
                     temp.type = '';
@@ -88,7 +88,7 @@ export default {
                 <label for="description">Form Description&nbsp;<span style="font-size:80%">(up to 255 characters)</span></label>
                 <div>{{descrCharsRemaining}}</div>
             </div>
-            <textarea id="description" maxlength="255" rows="5" v-model="categoryDescription" 
+            <textarea id="description" maxlength="255" rows="5" v-model="categoryDescription"
                 style="width: 100%; resize:none;">
             </textarea>
         </div>`
