@@ -34,7 +34,6 @@ function showPreview(recordID) {
     dialog_simple.show();
 
     preview = new LeafPreview('preview');
-    preview.setNexusURL('');
     preview.load(recordID, 1, 0);
 
     $('#btn_download').one('click', function() {
@@ -67,15 +66,21 @@ var preview;
 var data;
 var dialog_simple;
 $(function() {
-    dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
-    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
+    dialog_simple = new dialogController(
+        'simplexhrDialog',
+        'simplexhr',
+        'simpleloadIndicator',
+        'simplebutton_save',
+        'simplebutton_cancelchange'
+    );
+    $('#simplexhrDialog').dialog({ minWidth: ($(window).width() * .78) + 30 });
 
     query = new LeafFormQuery();
     query.setRootURL('<!--{$LEAF_DOMAIN}-->LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
-        var tData = [];
-        for(var i in res) {
+        let tData = [];
+        for(let i in res) {
             tData.push(res[i]);
         }
         tData.sort(function(a, b) {
@@ -153,7 +158,7 @@ $(function() {
         grid.renderBody();
     });
 
-    var leafSearch = new LeafFormSearch('searchContainer');
+    let leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setJsPath('<!--{$app_js_path}-->');
     leafSearch.setRootURL('../');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
