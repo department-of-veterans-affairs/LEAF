@@ -13,37 +13,38 @@
     color: white;
 }
 </style>
-
 <script>
 function showPreview(recordID) {
-    const formData = grid.getDataByRecordID(recordID);
-    const title = formData.title;
-    let authors = '';
-    if(formData.s1.id9 != undefined && formData.s1.id9 != '') {
+	var formData = grid.getDataByRecordID(recordID);
+	var title = formData.title;
+    var authors = '';
+    if(formData.s1.id9 != undefined
+        && formData.s1.id9 != '') {
         authors = 'By ' + formData.s1.id9;
     }
-    if(formData.s1.id10 != undefined && formData.s1.id10 != '') {
+    if(formData.s1.id10 != undefined
+        && formData.s1.id10 != '') {
         authors += ', ' + formData.s1.id10;
     }
-    if(formData.s1.id11 != undefined && formData.s1.id11 != '') {
+    if(formData.s1.id11 != undefined
+        && formData.s1.id11 != '') {
         authors += '<br />' + formData.s1.id11;
     }
 
-    dialog_simple.setTitle('Preview');
-    dialog_simple.setContent('<button id="btn_download" class="buttonNorm" style="float: right"><img src="../dynicons/?img=edit-copy.svg&w=32" alt="" /> Get a copy!</button><div style="font-size: 120%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
-    dialog_simple.show();
+	dialog_simple.setTitle('Preview');
+	dialog_simple.setContent('<button id="btn_download" class="buttonNorm" style="float: right"><img src="../dynicons/?img=edit-copy.svg&w=32" alt="" /> Get a copy!</button><div style="font-size: 120%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
+	dialog_simple.show();
 
     preview = new LeafPreview('preview');
+    preview.setNexusURL('<!--{$LEAF_NEXUS_URL}-->');
     preview.load(recordID, 1, 0);
 
     $('#btn_download').one('click', function() {
         $.ajax({
             type: 'POST',
             url: 'ajaxIndex.php?a=importForm',
-            data: {
-                formPacket: JSON.stringify(preview.getRawForm()),
-                formLibraryID: recordID
-            },
+            data: { formPacket: JSON.stringify(preview.getRawForm()),
+                    formLibraryID: recordID},
             success: function(res) {
                 window.location = '?a=form_vue#/forms?formID=' + res;
             },
@@ -66,21 +67,15 @@ var preview;
 var data;
 var dialog_simple;
 $(function() {
-    dialog_simple = new dialogController(
-        'simplexhrDialog',
-        'simplexhr',
-        'simpleloadIndicator',
-        'simplebutton_save',
-        'simplebutton_cancelchange'
-    );
-    $('#simplexhrDialog').dialog({ minWidth: ($(window).width() * .78) + 30 });
+	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
+    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
 
     query = new LeafFormQuery();
     query.setRootURL('<!--{$LEAF_DOMAIN}-->LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
-        let tData = [];
-        for(let i in res) {
+        var tData = [];
+        for(var i in res) {
             tData.push(res[i]);
         }
         tData.sort(function(a, b) {
@@ -99,54 +94,41 @@ $(function() {
         grid.hideIndex();
         grid.importQueryResult(tData);
         grid.setHeaders([
-            {
-                name: 'Form', indicatorID: 'form', editable: false, sortable: false,
-                callback: function(data, blob) {
-                    if(blob[data.index].s1.id53 == "Yes") {
-                        $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
-                    }
-                    $('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 100%">' + blob[data.index].title + '</span>');
+            {name: 'Form', indicatorID: 'form', editable: false, sortable: false, callback: function(data, blob) {
+                if(blob[data.index].s1.id53 == "Yes") {
+                    $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
                 }
-            },
-            {
-                name: 'Description', indicatorID: 5, sortable: false, editable: false},
-            {
-                name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: false,
-                callback: function(data, blob) {
-                    var authors = '';
-                    if(blob[data.index].s1.id9 != undefined
-                        && blob[data.index].s1.id9 != '') {
-                        authors = blob[data.index].s1.id9;
-                    }
-                    if(blob[data.index].s1.id10 != undefined
-                        && blob[data.index].s1.id10 != '') {
-                        authors += ', ' + blob[data.index].s1.id10;
-                    }
+            	$('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 100%">' + blob[data.index].title + '</span>');
+            }},
+            {name: 'Description', indicatorID: 5, sortable: false, editable: false},
+            {name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: false, callback: function(data, blob) {
+            	var authors = '';
+            	if(blob[data.index].s1.id9 != undefined
+            		&& blob[data.index].s1.id9 != '') {
+            		authors = blob[data.index].s1.id9;
+            	}
+                if(blob[data.index].s1.id10 != undefined
+                    && blob[data.index].s1.id10 != '') {
+                    authors += ', ' + blob[data.index].s1.id10;
+                }
 
-                    $('#'+data.cellContainerID).html(authors);
+                $('#'+data.cellContainerID).html(authors);
+            }},
+            {name: 'Workflow Example', indicatorID: 6, sortable: false, editable: false, callback: function(data, blob) {
+                if(blob[data.index].s1.id6 != undefined
+                        && blob[data.index].s1.id6 != '') {
+                	var imageURL = '<!--{$LEAF_DOMAIN}-->LEAF/library/image.php?form=' + blob[data.index].recordID + '&id=6&series=1&file=0';
+                    $('#'+data.cellContainerID).html('<img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="border: 1px solid black; max-width: 150px; cursor: pointer" />');
+                    $('#workflowImg_'+ blob[data.index].recordID).on('click', function() {
+                    	dialog_simple.setTitle(blob[data.index].title + ' (example workflow)');
+                        dialog_simple.setContent('<a href="'+ imageURL +'" target="_blank"><img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="cursor: zoom-in; border: 1px solid black; width: 540px" /></a>');
+                        dialog_simple.show();
+                    });
                 }
-            },
-            {
-                name: 'Workflow Example', indicatorID: 6, sortable: false, editable: false,
-                callback: function(data, blob) {
-                    if(blob[data.index].s1.id6 != undefined
-                            && blob[data.index].s1.id6 != '') {
-                        var imageURL = '<!--{$LEAF_DOMAIN}-->LEAF/library/image.php?form=' + blob[data.index].recordID + '&id=6&series=1&file=0';
-                        $('#'+data.cellContainerID).html('<img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="border: 1px solid black; max-width: 150px; cursor: pointer" />');
-                        $('#workflowImg_'+ blob[data.index].recordID).on('click', function() {
-                            dialog_simple.setTitle(blob[data.index].title + ' (example workflow)');
-                            dialog_simple.setContent('<a href="'+ imageURL +'" target="_blank"><img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="cursor: zoom-in; border: 1px solid black; width: 540px" /></a>');
-                            dialog_simple.show();
-                        });
-                    }
-                }
-            },
-            {
-                name: 'Preview', indicatorID: 'preview', editable: false, sortable: false,
-                callback: function(data, blob) {
-                    $('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../dynicons/?img=edit-find.svg&w=32" alt="" /> Preview</button>');
-                }
-            }
+            }},
+            {name: 'Preview', indicatorID: 'preview', editable: false, sortable: false, callback: function(data, blob) {
+            	$('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../dynicons/?img=edit-find.svg&w=32" alt="" /> Preview</button>');
+            }}
         ]);
 
         grid.setPostRenderFunc(function() {
@@ -156,9 +138,15 @@ $(function() {
             });
         });
         grid.renderBody();
+
+/*        $('#forms').html('<table class="leaf_grid"><tbody id="table_forms">');
+        for(var i in res) {
+            $('#table_forms').append('<tr><td class="table_editable" onclick="showPreview('+ res[i].recordID +');" style="padding: 8px; border: 1px solid"><span style="font-weight: bold; font-size: 120%">' + res[i].title + '</span><br />' + res[i].s1.id5 + '</td></tr>');
+        }
+        $('#forms').append('</tbody></table>');*/
     });
 
-    let leafSearch = new LeafFormSearch('searchContainer');
+    var leafSearch = new LeafFormSearch('searchContainer');
     leafSearch.setJsPath('<!--{$app_js_path}-->');
     leafSearch.setRootURL('../');
     leafSearch.setOrgchartPath('<!--{$orgchartPath}-->');
