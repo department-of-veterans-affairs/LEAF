@@ -38,6 +38,7 @@ export default {
         'truncateText',
         'decodeAndStripHTML',
         'getWorkflowIndicators',
+        'openBasicConfirmDialog',
 	],
     computed: {
         loading() {
@@ -156,22 +157,36 @@ export default {
             })
         },
         updateNeedToKnow(forceOn = false) {
+            // if newValue is off then popup basic
+
             const newValue = forceOn === true ? 1 : this.needToKnow;
-            $.ajax({
-                type: 'POST',
-                url: `${this.APIroot}formEditor/formNeedToKnow`,
-                data: {
-                    needToKnow: newValue,
+            if(newValue === 0) {
+                this.needToKnow = 1;
+                this.openBasicConfirmDialog('<div class="entry_warning bg-yellow-5"><span role="img">⚠️</span><span>All submitted data will be visible to everyone.<br><br>Do you want to proceed?</span></div>', '<h2>You are about to turn off "Need to Know"</h2>', 'Yes', 'No', () => {
+                    this.postNeedToKnow(newValue);
+                });
+            } else {
+                this.postNeedToKnow(newValue);
+            }
+        },
+        postNeedToKnow(value) {
+            fetch(`${this.APIroot}formEditor/formNeedToKnow`, {
+                method: 'POST',
+                body: new URLSearchParams({
+                    needToKnow: value,
                     categoryID: this.formID,
                     CSRFToken: this.CSRFToken
-                },
-                success: () => {
-                    this.updateCategoriesProperty(this.formID, 'needToKnow', newValue);
-                    this.needToKnow = newValue;
-                    this.showLastUpdate('form_properties_last_update');
-                },
-                error: err => console.log('ntk post err', err)
+                })
             })
+            .then(response => {
+                return response.json(); // or response.text() if not expecting JSON
+            })
+            .then(() => {
+                this.updateCategoriesProperty(this.formID, 'needToKnow', value);
+                this.needToKnow = value;
+                this.showLastUpdate('form_properties_last_update');
+            })
+            .catch(err => console.log('ntk post err', err));
         },
         updateType() {
             $.ajax({
@@ -279,16 +294,16 @@ export default {
                             <option value="1" style="color: #a00;" :selected="isNeedToKnow">On</option>
                         </select>
                     </label>
-                    <div v-if="showNeedToKnowWarning" class="entry_info bg-blue-5v" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
-                        <span role="img" aria-hidden="true" alt="">ℹ️</span>
-                        <span><b>Alert:</b> Turning off 'Need to Know' allows all users with site access to view submitted data. Enable Need to Know to restrict visibility to identified workflow participants and submitters.</span>
-                    </div>
                     <label for="formType">Form Type:
                         <select id="formType" title="Change type of form" v-model="type" @change="updateType">
                             <option value="" :selected="type === ''">Standard</option>
                             <option value="parallel_processing" :selected="type === 'parallel_processing'">Parallel Processing</option>
                         </select>
                     </label>
+                    <div v-if="showNeedToKnowWarning" class="entry_info bg-blue-5v" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                        <span role="img" aria-hidden="true" alt="">ℹ️</span>
+                        <span>'Need to Know' is off. Users can see all submitted data.</span>
+                    </div>
                     <div v-if="false" style="display:flex; align-items: center; column-gap: 1rem;">
                         <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age
                             <select id="destructionAgeYears" v-model="destructionAgeYears"

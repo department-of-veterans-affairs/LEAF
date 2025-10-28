@@ -72,6 +72,7 @@ export default {
             openIndicatorEditingDialog: this.openIndicatorEditingDialog,
             openIfThenDialog: this.openIfThenDialog,
             openRestoreFieldOptionsDialog: this.openRestoreFieldOptionsDialog,
+            openBasicConfirmDialog: this.openBasicConfirmDialog,
             orgchartFormats: this.orgchartFormats,
             initializeOrgSelector: this.initializeOrgSelector,
             truncateText: this.truncateText,
@@ -109,6 +110,19 @@ export default {
         this.dragDropFirefoxFix();
     },
     methods: {
+        openBasicConfirmDialog(messageHTML = '', title = '<h2>Confirmation Required</h2>', affirmative = 'Confirm', negative = 'Cancel', saveFunction = {}) {
+            if(typeof saveFunction === 'function') {
+                this.formSaveFunction = () => {
+                    saveFunction();
+                    this.closeFormDialog();
+                }
+                this.dialogData = messageHTML;
+                this.setCustomDialogTitle(title);
+                this.setFormDialogComponent('basic-confirm-dialog');
+                this.dialogButtonText = {confirm: affirmative, cancel: negative};
+                this.showFormDialog = true;
+            }
+        },
         dragDropFirefoxFix() {
             if(/Firefox\/\d+[\d\.]*/.test(navigator.userAgent) &&
                 typeof window.DragEvent === 'function' &&
@@ -168,7 +182,7 @@ export default {
             return str.length <= maxlength ? str : str.slice(0, maxlength) + overflow;
         },
         /**
-         * @param {string} content 
+         * @param {string} content
          * @returns removes encoded chars by passing through div and then strips all tags
          */
         decodeAndStripHTML(content = '') {
@@ -319,7 +333,7 @@ export default {
             }
         },
         /**
-         * @param {boolean} searchResolved 
+         * @param {boolean} searchResolved
          * @returns {Object} of LEAF Secure Certification requests
          */
         fetchLEAFSRequests(searchResolved = false) {
@@ -327,7 +341,7 @@ export default {
                 let query = new LeafFormQuery();
                 query.setRootURL('../');
                 query.addTerm('categoryID', '=', 'leaf_secure');
-            
+
                 if (searchResolved === true) {
                     query.addTerm('stepID', '=', 'resolved');
                     query.join('recordResolutionData');
@@ -362,7 +376,7 @@ export default {
         },
         /**
          * checks status of LEAF Secure Certification requests and adds HTML contents based on status
-         * @param {array} indicatorList 
+         * @param {array} indicatorList
          * @param {Object} leafSRequests
          */
         checkLeafSRequestStatus(indicatorList = [], leafSRequests = {}) {
@@ -437,7 +451,7 @@ export default {
         },
         /**
          * adds an entry to the app's categories object when a new form is created
-         * @param {string} catID 
+         * @param {string} catID
          * @param {Object} record of properties for the new form
          */
         addNewCategory(catID = '', record = {}) {
@@ -445,7 +459,7 @@ export default {
         },
         /**
          * removes an entry from the app's categories object when a form is deleted
-         * @param {string} catID 
+         * @param {string} catID
          */
         removeCategory(catID = '') {
             delete this.categories[catID];
