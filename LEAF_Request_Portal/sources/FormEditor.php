@@ -453,11 +453,12 @@ class FormEditor
                       ':categoryID' => $categoryID,
                       ':workflowID' => $workflowID,
                       ':formLibraryID' => $formLibraryID,
-                      ':lastModified' => time()
+                      ':lastModified' => time(),
+                      ':needToKnow' => 1
         );
-        $this->db->prepared_query('INSERT INTO categories (categoryID, parentID, categoryName, categoryDescription, workflowID, formLibraryID, lastModified)
-    									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID, :lastModified)
-                                        ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, lastModified=:lastModified, disabled=0', $vars);
+        $this->db->prepared_query('INSERT INTO categories (categoryID, parentID, categoryName, categoryDescription, workflowID, formLibraryID, lastModified, needToKnow)
+    									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID, :lastModified, :needToKnow)
+                                        ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, lastModified=:lastModified, disabled=0, needToKnow=:needToKnow', $vars);
 
         $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::FORM, [
             new LogItem("categories", "categoryID", $categoryID),
@@ -465,17 +466,19 @@ class FormEditor
             new LogItem("categories", "categoryName", $name),
             new LogItem("categories", "categoryDescription", $description),
             new LogItem("categories", "workflowID", $workflowID),
-            new LogItem("categories", "formLibraryID", $formLibraryID)
+            new LogItem("categories", "formLibraryID", $formLibraryID),
+            new LogItem("categories", "needToKnow", 1)
         ]);
 
         // need to know enabled by default if leaf secure is active
-        $res = $this->db->query('SELECT * FROM settings WHERE setting="leafSecure" AND data>=1');
+        // is this needed with the needToKnow being set above as the default?
+        /*$res = $this->db->query('SELECT * FROM settings WHERE setting="leafSecure" AND data>=1');
         if(count($res) > 0) {
             $vars = array(':categoryID' => $categoryID);
             $this->db->prepared_query('UPDATE categories
                                         SET needToKnow=1
                                         WHERE categoryID=:categoryID', $vars);
-        }
+        }*/
 
         return $categoryID;
     }
