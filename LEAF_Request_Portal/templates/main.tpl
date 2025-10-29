@@ -18,10 +18,12 @@
         @import "{$stylesheets[i]}";
 {/section}
         @import "css/style.css";
+
         @import "{$app_js_path}/jquery/chosen/chosen.min.css";
         @import "{$app_js_path}/jquery/trumbowyg/ui/trumbowyg.min.css";
         /* backwards compat */
         @import "{$app_js_path}/jquery/icheck/skins/square/blue.css";
+
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
@@ -77,7 +79,8 @@
     </a>
     <span id="headerHelp">
         {if $leafSecure == 0}
-        <div class="alert" style="display: inline">
+        <div class="warning" style="display: inline">
+            <i class="fas fa-exclamation-circle" alt=""></i>
             <span>Do not enter PHI/PII.</span>
         </div>
         {/if}

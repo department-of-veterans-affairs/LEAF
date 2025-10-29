@@ -1,0 +1,466 @@
+/* =============================================================================
+   DARK MODE IMPLEMENTATION
+   Uses prefers-color-scheme to automatically detect OS dark mode setting
+   ============================================================================= */
+
+/* Define CSS custom properties for consistent theming */
+:root {
+  /* Light mode colors (default) */
+
+  /* Background Colors */
+  --bg-header: linear-gradient(#F3F3F3, #BBCAE4);
+  --bg-warning: #9D0000;
+  --text-warning: #ffffff;
+  --border-warning: #000000;
+  --text-header-link: #004B76;
+  --menu-bg: #E8F2FF;
+  --menu-hover-bg: #2372B0;
+
+  /* Side menu */
+  --bg-card-1: #2372B0;
+  --bg-card-2: #B6EF6D;
+  --bg-card-3: #7EB2B3;
+  --bg-card-4: #000000;
+  --text-cards-light: #FFFFFF;
+  --text-cards-dark: #000000;
+
+  /* Homepage Table */
+  --bg-homepage-table-header-primary: #D1DFFF;
+  --bg-homepage-table-header-secondary: #79A2FF;
+  --bg-homepage-table-header-hover-select: #79A2FF;
+  --bg-homepage-table-row-primary: #FFFFFF;
+  --bg-homepage-table-row-secondary: #FEFFD1;
+  --text-homepage-table-header: #000000;
+  --text-homepage-table-row: #000000;
+  --border-table-primary: #000000;
+  --border-table-secondary: #000000;
+
+  /* Primary light mode colors */
+  --bg-primary: #F3F3F3;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #C7CACE;
+  --bg-quaternary: #DFE1E2;
+
+  --text-primary: #000000;
+
+  --border-tertiary: #000000;
+
+  --bg-button-primary: #E8F2FF;
+  --bg-button-primary-hover: #2372B0;
+  --text-button-primary-hover: #FFFFFF;
+
+  --bg-input-box-primary: #F3F3F3;
+
+  --bg-counter: #000000;
+  --text-counter: #FFFFFF;
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Header */
+    --bg-header: linear-gradient(#131314, #29354F);
+    --bg-warning: #9A0603;
+    --text-warning: #ffffff;
+    --border-warning: #000000;
+    --text-header-link: #3C93FC;
+    --menu-bg: #162E51;
+    --menu-hover-bg: #4A77B4;
+
+    /* Side menu */
+    --bg-card-1: #2372B0;
+    --bg-card-2: #216E1F;
+    --bg-card-3: #2E8367;
+    --bg-card-4: #000000;
+    --text-cards-light: #FFFFFF;
+    --text-cards-dark: #FFFFFF; /* backwards compat */
+
+    /* Homepage Table */
+    --bg-homepage-table-header-primary: #162E51;
+    --bg-homepage-table-header-secondary: #1A4480;
+    --bg-homepage-table-header-hover-select: #4A77B4;
+    --bg-homepage-table-row-primary: #DFE1E2;
+    --bg-homepage-table-row-secondary: #A9AEB1;
+    --text-homepage-table-header: #FFFFFF;
+    --text-homepage-table-row: #1A1A1A;
+    --border-table-primary: #CACACA;
+    --border-table-secondary: #797979;
+
+    /* Primary dark mode colors */
+    --bg-primary: #71767A;
+    --bg-secondary: #A9AEB1;
+    --bg-tertiary: #C7CACE;
+    --bg-quaternary: #DFE1E2;
+
+    --text-primary: #DFDFDF;
+
+    --border-tertiary: #CACACA;
+
+    --bg-button-primary: #4A77B4;
+    --bg-button-primary-hover: #BBCAE4;
+    --text-button-primary-hover: #000000;
+
+    --bg-input-box-primary: #F3F3F3;
+
+    --bg-counter: #1A1A1A;
+    --text-counter: #F3F3F3;
+  }
+}
+
+/* =============================================================================
+   BASE STYLES
+   ============================================================================= */
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body a:link,
+body a:visited {
+  color: var(--text-header-link);
+}
+
+table.leaf_grid tr td a:link,
+table.leaf_grid tr td a:visited {
+  color: var(--text-link);
+}
+
+table.leaf_grid thead tr th, table.leaf_grid tbody tr td, table.leaf_grid tfoot tr td {
+  border-color: var(--border-table-primary);
+}
+
+table.leaf_grid th:first-child, table.leaf_grid td:first-child {
+  border-left-color: var(--border-table-primary);
+}
+
+table.leaf_grid tr td span.browsecounter a:link,
+table.leaf_grid tr td span.browsecounter a:visited {
+  background-color: var(--bg-counter);
+  color: var(--text-counter);
+}
+
+.table_editable:hover > .browsetypes {
+  color: var(--text-homepage-table-header);
+}
+
+/* Hover state for table cells - make all text elements match browsetypes color */
+table.leaf_grid tr td:hover span.browsecounter,
+table.leaf_grid tr td:hover span.browsecounter a {
+  color: var(--text-homepage-table-header) !important;
+  background-color: var(--bg-homepage-table-header-hover-select) !important;
+}
+
+table.leaf_grid tr td:hover > a {
+  color: var(--text-homepage-table-header) !important;
+  background-color: var(--bg-homepage-table-header-hover-select) !important;
+}
+
+table.leaf_grid tr td:hover span.browsetypes {
+  color: var(--text-homepage-table-header);
+  background-color: var(--bg-homepage-table-header-hover-select) !important;
+}
+
+span.browsetypes {
+    font-size: 11px;
+    color: var(--text-homepage-table-row);
+}
+
+span#headerHelp {
+  color: var(--text-primary);
+}
+
+input {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-tertiary);
+}
+
+#headerMenu_container .menuDescSmall,
+#headerMenu_container .menuTextSmall {
+  color: var(--text-homepage-table-row);
+}
+
+@media (prefers-color-scheme: dark) {
+  input {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+  }
+}
+
+textarea {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-tertiary);
+}
+
+@media (prefers-color-scheme: dark) {
+  textarea {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+  }
+}
+
+select {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-tertiary);
+}
+
+@media (prefers-color-scheme: dark) {
+  select {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+  }
+}
+
+/* =============================================================================
+   HEADER STYLES
+   ============================================================================= */
+
+#header {
+  background-image: var(--bg-header);
+}
+
+#headerDescription {
+  color: var(--text-primary);
+}
+
+#headerHelp #divider {
+  color: var(--text-primary);
+}
+
+span#headerLabel {
+  color: var(--text-header-link);
+}
+
+@media (prefers-color-scheme: dark) {
+  span#headerLabel {
+    color: var(--text-primary);
+  }
+}
+
+#headerMenu > a,
+#headerMenu_container > a,
+#headerMenuHelp_container > a {
+  color: var(--text-primary);
+}
+
+#headerMenuNav > ul > li > button,
+#headerMenuNav > ul > li > a {
+  color: var(--text-primary);
+}
+
+#headerMenu_links,
+#headerMenu_help {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-primary);
+  box-shadow: 0 2px 6px var(--shadow-color);
+  color: var(--text-homepage-table-row);
+}
+
+/* =============================================================================
+   CONTENT AREAS
+   ============================================================================= */
+
+.NRBlue, .inboxGreen, .BMGreen, .RBBlack {
+  border-color: var(--border-primary);
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.NRBlue,
+.NRBlue span.menuTextSmall,
+.NRBlue span.menuDescSmall {
+  color: var(--text-cards-light);
+  background-color: var(--bg-card-1) !important;
+}
+
+.inboxGreen,
+.inboxGreen span.menuTextSmall,
+.inboxGreen span.menuDescSmall {
+  color: var(--text-cards-dark);
+  background-color: var(--bg-card-2) !important;
+}
+
+.BMGreen,
+.BMGreen span.menuTextSmall,
+.BMGreen span.menuDescSmall {
+  color: var(--text-cards-dark);
+  background-color: var(--bg-card-3) !important;
+}
+
+.RBBlack,
+.RBBlack span.menuTextSmall,
+.RBBlack span.menuDescSmall {
+  color: var(--text-cards-light);
+  background-color: var(--bg-card-4) !important;
+}
+
+#content {
+  background-color: var(--bg-primary);
+}
+
+/* =============================================================================
+   ALERTS AND NOTIFICATIONS
+   ============================================================================= */
+
+.warning {
+  background-color: var(--bg-warning);
+  border: 2px solid;
+  border-color: var(--border-warning);
+  font-weight: bold;
+  font-size: 16px;
+  padding: 4px;
+}
+
+div.warning span {
+  color: var(--text-warning);
+}
+
+.alert {
+  background-color: var(--bg-alert);
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+}
+
+.alert > span {
+  color: var(--text-inverse);
+}
+
+.alert a:link,
+.alert a:visited {
+  color: #bddcfb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert a:link,
+  .alert a:visited {
+    color: #93c5fd;
+  }
+}
+
+/* =============================================================================
+   TABLES
+   ============================================================================= */
+
+.table > thead,
+table.leaf_grid th {
+  background-color: var(--bg-homepage-table-header-primary);
+  color: var(--text-homepage-table-header);
+}
+
+.table td,
+table.leaf_grid td,
+.agenda td {
+  border-color: var(--border-table-primary);
+  background-color: var(--bg-homepage-table-row-primary);
+  color: var(--text-homepage-table-row);
+}
+
+table.leaf_grid th:hover,
+table.leaf_grid th:focus {
+  background-color: var(--bg-homepage-table-header-secondary);
+  color: var(--text-homepage-table-header);
+}
+
+.table_editable:hover {
+  background-color: var(--bg-homepage-table-header-hover-select);
+  color: var(--text-homepage-table-header);
+}
+
+
+/* =============================================================================
+   BUTTONS AND INTERACTIVE ELEMENTS
+   ============================================================================= */
+.headerButton,
+button.headerButton,
+a.headerButton {
+  background-color: var(--menu-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-tertiary);
+}
+
+.headerButton:hover,
+.headerButton,
+.headerButton:focus,
+button.headerButton:hover,
+button.headerButton:focus {
+  background-color: var(--bg-homepage-table-header-hover-select);
+  color: var(--text-homepage-table-header);
+}
+
+.buttonNorm,
+button.buttonNorm {
+  background-color: var(--bg-button-primary);
+  color: var(--text-primary);
+  border-color: var(--border-table-primary);
+}
+
+.buttonNorm:hover,
+.buttonNormSelected,
+.buttonNorm:focus,
+button.buttonNorm:hover,
+button.buttonNorm:focus {
+  background-color: var(--bg-button-primary-hover);
+  color: var(--text-button-primary-hover);
+  border-color: var(--border-warning);
+}
+
+/* Menu Buttons */
+.menuButtonSmall {
+  background-color: var(--bg-secondary);
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.menuButtonSmall:hover,
+.menuButtonSmall:focus {
+  box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+#headerMenuNav > ul > li > button span {
+  color: var(--text-primary);
+}
+
+/* =============================================================================
+   PRINTER-SPECIFIC OVERRIDES
+   ============================================================================= */
+
+@media print {
+  /* Force light colors for printing regardless of dark mode */
+  :root {
+    --bg-primary: white;
+    --bg-secondary: white;
+    --text-primary: black;
+    --border-primary: black;
+  }
+
+  body {
+    background-color: white;
+    color: black;
+  }
+}
+
+/* =============================================================================
+   FOOTER
+   ============================================================================= */
+
+#footer a:link,
+#footer a:visited {
+  color: var(--border-table-primary);
+}
+
+#footer a:hover {
+  color: var(--bg-button-primary-hover);
+}
+
+/* =============================================================================
+   CSS ATTRIBUTE SELECTORS FOR AUTOMATIC INLINE STYLE HANDLING
+   These automatically improve inline styles without template changes
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+    [style*="background-color: rgb(254, 255, 209)"],
+    [style*="background-color:rgb(254, 255, 209)"] {
+        background-color: var(--bg-homepage-table-row-secondary) !important;
+    }
+}
