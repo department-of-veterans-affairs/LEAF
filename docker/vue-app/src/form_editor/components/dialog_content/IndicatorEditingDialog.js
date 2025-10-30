@@ -303,7 +303,7 @@ export default {
                 return '';
             }
 
-            return `This field is used in a workflow and must be removed from there before you can change its format.<br /><br />${messageParts.join('<br />')}`;
+            return `The input format of <b>'${this.formats[this.format]}'</b> cannot be changed. It must first be removed from the workflow it is used in, as indicated below.<br /><br />${messageParts.join('<br />')}`;
         },
     },
     methods: {
