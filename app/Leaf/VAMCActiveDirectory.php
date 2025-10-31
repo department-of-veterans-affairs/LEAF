@@ -73,52 +73,61 @@ class VAMCActiveDirectory
 
         $count = 0;
 
-        foreach ($write_data as $employee) {
-            if (
+	foreach ($write_data as $employee) {
+		
+		if (
                 isset($employee['lname'])
                 && $employee['lname'] != ''
                 && isset($employee['loginName'])
                 && $employee['loginName'] != ''
-            ) {
+	    ) {
+		    if(empty($employee['midIni'])){
+			    $employee['midIni'] = '';
+		    }
+
+            // there is incomplete data in ad in some cases.
+		    if(empty($employee['fname'])){
+			    $employee['fname'] = '';
+		    }
                 $id = md5(strtoupper($employee['lname']) . strtoupper($employee['fname']) . strtoupper($employee['midIni']));
 
                 $this->users[$id]['lname'] = $employee['lname'];
                 $this->users[$id]['fname'] = $employee['fname'];
                 $this->users[$id]['midIni'] = $employee['midIni'];
-                $this->users[$id]['email'] = isset($employee['email']) ? $employee['email'] : null;
-                $this->users[$id]['phone'] = $employee['phone'];
-                $this->users[$id]['pager'] = isset($employee['pager']) ? $employee['pager'] : null;
-                $this->users[$id]['roomNum'] = $employee['roomNum'];
-                $this->users[$id]['title'] = $employee['title'];
-                $this->users[$id]['service'] = $employee['service'];
-                $this->users[$id]['mailcode'] = isset($employee['mailcode']) ? $employee['mailcode'] : null;
+                $this->users[$id]['email'] = isset($employee['email']) ? $employee['email'] : '';
+                $this->users[$id]['phone'] = isset($employee['phone']) ? $employee['phone'] : '';
+                $this->users[$id]['pager'] = isset($employee['pager']) ? $employee['pager'] : '';
+                $this->users[$id]['roomNum'] = isset($employee['roomNum']) ? $employee['roomNum'] : '';
+                $this->users[$id]['title'] = isset($employee['title']) ? $employee['title'] : '';
+                $this->users[$id]['service'] = isset($employee['service']) ? $employee['service'] : '';
+                $this->users[$id]['mailcode'] = isset($employee['mailcode']) ? $employee['mailcode'] : '';
                 $this->users[$id]['loginName'] = $employee['loginName'];
                 $this->users[$id]['objectGUID'] = null;
-                $this->users[$id]['mobile'] = $employee['mobile'];
+                $this->users[$id]['mobile'] = isset($employee['mobile']) ? $employee['mobile'] : '';
                 $this->users[$id]['domain'] = $this->parseVAdomain($employee['domain']);
                 $this->users[$id]['source'] = 'ad';
                 //echo "Grabbing data for $employee['lname'], $employee['fname']\n";
                 $count++;
-            } else if (isset($employee['service']) && strpos($employee['service'], 'ervice account')) {
+            } else if (stristr($employee['domain'],'Service Accounts')) {
                 $id = md5('ACCOUNT' . 'SERVICE' . $count);
 
                 $this->users[$id]['lname'] = 'Account';
                 $this->users[$id]['fname'] = 'Service';
                 $this->users[$id]['midIni'] = '';
-                $this->users[$id]['email'] = isset($employee['email']) ? $employee['email'] : null;
-                $this->users[$id]['phone'] = $employee['phone'];
-                $this->users[$id]['pager'] = isset($employee['pager']) ? $employee['pager'] : null;
-                $this->users[$id]['roomNum'] = $employee['roomNum'];
-                $this->users[$id]['title'] = $employee['title'];
-                $this->users[$id]['service'] = $employee['service'];
-                $this->users[$id]['mailcode'] = isset($employee['mailcode']) ? $employee['mailcode'] : null;
+                $this->users[$id]['email'] = isset($employee['email']) ? $employee['email'] : '';
+                $this->users[$id]['phone'] = isset($employee['phone']) ? $employee['phone'] : '';
+                $this->users[$id]['pager'] = isset($employee['pager']) ? $employee['pager'] : '';
+                $this->users[$id]['roomNum'] = isset($employee['roomNum']) ? $employee['roomNum'] : '';
+                $this->users[$id]['title'] = isset($employee['title']) ? $employee['title'] : '';
+                $this->users[$id]['service'] = isset($employee['service']) ? $employee['service'] : '';
+                $this->users[$id]['mailcode'] = isset($employee['mailcode']) ? $employee['mailcode'] : '';
                 $this->users[$id]['loginName'] = $employee['loginName'];
                 $this->users[$id]['objectGUID'] = null;
-                $this->users[$id]['mobile'] = $employee['mobile'];
+                $this->users[$id]['mobile'] = isset($employee['mobile']) ? $employee['mobile'] : '';
                 $this->users[$id]['domain'] = $this->parseVAdomain($employee['domain']);
                 $this->users[$id]['source'] = 'ad';
                 $count++;
-            } else {
+	    } else {
                 $ln = isset($employee['loginName']) ? $employee['loginName'] : 'no login name';
                 $lan = isset($employee['lname']) ? $employee['lname'] : 'no last name';
                 $message = "{$ln} - {$lan} probably not a user, skipping.\n";
@@ -197,32 +206,40 @@ class VAMCActiveDirectory
                         ON DUPLICATE KEY UPDATE `data` = :data";
 
                 $this->db->prepared_query($sql, $vars);
+                if(!empty($this->users[$key]['phone'])){
+                    $vars = array(':empUID' => $res[0]['empUID'],
+                                ':indicatorID' => 5,
+                                ':data' => $this->fixIfHex($this->users[$key]['phone']));
 
-                $vars = array(':empUID' => $res[0]['empUID'],
-                            ':indicatorID' => 5,
-                            ':data' => $this->fixIfHex($this->users[$key]['phone']));
 
-                $this->db->prepared_query($sql, $vars);
+                    $this->db->prepared_query($sql, $vars);
+                }
 
-                $vars = array(':empUID' => $res[0]['empUID'],
-                            ':indicatorID' => 8,
-                            ':data' => $this->fixIfHex($this->users[$key]['roomNum']));
+                if(!empty($this->users[$key]['roomNum'])){
+                    $vars = array(':empUID' => $res[0]['empUID'],
+                                ':indicatorID' => 8,
+                                ':data' => $this->fixIfHex($this->users[$key]['roomNum']));
 
-                $this->db->prepared_query($sql, $vars);
+                    $this->db->prepared_query($sql, $vars);
+                }
 
-                $vars = array(':empUID' => $res[0]['empUID'],
-                            ':indicatorID' => 23,
-                            ':data' => $this->fixIfHex($this->users[$key]['title']));
+                if(!empty($this->users[$key]['title'])){
+                    $vars = array(':empUID' => $res[0]['empUID'],
+                                ':indicatorID' => 23,
+                                ':data' => $this->fixIfHex($this->users[$key]['title']));
 
-                $this->db->prepared_query($sql, $vars);
+                    $this->db->prepared_query($sql, $vars);
+                }
 
                 // don't store mobile # if it's the same as the primary phone #
-                if ($this->users[$key]['phone'] != $this->users[$key]['mobile']) {
+                if (!empty($this->users[$key]['mobile']) && $this->users[$key]['phone'] != $this->users[$key]['mobile']) {
                     $vars = array(':empUID' => $res[0]['empUID'],
                             ':indicatorID' => 16,
                             ':data' => $this->fixIfHex($this->users[$key]['mobile']));
 
                     $this->db->prepared_query($sql, $vars);
+                    
+
                 } else {
                     // need to check and see if mobile exists in the db now, if it does
                     // need to remove it or change it to a blank string
@@ -270,15 +287,15 @@ class VAMCActiveDirectory
                             ':midIni' => $this->users[$key]['midIni'],
                             ':phoneticFname' => $phoneticFname,
                             ':phoneticLname' => $phoneticLname,
-                            ':domain' => $this->users[$key]['domain'],
+			    't
+			    domain' => $this->users[$key]['domain'],
                             ':lastUpdated' => $time);
 
                 $this->db->prepared_query($sql1, $vars);
 
-                //echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : " . $pq->errorCode() . "\n";
+                //echo "Inserting data for {$this->users[$key]['lname']}, {$this->users[$key]['fname']} : "  . "\n";
 
                 $lastEmpUID = $this->db->getLastInsertId();
-
                 // prioritize adding email to DB
                 $sql = "INSERT INTO employee_data (empUID, indicatorID, data, author)
                             VALUES (:empUID, :indicatorID, :data, 'system')
@@ -514,7 +531,7 @@ class VAMCActiveDirectory
     		case 'v23.med.va.gov':
     			return 'VHA23';
     		default:
-    			return $dc;
+			return $dc;
     	}
     }
 }
