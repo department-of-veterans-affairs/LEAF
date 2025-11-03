@@ -287,8 +287,7 @@ class VAMCActiveDirectory
                             ':midIni' => $this->users[$key]['midIni'],
                             ':phoneticFname' => $phoneticFname,
                             ':phoneticLname' => $phoneticLname,
-			    't
-			    domain' => $this->users[$key]['domain'],
+			                ':domain' => $this->users[$key]['domain'],
                             ':lastUpdated' => $time);
 
                 $this->db->prepared_query($sql1, $vars);
