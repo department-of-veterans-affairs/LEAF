@@ -162,7 +162,7 @@ export default {
             const newValue = forceOn === true ? 1 : this.needToKnow;
             if(newValue === 0) {
                 this.needToKnow = 1;
-                this.openBasicConfirmDialog('<div class="entry_warning bg-yellow-5"><span role="img">⚠️</span><span>All submitted data will be visible to everyone.<br><br>Do you want to proceed?</span></div>', '<h2>You are about to turn off "Need to Know"</h2>', 'Yes', 'No', () => {
+                this.openBasicConfirmDialog('<div class="entry_warning bg-yellow-5"><span role="img">⚠️</span><span>All submitted data on this form will be visible to everyone.<br><br>Do you want to proceed?</span></div>', '<h2>You are about to turn off "Need to Know"</h2>', 'Yes', 'No', () => {
                     this.postNeedToKnow(newValue);
                 });
             } else {
@@ -302,7 +302,7 @@ export default {
                     </label>
                     <div v-if="showNeedToKnowWarning" class="entry_info bg-blue-5v" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
                         <span role="img" aria-hidden="true" alt="">ℹ️</span>
-                        <span>'Need to Know' is off. Users can see all submitted data.</span>
+                        <span>'Need to Know' is off. Users can see all submitted data on this form.</span>
                     </div>
                     <div v-if="false" style="display:flex; align-items: center; column-gap: 1rem;">
                         <label for="destructionAgeYears" title="Resolved requests that have reached this expiration date will be destroyed" >Record Destruction Age
