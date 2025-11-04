@@ -303,7 +303,7 @@ export default {
                 return '';
             }
 
-            return `The input format of <b>'${this.formats[this.format]}'</b> cannot be changed. It must first be removed from the workflow it is used in, as indicated below.<br /><br />${messageParts.join('<br />')}`;
+            return `This field is used in a workflow and must be removed from there before you can change its format.<br /><br />${messageParts.join('<br />')}`;
         },
     },
     methods: {
@@ -794,10 +794,10 @@ export default {
             <input type="text" id="description" v-model="description" maxlength="50" />
         </div>
         <div id="input-format">
-            <div v-if="showFormatSelect">
+            <div>
                 <label for="indicatorType">Input Format</label>
                 <div style="display:flex;">
-                    <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
+                    <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone" :disabled="!showFormatSelect">
                         <option value="">None</option>
                         <option v-for="kv in Object.entries(formats)"
                         :value="kv[0]" :selected="kv[0] === format" :key="kv[0]">{{ kv[1] }}</option>
@@ -812,10 +812,9 @@ export default {
                     <p><b>Format Information</b></p>
                     {{ format !== '' ? formatInfo[format] : 'No format.  Indicators without a format are often used to provide additional information for the user.  They are often used for form section headers.' }}
                 </div>
-
-            </div>
-            <div v-if="!showFormatSelect && indicatorID" class="entry_info bg-blue-5v" style="margin-bottom:1.5rem;">
-                <span role="img" aria-hidden="true" alt="">ℹ️</span><span v-html="formatWorkflowMessage"></span>
+                <div v-if="!showFormatSelect && indicatorID" class="entry_info bg-blue-5v" style="margin-top: 1rem; margin-bottom:1.5rem;">
+                    <span role="img" aria-hidden="true" alt="">ℹ️</span><span v-html="formatWorkflowMessage"></span>
+                </div>
             </div>
             <div v-show="format === 'checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
                 <label for="indicatorSingleAnswer">Text for checkbox</label>
