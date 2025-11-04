@@ -53,3 +53,6 @@ libs/css/leaf.js
 x-test/API-tests/result_cache/*
 test/Test-Automation/ExtentReports/*
 mermaid.md
+
+LEAF_library_test_uploads/*
+!LEAF_library_test_uploads/*LEAF_TEST_*
