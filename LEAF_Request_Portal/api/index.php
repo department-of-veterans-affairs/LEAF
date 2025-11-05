@@ -21,11 +21,13 @@ $p_db = $db;
 $action = isset($_GET['a']) ? $_GET['a'] : $_SERVER['PATH_INFO'];
 $keyIndex = strpos($action, '/');
 $key = null;
+$parts = null;
 
 if ($keyIndex === false) {
     $key = $action;
 } else {
     $key = substr($action, 0, $keyIndex);
+    $parts = explode('/', substr($action, $keyIndex + 1));
 }
 
 // exclude some controllers from login requirement
@@ -62,9 +64,18 @@ $controllerMap->register('site', function () use ($p_db, $login, $action) {
     echo $siteController->handler($action);
 });
 
+$controllerMap->register('formStack', function () use ($p_db, $login, $action) {
+    $formStackController = new Portal\FormStackController($p_db, $login);
+    echo $formStackController->handler($action);
+});
+
 // admin only
-if ($login->checkGroup(1))
-{
+if ($login->checkGroup(1) || ($key === 'group' && isset($parts[0]) && $parts[0] === '1' && isset($parts[1]) && $parts[1] === 'members')) {
+    $controllerMap->register('group', function () use ($p_db, $login, $action) {
+        $groupController = new Portal\GroupController($p_db, $login);
+        echo $groupController->handler($action);
+    });
+
     $controllerMap->register('simpledata', function () use ($p_db, $login, $action) {
         $controller = new Portal\SimpleDataController($p_db, $login);
         echo $controller->handler($action);
@@ -73,16 +84,6 @@ if ($login->checkGroup(1))
     $controllerMap->register('formEditor', function () use ($p_db, $login, $action) {
         $formEditorController = new Portal\FormEditorController($p_db, $login);
         echo $formEditorController->handler($action);
-    });
-
-    $controllerMap->register('group', function () use ($p_db, $login, $action) {
-        $groupController = new Portal\GroupController($p_db, $login);
-        echo $groupController->handler($action);
-    });
-
-    $controllerMap->register('import', function () use ($p_db, $login, $action) {
-        $importController = new Portal\ImportController($p_db, $login);
-        echo $importController->handler($action);
     });
 
     $icons_path = LIB_PATH . '/dynicons/svg/';
@@ -98,11 +99,6 @@ if ($login->checkGroup(1))
 $controllerMap->register('form', function () use ($p_db, $login, $action) {
     $formController = new Portal\FormController($p_db, $login);
     echo $formController->handler($action);
-});
-
-$controllerMap->register('formStack', function () use ($p_db, $login, $action) {
-    $formStackController = new Portal\FormStackController($p_db, $login);
-    echo $formStackController->handler($action);
 });
 
 $controllerMap->register('formWorkflow', function () use ($p_db, $login, $action) {

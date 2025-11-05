@@ -62,27 +62,30 @@ switch ($action) {
 
             $indicator = $form->getIndicator($indicatorID, $series, $recordID);
             $recordInfo = $form->getRecordInfo($recordID);
+
+            $t_form->left_delimiter = '<!--{';
+            $t_form->right_delimiter = '}-->';
+            $t_form->assign('recordID', $recordID);
+            $t_form->assign('series', $series);
+            $t_form->assign('serviceID', (int)$recordInfo['serviceID']);
+            $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
+            $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
+            $t_form->assign('form', $indicator);
+            $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
+            $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
+            $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
+            $t_form->assign('max_filesize', ini_get('upload_max_filesize'));
+
             if ($indicator[$_GET['indicatorID']]['isWritable'] == 1)
             {
-                $t_form->left_delimiter = '<!--{';
-                $t_form->right_delimiter = '}-->';
-                $t_form->assign('recordID', $recordID);
-                $t_form->assign('series', $series);
-                $t_form->assign('serviceID', (int)$recordInfo['serviceID']);
-                $t_form->assign('recorder', XSSHelpers::sanitizeHTML($_SESSION['name']));
-                $t_form->assign('CSRFToken', $_SESSION['CSRFToken']);
-                $t_form->assign('form', $indicator);
-                $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
-                $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
-                $t_form->assign('orgchartImportTag', $settings['orgchartImportTags'][0]);
                 $t_form->assign('subindicatorsTemplate', customTemplate('subindicators.tpl'));
-                $t_form->assign('max_filesize', ini_get('upload_max_filesize'));
-                $t_form->display(customTemplate('ajaxForm.tpl'));
             }
             else
             {
-                echo '<img src="dynicons/?img=emblem-readonly.svg&amp;w=96" alt="" style="float: left" /><div style="font: 36px verdana">This field is currently read-only OR the field is not associated with any forms on this request.</div>';
+                $t_form->assign('subindicatorsTemplate', customTemplate('print_subindicators.tpl'));
             }
+
+            $t_form->display(customTemplate('ajaxForm.tpl'));
         }
 
         break;
@@ -107,7 +110,9 @@ switch ($action) {
                 $t_form->assign('indicator', $indicator[$indicatorID]);
                 $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
                 $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
-                $t_form->display('print_subindicators_ajax.tpl');
+                $t_form->assign('printSubindicatorsTemplate', customTemplate('print_subindicators.tpl'));
+                $t_form->assign('printSubindicatorsAjaxTemplate', customTemplate('print_subindicators_ajax.tpl'));
+                $t_form->display(customTemplate('print_subindicators_ajax.tpl'));
             }
         }
 
@@ -390,6 +395,8 @@ switch ($action) {
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
             $t_form->assign('portal_url', ABSOLUTE_PORT_PATH.'/');
             $t_form->assign('is_admin', $login->checkGroup(1));
+            $t_form->assign('printSubindicatorsTemplate', customTemplate('print_subindicators.tpl'));
+            $t_form->assign('printSubindicatorsAjaxTemplate', customTemplate('print_subindicators_ajax.tpl'));
 
             switch ($action) {
                 case 'internalonlyview':

@@ -11,6 +11,8 @@ $BG_Pearl: #f2f2f6;
 $manila: #feffd1;
 $USWDS_LtGray: #c9c9c9;
 $USWDS_Cyan: #00bde3;
+$USWDS_warning: #ffbe2e;
+$USWDS_errorDark: #B50909;
 $lt_cyan: #e8f2ff;
 $BG_VividOrange: #ff6800; /*changed from Figma #f56600 to meet accessibility contrast*/
 $attention: #a00;
@@ -32,7 +34,7 @@ $custom_drop_spacer: 80px;
 body { /* fixes header not extending entire width */
     min-width: -moz-fit-content; /*firefox prior to nov 2021*/
     min-width: fit-content;
-} 
+}
 [v-cloak] {
     display: none;
 }
@@ -44,6 +46,24 @@ body { /* fixes header not extending entire width */
     padding: 1rem;
     background-color: white;
 }
+
+.entry_error, .entry_warning, .entry_info {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: start;
+    gap: 0.5rem;
+}
+.entry_error {
+  border-left: 4px solid $USWDS_errorDark;
+}
+.entry_warning {
+  border-left: 4px solid $USWDS_warning;
+}
+.entry_info {
+  border-left: 4px solid $USWDS_Cyan;
+}
+
+
 input[type="color"] {
     cursor: pointer;
 }
@@ -113,6 +133,9 @@ ul {
     margin: 0;
     padding: 0;
 }
+div[class*="trumbowyg"] ul {
+    list-style-type: disc;
+}
 label {
     padding: 0;
     display: flex;
@@ -174,6 +197,9 @@ td a.router-link {
         display: flex;
         align-items: center;
     }
+    div[class*="trumbowyg"] li {
+        display: list-item;
+    }
     .leaf-vue-dialog-title {
         color: $charcoal;
         border-top: 3px solid white;
@@ -183,13 +209,13 @@ td a.router-link {
         border-radius: 3px;
         background-color: $lt_cyan;
         cursor: move;
-    
+
         h2 {
             color: inherit;
             font-size: 22px;
             margin: 0 1.5rem 0 0;
         }
-    } 
+    }
     #leaf-vue-dialog-close {
         @include flexcenter;
         position: absolute;
@@ -204,8 +230,8 @@ td a.router-link {
         background-color: transparent;
     }
     #leaf-vue-dialog-cancel-save {
-        display:flex; 
-        justify-content: space-between; 
+        display:flex;
+        justify-content: space-between;
         margin-top: 1em;
         #button_save {
             margin-right:auto;
@@ -232,8 +258,8 @@ td a.router-link {
     margin-bottom: 0.2em;
     white-space: normal;
 }
-input[class*="icheck"][class*="leaf_check"], 
-input[class*="ischecked"][class*="leaf_check"] { 
+input[class*="icheck"][class*="leaf_check"],
+input[class*="ischecked"][class*="leaf_check"] {
     opacity: 0;
     cursor: pointer;
     width: 18px;
@@ -297,7 +323,7 @@ input[class*="ischecked"][class*="leaf_check"]:checked ~ span.leaf_check::after 
     color:black;
 }
 button.choices__button {
-    filter: brightness(25%); 
+    filter: brightness(25%);
 }
 button.choices__button:hover, button.choices__button:focus, button.choices__button:active {
     filter: brightness(0);
@@ -324,7 +350,7 @@ button.choices__button:hover, button.choices__button:focus, button.choices__butt
 
 
 /** drag-drop customizations:
-API image replacement, custom display, and drop area list styling 
+API image replacement, custom display, and drop area list styling
 **/
 
 /* override the drag-drop API default image so that it does not show. */

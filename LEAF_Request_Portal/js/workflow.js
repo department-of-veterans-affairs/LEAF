@@ -407,7 +407,7 @@ var LeafWorkflow = function (containerID, CSRFToken) {
                     completeAction();
                 }
             });
-            document.querySelector(`#button_step${step.dependencyID}_${step.dependencyActions[i].actionType}`).removeAttribute('disabled');
+            document.querySelector(`#button_step${step.dependencyID}_${step.dependencyActions[i].actionType}`)?.removeAttribute?.('disabled');
         }
 
         // load workflowStep modules

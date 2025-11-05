@@ -71,7 +71,7 @@ export default {
             sort: this.dialogData?.indicator?.sort !== undefined ? parseInt(this.dialogData?.indicator.sort) : null,
 
             //checkboxes input
-            singleOptionValue: this.dialogData?.indicator?.format === 'checkbox' ? 
+            singleOptionValue: this.dialogData?.indicator?.format === 'checkbox' ?
                 this.dialogData?.indicator.options : '',
             //list of options
             multiOptionValue: ['checkboxes','radio','multiselect','dropdown'].includes(this.dialogData?.indicator?.format) ?
@@ -81,7 +81,7 @@ export default {
             gridJSON: this.dialogData?.indicator?.format === 'grid' ? JSON.parse(this.dialogData?.indicator?.options[0]) : [],
 
             archived: false,
-            deleted: false
+            deleted: false,
         }
     },
     inject: [
@@ -100,7 +100,8 @@ export default {
         'getFormByCategoryID',
         'truncateText',
         'decodeAndStripHTML',
-        'orgchartFormats'
+        'orgchartFormats',
+        'indicatorsInWorkflow',
     ],
     created() {
         this.setDialogSaveFunction(this.onSave);
@@ -161,11 +162,22 @@ export default {
             return this.parentID === null ? 'Section Heading' : 'Field Name';
         },
         showFormatSelect() {
-            //not a header, or in advanced mode, or the format of the header is already a format other than none
-            return this.parentID !== null || this.advancedMode === true || this.format !== '' || hasDevConsoleAccess;
+            // Hide format select ONLY when inWorkflow is true (not stepInWorkflow)
+            if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
+                const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
+                if (workflowStatus.inWorkflow === true) {
+                    return false;
+                }
+            }
+            const return_value = this.parentID !== null || this.advancedMode === true || this.format !== '' || (typeof hasDevConsoleAccess !== 'undefined' && hasDevConsoleAccess);
+            console.log('showFormatSelect', return_value);
+            return return_value;
         },
         showDefaultTextarea() {
             return !['','raw_data','fileupload','image','grid','checkboxes','multiselect'].includes(this.format);
+        },
+        showIndSSN_Warn() {
+            return false && /(SSN|social\s*security\s*number)/gmi.test(this.name);
         },
         shortLabelTriggered() {
             return this.name.trim().split(' ').length > 2 || this.containsRichText(this.name) || hasDevConsoleAccess;
@@ -202,7 +214,7 @@ export default {
         },
         /**
          * used to set the default sort value of a new question to last index in current depth
-         * @returns {number} 
+         * @returns {number}
          */
         newQuestionSortValue() {
             const offset = 128;
@@ -211,7 +223,88 @@ export default {
                 this.focusedFormTree.length - offset:                                       //new form sections/pages
                 Array.from(document.querySelectorAll(nonSectionSelector)).length - offset   //new questions in existing sections
             return sortVal;
-        }
+        },
+        isInAnyWorkflow() {
+            if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
+                const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
+                return workflowStatus.inWorkflow === true || workflowStatus.stepInWorkflow === true;
+            }
+            return false;
+        },
+        isInStepWorkflow() {
+            if (this.indicatorID && this.indicatorsInWorkflow[this.indicatorID]) {
+                return this.indicatorsInWorkflow[this.indicatorID].stepInWorkflow === true;
+            }
+            return false;
+        },
+        archiveDeleteWorkflowMessage() {
+            if (!this.indicatorID || !this.indicatorsInWorkflow[this.indicatorID]) {
+                return '';
+            }
+
+            const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
+            if (!workflowStatus.stepInWorkflow && !workflowStatus.inWorkflow) {
+                return '';
+            }
+
+            // Parse workflow names and step names (they're comma-separated)
+            const workflowNames = workflowStatus.workflowName.split('), ').map((name, idx, arr) => {
+                return idx < arr.length -1 ? name + ')' : name;
+            });
+            const stepNames = workflowStatus.stepName.split('), ').map((name, idx, arr) => {
+                return idx < arr.length -1 ? name + ')' : name;
+            });
+
+            // Build the message parts
+            let messageParts = [];
+            for (let i = 0; i < workflowNames.length; i++) {
+                const workflow = workflowNames[i] || '';
+                const step = stepNames[i] || '';
+                if (workflow && step) {
+                    messageParts.push(`Workflow: ${workflow} - Step: ${step}`);
+                }
+            }
+
+            if (messageParts.length === 0) {
+                return '';
+            }
+
+            return `This field is used in a workflow and must be removed from there before you can Archive or Delete it.<br /><br />${messageParts.join('<br />')}`;
+        },
+        formatWorkflowMessage() {
+            if (!this.indicatorID || !this.indicatorsInWorkflow[this.indicatorID]) {
+                return '';
+            }
+
+            const workflowStatus = this.indicatorsInWorkflow[this.indicatorID];
+            if (!workflowStatus.inWorkflow) {
+                return '';
+            }
+
+            // Split by '), ' to handle commas within workflow/step names
+            const workflowNames = workflowStatus.workflowName.split('), ').map((name, idx, arr) => {
+                return idx < arr.length - 1 ? name + ')' : name;
+            });
+
+            const stepNames = workflowStatus.stepName.split('), ').map((name, idx, arr) => {
+                return idx < arr.length - 1 ? name + ')' : name;
+            });
+
+            let messageParts = [];
+            for (let i = 0; i < workflowNames.length; i++) {
+                const workflow = workflowNames[i] || '';
+                const step = stepNames[i] || '';
+                if (workflow && step) {
+                    messageParts.push(`Workflow: ${workflow} - Step: ${step}`);
+                }
+            }
+
+            if (messageParts.length === 0) {
+                return '';
+            }
+
+            return `This field is used in a workflow and must be removed from there before you can change its format.<br /><br />${messageParts.join('<br />')}`;
+        },
     },
     methods: {
         containsRichText(txt) {
@@ -270,13 +363,13 @@ export default {
             if(elTrumbow !== undefined && elTrumbow !== null){
                 this.name = elTrumbow.innerHTML;
             }
-            
+
             let indicatorEditingUpdates = [];
             if (this.isEditingModal) { /* CALLS FOR EDITTING AN EXISTING QUESTION */
                 const nameChanged = this.name !== this.dialogData?.indicator.name;
                 const descriptionChanged = this.description !== this.dialogData?.indicator.description;
 
-                const options = this.dialogData?.indicator?.options ? 
+                const options = this.dialogData?.indicator?.options ?
                                 '\n' + this.dialogData?.indicator?.options?.join('\n') : '';
                 const fullFormatChanged = this.fullFormatForPost !== this.dialogData?.indicator.format + options;
 
@@ -559,6 +652,11 @@ export default {
                     'link', '|',
                     'foreColor', '|',
                     'justifyLeft', 'justifyCenter', 'justifyRight']
+            }).on('tbwchange', () => {
+                const nameEl = document.getElementById('name');
+                if(nameEl !== null) {
+                    nameEl.dispatchEvent(new Event('input'));
+                }
             });
             $('.trumbowyg-box').css({
                 'min-height': '130px',
@@ -673,6 +771,9 @@ export default {
     template: `<div id="indicator-editing-dialog-content">
         <div>
             <div role="status" aria-live="assertive" :aria-label="ariaTextEditorStatus" style="display:absolute;opacity:0;"></div>
+            <div v-if="showIndSSN_Warn" class="entry_warning bg-yellow-5" style="margin:0.5rem 0 1rem 0;">
+                <span role="img" alt="warning">⚠️</span>
+            </div>
             <label for="name">{{ nameLabelText }}</label>
             <textarea id="name" v-model="name" rows="4">{{name}}</textarea>
             <button type="button" class="btn-general" id="rawNameEditor"
@@ -692,13 +793,13 @@ export default {
             </label>
             <input type="text" id="description" v-model="description" maxlength="50" />
         </div>
-        <div>
+        <div id="input-format">
             <div v-if="showFormatSelect">
                 <label for="indicatorType">Input Format</label>
                 <div style="display:flex;">
                     <select id="indicatorType" title="Select a Format" v-model="format" @change="preventSelectionIfFormatNone">
                         <option value="">None</option>
-                        <option v-for="kv in Object.entries(formats)" 
+                        <option v-for="kv in Object.entries(formats)"
                         :value="kv[0]" :selected="kv[0] === format" :key="kv[0]">{{ kv[1] }}</option>
                     </select>
                     <button type="button" id="editing-format-assist" class="btn-general" aria-controls="formatDetails" :aria-expanded="showDetailedFormatInfo"
@@ -711,6 +812,10 @@ export default {
                     <p><b>Format Information</b></p>
                     {{ format !== '' ? formatInfo[format] : 'No format.  Indicators without a format are often used to provide additional information for the user.  They are often used for form section headers.' }}
                 </div>
+
+            </div>
+            <div v-if="!showFormatSelect && indicatorID" class="entry_info bg-blue-5v" style="margin-bottom:1.5rem;">
+                <span role="img" aria-hidden="true" alt="">ℹ️</span><span v-html="formatWorkflowMessage"></span>
             </div>
             <div v-show="format === 'checkbox'" id="container_indicatorSingleAnswer" style="margin-top:0.5rem;">
                 <label for="indicatorSingleAnswer">Text for checkbox</label>
@@ -722,11 +827,11 @@ export default {
                 </textarea>
             </div>
             <div v-if="format === 'grid'" id="container_indicatorGrid">
-                <span id="tableStatus" style="position: absolute; color: transparent" 
+                <span id="tableStatus" style="position: absolute; color: transparent"
                     aria-atomic="true" aria-live="polite"  role="status"></span>
                 <br/>
                 <div style="display:flex; align-items: center;">
-                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column" 
+                    <button type="button" class="btn-general" id="addColumnBtn" title="Add column"
                         @click="appAddCell">
                         + Add column
                     </button>&nbsp;Columns ({{gridJSON.length}}):
@@ -744,37 +849,41 @@ export default {
                 </div>
                 <textarea v-show="!orgchartFormats.includes(format)" id="defaultValue" v-model="defaultValue"></textarea>
             </div>
+
         </div>
         <div v-show="!(!isEditingModal && format === '')" id="indicator-editing-attributes">
             <b>Attributes</b>
+            <div v-show="isInAnyWorkflow" class="entry_info bg-blue-5v" style="margin-top:.5rem;">
+                <span role="img" aria-hidden="true" alt="">ℹ️</span><span v-html="archiveDeleteWorkflowMessage"></span>
+            </div>
             <div class="attribute-row">
                 <template v-if="format !== ''">
                     <label class="checkable leaf_check" for="required" style="margin-right: 1.5rem;">
-                        <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"  
+                        <input type="checkbox" id="required" v-model="required" name="required" class="icheck leaf_check"
                             @change="preventSelectionIfFormatNone" />
                         <span class="leaf_check"></span>Required
                     </label>
                     <label class="checkable leaf_check" for="sensitive" style="margin-right: 4rem;">
-                        <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"  
+                        <input type="checkbox" id="sensitive" v-model="is_sensitive" name="sensitive" class="icheck leaf_check"
                             @change="preventSelectionIfFormatNone" />
                         <span class="leaf_check"></span>Sensitive Data (PHI/PII)
                     </label>
                 </template>
-                <template v-if="isEditingModal">
+                <template v-if="isEditingModal && !isInAnyWorkflow">
                     <label class="checkable leaf_check" for="archived" style="margin-right: 1.5rem;">
-                        <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"  
+                        <input type="checkbox" id="archived" name="disable_or_delete" class="icheck leaf_check"
                             v-model="archived" @change="radioBehavior" />
                         <span class="leaf_check"></span>Archive
                     </label>
                     <label class="checkable leaf_check" for="deleted">
-                        <input type="checkbox" id="deleted" name="disable_or_delete" class="icheck leaf_check"  
+                        <input type="checkbox" id="deleted" name="disable_or_delete" class="icheck leaf_check"
                             v-model="deleted" @change="radioBehavior" />
                         <span class="leaf_check"></span>Delete
                     </label>
                 </template>
             </div>
             <button v-if="isEditingModal" type="button" aria-controls="indicator_advanced_attributes" :aria-expanded="showAdditionalOptions"
-                class="btn-general" 
+                class="btn-general"
                 aria-label="edit additional options"
                 @click="toggleSelection($event, 'showAdditionalOptions')">
                 {{showAdditionalOptions ? 'Hide' : 'Show'}} Advanced Attributes
@@ -784,10 +893,10 @@ export default {
                     <template v-if="isLoadingParentIDs === false">
                         <label for="container_parentID" style="margin-right: 1rem;">Parent Question ID
                             <select v-model.number="parentID" id="container_parentID" style="width:250px; margin-left:3px;">
-                                <option :value="null" :selected="parentID === null">None</option> 
+                                <option :value="null" :selected="parentID === null">None</option>
                                 <template v-for="kv in Object.entries(listForParentIDs)">
-                                    <option v-if="indicatorID !== parseInt(kv[0])" 
-                                        :value="kv[0]" 
+                                    <option v-if="indicatorID !== parseInt(kv[0])"
+                                        :value="kv[0]"
                                         :key="'parent_'+kv[0]">
                                         {{kv[0]}}: {{truncateText(kv[1]['1'].name), 50}}
                                     </option>
@@ -804,6 +913,7 @@ export default {
             <span v-show="deleted" id="deletion-warning">
                 Deleted items can only be re-enabled<br />within 30 days by using Restore Fields.
             </span>
+
         </div>
     </div>`
 };

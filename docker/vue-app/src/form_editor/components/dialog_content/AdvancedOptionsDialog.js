@@ -190,24 +190,26 @@ export default {
     template: `<div v-if="hasDevConsoleAccess" id="advanced_options_dialog_content">
             <fieldset id="advanced"><legend tabindex="0">Template Variables and Controls</legend>
                 <table class="table">
-                    <tr>
-                        <td><b style="white-space: nowrap;">{{ left }} iID {{ right }}</b></td>
-                        <td>The indicatorID # of the current data field.</td>
-                        <td><b>Ctrl-S</b></td>
-                        <td>Save the focused section</td>
-                    </tr>
-                    <tr>
-                        <td><b style="white-space: nowrap;">{{ left }} recordID {{ right }}</b></td>
-                        <td>The record ID # of the current request.</td>
-                        <td><b>F11</b></td>
-                        <td>Toggle Full Screen mode for the focused section</td>
-                    </tr>
-                    <tr>
-                        <td><b style="white-space: nowrap;">{{ left }} data {{ right }}</b></td>
-                        <td>The contents of the current data field as stored in the database.</td>
-                        <td><b>Esc</b></td>
-                        <td>Escape Full Screen mode</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td><b style="white-space: nowrap;">{{ left }} iID {{ right }}</b></td>
+                            <td>The indicatorID # of the current data field.</td>
+                            <td><b>Ctrl-S</b></td>
+                            <td>Save the focused section</td>
+                        </tr>
+                        <tr>
+                            <td><b style="white-space: nowrap;">{{ left }} recordID {{ right }}</b></td>
+                            <td>The record ID # of the current request.</td>
+                            <td><b>F11</b></td>
+                            <td>Toggle Full Screen mode for the focused section</td>
+                        </tr>
+                        <tr>
+                            <td><b style="white-space: nowrap;">{{ left }} data {{ right }}</b></td>
+                            <td>The contents of the current data field as stored in the database.</td>
+                            <td><b>Esc</b></td>
+                            <td>Escape Full Screen mode</td>
+                        </tr>
+                    </tbody>
                 </table>
                 <div style="font-size:14px;">
                     Within the code editor, tab enters a tab character. If using the keyboard to navigate, press escape followed by tab to exit the editor.

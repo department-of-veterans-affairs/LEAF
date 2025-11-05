@@ -31,13 +31,19 @@ export default {
             }
         });
     },
-    template: `<BrowserMenu />
-    <section>
+    template: `<section>
         <div v-if="appIsLoadingCategories" class="page_loading">
             Loading... 
             <img src="../images/largespinner.gif" alt="" />
         </div>
-        <FormBrowser v-else></FormBrowser>
+        <template v-else>
+            <h2 id="page_breadcrumbs">
+                <a href="../admin" class="leaf-crumb-link" title="to Admin Home">Admin</a>
+                <i class="fas fa-caret-right leaf-crumb-caret"></i>Form Browser
+            </h2>
+            <BrowserMenu />
+            <FormBrowser />
+        </template>
 
         <!-- DIALOGS -->
         <leaf-form-dialog v-if="showFormDialog">
