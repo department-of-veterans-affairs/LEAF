@@ -15,79 +15,89 @@ var LeafPreview = function(domID) {
        return tmp.value;
     }
     function renderField(field, isChild) {
-        var required = field.required == 1 ? '<span style="color: red">* Required</span>': '';
-        var style_isChild = '';
+        const required = field.required == 1 ? '<span style="color:#b00;">* Required</span>': '';
+        const sensitive = field.is_sensitive == 1 ? '<span style="color:#b00;">* Sensitive</span>': '';
+        const labelledById = `leaf_library_preview_${field.indicatorID}`;
+        const inputId = `leaf_library_input_${field.indicatorID}`;
+        const indName = decodeHTMLEntities(field.name);
+        let style_isChild = '';
         if(isChild == undefined) {
-            style_isChild = 'font-weight: bold';
+            style_isChild = 'font-weight:bold;';
         }
-        var out = '<span style="'+style_isChild+'">' + decodeHTMLEntities(field.name) +'</span> '+ required + '<br />';
-        switch(field.format) {
+        let out = `<div style="margin-bottom:4px;${style_isChild}" id="${labelledById}">${indName}<span>${required} ${sensitive}</span></div>`;
+        const f = field.format;
+        switch(f) {
+            case '':
+                break;
             case 'textarea':
-                out += '<textarea style="width: 100%"></textarea>';
+                out += `<textarea id="${inputId}" aria-labelledby="${labelledById}" style="width: 100%"></textarea>`;
                 break;
             case 'radio':
-                var r = Math.random();
-                for(var i in field.options) {
-                	out += '<input type="radio" name="'+ r +'" /> ' + field.options[i] + '<br />';
+                const r = Math.random();
+                for(let i in field.options) {
+                    out += `<input type="radio" id="${inputId}_${i}"
+                        aria-labelledby="${labelledById}" name="${r}">${field.options[i]}<br>`;
                 }
-                out = out.slice(0, -6);
                 break;
             case 'multiselect':
-                out += '<select multiple>';
-                for(var i in field.options) {
-                    out += '<option> ' + field.options[i] + '</option>';
+                out += `<select id="${inputId}" aria-labelledby="${labelledById}" style="min-width:185px;" multiple>`;
+                for(let i in field.options) {
+                    out += `<option>${field.options[i]}</option>`;
                 }
                 out += '</select>';
                 break;
             case 'dropdown':
-                out += '<select>';
-                for(var i in field.options) {
-                	out += '<option> ' + field.options[i] + '</option>';
+                out += `<select id="${inputId}" aria-labelledby="${labelledById}" style="min-width:185px;">`;
+                for(let i in field.options) {
+                    out += `<option>${field.options[i]}</option>`;
                 }
                 out += '</select>';
                 break;
             case 'text':
-                out += '<input type="text" />';
-                break;
             case 'number':
-                out += '<input type="number" />';
-                break;
             case 'date':
-                out += '<input type="date" />';
+                out += `<input type="${f}" id="${inputId}" aria-labelledby="${labelledById}">`;
                 break;
             case 'currency':
-                out += '$ <input type="number" />';
+                out += `$ <input type="number" id="${inputId}" aria-labelledby="${labelledById}">`;
                 break;
             case 'checkbox':
             case 'checkboxes':
-                for(var i in field.options) {
-                	out += '<input type="checkbox" /> ' + field.options[i] + '<br />';
+                for(let i in field.options) {
+                    out += `<input type="checkbox" id="${inputId}_${i}" aria-labelledby="${labelledById}">${field.options[i]}<br>`;
                 }
                 break;
             case 'fileupload':
-                out += '<input type="file" />';
+            case 'image':
+                out += `<input type="file" aria-labelledby="${labelledById}">`;
                 break;
             default:
-                out += '<input type="text" />';
+                out += `<input type="text" aria-labelledby="${labelledById}">`;
                 break;
         }
         if(field.format != '') {
-        	out += '<br /><br />';
-        }
-        else {
-            out += '<br />';
+            out += '<br><br>';
+        } else {
+            out += '<br>';
         }
         
-        for(var i in field.child) {
-            out += renderField(field.child[i], true);
+        let childArr = [];
+        if(field.child !== null) {
+            for(let indIdKey in field.child) {
+                childArr.push(field.child[indIdKey]);
+            }
+            childArr.sort((fieldA, fieldB) => fieldA.sort - fieldB.sort);
         }
+        childArr.forEach(c => {
+            out += renderField(c, true);
+        });
         
         return out;
     }
 
     function renderSection(field) {
-        var temp = renderField(field);
-        var out = '<div style="font-size: 120%; padding: 4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="padding: 16px">'+ temp +'</div><br />';
+        const temp = renderField(field);
+        const out = '<div style="font-size: 120%; padding: 4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="padding: 16px;line-height:1.3">'+ temp +'</div><br />';
         numSection++;
         return out;
     }
@@ -95,15 +105,15 @@ var LeafPreview = function(domID) {
     function load(recordID, indicatorID, fileID, callback) {
     	$.ajax({
         	type: 'GET',
-            url: '/' + LEAF_NEXUS_URL + 'LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
+            url: '/LEAF/library/file.php?form='+ recordID +'&id='+ indicatorID +'&series=1&file=' + fileID,
             dataType: 'json',
             xhrFields: {withCredentials: true},
             success: function(res) {
-            	rawForm = res;
-                var form = res.packet.form;
+                rawForm = res;
+                const form = res.packet.form;
                 numSection = 1
-            	for(var i in form) {
-    				var field = renderSection(form[i]);
+                for(let i in form) {
+                    const field = renderSection(form[i]);
                     $('#' + domID).append(field);
                 }
                 if(callback != undefined) {

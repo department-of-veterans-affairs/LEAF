@@ -9,6 +9,18 @@
 .buttonNorm {
     color: black;
 }
+#menu .buttonNorm {
+    width:220px;
+    font-size:1rem;
+    text-align:left;
+    margin-bottom:1rem;
+}
+input[type="checkbox"], input[type="radio"] {
+    margin: 2px 4px 2px 2px;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
 .buttonNorm:hover {
     color: white;
 }
@@ -94,41 +106,55 @@ $(function() {
         grid.hideIndex();
         grid.importQueryResult(tData);
         grid.setHeaders([
-            {name: 'Form', indicatorID: 'form', editable: false, sortable: false, callback: function(data, blob) {
-                if(blob[data.index].s1.id53 == "Yes") {
-                    $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
+            {
+                name: 'Form', indicatorID: 'form', editable: false, sortable: false,
+                callback: function(data, blob) {
+                    if(blob[data.index].s1.id53 == "Yes") {
+                        $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
+                    }
+                    $('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 100%">' + blob[data.index].title + '</span>');
                 }
-            	$('#'+data.cellContainerID).html('<span style="font-weight: bold; font-size: 100%">' + blob[data.index].title + '</span>');
-            }},
-            {name: 'Description', indicatorID: 5, sortable: false, editable: false},
-            {name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: false, callback: function(data, blob) {
-            	var authors = '';
-            	if(blob[data.index].s1.id9 != undefined
-            		&& blob[data.index].s1.id9 != '') {
-            		authors = blob[data.index].s1.id9;
-            	}
-                if(blob[data.index].s1.id10 != undefined
-                    && blob[data.index].s1.id10 != '') {
-                    authors += ', ' + blob[data.index].s1.id10;
-                }
+            },
+            {
+                name: 'Description', indicatorID: 5, sortable: false, editable: false
+            },
+            {
+                name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: false,
+                callback: function(data, blob) {
+                    var authors = '';
+                    if(blob[data.index].s1.id9 != undefined
+                        && blob[data.index].s1.id9 != '') {
+                        authors = blob[data.index].s1.id9;
+                    }
+                    if(blob[data.index].s1.id10 != undefined
+                        && blob[data.index].s1.id10 != '') {
+                        authors += ', ' + blob[data.index].s1.id10;
+                    }
 
-                $('#'+data.cellContainerID).html(authors);
-            }},
-            {name: 'Workflow Example', indicatorID: 6, sortable: false, editable: false, callback: function(data, blob) {
-                if(blob[data.index].s1.id6 != undefined
-                        && blob[data.index].s1.id6 != '') {
-                	var imageURL = '<!--{$LEAF_DOMAIN}-->LEAF/library/image.php?form=' + blob[data.index].recordID + '&id=6&series=1&file=0';
-                    $('#'+data.cellContainerID).html('<img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="border: 1px solid black; max-width: 150px; cursor: pointer" />');
-                    $('#workflowImg_'+ blob[data.index].recordID).on('click', function() {
-                    	dialog_simple.setTitle(blob[data.index].title + ' (example workflow)');
-                        dialog_simple.setContent('<a href="'+ imageURL +'" target="_blank"><img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="cursor: zoom-in; border: 1px solid black; width: 540px" /></a>');
-                        dialog_simple.show();
-                    });
+                    $('#'+data.cellContainerID).html(authors);
                 }
-            }},
-            {name: 'Preview', indicatorID: 'preview', editable: false, sortable: false, callback: function(data, blob) {
-            	$('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../dynicons/?img=edit-find.svg&w=32" alt="" /> Preview</button>');
-            }}
+            },
+            {
+                name: 'Workflow Example', indicatorID: 6, sortable: false, editable: false,
+                callback: function(data, blob) {
+                    if(blob[data.index].s1.id6 != undefined
+                            && blob[data.index].s1.id6 != '') {
+                        var imageURL = '<!--{$LEAF_DOMAIN}-->LEAF/library/image.php?form=' + blob[data.index].recordID + '&id=6&series=1&file=0';
+                        $('#'+data.cellContainerID).html('<img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="border: 1px solid black; max-width: 150px; cursor: pointer" />');
+                        $('#workflowImg_'+ blob[data.index].recordID).on('click', function() {
+                            dialog_simple.setTitle(blob[data.index].title + ' (example workflow)');
+                            dialog_simple.setContent('<a href="'+ imageURL +'" target="_blank"><img id="workflowImg_'+ blob[data.index].recordID +'" src="'+ imageURL +'" alt="Screenshot of workflow" style="cursor: zoom-in; border: 1px solid black; width: 540px" /></a>');
+                            dialog_simple.show();
+                        });
+                    }
+                }
+            },
+            {
+                name: 'Preview', indicatorID: 'preview', editable: false, sortable: false,
+                callback: function(data, blob) {
+                    $('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../dynicons/?img=edit-find.svg&w=32" alt="" /> Preview</button>');
+                }
+            }
         ]);
 
         grid.setPostRenderFunc(function() {
@@ -139,11 +165,6 @@ $(function() {
         });
         grid.renderBody();
 
-/*        $('#forms').html('<table class="leaf_grid"><tbody id="table_forms">');
-        for(var i in res) {
-            $('#table_forms').append('<tr><td class="table_editable" onclick="showPreview('+ res[i].recordID +');" style="padding: 8px; border: 1px solid"><span style="font-weight: bold; font-size: 120%">' + res[i].title + '</span><br />' + res[i].s1.id5 + '</td></tr>');
-        }
-        $('#forms').append('</tbody></table>');*/
     });
 
     var leafSearch = new LeafFormSearch('searchContainer');
@@ -168,17 +189,17 @@ $(function() {
     <h2>LEAF Library</h2>
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
-        <a class="buttonNorm leaf-marginBot-1rem" href="?a=form_vue" style="display: inherit; width: 220px; text-decoration: none" id="backToForm"><img aria-hidden="true" src="../dynicons/?img=system-file-manager.svg&amp;w=32" alt="" title="My Forms"/> My Forms</a>
-        <a class="buttonNorm leaf-marginBot-1rem" href="<!--{$LEAF_DOMAIN}-->LEAF/library/?a=newform" style="display: inherit; width: 220px; text-decoration: none"><img aria-hidden="true" src="../dynicons/?img=list-add.svg&amp;w=32" alt="" title="Contribute my Form"/> Contribute my Form</a>
+        <a class="buttonNorm" href="?a=form_vue" style="display: inherit;text-decoration: none" id="backToForm"><img aria-hidden="true" src="../dynicons/?img=system-file-manager.svg&amp;w=32" alt="" title="My Forms"> My Forms</a>
+        <a class="buttonNorm" href="<!--{$LEAF_DOMAIN}-->LEAF/library/?a=newform" style="display: inherit;text-decoration: none"><img aria-hidden="true" src="../dynicons/?img=list-add.svg&amp;w=32" alt="" title="Contribute my Form"> Contribute my Form</a>
 
         <div class="leaf-marginBot-halfRem">Filter by Business Lines:</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines"/> All Business Lines</div>
+        <button type="button" class="buttonNorm" onclick="applyFilter('')"><img aria-hidden="true" src="../dynicons/?img=Accessories-dictionary.svg&amp;w=32" alt="" title="All Business Lines"> All Business Lines</button>
 
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Administrative')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=applications-office.svg&amp;w=32" alt="" title="Administrative" /> Administrative</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Human Resources')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=system-users.svg&amp;w=32" alt="" title="Human Resources" /> Human Resources</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Information Technology')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=network-idle.svg&amp;w=32" alt="" title="Information Technology" /> Information Technology</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Logistics')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=package-x-generic.svg&amp;w=32" alt="" title="Logistics" /> Logistics</div>
-        <div role="button" onkeydown="triggerKeydown(event, this)" class="buttonNorm leaf-marginBot-1rem" tabindex="0" onclick="applyFilter('Fiscal')" style="width: 220px"><img aria-hidden="true" src="../dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="" title="Fiscal" /> Fiscal</div>
+        <button type="button" class="buttonNorm" onclick="applyFilter('Administrative')"><img aria-hidden="true" src="../dynicons/?img=applications-office.svg&amp;w=32" alt="" title="Administrative"> Administrative</button>
+        <button type="button" class="buttonNorm" onclick="applyFilter('Human Resources')"><img aria-hidden="true" src="../dynicons/?img=system-users.svg&amp;w=32" alt="" title="Human Resources"> Human Resources</button>
+        <button type="button" class="buttonNorm" onclick="applyFilter('Information Technology')"><img aria-hidden="true" src="../dynicons/?img=network-idle.svg&amp;w=32" alt="" title="Information Technology"> Information Technology</button>
+        <button type="button" class="buttonNorm" onclick="applyFilter('Logistics')"><img aria-hidden="true" src="../dynicons/?img=package-x-generic.svg&amp;w=32" alt="" title="Logistics"> Logistics</button>
+        <button type="button" class="buttonNorm" onclick="applyFilter('Fiscal')"><img aria-hidden="true" src="../dynicons/?img=x-office-spreadsheet.svg&amp;w=32" alt="" title="Fiscal"> Fiscal</button>
     </div>
     <div id="formEditor_content" style="margin-left: 238px; padding-left: 8px">
 
@@ -200,12 +221,6 @@ $(function() {
             filter_id = id;
         } else {
             alert('Filter already active');
-        }
-    }
-
-    function triggerKeydown(e, id) {
-        if(e.keyCode === 13 || e.keyCode === 32) {
-            $('#' + id).trigger('click');
         }
     }
 </script>
