@@ -24,8 +24,9 @@ var LeafPreview = function(domID) {
         if(isChild == undefined) {
             style_isChild = 'font-weight:bold;';
         }
-        let out = `<div style="margin-bottom:4px;${style_isChild}" id="${labelledById}">${indName}<span>${required} ${sensitive}</span></div>`;
+        let out = `<div style="margin-bottom:4px;${style_isChild}" id="${labelledById}">${indName}<span> ${required} ${sensitive}</span></div>`;
         const f = field.format;
+        const checkStyle = 'style="margin:2px 4px;width:16px;height:16px;vertical-align:middle;"';
         switch(f) {
             case '':
                 break;
@@ -36,7 +37,7 @@ var LeafPreview = function(domID) {
                 const r = Math.random();
                 for(let i in field.options) {
                     out += `<input type="radio" id="${inputId}_${i}"
-                        aria-labelledby="${labelledById}" name="${r}">${field.options[i]}<br>`;
+                        aria-labelledby="${labelledById}" name="${r}" ${checkStyle}>${field.options[i]}<br>`;
                 }
                 break;
             case 'multiselect':
@@ -64,7 +65,7 @@ var LeafPreview = function(domID) {
             case 'checkbox':
             case 'checkboxes':
                 for(let i in field.options) {
-                    out += `<input type="checkbox" id="${inputId}_${i}" aria-labelledby="${labelledById}">${field.options[i]}<br>`;
+                    out += `<input type="checkbox" id="${inputId}_${i}" aria-labelledby="${labelledById}" ${checkStyle}>${field.options[i]}<br>`;
                 }
                 break;
             case 'fileupload':
@@ -95,9 +96,12 @@ var LeafPreview = function(domID) {
         return out;
     }
 
-    function renderSection(field) {
+    function renderSection(field, resetNumSection = false) {
+        if(resetNumSection === true) {
+            numSection = 1;
+        }
         const temp = renderField(field);
-        const out = '<div style="font-size: 120%; padding: 4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="padding: 16px;line-height:1.3">'+ temp +'</div><br />';
+        const out = '<div style="font-size: 120%;padding:4px; background-color: black; color: white">Section '+ numSection +'</div><div class="card" style="margin:0;padding: 16px;line-height:1.3">'+ temp +'</div><br />';
         numSection++;
         return out;
     }
@@ -125,6 +129,7 @@ var LeafPreview = function(domID) {
 
     return {
         load: load,
+        renderSection,
         getRawForm: function() { return rawForm; },
         setNexusURL: function(url) { LEAF_NEXUS_URL = url; }
     };

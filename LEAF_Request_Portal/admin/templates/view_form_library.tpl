@@ -23,12 +23,6 @@
 #menu .buttonNorm:hover, #menu .buttonNorm:focus, #menu .buttonNorm:active {
     color: white;
 }
-input[type="checkbox"], input[type="radio"] {
-    margin: 2px 4px 2px 2px;
-    width: 16px;
-    height: 16px;
-    vertical-align: middle;
-}
 </style>
 <script>
 function showPreview(recordID) {
