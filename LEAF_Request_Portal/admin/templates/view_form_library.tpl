@@ -6,23 +6,28 @@
 
 <!--{include file="site_elements/generic_simple_xhrDialog.tpl"}-->
 <style>
-.buttonNorm {
-    color: black;
+#page_breadcrumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .125rem;
 }
 #menu .buttonNorm {
+    color: black;
     width:220px;
+    padding: 4px;
     font-size:1rem;
     text-align:left;
     margin-bottom:1rem;
+}
+#menu .buttonNorm:hover, #menu .buttonNorm:focus, #menu .buttonNorm:active {
+    color: white;
 }
 input[type="checkbox"], input[type="radio"] {
     margin: 2px 4px 2px 2px;
     width: 16px;
     height: 16px;
     vertical-align: middle;
-}
-.buttonNorm:hover {
-    color: white;
 }
 </style>
 <script>
@@ -48,7 +53,7 @@ function showPreview(recordID) {
 	dialog_simple.show();
 
     preview = new LeafPreview('preview');
-    preview.setNexusURL('<!--{$LEAF_NEXUS_URL}-->');
+    preview.setNexusURL('<!--{$LEAF_DOMAIN}-->');
     preview.load(recordID, 1, 0);
 
     $('#btn_download').one('click', function() {
@@ -80,14 +85,14 @@ var data;
 var dialog_simple;
 $(function() {
 	dialog_simple = new dialogController('simplexhrDialog', 'simplexhr', 'simpleloadIndicator', 'simplebutton_save', 'simplebutton_cancelchange');
-    $('#simplexhrDialog').dialog({minWidth: ($(window).width() * .78) + 30});
+    $('#simplexhrDialog').dialog({ minWidth: ($(window).width() * .78) + 30 });
 
     query = new LeafFormQuery();
     query.setRootURL('<!--{$LEAF_DOMAIN}-->LEAF/library/');
     query.onSuccess(function(res) {
         data = res;
-        var tData = [];
-        for(var i in res) {
+        let tData = [];
+        for(let i in res) {
             tData.push(res[i]);
         }
         tData.sort(function(a, b) {
@@ -101,13 +106,13 @@ $(function() {
         });
 
 
-        grid = new LeafFormGrid('forms', {readOnly: true});
+        grid = new LeafFormGrid('forms', { readOnly: true });
         grid.setRootURL('../');
         grid.hideIndex();
         grid.importQueryResult(tData);
         grid.setHeaders([
             {
-                name: 'Form', indicatorID: 'form', editable: false, sortable: false,
+                name: 'Form', indicatorID: 'form', editable: false, sortable: true,
                 callback: function(data, blob) {
                     if(blob[data.index].s1.id53 == "Yes") {
                         $('#' + grid.getPrefixID() + "tbody_tr" + data.recordID).css('background-color', '#ffff99');
@@ -116,10 +121,10 @@ $(function() {
                 }
             },
             {
-                name: 'Description', indicatorID: 5, sortable: false, editable: false
+                name: 'Description', indicatorID: 5, editable: false, sortable: true,
             },
             {
-                name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: false,
+                name: 'Author(s)', indicatorID: 'authors', editable: false, sortable: true,
                 callback: function(data, blob) {
                     var authors = '';
                     if(blob[data.index].s1.id9 != undefined
@@ -135,7 +140,7 @@ $(function() {
                 }
             },
             {
-                name: 'Workflow Example', indicatorID: 6, sortable: false, editable: false,
+                name: 'Workflow Example', indicatorID: 6, editable: false, sortable: false,
                 callback: function(data, blob) {
                     if(blob[data.index].s1.id6 != undefined
                             && blob[data.index].s1.id6 != '') {
@@ -184,9 +189,12 @@ $(function() {
 
 </script>
 
-<div class="leaf-width-100pct" style="margin: 1rem">
+<section class="leaf-width-100pct" style="padding: 0 0.5em;">
 
-    <h2>LEAF Library</h2>
+    <h2 id="page_breadcrumbs">
+        <a href="../admin" class="leaf-crumb-link" title="to Admin Home">Admin</a>
+        <i class="fas fa-caret-right leaf-crumb-caret"></i>LEAF Library
+    </h2>
     <div id="menu" style="float: left; width: 230px">
         <span style="position: absolute; color: transparent" aria-atomic="true" aria-live="assertive" id="filterStatus" role="status"></span>
         <a class="buttonNorm" href="?a=form_vue" style="display: inherit;text-decoration: none" id="backToForm"><img aria-hidden="true" src="../dynicons/?img=system-file-manager.svg&amp;w=32" alt="" title="My Forms"> My Forms</a>
@@ -210,7 +218,7 @@ $(function() {
 
     <div id="previewShim" style="display: none"></div>
 
-</div>
+</section>
 
 <script>
     var filter_id;
