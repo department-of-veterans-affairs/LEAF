@@ -1202,6 +1202,7 @@ var printer = function () {
           "Request #" + recordID + " - " + requestInfo["title"] + ".pdf"
         );
       }
+      location.reload();
     }
 
     var indicatorCount = 0;

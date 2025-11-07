@@ -329,12 +329,18 @@ function renderSiteType() {
 }
 
 function renderSettings(res) {
-    var query = new LeafFormQuery();
+    let query = new LeafFormQuery();
     query.setRootURL('../');
     query.addTerm('categoryID', '=', 'leaf_secure');
 
-    for(var i in res) {
-        $('#' + i).val(res[i]);
+    let inputEl = null;
+    for(let i in res) {
+        inputEl = document.getElementById(i);
+        if(inputEl !== null) {
+            let tmp = document.createElement('div');
+            tmp.innerHTML = res[i] ?? '';
+            inputEl.value = tmp.textContent;
+        }
         if(i == 'leafSecure') {
             if(res[i] >= 1) { // Certified
                 query.addTerm('stepID', '=', 'resolved');

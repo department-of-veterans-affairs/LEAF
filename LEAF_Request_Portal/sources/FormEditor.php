@@ -123,16 +123,32 @@ class FormEditor
 
     }
 
-    public function setFormat($indicatorID, $format)
+    /**
+     *
+     * @param int $indicatorID
+     * @param string $format
+     *
+     * @return string
+     * A string is expected, on success the string should be empty
+     *
+     *
+     */
+    public function setFormat(int $indicatorID, string $format): string
     {
-        if(strlen($format) > 65535) {
-            $result = 'size limit exceeded';
+        $workflowCount = $this->getWorkflowUseCount($indicatorID);
 
+        if (strlen($format) > 65535) {
+            $result = 'size limit exceeded';
+        } else if ($workflowCount) {
+            $result = 'indicator used in workflow';
         } else {
             $vars = array(
                 ':indicatorID' => $indicatorID,
                 ':format' => trim($format),
             );
+            $sql = 'UPDATE `indicators`
+                    SET `format` = :format
+                    WHERE `indicatorID` = :indicatorID';
 
             $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::INDICATOR,[
                 new LogItem("indicators", "indicatorID", $indicatorID),
@@ -140,10 +156,10 @@ class FormEditor
                 new LogItem("indicators", "format", $format)
             ]);
 
-            $result = $this->db->prepared_query('UPDATE indicators
-                        SET format=:format
-                        WHERE indicatorID=:indicatorID', $vars);
+            $this->db->prepared_query($sql, $vars);
+            $result = '';
         }
+
         return $result;
     }
 
@@ -268,36 +284,54 @@ class FormEditor
         return $result;
     }
 
-    function setDisabled($indicatorID, $input)
+    /**
+     * @param int $indicatorID
+     * @param int $input
+     *
+     * @return string
+     * A string is expected, on success the string should be empty
+     *
+     */
+    function setDisabled(int $indicatorID, int $input): string
     {
+        $workflowCount = $this->getWorkflowUseCount($indicatorID);
+        $stepModuleCount = $this->getStepModuleUseCount($indicatorID);
 
-    	if($input == 1) {
-            $this->setRequired($indicatorID, 0);
-            $this->disableSubindicators($indicatorID);
-    	    $disabledTime = 1;
-    	}
-    	elseif ($input == 2){
-    		$this->setRequired($indicatorID, 0);
-    		$this->disableSubindicators($indicatorID);
-    		$disabledTime = time();
-    	} else {
-            $disabledTime = 0;
+        if ($workflowCount || $stepModuleCount) {
+            // The indicator is being used in a workflow, don't make the change
+            $return_value = 'indicator used in workflow';
+        } else {
+            if($input == 1) {
+                $this->setRequired($indicatorID, 0);
+                $this->disableSubindicators($indicatorID);
+                $disabledTime = 1;
+            } elseif ($input == 2) {
+                $this->setRequired($indicatorID, 0);
+                $this->disableSubindicators($indicatorID);
+                $disabledTime = time();
+            } else {
+                $disabledTime = 0;
+            }
+
+            $vars = array(':indicatorID' => $indicatorID,
+                        ':input' => $disabledTime);
+            $sql = 'UPDATE `indicators`
+                    SET `disabled` = :input
+                    WHERE `indicatorID` = :indicatorID';
+
+            $this->db->prepared_query($sql, $vars);
+
+            $return_value = '';
+
+
+            $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::INDICATOR,[
+                new LogItem("indicators", "indicatorID", $indicatorID),
+                new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
+                new LogItem("indicators", "disabled", $input)
+            ]);
         }
 
-    	$vars = array(':indicatorID' => $indicatorID,
-                      ':input' => $disabledTime);
-
-        $result = $this->db->prepared_query('UPDATE indicators
-                        SET disabled=:input
-                        WHERE indicatorID=:indicatorID', $vars);
-
-        $this->dataActionLogger->logAction(DataActions::MODIFY,LoggableTypes::INDICATOR,[
-            new LogItem("indicators", "indicatorID", $indicatorID),
-            new LogItem("indicators","categoryID", $this->getCategoryID($indicatorID)),
-            new LogItem("indicators", "disabled", $input)
-        ]);
-
-    	return $result;
+    	return $return_value;
     }
 
     public function setSort($indicatorID, $input)
@@ -419,11 +453,12 @@ class FormEditor
                       ':categoryID' => $categoryID,
                       ':workflowID' => $workflowID,
                       ':formLibraryID' => $formLibraryID,
-                      ':lastModified' => time()
+                      ':lastModified' => time(),
+                      ':needToKnow' => 1
         );
-        $this->db->prepared_query('INSERT INTO categories (categoryID, parentID, categoryName, categoryDescription, workflowID, formLibraryID, lastModified)
-    									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID, :lastModified)
-                                        ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, lastModified=:lastModified, disabled=0', $vars);
+        $this->db->prepared_query('INSERT INTO categories (categoryID, parentID, categoryName, categoryDescription, workflowID, formLibraryID, lastModified, needToKnow)
+    									VALUES (:categoryID, :parentID, :name, :description, :workflowID, :formLibraryID, :lastModified, :needToKnow)
+                                        ON DUPLICATE KEY UPDATE categoryName=:name, categoryDescription=:description, workflowID=:workflowID, lastModified=:lastModified, disabled=0, needToKnow=:needToKnow', $vars);
 
         $this->dataActionLogger->logAction(DataActions::ADD, LoggableTypes::FORM, [
             new LogItem("categories", "categoryID", $categoryID),
@@ -431,17 +466,19 @@ class FormEditor
             new LogItem("categories", "categoryName", $name),
             new LogItem("categories", "categoryDescription", $description),
             new LogItem("categories", "workflowID", $workflowID),
-            new LogItem("categories", "formLibraryID", $formLibraryID)
+            new LogItem("categories", "formLibraryID", $formLibraryID),
+            new LogItem("categories", "needToKnow", 1)
         ]);
 
         // need to know enabled by default if leaf secure is active
-        $res = $this->db->query('SELECT * FROM settings WHERE setting="leafSecure" AND data>=1');
+        // is this needed with the needToKnow being set above as the default?
+        /*$res = $this->db->query('SELECT * FROM settings WHERE setting="leafSecure" AND data>=1');
         if(count($res) > 0) {
             $vars = array(':categoryID' => $categoryID);
             $this->db->prepared_query('UPDATE categories
                                         SET needToKnow=1
                                         WHERE categoryID=:categoryID', $vars);
-        }
+        }*/
 
         return $categoryID;
     }
@@ -932,5 +969,42 @@ class FormEditor
     public function getHistory(?string $filterById): array
     {
         return $this->dataActionLogger->getHistory($filterById, "categoryID", LoggableTypes::FORM);
+    }
+
+    /**
+     * @param int $indicatorID
+     *
+     * @return bool
+     *
+     */
+    private function getWorkflowUseCount(int $indicatorID): bool
+    {
+        $vars = array(':indicatorID' => $indicatorID);
+        $sql = 'SELECT COUNT(*) AS count
+                FROM `workflow_steps`
+                WHERE `indicatorID_for_assigned_empUID` = :indicatorID
+                OR `indicatorID_for_assigned_groupID` = :indicatorID';
+
+        $result = $this->db->prepared_query($sql, $vars);
+
+        return $result[0]['count'] > 0;
+    }
+
+    /**
+     * @param int $indicatorID
+     *
+     * @return bool
+     *
+     */
+    private function getStepModuleUseCount(int $indicatorID) :bool
+    {
+        $vars = array(':indicatorID' => $indicatorID);
+        $sql = 'SELECT COUNT(*) AS count
+                FROM `step_modules`
+                WHERE `moduleConfig` ->> "$.indicatorID" = :indicatorID';
+
+        $result = $this->db->prepared_query($sql, $vars);
+
+        return $result[0]['count'] > 0;
     }
 }

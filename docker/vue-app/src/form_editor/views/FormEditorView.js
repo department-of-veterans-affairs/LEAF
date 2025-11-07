@@ -14,6 +14,7 @@ import FormEditorMenu from "../components/form_editor_view/FormEditorMenu.js";
 import FormQuestionDisplay from '../components/form_editor_view/FormQuestionDisplay.js';
 import FormIndexListing from '../components/form_editor_view/FormIndexListing.js';
 import EditPropertiesPanel from '../components/form_editor_view/EditPropertiesPanel.js';
+import BasicConfirmDialog from "@/common/components/BasicConfirmDialog";
 
 export default {
     name: 'form-editor-view',
@@ -35,6 +36,7 @@ export default {
             fileManagerTextFiles: [],
             ariaStatusFormDisplay: '',
             focusAfterFormUpdateSelector: null,
+            indicatorsInWorkflow: {},
         }
     },
     components: {
@@ -51,7 +53,8 @@ export default {
         FormEditorMenu,
         FormQuestionDisplay,
         FormIndexListing,
-        EditPropertiesPanel
+        EditPropertiesPanel,
+        BasicConfirmDialog,
     },
     inject: [
         'APIroot',
@@ -77,6 +80,7 @@ export default {
             vm.getSiteSettings();
             vm.setDefaultAjaxResponseMessage();
             vm.getFileManagerTextFiles();
+            vm.getWorkflowIndicators();
             if(!vm.appIsLoadingCategories && vm.queryID) {
                 vm.getFormFromQueryParam();
             }
@@ -103,6 +107,7 @@ export default {
             focusedFormIsSensitive: computed(() => this.focusedFormIsSensitive),
             noForm: computed(() => this.noForm),
             mainFormID: computed(() => this.mainFormID),
+            indicatorsInWorkflow: computed(() => this.indicatorsInWorkflow),
 
             getFormByCategoryID: this.getFormByCategoryID,
             editAdvancedOptions: this.editAdvancedOptions,
@@ -120,6 +125,7 @@ export default {
             clickToMoveListItem: this.clickToMoveListItem,
             shortIndicatorNameStripped: this.shortIndicatorNameStripped,
             makePreviewKey: this.makePreviewKey,
+            getWorkflowIndicators: this.getWorkflowIndicators,
         }
     },
     computed: {
@@ -458,7 +464,7 @@ export default {
             }
         },
         /**
-         * @param {number} indicatorID 
+         * @param {number} indicatorID
          * @returns {Object} with property information about the specific indicator
          */
         getIndicatorByID(indicatorID = 0) {
@@ -507,7 +513,7 @@ export default {
         },
         /**
          * get information about the indicator and open indicator editing modal
-         * @param {number} indicatorID 
+         * @param {number} indicatorID
          */
         editQuestion(indicatorID = 0) {
             this.focusAfterFormUpdateSelector = '#' + document?.activeElement?.id || null;
@@ -563,7 +569,7 @@ export default {
         },
         /**
          * moves an item in the Form Index via the buttons that appear when the item is selected
-         * @param {Object} event 
+         * @param {Object} event
          * @param {number} indID of the list item to move
          * @param {boolean} moveup click/enter moves the item up (false moves it down)
          */
@@ -662,7 +668,7 @@ export default {
         },
         /**
          * updates the listIndex and newParentID values for a specific indicator in listtracker when moved via the Form Index
-         * @param {number} indID 
+         * @param {number} indID
          * @param {number|null} newParIndID null for form Sections
          * @param {number} listIndex
          */
@@ -843,8 +849,8 @@ export default {
             }
         },
         /**
-         * @param {string} categoryID 
-         * @param {number} len 
+         * @param {string} categoryID
+         * @param {number} len
          * @returns shortened form name
          */
         shortFormNameStripped(catID = '', len = 21) {
@@ -863,6 +869,195 @@ export default {
         makePreviewKey(node) {
             return `${node.format}${node?.options?.join() || ''}_${node?.default || ''}`;
         },
+        /**
+         * Recursively extract all indicator IDs from form tree
+         * @param {Array} tree - form tree structure
+         * @returns {Array} array of indicator IDs
+         */
+        getAllIndicatorIDs(tree) {
+            let indicatorIDs = [];
+
+            tree.forEach(node => {
+                if (node.indicatorID) {
+                    indicatorIDs.push(node.indicatorID);
+                }
+
+                // Recursively check children
+                if (node.child && Array.isArray(node.child)) {
+                    indicatorIDs = indicatorIDs.concat(this.getAllIndicatorIDs(node.child));
+                } else if (node.child && typeof node.child === 'object') {
+                    // Handle object-style children
+                    const childArray = Object.values(node.child);
+                    indicatorIDs = indicatorIDs.concat(this.getAllIndicatorIDs(childArray));
+                }
+            });
+
+            return indicatorIDs;
+        },
+
+        /**
+         * Check if a specific indicator is in workflow
+         * @param {number} indicatorID
+         * @returns {Object} workflow status object or default values
+         */
+        getIndicatorWorkflowStatus(indicatorID) {
+            return this.indicatorsInWorkflow[indicatorID] || {
+                inWorkflow: false,
+                stepInWorkflow: false
+            };
+        },
+        /**
+         * Fetch workflow steps and build indicatorsInWorkflow object
+         */
+        async getWorkflowIndicators() {
+            try {
+                const response = await fetch(`${this.APIroot}workflow/workflowSteps`);
+                const result = await response.json();
+
+                if (result.status && result.status.code === 2 && result.data) {
+                    await this.processWorkflowSteps(result.data);
+                }
+            } catch (error) {
+                console.error('Error fetching workflow steps:', error);
+            }
+        },
+
+        /**
+         * Process workflow steps data to extract indicators and build indicatorsInWorkflow object
+         * @param {Array} workflowSteps - Array of workflow step objects
+         */
+        async processWorkflowSteps(workflowSteps) {
+            const indicatorsInWorkflow = {};
+            const indicatorNames = await this.getIndicatorNameList() || {};
+
+            // Process each step sequentially to get dependencies
+            for (const step of workflowSteps) {
+                try {
+                    // Fetch step dependencies for this specific step
+                    const response = await fetch(`${this.APIroot}workflow/${step.stepID}/stepDependencies`);
+                    const result = await response.json();
+
+                    let stepDependencies = [];
+                    if (result.status && result.status.code === 2 && result.data) {
+                        stepDependencies = result.data;
+                    }
+
+                    // Check if this step has dependency -1 or -3
+                    const hasDependencyMinus1 = stepDependencies.some(dep => dep.dependencyID === -1);
+                    const hasDependencyMinus3 = stepDependencies.some(dep => dep.dependencyID === -3);
+
+                    // Check indicatorID_for_assigned_empUID (only if dependency -1 exists)
+                    if (step.indicatorID_for_assigned_empUID !== null &&
+                        step.indicatorID_for_assigned_empUID > 0 &&
+                        hasDependencyMinus1) {
+
+                        const indicatorID = step.indicatorID_for_assigned_empUID;
+                        if (!indicatorsInWorkflow[indicatorID]) {
+                            indicatorsInWorkflow[indicatorID] = {
+                                indicatorTitle: '',
+                                inWorkflow: false,
+                                stepInWorkflow: false,
+                                workflowName: '',
+                                stepName: '',
+                            };
+                        }
+
+                        const name = this.getIndicatorName(indicatorID, Object.values(indicatorNames));
+
+                        indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                        indicatorsInWorkflow[indicatorID].indicatorTitle = name || '';
+
+                        if (indicatorsInWorkflow[indicatorID].workflowName === '') {
+                            indicatorsInWorkflow[indicatorID].workflowName = step.description + ` (${step.workflowID})`;
+                            indicatorsInWorkflow[indicatorID].stepName = step.stepTitle + ` (${step.stepID})`;
+                        } else {
+                            indicatorsInWorkflow[indicatorID].workflowName = indicatorsInWorkflow[indicatorID].workflowName + ', ' + step.description + ` (${step.workflowID})`;
+                            indicatorsInWorkflow[indicatorID].stepName = indicatorsInWorkflow[indicatorID].stepName + ', ' + step.stepTitle + ` (${step.stepID})`;
+                        }
+                    }
+
+                    // Check indicatorID_for_assigned_groupID (only if dependency -3 exists)
+                    if (step.indicatorID_for_assigned_groupID !== null &&
+                        step.indicatorID_for_assigned_groupID > 0 &&
+                        hasDependencyMinus3) {
+
+                        const indicatorID = step.indicatorID_for_assigned_groupID;
+                        if (!indicatorsInWorkflow[indicatorID]) {
+                            indicatorsInWorkflow[indicatorID] = {
+                                indicatorTitle: '',
+                                inWorkflow: false,
+                                stepInWorkflow: false,
+                                workflowName: '',
+                                stepName: '',
+                            };
+                        }
+
+                        const name = this.getIndicatorName(indicatorID, Object.values(indicatorNames));
+
+                        indicatorsInWorkflow[indicatorID].inWorkflow = true;
+                        indicatorsInWorkflow[indicatorID].indicatorTitle = name || '';
+
+                        if (indicatorsInWorkflow[indicatorID].workflowName === '') {
+                            indicatorsInWorkflow[indicatorID].workflowName = step.description + ` (${step.workflowID})`;
+                            indicatorsInWorkflow[indicatorID].stepName = step.stepTitle + ` (${step.stepID})`;
+                        } else {
+                            indicatorsInWorkflow[indicatorID].workflowName = indicatorsInWorkflow[indicatorID].workflowName + ', ' + step.description + ` (${step.workflowID})`;
+                            indicatorsInWorkflow[indicatorID].stepName = indicatorsInWorkflow[indicatorID].stepName + ', ' + step.stepTitle + ` (${step.stepID})`;
+                        }
+                    }
+
+                    // Check moduleConfig for indicatorID (this logic remains the same)
+                    if (step.moduleConfig !== null) {
+                        try {
+                            const moduleConfig = JSON.parse(step.moduleConfig);
+
+                            if (moduleConfig.indicatorID) {
+                                const indicatorID = moduleConfig.indicatorID;
+                                if (!indicatorsInWorkflow[indicatorID]) {
+                                    indicatorsInWorkflow[indicatorID] = {
+                                        indicatorTitle: '',
+                                        inWorkflow: false,
+                                        stepInWorkflow: false,
+                                        workflowName: '',
+                                        stepName: '',
+                                    };
+                                }
+
+                                const name = this.getIndicatorName(indicatorID, Object.values(indicatorNames));
+
+                                indicatorsInWorkflow[indicatorID].stepInWorkflow = true;
+                                indicatorsInWorkflow[indicatorID].indicatorTitle = name || '';
+
+                                if (indicatorsInWorkflow[indicatorID].workflowName === '') {
+                                    indicatorsInWorkflow[indicatorID].workflowName = step.description + ` (${step.workflowID})`;
+                                    indicatorsInWorkflow[indicatorID].stepName = step.stepTitle + ` (${step.stepID})`;
+                                } else {
+                                    indicatorsInWorkflow[indicatorID].workflowName = indicatorsInWorkflow[indicatorID].workflowName + ', ' + step.description + ` (${step.workflowID})`;
+                                    indicatorsInWorkflow[indicatorID].stepName = indicatorsInWorkflow[indicatorID].stepName + ', ' + step.stepTitle + ` (${step.stepID})`;
+                                }
+                            }
+                        } catch (parseError) {
+                            console.warn('Error parsing moduleConfig:', step.moduleConfig, parseError);
+                        }
+                    }
+
+                } catch (error) {
+                    console.error(`Error fetching step dependencies for step ${step.stepID}:`, error);
+                }
+            }
+
+            this.indicatorsInWorkflow = indicatorsInWorkflow;
+        },
+        async getIndicatorNameList() {
+            const response = await fetch(`${this.APIroot}form/indicator/list`);
+            const result = await response.json();
+
+            return result;
+        },
+        getIndicatorName(indicatorID, list) {
+            const indicator = list.find(item => item.indicatorID === indicatorID);
+            return indicator ? indicator.name : null;
+        }
     },
     watch: {
         appIsLoadingCategories(newVal, oldVal) {
@@ -894,7 +1089,7 @@ export default {
     },
     template:`<section id="formEditor_content">
         <div v-if="appIsLoadingForm || appIsLoadingCategories" class="page_loading">
-            Loading... 
+            Loading...
             <img src="../images/largespinner.gif" alt="" />
         </div>
         <div v-else-if="noForm">
