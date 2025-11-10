@@ -1,10 +1,5 @@
 var LeafSecureReviewDialog = function(domId) {
-    const prefixID = 'LeafSecureReviewDialog' + Math.floor(Math.random()*1000) + '_';
-    const previewPath = './js/LeafPreview.js';
-    const previewID = 'leafsFormPreview';
-    let leafPreview = null;
-    let formPreviews = {};
-
+    var prefixID = 'LeafSecureReviewDialog' + Math.floor(Math.random()*1000) + '_';
 
     $('#' + domId).html('<div id="'+ prefixID +'sensitiveFields">Loading field list for review...</div>'
                 + '<div id="'+ prefixID +'nonSensitiveFields"></div>');
@@ -50,77 +45,14 @@ var LeafSecureReviewDialog = function(domId) {
         }
     });
 
-    const buildFormPreview = async (formName, formTree = []) => {
-        if(typeof dialog_message !== 'undefined' && typeof dialog_message.show === 'function') {
-            //fetch leafpreview file and init if needed
-            if (leafPreview === null) {
-                await new Promise((resolve, reject) => {
-                    let scriptTag = document.createElement('script');
-                    scriptTag.setAttribute('src', previewPath);
-                    scriptTag.onload = () => {
-                        try {
-                            leafPreview = new LeafPreview(previewID);
-                            resolve(1);
-                        } catch (e) {
-                            reject(e);
-                        }
-                    }
-                    document.body.appendChild(scriptTag);
-                });
-            }
-            let buffer = `<div id="leafsFormPreview" style="max-width:600px;">`;
-            formTree.forEach((page, idx) => {
-                buffer += leafPreview.renderSection(page, idx === 0);
-            });
-            buffer += "</div>";
-            dialog_message.setTitle(formName);
-            dialog_message.setContent(buffer);
-            dialog_message.setSaveHandler(() => {
-                dialog_message.clearDialog();
-                dialog_message.hide();
-            });
-            dialog_message.show();
-        }
-    }
-    const makeScopedPreviewFormListener = (catID, formName) => () => {
-        if (typeof formPreviews[catID] !== 'undefined') {
-            buildFormPreview(formName, formPreviews[catID]);
-        } else {
-            fetch(`./api/form/category?id=${catID}`)
-            .then(res => res.json())
-            .then(data => {
-                if(data.length > 0 && data[0].categoryID) {
-                    formPreviews[data[0].categoryID] = data;
-                }
-                buildFormPreview(formName, data);
-            }).catch(err => console.log(err));
-        }
-    }
     function buildSensitiveGrid(sensitiveFields) {
-        let gridSensitive = new LeafFormGrid(prefixID +'sensitiveFields');
+        var gridSensitive = new LeafFormGrid(prefixID +'sensitiveFields');
         gridSensitive.hideIndex();
         gridSensitive.setData(sensitiveFields);
         gridSensitive.setDataBlob(sensitiveFields);
         gridSensitive.setHeaders([
         {name: 'Form', indicatorID: 'formName', editable: false, callback: function(data, blob) {
-            const formConfig = gridSensitive.getDataByIndex(data.index);
-            const formName = formConfig.categoryName;
-
-            let content = formName; //only display the form name on the edit view
-            if (domId === 'leafSecureDialogContentPrint') {
-                const formID = formConfig.categoryID;
-                const listener = makeScopedPreviewFormListener(formID, formName);
-                const styles = `style="display:flex;gap:1rem;justify-content:space-between;"`;
-                const btnID = `print_${formID}_${data.index}`;
-                content = `<div ${styles}>
-                    ${formName}
-                    <button id="${btnID}" type="button" class="buttonNorm">Preview Form</button>
-                </div>`;
-                $('#'+data.cellContainerID).html(content);
-                document.getElementById(btnID)?.addEventListener('click', listener);
-            } else {
-                $('#'+data.cellContainerID).html(content);
-            }
+            $('#'+data.cellContainerID).html(gridSensitive.getDataByIndex(data.index).categoryName);
         }},
         {name: 'Field Name', indicatorID: 'fieldName', editable: false, callback: function(data, blob) {
             $('#'+data.cellContainerID).html(gridSensitive.getDataByIndex(data.index).name);

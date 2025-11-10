@@ -43,7 +43,7 @@ function showPreview(recordID) {
     }
 
 	dialog_simple.setTitle('Preview');
-	dialog_simple.setContent('<button id="btn_download" class="buttonNorm" style="float: right"><img src="../dynicons/?img=edit-copy.svg&w=32" alt="" /> Get a copy!</button><div style="font-size: 120%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
+	dialog_simple.setContent('<button type="button" id="btn_download" class="buttonNorm" style="float: right"><img src="../dynicons/?img=edit-copy.svg&w=32" alt="" /> Get a copy!</button><div style="font-size: 120%; font-weight: bold">' + title + '</div><div>'+ authors +'</div><br /><br /><div id="preview"></div>');
 	dialog_simple.show();
 
     preview = new LeafPreview('preview');
@@ -151,7 +151,7 @@ $(function() {
             {
                 name: 'Preview', indicatorID: 'preview', editable: false, sortable: false,
                 callback: function(data, blob) {
-                    $('#'+data.cellContainerID).html('<button class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../dynicons/?img=edit-find.svg&w=32" alt="" /> Preview</button>');
+                    $('#'+data.cellContainerID).html('<button type="button" class="buttonNorm" onclick="showPreview('+ blob[data.index].recordID +')" ><img src="../dynicons/?img=edit-find.svg&w=32" alt="" /> Preview</button>');
                 }
             }
         ]);
