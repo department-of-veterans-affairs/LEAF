@@ -14,6 +14,7 @@ import FormEditorMenu from "../components/form_editor_view/FormEditorMenu.js";
 import FormQuestionDisplay from '../components/form_editor_view/FormQuestionDisplay.js';
 import FormIndexListing from '../components/form_editor_view/FormIndexListing.js';
 import EditPropertiesPanel from '../components/form_editor_view/EditPropertiesPanel.js';
+import BasicConfirmDialog from "@/common/components/BasicConfirmDialog";
 
 export default {
     name: 'form-editor-view',
@@ -52,7 +53,8 @@ export default {
         FormEditorMenu,
         FormQuestionDisplay,
         FormIndexListing,
-        EditPropertiesPanel
+        EditPropertiesPanel,
+        BasicConfirmDialog,
     },
     inject: [
         'APIroot',
