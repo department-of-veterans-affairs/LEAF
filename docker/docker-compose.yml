@@ -24,7 +24,9 @@ services:
             - ../LEAF_Nexus:/var/www/html/Test_Nexus
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
             - ../LEAF_Request_Portal:/var/www/html/Test_Request_Portal
+            - ../LEAF_Request_Portal:/var/www/html/LEAF/library
             - ../scripts:/var/www/scripts
+            - ../LEAF_library_test_uploads:/var/www/LEAF_library_test_uploads
             - ../health_checks:/var/www/html/health_checks
             - ../app:/var/www/html/app
             - ../libs:/var/www/html/libs # temp step.  Will shift to below later
@@ -59,7 +61,9 @@ services:
             - ../LEAF_Nexus:/var/www/html/Test_Nexus
             - ../LEAF_Request_Portal:/var/www/html/LEAF_Request_Portal
             - ../LEAF_Request_Portal:/var/www/html/Test_Request_Portal
+            - ../LEAF_Request_Portal:/var/www/html/LEAF/library
             - ../scripts:/var/www/scripts
+            - ../LEAF_library_test_uploads:/var/www/LEAF_library_test_uploads
             - ../health_checks:/var/www/html/health_checks
             - ../app:/var/www/html/app
             - ../libs:/var/www/html/libs # temp step.  Will shift to below later
