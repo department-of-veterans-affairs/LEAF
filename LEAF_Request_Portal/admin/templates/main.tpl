@@ -24,6 +24,14 @@
     </style>
     <style type="text/css" media="print">
         @import "css/printer.css";
+        #qrcode-js {
+            display: block !important;
+        }
+        #qrcode-js * {
+            display: block !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
     </style>
     <script type="text/javascript" src="{$app_js_path}/jquery/jquery.min.js"></script>
     {if $useUI == true}
@@ -44,6 +52,21 @@
     {section name=i loop=$javascripts}
         <script type="text/javascript" src="{$javascripts[i]}"></script>
     {/section}
+    {if $qrcodeURL != ''}
+    <script type="text/javascript" src="{$app_js_path}/qr-code/qrcode.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            new QRCode(document.getElementById("qrcode-js"), {
+                text: "{$qrcodeURL}",
+                width: 72,
+                height: 72,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        });
+    </script>
+    {/if}
     <link rel="icon" href="../vafavicon.ico" type="image/x-icon" />
 </head>
 
@@ -70,12 +93,12 @@
                 <em class="usa-logo__text">
                     <a tabindex="0" onclick="window.location='./'" title="Admin Home" class="leaf-cursor-pointer">
                         <span class="leaf-logo">{$logo}</span>
-                        <span class="leaf-site-title">{$city}</span>
+                        <span id="headerLabel" class="leaf-site-title">{$city}</span>
                         <span id="headerDescription" class="leaf-header-description">{$title}</span>
                     </a>
                 </em>
                 {if $qrcodeURL != ''}
-                    <div><img class="print nodisplay" style="width: 72px" src="{$abs_portal_path}/qrcode/?encode={$qrcodeURL}" alt="QR code" /></div>
+                    <div style="float: left;"><div id="qrcode-js" style="width: 72px; display: none;" ></div></div>
                 {/if}
             </div>
             <div style="position:absolute;right:0;top:0;padding:0 0.75rem;font-size:14px;">
