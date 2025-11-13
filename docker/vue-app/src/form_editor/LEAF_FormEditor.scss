@@ -126,7 +126,7 @@ nav#top-menu-nav {
         td,th {
             padding: 0.25rem 0.5rem;
             border: 1px solid $charcoal;
-            
+
             a {
                 padding: 0.25rem 0.5rem;
                 display: flex;
@@ -152,7 +152,7 @@ nav#top-menu-nav {
             color: black;
             border-bottom: 1px solid $charcoal;
         }
-        tr.sub-row { 
+        tr.sub-row {
             color: #333;
             background-color: #f6f6ff;
             font-size: 85%;
@@ -245,7 +245,7 @@ table[class$="SelectorTable"] th {
             justify-content: flex-start;
             margin: 1rem 0;
         }
-        #archived-warning, #deletion-warning {
+        #archived-warning, #deletion-warning, #inWorkflow-warning {
             position: absolute;
             right: 0;
             top: 0;
@@ -255,8 +255,21 @@ table[class$="SelectorTable"] th {
         #indicatorPrivileges {
             line-height: 1.4;
         }
+        label:has(input:disabled) {
+            color: #999 !important;
+            cursor: not-allowed;
+        }
     }
-    
+    #input-format {
+        #format-inWorkflow-warning {
+            position: absolute;
+            left: 110px;
+            top: 290px;
+            color: $attention;
+            font-size: 90%;
+        }
+    }
+
     div.cell {
         width: 200px;
         min-width: 200px;
@@ -294,7 +307,7 @@ table[class$="SelectorTable"] th {
     > div {
         min-width: 400px;
         padding: 0.75rem;
-        display: flex; 
+        display: flex;
         flex-direction:column;
         width: 50%;
     }
@@ -335,7 +348,7 @@ table[class$="SelectorTable"] th {
         }
     }
     .form-id {
-        position: absolute; 
+        position: absolute;
         right: 0.75rem;
         bottom: 1px;
         font-size: 0.75rem;
@@ -456,7 +469,7 @@ table[class$="SelectorTable"] th {
     ul[id^="internalFormRecords_"] {
         border-left: 4px solid $BG_Pearl;
         padding-top: 0.75rem;
-        
+
         > li  {
             &:not(:last-child) {
                 margin-bottom: 0.5rem;
@@ -692,7 +705,7 @@ table[class$="SelectorTable"] th {
         width: 100%;
         border: 2px dashed color.scale($BG_Pearl, $lightness: -15%);
     }
-    
+
     /* wraps each form question. */
     .form_editing_area {
         display: flex;
@@ -744,7 +757,7 @@ table[class$="SelectorTable"] th {
             font-size: 90%;
             gap: 3px 2px;
             > div {
-                display: flex; 
+                display: flex;
                 align-items: center;
                 gap: 4px 5px;
                 min-width: 260px;
@@ -765,16 +778,16 @@ table[class$="SelectorTable"] th {
             .text_input_preview {
                 display: inline-block;
                 width: 75%;
-                font-size: 1.3em; 
+                font-size: 1.3em;
                 font-family: monospace;
                 background-color: white;
                 border: 1px solid gray;
                 padding: 0.25em;
             }
             .textarea_input_preview {
-                width: 75%; 
-                padding: 0.5em; 
-                font-size: 1.3em; 
+                width: 75%;
+                padding: 0.5em;
+                font-size: 1.3em;
                 font-family: monospace;
             }
             div[id*="textarea_format_button_"], .trumbowyg-box, .choices, fieldset {
@@ -824,18 +837,39 @@ table[class$="SelectorTable"] th {
         ul {
             margin-bottom: 1rem;
         }
-        button.btn_remove_condition {
-            width: 1.75em;
+        button.btn_remove_condition, button.btn_edit_condition {
+            min-width: 32px;
+            min-height: 32px;
+            color: $charcoal;
+            background-color: transparent;
+            outline: 2px solid transparent;
+            border: 1px outset $base-navy;
+            box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.25);
+            padding: 0.25rem;
+            &:hover, &:focus, &:active {
+                outline: 2px solid $LEAF_CSS_outline !important;
+            }
         }
-    }
-    #outcome_select {
-        max-width: 700px;
     }
     #condition_editor_inputs > div {
         padding: 1rem 0;
         .choices__inner {
             width: 100%;
             max-width: 700px;
+        }
+        &#condition_preview {
+            display: block;
+            letter-spacing: 0.25px;
+            line-height: 1.4;
+            max-width: 700px;
+            margin: 0.5rem 0 1.5rem 0;
+            ul#parentTriggerList {
+                list-style-type: disc;
+                padding: 0.5rem 1.5rem;
+                li {
+                    display: list-item;
+                }
+            }
         }
     }
     #if-then-setup {
@@ -852,6 +886,13 @@ table[class$="SelectorTable"] th {
         #operator_select {
             width: 25%;
         }
+        > select, > input, .crosswalks select {
+            padding: 0.25rem;
+            border-radius: 2px;
+        }
+        > input {
+            padding: 0.25rem 0.5rem;
+        }
         > div.crosswalks {
             display:flex;
             flex-wrap: wrap;
@@ -861,13 +902,26 @@ table[class$="SelectorTable"] th {
         .choices__inner {
             max-width: 300px;
         }
+        #parent_choices_wrapper .choices__list--dropdown .choices__item--selectable  {
+            overflow-wrap: normal;
+            word-break: break-word;
+        }
     }
+    #outcome-editor {
+        max-width: 700px;
+        > select, > input {
+            padding: 0.25rem;
+            border-radius: 2px;
+        }
+        > input {
+            padding: 0.25rem 0.5rem;
+        }
+    }
+
     select, input:not(.choices__input) {
         font-size: 1rem;
-        padding: 2px;
         text-overflow: ellipsis;
         width: 100%;
-        border: 1px inset gray;
 
         &:not(:last-child) {
             margin-bottom: 1em;
@@ -876,46 +930,40 @@ table[class$="SelectorTable"] th {
 
     li.savedConditionsCard {
         display: flex;
-        align-items: center;
-        margin-bottom: 0.5rem;
+        align-items: flex-end;
+        margin-top: 0.25rem;
+        margin-bottom: 0.625rem;
+        border-bottom: 1px solid $charcoal;
+        gap: 1rem;
+        max-width: 700px;
     }
-    button.btnSavedConditions {
+    div.itemSavedConditions {
         display: block;
         width: 100%;
         text-align: left;
         font-weight: normal;
-        background-color: white;
         padding: 6px;
-        border: 1px outset $base-navy;
-        box-shadow: 1px 1px 6px rgba(0, 0, 25, 0.5);
-        border-radius: 3px;
-        margin-right: 1rem;
         white-space: normal;
         max-width: 700px;
         overflow: hidden;
         transition: box-shadow 0.1s ease;
+
         &.isOrphan {
             background-color: #d8d8d8;
             color: black;
             border: 1px solid black;
         }
-        &:hover:not(.isOrphan), &:focus:not(.isOrphan), &:active:not(.isOrphan) {
-            color: white;
-            border: 1px outset $base-navy !important;
-            background-color: $base-navy;
-            box-shadow: 0px 0px 2px rgba(0, 0, 25, 0.75);
-        }
     }
     button.btn-confirm.new {
-        padding: 4px 6px;
+        padding: 0.5rem;
     }
     .changesDetected {
         color: #c80000;
     }
     .selectedConditionEdit .changesDetected,
-    button.btnSavedConditions:hover .changesDetected, 
-    button.btnSavedConditions:focus .changesDetected, 
-    button.btnSavedConditions:active .changesDetected {
+    button.itemSavedConditions:hover .changesDetected,
+    button.itemSavedConditions:focus .changesDetected,
+    button.itemSavedConditions:active .changesDetected {
         color: white;
     }
     button.selectedConditionEdit {
@@ -1017,7 +1065,8 @@ table[class$="SelectorTable"] th {
         border: 0;
         div#if-then-setup {
             flex-direction: column;
-            > select, > h3, #parent_choices_wrapper, #operator_select {
+            align-items: flex-start;
+            > select, #operator_select, #numeric_comparison, #parent_choices_wrapper {
                 width: 100%;
             }
             .choices__inner {

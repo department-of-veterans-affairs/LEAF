@@ -727,6 +727,19 @@ table.leaf_grid>tbody>tr>td {
   animation: leaf_grid-loading 30s linear infinite;
 }
 
+.entry_info {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.entry_info {
+  border-left: 4px solid #00bde3;
+}
+
+.bg-blue-5v {background-color: #e8f5ff;}
+
 @keyframes leaf_grid-loading {
   0% {
       background-position: 0 0;

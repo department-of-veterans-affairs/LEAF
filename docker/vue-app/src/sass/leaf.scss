@@ -375,8 +375,8 @@ form.usa-form {
     font-family: 'PublicSans-Medium', sans-serif;
 }
 .site-button-outline-secondary:hover {
-    background-color: transparent; 
-    color: rgba(255,255,255,1); 
+    background-color: transparent;
+    color: rgba(255,255,255,1);
     box-shadow: inset 0 0 0 2px rgba(255,255,255,1);
     text-decoration: none !important;
 }
@@ -398,11 +398,16 @@ form.usa-form {
 .leaf-dialog-loader {
     text-align: center;
 }
+#basic_confirm_dialog {
+    line-height: 1.3;
+    min-width: 300px;
+    max-width: 600px;
+}
 /* ############### JQUERY UI OVERRIDES ################# */
 .ui-sortable-placeholder {
-    border: 2px dashed #a9aeb1!important; 
-    visibility: visible!important; 
-    background-color: #dcdee0!important; 
+    border: 2px dashed #a9aeb1!important;
+    visibility: visible!important;
+    background-color: #dcdee0!important;
     box-shadow: 0px 0px 0px #a7a9aa!important;
 }
 .ui-dialog .ui-dialog-title {
@@ -444,7 +449,7 @@ form.usa-form {
 .leaf-right-nav {flex: 20%; margin: 0.6rem 1rem 0.6rem 1rem;}
 .main-content {
     position: relative;
-    flex: 60%; 
+    flex: 60%;
     margin: 0.6rem 1.0rem;
     min-height: 27rem;
     > h2:first-child {
@@ -560,11 +565,11 @@ h3.groupHeaders, #groupList > h2, #groupList > h3 { //user access groups and ser
 .leaf-sitemap-card p {margin: 0.2rem 0; font-size: 0.84rem; line-height: 1.0rem; font-family: 'PublicSans-Light', sans-serif; word-break: break-word; white-space: normal;}
 .leaf-delete-card {color: #2672de; font-size: 1.0rem; vertical-align: middle; float: right; margin: 0.0rem; cursor: pointer; white-space: normal;}
 .leaf-sitemap-alert {
-    padding: 0.4rem; 
-    border-radius: 4px; 
-    box-shadow: 1px 1px 5px #aaa; 
-    font-size: 0.8rem; 
-    font-family: 'PublicSans-Regular', sans-serif; 
+    padding: 0.4rem;
+    border-radius: 4px;
+    box-shadow: 1px 1px 5px #aaa;
+    font-size: 0.8rem;
+    font-family: 'PublicSans-Regular', sans-serif;
     background-color: #aeedb4;
     color: #137d1d;
     border: 1px solid #41aa4b;
@@ -629,9 +634,9 @@ div.groupBlock > h2, div.groupBlockWhite > h2 {
 
 /* ################## LEAF FOOTER ################# */
 .leaf-footer {
-    font-size: 0.7rem; 
-    font-family: 'PublicSans-Thin', sans-serif; 
-    padding: 0.0rem 0.6rem; 
+    font-size: 0.7rem;
+    font-family: 'PublicSans-Thin', sans-serif;
+    padding: 0.0rem 0.6rem;
     border-top: 1px solid #a9aeb1;
     width: calc(100% - 5rem);
     margin: 1.0rem auto 0 auto;
@@ -794,5 +799,5 @@ a.leaf-remove-button:hover { text-decoration: none; }
     .ui-dialog .ui-dialog-title {
         font-size: 1.25rem;
     }
-    .leaf-dialog-content {min-height: 300px; max-width: 54rem; min-width: 27rem;} 
+    .leaf-dialog-content {min-height: 300px; max-width: 54rem; min-width: 27rem;}
 }

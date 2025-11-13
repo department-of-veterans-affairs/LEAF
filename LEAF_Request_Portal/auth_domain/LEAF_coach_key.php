@@ -4,6 +4,13 @@ require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
 ini_set('display_errors', 1);
 
+// Restrict platform sites
+if(strpos(ABSOLUTE_PORT_PATH, DOMAIN_PATH.'/platform') !== false) {
+    echo 'Error: platform sites restricted';
+    http_response_code(403);
+    exit;
+}
+
 $db_national = new App\Leaf\Db(DIRECTORY_HOST, DIRECTORY_USER, DIRECTORY_PASS, DIRECTORY_DB);
 
 $login->setBaseDir('../');

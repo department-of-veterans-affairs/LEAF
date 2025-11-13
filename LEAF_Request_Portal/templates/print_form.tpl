@@ -558,24 +558,16 @@ function doSubmit(recordID) {
                             ];
                         val = val.filter(v => v !== '');
 
-                        let compVal = [];
-                        if (multiChoiceFormats.includes(parentFormat)) {
-                            compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
-                            compVal = compVal.map(v => v.trim());
-                        } else {
-                            compVal = [
-                                $('<div/>').html(conditions[i].selectedParentValue).text().trim()
-                            ];
-                        }
+                        let compVal = $('<div/>').html(conditions[i].selectedParentValue).text().trim().split('\n');
+                        compVal = compVal.map(v => v.trim());
+
                         const op = conditions[i].selectedOp;
                         switch (op) {
                             case '==':
-                                comparison = multiChoiceFormats.includes(parentFormat) ?
-                                    valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] === compVal[0];
+                                comparison = valIncludesMultiselOption(val, compVal);
                                 break;
                             case '!=':
-                                comparison = multiChoiceFormats.includes(parentFormat) ?
-                                    !valIncludesMultiselOption(val, compVal) : val[0] !== undefined && val[0] !== compVal[0];
+                                comparison = !valIncludesMultiselOption(val, compVal);
                                 break;
                             case 'lt':
                             case 'lte':
@@ -664,8 +656,82 @@ function doSubmit(recordID) {
             error: function(res) {
                 $('#formcontent').empty().html(res);
             },
-            cache: false
+            cache: false,
         });
+    }
+
+    function openContentForPrint(){
+        $('#formcontent').empty().html('');
+        $.ajax({
+            type: 'GET',
+            url: 'ajaxIndex.php?a=printview&recordID=<!--{$recordID|strip_tags}-->',
+            dataType: 'text', // IE9 issue
+            success: function(res) {
+                $('#formcontent').append(res);
+                // make box size more predictable
+                $('.printmainblock').each(function() {
+                    let boxSizer = {};
+                    $(this).find('.printsubheading').each(function() {
+                        layer = $(this).position().top;
+                        if (boxSizer[layer] == undefined) {
+                            boxSizer[layer] = $(this).height();
+                        }
+                        if ($(this).height() > boxSizer[layer]) {
+                            boxSizer[layer] = $(this).height();
+                        }
+                    });
+                    $(this).find('.printsubheading').each(function() {
+                        layer = $(this).position().top;
+                        if (boxSizer[layer] != undefined) {
+                            $(this).height(boxSizer[layer]);
+                        }
+                    });
+                });
+                handlePrintConditionalIndicators(formPrintConditions);
+            },
+            error: function(res) {
+                $('#formcontent').empty().html(res);
+            },
+            cache: false,
+            async: false,
+        });
+      
+        <!--{section name=i loop=$childforms}-->
+            $.ajax({
+                type: 'GET',
+                url: 'ajaxIndex.php?a=internalonlyview&recordID=<!--{$recordID|strip_tags}-->&childCategoryID=<!--{$childforms[i].childCategoryID|strip_tags}-->',
+                dataType: 'text', // IE9 issue
+                success: function(res) {
+                    $('#formcontent').append(res);
+                    // make box size more predictable
+                    $('.printmainblock').each(function() {
+                        let boxSizer = {};
+                        $(this).find('.printsubheading').each(function() {
+                            layer = $(this).position().top;
+                            if (boxSizer[layer] == undefined) {
+                                boxSizer[layer] = $(this).height();
+                            }
+                            if ($(this).height() > boxSizer[layer]) {
+                                boxSizer[layer] = $(this).height();
+                            }
+                        });
+                        $(this).find('.printsubheading').each(function() {
+                            layer = $(this).position().top;
+                            if (boxSizer[layer] != undefined) {
+                                $(this).height(boxSizer[layer]);
+                            }
+                        });
+                    });
+                    handlePrintConditionalIndicators(formPrintConditions);
+                },
+                error: function(res) {
+                    //$('#formcontent').empty().html(res);
+                },
+                cache: false,
+                async: false,
+            });
+        <!--{/section}-->
+
     }
 
     function viewAccessLogsRead() {
@@ -1393,6 +1459,7 @@ function doSubmit(recordID) {
         print = new printer();
 
         $('#btn_printForm').on('click', function() {
+            openContentForPrint();
             print.printForm(recordID);
         });
         form.setRecordID(<!--{$recordID|strip_tags|escape}-->);
