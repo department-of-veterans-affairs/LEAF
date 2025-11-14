@@ -78,7 +78,7 @@ function loadInboxData(depID, csrfToken) {
             inboxDataLoaded[depID] = 1;
             processInboxData(depID, res, csrfToken);
         },
-        fail: function(err) {
+        error: function(err) {
             alert('Error: ' + err.statusText + ' in api/inbox/dependency/_' + depID);
         },
         cache: false
@@ -140,7 +140,7 @@ function processInboxData(depID, res, csrftoken) {
                                 $('#requestInfo').attr('tabindex', '0');
                                 ariaSubIndicators(1);
                             },
-                            fail: function(err) {
+                            error: function(err) {
                                 alert('Error: ' + err.statusText + ' in retrieving Title for dep_' + depID);
                             },
                             cache: false
