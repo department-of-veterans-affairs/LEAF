@@ -326,6 +326,24 @@ class XSSHelpers
     }
 
     /**
+     * This is intented to be used after scrubFilename. scrubFileName removes
+     * /'s so that traversal of directories won't happen. But it's possible then
+     * to have filenames with ..fileName.txt or ....fileName.txt. This method
+     * is an attempt to allow files to still be added but in the correct directory
+     * and with a normal file name.
+     *
+     * @param string $stringToSanitize
+     *
+     * @return array|string|null
+     *
+     */
+    public static function removeMultipleDots(string $stringToSanitize = ''): array|string|null
+{
+    // Replace multiple consecutive dots with a single dot
+    return preg_replace('/\.{2,}/', '.', (string) $stringToSanitize);
+}
+
+    /**
      * Sanitize everything in an Object or Array
      *
      * @param    object  $objectToScrub the string to be sanitized

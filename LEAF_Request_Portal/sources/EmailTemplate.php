@@ -23,6 +23,11 @@ class EmailTemplate
 
     private $dataActionLogger;
 
+    private const EMAIL_TEMPLATE_DIR = '../templates/email';
+    private const CUSTOM_OVERRIDE_DIR = '../templates/email/custom_override';
+    private const TEMPLATE_HISTORY_DIR = '../templates_history/email_templates';
+    private const BASE_TEMPLATES_DIR = '../templates/email/base_templates';
+
     public function __construct($db, $login)
     {
         $this->db = $db;
@@ -33,86 +38,91 @@ class EmailTemplate
     public function isEmailTemplateValid($template, $list)
     {
         $validTemplate = false;
+
         foreach ($list as $item) {
             if ($template == $item['fileName']) {
                 $validTemplate = true;
             }
         }
+
         return $validTemplate;
     }
 
     public function getEmailData($template, $getStandard = false)
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
-        }
+            $return_value = 'Admin access required';
+        } else {
+            $template = XSSHelpers::scrubFilename($template);
+            $template = XSSHelpers::removeMultipleDots($template);
 
-        $template = XSSHelpers::scrubFilename($template);
+            $return_value = array();
 
-        $data = array();
+            // If we have a body file, we need to add subject, emailTo, and emailCC template files
+            if (preg_match('/_body.tpl$/', $template)) {
+                // We have a body template (non-default) so grab what kind
+                $emailKind = str_replace("_body.tpl", "", $template, $count);
+                if ($count == 1) {
+                    $emailData = array('emailTo', 'emailCc', 'subject');
 
-        // If we have a body file, we need to add subject, emailTo, and emailCC template files
-        if (preg_match('/_body.tpl$/', $template)) {
-            // We have a body template (non-default) so grab what kind
-            $emailKind = str_replace("_body.tpl", "", $template, $count);
-            if ($count == 1) {
-                $emailData = array('emailTo', 'emailCc', 'subject');
+                    foreach ($emailData as $dataType) {
+                        $return_value[$dataType . 'FileName'] = $emailKind . '_' . $dataType . '.tpl';
 
-                foreach ($emailData as $dataType) {
-                    $data[$dataType . 'FileName'] = $emailKind . '_' . $dataType . '.tpl';
-
-                    if (file_exists("../templates/email/custom_override/{$data[$dataType . 'FileName']}") && !$getStandard)
-                        $data[$dataType . 'File'] = file_get_contents("../templates/email/custom_override/{$data[$dataType . 'FileName']}");
-                    else if (file_exists("../templates/email/{$data[$dataType . 'FileName']}"))
-                        $data[$dataType . 'File'] = file_get_contents("../templates/email/{$data[$dataType . 'FileName']}");
-                    else if (preg_match('/CustomEvent_/', $data[$dataType . 'FileName']) && $dataType === 'subject')
-                        $data[$dataType . 'File'] = file_get_contents("../templates/email/base_templates/LEAF_template_subject.tpl");
-                    else
-                        $data[$dataType . 'File'] = '';
+                        if (file_exists(self::CUSTOM_OVERRIDE_DIR . "/{$return_value[$dataType . 'FileName']}") && !$getStandard)
+                            $return_value[$dataType . 'File'] = file_get_contents(self::CUSTOM_OVERRIDE_DIR . "/{$return_value[$dataType . 'FileName']}");
+                        else if (file_exists(self::EMAIL_TEMPLATE_DIR . "/{$return_value[$dataType . 'FileName']}"))
+                            $return_value[$dataType . 'File'] = file_get_contents(self::EMAIL_TEMPLATE_DIR . "/{$return_value[$dataType . 'FileName']}");
+                        else if (preg_match('/CustomEvent_/', $return_value[$dataType . 'FileName']) && $dataType === 'subject')
+                            $return_value[$dataType . 'File'] = file_get_contents(self::BASE_TEMPLATES_DIR . "/LEAF_template_subject.tpl");
+                        else
+                            $return_value[$dataType . 'File'] = '';
+                    }
                 }
             }
         }
 
-        return $data;
+        return $return_value;
     }
 
     public function getEmailTemplate($template, $getStandard = false)
     {
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
-        }
+            $return_value = 'Admin access required';
+        } else {
+            $template = XSSHelpers::scrubFilename($template);
+            $template = XSSHelpers::removeMultipleDots($template);
 
-        $template = XSSHelpers::scrubFilename($template);
+            $list = $this->getEmailAndSubjectTemplateList();
+            $return_value = array();
+            $validTemplate = $this->isEmailTemplateValid($template, $list);
 
-        $list = $this->getEmailAndSubjectTemplateList();
-        $data = array();
-        $validTemplate = $this->isEmailTemplateValid($template, $list);
-        if ($validTemplate) {
-            if (
-                file_exists("../templates/email/custom_override/{$template}")
-                && !$getStandard
-            ) {
-                $data['modified'] = 1;
-                $data['file'] = file_get_contents("../templates/email/custom_override/{$template}");
-            } else {
-                if (preg_match('/CustomEvent_/', $template)) {
-                    $data['modified'] = 0;
-                    $data['file'] = file_get_contents("../templates/email/base_templates/LEAF_template_body.tpl");
+            if ($validTemplate) {
+                if (
+                    file_exists(self::CUSTOM_OVERRIDE_DIR . "/{$template}")
+                    && !$getStandard
+                ) {
+                    $return_value['modified'] = 1;
+                    $return_value['file'] = file_get_contents(self::CUSTOM_OVERRIDE_DIR . "/{$template}");
                 } else {
-                    $data['modified'] = 0;
-                    $data['file'] = file_get_contents("../templates/email/{$template}");
+                    if (preg_match('/CustomEvent_/', $template)) {
+                        $return_value['modified'] = 0;
+                        $return_value['file'] = file_get_contents(self::BASE_TEMPLATES_DIR . "/LEAF_template_body.tpl");
+                    } else {
+                        $return_value['modified'] = 0;
+                        $return_value['file'] = file_get_contents(self::EMAIL_TEMPLATE_DIR . "/{$template}");
+                    }
+                }
+
+                $res = $this->getEmailData($template, $getStandard);
+
+                $emailInfo = array('emailTo', 'emailCc', 'subject');
+                foreach ($emailInfo as $infoType) {
+                    $return_value[$infoType . 'File'] = $res[$infoType . 'File'];
                 }
             }
-
-            $res = $this->getEmailData($template, $getStandard);
-
-            $emailInfo = array('emailTo', 'emailCc', 'subject');
-            foreach ($emailInfo as $infoType) {
-                $data[$infoType . 'File'] = $res[$infoType . 'File'];
-            }
         }
 
-        return $data;
+        return $return_value;
     }
 
     public function getEmailAndSubjectTemplateList()
@@ -146,17 +156,16 @@ class EmailTemplate
      */
     public function getCustomEmailTemplateList(): array|string
     {
-        $return_value = [];
-
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
-        }
+            $return_value = 'Admin access required';
+        } else {
+            $list = scandir(self::CUSTOM_OVERRIDE_DIR);
+            $return_value = [];
 
-        $list = scandir('../templates/email/custom_override');
-
-        foreach ($list as $item) {
-            if (preg_match('/.tpl$/', $item)) {
-                $return_value[] = $item;
+            foreach ($list as $item) {
+                if (preg_match('/.tpl$/', $item)) {
+                    $return_value[] = $item;
+                }
             }
         }
 
@@ -199,81 +208,143 @@ class EmailTemplate
 
     public function setEmailTemplate($template)
     {
+        $return_value = '';
+
         if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
+            $return_value = 'Admin access required';
+        } else {
+            $template = XSSHelpers::scrubFilename($template);
+            $template = XSSHelpers::removeMultipleDots($template);
+
+            $list = $this->getEmailAndSubjectTemplateList();
+            $validTemplate = $this->isEmailTemplateValid($template, $list);
+
+            if ($validTemplate && $this->isValidTemplateExtension($template)) {
+                $currentTemplate = $this->getEmailTemplate($template);
+                $label = $this->getLabelFromFileName($template);
+
+                $baseDir = realpath(self::CUSTOM_OVERRIDE_DIR);
+
+                if ($baseDir) {
+                    if (isset($_POST['file']) && $currentTemplate['file'] !== $_POST['file']) {
+                        $filePath = $baseDir . '/' . $template;
+
+                        if ($this->isPathSafe($filePath, $baseDir)) {
+                            if (file_put_contents($filePath, $_POST['file'])) {
+                                $this->dataActionLogger->logAction(
+                                    DataActions::MODIFY,
+                                    LoggableTypes::EMAIL_TEMPLATE_BODY,
+                                    [new LogItem("email_templates", "body", $template, $label)]
+                                );
+                            } else {
+                                $return_value = 'Failed to write template file';
+                            }
+                        } else {
+                            $return_value = 'Invalid file path';
+                        }
+                    }
+
+                    // if the subject is nonempty and has changed
+                    if (
+                        !empty($_POST['subjectFileName']) &&
+                        htmlentities($_POST['subjectFileName'], ENT_QUOTES) != '' &&
+                        isset($_POST['subjectFile']) &&
+                        $currentTemplate['subjectFile'] !== $_POST['subjectFile']
+                    ) {
+                        $subjectFileName = XSSHelpers::scrubFilename($_POST['subjectFileName']);
+                        $subjectFileName = XSSHelpers::removeMultipleDots($subjectFileName);
+
+                        if ($this->isValidTemplateExtension($subjectFileName)) {
+                            $filePath = $baseDir . '/' . $subjectFileName;
+
+                            if ($this->isPathSafe($filePath, $baseDir)) {
+                                if (file_put_contents($filePath, $_POST['subjectFile'])) {
+                                    $this->dataActionLogger->logAction(
+                                        DataActions::MODIFY,
+                                        LoggableTypes::EMAIL_TEMPLATE_SUBJECT,
+                                        [new LogItem("email_templates", "subject", $template, $label)]
+                                    );
+                                } else {
+                                    $return_value = 'Failed to write subject file';
+                                }
+                            } else {
+                                $return_value = 'Invalid subject file path';
+                            }
+                        } else {
+                            $return_value = 'Invalid subject file extension';
+                        }
+                    }
+
+                    // if emailTo is nonempty and has changed
+                    if (
+                        !empty($_POST['emailToFileName']) &&
+                        htmlentities($_POST['emailToFileName'], ENT_QUOTES) != '' &&
+                        isset($_POST['emailToFile']) &&
+                        $currentTemplate['emailToFile'] !== $_POST['emailToFile']
+                    ) {
+                        $emailToFileName = XSSHelpers::scrubFilename($_POST['emailToFileName']);
+                        $emailToFileName = XSSHelpers::removeMultipleDots($emailToFileName);
+
+                        if ($this->isValidTemplateExtension($emailToFileName)) {
+                            $filePath = $baseDir . '/' . $emailToFileName;
+
+                            if ($this->isPathSafe($filePath, $baseDir)) {
+                                if (file_put_contents($filePath, $_POST['emailToFile'])) {
+                                    $this->dataActionLogger->logAction(
+                                        DataActions::MODIFY,
+                                        LoggableTypes::EMAIL_TEMPLATE_TO,
+                                        [new LogItem("email_templates", "emailTo", $template, $label)]
+                                    );
+                                } else {
+                                    $return_value = 'Failed to write emailTo file';
+                                }
+                            } else {
+                                $return_value = 'Invaild emailTo file path';
+                            }
+                        } else {
+                            $return_value = 'Invalid emailTo file extension';
+                        }
+                    }
+
+                    // if emailCc is nonempty and has changed
+                    if (
+                        !empty($_POST['emailCcFileName']) &&
+                        htmlentities($_POST['emailCcFileName'], ENT_QUOTES) != '' &&
+                        isset($_POST['emailCcFile']) &&
+                        $currentTemplate['emailCcFile'] !== $_POST['emailCcFile']
+                    ) {
+                        $emailCcFileName = XSSHelpers::scrubFilename($_POST['emailCcFileName']);
+                        $emailCcFileName = XSSHelpers::removeMultipleDots($emailCcFileName);
+
+                        if ($this->isValidTemplateExtension($emailCcFileName)) {
+                            $filePath = $baseDir . '/' . $emailCcFileName;
+
+                            if ($this->isPathSafe($filePath, $baseDir)) {
+                                if (file_put_contents($filePath, $_POST['emailCcFile'])) {
+                                    $this->dataActionLogger->logAction(
+                                        DataActions::MODIFY,
+                                        LoggableTypes::EMAIL_TEMPLATE_CC,
+                                        [new LogItem("email_templates", "emailCc", $template, $label)]
+                                    );
+                                } else {
+                                    $return_value = 'Failed to write emailCc file';
+                                }
+                            } else {
+                                $return_value = 'Invalid emailCc file path';
+                            }
+                        } else {
+                            $return_value = 'Invalid emailCc file extension';
+                        }
+                    }
+                } else {
+                    $return_value = 'Template directory not found';
+                }
+            } else {
+                $return_value = 'Invalid template';
+            }
         }
 
-        $template = XSSHelpers::scrubFilename($template);
-
-        $list = $this->getEmailAndSubjectTemplateList();
-        $validTemplate = $this->isEmailTemplateValid($template, $list);
-
-        if ($validTemplate) {
-            $currentTemplate = $this->getEmailTemplate($template);
-            $label = $this->getLabelFromFileName($template);
-
-            // if the body has changed
-            if ($currentTemplate['file'] !== $_POST['file']) {
-                file_put_contents("../templates/email/custom_override/{$template}", $_POST['file']);
-
-                $this->dataActionLogger->logAction(
-                    DataActions::MODIFY,
-                    LoggableTypes::EMAIL_TEMPLATE_BODY,
-                    [new LogItem("email_templates", "body", $template, $label)]
-                );
-            }
-
-            // if the subject is nonempty and has changed
-            if (
-                htmlentities($_POST['subjectFileName'], ENT_QUOTES) != ''
-                && $currentTemplate['subjectFile'] !== $_POST['subjectFile']
-            ) {
-
-                $subjectFileName = XSSHelpers::scrubFilename($_POST['subjectFileName']);
-
-                file_put_contents("../templates/email/custom_override/" . $subjectFileName, $_POST['subjectFile']);
-
-                $this->dataActionLogger->logAction(
-                    DataActions::MODIFY,
-                    LoggableTypes::EMAIL_TEMPLATE_SUBJECT,
-                    [new LogItem("email_templates", "subject", $template, $label)]
-                );
-            }
-
-            // if emailTo is nonempty and has changed
-            if (
-                htmlentities($_POST['emailToFileName'], ENT_QUOTES) != ''
-                && $currentTemplate['emailToFile'] !== $_POST['emailToFile']
-            ) {
-
-                $emailToFileName = XSSHelpers::scrubFilename($_POST['emailToFileName']);
-
-                file_put_contents("../templates/email/custom_override/" . $emailToFileName, $_POST['emailToFile']);
-
-                $this->dataActionLogger->logAction(
-                    DataActions::MODIFY,
-                    LoggableTypes::EMAIL_TEMPLATE_TO,
-                    [new LogItem("email_templates", "emailTo", $template, $label)]
-                );
-            }
-
-            // if emailCc is nonempty and has changed
-            if (
-                htmlentities($_POST['emailCcFileName'], ENT_QUOTES) != ''
-                && $currentTemplate['emailCcFile'] !== $_POST['emailCcFile']
-            ) {
-
-                $emailCcFileName = XSSHelpers::scrubFilename($_POST['emailCcFileName']);
-
-                file_put_contents("../templates/email/custom_override/" . $emailCcFileName, $_POST['emailCcFile']);
-
-                $this->dataActionLogger->logAction(
-                    DataActions::MODIFY,
-                    LoggableTypes::EMAIL_TEMPLATE_CC,
-                    [new LogItem("email_templates", "emailCc", $template, $label)]
-                );
-            }
-        }
+        return $return_value;
     }
 
     /**
@@ -367,38 +438,127 @@ class EmailTemplate
      */
     private function getTemplateFilePath(string $fileName): string
     {
-        return "../templates_history/email_templates/{$fileName}";
+        $fileName = XSSHelpers::scrubFilename($fileName);
+        $fileName = XSSHelpers::removeMultipleDots($fileName);
+
+        if (!$this->isValidTemplateExtension($fileName)) {
+            throw new \Exception('Invalid template file extension');
+        }
+
+        $baseDir = realpath(self::TEMPLATE_HISTORY_DIR);
+
+        if ($baseDir === false) {
+            throw new \Exception('Template history directory not found');
+        }
+
+        $filePath = $baseDir . '/' . $fileName;
+
+        if (!$this->isPathSafe($filePath, $baseDir)) {
+            throw new \Exception('Invalid file path');
+        }
+
+        return $filePath;
     }
 
     public function removeCustomEmailTemplate($template)
     {
-        if (!$this->login->checkGroup(1)) {
-            return 'Admin access required';
-        }
-        $list = $this->getEmailAndSubjectTemplateList();
-        $validTemplate = $this->isEmailTemplateValid($template, $list);
-        if ($validTemplate) {
-            if (file_exists("../templates/email/custom_override/{$template}")) {
-                unlink("../templates/email/custom_override/{$template}");
-                $this->dataActionLogger->logAction(
-                    DataActions::RESTORE,
-                    LoggableTypes::EMAIL_TEMPLATE_BODY,
-                    [new LogItem("email_templates", "body", $template, $template)]
-                );
-            }
+        $return_value = '';
 
-            $subjectFileName = XSSHelpers::scrubFilename($_REQUEST['subjectFileName']);
-            if ($subjectFileName != '' && file_exists("../templates/email/custom_override/{$subjectFileName}")) {
-                unlink("../templates/email/custom_override/{$subjectFileName}");
-            }
-            $emailToFileName = XSSHelpers::scrubFilename($_REQUEST['emailToFileName']);
-            if ($emailToFileName != '' && file_exists("../templates/email/custom_override/{$emailToFileName}")) {
-                unlink("../templates/email/custom_override/{$emailToFileName}");
-            }
-            $emailCcFileName = XSSHelpers::scrubFilename($_REQUEST['emailCcFileName']);
-            if ($emailCcFileName != '' && file_exists("../templates/email/custom_override/{$emailCcFileName}")) {
-                unlink("../templates/email/custom_override/{$emailCcFileName}");
+        if (!$this->login->checkGroup(1)) {
+            $return_value = 'Admin access required';
+        } else {
+            $list = $this->getEmailAndSubjectTemplateList();
+            $validTemplate = $this->isEmailTemplateValid($template, $list);
+
+            if ($validTemplate) {
+                $baseDir = realpath(self::CUSTOM_OVERRIDE_DIR);
+
+                if ($baseDir) {
+                    $templatePath = $baseDir . '/' . $template;
+
+                    if ($this->isPathSafe($templatePath, $baseDir) && file_exists($templatePath)) {
+                        unlink($templatePath);
+                        $this->dataActionLogger->logAction(
+                            DataActions::RESTORE,
+                            LoggableTypes::EMAIL_TEMPLATE_BODY,
+                            [new LogItem("email_templates", "body", $template, $template)]
+                        );
+                    }
+
+                    $subjectFileName = XSSHelpers::scrubFilename($_REQUEST['subjectFileName']);
+                    $subjectFileName = XSSHelpers::removeMultipleDots($subjectFileName);
+
+                    if ($subjectFileName != '') {
+                        $subjectPath = $baseDir . '/' . $subjectFileName;
+
+                        if ($this->isPathSafe($subjectPath, $baseDir)  && file_exists($subjectPath)) {
+                            unlink($subjectPath);
+                        }
+                    }
+
+                    $emailToFileName = XSSHelpers::scrubFilename($_REQUEST['emailToFileName']);
+                    $emailToFileName = XSSHelpers::removeMultipleDots($emailToFileName);
+
+                    if ($emailToFileName != '') {
+                        $emailToPath = $baseDir . '/' . $emailToFileName;
+
+                        if ($this->isPathSafe($emailToPath, $baseDir)  && file_exists($emailToPath)) {
+                            unlink($emailToPath);
+                        }
+
+                    }
+
+                    $emailCcFileName = XSSHelpers::scrubFilename($_REQUEST['emailCcFileName']);
+                    $emailCcFileName = XSSHelpers::removeMultipleDots($emailCcFileName);
+
+                    if ($emailCcFileName != '') {
+                        $emailCcPath = $baseDir . '/' . $emailCcFileName;
+
+                        if ($this->isPathSafe($emailCcPath, $baseDir)  && file_exists($emailCcPath)) {
+                            unlink($emailCcPath);
+                        }
+                    }
+                } else {
+                    $return_value = 'Template directory not found';
+                }
+            } else {
+                $return_value = 'Invalid template';
             }
         }
+
+        return $return_value;
+    }
+
+    /**
+     * Validates that a file path is within the allowed directory
+     * Prevents path traversal attacks
+     * @param string $filePath
+     * @param string $allowedDirectory
+     * @return bool
+     */
+    private function isPathSafe(string $filePath, string $allowedDirectory): bool
+    {
+        $realPath = realpath(dirname($filePath));
+        $realAllowedPath = realpath($allowedDirectory);
+
+        // If path doesn't exist yet, check the parent directory
+        if ($realPath === false) {
+            $realPath = realpath(dirname(dirname($filePath)));
+        }
+
+        // Ensure the resolved path starts with the allowed directory
+        return $realPath !== false &&
+            $realAllowedPath !== false &&
+            strpos($realPath, $realAllowedPath) === 0;
+    }
+
+    /**
+     * Validates template file extension
+     * @param string $fileName
+     * @return bool
+     */
+    private function isValidTemplateExtension(string $fileName): bool
+    {
+        return preg_match('/^[a-zA-Z0-9_-]+\.tpl$/', $fileName) === 1;
     }
 }
