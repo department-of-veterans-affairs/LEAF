@@ -63,7 +63,7 @@ class Dynicon
         if (file_exists($this->cachedFile . $this->preferFormat)) {
             $this->cachedFile = $this->cachedFile . $this->preferFormat;
 
-            if ($this->isPathSafe($this->cachedFile, $this->cacheDir)) {
+            if (XSSHelpers::isPathSafe($this->cachedFile, $this->cacheDir)) {
                 $this->output();
             } else {
                 $this->outputError('Invalid file path');
@@ -73,11 +73,11 @@ class Dynicon
             $this->cachedFile = $this->cachedFile . 'svg';
             clearstatcache();
 
-            if (file_exists($this->cachedFile) && $this->isPathSafe($this->cachedFile, $this->cacheDir)) {
+            if (file_exists($this->cachedFile) && XSSHelpers::isPathSafe($this->cachedFile, $this->cacheDir)) {
                 $this->output();
             } else {
                 if ($this->convert()) {
-                    if ($this->isPathSafe($this->cachedFile, $this->cacheDir)) {
+                    if (XSSHelpers::isPathSafe($this->cachedFile, $this->cacheDir)) {
                         $this->output();
                     } else {
                         $this->outputError('Invalid cached file path');
@@ -87,29 +87,6 @@ class Dynicon
                 }
             }
         }
-    }
-
-    /**
-     * Validates that a file path is within the allowed directory
-     * Prevents path traversal attacks
-     * @param string $filePath
-     * @param string $allowedDirectory
-     * @return bool
-     */
-    private function isPathSafe(string $filePath, string $allowedDirectory): bool
-    {
-        $realPath = realpath($filePath);
-        $realAllowedPath = realpath($allowedDirectory);
-
-        // If file doesn't exist yet, check the directory it would be in
-        if ($realPath === false) {
-            $realPath = realpath(dirname($filePath));
-        }
-
-        // Ensure the resolved path starts with the allowed directory
-        return $realPath !== false &&
-               $realAllowedPath !== false &&
-               strpos($realPath, $realAllowedPath) === 0;
     }
 
     /**
@@ -202,7 +179,7 @@ class Dynicon
         $shouldOutput = true;
         $content = null;
 
-        if (!$this->isPathSafe($this->cachedFile, $this->cacheDir)) {
+        if (!XSSHelpers::isPathSafe($this->cachedFile, $this->cacheDir)) {
             $this->outputError('Path validation failed');
             $shouldOutput = false;
         }
@@ -247,7 +224,7 @@ class Dynicon
         $sanitizedFile = $this->sanitizeFilename($this->file);
         $sourceFile = $this->svgSourceDir . '/' . $sanitizedFile;
 
-        if (!$this->isPathSafe($sourceFile, $this->svgSourceDir)) {
+        if (!XSSHelpers::isPathSafe($sourceFile, $this->svgSourceDir)) {
             error_log("Dynicon: Invalid source file path: {$sourceFile}");
         } else if (!file_exists($sourceFile)) {
             error_log("Dynicon: Source file not found: {$sourceFile}");
@@ -297,7 +274,7 @@ class Dynicon
                 $outputFile = $this->cacheDir . '/' . $sanitizedFile . $this->width . '.svg';
 
                 // Validate output path before writing
-                if (!$this->isPathSafe($outputFile, $this->cacheDir)) {
+                if (!XSSHelpers::isPathSafe($outputFile, $this->cacheDir)) {
                     error_log("Dynicon: Invalid output file path: {$outputFile}");
                 } else {
                     $result = file_put_contents($outputFile, $xml->asXML());

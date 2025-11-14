@@ -229,7 +229,7 @@ class EmailTemplate
                     if (isset($_POST['file']) && $currentTemplate['file'] !== $_POST['file']) {
                         $filePath = $baseDir . '/' . $template;
 
-                        if ($this->isPathSafe($filePath, $baseDir)) {
+                        if (XSSHelpers::isPathSafe($filePath, $baseDir)) {
                             if (file_put_contents($filePath, $_POST['file'])) {
                                 $this->dataActionLogger->logAction(
                                     DataActions::MODIFY,
@@ -257,7 +257,7 @@ class EmailTemplate
                         if ($this->isValidTemplateExtension($subjectFileName)) {
                             $filePath = $baseDir . '/' . $subjectFileName;
 
-                            if ($this->isPathSafe($filePath, $baseDir)) {
+                            if (XSSHelpers::isPathSafe($filePath, $baseDir)) {
                                 if (file_put_contents($filePath, $_POST['subjectFile'])) {
                                     $this->dataActionLogger->logAction(
                                         DataActions::MODIFY,
@@ -288,7 +288,7 @@ class EmailTemplate
                         if ($this->isValidTemplateExtension($emailToFileName)) {
                             $filePath = $baseDir . '/' . $emailToFileName;
 
-                            if ($this->isPathSafe($filePath, $baseDir)) {
+                            if (XSSHelpers::isPathSafe($filePath, $baseDir)) {
                                 if (file_put_contents($filePath, $_POST['emailToFile'])) {
                                     $this->dataActionLogger->logAction(
                                         DataActions::MODIFY,
@@ -319,7 +319,7 @@ class EmailTemplate
                         if ($this->isValidTemplateExtension($emailCcFileName)) {
                             $filePath = $baseDir . '/' . $emailCcFileName;
 
-                            if ($this->isPathSafe($filePath, $baseDir)) {
+                            if (XSSHelpers::isPathSafe($filePath, $baseDir)) {
                                 if (file_put_contents($filePath, $_POST['emailCcFile'])) {
                                     $this->dataActionLogger->logAction(
                                         DataActions::MODIFY,
@@ -453,7 +453,7 @@ class EmailTemplate
 
         $filePath = $baseDir . '/' . $fileName;
 
-        if (!$this->isPathSafe($filePath, $baseDir)) {
+        if (!XSSHelpers::isPathSafe($filePath, $baseDir)) {
             throw new \Exception('Invalid file path');
         }
 
@@ -476,7 +476,7 @@ class EmailTemplate
                 if ($baseDir) {
                     $templatePath = $baseDir . '/' . $template;
 
-                    if ($this->isPathSafe($templatePath, $baseDir) && file_exists($templatePath)) {
+                    if (XSSHelpers::isPathSafe($templatePath, $baseDir) && file_exists($templatePath)) {
                         unlink($templatePath);
                         $this->dataActionLogger->logAction(
                             DataActions::RESTORE,
@@ -491,7 +491,7 @@ class EmailTemplate
                     if ($subjectFileName != '') {
                         $subjectPath = $baseDir . '/' . $subjectFileName;
 
-                        if ($this->isPathSafe($subjectPath, $baseDir)  && file_exists($subjectPath)) {
+                        if (XSSHelpers::isPathSafe($subjectPath, $baseDir)  && file_exists($subjectPath)) {
                             unlink($subjectPath);
                         }
                     }
@@ -502,7 +502,7 @@ class EmailTemplate
                     if ($emailToFileName != '') {
                         $emailToPath = $baseDir . '/' . $emailToFileName;
 
-                        if ($this->isPathSafe($emailToPath, $baseDir)  && file_exists($emailToPath)) {
+                        if (XSSHelpers::isPathSafe($emailToPath, $baseDir)  && file_exists($emailToPath)) {
                             unlink($emailToPath);
                         }
 
@@ -514,7 +514,7 @@ class EmailTemplate
                     if ($emailCcFileName != '') {
                         $emailCcPath = $baseDir . '/' . $emailCcFileName;
 
-                        if ($this->isPathSafe($emailCcPath, $baseDir)  && file_exists($emailCcPath)) {
+                        if (XSSHelpers::isPathSafe($emailCcPath, $baseDir)  && file_exists($emailCcPath)) {
                             unlink($emailCcPath);
                         }
                     }
@@ -527,29 +527,6 @@ class EmailTemplate
         }
 
         return $return_value;
-    }
-
-    /**
-     * Validates that a file path is within the allowed directory
-     * Prevents path traversal attacks
-     * @param string $filePath
-     * @param string $allowedDirectory
-     * @return bool
-     */
-    private function isPathSafe(string $filePath, string $allowedDirectory): bool
-    {
-        $realPath = realpath(dirname($filePath));
-        $realAllowedPath = realpath($allowedDirectory);
-
-        // If path doesn't exist yet, check the parent directory
-        if ($realPath === false) {
-            $realPath = realpath(dirname(dirname($filePath)));
-        }
-
-        // Ensure the resolved path starts with the allowed directory
-        return $realPath !== false &&
-            $realAllowedPath !== false &&
-            strpos($realPath, $realAllowedPath) === 0;
     }
 
     /**

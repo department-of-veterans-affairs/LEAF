@@ -338,10 +338,59 @@ class XSSHelpers
      *
      */
     public static function removeMultipleDots(string $stringToSanitize = ''): array|string|null
-{
-    // Replace multiple consecutive dots with a single dot
-    return preg_replace('/\.{2,}/', '.', (string) $stringToSanitize);
-}
+    {
+        // Replace multiple consecutive dots with a single dot
+        return preg_replace('/\.{2,}/', '.', (string) $stringToSanitize);
+    }
+
+    /**
+     * Validates that a file path is within the allowed directory
+     * Prevents path traversal attacks by ensuring the resolved path
+     * stays within the specified allowed directory
+     *
+     * @param string $filePath The file path to validate
+     * @param string $allowedDirectory The directory that the file must be within
+     * @return bool True if the path is safe, false otherwise
+     *
+     * Example usage:
+     *   $uploadDir = realpath('/var/www/uploads');
+     *   $userFile = $uploadDir . '/' . $_POST['filename'];
+     *   if (XSSHelpers::isPathSafe($userFile, $uploadDir)) {
+     *       // Safe to use $userFile
+     *   }
+     */
+    public static function isPathSafe(string $filePath, string $allowedDirectory): bool
+    {
+        $isValid = false;
+
+        // Resolve the allowed directory to its canonical absolute path
+        $realAllowedPath = realpath($allowedDirectory);
+
+        // If the allowed directory doesn't exist, it's not safe
+        if ($realAllowedPath === false) {
+            return false;
+        }
+
+        // Try to resolve the file path
+        $realPath = realpath($filePath);
+
+        // If file doesn't exist yet, check the directory it would be in
+        if ($realPath === false) {
+            $realPath = realpath(dirname($filePath));
+
+            // If the parent directory doesn't exist either, check grandparent
+            if ($realPath === false) {
+                $realPath = realpath(dirname(dirname($filePath)));
+            }
+        }
+
+        // Ensure the resolved path starts with the allowed directory
+        if ($realPath !== false && strpos($realPath, $realAllowedPath) === 0) {
+            $isValid = true;
+        }
+
+        return $isValid;
+    }
 
     /**
      * Sanitize everything in an Object or Array
