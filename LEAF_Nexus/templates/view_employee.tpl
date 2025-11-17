@@ -141,7 +141,7 @@ function getBackupInfo() {
                         url: "./api/employee/" + response[key].backupEmpUID,
                         success: function(response) {
                             const displayName = response.employee.firstName + ' ' + response.employee.lastName;
-                            const link = `<a href="?a=view_employee&empUID=${response.employee.empUID}" target=_blank" style="margin-right:1rem;">${displayName}</a>`;
+                            const link = `<a href="?a=view_employee&empUID=${response.employee.empUID}" target="_blank" style="margin-right:1rem;">${displayName}</a>`;
                             $('#backup_'+response.employee.empUID).html(link + '[ <a href="#" onclick="removeBackup('+ response.employee.empUID +');">Remove</a> ]');
                         },
                         cache: false
@@ -169,7 +169,7 @@ function getBackupForInfo() {
                         url: "./api/employee/" + response[key].empUID,
                         success: function(response) {
                             const displayName = response.employee.firstName + ' ' + response.employee.lastName;
-                            const link = `<a href="?a=view_employee&empUID=${response.employee.empUID}" target=_blank">${displayName}</a>`;
+                            const link = `<a href="?a=view_employee&empUID=${response.employee.empUID}" target="_blank">${displayName}</a>`;
                             $('#backupFor_'+response.employee.empUID).html(link);
                         },
                         cache: false
