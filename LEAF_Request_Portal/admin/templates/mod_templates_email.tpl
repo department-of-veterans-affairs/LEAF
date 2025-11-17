@@ -468,7 +468,10 @@
             elSaveBtn.setAttribute("disabled", "disabled");
             //if no history exists yet, snapshot the original first
             const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
-            if(numRecords === 0) {
+            const hasCustomBody = document.querySelector(
+                `#fileList [data-file="${currentFile}"] + .custom_file`
+            ) !== null;
+            if(numRecords === 0 && hasCustomBody) {
                 $.ajax({
                     type: 'POST',
                     data: {
