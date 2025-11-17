@@ -374,7 +374,7 @@ switch ($action) {
                 {
                     if ($tName != '')
                     {
-                        $categoryText .= XSSHelpers::sanitizeHTML($tName) . ' | ';
+                        $categoryText .= $tName . ' | ';
                     }
                 }
                 $categoryText = trim($categoryText, ' | ');
@@ -389,7 +389,7 @@ switch ($action) {
             $t_form->assign('priority', (int)$recordInfo['priority']);
             $t_form->assign('submitted', (int)$recordInfo['submitted']);
             $t_form->assign('service', XSSHelpers::sanitizeHTMl($recordInfo['service']));
-            $t_form->assign('date', (int)$recordInfo['submitted']);
+            $t_form->assign('date', $recordInfo['submitted']);
             $t_form->assign('categoryText', XSSHelpers::sanitizeHTML($categoryText));
             $t_form->assign('deleted', (int)$recordInfo['deleted']);
             $t_form->assign('orgchartPath', $site_paths['orgchart_path']);
