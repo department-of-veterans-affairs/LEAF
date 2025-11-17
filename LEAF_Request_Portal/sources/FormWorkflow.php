@@ -69,6 +69,31 @@ class FormWorkflow
     }
 
     /**
+     * Validates custom event ID to stop code injection attacks
+     * Only allows alphanumeric letters and underscores for safety
+     * @param string $eventID The event ID to validate
+     * @return bool True if the event ID is safe to use
+     */
+    private function isValidCustomEventID(string $eventID): bool
+    {
+        // Only allow alphanumeric characters and underscores
+        // This prevents path traversal and code injection attempts
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $eventID)) {
+            return false;
+        }
+ 
+        // Ensure it doesn't start with sensitive prefixes that could be exploited
+        $blacklistedPrefixes = ['..', './', '\\', '/', 'http', 'ftp', 'file'];
+        foreach ($blacklistedPrefixes as $prefix) {
+            if (stripos($eventID, $prefix) === 0) {
+                return false;
+            }
+        }
+ 
+        return true;
+    }
+
+    /**
      * Checks if the current record has an active workflow
      * @return bool
      */
@@ -1684,6 +1709,12 @@ class FormWorkflow
 
                     break;
                 default:
+                    // Validate eventID to prevent code injection
+                    if (!$this->isValidCustomEventID($event['eventID'])) {
+                        $errors[] = 'Invalid custom event ID: ' . htmlspecialchars($event['eventID']);
+                        trigger_error('Invalid custom event ID: ' . htmlspecialchars($event['eventID']));
+                        break; 
+                    }
                     $eventFile = $this->eventFolder . 'CustomEvent_' . $event['eventID'] . '.php';
                     if (is_file($eventFile))
                     {
