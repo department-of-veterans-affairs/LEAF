@@ -76,21 +76,23 @@ class FormWorkflow
      */
     private function isValidCustomEventID(string $eventID): bool
     {
+        $returnValue = true;
+
         // Only allow alphanumeric characters and underscores
         // This prevents path traversal and code injection attempts
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $eventID)) {
-            return false;
+            $returnValue = false;
         }
  
         // Ensure it doesn't start with sensitive prefixes that could be exploited
         $blacklistedPrefixes = ['..', './', '\\', '/', 'http', 'ftp', 'file'];
         foreach ($blacklistedPrefixes as $prefix) {
             if (stripos($eventID, $prefix) === 0) {
-                return false;
+                $returnValue = false;
             }
         }
- 
-        return true;
+
+        return $returnValue;
     }
 
     /**
