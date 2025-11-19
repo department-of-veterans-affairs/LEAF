@@ -17,7 +17,7 @@ $login->setBaseDir('../');
 $login->loginUser();
 
 $userID = $login->getUserID();
-
+XSSHelpers::xscrub($userID);
 $vars = array(':userName' => $userID);
 $resEmpID = $db_national->prepared_query('SELECT * FROM employee WHERE userName=:userName', $vars);
 
