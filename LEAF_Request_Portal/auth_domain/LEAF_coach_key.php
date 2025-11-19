@@ -1,4 +1,5 @@
 <?php
+use App\Leaf\XSSHelpers;
 // give coaches admin access
 require_once getenv('APP_LIBS_PATH') . '/loaders/Leaf_autoloader.php';
 
@@ -17,7 +18,7 @@ $login->setBaseDir('../');
 $login->loginUser();
 
 $userID = $login->getUserID();
-XSSHelpers::xscrub($userID);
+$userID = XSSHelpers::xscrub($userID);
 $vars = array(':userName' => $userID);
 $resEmpID = $db_national->prepared_query('SELECT * FROM employee WHERE userName=:userName', $vars);
 
