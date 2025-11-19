@@ -20,10 +20,6 @@ Some files require specific formatting. You can either apply the following comma
 ```
     git clone --recurse-submodules https://github.com/department-of-veterans-affairs/LEAF.git LEAF
 
-    docker network create leaf
-    docker network create leaf-sql
-    docker volume create leaf-php-data
-    docker volume create leaf-lib
 ```
 
 Automated Tests are organized in a Git submodule, and the following commands will retrieve the latest version:
