@@ -274,6 +274,7 @@
     let ignoreUnsavedChanges = false;
     let ignorePrompt = true;
     let indicatorFormats = {};
+    let customTemplates = [];
     const allowedToCcFormats = {
         "orgchart_employee": 1,
         "orgchart_group": 1,
@@ -587,6 +588,10 @@
                     'CSRFToken': '<!--{$CSRFToken}-->'
                 }),
                 success: function() {
+                    const baseName = currentFile.replace('body.tpl', '');
+                    const pattern = `^${baseName}(emailTo|emailCc|subject|body)\.tpl$`;
+                    const baseReg = new RegExp(pattern);
+                    customTemplates = customTemplates.filter(tname => !baseReg.test(tname));
                     const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button'))?.length;
                     if(numRecords === 0) {
                         saveFileHistory();
@@ -1050,7 +1055,11 @@
                 }
 
                 checkFieldEntries();
-                if (res?.modified === 1) {
+                const baseName = currentFile.replace('body.tpl', '');
+                const pattern = `^${baseName}(emailTo|emailCc|subject|body)\.tpl$`;
+                const baseReg = new RegExp(pattern);
+                const hasCustomContent = res?.modified === 1 || customTemplates.some(filename => baseReg.test(filename));
+                if (hasCustomContent === true) {
                     $('#restore_original, #btn_compare').addClass('modifiedTemplate');
                     $(`.template_files a[data-file="${currentFile}"] + span`).addClass('custom_file');
                 } else {
@@ -1602,7 +1611,6 @@
         }
     }
 
-
     //loads components when the document loads
     $(document).ready(function() {
         registerVariablesPlugin();
@@ -1651,7 +1659,8 @@
                     type: 'GET',
                     url: '../api/emailTemplates/custom',
                     dataType: 'json',
-                    success: function (customTemplates) { //array of file names in templates/email/custom_override
+                    success: function (customoverrideTemplates) { //array of file names in templates/email/custom_override
+                        customTemplates = customoverrideTemplates;
                         let customClass = '';
                         let selectedAttr = '';
 
@@ -1666,7 +1675,10 @@
                                 filesMobile += '<optgroup label="Custom Events">';
 
                                 userTemplates.forEach(t => {
-                                    customClass = customTemplates.includes(t.fileName) ? ' class="custom_file"' : '';
+                                    const baseName = t.fileName.replace('body.tpl', '');
+                                    const pattern = `^${baseName}(emailTo|emailCc|subject|body)\.tpl$`;
+                                    const baseReg = new RegExp(pattern);
+                                    customClass = customTemplates.some(filename => baseReg.test(filename)) ? ' class="custom_file"' : '';
                                     selectedAttr = t.fileName === currentFile ? ' selected' : '';
 
                                     // Construct the li element for non-mobile buffer
@@ -1688,7 +1700,10 @@
                             filesMobile += `<optgroup label="Standard Events">`;
 
                             standardTemplates.forEach(t => {
-                                customClass = customTemplates.includes(t.fileName) ? ' class="custom_file"' : '';
+                                const baseName = t.fileName.replace('body.tpl', '');
+                                const pattern = `^${baseName}(emailTo|emailCc|subject|body)\.tpl$`;
+                                const baseReg = new RegExp(pattern);
+                                customClass = customTemplates.some(filename => baseReg.test(filename)) ? ' class="custom_file"' : '';
                                 selectedAttr = t.fileName === currentFile ? ' selected' : '';
 
                                 // Construct the li element for non-mobile buffer
