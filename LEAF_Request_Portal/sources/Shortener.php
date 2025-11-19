@@ -109,16 +109,39 @@ class Shortener
         return $this->encodeShortUID($this->db->getLastInsertID());
     }
 
-    public function getReport($shortUID) {
+    public function getReport($shortUID)
+    {
         $shortID = $this->decodeShortUID($shortUID);
         $vars = array(':shortID' => $shortID);
-        $resReport = $this->db->prepared_query('SELECT data FROM short_links
-                                    WHERE shortID=:shortID', $vars);
-        if(!isset($resReport[0])) {
-            return '';
+        $sql = 'SELECT `data`
+                FROM `short_links`
+                WHERE `shortID` = :shortID';
+        $resReport = $this->db->prepared_query($sql, $vars);
+
+        $result = '';
+
+        if (isset($resReport[0])) {
+            $redirectPath = $resReport[0]['data'];
+            $safeRedirect = '';
+
+            $parseUrl = parse_url($redirectPath);
+
+            if (empty($parseUrl['host'])) {
+                $safeRedirect = $this->siteRoot . $redirectPath;
+            } else {
+                // If there's a host, verify it matches our allowed host
+                if ($parseUrl['host'] === HTTP_HOST) {
+                    $safeRedirect = $redirectPath;
+                }
+            }
+
+            if ($safeRedirect !== '') {
+                session_write_close();
+                header('Location: ' . $safeRedirect);
+            }
         }
-        session_write_close();
-        header('Location: ' . $this->siteRoot . $resReport[0]['data']);
+
+        return $result;
     }
 
     public function shortenReport($data) {
