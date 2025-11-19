@@ -135,6 +135,30 @@ class Login
 
     public function loginUser($userID = 'SYSTEM')
     {
+        // Check authorization token if it exists
+        // Currently only used for LEAF Agent
+        if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $token = trim(str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']));
+            $agentEnvToken = getenv('AGENT_TOKEN');
+            if(is_string($agentEnvToken)
+                && hash_equals($agentEnvToken, $token)
+                && strlen($token) > 32) {
+                $_SESSION['CSRFToken'] = "";
+                // This must never intersect with a real user account.
+                // For example in APP_AGENT_USERNAME, use invalid Active Directory characters such as an asterisk (*)
+                $_SESSION['userID'] = getenv('APP_AGENT_USERNAME');
+                $this->name = "Account: {$_SESSION['userID']}";
+                $this->userID = $_SESSION['userID'];
+                $this->empUID = -1; // This must never intersect with a real user account
+                $this->isLogin = true;
+                $this->isInDB = false;
+                $this->setSession();
+                return true;
+            }
+            http_response_code(401);
+            exit();
+        }
+
         if (!isset($_SESSION['userID']) || $_SESSION['userID'] == '')
         {
             $this->requestAuthentication($userID);
