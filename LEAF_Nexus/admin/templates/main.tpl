@@ -43,7 +43,6 @@
     <script type="text/javascript" src="{$javascripts[i]}"></script>
 {/section}
 {if $qrcodeURL != ''}
-<script type="text/javascript" src="{$app_js_path}/qr-code/qrcode.min.js"></script>
 <script type="text/javascript">
     window.onload = function() {
         new QRCode(document.getElementById("qrcode-js"), {
