@@ -58,7 +58,7 @@ foreach (array_keys($settings) as $key)
 switch ($action) {
     case 'showServiceFTEstatus':
         $main->assign('useUI', true);
-        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js', APP_JS_PATH . '/LEAF/XSSHelpers.js',));
+        $main->assign('javascripts', array('js/form.js', 'js/workflow.js', 'js/formGrid.js', 'js/formQuery.js'));
 
         $form = new Portal\Form($db, $login);
         $o_login = $t_login->fetch('login.tpl');
