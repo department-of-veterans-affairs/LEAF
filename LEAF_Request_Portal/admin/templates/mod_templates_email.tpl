@@ -468,7 +468,10 @@
             elSaveBtn.setAttribute("disabled", "disabled");
             //if no history exists yet, snapshot the original first
             const numRecords = Array.from(document.querySelectorAll('.file_history_options_container button')).length;
-            if(numRecords === 0) {
+            const hasCustomBody = document.querySelector(
+                `#fileList [data-file="${currentFile}"] + .custom_file`
+            ) !== null;
+            if(numRecords === 0 && hasCustomBody) {
                 $.ajax({
                     type: 'POST',
                     data: {
@@ -606,7 +609,7 @@
                     let fileParentName = '';
                     let fileName = '';
                     let whoChangedFile = '';
-                    let fileCreated = [];
+                    let fileCreated = '';
 
                     let accordion = '<div id="file_history_container">' +
                         '<div class="file_history_titles">' +
@@ -618,13 +621,13 @@
                         fileParentName = res[i].file_parent_name;
                         fileName = res[i].file_name;
                         whoChangedFile = res[i].file_modify_by;
-                        fileCreated = (res[i].file_created || '').split(' ');
+                        let createDate = new Date(parseInt(res[i].filemtime) * 1000);
+                        fileCreated = createDate.toLocaleDateString() + '<br />' + createDate.toLocaleTimeString();
 
                         accordion +=
                             `<button type="button" class="file_history_options_wrapper" onclick="compareHistoryFile('${fileName}','${fileParentName}', true)">
                                 <div class="file_history_options_date">
-                                    <div>${fileCreated?.[0] || ''}</div>
-                                    <div>${fileCreated?.[1] || ''}</div>
+                                    <div>${fileCreated}</div>
                                 </div>
                                 <div class="file_history_options_author">${whoChangedFile}</div>
                             </button>`;
