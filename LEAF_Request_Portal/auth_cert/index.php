@@ -1,6 +1,7 @@
 <?php
 use App\Leaf\Db;
 use App\Leaf\Security;
+use App\Leaf\Setting;
 /*
 * As a work of the United States government, this project is in the public domain within the United States.
 */
@@ -23,15 +24,7 @@ if (isset($_COOKIE['REMOTE_USER']))
     $user = Security::decryptUser($_COOKIE['REMOTE_USER'], CIPHER_KEY);
 
     // see if user is valid
-    $vars = array(':userName' => $user);
-    $sql = 'SELECT *
-            FROM `employee`
-            WHERE `userName` = :userName
-            AND `deleted` = 0';
-
-    $res = $oc_db->prepared_query($sql, $vars);
-
-    if (count($res) > 0) {
+    if (Setting::checkUserExists($user, $oc_db)) {
         $_SESSION['userID'] = $user;
         session_write_close();
         header('Location: ' . $redirect);

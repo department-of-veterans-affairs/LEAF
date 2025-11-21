@@ -23,7 +23,7 @@ if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS')
     $redirect = Security::getSafeRedirectFromRequest($hostWithoutSuffix, $defaultRedirect, $protocol);
 
     $vars = array(':email' => $_SERVER['SSL_CLIENT_S_DN_UID']);
-    $sql = 'SELECT *
+    $sql = 'SELECT `userName`
             FROM `employee_data`
 			LEFT JOIN `employee` USING (`empUID`)
 			WHERE `indicatorID` = 6
