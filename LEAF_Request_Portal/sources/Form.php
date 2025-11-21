@@ -2285,7 +2285,7 @@ class Form
                 $res = $this->cache["checkReadAccess_{$recordIDsHash}"];
             } else {
                 // get a list of records which have categories marked as need-to-know
-                $vars = array();
+                $vars = array(':recordIDs' => $recordIDs);
                 $query =
                     "SELECT recordID, categoryID, dependencyID, groupID, serviceID, userID,
                             indicatorID_for_assigned_empUID, indicatorID_for_assigned_groupID
@@ -2296,7 +2296,7 @@ class Form
                     LEFT JOIN workflow_steps USING (workflowID)
                     LEFT JOIN step_dependencies USING (stepID)
                     LEFT JOIN dependency_privs USING (dependencyID)
-                    WHERE recordID IN ({$recordIDs})
+                    WHERE FIND_IN_SET(recordID, :recordIDs)
                     AND needToKnow = 1
                     AND count > 0";
 
@@ -2320,7 +2320,7 @@ class Form
                 $t_needToKnowRecords = trim($t_needToKnowRecords, ',');
 
                 if ($t_needToKnowRecords != '') {
-                    $vars = array();
+                    $vars = array(':needToKnowRecords' => $t_needToKnowRecords);
                     $sql = "SELECT recordID, dependencyID, groupID, serviceID, userID,
                                 indicatorID_for_assigned_empUID,
                                 indicatorID_for_assigned_groupID
@@ -2331,7 +2331,7 @@ class Form
                             LEFT JOIN workflow_steps USING (workflowID)
                             LEFT JOIN step_dependencies USING (stepID)
                             LEFT JOIN dependency_privs USING (dependencyID)
-                            WHERE recordID IN ({$t_needToKnowRecords})
+                            WHERE FIND_IN_SET(recordID, :needToKnowRecords)
                             AND needToKnow = 0
                             AND count > 0";
 
@@ -2357,12 +2357,13 @@ class Form
                 $uniqueCategoryIDs = $uniqueCategoryIDs ? : 0;
 
                 if (!empty($uniqueCategoryIDs)) {
+                    $vars = array(':uniqueCategoryIDs' => $uniqueCategoryIDs);
                     $sql = "SELECT groupID, categoryID
                             FROM category_privs
-                            WHERE categoryID IN ({$uniqueCategoryIDs})
+                            WHERE FIND_IN_SET(categoryID, :uniqueCategoryIDs)
                             AND readable = 1";
 
-                    $catsInGroups = $this->db->prepared_query($sql, array());
+                    $catsInGroups = $this->db->prepared_query($sql, $vars);
 
                     if (count($catsInGroups) > 0) {
                         $groups = $this->login->getMembership();
@@ -4300,7 +4301,6 @@ class Form
                                 || (is_array($temp['parentStaples'])
                                     && array_search($form, $temp['parentStaples']) !== false)) {
                                 $data[] = $temp;
-                                break;
                             }
                         }
                     }
