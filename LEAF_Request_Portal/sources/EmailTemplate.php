@@ -206,9 +206,15 @@ class EmailTemplate
         return $history;
     }
 
-    public function setEmailTemplate($template)
+    /**
+     * @param mixed $template
+     *
+     * @return string|null
+     *
+     */
+    public function setEmailTemplate($template): string|null
     {
-        $return_value = '';
+        $return_value = null;
 
         if (!$this->login->checkGroup(1)) {
             $return_value = 'Admin access required';
@@ -460,9 +466,15 @@ class EmailTemplate
         return $filePath;
     }
 
-    public function removeCustomEmailTemplate($template)
+    /**
+     * @param mixed $template
+     *
+     * @return string|null
+     *
+     */
+    public function removeCustomEmailTemplate($template): string|null
     {
-        $return_value = '';
+        $return_value = null;
 
         if (!$this->login->checkGroup(1)) {
             $return_value = 'Admin access required';
