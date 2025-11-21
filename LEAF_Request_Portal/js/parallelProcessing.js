@@ -37,7 +37,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         $('#selectDiv').on('click', '.groupSelector > .groupSelectorAddToList > button', function(){
             grpSel.select(this.id.substring(3));
         });
-      
+
     }
 
     function scrubHTML(input = '') {
@@ -52,7 +52,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
       }
 
     //fill the dropdown with all employee or group indicators in this form
-    function fillIndicatorDropdown() 
+    function fillIndicatorDropdown()
     {
         $.ajax({
             type: 'GET',
@@ -80,7 +80,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
 
         $("select#indicator_selector").on('change', function() {
             selectIndicator(this.value);
-        });   
+        });
     }
 
     //show the appropriate selector (group/employee) for the indicatorSelected
@@ -88,9 +88,9 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
     {
         var newIndicatorToSubmit = null;
         var newFormat = null;
-        
+
         //find this indicator
-        for (var key in indicatorObject) 
+        for (var key in indicatorObject)
         {
             if(indicatorObject[key].indicatorID == selectorValue)
             {
@@ -192,7 +192,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         if(!(id in objToUpdate))
         {
             objToUpdate[id] = name;
-            
+
             var newListItem = $(document.createElement('li'))
                 .attr('value',id)
                 .appendTo(listToUpdate);
@@ -276,7 +276,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         return result;
     }
 
-    // Read api/form/[record ID]/data and api/form/[record ID]/recordinfo to local 
+    // Read api/form/[record ID]/data and api/form/[record ID]/recordinfo to local
     // and move to next loopThroughSubmissions
     function beginProcessing()
     {
@@ -284,7 +284,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
         var serviceID = 0;
         var title = '';
         var categories = new Object();
-    
+
         $.ajax({
             type: 'GET',
             url: 'api/form/'+recordID+'/recordinfo',
@@ -364,27 +364,77 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
     * Alerts user if a file failed to be copy, otherwise, implicit success
     */
     function copyFileToNewRecord(indicatorID, fileName, newRecordID, series) {
-        $.ajax({
-            type: 'POST',
-            url: './api/form/files/copy',
-            data: {
-                CSRFToken: CSRFToken, 
+        fetch('./api/form/files/copy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                CSRFToken: CSRFToken,
                 indicatorID: indicatorID,
                 fileName: fileName,
                 recordID: recordID,
                 newRecordID: newRecordID,
                 series: series
-            },
-            success: function(res) {
-                if (+res !== 1) {
-                    if (res.type === 2) {
-                        alert('Error: ' + fileName + " failed to copy.\nReason: File does not exist or file name format incorrect");
-                    } else {
-                        alert('Error: Unknown error.\nReason: If you see this error, try again. If the error persists, please contact support.');
-                    }
-                } 
-            },
-            cache: false
+            }),
+            cache: 'no-cache'
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw { status: response.status, data: data };
+                });
+            }
+            return response.json();
+        })
+        .then(res => {
+            if (+res !== 1) {
+                if (res.type === 2) {
+                    alert('Error: ' + fileName + " failed to copy.\nReason: File does not exist or file name format incorrect");
+                } else if (res.type === 3) {
+                    alert('Error: ' + fileName + " failed to copy.\nReason: You do not have permission to access this file");
+                } else if (res.type === 4) {
+                    alert('Error: ' + fileName + " failed to copy.\nReason: Upload directory not configured properly");
+                } else if (res.type === 5 || res.type === 6) {
+                    alert('Error: ' + fileName + " failed to copy.\nReason: Invalid file path detected");
+                } else if (res.type === 7) {
+                    alert('Error: ' + fileName + " failed to copy.\nReason: Source is not a valid file");
+                } else if (res.type === 8) {
+                    alert('Error: ' + fileName + " failed to copy.\nReason: Failed to copy file");
+                } else {
+                    alert('Error: Unknown error.\nReason: ' + (res.message || 'If you see this error, try again. If the error persists, please contact support.'));
+                }
+            }
+        })
+        .catch(error => {
+            console.error('AJAX error:', error);
+
+            let errorMessage = 'An error occurred while copying the file.';
+
+            if (error.data && error.data.message) {
+                errorMessage = error.data.message;
+            }
+
+            if (error.status) {
+                switch(error.status) {
+                    case 400:
+                        console.error('Error: Invalid request.\n' + errorMessage);
+                        break;
+                    case 401:
+                        console.error('Error: You do not have permission to perform this action.\n' + errorMessage);
+                        break;
+                    case 404:
+                        console.error('Error: File not found.\n' + errorMessage);
+                        break;
+                    case 500:
+                        console.error('Error: Server error.\n' + errorMessage);
+                        break;
+                    default:
+                        console.error('Error: ' + fileName + ' failed to copy.\nReason: ' + errorMessage);
+                }
+            } else {
+                console.error('Error: ' + fileName + ' failed to copy.\nReason: ' + errorMessage);
+            }
         });
     }
 
@@ -399,7 +449,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
             $.each( val, function( j, thisRow ) {
                 if('series' in thisRow)
                 {
-                    ajaxData['series'] = thisRow['series']; 
+                    ajaxData['series'] = thisRow['series'];
                 }
                 if(('indicatorID' in thisRow) && ('value' in thisRow))
                 {
@@ -413,7 +463,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                         }
                     }
                     else {
-                        ajaxData[thisRow['indicatorID']] = thisRow['value']; 
+                        ajaxData[thisRow['indicatorID']] = thisRow['value'];
                     }
                 }
             });
@@ -442,7 +492,7 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
 
 
     // update the load bar
-    // if all done: Delete original form, Generate Report Builder link, and Redirect user to new report 
+    // if all done: Delete original form, Generate Report Builder link, and Redirect user to new report
     function updateLoadingBar()
     {
         currentRequestsSubmitted++;
@@ -472,9 +522,9 @@ function parallelProcessing(recordID, orgChartPath, CSRFToken)
                 },
                 cache: false
             });
-            
 
-            
+
+
         }
     }
 
