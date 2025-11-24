@@ -30,6 +30,9 @@ var LeafPreview = function(domID) {
         switch(f) {
             case '':
                 break;
+            case 'raw_data':
+                out += `<span>Custom Widget</span>`;
+                break;
             case 'textarea':
                 out += `<textarea id="${inputId}" aria-labelledby="${labelledById}" style="width: 100%"></textarea>`;
                 break;
