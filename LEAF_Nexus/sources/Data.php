@@ -17,6 +17,7 @@ use App\Leaf\XSSHelpers;
 use App\Leaf\Logger\Formatters\DataActions;
 use App\Leaf\Logger\Formatters\LoggableTypes;
 use App\Leaf\Logger\LogItem;
+use App\Leaf\Setting;
 
 abstract class Data
 {
@@ -204,7 +205,9 @@ abstract class Data
             {
                 $idx = $resIn['indicatorID'];
                 $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
-                $data[$idx]['data'] = @unserialize($data[$idx]['data']) === false ? $data[$idx]['data'] : unserialize($data[$idx]['data']);
+
+                $decoded = Setting::safeDecodeData($data[$idx]['data']);
+                $data[$idx]['data'] = $decoded !== false ? $decoded : $data[$idx]['data'];
                 if ($data[$idx]['format'] == 'json')
                 {
                     $data[$idx]['data'] = html_entity_decode($data[$idx]['data']);
@@ -449,7 +452,7 @@ abstract class Data
 
                 if (is_array($_POST[$key]))
                 {
-                    $_POST[$key] = serialize($_POST[$key]); // special case for radio/checkbox items
+                    $_POST[$key] = json_encode($_POST[$key]); // special case for radio/checkbox items
                 }
                 else
                 {

@@ -11,6 +11,8 @@
 
 namespace Orgchart;
 
+use \App\Leaf\Setting;
+
 abstract class NationalData
 {
     protected $db;
@@ -90,131 +92,128 @@ abstract class NationalData
         $res = array();
 
         $cacheHash = "getAllData_{$UID}_{$indicatorID}";
-        if (isset($this->cache[$cacheHash]))
-        {
-            return $this->cache[$cacheHash];
-        }
 
-        if (!isset($this->cache["getAllData_{$indicatorID}"]))
-        {
-            if ($indicatorID != 0)
-            {
-                $vars = array(':indicatorID' => $indicatorID);
-                $res = $this->db->prepared_query("SELECT * FROM indicators
-                                                    WHERE categoryID={$this->dataTableCategoryID}
-                                                        AND disabled=0
-                                                        AND indicatorID=:indicatorID
-                                                    ORDER BY sort", $vars);
-            }
-            else
-            {
-                $res = $this->db->prepared_query("SELECT * FROM indicators
-                                                    WHERE categoryID={$this->dataTableCategoryID}
-                                                        AND disabled=0
-                                                    ORDER BY sort", $vars);
-            }
-            $this->cache["getAllData_{$indicatorID}"] = $res;
-        }
-        else
-        {
-            $res = $this->cache["getAllData_{$indicatorID}"];
-        }
+        if (!isset($this->cache[$cacheHash])) {
+            if (!isset($this->cache["getAllData_{$indicatorID}"])) {
+                if ($indicatorID != 0) {
+                    $vars = array(':indicatorID' => $indicatorID);
+                    $sql = "SELECT *
+                            FROM `indicators`
+                            WHERE `categoryID` = {$this->dataTableCategoryID}
+                            AND `disabled` = 0
+                            AND `indicatorID` = :indicatorID
+                            ORDER BY `sort`";
 
-        $data = array();
+                    $res = $this->db->prepared_query($sql, $vars);
+                } else {
+                    $sql = "SELECT *
+                            FROM `indicators`
+                            WHERE `categoryID` = {$this->dataTableCategoryID}
+                            AND `disabled` = 0
+                            ORDER BY `sort`";
 
-        foreach ($res as $item)
-        {
-            $idx = $item['indicatorID'];
-            $data[$idx]['indicatorID'] = $item['indicatorID'];
-            $data[$idx]['name'] = isset($item['name']) ? $item['name'] : '';
-            $data[$idx]['format'] = isset($item['format']) ? $item['format'] : '';
-            if (isset($item['description']))
-            {
-                $data[$idx]['description'] = $item['description'];
-            }
-            if (isset($item['default']))
-            {
-                $data[$idx]['default'] = $item['default'];
-            }
-            if (isset($item['html']))
-            {
-                $data[$idx]['html'] = $item['html'];
-            }
-            $data[$idx]['required'] = $item['required'];
-            if ($item['encrypted'] != 0)
-            {
-                $data[$idx]['encrypted'] = $item['encrypted'];
-            }
-            $data[$idx]['data'] = '';
-            $data[$idx]['isWritable'] = 0; //temp
-            //$data[$idx]['author'] = '';
-            //$data[$idx]['timestamp'] = 0;
-
-            // handle checkboxes/radio buttons
-            $inputType = explode("\n", $item['format']);
-            $numOptions = count($inputType) > 1 ? count($inputType) : 2;
-            if (count($inputType) != 1)
-            {
-                for ($i = 1; $i < $numOptions; $i++)
-                {
-                    $inputType[$i] = isset($inputType[$i]) ? trim($inputType[$i]) : '';
-                    $data[$idx]['options'][] = $inputType[$i];
+                    $res = $this->db->prepared_query($sql, $vars);
                 }
+
+                $this->cache["getAllData_{$indicatorID}"] = $res;
+            } else {
+                $res = $this->cache["getAllData_{$indicatorID}"];
             }
 
-            $data[$idx]['format'] = trim($inputType[0]);
-        }
+            $data = array();
 
-        if (count($res) > 0)
-        {
-            $indicatorList = '';
-            foreach ($res as $field)
-            {
-                if (is_numeric($field['indicatorID']))
-                {
-                    $indicatorList .= "{$field['indicatorID']},";
+            foreach ($res as $item) {
+                $idx = $item['indicatorID'];
+                $data[$idx]['indicatorID'] = $item['indicatorID'];
+                $data[$idx]['name'] = isset($item['name']) ? $item['name'] : '';
+                $data[$idx]['format'] = isset($item['format']) ? $item['format'] : '';
+                if (isset($item['description'])) {
+                    $data[$idx]['description'] = $item['description'];
                 }
-            }
-            $indicatorList = trim($indicatorList, ',');
-            $var = array(':id' => $UID);
-            $res2 = $this->db->prepared_query("SELECT data, timestamp, indicatorID FROM {$this->dataTable}
-                									WHERE indicatorID IN ({$indicatorList}) AND {$this->dataTableUID}=:id", $var);
 
-            foreach ($res2 as $resIn)
-            {
-                $idx = $resIn['indicatorID'];
-                $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
-                $data[$idx]['data'] = @unserialize($data[$idx]['data']) === false ? $data[$idx]['data'] : unserialize($data[$idx]['data']);
-                if ($data[$idx]['format'] == 'json')
-                {
-                    $data[$idx]['data'] = html_entity_decode($data[$idx]['data']);
+                if (isset($item['default'])) {
+                    $data[$idx]['default'] = $item['default'];
                 }
-                if ($data[$idx]['format'] == 'fileupload')
-                {
-                    $tmpFileNames = explode("\n", $data[$idx]['data']);
-                    $data[$idx]['data'] = array();
-                    foreach ($tmpFileNames as $tmpFileName)
-                    {
-                        if (trim($tmpFileName) != '')
-                        {
-                            $data[$idx]['data'][] = $tmpFileName;
-                        }
+
+                if (isset($item['html'])) {
+                    $data[$idx]['html'] = $item['html'];
+                }
+
+                $data[$idx]['required'] = $item['required'];
+
+                if ($item['encrypted'] != 0) {
+                    $data[$idx]['encrypted'] = $item['encrypted'];
+                }
+
+                $data[$idx]['data'] = '';
+                $data[$idx]['isWritable'] = 0;
+
+                // handle checkboxes/radio buttons
+                $inputType = explode("\n", $item['format']);
+                $numOptions = count($inputType) > 1 ? count($inputType) : 2;
+
+                if (count($inputType) != 1) {
+                    for ($i = 1; $i < $numOptions; $i++) {
+                        $inputType[$i] = isset($inputType[$i]) ? trim($inputType[$i]) : '';
+                        $data[$idx]['options'][] = $inputType[$i];
                     }
                 }
-                if (isset($resIn['author']))
-                {
-                    $data[$idx]['author'] = $resIn['author'];
+
+                $data[$idx]['format'] = trim($inputType[0]);
+            }
+
+            if (count($res) > 0) {
+                $indicatorIDs = array();
+
+                foreach ($res as $field) {
+                    if (is_numeric($field['indicatorID'])) {
+                        $indicatorIDs[] = $field['indicatorID'];
+                    }
                 }
-                if (isset($resIn['timestamp']))
-                {
-                    $data[$idx]['timestamp'] = $resIn['timestamp'];
+
+                $indicatorList = implode(',', $indicatorIDs);
+                $var = array(':id' => $UID,
+                        ':indicatorList' => $indicatorList);
+                $sql = "SELECT `data`, `timestamp`, `indicatorID`
+                        FROM {$this->dataTable}
+                        WHERE FIND_IN_SET (`indicatorID`, :indicatorList)
+                        AND {$this->dataTableUID} = :id";
+
+                $res2 = $this->db->prepared_query($sql, $var);
+
+                foreach ($res2 as $resIn) {
+                    $idx = $resIn['indicatorID'];
+                    $data[$idx]['data'] = isset($resIn['data']) ? $resIn['data'] : '';
+                    $decoded = Setting::safeDecodeData($data[$idx]['data']);
+                    $data[$idx]['data'] = $decoded !== false ? $decoded : $data[$idx]['data'];
+
+                    if ($data[$idx]['format'] == 'json') {
+                        $data[$idx]['data'] = html_entity_decode($data[$idx]['data']);
+                    }
+
+                    if ($data[$idx]['format'] == 'fileupload') {
+                        $tmpFileNames = explode("\n", $data[$idx]['data']);
+                        $data[$idx]['data'] = array();
+
+                        foreach ($tmpFileNames as $tmpFileName) {
+                            if (trim($tmpFileName) != '') {
+                                $data[$idx]['data'][] = $tmpFileName;
+                            }
+                        }
+                    }
+
+                    if (isset($resIn['author'])) {
+                        $data[$idx]['author'] = $resIn['author'];
+                    }
+
+                    if (isset($resIn['timestamp'])) {
+                        $data[$idx]['timestamp'] = $resIn['timestamp'];
+                    }
                 }
             }
         }
 
-        $this->cache[$cacheHash] = $data;
-
-        return $data;
+        return $this->cache[$cacheHash] = $data;
     }
 
     /**
