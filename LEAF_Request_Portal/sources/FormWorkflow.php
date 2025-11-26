@@ -9,8 +9,9 @@
 */
 
 namespace Portal;
-use App\Leaf\Db;
+
 use App\Leaf\XSSHelpers;
+use App\Leaf\Setting;
 
 class FormWorkflow
 {
@@ -1043,7 +1044,7 @@ class FormWorkflow
                     ':comment' => $comment,
                     ':userMetadata' => $userMetadata,
                 );
-                $logKey = sha1(serialize($vars2));
+                $logKey = sha1(json_encode($vars2));
                 if (!isset($logCache[$logKey]))
                 {
                     // write log
@@ -1749,45 +1750,60 @@ class FormWorkflow
             $format = trim(strtolower(explode(PHP_EOL, $field["format"])[0] ?? ""));
             switch($format) {
                 case "grid":
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $data = $this->buildGrid(unserialize($data));
+                    $decoded = Setting::safeDecodeData($data);
+
+                    if (!empty($data) && is_array($decoded)){
+                        $data = $this->buildGrid($decoded);
                     }
+
                     break;
                 case "checkboxes":
+                    // no break;
                 case "multiselect":
-                    if(!empty($data) && is_array(unserialize($data))){
-                        $formatted = $this->buildMultiOption(unserialize($data));
+                    $decoded = Setting::safeDecodeData($data);
+
+                    if (!empty($data) && is_array($decoded)){
+                        $formatted = $this->buildMultiOption($decoded);
                         $data = $formatted["content"];
                     }
+
                     break;
                 case "radio":
+                    // no break;
                 case "checkbox":
+                    // no break;
                 case "dropdown":
                     if ($data == "no") {
                         $data = "";
                     }
+
                     break;
                 case "fileupload":
+                    // no break;
                 case "image":
                     $data = $this->buildFileLink($data, $field["indicatorID"], $field["series"]);
+
                     break;
                 case "orgchart_group":
-                    if(is_numeric($data)) {
+                    if (is_numeric($data)) {
                         $groupInfo = $this->getGroupInfoForTemplate((int) $data);
                         $data = $groupInfo["groupName"];
                         $emailValue = $groupInfo["groupEmails"];
                     }
+
                     break;
                 case "orgchart_position":
                     $data = $this->getOrgchartPosition((int) $data);
+
                     break;
                 case "orgchart_employee":
                     $employeeData = $this->getOrgchartEmployee((int) $data);
                     $data = $employeeData["employeeName"];
                     $emailValue = $employeeData["employeeEmail"];
+
                     break;
                 default:
-                break;
+                    break;
             }
 
             $formattedFields["content"][$field['indicatorID']] = $data !== "" ? $data : $field["default"];

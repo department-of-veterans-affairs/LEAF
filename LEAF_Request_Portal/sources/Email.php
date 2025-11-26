@@ -13,6 +13,7 @@ namespace Portal;
 
 use App\Leaf\XSSHelpers;
 use App\Leaf\Db;
+use App\Leaf\Setting;
 
 class Email
 {
@@ -325,7 +326,7 @@ class Email
         $email['body'] = $this->emailBody;
         $email['headers'] = html_entity_decode($this->getHeaders(), ENT_QUOTES);
 
-        $emailCache = serialize($email);
+        $emailCache = json_encode($email);
         $emailQueueName = sha1($emailCache . random_int(0, 99999999));
         if (strlen(trim($emailCache)) == 0) {
             trigger_error('Mail error: ' . $this->emailSubject);
