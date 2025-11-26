@@ -561,7 +561,7 @@ class Form
             $form[$idx]['isEmpty'] = (isset($data[0]['data']) && !is_array($data[0]['data']) && strip_tags($data[0]['data']) != '') ? false : true;
             $form[$idx]['value'] = (isset($data[0]['data']) && $data[0]['data'] != '') ? $data[0]['data'] : $form[$idx]['default'];
             $form[$idx]['displayedValue'] = ''; // used for Org Charts
-            $form[$idx]['timestamp'] = isset($data[0]['timestamp']) ?? 0;
+            $form[$idx]['timestamp'] = $data[0]['timestamp'] ?? 0;
             $form[$idx]['userID'] = $data[0]['userID'];
 
             if (!$forceReadOnly) {
@@ -2711,7 +2711,7 @@ class Form
             }
         }
 
-        if (!empty($validIndicatorIDs)) {
+        if (empty($validIndicatorIDs)) {
             return $out;
         }
 
@@ -4560,11 +4560,11 @@ class Form
 
                 foreach ($res2 as $resIn) {
                     $idx = $resIn['indicatorID'];
-                    $data[$idx]['data'] = isset($resIn['data']) ?? '';
-                    $data[$idx]['metadata'] = isset($resIn['metadata']) ?? null;
-                    $data[$idx]['timestamp'] = isset($resIn['timestamp']) ?? 0;
-                    $data[$idx]['groupID'] = isset($resIn['groupID']) ?? null;
-                    $data[$idx]['userID'] = isset($resIn['userID']) ?? '';
+                    $data[$idx]['data'] = $resIn['data'] ?? '';
+                    $data[$idx]['metadata'] = $resIn['metadata'] ?? null;
+                    $data[$idx]['timestamp'] = $resIn['timestamp'] ?? 0;
+                    $data[$idx]['groupID'] = $resIn['groupID'] ?? null;
+                    $data[$idx]['userID'] = $resIn['userID'] ?? '';
                 }
             } else if (isset($_GET['context']) && $_GET['context'] == 'formEditor') {
                 $placeholders = implode(',', array_fill(0, count($indicatorListArray), '?'));
@@ -4578,7 +4578,7 @@ class Form
 
                 foreach ($res2 as $resIn) {
                     $idx = $resIn['indicatorID'];
-                    $data[$idx]['groupID'] = isset($resIn['groupID']) ?? null;
+                    $data[$idx]['groupID'] = $resIn['groupID'] ?? null;
                 }
             }
 
@@ -4597,12 +4597,12 @@ class Form
                 $child[$idx]['is_sensitive'] = $field['is_sensitive'];
                 $child[$idx]['isEmpty'] = (isset($data[$idx]['data']) && !is_array($data[$idx]['data']) && strip_tags($data[$idx]['data']) != '') ? false : true;
                 $child[$idx]['value'] = (isset($data[$idx]['data']) && $data[$idx]['data'] != '') ? $data[$idx]['data'] : $child[$idx]['default'];
-                $child[$idx]['timestamp'] = isset($data[$idx]['timestamp']) ?? 0;
+                $child[$idx]['timestamp'] = $data[$idx]['timestamp'] ?? 0;
                 $child[$idx]['isWritable'] = $this->hasWriteAccess($recordID, $field['categoryID']);
                 $child[$idx]['isMasked'] = isset($data[$idx]['groupID']) ? $this->isMasked($field['indicatorID'], $recordID) : 0;
                 $child[$idx]['sort'] = $field['sort'];
                 $child[$idx]['has_code'] = trim($field['html']) != '' || trim($field['htmlPrint']) != '';
-                $child[$idx]['userID'] = isset($data[$idx]['userID']) ?? '';
+                $child[$idx]['userID'] = $data[$idx]['userID'] ?? '';
 
                 if (isset($_GET['context']) && $_GET['context'] == 'formEditor') {
                     $child[$idx]['isMaskable'] = isset($data[$idx]['groupID']) ? 1 : 0;
@@ -4615,7 +4615,7 @@ class Form
                     $inputType[$i] = isset($inputType[$i]) ? trim($inputType[$i]) : '';
 
                     $child[$idx]['options'][] = (strpos($inputType[$i], 'default:') !== false)
-                        ? substr($inputType[$i], 8); // legacy support
+                        ? substr($inputType[$i], 8) // legacy support
                         : $inputType[$i];
                 }
 
